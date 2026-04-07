@@ -6,13 +6,23 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-
-// Register caching service
 builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<IDataCache, MemoryCacheAdapter>();
 
-// Register data provider as scoped (new instance per request/circuit)
+// Register custom services
+builder.Services.AddSingleton<IDataCache, MemoryCacheAdapter>();
 builder.Services.AddScoped<IDataProvider, DataProvider>();
+
+// Configure logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+if (builder.Environment.IsDevelopment())
+{
+    builder.Logging.SetMinimumLevel(LogLevel.Debug);
+}
+else
+{
+    builder.Logging.SetMinimumLevel(LogLevel.Information);
+}
 
 var app = builder.Build();
 
@@ -22,6 +32,10 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
+else
+{
+    app.UseDeveloperExceptionPage();
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -30,4 +44,4 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-app.Run();
+await app.RunAsync();
