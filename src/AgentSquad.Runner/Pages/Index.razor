@@ -1,0 +1,63 @@
+@page "/"
+@using System.Text.Json;
+@inject IDataProvider DataProvider
+
+<PageTitle>Executive Dashboard</PageTitle>
+
+<div class="container">
+    @if (IsLoading)
+    {
+        <p>Loading dashboard...</p>
+    }
+    else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="error-overlay">
+            <h2>Error Loading Dashboard</h2>
+            <p>@ErrorMessage</p>
+        </div>
+    }
+    else if (ProjectData != null)
+    {
+        <h1>@ProjectData.Name</h1>
+        <p>@ProjectData.Description</p>
+        <p>Completion: @ProjectData.CompletionPercentage%</p>
+    }
+    else
+    {
+        <p>No project data available.</p>
+    }
+</div>
+
+@code {
+    private Project ProjectData { get; set; }
+    private bool IsLoading { get; set; } = true;
+    private string ErrorMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ProjectData = await DataProvider.LoadProjectDataAsync();
+        }
+        catch (FileNotFoundException ex)
+        {
+            ErrorMessage = "Configuration file missing. Please ensure data.json exists in wwwroot/ directory.";
+        }
+        catch (JsonException ex)
+        {
+            ErrorMessage = "Invalid JSON format in data.json. Please check the file syntax.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            ErrorMessage = $"Invalid project structure: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}
