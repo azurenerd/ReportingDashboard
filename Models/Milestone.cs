@@ -1,34 +1,40 @@
 using System.Text.Json.Serialization;
 
-namespace AgentSquad.Runner.Models
+namespace AgentSquad.Runner.Models;
+
+/// <summary>
+/// Represents a project milestone with a target date and completion status.
+/// </summary>
+public class Milestone
 {
     /// <summary>
-    /// Represents a project milestone with target date and status tracking.
+    /// The name of the milestone.
     /// </summary>
-    public class Milestone
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The target completion date for the milestone.
+    /// </summary>
+    [JsonPropertyName("targetDate")]
+    public DateTime TargetDate { get; set; }
+
+    /// <summary>
+    /// The current status of the milestone (Completed, InProgress, AtRisk, or Future).
+    /// </summary>
+    [JsonPropertyName("status")]
+    public MilestoneStatus Status { get; set; }
+
+    /// <summary>
+    /// A brief description of the milestone's purpose and deliverables.
+    /// </summary>
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Milestone"/> class.
+    /// </summary>
+    public Milestone()
     {
-        /// <summary>
-        /// Gets or sets the milestone name or title.
-        /// </summary>
-        [JsonPropertyName("name")]
-        public string Name { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the target completion date for this milestone.
-        /// </summary>
-        [JsonPropertyName("targetDate")]
-        public DateTime TargetDate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the current status of this milestone.
-        /// </summary>
-        [JsonPropertyName("status")]
-        public MilestoneStatus Status { get; set; }
-
-        /// <summary>
-        /// Gets or sets an optional description or details about this milestone.
-        /// </summary>
-        [JsonPropertyName("description")]
-        public string? Description { get; set; }
     }
 }
