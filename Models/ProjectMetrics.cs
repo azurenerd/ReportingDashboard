@@ -1,32 +1,40 @@
-namespace AgentSquad.Runner.Models;
+using System.Text.Json.Serialization;
 
-/// <summary>
-/// Represents key performance indicators and health metrics for the project.
-/// </summary>
-public class ProjectMetrics
+namespace AgentSquad.Runner.Models
 {
     /// <summary>
-    /// The overall project completion percentage (0-100).
+    /// Represents key performance indicators and health metrics for a project.
     /// </summary>
-    public int CompletionPercentage { get; set; }
+    public class ProjectMetrics
+    {
+        /// <summary>
+        /// Overall project completion percentage (0-100).
+        /// </summary>
+        [JsonPropertyName("completionPercentage")]
+        public int CompletionPercentage { get; set; }
 
-    /// <summary>
-    /// The current health status of the project (OnTrack, AtRisk, or Blocked).
-    /// </summary>
-    public HealthStatus HealthStatus { get; set; }
+        /// <summary>
+        /// Current project health status.
+        /// </summary>
+        [JsonPropertyName("healthStatus")]
+        public HealthStatus HealthStatus { get; set; }
 
-    /// <summary>
-    /// The number of work items completed this month.
-    /// </summary>
-    public int VelocityThisMonth { get; set; }
+        /// <summary>
+        /// Number of work items completed this month (velocity indicator).
+        /// </summary>
+        [JsonPropertyName("velocityThisMonth")]
+        public int VelocityThisMonth { get; set; }
 
-    /// <summary>
-    /// The total number of milestones in the project.
-    /// </summary>
-    public int TotalMilestones { get; set; }
+        /// <summary>
+        /// Total number of planned milestones for the project.
+        /// </summary>
+        [JsonPropertyName("totalMilestones")]
+        public int TotalMilestones { get; set; }
 
-    /// <summary>
-    /// The number of milestones that have been completed.
-    /// </summary>
-    public int CompletedMilestones { get; set; }
+        /// <summary>
+        /// Number of milestones completed to date.
+        /// </summary>
+        [JsonPropertyName("completedMilestones")]
+        public int CompletedMilestones { get; set; }
+    }
 }
