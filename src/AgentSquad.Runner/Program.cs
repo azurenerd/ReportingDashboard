@@ -1,33 +1,33 @@
 using AgentSquad.Runner.Services;
-using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Caching.Memory;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorComponents()
-    .AddServerSideBlazor();
+// Add services to the container
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 
+// Register caching service
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IDataCache, MemoryCacheAdapter>();
-builder.Services.AddScoped<IDataProvider, DataProvider>();
 
-builder.Services.AddLogging(loggingBuilder =>
-{
-    loggingBuilder.AddConsole();
-    loggingBuilder.SetMinimumLevel(LogLevel.Information);
-});
+// Register data provider as scoped (new instance per request/circuit)
+builder.Services.AddScoped<IDataProvider, DataProvider>();
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
 
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
 
 app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
 
-app.Run("http://localhost:5000");
+app.Run();
