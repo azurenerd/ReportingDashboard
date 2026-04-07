@@ -8,6 +8,11 @@ namespace AgentSquad.Runner.Models;
 public class WorkItem
 {
     /// <summary>
+    /// Initializes a new instance of the WorkItem class.
+    /// </summary>
+    public WorkItem() { }
+
+    /// <summary>
     /// Gets or sets the work item title.
     /// </summary>
     [JsonPropertyName("title")]
@@ -23,7 +28,6 @@ public class WorkItem
     /// Gets or sets the work item status.
     /// </summary>
     [JsonPropertyName("status")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
     public WorkItemStatus Status { get; set; }
 
     /// <summary>
