@@ -1,43 +1,79 @@
 {
-  "name": "Executive Dashboard Sample",
-  "description": "Sample project for executive reporting",
-  "startDate": "2024-01-01",
+  "name": "Executive Project Dashboard",
+  "description": "Real-time executive visibility into project milestones, work items, and health metrics",
+  "startDate": "2024-01-15",
   "targetEndDate": "2024-12-31",
   "completionPercentage": 45,
   "healthStatus": "OnTrack",
   "velocityThisMonth": 12,
   "milestones": [
     {
-      "name": "Phase 1 Launch",
+      "name": "Phase 1 - Foundation",
       "targetDate": "2024-03-31",
       "status": "Completed",
-      "description": "Core feature rollout"
+      "description": "Core infrastructure and project setup"
     },
     {
-      "name": "Phase 2 Expansion",
-      "targetDate": "2024-06-30",
+      "name": "Phase 2 - Dashboard Design",
+      "targetDate": "2024-06-15",
       "status": "InProgress",
-      "description": "Extended feature set"
+      "description": "Executive dashboard and visualization components"
     },
     {
-      "name": "Phase 3 Optimization",
+      "name": "Phase 3 - Integration",
+      "targetDate": "2024-09-30",
+      "status": "Future",
+      "description": "Data integration and real-time updates"
+    },
+    {
+      "name": "Phase 4 - Launch",
       "targetDate": "2024-12-31",
       "status": "Future",
-      "description": "Performance and scaling improvements"
+      "description": "Production deployment and optimization"
     }
   ],
   "workItems": [
     {
-      "title": "API Integration",
-      "description": "Connect to external data source",
-      "status": "InProgress",
-      "assignedTo": "Team A"
+      "title": "Blazor Server Setup",
+      "description": "Project scaffolding and DI configuration",
+      "status": "Shipped",
+      "assignedTo": "Platform Team"
     },
     {
-      "title": "Dashboard UI Component",
-      "description": "Build primary dashboard layout",
+      "title": "Dashboard Layout Component",
+      "description": "Main dashboard grid and section layout",
       "status": "Shipped",
-      "assignedTo": "Team B"
+      "assignedTo": "Frontend Team"
+    },
+    {
+      "title": "Milestone Timeline Visualization",
+      "description": "Horizontal timeline component with status indicators",
+      "status": "InProgress",
+      "assignedTo": "Visualization Team"
+    },
+    {
+      "title": "Project Metrics Component",
+      "description": "KPI cards and health status display",
+      "status": "InProgress",
+      "assignedTo": "Analytics Team"
+    },
+    {
+      "title": "Work Item Status Tracking",
+      "description": "Shipped, In Progress, and Carried Over columns",
+      "status": "InProgress",
+      "assignedTo": "Frontend Team"
+    },
+    {
+      "title": "Print/Screenshot Optimization",
+      "description": "CSS media queries and responsive layout for PowerPoint",
+      "status": "CarriedOver",
+      "assignedTo": "Design Team"
+    },
+    {
+      "title": "Error Handling and Validation",
+      "description": "JSON validation and user-friendly error messages",
+      "status": "CarriedOver",
+      "assignedTo": "Backend Team"
     }
   ]
 }
