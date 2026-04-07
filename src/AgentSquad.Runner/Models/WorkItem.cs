@@ -11,7 +11,7 @@ public class WorkItem
     /// Gets or sets the work item title.
     /// </summary>
     [JsonPropertyName("title")]
-    public string? Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the work item description.
@@ -23,6 +23,7 @@ public class WorkItem
     /// Gets or sets the work item status.
     /// </summary>
     [JsonPropertyName("status")]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public WorkItemStatus Status { get; set; }
 
     /// <summary>
@@ -30,11 +31,4 @@ public class WorkItem
     /// </summary>
     [JsonPropertyName("assignedTo")]
     public string? AssignedTo { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="WorkItem"/> class.
-    /// </summary>
-    public WorkItem()
-    {
-    }
 }
