@@ -1,34 +1,37 @@
 @page "/"
-@using AgentSquad.Runner.Services
-@using AgentSquad.Runner.Models
+@using System.Text.Json;
 @inject IDataProvider DataProvider
-@inject ILogger<Index> Logger
 
-<PageTitle>Executive Project Reporting Dashboard</PageTitle>
+<PageTitle>Executive Dashboard</PageTitle>
 
-@if (IsLoading)
-{
-    <div class="loading-container">
+<div class="container">
+    @if (IsLoading)
+    {
         <p>Loading dashboard...</p>
-    </div>
-}
-else if (!string.IsNullOrEmpty(ErrorMessage))
-{
-    <div class="error-container">
-        <h2>Dashboard Error</h2>
-        <p>@ErrorMessage</p>
-        <button @onclick="RetryLoad" class="btn-retry">Retry</button>
-    </div>
-}
-else if (ProjectData != null)
-{
-    <DashboardLayout ProjectData="ProjectData" />
-}
+    }
+    else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="error-overlay">
+            <h2>Error Loading Dashboard</h2>
+            <p>@ErrorMessage</p>
+        </div>
+    }
+    else if (ProjectData != null)
+    {
+        <h1>@ProjectData.Name</h1>
+        <p>@ProjectData.Description</p>
+        <p>Completion: @ProjectData.CompletionPercentage%</p>
+    }
+    else
+    {
+        <p>No project data available.</p>
+    }
+</div>
 
 @code {
-    private Project? ProjectData;
-    private bool IsLoading = true;
-    private string? ErrorMessage;
+    private Project ProjectData { get; set; }
+    private bool IsLoading { get; set; } = true;
+    private string ErrorMessage { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,34 +41,23 @@ else if (ProjectData != null)
         }
         catch (FileNotFoundException ex)
         {
-            Logger.LogError($"Data file not found: {ex.Message}");
-            ErrorMessage = "Configuration file missing. Please ensure data.json exists in the wwwroot directory.";
+            ErrorMessage = "Configuration file missing. Please ensure data.json exists in wwwroot/ directory.";
         }
         catch (JsonException ex)
         {
-            Logger.LogError($"Invalid JSON format: {ex.Message}");
-            ErrorMessage = "Invalid data format. Please check that data.json contains valid JSON.";
+            ErrorMessage = "Invalid JSON format in data.json. Please check the file syntax.";
         }
         catch (InvalidOperationException ex)
         {
-            Logger.LogError($"Data validation failed: {ex.Message}");
-            ErrorMessage = $"Data validation error: {ex.Message}";
+            ErrorMessage = $"Invalid project structure: {ex.Message}";
         }
         catch (Exception ex)
         {
-            Logger.LogError($"Unexpected error loading dashboard data: {ex.Message}");
-            ErrorMessage = "An unexpected error occurred while loading the dashboard.";
+            ErrorMessage = $"Unexpected error: {ex.Message}";
         }
         finally
         {
             IsLoading = false;
         }
-    }
-
-    private async Task RetryLoad()
-    {
-        IsLoading = true;
-        ErrorMessage = null;
-        await OnInitializedAsync();
     }
 }

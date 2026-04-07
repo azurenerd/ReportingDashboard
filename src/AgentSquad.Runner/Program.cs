@@ -7,22 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMemoryCache();
-
-// Register custom services
-builder.Services.AddSingleton<IDataCache, MemoryCacheAdapter>();
+builder.Services.AddScoped<IDataCache, MemoryCacheAdapter>();
 builder.Services.AddScoped<IDataProvider, DataProvider>();
-
-// Configure logging
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-if (builder.Environment.IsDevelopment())
+builder.Services.AddLogging(logging =>
 {
-    builder.Logging.SetMinimumLevel(LogLevel.Debug);
-}
-else
-{
-    builder.Logging.SetMinimumLevel(LogLevel.Information);
-}
+    logging.ClearProviders();
+    logging.AddConsole();
+    logging.AddDebug();
+});
 
 var app = builder.Build();
 
@@ -30,18 +22,12 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    app.UseHsts();
-}
-else
-{
-    app.UseDeveloperExceptionPage();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-await app.RunAsync();
+app.Run("http://localhost:5000");
