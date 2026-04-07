@@ -1,0 +1,44 @@
+@page "/"
+@inject IDataProvider DataProvider
+@rendermode InteractiveServer
+
+<PageTitle>Executive Project Dashboard</PageTitle>
+
+<div class="dashboard-container">
+    @if (IsLoading)
+    {
+        <p>Loading dashboard...</p>
+    }
+    else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="error-message">
+            <h2>Error</h2>
+            <p>@ErrorMessage</p>
+        </div>
+    }
+    else if (ProjectData != null)
+    {
+        <h1>@ProjectData.Name</h1>
+        <p>@ProjectData.Description</p>
+    }
+</div>
+
+@code {
+    private Project? ProjectData { get; set; }
+    private bool IsLoading { get; set; } = true;
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ProjectData = await DataProvider.LoadProjectDataAsync();
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            IsLoading = false;
+        }
+    }
+}

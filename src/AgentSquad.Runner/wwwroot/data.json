@@ -1,0 +1,49 @@
+{
+  "name": "Executive Project Dashboard",
+  "description": "Sample project for demonstrating executive dashboard capabilities",
+  "startDate": "2024-01-01",
+  "targetEndDate": "2024-12-31",
+  "completionPercentage": 45,
+  "healthStatus": "OnTrack",
+  "velocityThisMonth": 12,
+  "milestones": [
+    {
+      "name": "Phase 1 Launch",
+      "targetDate": "2024-03-31",
+      "status": "Completed",
+      "description": "Core feature rollout and initial deployment"
+    },
+    {
+      "name": "Phase 2 Expansion",
+      "targetDate": "2024-06-30",
+      "status": "InProgress",
+      "description": "Enhanced features and integrations"
+    },
+    {
+      "name": "Phase 3 Optimization",
+      "targetDate": "2024-09-30",
+      "status": "Future",
+      "description": "Performance improvements and scaling"
+    }
+  ],
+  "workItems": [
+    {
+      "title": "API Integration",
+      "description": "Connect to external data source",
+      "status": "InProgress",
+      "assignedTo": "Team A"
+    },
+    {
+      "title": "Dashboard UI",
+      "description": "Build executive dashboard interface",
+      "status": "Shipped",
+      "assignedTo": "Team B"
+    },
+    {
+      "title": "Database Migration",
+      "description": "Migrate legacy data to new schema",
+      "status": "CarriedOver",
+      "assignedTo": "Team C"
+    }
+  ]
+}
