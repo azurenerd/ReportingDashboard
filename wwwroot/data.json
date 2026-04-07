@@ -1,0 +1,43 @@
+{
+  "name": "Executive Dashboard Sample",
+  "description": "Sample project for executive reporting",
+  "startDate": "2024-01-01",
+  "targetEndDate": "2024-12-31",
+  "completionPercentage": 45,
+  "healthStatus": "OnTrack",
+  "velocityThisMonth": 12,
+  "milestones": [
+    {
+      "name": "Phase 1 Launch",
+      "targetDate": "2024-03-31",
+      "status": "Completed",
+      "description": "Core feature rollout"
+    },
+    {
+      "name": "Phase 2 Expansion",
+      "targetDate": "2024-06-30",
+      "status": "InProgress",
+      "description": "Extended feature set"
+    },
+    {
+      "name": "Phase 3 Optimization",
+      "targetDate": "2024-12-31",
+      "status": "Future",
+      "description": "Performance and scaling improvements"
+    }
+  ],
+  "workItems": [
+    {
+      "title": "API Integration",
+      "description": "Connect to external data source",
+      "status": "InProgress",
+      "assignedTo": "Team A"
+    },
+    {
+      "title": "Dashboard UI Component",
+      "description": "Build primary dashboard layout",
+      "status": "Shipped",
+      "assignedTo": "Team B"
+    }
+  ]
+}
