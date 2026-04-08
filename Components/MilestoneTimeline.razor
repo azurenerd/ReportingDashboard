@@ -1,101 +1,55 @@
-@using AgentSquad.Runner.Models
+@using AgentSquad.Dashboard.Models
 
-<div class="milestone-timeline">
-    @if (Milestones == null || !Milestones.Any())
-    {
-        <p class="text-muted">No milestones available.</p>
-    }
-    else
-    {
-        <div class="timeline-container">
-            @foreach (var milestone in Milestones)
-            {
-                <div class="timeline-item">
-                    <div class="timeline-marker" style="@GetMilestoneMarkerStyle(milestone.Status)">
-                        <span class="timeline-status">@GetStatusBadge(milestone.Status)</span>
-                    </div>
-                    <div class="timeline-content">
-                        <h5 class="timeline-title">@milestone.Name</h5>
-                        <p class="timeline-date">Target Date: @milestone.TargetDate.ToShortDateString()</p>
-                        @if (milestone.ActualDate.HasValue)
-                        {
-                            <p class="timeline-actual-date">Actual Date: @milestone.ActualDate.Value.ToShortDateString()</p>
-                        }
-                        <div class="progress" style="height: 20px;">
-                            <div class="progress-bar" role="progressbar" style="width: @milestone.CompletionPercentage%;" aria-valuenow="@milestone.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
-                                @milestone.CompletionPercentage%
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-light border-0 py-3">
+        <h3 class="mb-0">Milestone Timeline</h3>
+    </div>
+    <div class="card-body">
+        @if (Milestones == null || Milestones.Count == 0)
+        {
+            <p class="text-muted">No milestones available.</p>
+        }
+        else
+        {
+            <div class="timeline">
+                @foreach (var milestone in Milestones)
+                {
+                    <div class="milestone-item mb-3">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <span class="badge @GetStatusBadgeClass(milestone.Status)">
+                                    @milestone.Status
+                                </span>
+                            </div>
+                            <div class="col">
+                                <h5 class="mb-1" style="font-size: 14pt;">@milestone.Name</h5>
+                                <p class="text-muted mb-0" style="font-size: 12pt;">
+                                    Target: @milestone.TargetDate.ToString("MMMM d, yyyy") | 
+                                    Completion: @milestone.CompletionPercentage%
+                                </p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="progress" style="width: 100px; height: 20px;">
+                                    <div class="progress-bar @GetProgressBarClass(milestone.Status)" 
+                                         role="progressbar" 
+                                         style="width: @milestone.CompletionPercentage%;" 
+                                         aria-valuenow="@milestone.CompletionPercentage" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
-    }
+                }
+            </div>
+        }
+    </div>
 </div>
-
-<style>
-.timeline-container {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    padding: 16px 0;
-}
-
-.timeline-item {
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-}
-
-.timeline-marker {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    font-weight: bold;
-    color: white;
-}
-
-.timeline-status {
-    font-size: 24px;
-}
-
-.timeline-content {
-    flex: 1;
-    padding-top: 4px;
-}
-
-.timeline-title {
-    font-size: 16pt;
-    font-weight: 600;
-    margin-bottom: 8px;
-    margin-top: 0;
-}
-
-.timeline-date {
-    font-size: 12pt;
-    color: #666;
-    margin-bottom: 8px;
-}
-
-.timeline-actual-date {
-    font-size: 12pt;
-    color: #666;
-    margin-bottom: 12px;
-    font-style: italic;
-}
-
-.progress {
-    background-color: #e9ecef;
-}
-</style>
 
 @code {
     [Parameter]
-    public List<Milestone> Milestones { get; set; }
+    public List<Milestone>? Milestones { get; set; }
 
     [Parameter]
     public DateTime ProjectStartDate { get; set; }
@@ -103,23 +57,25 @@
     [Parameter]
     public DateTime ProjectEndDate { get; set; }
 
-    private string GetMilestoneMarkerStyle(MilestoneStatus status)
+    private string GetStatusBadgeClass(MilestoneStatus status)
     {
         return status switch
         {
-            MilestoneStatus.Completed => "background-color: #28a745;",
-            MilestoneStatus.InProgress => "background-color: #007bff;",
-            _ => "background-color: #6c757d;"
+            MilestoneStatus.Completed => "bg-success",
+            MilestoneStatus.InProgress => "bg-info",
+            MilestoneStatus.Pending => "bg-secondary",
+            _ => "bg-dark"
         };
     }
 
-    private string GetStatusBadge(MilestoneStatus status)
+    private string GetProgressBarClass(MilestoneStatus status)
     {
         return status switch
         {
-            MilestoneStatus.Completed => "✓",
-            MilestoneStatus.InProgress => "→",
-            _ => "○"
+            MilestoneStatus.Completed => "bg-success",
+            MilestoneStatus.InProgress => "bg-info",
+            MilestoneStatus.Pending => "bg-secondary",
+            _ => "bg-dark"
         };
     }
 }

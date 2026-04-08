@@ -1,123 +1,107 @@
 using System.Text.Json.Serialization;
 
-namespace AgentSquad.Runner.Models
+namespace AgentSquad.Dashboard.Models;
+
+public class ProjectData
 {
-    public class ProjectData
-    {
-        [JsonPropertyName("project")]
-        public ProjectInfo Project { get; set; }
+    [JsonPropertyName("project")]
+    public ProjectInfo Project { get; set; } = new();
 
-        [JsonPropertyName("milestones")]
-        public List<Milestone> Milestones { get; set; } = new List<Milestone>();
+    [JsonPropertyName("milestones")]
+    public List<Milestone> Milestones { get; set; } = new();
 
-        [JsonPropertyName("tasks")]
-        public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
+    [JsonPropertyName("tasks")]
+    public List<ProjectTask> Tasks { get; set; } = new();
 
-        [JsonPropertyName("metrics")]
-        public ProjectMetrics Metrics { get; set; }
-    }
+    [JsonPropertyName("metrics")]
+    public ProjectMetrics Metrics { get; set; } = new();
+}
 
-    public class ProjectInfo
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+public class ProjectInfo
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("description")]
-        public string Description { get; set; }
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = string.Empty;
 
-        [JsonPropertyName("status")]
-        public string Status { get; set; }
+    [JsonPropertyName("sponsor")]
+    public string Sponsor { get; set; } = string.Empty;
 
-        [JsonPropertyName("sponsor")]
-        public string Sponsor { get; set; }
+    [JsonPropertyName("projectManager")]
+    public string ProjectManager { get; set; } = string.Empty;
 
-        [JsonPropertyName("projectManager")]
-        public string ProjectManager { get; set; }
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = string.Empty;
 
-        [JsonPropertyName("startDate")]
-        public DateTime StartDate { get; set; }
+    [JsonPropertyName("projectStartDate")]
+    public DateTime ProjectStartDate { get; set; }
 
-        [JsonPropertyName("endDate")]
-        public DateTime EndDate { get; set; }
+    [JsonPropertyName("projectEndDate")]
+    public DateTime ProjectEndDate { get; set; }
+}
 
-        [JsonPropertyName("completionPercentage")]
-        public int CompletionPercentage { get; set; }
-    }
+public class Milestone
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
 
-    public class ProjectMetrics
-    {
-        [JsonPropertyName("totalTasks")]
-        public int TotalTasks { get; set; }
+    [JsonPropertyName("targetDate")]
+    public DateTime TargetDate { get; set; }
 
-        [JsonPropertyName("completedTasks")]
-        public int CompletedTasks { get; set; }
+    [JsonPropertyName("status")]
+    public MilestoneStatus Status { get; set; }
 
-        [JsonPropertyName("inProgressTasks")]
-        public int InProgressTasks { get; set; }
+    [JsonPropertyName("completionPercentage")]
+    public int CompletionPercentage { get; set; }
+}
 
-        [JsonPropertyName("carriedOverTasks")]
-        public int CarriedOverTasks { get; set; }
+public class ProjectTask
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("estimatedBurndownRate")]
-        public decimal EstimatedBurndownRate { get; set; }
-    }
+    [JsonPropertyName("status")]
+    public TaskStatus Status { get; set; }
 
-    public class Milestone
-    {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
+    [JsonPropertyName("owner")]
+    public string Owner { get; set; } = string.Empty;
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = string.Empty;
+}
 
-        [JsonPropertyName("targetDate")]
-        public DateTime TargetDate { get; set; }
+public class ProjectMetrics
+{
+    [JsonPropertyName("totalTasks")]
+    public int TotalTasks { get; set; }
 
-        [JsonPropertyName("actualDate")]
-        public DateTime? ActualDate { get; set; }
+    [JsonPropertyName("completedTasks")]
+    public int CompletedTasks { get; set; }
 
-        [JsonPropertyName("status")]
-        public MilestoneStatus Status { get; set; }
+    [JsonPropertyName("inProgressTasks")]
+    public int InProgressTasks { get; set; }
 
-        [JsonPropertyName("completionPercentage")]
-        public int CompletionPercentage { get; set; }
-    }
+    [JsonPropertyName("carriedOverTasks")]
+    public int CarriedOverTasks { get; set; }
 
-    public class ProjectTask
-    {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
+    [JsonPropertyName("estimatedBurndownRate")]
+    public double EstimatedBurndownRate { get; set; }
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+    [JsonPropertyName("totalCompletionPercentage")]
+    public int TotalCompletionPercentage { get; set; }
+}
 
-        [JsonPropertyName("status")]
-        public TaskStatus Status { get; set; }
+public enum MilestoneStatus
+{
+    Completed,
+    InProgress,
+    Pending
+}
 
-        [JsonPropertyName("assignedTo")]
-        public string AssignedTo { get; set; }
-
-        [JsonPropertyName("dueDate")]
-        public DateTime DueDate { get; set; }
-
-        [JsonPropertyName("estimatedDays")]
-        public int EstimatedDays { get; set; }
-
-        [JsonPropertyName("relatedMilestone")]
-        public string RelatedMilestone { get; set; }
-    }
-
-    public enum MilestoneStatus
-    {
-        Pending,
-        InProgress,
-        Completed
-    }
-
-    public enum TaskStatus
-    {
-        Shipped,
-        InProgress,
-        CarriedOver
-    }
+public enum TaskStatus
+{
+    Shipped,
+    InProgress,
+    CarriedOver
 }

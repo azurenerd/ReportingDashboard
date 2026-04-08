@@ -1,162 +1,115 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AgentSquad.Runner.Models;
+using AgentSquad.Dashboard.Models;
+using Microsoft.Extensions.Logging;
 
-namespace AgentSquad.Runner.Services
+namespace AgentSquad.Dashboard.Services;
+
+public class ProjectDataService
 {
-    public class DataLoadException : Exception
+    private readonly ILogger<ProjectDataService> _logger;
+    private readonly IWebHostEnvironment _env;
+    private ProjectData? _cachedData;
+    private const string DataFilePath = "data/data.json";
+
+    public ProjectDataService(ILogger<ProjectDataService> logger, IWebHostEnvironment env)
     {
-        public DataLoadException(string message) : base(message) { }
-        public DataLoadException(string message, Exception innerException) : base(message, innerException) { }
+        _logger = logger;
+        _env = env;
     }
 
-    public class ProjectDataService
+    public async Task<ProjectData> LoadProjectDataAsync()
     {
-        private readonly IWebHostEnvironment _environment;
-        private ProjectData _cachedData;
-
-        public ProjectDataService(IWebHostEnvironment environment)
-        {
-            _environment = environment;
-        }
-
-        public async Task<ProjectData> LoadProjectDataAsync()
-        {
-            if (_cachedData?.Project != null)
-            {
-                return _cachedData;
-            }
-
-            var dataPath = Path.Combine(_environment.WebRootPath, "data", "data.json");
-
-            if (!File.Exists(dataPath))
-            {
-                throw new DataLoadException($"Data file not found at {dataPath}");
-            }
-
-            try
-            {
-                var json = await File.ReadAllTextAsync(dataPath);
-                ValidateJsonSchema(json);
-                
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var data = JsonSerializer.Deserialize<ProjectData>(json, options);
-
-                ValidateDeserializedData(data);
-                _cachedData = data;
-
-                return _cachedData;
-            }
-            catch (JsonException ex)
-            {
-                throw new DataLoadException("Invalid JSON in data.json", ex);
-            }
-            catch (DataLoadException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new DataLoadException("Unexpected error loading project data", ex);
-            }
-        }
-
-        public void ValidateJsonSchema(string json)
-        {
-            if (string.IsNullOrWhiteSpace(json))
-            {
-                throw new DataLoadException("JSON content is empty or null");
-            }
-
-            try
-            {
-                using (JsonDocument doc = JsonDocument.Parse(json))
-                {
-                    var root = doc.RootElement;
-
-                    if (!root.TryGetProperty("project", out var projectElement))
-                    {
-                        throw new DataLoadException("Missing required 'project' object in JSON");
-                    }
-
-                    if (!root.TryGetProperty("milestones", out var milestonesElement) || milestonesElement.ValueKind != JsonValueKind.Array)
-                    {
-                        throw new DataLoadException("Missing required 'milestones' array in JSON");
-                    }
-
-                    if (!root.TryGetProperty("tasks", out var tasksElement) || tasksElement.ValueKind != JsonValueKind.Array)
-                    {
-                        throw new DataLoadException("Missing required 'tasks' array in JSON");
-                    }
-
-                    if (!root.TryGetProperty("metrics", out var metricsElement))
-                    {
-                        throw new DataLoadException("Missing required 'metrics' object in JSON");
-                    }
-                }
-            }
-            catch (JsonException ex)
-            {
-                throw new DataLoadException("JSON schema validation failed", ex);
-            }
-        }
-
-        public void ValidateDeserializedData(ProjectData data)
-        {
-            if (data == null)
-            {
-                throw new DataLoadException("Deserialized project data is null");
-            }
-
-            if (data.Project == null)
-            {
-                throw new DataLoadException("Project object is null in deserialized data");
-            }
-
-            if (string.IsNullOrWhiteSpace(data.Project.Name))
-            {
-                throw new DataLoadException("Project name is null or empty");
-            }
-
-            if (data.Milestones == null)
-            {
-                throw new DataLoadException("Milestones collection is null");
-            }
-
-            if (data.Tasks == null)
-            {
-                throw new DataLoadException("Tasks collection is null");
-            }
-
-            if (data.Metrics == null)
-            {
-                throw new DataLoadException("Metrics object is null");
-            }
-
-            if (data.Milestones.Any(m => string.IsNullOrWhiteSpace(m.Id) || string.IsNullOrWhiteSpace(m.Name)))
-            {
-                throw new DataLoadException("One or more milestones have missing Id or Name");
-            }
-
-            if (data.Tasks.Any(t => string.IsNullOrWhiteSpace(t.Id) || string.IsNullOrWhiteSpace(t.Name)))
-            {
-                throw new DataLoadException("One or more tasks have missing Id or Name");
-            }
-
-            if (data.Metrics.TotalTasks < 0 || data.Metrics.CompletedTasks < 0 || data.Metrics.InProgressTasks < 0 || data.Metrics.CarriedOverTasks < 0)
-            {
-                throw new DataLoadException("Metrics contain negative values");
-            }
-        }
-
-        public ProjectData GetCachedData()
+        if (_cachedData != null)
         {
             return _cachedData;
         }
 
-        public void ClearCache()
+        try
         {
-            _cachedData = null;
+            var fullPath = Path.Combine(_env.WebRootPath, DataFilePath);
+
+            if (!File.Exists(fullPath))
+            {
+                _logger.LogError("Data file not found at {Path}", fullPath);
+                throw new FileNotFoundException($"Data file not found at {fullPath}");
+            }
+
+            var json = await File.ReadAllTextAsync(fullPath);
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                WriteIndented = true,
+                Converters = { new JsonStringEnumConverter() }
+            };
+
+            var data = JsonSerializer.Deserialize<ProjectData>(json, options);
+
+            if (data == null)
+            {
+                _logger.LogError("Failed to deserialize project data from {Path}", fullPath);
+                throw new InvalidOperationException("Project data deserialization returned null");
+            }
+
+            ValidateProjectData(data);
+
+            _cachedData = data;
+            _logger.LogInformation("Successfully loaded project data: {ProjectName}", data.Project.Name);
+            return data;
         }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "JSON parsing error while loading project data");
+            throw new InvalidOperationException($"Invalid JSON format in data file: {ex.Message}", ex);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error loading project data");
+            throw;
+        }
+    }
+
+    private void ValidateProjectData(ProjectData data)
+    {
+        if (data.Project == null)
+        {
+            throw new InvalidOperationException("Project metadata is required in data.json");
+        }
+
+        if (string.IsNullOrWhiteSpace(data.Project.Name))
+        {
+            throw new InvalidOperationException("Project name is required");
+        }
+
+        if (data.Milestones == null)
+        {
+            throw new InvalidOperationException("Milestones array is required in data.json");
+        }
+
+        if (data.Tasks == null)
+        {
+            throw new InvalidOperationException("Tasks array is required in data.json");
+        }
+
+        if (data.Metrics == null)
+        {
+            throw new InvalidOperationException("Metrics object is required in data.json");
+        }
+
+        _logger.LogInformation("Project data validation passed: {MilestoneCount} milestones, {TaskCount} tasks", 
+            data.Milestones.Count, data.Tasks.Count);
+    }
+
+    public void ClearCache()
+    {
+        _cachedData = null;
+        _logger.LogInformation("Project data cache cleared");
+    }
+
+    public Task<ProjectData> ReloadProjectDataAsync()
+    {
+        ClearCache();
+        return LoadProjectDataAsync();
     }
 }

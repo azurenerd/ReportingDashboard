@@ -1,127 +1,89 @@
 {
-  "project": {
-    "name": "Executive Dashboard Initiative",
-    "description": "Single-page executive reporting dashboard for project milestones, progress, and task status",
-    "status": "InProgress",
-    "sponsor": "Executive Leadership",
-    "projectManager": "Sarah Chen",
-    "startDate": "2024-01-15T00:00:00Z",
-    "endDate": "2024-06-30T00:00:00Z",
-    "completionPercentage": 65
-  },
+  "projectName": "Q2 Mobile App Release",
+  "projectDescription": "Cross-platform mobile application for iOS and Android targeting Q2 launch",
+  "startDate": "2026-01-15",
+  "endDate": "2026-06-30",
+  "completionPercentage": 62,
   "milestones": [
     {
-      "id": "m001",
-      "name": "Requirements & Planning",
-      "targetDate": "2024-02-15T00:00:00Z",
-      "actualDate": "2024-02-14T00:00:00Z",
+      "name": "Core Architecture & Setup",
+      "targetDate": "2026-02-28",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
-      "id": "m002",
-      "name": "Design & Architecture",
-      "targetDate": "2024-03-15T00:00:00Z",
-      "actualDate": "2024-03-16T00:00:00Z",
+      "name": "UI/UX Design & Component Library",
+      "targetDate": "2026-03-31",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
-      "id": "m003",
-      "name": "Core Development",
-      "targetDate": "2024-05-15T00:00:00Z",
-      "actualDate": null,
+      "name": "Feature Development & Integration",
+      "targetDate": "2026-05-15",
       "status": "InProgress",
       "completionPercentage": 75
     },
     {
-      "id": "m004",
-      "name": "Testing & QA",
-      "targetDate": "2024-06-15T00:00:00Z",
-      "actualDate": null,
+      "name": "Testing, QA & Launch Prep",
+      "targetDate": "2026-06-30",
       "status": "Pending",
       "completionPercentage": 0
     }
   ],
   "tasks": [
     {
-      "id": "task-001",
+      "name": "Project kickoff and team onboarding",
+      "status": "Shipped",
+      "owner": "Sarah Chen",
+      "description": "Completed initial team setup, established development environment and deployment pipeline"
+    },
+    {
+      "name": "Design system component library",
+      "status": "Shipped",
+      "owner": "Marcus Johnson",
+      "description": "Delivered reusable button, input, card, and navigation components for app"
+    },
+    {
+      "name": "iOS native implementation",
+      "status": "Shipped",
+      "owner": "Elena Rodriguez",
+      "description": "Completed iOS app scaffolding, core navigation flows and API integration layer"
+    },
+    {
+      "name": "Payment gateway integration",
+      "status": "InProgress",
+      "owner": "David Park",
+      "description": "Integrating Stripe API for payment processing; currently at 70% completion"
+    },
+    {
       "name": "User authentication module",
-      "status": "Shipped",
-      "assignedTo": "Alice Johnson",
-      "dueDate": "2024-02-28T00:00:00Z",
-      "estimatedDays": 10,
-      "relatedMilestone": "m001"
-    },
-    {
-      "id": "task-002",
-      "name": "Dashboard UI framework",
-      "status": "Shipped",
-      "assignedTo": "Bob Smith",
-      "dueDate": "2024-03-31T00:00:00Z",
-      "estimatedDays": 15,
-      "relatedMilestone": "m002"
-    },
-    {
-      "id": "task-003",
-      "name": "Data service integration",
-      "status": "Shipped",
-      "assignedTo": "Carol Davis",
-      "dueDate": "2024-04-15T00:00:00Z",
-      "estimatedDays": 8,
-      "relatedMilestone": "m003"
-    },
-    {
-      "id": "task-004",
-      "name": "Milestone timeline component",
       "status": "InProgress",
-      "assignedTo": "David Wilson",
-      "dueDate": "2024-05-10T00:00:00Z",
-      "estimatedDays": 5,
-      "relatedMilestone": "m003"
+      "owner": "Alex Thompson",
+      "description": "Implementing OAuth2 and biometric authentication; testing phase starting next week"
     },
     {
-      "id": "task-005",
-      "name": "Status cards implementation",
+      "name": "Push notifications setup",
       "status": "InProgress",
-      "assignedTo": "Emma Martinez",
-      "dueDate": "2024-05-15T00:00:00Z",
-      "estimatedDays": 6,
-      "relatedMilestone": "m003"
+      "owner": "Priya Patel",
+      "description": "Configuring Firebase Cloud Messaging and notification scheduling logic"
     },
     {
-      "id": "task-006",
-      "name": "Progress metrics visualization",
-      "status": "InProgress",
-      "assignedTo": "Frank Taylor",
-      "dueDate": "2024-05-20T00:00:00Z",
-      "estimatedDays": 4,
-      "relatedMilestone": "m003"
-    },
-    {
-      "id": "task-007",
-      "name": "Performance optimization",
+      "name": "Backend API deployment",
       "status": "CarriedOver",
-      "assignedTo": "Grace Lee",
-      "dueDate": "2024-05-01T00:00:00Z",
-      "estimatedDays": 7,
-      "relatedMilestone": "m003"
+      "owner": "James Wilson",
+      "description": "Deferred to next sprint; waiting for payment gateway finalization"
     },
     {
-      "id": "task-008",
-      "name": "Documentation update",
+      "name": "Analytics dashboard implementation",
       "status": "CarriedOver",
-      "assignedTo": "Henry Brown",
-      "dueDate": "2024-04-30T00:00:00Z",
-      "estimatedDays": 3,
-      "relatedMilestone": "m004"
+      "owner": "Nicole Foster",
+      "description": "Pushed to post-launch phase; low priority for MVP release"
+    },
+    {
+      "name": "Android performance optimization",
+      "status": "CarriedOver",
+      "owner": "Marcus Johnson",
+      "description": "Battery and memory optimization; scheduled for final hardening sprint"
     }
-  ],
-  "metrics": {
-    "totalTasks": 8,
-    "completedTasks": 3,
-    "inProgressTasks": 3,
-    "carriedOverTasks": 2,
-    "estimatedBurndownRate": 0.15
-  }
+  ]
 }

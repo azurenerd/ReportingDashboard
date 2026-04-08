@@ -1,73 +1,41 @@
-@using AgentSquad.Runner.Models
+@using AgentSquad.Dashboard.Models
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm h-100">
     <div class="card-body">
-        <h5 class="card-title">@StatusCategory</h5>
-        <div class="display-4 text-@CardColor mb-3">@TaskCount</div>
-        
-        @if (Tasks == null || !Tasks.Any())
+        <h4 class="card-title mb-3">
+            <span class="badge bg-@CardColor me-2">@Tasks.Count</span>
+            @StatusCategory
+        </h4>
+        @if (Tasks == null || Tasks.Count == 0)
         {
             <p class="text-muted small">No tasks in this category.</p>
         }
         else
         {
-            <button class="btn btn-sm btn-outline-secondary w-100 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#tasks-@StatusCategory.Replace(" ", "-")">
-                View Tasks
-            </button>
-            <div class="collapse" id="tasks-@StatusCategory.Replace(" ", "-")">
-                <ul class="list-unstyled small">
-                    @foreach (var task in Tasks)
-                    {
-                        <li class="task-item mb-2 pb-2 border-bottom">
-                            <div class="d-flex justify-content-between">
-                                <strong>@task.Name</strong>
-                            </div>
-                            <small class="text-muted">Assigned to: @task.AssignedTo</small>
-                            @if (task.EstimatedDays > 0)
-                            {
-                                <small class="text-muted d-block">Estimated: @task.EstimatedDays days</small>
-                            }
-                            @if (!string.IsNullOrEmpty(task.RelatedMilestone))
-                            {
-                                <small class="text-muted d-block">Milestone: @task.RelatedMilestone</small>
-                            }
-                        </li>
-                    }
-                </ul>
-            </div>
+            <ul class="list-unstyled small">
+                @foreach (var task in Tasks)
+                {
+                    <li class="mb-2 pb-2 border-bottom">
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-500" style="font-size: 12pt;">@task.Name</span>
+                        </div>
+                        <div class="text-muted small">
+                            <span style="font-size: 11pt;">@task.Owner</span>
+                        </div>
+                    </li>
+                }
+            </ul>
         }
     </div>
 </div>
 
-<style>
-.card-title {
-    font-size: 12pt;
-    font-weight: 600;
-}
-
-.task-item {
-    font-size: 12pt;
-}
-
-.task-item strong {
-    font-size: 12pt;
-}
-
-.task-item small {
-    font-size: 11pt;
-}
-</style>
-
 @code {
     [Parameter]
-    public string StatusCategory { get; set; }
+    public string StatusCategory { get; set; } = string.Empty;
 
     [Parameter]
-    public int TaskCount { get; set; }
+    public List<ProjectTask> Tasks { get; set; } = new();
 
     [Parameter]
-    public List<ProjectTask> Tasks { get; set; }
-
-    [Parameter]
-    public string CardColor { get; set; }
+    public string CardColor { get; set; } = "primary";
 }
