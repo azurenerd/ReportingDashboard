@@ -1,0 +1,4 @@
+agent: PrincipalEngineer
+task: Create ProgressMetrics.razor component
+complexity: Medium
+status: in-progress
