@@ -14,6 +14,8 @@ namespace AgentSquad.Models
 
         [JsonPropertyName("tasks")]
         public List<ProjectTask> Tasks { get; set; } = new();
+
+        public ProjectMetrics Metrics { get; set; }
     }
 
     public class Project
@@ -64,8 +66,8 @@ namespace AgentSquad.Models
         [JsonPropertyName("description")]
         public string Description { get; set; }
 
-        [JsonPropertyName("owner")]
-        public string Owner { get; set; }
+        [JsonPropertyName("assignedTo")]
+        public string AssignedTo { get; set; }
 
         [JsonPropertyName("status")]
         [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -73,6 +75,11 @@ namespace AgentSquad.Models
 
         [JsonPropertyName("estimatedDays")]
         public int EstimatedDays { get; set; }
+    }
+
+    public class ProjectMetrics
+    {
+        public int CompletionPercentage { get; set; }
     }
 
     public enum MilestoneStatus

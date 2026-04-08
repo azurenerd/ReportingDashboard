@@ -1,81 +1,26 @@
-@using AgentSquad.Dashboard.Models
+@using AgentSquad.Models
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-light border-0 py-3">
-        <h3 class="mb-0">Project Progress</h3>
-    </div>
-    <div class="card-body">
-        <div class="row align-items-center mb-4">
-            <div class="col-md-8">
-                <div class="progress" style="height: 30px;">
-                    <div class="progress-bar bg-success" 
-                         role="progressbar" 
-                         style="width: @Metrics.TotalCompletionPercentage%;" 
-                         aria-valuenow="@Metrics.TotalCompletionPercentage" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                        @Metrics.TotalCompletionPercentage%
+<div class="progress-metrics mt-4">
+    <h3 class="mb-3">Project Progress</h3>
+    @if (Metrics != null)
+    {
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Overall Completion</h5>
+                        <div class="progress mb-2" style="height: 30px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @Metrics.CompletionPercentage%"></div>
+                        </div>
+                        <p class="text-center fs-5 fw-bold">@Metrics.CompletionPercentage%</p>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 text-end">
-                <h4 class="mb-0">@Metrics.TotalCompletionPercentage% Complete</h4>
-                <p class="text-muted small mb-0">@RemainingDays days remaining</p>
             </div>
         </div>
-        @if (Metrics != null)
-        {
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="p-3 bg-light rounded">
-                        <p class="text-muted small mb-1">Total Tasks</p>
-                        <h5 class="mb-0">@Metrics.TotalTasks</h5>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="p-3 bg-success bg-opacity-10 rounded">
-                        <p class="text-muted small mb-1">Completed</p>
-                        <h5 class="mb-0 text-success">@Metrics.CompletedTasks</h5>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="p-3 bg-info bg-opacity-10 rounded">
-                        <p class="text-muted small mb-1">In Progress</p>
-                        <h5 class="mb-0 text-info">@Metrics.InProgressTasks</h5>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="p-3 bg-warning bg-opacity-10 rounded">
-                        <p class="text-muted small mb-1">Carried Over</p>
-                        <h5 class="mb-0 text-warning">@Metrics.CarriedOverTasks</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-12">
-                    <p class="small text-muted">
-                        <strong>Estimated Burndown Rate:</strong> @Metrics.EstimatedBurndownRate.ToString("P0") of tasks per week
-                    </p>
-                </div>
-            </div>
-        }
-    </div>
+    }
 </div>
 
 @code {
     [Parameter]
-    public ProjectMetrics? Metrics { get; set; }
-
-    [Parameter]
-    public ProjectData? ProjectData { get; set; }
-
-    private int RemainingDays
-    {
-        get
-        {
-            if (ProjectData?.Project == null)
-                return 0;
-            return (int)(ProjectData.Project.ProjectEndDate - DateTime.Now).TotalDays;
-        }
-    }
+    public ProjectMetrics Metrics { get; set; }
 }

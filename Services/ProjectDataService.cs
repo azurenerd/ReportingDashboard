@@ -36,6 +36,11 @@ namespace AgentSquad.Services
                 throw new InvalidOperationException("Failed to deserialize project data from JSON.");
             }
 
+            data.Metrics = new ProjectMetrics
+            {
+                CompletionPercentage = data.Project?.CompletionPercentage ?? 0
+            };
+
             return data;
         }
     }
