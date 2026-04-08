@@ -85,21 +85,21 @@
                             <StatusCard 
                                 StatusCategory="Shipped"
                                 TaskCount="GetShippedCount()"
-                                Tasks="GetTasksByStatus(\"Shipped\")"
+                                Tasks="GetTasksByStatus(TaskStatus.Shipped)"
                                 CardColor="#28a745" />
                         </div>
                         <div class="col-12 col-md-4 mb-3">
                             <StatusCard 
                                 StatusCategory="In-Progress"
                                 TaskCount="GetInProgressCount()"
-                                Tasks="GetTasksByStatus(\"InProgress\")"
+                                Tasks="GetTasksByStatus(TaskStatus.InProgress)"
                                 CardColor="#0066cc" />
                         </div>
                         <div class="col-12 col-md-4 mb-3">
                             <StatusCard 
                                 StatusCategory="Carried-Over"
                                 TaskCount="GetCarriedOverCount()"
-                                Tasks="GetTasksByStatus(\"CarriedOver\")"
+                                Tasks="GetTasksByStatus(TaskStatus.CarriedOver)"
                                 CardColor="#ff9800" />
                         </div>
                     </div>
@@ -112,7 +112,7 @@
                         <div class="col-12">
                             <ProgressMetrics 
                                 Metrics="projectData.Metrics"
-                                Tasks="projectData.Tasks" />
+                                Tasks="projectData.Tasks ?? new List<ProjectTask>()" />
                         </div>
                     </div>
                 }
@@ -190,22 +190,22 @@
 
     private int GetShippedCount()
     {
-        return projectData?.Tasks?.Count(t => t.Status?.Equals("Shipped", StringComparison.OrdinalIgnoreCase) ?? false) ?? 0;
+        return projectData?.Tasks?.Count(t => t.Status == TaskStatus.Shipped) ?? 0;
     }
 
     private int GetInProgressCount()
     {
-        return projectData?.Tasks?.Count(t => t.Status?.Equals("InProgress", StringComparison.OrdinalIgnoreCase) ?? false) ?? 0;
+        return projectData?.Tasks?.Count(t => t.Status == TaskStatus.InProgress) ?? 0;
     }
 
     private int GetCarriedOverCount()
     {
-        return projectData?.Tasks?.Count(t => t.Status?.Equals("CarriedOver", StringComparison.OrdinalIgnoreCase) ?? false) ?? 0;
+        return projectData?.Tasks?.Count(t => t.Status == TaskStatus.CarriedOver) ?? 0;
     }
 
-    private List<ProjectTask> GetTasksByStatus(string status)
+    private List<ProjectTask> GetTasksByStatus(TaskStatus status)
     {
-        return projectData?.Tasks?.Where(t => t.Status?.Equals(status, StringComparison.OrdinalIgnoreCase) ?? false).ToList() ?? new List<ProjectTask>();
+        return projectData?.Tasks?.Where(t => t.Status == status).ToList() ?? new List<ProjectTask>();
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()

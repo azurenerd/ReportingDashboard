@@ -45,7 +45,7 @@
     public int TaskCount { get; set; }
 
     [Parameter]
-    public List<ProjectTask> Tasks { get; set; }
+    public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
 
     [Parameter]
     public string CardColor { get; set; } = "#cccccc";
