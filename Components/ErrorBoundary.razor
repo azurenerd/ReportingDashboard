@@ -1,8 +1,23 @@
 @inherits ErrorBoundaryBase
 
-<CascadingValue Value="this">
-    @ChildContent
-</CascadingValue>
+@if (_exception == null)
+{
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+}
+else
+{
+    <div class="error-boundary-container">
+        <div class="alert alert-danger" role="alert">
+            <div class="alert-icon mb-3">
+                <span class="oi oi-warning" style="font-size: 2rem;"></span>
+            </div>
+            <h4 class="alert-heading">Dashboard Error</h4>
+            <p style="font-size: 14pt; margin: 0;">An error occurred while loading the dashboard. Please refresh your browser.</p>
+        </div>
+    </div>
+}
 
 @code {
     [Parameter]
