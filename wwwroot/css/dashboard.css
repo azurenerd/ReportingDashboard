@@ -1,163 +1,216 @@
-/* Dashboard container and layout */
-.dashboard-container {
-    min-height: 100vh;
+:root {
+    --color-shipped: #28a745;
+    --color-in-progress: #007bff;
+    --color-carried-over: #fd7e14;
+    --color-pending: #6c757d;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12pt;
+    line-height: 1.6;
+    color: #333;
     background-color: #f8f9fa;
+}
+
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
     padding: 2rem 0;
 }
 
-.dashboard-main {
+.container-fluid {
     max-width: 1400px;
     margin: 0 auto;
 }
 
-.dashboard-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 2rem;
-    border-radius: 0.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-}
-
-.dashboard-header h1 {
-    margin-bottom: 0.5rem;
-    font-weight: 700;
-    font-size: 2rem;
-    line-height: 1.2;
-}
-
-.dashboard-header p {
-    margin: 0;
-    font-size: 1rem;
-    opacity: 0.95;
-    line-height: 1.4;
-}
-
-/* Status cards section */
-.status-cards-section {
+/* Dashboard Sections */
+.dashboard-section {
     margin-bottom: 2rem;
 }
 
-.card-grid {
-    margin: 0;
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #212529;
 }
 
-/* Responsive grid adjustments */
-@media (min-width: 1024px) {
-    .card-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-    }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-    .card-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-    }
-    
-    .card-grid > .col-lg-4:last-child {
-        grid-column: 1 / -1;
-        max-width: 50%;
-        margin: 0 auto;
-    }
-}
-
-@media (max-width: 767px) {
-    .card-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .dashboard-header {
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .dashboard-header h1 {
-        font-size: 1.5rem;
-    }
-    
-    .dashboard-header p {
-        font-size: 0.9rem;
-    }
-}
-
-/* Dashboard footer */
-.dashboard-footer {
-    text-align: center;
-    font-size: 0.875rem;
-    padding: 1rem 0;
-    color: #6c757d;
-}
-
-/* Alert styling */
-.alert {
+/* Timeline Styles */
+.timeline-container {
+    background: white;
     border-radius: 0.375rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.alert-heading {
-    font-size: 1.1rem;
+.milestone {
+    padding: 1rem;
+    border-left: 4px solid #6c757d;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+}
+
+.milestone.completed {
+    border-left-color: var(--color-shipped);
+    background: #d4edda;
+}
+
+.milestone.in-progress {
+    border-left-color: var(--color-in-progress);
+    background: #d1ecf1;
+}
+
+.milestone.pending {
+    border-left-color: var(--color-pending);
+    background: #e2e3e5;
+}
+
+.milestone-name {
     font-weight: 600;
     margin-bottom: 0.5rem;
 }
 
-.alert ul {
-    margin-bottom: 0;
-    padding-left: 1.5rem;
-}
-
-.alert ul li {
-    margin-bottom: 0.25rem;
-}
-
-/* Loading and error states */
-.spinner-border-sm {
-    width: 1rem;
-    height: 1rem;
-    border-width: 0.2em;
-}
-
-.alert-dismissible .btn-close {
-    padding: 0.5rem;
-}
-
-.btn-sm {
+.milestone-date {
     font-size: 0.875rem;
-    padding: 0.375rem 0.75rem;
+    color: #6c757d;
 }
 
-/* Print styles for screenshot capture */
+/* Status Card Styles */
+.status-card {
+    background: white;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.status-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.status-card-header {
+    padding: 1.5rem;
+    border-left: 6px solid #6c757d;
+}
+
+.status-card-header.shipped {
+    border-left-color: var(--color-shipped);
+    background: #f0f8f4;
+}
+
+.status-card-header.in-progress {
+    border-left-color: var(--color-in-progress);
+    background: #f0f6ff;
+}
+
+.status-card-header.carried-over {
+    border-left-color: var(--color-carried-over);
+    background: #fff5f0;
+}
+
+.status-card-count {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+}
+
+.status-card-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.status-card-body {
+    padding: 1.5rem;
+}
+
+.task-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.9rem;
+}
+
+.task-item:last-child {
+    border-bottom: none;
+}
+
+.task-checkbox {
+    margin-right: 0.75rem;
+}
+
+.task-owner {
+    display: inline-block;
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* Progress Metrics */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 0.375rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.metric-chart {
+    margin-top: 1rem;
+}
+
+/* Error Handling */
+.alert {
+    font-size: 0.95rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media print {
-    .dashboard-container {
-        background-color: white;
-        padding: 0;
+    body {
+        background: white;
     }
     
-    .dashboard-header {
-        page-break-inside: avoid;
-        background: none;
-        color: #000;
-        border: 2px solid #667eea;
+    .page {
+        min-height: auto;
     }
     
-    .card-grid {
-        page-break-inside: avoid;
-    }
-    
-    .alert {
-        display: none !important;
-    }
-}
-
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation: none !important;
-        transition: none !important;
+    .status-card,
+    .timeline-container,
+    .metric-card {
+        box-shadow: none;
+        border: 1px solid #e9ecef;
     }
 }

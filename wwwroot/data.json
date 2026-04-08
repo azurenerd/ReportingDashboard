@@ -1,96 +1,102 @@
 {
-  "projectName": "Executive Dashboard Project",
-  "projectDescription": "Real-time visibility into project milestones, task status, and progress metrics",
-  "startDate": "2025-01-01",
-  "endDate": "2025-12-31",
-  "completionPercentage": 45,
+  "project": {
+    "name": "AgentSquad Initiative",
+    "description": "Building an intelligent agent coordination system",
+    "startDate": "2024-01-15",
+    "endDate": "2024-12-31"
+  },
   "milestones": [
     {
       "id": "m1",
-      "name": "Phase 1 Planning",
-      "targetDate": "2025-02-15",
-      "status": 2,
+      "name": "Architecture & Design",
+      "targetDate": "2024-03-15",
+      "status": "Completed",
       "completionPercentage": 100
     },
     {
       "id": "m2",
-      "name": "Phase 2 Development",
-      "targetDate": "2025-06-30",
-      "status": 1,
-      "completionPercentage": 60
+      "name": "Core Development",
+      "targetDate": "2024-06-30",
+      "status": "InProgress",
+      "completionPercentage": 65
     },
     {
       "id": "m3",
-      "name": "Phase 3 Testing",
-      "targetDate": "2025-09-30",
-      "status": 0,
+      "name": "Integration & Testing",
+      "targetDate": "2024-09-15",
+      "status": "Pending",
+      "completionPercentage": 0
+    },
+    {
+      "id": "m4",
+      "name": "Deployment & Training",
+      "targetDate": "2024-12-31",
+      "status": "Pending",
       "completionPercentage": 0
     }
   ],
   "tasks": [
     {
       "id": "t1",
-      "name": "Design system architecture",
-      "owner": "Sarah Johnson",
-      "status": 0,
-      "description": "Complete architectural design",
-      "createdDate": "2025-01-10"
+      "name": "Requirements gathering",
+      "owner": "Alice Chen",
+      "status": "Shipped",
+      "dueDate": "2024-02-01"
     },
     {
       "id": "t2",
-      "name": "Implement core API endpoints",
-      "owner": "Mike Chen",
-      "status": 0,
-      "description": "Build REST API structure",
-      "createdDate": "2025-01-15"
+      "name": "UI/UX design",
+      "owner": "Bob Martinez",
+      "status": "Shipped",
+      "dueDate": "2024-03-01"
     },
     {
       "id": "t3",
-      "name": "Frontend component library",
-      "owner": "Emma Wilson",
-      "status": 0,
-      "description": "Create reusable UI components",
-      "createdDate": "2025-01-20"
+      "name": "Database schema",
+      "owner": "Carol Singh",
+      "status": "Shipped",
+      "dueDate": "2024-03-15"
     },
     {
       "id": "t4",
-      "name": "Database schema design",
-      "owner": "James Martinez",
-      "status": 1,
-      "description": "Design and optimize database",
-      "createdDate": "2025-01-12"
+      "name": "API implementation",
+      "owner": "David Lee",
+      "status": "InProgress",
+      "dueDate": "2024-05-15"
     },
     {
       "id": "t5",
-      "name": "Authentication implementation",
-      "owner": "Lisa Anderson",
-      "status": 1,
-      "description": "Implement secure auth system",
-      "createdDate": "2025-01-18"
+      "name": "Frontend components",
+      "owner": "Emma Johnson",
+      "status": "InProgress",
+      "dueDate": "2024-05-30"
     },
     {
       "id": "t6",
-      "name": "Initial code review setup",
-      "owner": "David Thompson",
-      "status": 1,
-      "description": "Configure CI/CD pipeline",
-      "createdDate": "2025-01-22"
+      "name": "Backend services",
+      "owner": "Frank Williams",
+      "status": "InProgress",
+      "dueDate": "2024-06-15"
     },
     {
       "id": "t7",
-      "name": "Setup development environment",
-      "owner": "Robert Garcia",
-      "status": 2,
-      "description": "Configure dev tools and dependencies",
-      "createdDate": "2024-12-20"
+      "name": "Integration testing",
+      "owner": "Grace Park",
+      "status": "CarriedOver",
+      "dueDate": "2024-08-01"
     },
     {
       "id": "t8",
-      "name": "Version control setup",
-      "owner": "Jessica Lee",
-      "status": 2,
-      "description": "Initialize Git repository and branching strategy",
-      "createdDate": "2024-12-18"
+      "name": "Performance optimization",
+      "owner": "Henry Brown",
+      "status": "CarriedOver",
+      "dueDate": "2024-08-15"
     }
-  ]
+  ],
+  "summary": {
+    "completionPercentage": 42,
+    "tasksShipped": 3,
+    "tasksInProgress": 3,
+    "tasksCarriedOver": 2
+  }
 }

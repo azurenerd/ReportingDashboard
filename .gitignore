@@ -1,27 +1,7 @@
-## Ignore build results
 bin/
 obj/
-dist/
-
-## Ignore wwwroot (except data.json and css/)
-wwwroot/*.html
-wwwroot/lib/
-wwwroot/*.js
-wwwroot/*.css
-!wwwroot/css/
-!wwwroot/data.json
-
-## IDE
 .vs/
 .vscode/
 *.user
 *.suo
-*.userprefs
-
-## OS
-.DS_Store
-Thumbs.db
-
-## Environment
-.env
-appsettings.Local.json
+*.sln.docstates

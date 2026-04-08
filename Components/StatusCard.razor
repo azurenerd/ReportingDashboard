@@ -1,163 +1,57 @@
-@* StatusCard.razor - Displays task count and expandable task list for each status category *@
+@using AgentSquad.Runner.Data
 
-<div class="card card-status h-100 shadow-sm">
-    <div class="card-header @GetHeaderColorClass()">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 text-white">
-                <strong>@StatusCategory</strong>
-            </h5>
-            <span class="badge bg-light text-dark">@(Tasks?.Count ?? 0)</span>
-        </div>
+<div class="status-card">
+    <div class="status-card-header @CardColor">
+        <p class="status-card-count">@TaskCount</p>
+        <p class="status-card-label">@StatusCategory</p>
     </div>
-    
-    <div class="card-body">
-        @if (Tasks != null && Tasks.Any())
+    <div class="status-card-body">
+        @if (Tasks == null || Tasks.Count == 0)
         {
-            <button class="btn btn-link btn-sm p-0 text-decoration-none w-100 text-start collapse-toggle" 
-                    type="button" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target="@GetCollapseId()" 
-                    aria-expanded="false" 
-                    aria-controls="@GetCollapseId()">
-                <span class="toggle-icon">
-                    <i class="bi bi-chevron-down"></i>
-                </span>
-                <span class="toggle-text text-muted">
-                    Show @Tasks.Count task@(Tasks.Count != 1 ? "s" : "")
-                </span>
-            </button>
-            
-            <div class="collapse mt-3" id="@GetCollapseId()">
-                <div class="task-list">
-                    @foreach (var task in Tasks)
-                    {
-                        @if (task != null)
-                        {
-                            <div class="task-item d-flex align-items-start mb-3">
-                                <div class="form-check me-3">
-                                    <input type="checkbox" 
-                                           class="form-check-input" 
-                                           id="@GetTaskCheckboxId(task.Id)" 
-                                           disabled />
-                                </div>
-                                <div class="flex-grow-1">
-                                    <label class="task-name" for="@GetTaskCheckboxId(task.Id)">
-                                        @(string.IsNullOrWhiteSpace(task.Name) ? "(Unnamed Task)" : task.Name)
-                                    </label>
-                                    @if (!string.IsNullOrWhiteSpace(task.Owner))
-                                    {
-                                        <div class="task-owner">
-                                            <small class="text-muted">@task.Owner</small>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    }
-                </div>
-            </div>
+            <p class="text-muted small">No tasks in this category.</p>
         }
         else
         {
-            <div class="text-muted text-center py-3">
-                <small>No tasks</small>
+            <button class="btn btn-sm btn-outline-secondary w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@(StatusCategory?.Replace(" ", "-"))" aria-expanded="false">
+                Show Tasks (@Tasks.Count)
+            </button>
+            <div class="collapse" id="collapse-@(StatusCategory?.Replace(" ", "-"))">
+                <div class="task-list">
+                    @foreach (var task in Tasks)
+                    {
+                        <div class="task-item">
+                            <span class="task-checkbox">✓</span>
+                            <span>@task.Name</span>
+                            @if (!string.IsNullOrEmpty(task.Owner))
+                            {
+                                <span class="task-owner">@task.Owner</span>
+                            }
+                        </div>
+                    }
+                </div>
             </div>
         }
     </div>
 </div>
 
 @code {
-    /// <summary>
-    /// Status category name (e.g., "Shipped", "In-Progress", "Carried-Over")
-    /// </summary>
     [Parameter]
-    public string StatusCategory { get; set; } = string.Empty;
+    public string? StatusCategory { get; set; }
 
-    /// <summary>
-    /// Total count of tasks in this status category
-    /// </summary>
     [Parameter]
-    public int TaskCount { get; set; } = 0;
+    public int TaskCount { get; set; }
 
-    /// <summary>
-    /// List of task items to display
-    /// </summary>
     [Parameter]
-    public List<TaskItem>? Tasks { get; set; }
+    public List<Task>? Tasks { get; set; }
 
-    /// <summary>
-    /// CSS class for card header color (e.g., "bg-success", "bg-primary", "bg-warning")
-    /// </summary>
     [Parameter]
-    public string CardColor { get; set; } = "bg-secondary";
+    public string? CardColor { get; set; }
 
-    private bool parameterValidationFailed = false;
-    private string validationErrorMessage = string.Empty;
-
-    /// <summary>
-    /// Lifecycle method to validate component parameters on initialization
-    /// </summary>
     protected override void OnInitialized()
     {
-        ValidateParameters();
+        if (string.IsNullOrEmpty(StatusCategory))
+            throw new InvalidOperationException("StatusCategory parameter is required");
+
+        Tasks ??= new();
     }
-
-    /// <summary>
-    /// Validates component parameters and sets error state if invalid
-    /// </summary>
-    private void ValidateParameters()
-    {
-        parameterValidationFailed = false;
-        validationErrorMessage = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(StatusCategory))
-        {
-            parameterValidationFailed = true;
-            validationErrorMessage = "StatusCategory parameter is required.";
-            return;
-        }
-
-        if (TaskCount < 0)
-        {
-            parameterValidationFailed = true;
-            validationErrorMessage = "TaskCount cannot be negative.";
-        }
-
-        if (Tasks == null)
-        {
-            Tasks = new();
-        }
-
-        if (string.IsNullOrWhiteSpace(CardColor))
-        {
-            CardColor = "bg-secondary";
-        }
-
-        int actualTaskCount = Tasks.Count(t => t != null);
-        if (actualTaskCount != TaskCount && TaskCount > 0)
-        {
-            validationErrorMessage += $" Warning: TaskCount ({TaskCount}) does not match Tasks list count ({actualTaskCount}).";
-        }
-    }
-
-    /// <summary>
-    /// Returns the CSS class for the card header based on CardColor parameter
-    /// </summary>
-    private string GetHeaderColorClass() => CardColor switch
-    {
-        "shipped" or "Shipped" or "success" or "bg-success" => "bg-success",
-        "inprogress" or "in-progress" or "InProgress" or "primary" or "bg-primary" => "bg-primary",
-        "carriedover" or "carried-over" or "CarriedOver" or "warning" or "bg-warning" => "bg-warning",
-        _ => "bg-secondary"
-    };
-
-    /// <summary>
-    /// Generates a unique collapse ID for this card's task list
-    /// </summary>
-    private string GetCollapseId() => $"#collapse-{StatusCategory.Replace(" ", "-").Replace(".", "").ToLower()}";
-
-    /// <summary>
-    /// Generates a unique checkbox ID for a task
-    /// </summary>
-    private string GetTaskCheckboxId(string? taskId) => $"task-checkbox-{taskId ?? "unknown"}";
 }

@@ -1,23 +1,41 @@
 @inherits LayoutComponentBase
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Executive reporting dashboard for real-time project visibility" />
-    <title>Executive Dashboard</title>
-    <base href="/" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
-    <link href="css/app.css" rel="stylesheet" />
-    <link href="css/dashboard.css" rel="stylesheet" />
-</head>
-<body>
-    <main role="main">
+<div class="page">
+    <header class="navbar navbar-dark bg-dark sticky-top shadow-sm">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-speedometer2" viewBox="0 0 16 16" style="display: inline-block; margin-right: 0.5rem; vertical-align: text-bottom;">
+                    <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l1.415 1.415a.5.5 0 1 1-.707.707L3.732 6.439a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.735-4.268a.5.5 0 0 1 .707 0l1.414 1.415a.5.5 0 1 1-.707.707l-1.414-1.415a.5.5 0 0 1 0-.707zM8 13a.5.5 0 0 1 .5.5v1.5a.5.5 0 0 1-1 0V13.5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0z"/>
+                </svg>
+                Executive Dashboard
+            </span>
+        </div>
+    </header>
+    
+    <main class="flex-shrink-0">
         @Body
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9uj9qoOAk/0umoLpBbcP8aAqxn+7x58D66H8wDVUo4fOQlgvJ2mw4fa0" crossorigin="anonymous"></script>
-</body>
-</html>
+    <footer class="footer mt-auto py-3 bg-light border-top">
+        <div class="container-fluid text-center">
+            <span class="text-muted">Executive Dashboard &copy; 2024</span>
+        </div>
+    </footer>
+</div>
+
+<style>
+    .page {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    main {
+        flex: 1;
+    }
+
+    .footer {
+        font-size: 0.875rem;
+    }
+</style>

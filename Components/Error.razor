@@ -1,0 +1,32 @@
+@page "/Error"
+@using System.Diagnostics
+
+<PageTitle>Error</PageTitle>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">An error has occurred.</h4>
+                <p>An unhandled exception has occurred. Please try refreshing the page.</p>
+                @if (ShowDetails)
+                {
+                    <hr />
+                    <pre style="color: #721c24;">@ExceptionMessage</pre>
+                }
+            </div>
+            <a href="/" class="btn btn-primary">Return to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string? ExceptionMessage { get; set; }
+    private bool ShowDetails { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ShowDetails = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")) &&
+                      Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+    }
+}
