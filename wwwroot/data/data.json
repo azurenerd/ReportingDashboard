@@ -1,40 +1,136 @@
 {
-  "projectName": "Executive Dashboard Project",
-  "description": "Real-time project status reporting dashboard",
-  "startDate": "2026-02-07T00:00:00Z",
-  "endDate": "2026-06-07T00:00:00Z",
-  "totalTasks": 24,
-  "completedTasks": 8,
+  "project": {
+    "name": "Q2 Mobile App Release",
+    "description": "iOS and Android mobile app version 2.0 with new payment integration",
+    "startDate": "2026-04-01",
+    "endDate": "2026-06-30",
+    "status": "OnTrack",
+    "sponsor": "VP of Product",
+    "projectManager": "Jane Smith"
+  },
   "milestones": [
     {
       "id": "m1",
-      "name": "Project Kickoff",
-      "targetDate": "2026-03-09T00:00:00Z",
-      "actualDate": "2026-03-09T00:00:00Z",
+      "name": "Design Review Complete",
+      "targetDate": "2026-04-15",
+      "actualDate": "2026-04-12",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
       "id": "m2",
-      "name": "Phase 1 Design Review",
-      "targetDate": "2026-03-29T00:00:00Z",
-      "actualDate": "2026-03-29T00:00:00Z",
-      "status": "Completed",
-      "completionPercentage": 100
-    },
-    {
-      "id": "m3",
-      "name": "Development Sprint 1",
-      "targetDate": "2026-04-23T00:00:00Z",
+      "name": "Development Sprint 1 Done",
+      "targetDate": "2026-05-01",
+      "actualDate": null,
       "status": "InProgress",
       "completionPercentage": 65
     },
     {
-      "id": "m4",
-      "name": "Quality Assurance & Testing",
-      "targetDate": "2026-05-23T00:00:00Z",
+      "id": "m3",
+      "name": "QA Testing Complete",
+      "targetDate": "2026-06-01",
+      "actualDate": null,
       "status": "Pending",
       "completionPercentage": 0
     }
-  ]
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "name": "API Authentication Module",
+      "status": "Shipped",
+      "assignedTo": "John Doe",
+      "dueDate": "2026-04-20",
+      "estimatedDays": 5,
+      "relatedMilestone": "m1"
+    },
+    {
+      "id": "t2",
+      "name": "Payment Integration",
+      "status": "InProgress",
+      "assignedTo": "Alice Brown",
+      "dueDate": "2026-05-10",
+      "estimatedDays": 8,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t3",
+      "name": "iOS Push Notifications",
+      "status": "CarriedOver",
+      "assignedTo": "Bob Wilson",
+      "dueDate": "2026-05-15",
+      "estimatedDays": 6,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t4",
+      "name": "UI Wireframes and Mockups",
+      "status": "Shipped",
+      "assignedTo": "Sarah Chen",
+      "dueDate": "2026-04-10",
+      "estimatedDays": 4,
+      "relatedMilestone": "m1"
+    },
+    {
+      "id": "t5",
+      "name": "Database Schema Design",
+      "status": "Shipped",
+      "assignedTo": "Michael Rodriguez",
+      "dueDate": "2026-04-18",
+      "estimatedDays": 3,
+      "relatedMilestone": "m1"
+    },
+    {
+      "id": "t6",
+      "name": "Android Implementation",
+      "status": "InProgress",
+      "assignedTo": "Emma Thompson",
+      "dueDate": "2026-05-20",
+      "estimatedDays": 10,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t7",
+      "name": "iOS Implementation",
+      "status": "InProgress",
+      "assignedTo": "David Kumar",
+      "dueDate": "2026-05-20",
+      "estimatedDays": 10,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t8",
+      "name": "Unit Testing Framework Setup",
+      "status": "Shipped",
+      "assignedTo": "Lisa Wang",
+      "dueDate": "2026-04-25",
+      "estimatedDays": 2,
+      "relatedMilestone": "m1"
+    },
+    {
+      "id": "t9",
+      "name": "Integration Testing Suite",
+      "status": "CarriedOver",
+      "assignedTo": "James Mitchell",
+      "dueDate": "2026-05-25",
+      "estimatedDays": 7,
+      "relatedMilestone": "m3"
+    },
+    {
+      "id": "t10",
+      "name": "Performance Optimization",
+      "status": "CarriedOver",
+      "assignedTo": "Patricia Davis",
+      "dueDate": "2026-06-10",
+      "estimatedDays": 5,
+      "relatedMilestone": "m3"
+    }
+  ],
+  "metrics": {
+    "totalTasks": 10,
+    "completedTasks": 4,
+    "inProgressTasks": 3,
+    "carriedOverTasks": 3,
+    "estimatedBurndownRate": 1.2
+  }
 }
