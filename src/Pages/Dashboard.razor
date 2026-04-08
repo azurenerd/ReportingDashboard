@@ -1,0 +1,58 @@
+@page "/"
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
+@inject ProjectDataService ProjectDataService
+
+<div class="container-fluid py-5">
+    <div class="row mb-5">
+        <div class="col-12">
+            <h1 class="mb-4">Executive Dashboard</h1>
+        </div>
+    </div>
+
+    @if (ProjectData != null)
+    {
+        <section class="section-spacing">
+            <MilestoneTimeline Milestones="ProjectData.Milestones" />
+        </section>
+
+        <section class="section-spacing">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="mb-4">Task Status Overview</h2>
+                </div>
+            </div>
+            <div class="row metrics-row">
+                <StatusCard StatusLabel="Shipped" TaskCount="ProjectData.ShippedCount" Tasks="ProjectData.ShippedTasks" />
+                <StatusCard StatusLabel="In Progress" TaskCount="ProjectData.InProgressCount" Tasks="ProjectData.InProgressTasks" />
+                <StatusCard StatusLabel="Carried Over" TaskCount="ProjectData.CarriedOverCount" Tasks="ProjectData.CarriedOverTasks" />
+            </div>
+        </section>
+
+        <section class="section-spacing">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="mb-4">Progress Metrics</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <ProgressMetrics CompletionPercentage="ProjectData.CompletionPercentage" />
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <div class="alert alert-info">Loading dashboard data...</div>
+    }
+</div>
+
+@code {
+    private ProjectData ProjectData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProjectData = await ProjectDataService.LoadProjectDataAsync();
+    }
+}

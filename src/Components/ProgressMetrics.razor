@@ -1,0 +1,22 @@
+@using AgentSquad.Runner.Models
+
+<div class="metrics-row">
+    <div class="col-12">
+        <div class="card metric-card">
+            <div class="card-body card-spacing">
+                <h5 class="card-title">Overall Completion</h5>
+                <div class="progress mb-3">
+                    <div class="progress-bar bg-success progress-bar-text" role="progressbar" style="width: @CompletionPercentage%" aria-valuenow="@CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                        <span class="progress-text">@CompletionPercentage%</span>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">Project progress towards completion</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int CompletionPercentage { get; set; }
+}

@@ -1,37 +1,36 @@
 @using AgentSquad.Runner.Models
+
 @if (Milestones != null && Milestones.Count > 0)
 {
-    <div class="section-spacing timeline-section">
+    <div class="timeline-section">
         <h2>Project Milestones</h2>
         <div class="timeline-container">
             <div class="row">
                 @foreach (var milestone in Milestones)
                 {
-                    <div class="col-12 col-md-6 col-lg-4 mb-3">
-                        <div class="card status-card">
+                    <div class="col-12 col-md-6 col-lg-4 mb-4">
+                        <div class="card status-card milestone-card h-100">
                             <div class="card-body card-spacing">
-                                <h5>@milestone.Name</h5>
-                                <p class="text-muted mb-2">Target: @milestone.TargetDate.ToShortDateString()</p>
-                                <div class="progress">
-                                    <div class="progress-bar" style="width: @milestone.CompletionPercentage%">
-                                        @milestone.CompletionPercentage%
+                                <h5 class="card-title">@milestone.Name</h5>
+                                <p class="text-muted small mb-2">Target: @milestone.TargetDate.ToShortDateString()</p>
+                                <div class="progress mb-3">
+                                    <div class="progress-bar bg-primary progress-bar-text" role="progressbar" style="width: @milestone.CompletionPercentage%" aria-valuenow="@milestone.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                                        <span class="progress-text">@milestone.CompletionPercentage%</span>
                                     </div>
                                 </div>
-                                <p class="mt-2 mb-0">
-                                    <small>
-                                        @if (milestone.Status == MilestoneStatus.Completed)
-                                        {
-                                            <span class="badge bg-success">Completed</span>
-                                        }
-                                        else if (milestone.Status == MilestoneStatus.InProgress)
-                                        {
-                                            <span class="badge bg-primary">In Progress</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">Pending</span>
-                                        }
-                                    </small>
+                                <p class="mb-0">
+                                    @if (milestone.Status == MilestoneStatus.Completed)
+                                    {
+                                        <span class="badge milestone-badge-completed">Completed</span>
+                                    }
+                                    else if (milestone.Status == MilestoneStatus.InProgress)
+                                    {
+                                        <span class="badge milestone-badge-inprogress">In Progress</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge milestone-badge-pending">Pending</span>
+                                    }
                                 </p>
                             </div>
                         </div>
