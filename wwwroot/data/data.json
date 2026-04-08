@@ -4,8 +4,26 @@
   "projectEndDate": "2026-06-30",
   "milestones": [
     {
-      "name": "",
-      "targetDate": "",
+      "name": "Requirements & Design",
+      "targetDate": "2026-04-15",
+      "status": "Completed",
+      "completionPercentage": 100
+    },
+    {
+      "name": "Development Sprint 1",
+      "targetDate": "2026-05-01",
+      "status": "Completed",
+      "completionPercentage": 100
+    },
+    {
+      "name": "Development Sprint 2 & QA",
+      "targetDate": "2026-05-20",
+      "status": "InProgress",
+      "completionPercentage": 75
+    },
+    {
+      "name": "Release & Deployment",
+      "targetDate": "2026-06-15",
       "status": "Pending",
       "completionPercentage": 0
     }
