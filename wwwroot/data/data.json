@@ -1,93 +1,142 @@
 {
   "project": {
+    "id": "p1",
     "name": "Q2 Mobile App Release",
+    "description": "Mobile app release for Q2 2025 including core features and integration with payment systems",
+    "status": "InProgress",
+    "sponsor": "Executive Leadership",
+    "projectManager": "Jennifer West",
     "startDate": "2025-04-01",
-    "endDate": "2025-06-30",
-    "overallCompletionPercentage": 62,
-    "milestones": [
-      {
-        "id": "m1",
-        "name": "Alpha Release",
-        "targetDate": "2025-04-15",
-        "status": "Completed",
-        "completionPercentage": 100
-      },
-      {
-        "id": "m2",
-        "name": "Beta Testing",
-        "targetDate": "2025-05-15",
-        "status": "InProgress",
-        "completionPercentage": 65
-      },
-      {
-        "id": "m3",
-        "name": "Production Launch",
-        "targetDate": "2025-06-25",
-        "status": "Pending",
-        "completionPercentage": 0
-      }
-    ],
-    "tasks": [
-      {
-        "id": "t1",
-        "name": "User authentication module",
-        "status": "Shipped",
-        "owner": "Sarah Chen"
-      },
-      {
-        "id": "t2",
-        "name": "Database schema design",
-        "status": "Shipped",
-        "owner": "James Rodriguez"
-      },
-      {
-        "id": "t3",
-        "name": "API endpoint setup",
-        "status": "Shipped",
-        "owner": "Priya Patel"
-      },
-      {
-        "id": "t4",
-        "name": "Core UI framework",
-        "status": "Shipped",
-        "owner": "Marcus Johnson"
-      },
-      {
-        "id": "t5",
-        "name": "Payment integration",
-        "status": "InProgress",
-        "owner": "Elena Garcia"
-      },
-      {
-        "id": "t6",
-        "name": "Push notifications",
-        "status": "InProgress",
-        "owner": "David Kim"
-      },
-      {
-        "id": "t7",
-        "name": "Social sharing features",
-        "status": "InProgress",
-        "owner": "Lisa Anderson"
-      },
-      {
-        "id": "t8",
-        "name": "Analytics tracking",
-        "status": "InProgress",
-        "owner": "Thomas Mueller"
-      },
-      {
-        "id": "t9",
-        "name": "Offline mode support",
-        "status": "CarriedOver",
-        "owner": "Sophie Laurent"
-      },
-      {
-        "id": "t10",
-        "name": "Advanced search functionality",
-        "status": "CarriedOver",
-        "owner": "Ryan O'Connor"
-      }
-    ]
+    "endDate": "2025-06-30"
+  },
+  "milestones": [
+    {
+      "id": "m1",
+      "name": "Alpha Release",
+      "description": "Internal alpha release for testing",
+      "targetDate": "2025-04-15",
+      "actualDate": "2025-04-14",
+      "status": "Completed",
+      "completionPercentage": 100
+    },
+    {
+      "id": "m2",
+      "name": "Beta Testing",
+      "description": "External beta testing with select users",
+      "targetDate": "2025-05-15",
+      "actualDate": null,
+      "status": "InProgress",
+      "completionPercentage": 65
+    },
+    {
+      "id": "m3",
+      "name": "Production Launch",
+      "description": "Full production release to all users",
+      "targetDate": "2025-06-25",
+      "actualDate": null,
+      "status": "Pending",
+      "completionPercentage": 0
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "name": "User authentication module",
+      "status": "Shipped",
+      "assignedTo": "Sarah Chen",
+      "dueDate": "2025-04-10",
+      "estimatedDays": 8,
+      "relatedMilestone": "m1"
+    },
+    {
+      "id": "t2",
+      "name": "Database schema design",
+      "status": "Shipped",
+      "assignedTo": "James Rodriguez",
+      "dueDate": "2025-04-08",
+      "estimatedDays": 5,
+      "relatedMilestone": "m1"
+    },
+    {
+      "id": "t3",
+      "name": "API endpoint setup",
+      "status": "Shipped",
+      "assignedTo": "Priya Patel",
+      "dueDate": "2025-04-12",
+      "estimatedDays": 6,
+      "relatedMilestone": "m1"
+    },
+    {
+      "id": "t4",
+      "name": "Core UI framework",
+      "status": "Shipped",
+      "assignedTo": "Marcus Johnson",
+      "dueDate": "2025-04-13",
+      "estimatedDays": 7,
+      "relatedMilestone": "m1"
+    },
+    {
+      "id": "t5",
+      "name": "Payment integration",
+      "status": "InProgress",
+      "assignedTo": "Elena Garcia",
+      "dueDate": "2025-05-10",
+      "estimatedDays": 10,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t6",
+      "name": "Push notifications",
+      "status": "InProgress",
+      "assignedTo": "David Kim",
+      "dueDate": "2025-05-12",
+      "estimatedDays": 8,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t7",
+      "name": "Social sharing features",
+      "status": "InProgress",
+      "assignedTo": "Lisa Anderson",
+      "dueDate": "2025-05-15",
+      "estimatedDays": 9,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t8",
+      "name": "Analytics tracking",
+      "status": "InProgress",
+      "assignedTo": "Thomas Mueller",
+      "dueDate": "2025-05-20",
+      "estimatedDays": 6,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t9",
+      "name": "Offline mode support",
+      "status": "CarriedOver",
+      "assignedTo": "Sophie Laurent",
+      "dueDate": "2025-06-15",
+      "estimatedDays": 12,
+      "relatedMilestone": "m3"
+    },
+    {
+      "id": "t10",
+      "name": "Advanced search functionality",
+      "status": "CarriedOver",
+      "assignedTo": "Ryan O'Connor",
+      "dueDate": "2025-06-20",
+      "estimatedDays": 10,
+      "relatedMilestone": "m3"
+    }
+  ],
+  "metrics": {
+    "totalTasks": 10,
+    "completedTasks": 4,
+    "inProgressTasks": 4,
+    "carriedOverTasks": 2,
+    "estimatedBurndownRate": 0.62,
+    "projectStartDate": "2025-04-01",
+    "projectEndDate": "2025-06-30"
   }
 }
