@@ -1,0 +1,42 @@
+@using AgentSquad.Runner.Components
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
+@inherits LayoutComponentBase
+@inject IDataProvider DataProvider
+@inject ILogger<MainLayout> Logger
+
+<div class="page">
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <ErrorBoundary ErrorMessage="_errorMessage" OnRetry="HandleRetry" OnDismiss="HandleDismiss" />
+    }
+
+    <main>
+        @Body
+    </main>
+</div>
+
+@code {
+    private string? _errorMessage;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Logger.LogInformation("[{Timestamp}] MainLayout initialized", DateTime.UtcNow:O);
+    }
+
+    private async Task HandleRetry()
+    {
+        Logger.LogInformation("[{Timestamp}] Retry requested by user", DateTime.UtcNow:O);
+        DataProvider.InvalidateCache();
+        _errorMessage = null;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleDismiss()
+    {
+        Logger.LogInformation("[{Timestamp}] Error dismissed by user", DateTime.UtcNow:O);
+        _errorMessage = null;
+        await InvokeAsync(StateHasChanged);
+    }
+}
