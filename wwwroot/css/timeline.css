@@ -48,22 +48,36 @@
     background-color: var(--color-future);
     border: 2px solid #ffffff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
 }
 
 [data-status="completed"] .milestone-status-badge {
     background-color: var(--color-completed);
+    border-color: #27ae60;
+    box-shadow: 0 2px 4px rgba(46, 204, 113, 0.3);
 }
 
 [data-status="inprogress"] .milestone-status-badge {
     background-color: var(--color-inprogress);
+    border-color: #2980b9;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
 }
 
 [data-status="atrisk"] .milestone-status-badge {
     background-color: var(--color-atrisk);
+    border-color: #c0392b;
+    box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
 }
 
 [data-status="future"] .milestone-status-badge {
     background-color: var(--color-future);
+    border-color: #7f8c8d;
+    box-shadow: 0 2px 4px rgba(149, 165, 166, 0.3);
+}
+
+.timeline-item:hover .milestone-status-badge {
+    transform: scale(1.15);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 .milestone-name {
