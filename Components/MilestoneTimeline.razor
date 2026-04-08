@@ -1,31 +1,108 @@
-@using System
-@using System.Collections.Generic
+@using AgentSquad.Runner.Models
+@namespace AgentSquad.Runner.Components
 
-<div class="timeline-container">
-    @if (Milestones == null || Milestones.Count == 0)
-    {
-        <div class="timeline-empty-state">
-            <p>No milestones available</p>
-        </div>
-    }
-    else
-    {
-        @foreach (var milestone in Milestones)
+@if (Milestones == null || Milestones.Count == 0)
+{
+    <div class="milestone-empty">No milestones available</div>
+}
+else
+{
+    <div class="milestones-container">
+        @foreach (var milestone in Milestones.OrderBy(m => m.TargetDate))
         {
-            <div class="timeline-item" data-status="@milestone.Status.ToString().ToLower()">
-                <div class="milestone-status-badge"></div>
-                <div class="milestone-name">@milestone.Name</div>
-                <div class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</div>
-                @if (!string.IsNullOrEmpty(milestone.Description))
-                {
-                    <div class="milestone-description">@milestone.Description</div>
-                }
+            <div class="milestone-item milestone-@milestone.Status.ToString().ToLower()">
+                <div class="milestone-marker">●</div>
+                <div class="milestone-content">
+                    <div class="milestone-name">@milestone.Name</div>
+                    <div class="milestone-date">@milestone.TargetDate:MMM dd, yyyy</div>
+                    @if (!string.IsNullOrEmpty(milestone.Description))
+                    {
+                        <div class="milestone-description">@milestone.Description</div>
+                    }
+                </div>
             </div>
         }
+    </div>
+}
+
+<style>
+    .milestone-empty {
+        padding: 20px;
+        text-align: center;
+        color: #999;
+        font-style: italic;
     }
-</div>
+
+    .milestones-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .milestone-item {
+        display: flex;
+        gap: 12px;
+        padding: 12px;
+        border-left: 4px solid #ccc;
+        border-radius: 4px;
+        background: #f9f9f9;
+    }
+
+    .milestone-completed {
+        border-left-color: #4caf50;
+        background: #f1f8f4;
+    }
+
+    .milestone-inprogress {
+        border-left-color: #2196f3;
+        background: #f3f6fb;
+    }
+
+    .milestone-atrisk {
+        border-left-color: #f44336;
+        background: #fef3f2;
+    }
+
+    .milestone-future {
+        border-left-color: #9e9e9e;
+        background: #fafafa;
+    }
+
+    .milestone-marker {
+        font-size: 24px;
+        line-height: 1.5;
+        min-width: 30px;
+    }
+
+    .milestone-completed .milestone-marker { color: #4caf50; }
+    .milestone-inprogress .milestone-marker { color: #2196f3; }
+    .milestone-atrisk .milestone-marker { color: #f44336; }
+    .milestone-future .milestone-marker { color: #9e9e9e; }
+
+    .milestone-content {
+        flex: 1;
+    }
+
+    .milestone-name {
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+    }
+
+    .milestone-date {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 4px;
+    }
+
+    .milestone-description {
+        font-size: 13px;
+        color: #888;
+        font-style: italic;
+    }
+</style>
 
 @code {
     [Parameter]
-    public List<Milestone> Milestones { get; set; }
+    public List<Milestone>? Milestones { get; set; }
 }
