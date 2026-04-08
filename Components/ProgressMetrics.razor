@@ -1,19 +1,90 @@
+@using System
+@using System.Collections.Generic
 @using AgentSquad.Runner.Data
+@inject ILogger<ProgressMetrics> Logger
 
-<div class="progress-section">
-    <p class="text-muted">Progress metrics component placeholder - completion tracking and charts coming in future steps</p>
+<div class="progress-metrics-container">
+    <div class="row">
+        <div class="col-12">
+            @if (Metrics != null)
+            {
+                <div class="metrics-content">
+                    <div class="progress-section mb-4">
+                        <h3 class="text-muted mb-3">Project Progress</h3>
+                        
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar bg-success" 
+                                 role="progressbar" 
+                                 style="width: @(Metrics.CompletionPercentage)%;" 
+                                 aria-valuenow="@Metrics.CompletionPercentage" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                        
+                        <div class="completion-percentage text-center mb-4">
+                            <span class="display-4 fw-bold">@Metrics.CompletionPercentage%</span>
+                            <p class="text-muted">Complete (@Metrics.CompletedTasks of @Metrics.TotalTasks tasks)</p>
+                        </div>
+                    </div>
+
+                    <div class="burndown-section">
+                        <h4 class="text-muted mb-3">Burn-down Chart</h4>
+                        <canvas id="burndownChart" width="400" height="150"></canvas>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning" role="alert">
+                    <strong>Metrics unavailable</strong>
+                    <p class="mb-0">Project metrics data is not available. Please check data.json configuration.</p>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
 @code {
     [Parameter]
-    public int CompletionPercentage { get; set; }
+    public ProjectMetrics Metrics { get; set; }
 
-    [Parameter]
-    public int TotalTasks { get; set; }
-
-    [Parameter]
-    public int CompletedTasks { get; set; }
-
-    [Parameter]
-    public double BurndownRate { get; set; }
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("ProgressMetrics component initialized with metrics: {Metrics}", 
+            Metrics != null ? $"CP={Metrics.CompletionPercentage}%" : "null");
+    }
 }
+
+<style>
+    .progress-metrics-container {
+        padding: 20px 0;
+    }
+
+    .metrics-content {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 24px;
+        border: 1px solid #dee2e6;
+    }
+
+    .progress-section {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 20px;
+    }
+
+    .completion-percentage {
+        font-size: 24pt;
+        font-weight: bold;
+        color: #495057;
+    }
+
+    .burndown-section {
+        margin-top: 20px;
+    }
+
+    #burndownChart {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
