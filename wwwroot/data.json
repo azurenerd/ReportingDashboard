@@ -1,85 +1,103 @@
 {
-  "name": "Executive Project Dashboard Demo",
-  "description": "Sample project for dashboard demonstration",
-  "startDate": "2024-01-15",
-  "targetEndDate": "2024-12-31",
-  "completionPercentage": 62,
+  "name": "Executive Dashboard Q1 2024 Initiative",
+  "description": "Strategic project delivering enhanced reporting capabilities and performance optimization for executive visibility into project health and team velocity.",
+  "startDate": "2024-01-01",
+  "targetEndDate": "2024-03-31",
+  "completionPercentage": 65,
   "healthStatus": "OnTrack",
-  "velocityThisMonth": 18,
+  "velocityThisMonth": 12,
   "milestones": [
     {
-      "name": "Phase 1: Foundation",
-      "targetDate": "2024-03-31",
+      "name": "Phase 1: Discovery & Design",
+      "targetDate": "2024-01-31",
       "status": "Completed",
-      "description": "Core infrastructure and setup"
+      "description": "Stakeholder interviews, requirements gathering, and design mockups complete"
     },
     {
-      "name": "Phase 2: Core Features",
-      "targetDate": "2024-06-30",
+      "name": "Phase 2: Core Development",
+      "targetDate": "2024-02-28",
       "status": "InProgress",
-      "description": "Primary feature development"
+      "description": "Backend services and primary component development in progress"
     },
     {
-      "name": "Phase 3: Integration",
-      "targetDate": "2024-09-30",
-      "status": "Future",
-      "description": "Third-party integrations"
+      "name": "Phase 2b: Performance Optimization",
+      "targetDate": "2024-02-20",
+      "status": "AtRisk",
+      "description": "Performance benchmarking at risk due to infrastructure delays; may impact Phase 3 timeline"
     },
     {
-      "name": "Phase 4: Launch",
-      "targetDate": "2024-12-15",
+      "name": "Phase 3: Integration & Testing",
+      "targetDate": "2024-03-15",
       "status": "Future",
-      "description": "Production release"
+      "description": "System integration and comprehensive testing planned"
+    },
+    {
+      "name": "Phase 4: Production Deployment",
+      "targetDate": "2024-03-31",
+      "status": "Future",
+      "description": "Final deployment and go-live scheduled"
     }
   ],
   "workItems": [
     {
-      "title": "API Authentication",
-      "description": "Implement OAuth2 authentication layer",
+      "title": "API Integration Layer Complete",
+      "description": "Successfully integrated third-party data source API with full authentication and error handling. 100+ hours of development and testing completed.",
       "status": "Shipped",
       "assignedTo": "Backend Team"
     },
     {
-      "title": "Dashboard UI",
-      "description": "Build responsive executive dashboard",
+      "title": "Database Schema Optimization",
+      "description": "Redesigned database schema to improve query performance by 40%. Implemented indexing strategy and query optimization for large datasets.",
       "status": "Shipped",
-      "assignedTo": "Frontend Team"
+      "assignedTo": "Database Administrator"
     },
     {
-      "title": "Reporting Engine",
-      "description": "Create real-time reporting system",
+      "title": "User Authentication System",
+      "description": "Implemented OAuth 2.0 authentication with JWT token support. Includes session management and refresh token rotation for security.",
       "status": "Shipped",
-      "assignedTo": "Data Team"
-    },
-    {
-      "title": "Data Migration",
-      "description": "Migrate historical data to new platform",
-      "status": "InProgress",
-      "assignedTo": "Infrastructure Team"
-    },
-    {
-      "title": "Performance Optimization",
-      "description": "Optimize query performance and caching",
-      "status": "InProgress",
-      "assignedTo": "Platform Team"
-    },
-    {
-      "title": "Security Audit",
-      "description": "Third-party security assessment",
-      "status": "InProgress",
       "assignedTo": "Security Team"
     },
     {
-      "title": "Documentation",
-      "description": "Complete API and user documentation",
+      "title": "Dashboard UI Components",
+      "description": "Building responsive React components for metrics display, timeline visualization, and work item tracking. Currently 75% complete with responsive CSS.",
+      "status": "InProgress",
+      "assignedTo": "Frontend Team"
+    },
+    {
+      "title": "Performance Testing & Optimization",
+      "description": "Conducting load testing and optimizing API endpoints for sub-1-second response times. Profiling and caching implementation in progress.",
+      "status": "InProgress",
+      "assignedTo": "Performance Team"
+    },
+    {
+      "title": "Mobile App Responsive Design",
+      "description": "Adapting dashboard for mobile and tablet devices. Design approved but implementation delayed pending UI component completion.",
+      "status": "CarriedOver",
+      "assignedTo": "Frontend Team"
+    },
+    {
+      "title": "Executive Report Generation",
+      "description": "Feature to export dashboard snapshots as PDF reports for stakeholder presentations. Originally planned for Phase 2 but deferred to Phase 3.",
+      "status": "CarriedOver",
+      "assignedTo": "Backend Team"
+    },
+    {
+      "title": "Documentation and Training",
+      "description": "Creating comprehensive user documentation, API reference guides, and conducting team training sessions. Scheduled for Phase 3.",
       "status": "CarriedOver",
       "assignedTo": "Technical Writer"
     },
     {
-      "title": "Mobile App",
-      "description": "Native mobile application development",
+      "title": "Real-Time Notifications",
+      "description": "Implementing WebSocket-based real-time notifications for dashboard updates and alerts. Planning to begin in next sprint.",
       "status": "CarriedOver",
-      "assignedTo": "Mobile Team"
+      "assignedTo": "Backend Team"
+    },
+    {
+      "title": "Security Audit & Compliance",
+      "description": "Scheduling third-party security audit and implementing compliance checks. Expected to start in Phase 3 timeline.",
+      "status": "CarriedOver",
+      "assignedTo": "Security & Compliance"
     }
   ]
 }
