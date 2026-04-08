@@ -1,103 +1,85 @@
 {
-  "name": "Executive Dashboard Q1 2024 Initiative",
-  "description": "Strategic project delivering enhanced reporting capabilities and performance optimization for executive visibility into project health and team velocity.",
-  "startDate": "2024-01-01",
-  "targetEndDate": "2024-03-31",
+  "name": "Project Horizon - Q2 2024 Executive Dashboard",
+  "description": "Enterprise digital transformation initiative tracking milestone delivery and team velocity",
+  "startDate": "2024-01-15",
+  "targetEndDate": "2024-06-30",
   "completionPercentage": 65,
   "healthStatus": "OnTrack",
   "velocityThisMonth": 12,
   "milestones": [
     {
-      "name": "Phase 1: Discovery & Design",
-      "targetDate": "2024-01-31",
-      "status": "Completed",
-      "description": "Stakeholder interviews, requirements gathering, and design mockups complete"
-    },
-    {
-      "name": "Phase 2: Core Development",
+      "name": "Phase 1: Requirements & Design",
       "targetDate": "2024-02-28",
+      "status": "Completed",
+      "description": "Stakeholder alignment and technical architecture approved"
+    },
+    {
+      "name": "Phase 2: Core Infrastructure",
+      "targetDate": "2024-04-15",
       "status": "InProgress",
-      "description": "Backend services and primary component development in progress"
+      "description": "API layer and database migration in progress"
     },
     {
-      "name": "Phase 2b: Performance Optimization",
-      "targetDate": "2024-02-20",
-      "status": "AtRisk",
-      "description": "Performance benchmarking at risk due to infrastructure delays; may impact Phase 3 timeline"
+      "name": "Phase 3: Feature Integration",
+      "targetDate": "2024-05-31",
+      "status": "InProgress",
+      "description": "Third-party integrations and user workflow optimization"
     },
     {
-      "name": "Phase 3: Integration & Testing",
-      "targetDate": "2024-03-15",
+      "name": "Phase 4: QA & Launch Prep",
+      "targetDate": "2024-06-30",
       "status": "Future",
-      "description": "System integration and comprehensive testing planned"
-    },
-    {
-      "name": "Phase 4: Production Deployment",
-      "targetDate": "2024-03-31",
-      "status": "Future",
-      "description": "Final deployment and go-live scheduled"
+      "description": "Full system testing and production readiness"
     }
   ],
   "workItems": [
     {
-      "title": "API Integration Layer Complete",
-      "description": "Successfully integrated third-party data source API with full authentication and error handling. 100+ hours of development and testing completed.",
+      "title": "Payment Gateway Integration",
+      "description": "Completed integration with Stripe payment processing. Tested with 500+ transactions. Ready for production.",
       "status": "Shipped",
-      "assignedTo": "Backend Team"
+      "assignedTo": "Team API"
     },
     {
-      "title": "Database Schema Optimization",
-      "description": "Redesigned database schema to improve query performance by 40%. Implemented indexing strategy and query optimization for large datasets.",
+      "title": "Customer Authentication Module",
+      "description": "OAuth2 implementation with multi-factor authentication support. Deployed to staging environment.",
       "status": "Shipped",
-      "assignedTo": "Database Administrator"
+      "assignedTo": "Team Security"
     },
     {
-      "title": "User Authentication System",
-      "description": "Implemented OAuth 2.0 authentication with JWT token support. Includes session management and refresh token rotation for security.",
+      "title": "Dashboard Analytics Engine",
+      "description": "Real-time analytics reporting with 50+ KPI metrics. Performance optimized for 1M+ records.",
       "status": "Shipped",
-      "assignedTo": "Security Team"
+      "assignedTo": "Team Analytics"
     },
     {
-      "title": "Dashboard UI Components",
-      "description": "Building responsive React components for metrics display, timeline visualization, and work item tracking. Currently 75% complete with responsive CSS.",
+      "title": "Microservices Architecture Refactor",
+      "description": "Breaking monolith into containerized microservices. 60% complete. Docker implementation in progress.",
       "status": "InProgress",
-      "assignedTo": "Frontend Team"
+      "assignedTo": "Team Infrastructure"
     },
     {
-      "title": "Performance Testing & Optimization",
-      "description": "Conducting load testing and optimizing API endpoints for sub-1-second response times. Profiling and caching implementation in progress.",
+      "title": "Mobile App Development (iOS/Android)",
+      "description": "Cross-platform native app with offline-first sync. UI/UX design complete. Core functionality 45% implemented.",
       "status": "InProgress",
-      "assignedTo": "Performance Team"
+      "assignedTo": "Team Mobile"
     },
     {
-      "title": "Mobile App Responsive Design",
-      "description": "Adapting dashboard for mobile and tablet devices. Design approved but implementation delayed pending UI component completion.",
+      "title": "Legacy System Data Migration",
+      "description": "Migrating 10 years of customer data from SQL Server 2012. Validation scripts 80% complete. Target: Q3 2024.",
       "status": "CarriedOver",
-      "assignedTo": "Frontend Team"
+      "assignedTo": "Team Data"
     },
     {
-      "title": "Executive Report Generation",
-      "description": "Feature to export dashboard snapshots as PDF reports for stakeholder presentations. Originally planned for Phase 2 but deferred to Phase 3.",
+      "title": "Performance Optimization Phase 2",
+      "description": "Database query optimization and caching layer enhancement. Deferred due to infrastructure priority. Rescheduled for Q3.",
       "status": "CarriedOver",
-      "assignedTo": "Backend Team"
+      "assignedTo": "Team DevOps"
     },
     {
-      "title": "Documentation and Training",
-      "description": "Creating comprehensive user documentation, API reference guides, and conducting team training sessions. Scheduled for Phase 3.",
+      "title": "Enterprise SAML Integration",
+      "description": "Single sign-on implementation for enterprise customers. Requirements gathering complete. Implementation blocked pending vendor API access.",
       "status": "CarriedOver",
-      "assignedTo": "Technical Writer"
-    },
-    {
-      "title": "Real-Time Notifications",
-      "description": "Implementing WebSocket-based real-time notifications for dashboard updates and alerts. Planning to begin in next sprint.",
-      "status": "CarriedOver",
-      "assignedTo": "Backend Team"
-    },
-    {
-      "title": "Security Audit & Compliance",
-      "description": "Scheduling third-party security audit and implementing compliance checks. Expected to start in Phase 3 timeline.",
-      "status": "CarriedOver",
-      "assignedTo": "Security & Compliance"
+      "assignedTo": "Team Platform"
     }
   ]
 }
