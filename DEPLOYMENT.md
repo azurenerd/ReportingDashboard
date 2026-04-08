@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This document provides step-by-step instructions for deploying AgentSquad dashboard in development and production environments on Windows and Linux.
+Step-by-step instructions for deploying AgentSquad dashboard in development and production environments.
 
 ## Table of Contents
 
@@ -10,14 +10,12 @@ This document provides step-by-step instructions for deploying AgentSquad dashbo
 4. [Windows Firewall Configuration](#windows-firewall-configuration)
 5. [Performance Tuning](#performance-tuning)
 
----
-
 ## Development Setup
 
 ### Prerequisites
 
 - **Operating System:** Windows 10/11 or Linux (Ubuntu 20.04+)
-- **.NET 8 SDK:** Download from https://dotnet.microsoft.com/download/dotnet/8.0
+- **.NET 8 SDK:** https://dotnet.microsoft.com/download/dotnet/8.0
 - **Git:** https://git-scm.com/download
 - **Code Editor:** Visual Studio Code, Visual Studio 2022, or Rider (optional)
 
