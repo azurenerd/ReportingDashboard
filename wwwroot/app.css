@@ -2,18 +2,12 @@ html, body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-a, .btn-link {
-    color: #0071c3;
-}
-
-.content {
-    padding-top: 1.5rem;
+.page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 main {
     flex: 1;
-}
-
-.navbar-toggler {
-    background-color: rgba(255, 255, 255, 0.1);
 }

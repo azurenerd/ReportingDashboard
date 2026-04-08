@@ -1,11 +1,9 @@
-using AgentSquad.Runner.Services;
+using AgentSquad.Runner.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-builder.Services.AddScoped<ProjectDataService>();
 
 var app = builder.Build();
 
@@ -16,6 +14,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 app.UseAntiforgery();
 
