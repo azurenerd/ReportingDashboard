@@ -20,27 +20,24 @@
             </div>
         </div>
     }
-    else
+    else if (ProjectData != null)
     {
         <header class="dashboard-header">
-            <h1>@ProjectData?.Name</h1>
-            <p class="dashboard-subtitle">@ProjectData?.Description</p>
+            <h1>@ProjectData.Name</h1>
+            <p class="dashboard-subtitle">@ProjectData.Description</p>
         </header>
 
         <section class="dashboard-metrics">
             <ProjectMetrics Metrics="ProjectMetrics"></ProjectMetrics>
         </section>
 
-        @if (ProjectData != null)
-        {
-            <section class="dashboard-timeline">
-                <!-- MilestoneTimeline component will be integrated in future steps -->
-            </section>
+        <section class="dashboard-timeline">
+            <!-- MilestoneTimeline component will be integrated in future steps -->
+        </section>
 
-            <section class="dashboard-workitems">
-                <!-- WorkItemSummary component will be integrated in future steps -->
-            </section>
-        }
+        <section class="dashboard-workitems">
+            <!-- WorkItemSummary component will be integrated in future steps -->
+        </section>
     }
 </div>
 

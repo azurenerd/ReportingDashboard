@@ -76,11 +76,10 @@
     {
         try
         {
-            IsLoading = true;
-            ErrorMessage = null;
-
             if (Metrics == null)
             {
+                IsLoading = true;
+                ErrorMessage = null;
                 Metrics = await DataProvider.GetProjectMetricsAsync();
             }
         }
