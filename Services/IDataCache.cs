@@ -1,30 +1,32 @@
-namespace AgentSquad.Runner.Services;
-
-/// <summary>
-/// Abstraction for in-memory caching with async operations and TTL support.
-/// </summary>
-public interface IDataCache
+namespace AgentSquad.Runner.Services
 {
     /// <summary>
-    /// Retrieves a cached value by key.
+    /// Abstraction for in-memory caching operations with TTL support.
     /// </summary>
-    /// <typeparam name="T">Type of cached value (must be a class).</typeparam>
-    /// <param name="key">Cache key.</param>
-    /// <returns>Cached value if present and not expired; null otherwise.</returns>
-    Task<T?> GetAsync<T>(string key) where T : class;
+    public interface IDataCache
+    {
+        /// <summary>
+        /// Retrieves a cached value by key asynchronously.
+        /// </summary>
+        /// <typeparam name="T">The type of the cached value.</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <returns>The cached value if found and not expired, otherwise null.</returns>
+        Task<T> GetAsync<T>(string key) where T : class;
 
-    /// <summary>
-    /// Stores a value in the cache with optional expiration.
-    /// </summary>
-    /// <typeparam name="T">Type of value to cache (must be a class).</typeparam>
-    /// <param name="key">Cache key.</param>
-    /// <param name="value">Value to cache.</param>
-    /// <param name="expiration">Optional TTL; defaults to 1 hour if not specified.</param>
-    Task SetAsync<T>(string key, T value, TimeSpan? expiration = null) where T : class;
+        /// <summary>
+        /// Stores a value in cache with optional expiration asynchronously.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to cache.</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <param name="value">The value to cache.</param>
+        /// <param name="expiration">Optional cache expiration duration. Defaults to 1 hour if null.</param>
+        /// <returns>A completed task.</returns>
+        Task SetAsync<T>(string key, T value, TimeSpan? expiration = null) where T : class;
 
-    /// <summary>
-    /// Removes a cached value by key.
-    /// </summary>
-    /// <param name="key">Cache key.</param>
-    void Remove(string key);
+        /// <summary>
+        /// Removes a cached value by key.
+        /// </summary>
+        /// <param name="key">The cache key to remove.</param>
+        void Remove(string key);
+    }
 }
