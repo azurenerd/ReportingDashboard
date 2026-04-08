@@ -1,195 +1,164 @@
-namespace AgentSquad.Runner.Tests;
-
-using System.Text.Json;
 using Xunit;
-using AgentSquad.Runner.Data;
+using AgentSquad.Models;
+using System;
+using System.Collections.Generic;
 
-/// <summary>
-/// Unit tests for edge cases and boundary conditions in data models.
-/// </summary>
-public class DataModelEdgeCaseTests
+namespace AgentSquad.Tests
 {
-    private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
-
-    [Fact]
-    public void EdgeCase_SpecialCharactersInStrings()
+    public class DataModelEdgeCaseTests
     {
-        var json = """
+        [Fact]
+        public void Project_WithEmptyStringId_IsAllowed()
         {
-          "project": {
-            "name": "Project with 'quotes' and \"double quotes\"",
-            "description": "Description with special chars: @#$%^&*()_+-=[]{}|;:',.<>?/~`",
-            "startDate": "2026-04-01",
-            "endDate": "2026-06-30",
-            "status": "OnTrack",
-            "sponsor": "Sponsor & Associates",
-            "projectManager": "Jane O'Brien"
-          },
-          "milestones": [],
-          "tasks": [],
-          "metrics": {"totalTasks": 0,"completedTasks": 0,"inProgressTasks": 0,"carriedOverTasks": 0,"estimatedBurndownRate": 1.0,"projectStartDate": "2026-04-01","projectEndDate": "2026-06-30"}
+            // Arrange & Act
+            var project = new Project { Id = "", Name = "Test" };
+
+            // Assert
+            Assert.Empty(project.Id);
         }
-        """;
 
-        var projectData = JsonSerializer.Deserialize<ProjectData>(json, _jsonOptions);
-        Assert.NotNull(projectData);
-        Assert.Contains("quotes", projectData.Project.Name);
-        Assert.Contains("&", projectData.Project.Sponsor);
-        Assert.Contains("'", projectData.Project.ProjectManager);
-    }
-
-    [Fact]
-    public void EdgeCase_EmptyCollections()
-    {
-        var json = """
+        [Fact]
+        public void Project_WithSpecialCharactersInName_IsAllowed()
         {
-          "project": {"name": "Test","description": "Test","startDate": "2026-04-01","endDate": "2026-06-30","status": "OnTrack","sponsor": "Test","projectManager": "Test"},
-          "milestones": [],
-          "tasks": [],
-          "metrics": {"totalTasks": 0,"completedTasks": 0,"inProgressTasks": 0,"carriedOverTasks": 0,"estimatedBurndownRate": 1.0,"projectStartDate": "2026-04-01","projectEndDate": "2026-06-30"}
+            // Arrange
+            var name = "Project @#$% 2026";
+
+            // Act
+            var project = new Project { Id = "p1", Name = name };
+
+            // Assert
+            Assert.Equal(name, project.Name);
         }
-        """;
 
-        var projectData = JsonSerializer.Deserialize<ProjectData>(json, _jsonOptions);
-        Assert.NotNull(projectData);
-        Assert.Empty(projectData.Milestones);
-        Assert.Empty(projectData.Tasks);
-    }
-
-    [Fact]
-    public void EdgeCase_VeryLongStrings()
-    {
-        var longString = new string('a', 10000);
-        var json = $$"""
+        [Fact]
+        public void Milestone_WithVeryLongName_IsAllowed()
         {
-          "project": {"name": "{{longString}}","description": "Test","startDate": "2026-04-01","endDate": "2026-06-30","status": "OnTrack","sponsor": "Test","projectManager": "Test"},
-          "milestones": [],
-          "tasks": [],
-          "metrics": {"totalTasks": 0,"completedTasks": 0,"inProgressTasks": 0,"carriedOverTasks": 0,"estimatedBurndownRate": 1.0,"projectStartDate": "2026-04-01","projectEndDate": "2026-06-30"}
+            // Arrange
+            var longName = new string('A', 1000);
+
+            // Act
+            var milestone = new Milestone { Id = "m1", Name = longName };
+
+            // Assert
+            Assert.Equal(longName, milestone.Name);
         }
-        """;
 
-        var projectData = JsonSerializer.Deserialize<ProjectData>(json, _jsonOptions);
-        Assert.NotNull(projectData);
-        Assert.Equal(longString, projectData.Project.Name);
-    }
-
-    [Fact]
-    public void EdgeCase_MinMaxDateValues()
-    {
-        var projectInfo = new ProjectInfo
+        [Fact]
+        public void Milestone_WithPastDueDate_IsAllowed()
         {
-            Name = "Test",
-            Description = "Test",
-            StartDate = DateTime.MinValue.AddDays(1),
-            EndDate = DateTime.MaxValue.AddDays(-1),
-            Status = "OnTrack",
-            Sponsor = "Test",
-            ProjectManager = "Test"
-        };
+            // Arrange
+            var pastDate = DateTime.Now.AddYears(-1);
 
-        Assert.NotNull(projectInfo);
-        Assert.True(projectInfo.StartDate < projectInfo.EndDate);
-    }
+            // Act
+            var milestone = new Milestone { Id = "m1", Name = "Past", DueDate = pastDate };
 
-    [Fact]
-    public void EdgeCase_CompletionPercentageRounding()
-    {
-        var metrics = new ProjectMetrics
-        {
-            TotalTasks = 3,
-            CompletedTasks = 1,
-            ProjectStartDate = DateTime.Now,
-            ProjectEndDate = DateTime.Now.AddDays(30)
-        };
-        
-        // (1 / 3) * 100 = 33.333... should truncate to 33
-        int result = metrics.CompletionPercentage;
-        Assert.Equal(33, result);
-    }
-
-    [Fact]
-    public void EdgeCase_DaysRemaining_SameDay()
-    {
-        var now = DateTime.Now;
-        var metrics = new ProjectMetrics
-        {
-            TotalTasks = 10,
-            CompletedTasks = 5,
-            ProjectStartDate = now.AddDays(-5),
-            ProjectEndDate = now.AddHours(1) // Same day
-        };
-        
-        int daysRemaining = metrics.DaysRemaining;
-        Assert.Equal(0, daysRemaining);
-    }
-
-    [Fact]
-    public void EdgeCase_AllTasksCarriedOver()
-    {
-        var metrics = new ProjectMetrics
-        {
-            TotalTasks = 10,
-            CompletedTasks = 0,
-            InProgressTasks = 0,
-            CarriedOverTasks = 10,
-            ProjectStartDate = DateTime.Now.AddDays(-60),
-            ProjectEndDate = DateTime.Now
-        };
-        
-        Assert.Equal(0, metrics.CompletionPercentage);
-        Assert.True(metrics.CarriedOverTasks == metrics.TotalTasks);
-    }
-
-    [Fact]
-    public void EdgeCase_ZeroEstimatedDays_InvalidButDeserializes()
-    {
-        var json = """
-        {
-          "project": {"name": "Test","description": "Test","startDate": "2026-04-01","endDate": "2026-06-30","status": "OnTrack","sponsor": "Test","projectManager": "Test"},
-          "milestones": [],
-          "tasks": [{"id": "t1","name": "Task","status": "Shipped","assignedTo": "User","dueDate": "2026-04-20","estimatedDays": 0}],
-          "metrics": {"totalTasks": 1,"completedTasks": 0,"inProgressTasks": 0,"carriedOverTasks": 0,"estimatedBurndownRate": 1.0,"projectStartDate": "2026-04-01","projectEndDate": "2026-06-30"}
+            // Assert
+            Assert.True(milestone.DueDate < DateTime.Now);
         }
-        """;
 
-        var projectData = JsonSerializer.Deserialize<ProjectData>(json, _jsonOptions);
-        Assert.NotNull(projectData);
-        Assert.Equal(0, projectData.Tasks[0].EstimatedDays);
-    }
-
-    [Fact]
-    public void EdgeCase_NegativeCompletedTasks()
-    {
-        var metrics = new ProjectMetrics
+        [Fact]
+        public void Task_WithZeroDuration_IsAllowed()
         {
-            TotalTasks = 10,
-            CompletedTasks = -5, // Invalid but deserializes
-            ProjectStartDate = DateTime.Now,
-            ProjectEndDate = DateTime.Now.AddDays(30)
-        };
-        
-        // Should calculate even with invalid data
-        int result = metrics.CompletionPercentage;
-        Assert.Equal(-50, result);
-    }
-
-    [Fact]
-    public void EdgeCase_BoundaryCompletion_0_50_100()
-    {
-        var testCases = new[] { (0, 10, 0), (5, 10, 50), (10, 10, 100) };
-        
-        foreach (var (completed, total, expected) in testCases)
-        {
-            var metrics = new ProjectMetrics
+            // Arrange & Act
+            var task = new Task
             {
-                TotalTasks = total,
-                CompletedTasks = completed,
-                ProjectStartDate = DateTime.Now,
-                ProjectEndDate = DateTime.Now.AddDays(30)
+                Id = "t1",
+                Title = "Zero Duration",
+                EstimatedHours = 0
             };
-            
-            Assert.Equal(expected, metrics.CompletionPercentage);
+
+            // Assert
+            Assert.Equal(0, task.EstimatedHours);
+        }
+
+        [Fact]
+        public void Task_WithNegativeProgress_IsAllowed()
+        {
+            // Arrange & Act
+            var task = new Task
+            {
+                Id = "t1",
+                Title = "Test",
+                ProgressPercentage = -10
+            };
+
+            // Assert
+            Assert.Equal(-10, task.ProgressPercentage);
+        }
+
+        [Fact]
+        public void Metrics_WithZeroValues_IsAllowed()
+        {
+            // Arrange & Act
+            var metrics = new Metrics
+            {
+                CompletionPercentage = 0,
+                TasksCompleted = 0,
+                TotalTasks = 0
+            };
+
+            // Assert
+            Assert.Equal(0, metrics.CompletionPercentage);
+            Assert.Equal(0, metrics.TasksCompleted);
+            Assert.Equal(0, metrics.TotalTasks);
+        }
+
+        [Fact]
+        public void ProjectData_WithEmptyMilestonesList_IsValid()
+        {
+            // Arrange & Act
+            var projectData = new ProjectData
+            {
+                Project = new Project { Id = "p1", Name = "Test" },
+                Milestones = new List<Milestone>(),
+                Tasks = new List<Task>(),
+                Metrics = new Metrics()
+            };
+
+            // Assert
+            Assert.Empty(projectData.Milestones);
+        }
+
+        [Fact]
+        public void ProjectData_WithEmptyTasksList_IsValid()
+        {
+            // Arrange & Act
+            var projectData = new ProjectData
+            {
+                Project = new Project { Id = "p1", Name = "Test" },
+                Milestones = new List<Milestone>(),
+                Tasks = new List<Task>(),
+                Metrics = new Metrics()
+            };
+
+            // Assert
+            Assert.Empty(projectData.Tasks);
+        }
+
+        [Fact]
+        public void ProjectData_WithLargeCollections_IsAllowed()
+        {
+            // Arrange
+            var milestones = new List<Milestone>();
+            var tasks = new List<Task>();
+            for (int i = 0; i < 10000; i++)
+            {
+                milestones.Add(new Milestone { Id = $"m{i}", Name = $"Milestone {i}" });
+                tasks.Add(new Task { Id = $"t{i}", Title = $"Task {i}" });
+            }
+
+            // Act
+            var projectData = new ProjectData
+            {
+                Project = new Project { Id = "p1", Name = "Large Project" },
+                Milestones = milestones,
+                Tasks = tasks,
+                Metrics = new Metrics()
+            };
+
+            // Assert
+            Assert.Equal(10000, projectData.Milestones.Count);
+            Assert.Equal(10000, projectData.Tasks.Count);
         }
     }
 }
