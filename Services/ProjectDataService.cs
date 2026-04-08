@@ -89,6 +89,12 @@ namespace AgentSquad.Runner.Services
         /// </summary>
         /// <param name="json">The JSON string to validate.</param>
         /// <returns>True if the JSON is valid and contains required structure; otherwise, false.</returns>
+        /// <remarks>
+        /// This method performs schema validation without throwing exceptions. It returns false for:
+        /// - null or empty input
+        /// - malformed JSON
+        /// - missing required root properties (project, milestones, tasks, metrics)
+        /// </remarks>
         public bool ValidateJsonSchema(string json)
         {
             if (string.IsNullOrWhiteSpace(json))
@@ -98,19 +104,33 @@ namespace AgentSquad.Runner.Services
 
             try
             {
-                var document = JsonDocument.Parse(json);
-                var root = document.RootElement;
-
-                // Validate required root properties
-                if (!root.TryGetProperty("project", out _) ||
-                    !root.TryGetProperty("milestones", out _) ||
-                    !root.TryGetProperty("tasks", out _) ||
-                    !root.TryGetProperty("metrics", out _))
+                using (var document = JsonDocument.Parse(json))
                 {
-                    return false;
-                }
+                    var root = document.RootElement;
 
-                return true;
+                    // Validate all required root properties are present
+                    if (!root.TryGetProperty("project", out _))
+                    {
+                        return false;
+                    }
+
+                    if (!root.TryGetProperty("milestones", out _))
+                    {
+                        return false;
+                    }
+
+                    if (!root.TryGetProperty("tasks", out _))
+                    {
+                        return false;
+                    }
+
+                    if (!root.TryGetProperty("metrics", out _))
+                    {
+                        return false;
+                    }
+
+                    return true;
+                }
             }
             catch (JsonException)
             {
