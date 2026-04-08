@@ -1,102 +1,34 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
 
-namespace AgentSquad.Models
+namespace AgentSquad.Dashboard.Models
 {
     public class ProjectData
     {
-        [JsonPropertyName("project")]
-        public Project Project { get; set; }
+        [Required(ErrorMessage = "Project name is required")]
+        public string ProjectName { get; set; }
 
-        [JsonPropertyName("milestones")]
-        public List<Milestone> Milestones { get; set; } = new();
-
-        [JsonPropertyName("tasks")]
-        public List<ProjectTask> Tasks { get; set; } = new();
-
-        public ProjectMetrics Metrics { get; set; }
-    }
-
-    public class Project
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [JsonPropertyName("description")]
-        public string Description { get; set; }
-
-        [JsonPropertyName("status")]
-        public string Status { get; set; }
-
-        [JsonPropertyName("sponsor")]
+        [Required(ErrorMessage = "Sponsor is required")]
         public string Sponsor { get; set; }
 
-        [JsonPropertyName("projectManager")]
+        [Required(ErrorMessage = "Project manager is required")]
         public string ProjectManager { get; set; }
 
-        [JsonPropertyName("startDate")]
-        public DateTime StartDate { get; set; }
-
-        [JsonPropertyName("endDate")]
-        public DateTime EndDate { get; set; }
-
-        [JsonPropertyName("completionPercentage")]
-        public int CompletionPercentage { get; set; }
-    }
-
-    public class Milestone
-    {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [JsonPropertyName("targetDate")]
-        public DateTime TargetDate { get; set; }
-
-        [JsonPropertyName("status")]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public MilestoneStatus Status { get; set; }
-
-        [JsonPropertyName("completionPercentage")]
-        public int CompletionPercentage { get; set; }
-    }
-
-    public class ProjectTask
-    {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [JsonPropertyName("description")]
-        public string Description { get; set; }
-
-        [JsonPropertyName("assignedTo")]
-        public string AssignedTo { get; set; }
-
-        [JsonPropertyName("status")]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public TaskStatus Status { get; set; }
-
-        [JsonPropertyName("estimatedDays")]
-        public int EstimatedDays { get; set; }
-    }
-
-    public class ProjectMetrics
-    {
-        public int CompletionPercentage { get; set; }
-        public int TotalTasks { get; set; }
-        public int CompletedTasks { get; set; }
-        public int InProgressTasks { get; set; }
-        public int CarriedOverTasks { get; set; }
         public DateTime ProjectStartDate { get; set; }
         public DateTime ProjectEndDate { get; set; }
-        public int DaysRemaining { get; set; }
-        public double EstimatedBurndownRate { get; set; }
+
+        [Required(ErrorMessage = "Project status is required")]
+        public string Status { get; set; }
+
+        [Required(ErrorMessage = "Milestones list is required")]
+        public List<Milestone> Milestones { get; set; } = new List<Milestone>();
+
+        [Required(ErrorMessage = "Tasks list is required")]
+        public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
+
+        [Required(ErrorMessage = "Metrics are required")]
+        public ProjectMetrics Metrics { get; set; }
     }
 
     public enum MilestoneStatus
@@ -106,10 +38,56 @@ namespace AgentSquad.Models
         Pending
     }
 
+    public class Milestone
+    {
+        [Required(ErrorMessage = "Milestone name is required")]
+        public string Name { get; set; }
+
+        public DateTime TargetDate { get; set; }
+
+        [Required(ErrorMessage = "Milestone status is required")]
+        public MilestoneStatus Status { get; set; }
+
+        [Range(0, 100, ErrorMessage = "Completion percentage must be between 0 and 100")]
+        public int CompletionPercentage { get; set; }
+    }
+
     public enum TaskStatus
     {
         Shipped,
         InProgress,
         CarriedOver
+    }
+
+    public class ProjectTask
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Task name is required")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Task status is required")]
+        public TaskStatus Status { get; set; }
+
+        [Required(ErrorMessage = "Task owner is required")]
+        public string Owner { get; set; }
+    }
+
+    public class ProjectMetrics
+    {
+        [Range(0, 100, ErrorMessage = "Completion percentage must be between 0 and 100")]
+        public int CompletionPercentage { get; set; }
+
+        [Range(0, int.MaxValue, ErrorMessage = "Total tasks must be non-negative")]
+        public int TotalTasks { get; set; }
+
+        [Range(0, int.MaxValue, ErrorMessage = "Completed tasks must be non-negative")]
+        public int TasksCompleted { get; set; }
+
+        [Range(0, int.MaxValue, ErrorMessage = "In-progress tasks must be non-negative")]
+        public int TasksInProgress { get; set; }
+
+        [Range(0, int.MaxValue, ErrorMessage = "Carried-over tasks must be non-negative")]
+        public int TasksCarriedOver { get; set; }
     }
 }

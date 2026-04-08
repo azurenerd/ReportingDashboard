@@ -1,31 +1,24 @@
-# AgentSquad Executive Dashboard
+# AgentSquad Dashboard
 
-A lightweight, single-page executive reporting dashboard built with C# .NET 8 Blazor Server. Displays project milestones, task status, and progress metrics from a JSON configuration file.
+Executive reporting dashboard built with C# .NET 8 Blazor Server for displaying project milestones, task status, and progress metrics.
 
 ## Features
 
-- **Real-time Dashboard** - View project health metrics at a glance
-- **Milestone Timeline** - Visual timeline of project milestones with completion status
-- **Task Status Cards** - Monitor shipped, in-progress, and carried-over tasks
-- **Progress Metrics** - Track project completion percentage and velocity
-- **Screenshot Ready** - Optimized for PowerPoint integration and executive briefings
-- **Zero Dependencies** - No cloud services, authentication, or complex infrastructure
-- **File-based Configuration** - Update status by editing data.json without redeployment
+- **Milestone Timeline**: Visual timeline of project milestones with completion status
+- **Task Status Cards**: Summary cards for Shipped, In-Progress, and Carried-Over tasks
+- **Progress Metrics**: Overall project completion percentage and task breakdown
+- **JSON-Based Configuration**: Load project data from data.json without database
+- **Responsive Design**: Bootstrap 5 responsive layout optimized for desktop
+- **Screenshot-Ready**: Deterministic rendering with no animations for PowerPoint integration
 
-## Technology Stack
+## Architecture
 
-- **.NET 8** - Latest long-term support framework
-- **Blazor Server** - Server-side rendering for consistent output
-- **Bootstrap 5** - Responsive grid layout
-- **Chart.js** - Data visualization library
-- **JSON Configuration** - Simple file-based data model
+- **Dashboard.razor**: Main page component orchestrating three child components
+- **MilestoneTimeline.razor**: Displays project milestones with status indicators
+- **StatusCard.razor**: Shows task counts and lists by status category
+- **ProgressMetrics.razor**: Displays completion percentage and progress bar
+- **ProjectDataService**: Loads and validates project data from JSON
 
-## System Requirements
+## Data Schema
 
-- .NET 8 SDK (or newer)
-- Visual Studio 2022 / VS Code / JetBrains Rider
-- Windows, macOS, or Linux
-
-## Getting Started
-
-### 1. Clone Repository
+The `wwwroot/data.json` file contains project information:
