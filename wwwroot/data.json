@@ -1,7 +1,7 @@
 {
-  "name": "Executive Project Dashboard",
-  "description": "Real-time executive visibility into project milestones, work items, and health metrics",
-  "startDate": "2024-01-15",
+  "name": "Executive Dashboard Project",
+  "description": "Q1 2024 Executive Reporting Dashboard Initiative",
+  "startDate": "2024-01-01",
   "targetEndDate": "2024-12-31",
   "completionPercentage": 45,
   "healthStatus": "OnTrack",
@@ -11,69 +11,63 @@
       "name": "Phase 1 - Foundation",
       "targetDate": "2024-03-31",
       "status": "Completed",
-      "description": "Core infrastructure and project setup"
+      "description": "Core infrastructure and data model setup"
     },
     {
-      "name": "Phase 2 - Dashboard Design",
-      "targetDate": "2024-06-15",
+      "name": "Phase 2 - UI Components",
+      "targetDate": "2024-06-30",
       "status": "InProgress",
-      "description": "Executive dashboard and visualization components"
+      "description": "Build Blazor components for dashboard visualization"
     },
     {
-      "name": "Phase 3 - Integration",
+      "name": "Phase 3 - Launch",
       "targetDate": "2024-09-30",
-      "status": "Future",
-      "description": "Data integration and real-time updates"
-    },
-    {
-      "name": "Phase 4 - Launch",
-      "targetDate": "2024-12-31",
       "status": "Future",
       "description": "Production deployment and optimization"
     }
   ],
   "workItems": [
     {
-      "title": "Blazor Server Setup",
-      "description": "Project scaffolding and DI configuration",
+      "title": "DataProvider Service Implementation",
+      "description": "Implement JSON reading and caching service layer with validation and error handling",
       "status": "Shipped",
-      "assignedTo": "Platform Team"
+      "assignedTo": "Engineering Team"
     },
     {
       "title": "Dashboard Layout Component",
-      "description": "Main dashboard grid and section layout",
-      "status": "Shipped",
-      "assignedTo": "Frontend Team"
+      "description": "Create main dashboard Blazor component with CSS grid layout for responsive display",
+      "status": "InProgress",
+      "assignedTo": "UI Team"
     },
     {
       "title": "Milestone Timeline Visualization",
-      "description": "Horizontal timeline component with status indicators",
+      "description": "Implement horizontal timeline with Chart.js for milestone status display",
       "status": "InProgress",
-      "assignedTo": "Visualization Team"
+      "assignedTo": "Frontend Team"
     },
     {
-      "title": "Project Metrics Component",
-      "description": "KPI cards and health status display",
+      "title": "Project Metrics Display",
+      "description": "Create KPI cards for project health indicators and completion percentage",
       "status": "InProgress",
-      "assignedTo": "Analytics Team"
+      "assignedTo": "Design Team"
     },
     {
-      "title": "Work Item Status Tracking",
-      "description": "Shipped, In Progress, and Carried Over columns",
+      "title": "Work Item Tracking",
+      "description": "Implement three-column layout for shipped, in-progress, and carried-over items",
       "status": "InProgress",
       "assignedTo": "Frontend Team"
     },
     {
       "title": "Print/Screenshot Optimization",
-      "description": "CSS media queries and responsive layout for PowerPoint",
+      "description": "Optimize CSS for clean output on 1280x720 and 1920x1080 resolutions",
       "status": "CarriedOver",
       "assignedTo": "Design Team"
     },
     {
-      "title": "Error Handling and Validation",
-      "description": "JSON validation and user-friendly error messages",
+      "title": "Cross-Browser Testing",
+      "description": "Verify dashboard renders correctly in Chrome and Edge",
       "status": "CarriedOver",
-      "assignedTo": "Backend Team"
+      "assignedTo": "QA Team"
     }
   ]
 }
