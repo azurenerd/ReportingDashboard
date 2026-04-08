@@ -1,63 +1,73 @@
-using AgentSquad.Runner.Models;
+namespace AgentSquad.Runner.Services;
+
 using System.Text.Json;
+using AgentSquad.Runner.Models;
 
-namespace AgentSquad.Runner.Services
+public class DataProvider : IDataProvider
 {
-    public class DataProvider : IDataProvider
-    {
-        private readonly ILogger<DataProvider> _logger;
-        private readonly IWebHostEnvironment _environment;
-        private readonly IDataCache _cache;
-        private const string CacheKey = "ProjectData";
-        private const int CacheTTLSeconds = 3600;
+    private readonly IDataCache _cache;
+    private readonly ILogger<DataProvider> _logger;
+    private const string DataFilePath = "wwwroot/data.json";
+    private const string CacheKey = "project_data";
 
-        public DataProvider(ILogger<DataProvider> logger, IWebHostEnvironment environment, IDataCache cache)
+    public DataProvider(IDataCache cache, ILogger<DataProvider> logger)
+    {
+        _cache = cache;
+        _logger = logger;
+    }
+
+    public async Task<Project> LoadProjectDataAsync()
+    {
+        var cached = await _cache.GetAsync<Project>(CacheKey);
+        if (cached != null)
         {
-            _logger = logger;
-            _environment = environment;
-            _cache = cache;
+            _logger.LogInformation("Retrieved project data from cache");
+            return cached;
         }
 
-        public async Task<Project> LoadProjectDataAsync()
+        if (!File.Exists(DataFilePath))
         {
-            var cachedProject = _cache.Get<Project>(CacheKey);
-            if (cachedProject != null)
-            {
-                _logger.LogInformation("Project data loaded from cache");
-                return cachedProject;
-            }
+            throw new FileNotFoundException($"Data file not found at {DataFilePath}");
+        }
 
-            try
-            {
-                string dataPath = Path.Combine(_environment.WebRootPath, "data.json");
+        var json = await File.ReadAllTextAsync(DataFilePath);
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var project = JsonSerializer.Deserialize<Project>(json, options);
 
-                if (!File.Exists(dataPath))
-                {
-                    throw new FileNotFoundException($"data.json not found at {dataPath}");
-                }
+        ValidateProjectData(project);
 
-                string jsonContent = await File.ReadAllTextAsync(dataPath);
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-                var project = JsonSerializer.Deserialize<Project>(jsonContent, options);
+        await _cache.SetAsync(CacheKey, project, TimeSpan.FromHours(1));
+        _logger.LogInformation("Loaded and cached project data successfully");
 
-                if (project == null)
-                {
-                    throw new InvalidOperationException("Failed to deserialize project data");
-                }
+        return project;
+    }
 
-                _cache.Set(CacheKey, project, TimeSpan.FromSeconds(CacheTTLSeconds));
+    public void InvalidateCache()
+    {
+        _cache.Remove(CacheKey);
+        _logger.LogInformation("Project data cache invalidated");
+    }
 
-                _logger.LogInformation("Project data loaded successfully and cached for {TTL} seconds", CacheTTLSeconds);
-                return project;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error loading project data");
-                throw;
-            }
+    private void ValidateProjectData(Project? project)
+    {
+        if (project == null)
+        {
+            throw new InvalidOperationException("Project data is null");
+        }
+
+        if (string.IsNullOrWhiteSpace(project.Name))
+        {
+            throw new InvalidOperationException("Project name is required");
+        }
+
+        if (project.Milestones == null || project.Milestones.Count == 0)
+        {
+            throw new InvalidOperationException("At least one milestone is required");
+        }
+
+        if (project.WorkItems == null)
+        {
+            project.WorkItems = new List<WorkItem>();
         }
     }
 }

@@ -1,10 +1,8 @@
-namespace AgentSquad.Runner.Services
+namespace AgentSquad.Runner.Services;
+
+public interface IDataCache
 {
-    public interface IDataCache
-    {
-        T Get<T>(string key) where T : class;
-        void Set<T>(string key, T value, TimeSpan? expiration = null) where T : class;
-        void Remove(string key);
-        bool Exists(string key);
-    }
+    Task<T?> GetAsync<T>(string key) where T : class;
+    Task SetAsync<T>(string key, T value, TimeSpan? expiration = null) where T : class;
+    void Remove(string key);
 }

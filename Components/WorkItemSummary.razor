@@ -1,140 +1,184 @@
+@namespace AgentSquad.Runner.Components
 @using AgentSquad.Runner.Models
 
-<div class="workitems-summary">
-    @if (WorkItems == null || WorkItems.Count == 0)
-    {
-        <div class="workitems-empty">
-            <p>No work items available</p>
+@if (WorkItems != null && WorkItems.Count > 0)
+{
+    <div class="work-items-container">
+        <div class="work-items-grid">
+            @foreach (var status in new[] { WorkItemStatus.Shipped, WorkItemStatus.InProgress, WorkItemStatus.CarriedOver })
+            {
+                var itemsForStatus = WorkItems.Where(w => w.Status == status).ToList();
+                <div class="work-items-column">
+                    <div class="column-header">
+                        <h3 class="column-title">@GetColumnTitle(status)</h3>
+                        <span class="column-count">@itemsForStatus.Count</span>
+                    </div>
+                    <div class="items-list">
+                        @if (itemsForStatus.Count > 0)
+                        {
+                            @foreach (var item in itemsForStatus)
+                            {
+                                <div class="work-item">
+                                    <div class="item-title">@item.Title</div>
+                                    @if (!string.IsNullOrEmpty(item.Description))
+                                    {
+                                        <div class="item-description">@TruncateDescription(item.Description)</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.AssignedTo))
+                                    {
+                                        <div class="item-assigned">👤 @item.AssignedTo</div>
+                                    }
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="items-empty">No items</div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
-    }
-    else
-    {
-        <div class="workitems-columns">
-            <div class="workitems-column">
-                <h3 class="column-title">Shipped This Month</h3>
-                <div class="column-content">
-                    @RenderWorkItemsByStatus(WorkItemStatus.ShippedThisMonth)
-                </div>
-            </div>
-
-            <div class="workitems-column">
-                <h3 class="column-title">In Progress</h3>
-                <div class="column-content">
-                    @RenderWorkItemsByStatus(WorkItemStatus.InProgress)
-                </div>
-            </div>
-
-            <div class="workitems-column">
-                <h3 class="column-title">Carried Over</h3>
-                <div class="column-content">
-                    @RenderWorkItemsByStatus(WorkItemStatus.CarriedOver)
-                </div>
-            </div>
-        </div>
-    }
-</div>
+    </div>
+}
+else
+{
+    <div class="work-items-empty">
+        <p>No work items available</p>
+    </div>
+}
 
 @code {
     [Parameter]
-    public List<WorkItem> WorkItems { get; set; }
+    public List<WorkItem>? WorkItems { get; set; }
 
-    private RenderFragment RenderWorkItemsByStatus(WorkItemStatus status)
+    private string GetColumnTitle(WorkItemStatus status) => status switch
     {
-        var items = WorkItems?.Where(w => w.Status == status).ToList() ?? new();
-        return @<text>
-            <div class="item-count">@items.Count item@(items.Count != 1 ? "s" : "")</div>
-            <div class="items-list">
-                @foreach (var item in items)
-                {
-                    <div class="work-item">
-                        <div class="item-title">@item.Title</div>
-                        @if (!string.IsNullOrEmpty(item.Description))
-                        {
-                            <div class="item-description">@item.Description</div>
-                        }
-                    </div>
-                }
-            </div>
-        </text>;
+        WorkItemStatus.Shipped => "Shipped This Month",
+        WorkItemStatus.InProgress => "In Progress",
+        WorkItemStatus.CarriedOver => "Carried Over",
+        _ => "Unknown"
+    };
+
+    private string TruncateDescription(string description, int maxLength = 100)
+    {
+        if (string.IsNullOrEmpty(description))
+            return string.Empty;
+
+        return description.Length > maxLength
+            ? description[..maxLength] + "..."
+            : description;
     }
 }
 
-<style scoped>
-    .workitems-summary {
+<style>
+    .work-items-container {
         width: 100%;
-        padding: 0;
     }
 
-    .workitems-empty {
-        padding: 20px;
-        text-align: center;
-        color: #999;
-        background-color: #f9f9f9;
-        border-radius: 4px;
-    }
-
-    .workitems-columns {
+    .work-items-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-        width: 100%;
+        gap: 1.5rem;
     }
 
-    .workitems-column {
-        background-color: #f9f9f9;
-        border-radius: 4px;
-        padding: 12px;
+    .work-items-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .column-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid #1b6ca8;
+        padding-bottom: 0.75rem;
     }
 
     .column-title {
-        margin: 0 0 12px 0;
-        font-size: 13px;
+        font-size: 1rem;
         font-weight: 600;
-        color: #333;
-        border-bottom: 2px solid #0078d4;
-        padding-bottom: 8px;
+        color: #0a3d62;
+        margin: 0;
     }
 
-    .column-content {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .item-count {
-        font-size: 12px;
-        font-weight: 600;
-        color: #666;
-        padding-bottom: 8px;
-        border-bottom: 1px solid #ddd;
-        margin-bottom: 8px;
+    .column-count {
+        background-color: #e8f0f8;
+        color: #0a3d62;
+        font-weight: 700;
+        font-size: 0.875rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
     }
 
     .items-list {
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        max-height: 140px;
-        overflow-y: auto;
+        gap: 0.75rem;
+        flex: 1;
     }
 
     .work-item {
-        padding: 8px;
-        background-color: #ffffff;
-        border-left: 3px solid #0078d4;
-        border-radius: 2px;
-        font-size: 12px;
+        padding: 0.75rem;
+        background-color: #f8f9fa;
+        border-left: 3px solid #1b6ca8;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .work-item:hover {
+        background-color: #e8f0f8;
+        transform: translateX(2px);
     }
 
     .item-title {
+        font-size: 0.95rem;
         font-weight: 600;
-        color: #333;
-        margin-bottom: 4px;
+        color: #2c3e50;
+        word-break: break-word;
     }
 
     .item-description {
-        color: #666;
-        font-size: 11px;
-        line-height: 1.3;
+        font-size: 0.825rem;
+        color: #7f8c8d;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+    .item-assigned {
+        font-size: 0.75rem;
+        color: #95a5a6;
+        margin-top: 0.25rem;
+    }
+
+    .items-empty {
+        text-align: center;
+        padding: 1.5rem;
+        color: #bdc3c7;
+        font-size: 0.875rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .work-items-empty {
+        text-align: center;
+        padding: 2rem;
+        color: #bdc3c7;
+    }
+
+    @media (max-width: 1024px) {
+        .work-items-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .work-items-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
