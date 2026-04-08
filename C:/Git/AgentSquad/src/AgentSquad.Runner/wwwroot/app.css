@@ -1,0 +1,160 @@
+:root {
+    --primary-color: #007bff;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-bg: #f8f9fa;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 12pt;
+    background-color: #fff;
+    color: #333;
+}
+
+.dashboard-container {
+    padding: 2rem 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 1.5rem;
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+    font-size: 1.1rem;
+}
+
+.milestone-section {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.milestone-timeline {
+    position: relative;
+    padding: 1rem 0;
+}
+
+.milestone-item {
+    display: flex;
+    margin-bottom: 2rem;
+    align-items: flex-start;
+}
+
+.milestone-marker {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 3px solid;
+    border-radius: 50%;
+    position: relative;
+    margin-right: 1.5rem;
+    margin-top: 0.25rem;
+}
+
+.milestone-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.milestone-content h5 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.status-card {
+    height: 100%;
+    transition: box-shadow 0.3s ease;
+}
+
+.status-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.status-card .card-text {
+    color: var(--primary-color);
+}
+
+.task-checkbox {
+    display: inline-block;
+    width: 1.2rem;
+    height: 1.2rem;
+    background: var(--success-color);
+    color: white;
+    text-align: center;
+    line-height: 1.2rem;
+    border-radius: 3px;
+    font-size: 0.9rem;
+}
+
+.progress-section {
+    margin-top: 2rem;
+}
+
+.progress-card {
+    background: var(--light-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.progress-card h5 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.progress-bar {
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 2rem;
+    }
+
+    .milestone-section {
+        padding: 1.5rem;
+    }
+}
+
+@media print {
+    body {
+        background: white;
+    }
+    
+    .dashboard-container {
+        padding: 0;
+        max-width: 100%;
+    }
+    
+    button, .btn {
+        display: none;
+    }
+}

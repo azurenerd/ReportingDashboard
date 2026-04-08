@@ -1,46 +1,30 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AgentSquad.Dashboard.Models;
 
 namespace AgentSquad.Dashboard.Services;
 
 public class ProjectDataService
 {
     private readonly ILogger<ProjectDataService> _logger;
-    private readonly IWebHostEnvironment _env;
     private ProjectData? _cachedData;
     private DateTime _lastLoadTime;
 
-    public ProjectDataService(ILogger<ProjectDataService> logger, IWebHostEnvironment env)
+    public ProjectDataService(ILogger<ProjectDataService> logger)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _env = env ?? throw new ArgumentNullException(nameof(env));
+        _logger = logger;
     }
 
-    public async Task<ProjectData> LoadProjectDataAsync(string jsonFileName = "data/data.json")
+    public async Task<ProjectData> LoadProjectDataAsync(string jsonFilePath)
     {
         try
         {
-            var filePath = Path.Combine(_env.WebRootPath, jsonFileName);
-
-            if (!File.Exists(filePath))
+            if (!File.Exists(jsonFilePath))
             {
-                throw new DataLoadException($"data.json not found at {filePath}");
+                throw new DataLoadException($"data.json not found at {jsonFilePath}");
             }
 
-            var json = await File.ReadAllTextAsync(filePath);
-            
-            if (string.IsNullOrWhiteSpace(json))
-            {
-                throw new DataLoadException("data.json is empty");
-            }
-
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-
+            var json = await File.ReadAllTextAsync(jsonFilePath);
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var data = JsonSerializer.Deserialize<ProjectData>(json, options);
 
             if (data == null)
@@ -51,65 +35,39 @@ public class ProjectDataService
             ValidateProjectData(data);
             _cachedData = data;
             _lastLoadTime = DateTime.UtcNow;
-
-            _logger.LogInformation("Project data loaded successfully from {Path}", filePath);
             return data;
         }
         catch (JsonException ex)
         {
-            throw new DataLoadException($"Invalid JSON format in data.json: {ex.Message}", ex);
+            throw new DataLoadException($"Invalid JSON format: {ex.Message}", ex);
         }
         catch (FileNotFoundException ex)
         {
-            throw new DataLoadException($"data.json file not found: {ex.Message}", ex);
-        }
-        catch (IOException ex)
-        {
-            throw new DataLoadException($"Error reading data.json: {ex.Message}", ex);
+            throw new DataLoadException($"data.json not found: {ex.Message}", ex);
         }
     }
 
-    public ProjectData? GetCachedData() => _cachedData;
-
-    public DateTime GetLastLoadTime() => _lastLoadTime;
-
-    public void RefreshData()
+    public ProjectData GetCachedData()
     {
-        _cachedData = null;
-        _lastLoadTime = DateTime.MinValue;
+        return _cachedData ?? throw new InvalidOperationException("No cached data available. Call LoadProjectDataAsync first.");
     }
 
     private void ValidateProjectData(ProjectData data)
     {
         if (data.Project == null)
-            throw new DataLoadException("Missing 'project' object in data.json");
-
+            throw new DataLoadException("Missing 'project' field in data.json");
+        
         if (string.IsNullOrWhiteSpace(data.Project.Name))
             throw new DataLoadException("Project name is required");
-
+        
         if (data.Milestones == null)
             throw new DataLoadException("Missing 'milestones' array in data.json");
-
+        
         if (data.Tasks == null)
             throw new DataLoadException("Missing 'tasks' array in data.json");
-
+        
         if (data.Metrics == null)
             throw new DataLoadException("Missing 'metrics' object in data.json");
-
-        if (data.Project.StartDate > data.Project.EndDate)
-            throw new DataLoadException("Project startDate must be before endDate");
-
-        foreach (var milestone in data.Milestones)
-        {
-            if (string.IsNullOrWhiteSpace(milestone.Name))
-                throw new DataLoadException("Milestone name is required");
-        }
-
-        foreach (var task in data.Tasks)
-        {
-            if (string.IsNullOrWhiteSpace(task.Name))
-                throw new DataLoadException("Task name is required");
-        }
     }
 }
 
@@ -117,4 +75,123 @@ public class DataLoadException : Exception
 {
     public DataLoadException(string message) : base(message) { }
     public DataLoadException(string message, Exception innerException) : base(message, innerException) { }
+}
+
+public class ProjectData
+{
+    [JsonPropertyName("project")]
+    public ProjectInfo? Project { get; set; }
+
+    [JsonPropertyName("milestones")]
+    public List<Milestone> Milestones { get; set; } = new();
+
+    [JsonPropertyName("tasks")]
+    public List<Task> Tasks { get; set; } = new();
+
+    [JsonPropertyName("metrics")]
+    public ProjectMetrics? Metrics { get; set; }
+}
+
+public class ProjectInfo
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = string.Empty;
+
+    [JsonPropertyName("startDate")]
+    public DateTime StartDate { get; set; }
+
+    [JsonPropertyName("endDate")]
+    public DateTime EndDate { get; set; }
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = "OnTrack";
+
+    [JsonPropertyName("sponsor")]
+    public string Sponsor { get; set; } = string.Empty;
+
+    [JsonPropertyName("projectManager")]
+    public string ProjectManager { get; set; } = string.Empty;
+}
+
+public class Milestone
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("targetDate")]
+    public DateTime TargetDate { get; set; }
+
+    [JsonPropertyName("actualDate")]
+    public DateTime? ActualDate { get; set; }
+
+    [JsonPropertyName("status")]
+    public MilestoneStatus Status { get; set; }
+
+    [JsonPropertyName("completionPercentage")]
+    public int CompletionPercentage { get; set; }
+}
+
+public enum MilestoneStatus
+{
+    Completed = 0,
+    InProgress = 1,
+    Pending = 2
+}
+
+public class Task
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("status")]
+    public TaskStatus Status { get; set; }
+
+    [JsonPropertyName("assignedTo")]
+    public string AssignedTo { get; set; } = string.Empty;
+
+    [JsonPropertyName("dueDate")]
+    public DateTime DueDate { get; set; }
+
+    [JsonPropertyName("estimatedDays")]
+    public int EstimatedDays { get; set; }
+
+    [JsonPropertyName("relatedMilestone")]
+    public string RelatedMilestone { get; set; } = string.Empty;
+}
+
+public enum TaskStatus
+{
+    Shipped = 0,
+    InProgress = 1,
+    CarriedOver = 2
+}
+
+public class ProjectMetrics
+{
+    [JsonPropertyName("totalTasks")]
+    public int TotalTasks { get; set; }
+
+    [JsonPropertyName("completedTasks")]
+    public int CompletedTasks { get; set; }
+
+    [JsonPropertyName("inProgressTasks")]
+    public int InProgressTasks { get; set; }
+
+    [JsonPropertyName("carriedOverTasks")]
+    public int CarriedOverTasks { get; set; }
+
+    [JsonPropertyName("estimatedBurndownRate")]
+    public double EstimatedBurndownRate { get; set; }
+
+    public int CompletionPercentage =>
+        TotalTasks > 0 ? (CompletedTasks * 100) / TotalTasks : 0;
 }
