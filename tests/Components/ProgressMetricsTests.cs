@@ -1,91 +1,106 @@
-using System;
-using System.Collections.Generic;
-using AgentSquad.Runner.Components;
-using AgentSquad.Runner.Data;
-using Bunit;
 using Xunit;
+using Bunit;
+using AgentSquad.Dashboard.Components;
 
-namespace AgentSquad.Runner.Tests.Components
+namespace AgentSquad.Dashboard.Tests.Components;
+
+public class ProgressMetricsTests : TestContext
 {
-    public class ProgressMetricsTests : TestContext
+    [Fact]
+    public void ProgressMetrics_DisplaysCompletionPercentage()
     {
-        [Fact]
-        public void ProgressMetrics_DisplaysCompletionPercentage()
-        {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.CompletionPercentage, 75));
+        var component = RenderComponent<ProgressMetrics>(
+            parameters => parameters
+                .Add(p => p.CompletionPercentage, 75)
+                .Add(p => p.TotalTasks, 10)
+                .Add(p => p.CompletedTasks, 7)
+        );
 
-            Assert.Contains("75%", component.Markup);
-        }
+        Assert.Contains("75%", component.Markup);
+    }
 
-        [Fact]
-        public void ProgressMetrics_DisplaysProgressBar()
-        {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.CompletionPercentage, 50));
+    [Fact]
+    public void ProgressMetrics_DisplaysTaskCounts()
+    {
+        var component = RenderComponent<ProgressMetrics>(
+            parameters => parameters
+                .Add(p => p.CompletionPercentage, 60)
+                .Add(p => p.TotalTasks, 10)
+                .Add(p => p.CompletedTasks, 6)
+        );
 
-            Assert.Contains("progress", component.Markup, StringComparison.OrdinalIgnoreCase);
-        }
+        Assert.Contains("6 of 10", component.Markup);
+    }
 
-        [Fact]
-        public void ProgressMetrics_With0Percent_RendersSafely()
-        {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.CompletionPercentage, 0));
-
-            Assert.Contains("0%", component.Markup);
-        }
-
-        [Fact]
-        public void ProgressMetrics_With100Percent_RendersSafely()
-        {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.CompletionPercentage, 100));
-
-            Assert.Contains("100%", component.Markup);
-        }
-
-        [Fact]
-        public void ProgressMetrics_ProgressBarWidthMatchesPercentage()
-        {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.CompletionPercentage, 60));
-
-            Assert.Contains("style=\"width: 60%\"", component.Markup);
-        }
-
-        [Fact]
-        public void ProgressMetrics_DisplaysTitle()
-        {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.CompletionPercentage, 50));
-
-            Assert.Contains("Progress", component.Markup, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [Fact]
-        public void ProgressMetrics_ContainsMilestoneChart()
-        {
-            var milestones = new List<Milestone>
-            {
-                new Milestone { Name = "Phase 1", Status = "Completed" },
-                new Milestone { Name = "Phase 2", Status = "InProgress" }
-            };
-
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+    [Fact]
+    public void ProgressMetrics_DisplaysProgressBar()
+    {
+        var component = RenderComponent<ProgressMetrics>(
+            parameters => parameters
                 .Add(p => p.CompletionPercentage, 50)
-                .Add(p => p.Milestones, milestones));
+                .Add(p => p.TotalTasks, 10)
+                .Add(p => p.CompletedTasks, 5)
+        );
 
-            Assert.NotNull(component.Markup);
-        }
+        var progressBar = component.Find(".progress-bar");
+        Assert.NotNull(progressBar);
+        Assert.Contains("width: 50%", progressBar.OuterHtml);
+    }
 
-        [Fact]
-        public void ProgressMetrics_NoAnimations()
-        {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.CompletionPercentage, 75));
+    [Fact]
+    public void ProgressMetrics_HandlesZeroCompletion()
+    {
+        var component = RenderComponent<ProgressMetrics>(
+            parameters => parameters
+                .Add(p => p.CompletionPercentage, 0)
+                .Add(p => p.TotalTasks, 10)
+                .Add(p => p.CompletedTasks, 0)
+        );
 
-            Assert.DoesNotContain("transition", component.Markup, StringComparison.OrdinalIgnoreCase);
-        }
+        Assert.Contains("0%", component.Markup);
+        Assert.Contains("0 of 10", component.Markup);
+    }
+
+    [Fact]
+    public void ProgressMetrics_Handles100PercentCompletion()
+    {
+        var component = RenderComponent<ProgressMetrics>(
+            parameters => parameters
+                .Add(p => p.CompletionPercentage, 100)
+                .Add(p => p.TotalTasks, 10)
+                .Add(p => p.CompletedTasks, 10)
+        );
+
+        Assert.Contains("100%", component.Markup);
+        Assert.Contains("10 of 10", component.Markup);
+    }
+
+    [Fact]
+    public void ProgressMetrics_DisplaysLargePercentageText()
+    {
+        var component = RenderComponent<ProgressMetrics>(
+            parameters => parameters
+                .Add(p => p.CompletionPercentage, 85)
+                .Add(p => p.TotalTasks, 20)
+                .Add(p => p.CompletedTasks, 17)
+        );
+
+        var largePercentage = component.Find(".large-percentage");
+        Assert.NotNull(largePercentage);
+        Assert.Contains("85%", largePercentage.InnerHtml);
+    }
+
+    [Fact]
+    public void ProgressMetrics_DisplaysMetricsContainer()
+    {
+        var component = RenderComponent<ProgressMetrics>(
+            parameters => parameters
+                .Add(p => p.CompletionPercentage, 45)
+                .Add(p => p.TotalTasks, 20)
+                .Add(p => p.CompletedTasks, 9)
+        );
+
+        var container = component.Find(".metrics-container");
+        Assert.NotNull(container);
     }
 }
