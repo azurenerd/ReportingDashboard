@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Project Dashboard Data Schema",
+  "description": "JSON Schema definition for the Executive Project Reporting Dashboard data model",
+  "type": "object",
+  "required": ["name", "description", "milestones", "workItems", "metrics"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "description": "Project name displayed in dashboard header"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Brief project description or overview"
+    },
+    "milestones": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Array of project milestones with target dates and status",
+      "items": {
+        "type": "object",
+        "required": ["name", "targetDate", "status"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Milestone name or title"
+          },
+          "targetDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 formatted target completion date (e.g., 2026-06-30T00:00:00Z)"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["Completed", "InProgress", "AtRisk", "Future"],
+            "description": "Current milestone status: Completed (green), InProgress (blue), AtRisk (red), Future (gray)"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Detailed milestone description or deliverables"
+          }
+        }
+      }
+    },
+    "workItems": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Array of work items grouped by status",
+      "items": {
+        "type": "object",
+        "required": ["title", "status"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Work item title or feature name"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ShippedThisMonth", "InProgress", "CarriedOver"],
+            "description": "Work item status: ShippedThisMonth (completed), InProgress (active), CarriedOver (deferred)"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Work item description or details"
+          }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["completionPercentage", "healthStatus", "velocityCount", "totalMilestones"],
+      "description": "Project-level KPIs and health indicators",
+      "properties": {
+        "completionPercentage": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Overall project completion percentage (0-100)"
+        },
+        "healthStatus": {
+          "type": "string",
+          "enum": ["OnTrack", "AtRisk", "Blocked"],
+          "description": "Project health status: OnTrack (green), AtRisk (yellow), Blocked (red)"
+        },
+        "velocityCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of items shipped this month (velocity indicator)"
+        },
+        "totalMilestones": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total planned milestones for project"
+        }
+      }
+    }
+  }
+}
