@@ -13,7 +13,9 @@
     "completedTasks": 4,
     "inProgressTasks": 3,
     "carriedOverTasks": 3,
-    "completionPercentage": 67
+    "overallCompletionPercentage": 67,
+    "onSchedule": true,
+    "riskLevel": "Low"
   },
   "milestones": [
     {
