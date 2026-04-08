@@ -1,12 +1,8 @@
-using AgentSquad.Runner.Models;
+namespace AgentSquad.Runner.Services;
 
-namespace AgentSquad.Runner.Services
+public interface IDataCache
 {
-    public interface IDataCache
-    {
-        void Set<T>(string key, T value);
-        T Get<T>(string key);
-        bool TryGetValue<T>(string key, out T value);
-        void Remove(string key);
-    }
+    T GetOrCreate<T>(string key, Func<T> factory, TimeSpan? ttl = null);
+    void Remove(string key);
+    bool TryGetValue<T>(string key, out T value);
 }

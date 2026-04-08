@@ -4,7 +4,8 @@ namespace AgentSquad.Runner.Services;
 
 public interface IDataProvider
 {
+    Task<Project> LoadProjectDataAsync();
     Project GetProjectData();
     bool IsLoaded { get; }
-    string ErrorMessage { get; }
+    void InvalidateCache();
 }
