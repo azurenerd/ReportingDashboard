@@ -1,152 +1,137 @@
-using System.Collections.Generic;
-using AgentSquad.Runner.Components;
-using AgentSquad.Runner.Data;
-using Bunit;
 using Xunit;
+using Bunit;
+using AgentSquad.Dashboard.Components;
+using AgentSquad.Dashboard.Models;
 
-namespace AgentSquad.Runner.Tests.Components
+namespace AgentSquad.Dashboard.Tests.Components;
+
+public class StatusCardTests : TestContext
 {
-    public class StatusCardTests : TestContext
+    [Fact]
+    public void StatusCard_DisplaysStatusCategory()
     {
-        [Fact]
-        public void StatusCard_DisplaysStatusCategory()
-        {
-            var tasks = new List<ProjectTask>();
-
-            var component = RenderComponent<StatusCard>(parameters => parameters
+        var component = RenderComponent<StatusCard>(
+            parameters => parameters
                 .Add(p => p.StatusCategory, "Shipped")
                 .Add(p => p.TaskCount, 5)
-                .Add(p => p.Tasks, tasks)
-                .Add(p => p.CardColor, "bg-success"));
+                .Add(p => p.Tasks, new List<Task>())
+                .Add(p => p.CardColor, "success")
+        );
 
-            Assert.Contains("Shipped", component.Markup);
-        }
+        Assert.Contains("Shipped", component.Markup);
+    }
 
-        [Fact]
-        public void StatusCard_DisplaysTaskCount()
-        {
-            var tasks = new List<ProjectTask>
-            {
-                new ProjectTask { Name = "Task 1", Status = "Shipped", Owner = "Alice" },
-                new ProjectTask { Name = "Task 2", Status = "Shipped", Owner = "Bob" },
-                new ProjectTask { Name = "Task 3", Status = "Shipped", Owner = "Charlie" }
-            };
-
-            var component = RenderComponent<StatusCard>(parameters => parameters
-                .Add(p => p.StatusCategory, "Shipped")
+    [Fact]
+    public void StatusCard_DisplaysTaskCount()
+    {
+        var component = RenderComponent<StatusCard>(
+            parameters => parameters
+                .Add(p => p.StatusCategory, "In-Progress")
                 .Add(p => p.TaskCount, 3)
-                .Add(p => p.Tasks, tasks)
-                .Add(p => p.CardColor, "bg-success"));
+                .Add(p => p.Tasks, new List<Task>())
+                .Add(p => p.CardColor, "info")
+        );
 
-            Assert.Contains("3", component.Markup);
-        }
+        Assert.Contains("3", component.Markup);
+    }
 
-        [Fact]
-        public void StatusCard_ShippedUsesGreenColor()
-        {
-            var tasks = new List<ProjectTask>();
-
-            var component = RenderComponent<StatusCard>(parameters => parameters
+    [Fact]
+    public void StatusCard_UsesCorrectColorClass()
+    {
+        var component = RenderComponent<StatusCard>(
+            parameters => parameters
                 .Add(p => p.StatusCategory, "Shipped")
-                .Add(p => p.TaskCount, 0)
-                .Add(p => p.Tasks, tasks)
-                .Add(p => p.CardColor, "bg-success"));
+                .Add(p => p.TaskCount, 5)
+                .Add(p => p.Tasks, new List<Task>())
+                .Add(p => p.CardColor, "success")
+        );
 
-            Assert.Contains("bg-success", component.Markup);
-        }
+        Assert.Contains("border-success", component.Markup);
+        Assert.Contains("bg-success", component.Markup);
+    }
 
-        [Fact]
-        public void StatusCard_InProgressUsesBlueColor()
+    [Fact]
+    public void StatusCard_DisplaysTaskList()
+    {
+        var tasks = new List<Task>
         {
-            var tasks = new List<ProjectTask>();
+            new Task { Id = "T1", Name = "Implement auth", Status = TaskStatus.Shipped, AssignedTo = "John Doe", DueDate = DateTime.Now, EstimatedDays = 5 },
+            new Task { Id = "T2", Name = "Setup database", Status = TaskStatus.Shipped, AssignedTo = "Jane Smith", DueDate = DateTime.Now.AddDays(1), EstimatedDays = 3 }
+        };
 
-            var component = RenderComponent<StatusCard>(parameters => parameters
-                .Add(p => p.StatusCategory, "In Progress")
-                .Add(p => p.TaskCount, 0)
-                .Add(p => p.Tasks, tasks)
-                .Add(p => p.CardColor, "bg-info"));
-
-            Assert.Contains("bg-info", component.Markup);
-        }
-
-        [Fact]
-        public void StatusCard_CarriedOverUsesOrangeColor()
-        {
-            var tasks = new List<ProjectTask>();
-
-            var component = RenderComponent<StatusCard>(parameters => parameters
-                .Add(p => p.StatusCategory, "Carried Over")
-                .Add(p => p.TaskCount, 0)
-                .Add(p => p.Tasks, tasks)
-                .Add(p => p.CardColor, "bg-warning"));
-
-            Assert.Contains("bg-warning", component.Markup);
-        }
-
-        [Fact]
-        public void StatusCard_ListsAllTasks()
-        {
-            var tasks = new List<ProjectTask>
-            {
-                new ProjectTask { Name = "API Development", Status = "Shipped", Owner = "Alice" },
-                new ProjectTask { Name = "UI Design", Status = "Shipped", Owner = "Bob" },
-                new ProjectTask { Name = "Testing", Status = "Shipped", Owner = "Charlie" }
-            };
-
-            var component = RenderComponent<StatusCard>(parameters => parameters
+        var component = RenderComponent<StatusCard>(
+            parameters => parameters
                 .Add(p => p.StatusCategory, "Shipped")
-                .Add(p => p.TaskCount, 3)
+                .Add(p => p.TaskCount, 2)
                 .Add(p => p.Tasks, tasks)
-                .Add(p => p.CardColor, "bg-success"));
+                .Add(p => p.CardColor, "success")
+        );
 
-            Assert.Contains("API Development", component.Markup);
-            Assert.Contains("UI Design", component.Markup);
-            Assert.Contains("Testing", component.Markup);
-        }
+        Assert.Contains("Implement auth", component.Markup);
+        Assert.Contains("Setup database", component.Markup);
+    }
 
-        [Fact]
-        public void StatusCard_DisplaysTaskOwners()
+    [Fact]
+    public void StatusCard_DisplaysTaskAssignee()
+    {
+        var tasks = new List<Task>
         {
-            var tasks = new List<ProjectTask>
-            {
-                new ProjectTask { Name = "Task 1", Status = "Shipped", Owner = "Alice" }
-            };
+            new Task { Id = "T1", Name = "Task 1", Status = TaskStatus.Shipped, AssignedTo = "Alice Johnson", DueDate = DateTime.Now, EstimatedDays = 5 }
+        };
 
-            var component = RenderComponent<StatusCard>(parameters => parameters
+        var component = RenderComponent<StatusCard>(
+            parameters => parameters
                 .Add(p => p.StatusCategory, "Shipped")
                 .Add(p => p.TaskCount, 1)
                 .Add(p => p.Tasks, tasks)
-                .Add(p => p.CardColor, "bg-success"));
+                .Add(p => p.CardColor, "success")
+        );
 
-            Assert.Contains("Alice", component.Markup);
-        }
+        Assert.Contains("Alice Johnson", component.Markup);
+    }
 
-        [Fact]
-        public void StatusCard_WithEmptyTaskList_RendersSafely()
-        {
-            var tasks = new List<ProjectTask>();
-
-            var component = RenderComponent<StatusCard>(parameters => parameters
-                .Add(p => p.StatusCategory, "Shipped")
+    [Fact]
+    public void StatusCard_HandleEmptyTaskList()
+    {
+        var component = RenderComponent<StatusCard>(
+            parameters => parameters
+                .Add(p => p.StatusCategory, "Carried-Over")
                 .Add(p => p.TaskCount, 0)
-                .Add(p => p.Tasks, tasks)
-                .Add(p => p.CardColor, "bg-success"));
+                .Add(p => p.Tasks, new List<Task>())
+                .Add(p => p.CardColor, "warning")
+        );
 
-            Assert.NotNull(component.Markup);
-        }
+        var listItems = component.FindAll(".list-group-item");
+        Assert.Empty(listItems);
+    }
 
-        [Fact]
-        public void StatusCard_UsesResponsiveGrid()
-        {
-            var tasks = new List<ProjectTask>();
+    [Fact]
+    public void StatusCard_CarriedOverCardUsesOrangeColor()
+    {
+        var component = RenderComponent<StatusCard>(
+            parameters => parameters
+                .Add(p => p.StatusCategory, "Carried-Over")
+                .Add(p => p.TaskCount, 2)
+                .Add(p => p.Tasks, new List<Task>())
+                .Add(p => p.CardColor, "warning")
+        );
 
-            var component = RenderComponent<StatusCard>(parameters => parameters
-                .Add(p => p.StatusCategory, "Shipped")
-                .Add(p => p.TaskCount, 0)
-                .Add(p => p.Tasks, tasks)
-                .Add(p => p.CardColor, "bg-success"));
+        Assert.Contains("border-warning", component.Markup);
+        Assert.Contains("bg-warning", component.Markup);
+    }
 
-            Assert.Contains("col", component.Markup);
-        }
+    [Fact]
+    public void StatusCard_InProgressCardUsesBlueColor()
+    {
+        var component = RenderComponent<StatusCard>(
+            parameters => parameters
+                .Add(p => p.StatusCategory, "In-Progress")
+                .Add(p => p.TaskCount, 3)
+                .Add(p => p.Tasks, new List<Task>())
+                .Add(p => p.CardColor, "info")
+        );
+
+        Assert.Contains("border-info", component.Markup);
+        Assert.Contains("bg-info", component.Markup);
     }
 }
