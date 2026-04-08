@@ -1,0 +1,42 @@
+@using AgentSquad.Models
+
+<section class="section-spacing">
+    <h2>Project Timeline</h2>
+    @if (Milestones?.Count > 0)
+    {
+        <div class="timeline">
+            @foreach (var milestone in Milestones)
+            {
+                <div class="timeline-item">
+                    <div class="timeline-marker" style="background-color: @GetStatusColor(milestone.Status)"></div>
+                    <div class="timeline-content">
+                        <h4>@milestone.Name</h4>
+                        <p class="mb-1">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</p>
+                        <p class="mb-0">Completion: @milestone.CompletionPercentage%</p>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No milestones available</p>
+    }
+</section>
+
+@code {
+    [Parameter] public List<Milestone> Milestones { get; set; }
+    [Parameter] public DateTime ProjectStartDate { get; set; }
+    [Parameter] public DateTime ProjectEndDate { get; set; }
+
+    private string GetStatusColor(MilestoneStatus status)
+    {
+        return status switch
+        {
+            MilestoneStatus.Completed => "#28a745",
+            MilestoneStatus.InProgress => "#007bff",
+            MilestoneStatus.Pending => "#6c757d",
+            _ => "#6c757d"
+        };
+    }
+}

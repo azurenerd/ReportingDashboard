@@ -1,0 +1,36 @@
+<section class="section-spacing">
+    <h2>Progress Metrics</h2>
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card card-spacing">
+                <h4>Completion</h4>
+                <p class="fs-2">@CompletionPercentage%</p>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card card-spacing">
+                <h4>Total Tasks</h4>
+                <p class="fs-2">@TotalTasks</p>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card card-spacing">
+                <h4>Completed</h4>
+                <p class="fs-2">@CompletedTasks</p>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card card-spacing">
+                <h4>Burndown</h4>
+                <p class="fs-2">@BurndownRate.ToString("F2")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public int CompletionPercentage { get; set; }
+    [Parameter] public int TotalTasks { get; set; }
+    [Parameter] public int CompletedTasks { get; set; }
+    [Parameter] public decimal BurndownRate { get; set; }
+}
