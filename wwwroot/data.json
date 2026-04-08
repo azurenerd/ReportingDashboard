@@ -1,79 +1,157 @@
 {
-  "name": "Project Horizon - Q1 2024 Delivery",
-  "description": "Executive reporting dashboard for real-time project status visibility and milestone tracking",
+  "name": "Project Codename: Horizon",
+  "description": "Executive reporting dashboard rollout - Consolidated project milestone tracking and KPI visualization for executive presentations",
   "startDate": "2024-01-15",
-  "targetEndDate": "2024-03-31",
-  "completionPercentage": 62,
+  "targetEndDate": "2024-12-31",
+  "completionPercentage": 45,
   "healthStatus": "OnTrack",
   "velocityThisMonth": 12,
   "milestones": [
     {
-      "name": "Requirements & Design",
-      "targetDate": "2024-01-31",
-      "status": "Completed",
-      "description": "Completed project scope definition and architecture design"
-    },
-    {
-      "name": "Core Development",
-      "targetDate": "2024-02-28",
-      "status": "InProgress",
-      "description": "Blazor server implementation and component development"
-    },
-    {
-      "name": "Testing & QA",
-      "targetDate": "2024-03-15",
-      "status": "Future",
-      "description": "Comprehensive testing and quality assurance"
-    },
-    {
-      "name": "Production Launch",
+      "name": "Phase 1: MVP Launch",
       "targetDate": "2024-03-31",
+      "status": "Completed",
+      "description": "Core dashboard functionality complete with basic milestone and work item tracking"
+    },
+    {
+      "name": "Phase 2: Metrics Expansion",
+      "targetDate": "2024-06-30",
+      "status": "InProgress",
+      "description": "Enhanced KPI tracking, health status indicators, and velocity metrics"
+    },
+    {
+      "name": "Phase 2.5: Screenshot Optimization",
+      "targetDate": "2024-07-15",
+      "status": "InProgress",
+      "description": "Print-optimized CSS for PowerPoint screenshot capture at 1280x720 and 1920x1080"
+    },
+    {
+      "name": "Phase 3: Integration",
+      "targetDate": "2024-09-30",
       "status": "Future",
-      "description": "Go-live and stakeholder deployment"
+      "description": "Third-party data source integration and advanced filtering capabilities"
+    },
+    {
+      "name": "Phase 4: Performance & Scale",
+      "targetDate": "2024-11-30",
+      "status": "Future",
+      "description": "Caching layer optimization and support for large project datasets"
+    },
+    {
+      "name": "Phase 5: Release Candidate",
+      "targetDate": "2024-12-15",
+      "status": "Future",
+      "description": "Final testing, documentation, and production deployment readiness"
     }
   ],
   "workItems": [
     {
-      "title": "API Integration - Data Service",
-      "description": "Integrate JSON data provider with ASP.NET Core dependency injection and implement caching layer",
+      "title": "Blazor Server Application Setup",
+      "description": "Create ASP.NET Core 8.0 Blazor Server application with local HTTP binding",
       "status": "Shipped",
-      "assignedTo": "Senior Engineer 1"
+      "assignedTo": "Platform Team"
     },
     {
-      "title": "Dashboard Layout Component",
-      "description": "Build responsive dashboard grid layout with error handling and loading states for all screen resolutions",
+      "title": "Data Model Definition",
+      "description": "Define Project, Milestone, and WorkItem entity models with JSON serialization",
       "status": "Shipped",
-      "assignedTo": "Senior Engineer 1"
+      "assignedTo": "Backend Team"
     },
     {
-      "title": "Work Item Summary Visualization",
-      "description": "Implement three-column work item grouping component with status badges and description truncation",
+      "title": "CSS Framework Integration",
+      "description": "Integrate Pico CSS 2.x framework for minimalist, professional styling",
       "status": "Shipped",
-      "assignedTo": "Senior Engineer 1"
+      "assignedTo": "Frontend Team"
     },
     {
-      "title": "CSS Grid Styling & Responsiveness",
-      "description": "Add comprehensive CSS for print optimization, screenshot clarity at 1024x768 and 1920x1080 resolutions",
+      "title": "Dashboard Grid Layout",
+      "description": "Create responsive CSS grid layout for header, timeline, metrics, and work items sections",
       "status": "InProgress",
-      "assignedTo": "UI Designer"
+      "assignedTo": "Frontend Team"
     },
     {
-      "title": "Milestone Timeline Visualization",
-      "description": "Create horizontal milestone timeline component with Chart.js visualization and status color coding",
+      "title": "Print Media Queries",
+      "description": "Add @media print CSS optimization for 1280x720 and 1920x1080 screenshot capture",
       "status": "InProgress",
-      "assignedTo": "Senior Engineer 2"
+      "assignedTo": "Frontend Team"
     },
     {
-      "title": "Browser Compatibility Testing",
-      "description": "Validate dashboard rendering and functionality in Chrome and Edge browsers at all target resolutions",
-      "status": "CarriedOver",
-      "assignedTo": "QA Engineer"
+      "title": "DataProvider Service Implementation",
+      "description": "Implement JSON file reading, parsing, validation, and in-memory caching",
+      "status": "InProgress",
+      "assignedTo": "Backend Team"
     },
     {
-      "title": "Performance Optimization - Load Time",
-      "description": "Reduce page load time to under 1 second and optimize data.json parsing to under 500ms",
+      "title": "DashboardLayout Component",
+      "description": "Create main layout component that loads data and renders child components",
       "status": "CarriedOver",
-      "assignedTo": "Performance Team"
+      "assignedTo": "Frontend Team"
+    },
+    {
+      "title": "MilestoneTimeline Component",
+      "description": "Build horizontal timeline visualization using Chart.js with status indicators",
+      "status": "CarriedOver",
+      "assignedTo": "Frontend Team"
+    },
+    {
+      "title": "ProjectMetrics Component",
+      "description": "Display KPI cards for completion %, health status, and velocity indicators",
+      "status": "CarriedOver",
+      "assignedTo": "Frontend Team"
+    },
+    {
+      "title": "WorkItemSummary Component",
+      "description": "Render 3-column work item layout grouped by status (Shipped/InProgress/CarriedOver)",
+      "status": "CarriedOver",
+      "assignedTo": "Frontend Team"
+    },
+    {
+      "title": "Error Handling & Validation",
+      "description": "Implement graceful error handling for missing or malformed data.json",
+      "status": "CarriedOver",
+      "assignedTo": "Backend Team"
+    },
+    {
+      "title": "Browser Testing - Chrome 120+",
+      "description": "Verify dashboard rendering and functionality in Chrome latest",
+      "status": "CarriedOver",
+      "assignedTo": "QA Team"
+    },
+    {
+      "title": "Browser Testing - Edge 120+",
+      "description": "Verify dashboard rendering and functionality in Edge latest",
+      "status": "CarriedOver",
+      "assignedTo": "QA Team"
+    },
+    {
+      "title": "Screenshot Testing - 1024x768",
+      "description": "Capture and verify dashboard appearance at minimum supported resolution",
+      "status": "CarriedOver",
+      "assignedTo": "QA Team"
+    },
+    {
+      "title": "Screenshot Testing - 1280x720",
+      "description": "Capture and verify dashboard appearance at HD presentation resolution",
+      "status": "CarriedOver",
+      "assignedTo": "QA Team"
+    },
+    {
+      "title": "Screenshot Testing - 1920x1080",
+      "description": "Capture and verify dashboard appearance at Full HD resolution",
+      "status": "CarriedOver",
+      "assignedTo": "QA Team"
+    },
+    {
+      "title": "Documentation - Setup Guide",
+      "description": "Create comprehensive README with setup instructions and deployment steps",
+      "status": "CarriedOver",
+      "assignedTo": "Technical Writer"
+    },
+    {
+      "title": "Documentation - data.json Schema",
+      "description": "Document data.json structure, required fields, enums, and validation rules",
+      "status": "CarriedOver",
+      "assignedTo": "Technical Writer"
     }
   ]
 }
