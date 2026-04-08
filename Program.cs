@@ -5,6 +5,10 @@ var builder = WebApplicationBuilder.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// IDataProvider and IDataCache implementations to be registered by dedicated data services PR
+builder.Services.AddSingleton(typeof(IDataProvider), _ => throw new NotImplementedException("IDataProvider implementation not registered. Register in data services PR."));
+builder.Services.AddSingleton(typeof(IDataCache), _ => throw new NotImplementedException("IDataCache implementation not registered. Register in data services PR."));
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
