@@ -1,0 +1,91 @@
+@page "/"
+@namespace AgentSquad.Pages
+@using AgentSquad.Components
+@using AgentSquad.Models
+
+<div class="container-fluid py-5">
+    <div class="row mb-5">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold text-dark">Project Dashboard</h1>
+            <p class="lead text-muted">Real-time project status and task breakdown</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-md-4">
+            <StatusCard 
+                StatusCategory="Shipped" 
+                TaskCount="@GetShippedTaskCount()" 
+                Tasks="@GetShippedTasks()" 
+                CardColor="green" />
+        </div>
+        <div class="col-12 col-md-4">
+            <StatusCard 
+                StatusCategory="In-Progress" 
+                TaskCount="@GetInProgressTaskCount()" 
+                Tasks="@GetInProgressTasks()" 
+                CardColor="blue" />
+        </div>
+        <div class="col-12 col-md-4">
+            <StatusCard 
+                StatusCategory="Carried-Over" 
+                TaskCount="@GetCarriedOverTaskCount()" 
+                Tasks="@GetCarriedOverTasks()" 
+                CardColor="orange" />
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Task> allTasks = new();
+
+    protected override void OnInitialized()
+    {
+        LoadSampleData();
+    }
+
+    private void LoadSampleData()
+    {
+        allTasks = new List<Task>
+        {
+            new Task { Id = 1, Name = "API Authentication Setup", AssignedOwner = "John Smith", Status = TaskStatus.Shipped },
+            new Task { Id = 2, Name = "Database Schema Design", AssignedOwner = "Sarah Johnson", Status = TaskStatus.Shipped },
+            new Task { Id = 3, Name = "User Interface Framework", AssignedOwner = "Mike Chen", Status = TaskStatus.InProgress },
+            new Task { Id = 4, Name = "Payment Integration", AssignedOwner = "Emily Davis", Status = TaskStatus.InProgress },
+            new Task { Id = 5, Name = "Performance Optimization", AssignedOwner = "David Brown", Status = TaskStatus.InProgress },
+            new Task { Id = 6, Name = "Security Audit", AssignedOwner = "Lisa Anderson", Status = TaskStatus.CarriedOver },
+            new Task { Id = 7, Name = "Documentation Update", AssignedOwner = "James Wilson", Status = TaskStatus.CarriedOver },
+            new Task { Id = 8, Name = "Mobile App Testing", AssignedOwner = "Jennifer White", Status = TaskStatus.Shipped }
+        };
+    }
+
+    private List<Task> GetShippedTasks()
+    {
+        return allTasks.Where(t => t.Status == TaskStatus.Shipped).ToList();
+    }
+
+    private List<Task> GetInProgressTasks()
+    {
+        return allTasks.Where(t => t.Status == TaskStatus.InProgress).ToList();
+    }
+
+    private List<Task> GetCarriedOverTasks()
+    {
+        return allTasks.Where(t => t.Status == TaskStatus.CarriedOver).ToList();
+    }
+
+    private int GetShippedTaskCount()
+    {
+        return GetShippedTasks().Count;
+    }
+
+    private int GetInProgressTaskCount()
+    {
+        return GetInProgressTasks().Count;
+    }
+
+    private int GetCarriedOverTaskCount()
+    {
+        return GetCarriedOverTasks().Count;
+    }
+}
