@@ -1,117 +1,79 @@
 {
-  "name": "Executive Dashboard Demo Project",
-  "description": "Sample project demonstrating the AgentSquad executive reporting dashboard with real-time metrics and milestones",
+  "name": "Project Horizon - Q1 2024 Delivery",
+  "description": "Executive reporting dashboard for real-time project status visibility and milestone tracking",
   "startDate": "2024-01-15",
-  "targetEndDate": "2024-12-31",
-  "completionPercentage": 45,
+  "targetEndDate": "2024-03-31",
+  "completionPercentage": 62,
   "healthStatus": "OnTrack",
   "velocityThisMonth": 12,
-  "totalMilestones": 8,
-  "completedMilestones": 3,
   "milestones": [
     {
-      "name": "Phase 1: Core Platform",
-      "targetDate": "2024-03-31",
+      "name": "Requirements & Design",
+      "targetDate": "2024-01-31",
       "status": "Completed",
-      "description": "Foundation development and infrastructure setup"
+      "description": "Completed project scope definition and architecture design"
     },
     {
-      "name": "Phase 2: Dashboard MVP",
-      "targetDate": "2024-06-30",
-      "status": "Completed",
-      "description": "Executive dashboard with metrics and milestones"
-    },
-    {
-      "name": "Phase 3: Integration",
-      "targetDate": "2024-09-15",
+      "name": "Core Development",
+      "targetDate": "2024-02-28",
       "status": "InProgress",
-      "description": "Third-party system integration and data connectors"
+      "description": "Blazor server implementation and component development"
     },
     {
-      "name": "Phase 4: Advanced Analytics",
-      "targetDate": "2024-11-30",
+      "name": "Testing & QA",
+      "targetDate": "2024-03-15",
       "status": "Future",
-      "description": "Predictive analytics and trend analysis"
+      "description": "Comprehensive testing and quality assurance"
     },
     {
-      "name": "Q4 Launch Preparation",
-      "targetDate": "2024-12-15",
+      "name": "Production Launch",
+      "targetDate": "2024-03-31",
       "status": "Future",
-      "description": "Final testing, documentation, and production launch"
-    },
-    {
-      "name": "API Enhancement",
-      "targetDate": "2024-08-31",
-      "status": "Future",
-      "description": "REST API improvements and performance optimization"
-    },
-    {
-      "name": "Security Hardening",
-      "targetDate": "2024-10-15",
-      "status": "Future",
-      "description": "Security audit and compliance verification"
-    },
-    {
-      "name": "Post-Launch Support",
-      "targetDate": "2024-12-31",
-      "status": "Future",
-      "description": "Monitoring, support, and continuous improvement"
+      "description": "Go-live and stakeholder deployment"
     }
   ],
   "workItems": [
     {
-      "title": "User Authentication System",
-      "description": "Implement OAuth2 authentication and session management",
+      "title": "API Integration - Data Service",
+      "description": "Integrate JSON data provider with ASP.NET Core dependency injection and implement caching layer",
       "status": "Shipped",
-      "assignedTo": "Engineering Team A"
+      "assignedTo": "Senior Engineer 1"
     },
     {
-      "title": "Database Optimization",
-      "description": "Optimize query performance and add indexing",
+      "title": "Dashboard Layout Component",
+      "description": "Build responsive dashboard grid layout with error handling and loading states for all screen resolutions",
       "status": "Shipped",
-      "assignedTo": "Database Team"
+      "assignedTo": "Senior Engineer 1"
     },
     {
-      "title": "API Rate Limiting",
-      "description": "Implement rate limiting and throttling mechanisms",
+      "title": "Work Item Summary Visualization",
+      "description": "Implement three-column work item grouping component with status badges and description truncation",
       "status": "Shipped",
-      "assignedTo": "Backend Team"
+      "assignedTo": "Senior Engineer 1"
     },
     {
-      "title": "Dashboard Redesign",
-      "description": "Redesign executive dashboard with new metrics visualization",
+      "title": "CSS Grid Styling & Responsiveness",
+      "description": "Add comprehensive CSS for print optimization, screenshot clarity at 1024x768 and 1920x1080 resolutions",
       "status": "InProgress",
-      "assignedTo": "Frontend Team"
+      "assignedTo": "UI Designer"
     },
     {
-      "title": "Real-time Data Sync",
-      "description": "Implement WebSocket support for real-time updates",
+      "title": "Milestone Timeline Visualization",
+      "description": "Create horizontal milestone timeline component with Chart.js visualization and status color coding",
       "status": "InProgress",
-      "assignedTo": "Infrastructure Team"
+      "assignedTo": "Senior Engineer 2"
     },
     {
-      "title": "Mobile App Development",
-      "description": "Build React Native mobile application for iOS and Android",
-      "status": "InProgress",
-      "assignedTo": "Mobile Team"
-    },
-    {
-      "title": "Performance Testing",
-      "description": "Load testing and performance benchmarking",
+      "title": "Browser Compatibility Testing",
+      "description": "Validate dashboard rendering and functionality in Chrome and Edge browsers at all target resolutions",
       "status": "CarriedOver",
-      "assignedTo": "QA Team"
+      "assignedTo": "QA Engineer"
     },
     {
-      "title": "Documentation Updates",
-      "description": "Update API documentation and deployment guides",
+      "title": "Performance Optimization - Load Time",
+      "description": "Reduce page load time to under 1 second and optimize data.json parsing to under 500ms",
       "status": "CarriedOver",
-      "assignedTo": "Technical Writing"
-    },
-    {
-      "title": "Security Compliance Review",
-      "description": "SOC 2 Type II compliance audit and remediation",
-      "status": "CarriedOver",
-      "assignedTo": "Security Team"
+      "assignedTo": "Performance Team"
     }
   ]
 }
