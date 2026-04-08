@@ -1,93 +1,156 @@
 {
-  "projectName": "Q2 Mobile App Release",
-  "projectStartDate": "2026-04-01",
-  "projectEndDate": "2026-06-30",
+  "projectInfo": {
+    "projectName": "Q2 Mobile App Release",
+    "sponsor": "Chief Technology Officer",
+    "projectManager": "Jennifer Hayes",
+    "status": "InProgress",
+    "description": "Comprehensive mobile application release for Q2 2026 with major feature updates and performance improvements",
+    "projectStartDate": "2026-04-01",
+    "projectEndDate": "2026-06-30"
+  },
+  "projectMetrics": {
+    "totalTasks": 10,
+    "completedTasks": 4,
+    "inProgressTasks": 3,
+    "carriedOverTasks": 3,
+    "overallCompletionPercentage": 67,
+    "onSchedule": true,
+    "riskLevel": "Low"
+  },
   "milestones": [
     {
+      "id": "M1",
       "name": "Requirements & Design",
       "targetDate": "2026-04-15",
+      "actualDate": "2026-04-14",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
+      "id": "M2",
       "name": "Development Sprint 1",
       "targetDate": "2026-05-01",
+      "actualDate": "2026-05-02",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
+      "id": "M3",
       "name": "Development Sprint 2 & QA",
       "targetDate": "2026-05-20",
+      "actualDate": null,
       "status": "InProgress",
       "completionPercentage": 75
     },
     {
+      "id": "M4",
       "name": "Release & Deployment",
       "targetDate": "2026-06-15",
+      "actualDate": null,
       "status": "Pending",
       "completionPercentage": 0
     }
   ],
   "tasks": [
     {
+      "id": "T1",
       "name": "API Integration",
       "status": "Shipped",
-      "owner": "Sarah Chen",
-      "description": "Integrated backend REST API endpoints for user and project data retrieval"
+      "assignedTo": "Sarah Chen",
+      "description": "Integrated backend REST API endpoints for user and project data retrieval",
+      "dueDate": "2026-04-20",
+      "estimatedDays": 8,
+      "relatedMilestone": "M1"
     },
     {
+      "id": "T2",
       "name": "User Authentication",
       "status": "Shipped",
-      "owner": "Marcus Rodriguez",
-      "description": "Implemented secure login and session management for mobile platform"
+      "assignedTo": "Marcus Rodriguez",
+      "description": "Implemented secure login and session management for mobile platform",
+      "dueDate": "2026-04-25",
+      "estimatedDays": 6,
+      "relatedMilestone": "M1"
     },
     {
+      "id": "T3",
       "name": "Database Schema",
       "status": "Shipped",
-      "owner": "Priya Patel",
-      "description": "Designed and deployed production database schema for project and task data"
+      "assignedTo": "Priya Patel",
+      "description": "Designed and deployed production database schema for project and task data",
+      "dueDate": "2026-05-05",
+      "estimatedDays": 5,
+      "relatedMilestone": "M2"
     },
     {
+      "id": "T4",
       "name": "Initial UI Framework",
       "status": "Shipped",
-      "owner": "James Wilson",
-      "description": "Created responsive UI components and navigation framework for mobile app"
+      "assignedTo": "James Wilson",
+      "description": "Created responsive UI components and navigation framework for mobile app",
+      "dueDate": "2026-05-08",
+      "estimatedDays": 10,
+      "relatedMilestone": "M2"
     },
     {
+      "id": "T5",
       "name": "Push Notifications",
       "status": "InProgress",
-      "owner": "Emma Thompson",
-      "description": "Implementing real-time push notifications for task updates and alerts"
+      "assignedTo": "Emma Thompson",
+      "description": "Implementing real-time push notifications for task updates and alerts",
+      "dueDate": "2026-05-25",
+      "estimatedDays": 6,
+      "relatedMilestone": "M3"
     },
     {
+      "id": "T6",
       "name": "Offline Sync",
       "status": "InProgress",
-      "owner": "Daniel Kim",
-      "description": "Building offline data synchronization and conflict resolution logic"
+      "assignedTo": "Daniel Kim",
+      "description": "Building offline data synchronization and conflict resolution logic",
+      "dueDate": "2026-05-28",
+      "estimatedDays": 8,
+      "relatedMilestone": "M3"
     },
     {
+      "id": "T7",
       "name": "Performance Optimization",
       "status": "InProgress",
-      "owner": "Aisha Hassan",
-      "description": "Optimizing app load time and database query performance"
+      "assignedTo": "Aisha Hassan",
+      "description": "Optimizing app load time and database query performance",
+      "dueDate": "2026-06-01",
+      "estimatedDays": 7,
+      "relatedMilestone": "M3"
     },
     {
+      "id": "T8",
       "name": "Advanced Analytics",
       "status": "CarriedOver",
-      "owner": "Robert Jenkins",
-      "description": "Deferred: Implement user behavior analytics and engagement tracking"
+      "assignedTo": "Robert Jenkins",
+      "description": "Deferred: Implement user behavior analytics and engagement tracking",
+      "dueDate": "2026-07-10",
+      "estimatedDays": 10,
+      "relatedMilestone": "M4"
     },
     {
+      "id": "T9",
       "name": "User Analytics Dashboard",
       "status": "CarriedOver",
-      "owner": "Lisa Chang",
-      "description": "Deferred: Create analytics dashboard for administrators to monitor user activity"
+      "assignedTo": "Lisa Chang",
+      "description": "Deferred: Create analytics dashboard for administrators to monitor user activity",
+      "dueDate": "2026-07-15",
+      "estimatedDays": 12,
+      "relatedMilestone": "M4"
     },
     {
+      "id": "T10",
       "name": "Security Audit",
       "status": "CarriedOver",
-      "owner": "Michael Torres",
-      "description": "Deferred: Third-party security audit and penetration testing"
+      "assignedTo": "Michael Torres",
+      "description": "Deferred: Third-party security audit and penetration testing",
+      "dueDate": "2026-07-20",
+      "estimatedDays": 5,
+      "relatedMilestone": "M4"
     }
   ]
 }

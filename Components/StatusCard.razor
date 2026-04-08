@@ -20,8 +20,8 @@
                         <div class="d-flex align-items-start">
                             <span class="me-2">✓</span>
                             <div class="flex-grow-1">
-                                <p class="mb-1 fw-500">@task.Name</p>
-                                <small class="text-muted">@task.Owner</small>
+                                <p class="task-name mb-1">@task.Name</p>
+                                <small class="text-muted">@task.AssignedTo</small>
                             </div>
                         </div>
                     </div>
@@ -34,6 +34,70 @@
         }
     </div>
 </div>
+
+<style>
+    .status-card {
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.2s ease;
+    }
+
+    .status-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .card-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .badge {
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .task-list {
+        margin-top: 1rem;
+    }
+
+    .task-item {
+        border-left: 3px solid #e9ecef;
+        transition: all 0.2s ease;
+    }
+
+    .task-item:hover {
+        border-left-color: #0d6efd;
+        background-color: white !important;
+    }
+
+    .task-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: #212529;
+    }
+
+    .task-item small {
+        font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+        .card-title {
+            font-size: 13px;
+        }
+
+        .task-name {
+            font-size: 12px;
+        }
+    }
+
+    @media print {
+        .status-card {
+            page-break-inside: avoid;
+        }
+    }
+</style>
 
 @code {
     [Parameter]

@@ -21,11 +21,15 @@
             <button type="button" class="btn-close" @onclick="() => ErrorMessage = null"></button>
         </div>
     }
-    else if (ProjectData != null)
+    else if (ProjectData != null && ProjectData.ProjectInfo != null)
     {
         <header class="dashboard-header mb-4">
-            <h1 class="display-4 fw-bold">@ProjectData.ProjectName</h1>
-            <p class="text-muted">Last updated: @DateTime.Now:g</p>
+            <h1 class="display-4 fw-bold">@ProjectData.ProjectInfo.ProjectName</h1>
+            <p class="text-muted">
+                Sponsor: @ProjectData.ProjectInfo.Sponsor | 
+                Project Manager: @ProjectData.ProjectInfo.ProjectManager | 
+                Last updated: @DateTime.Now:g
+            </p>
         </header>
 
         <section class="timeline-section mb-5">

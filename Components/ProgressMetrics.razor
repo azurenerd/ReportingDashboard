@@ -2,17 +2,17 @@
 
 <div class="progress-metrics card border-0 shadow-sm">
     <div class="card-body p-4">
-        <h2 class="card-title mb-4">Project Progress</h2>
+        <h2 class="card-title metrics-title mb-4">Project Progress</h2>
 
-        @if (ProjectData != null)
+        @if (ProjectData != null && ProjectData.ProjectMetrics != null)
         {
             <div class="row">
                 <div class="col-md-6">
                     <div class="metric-box p-3 rounded" style="background-color: #f8f9fa;">
                         <p class="text-muted mb-2">Overall Completion</p>
-                        <h3 class="mb-3">@GetOverallCompletion()%</h3>
+                        <h3 class="mb-3">@ProjectData.ProjectMetrics.OverallCompletionPercentage%</h3>
                         <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-success" style="width: @GetOverallCompletion()%"></div>
+                            <div class="progress-bar bg-success" style="width: @ProjectData.ProjectMetrics.OverallCompletionPercentage%"></div>
                         </div>
                     </div>
                 </div>
@@ -21,18 +21,55 @@
                         <p class="text-muted mb-2">Tasks Summary</p>
                         <div class="d-flex justify-content-between">
                             <div>
-                                <span class="badge bg-success">@GetTaskCount("Shipped")</span>
-                                <small class="d-block text-muted">Shipped</small>
+                                <span class="badge bg-success">@ProjectData.ProjectMetrics.CompletedTasks</span>
+                                <small class="d-block text-muted">Completed</small>
                             </div>
                             <div>
-                                <span class="badge bg-info">@GetTaskCount("InProgress")</span>
+                                <span class="badge bg-info">@ProjectData.ProjectMetrics.InProgressTasks</span>
                                 <small class="d-block text-muted">In Progress</small>
                             </div>
                             <div>
-                                <span class="badge bg-warning text-dark">@GetTaskCount("CarriedOver")</span>
+                                <span class="badge bg-warning text-dark">@ProjectData.ProjectMetrics.CarriedOverTasks</span>
                                 <small class="d-block text-muted">Carried Over</small>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="metric-box p-3 rounded" style="background-color: #f8f9fa;">
+                        <p class="text-muted mb-2">Schedule Status</p>
+                        <p class="mb-0">
+                            @if (ProjectData.ProjectMetrics.OnSchedule)
+                            {
+                                <span class="badge bg-success">✓ On Schedule</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">✗ Off Schedule</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-box p-3 rounded" style="background-color: #f8f9fa;">
+                        <p class="text-muted mb-2">Risk Level</p>
+                        <p class="mb-0">
+                            @if (ProjectData.ProjectMetrics.RiskLevel == "Low")
+                            {
+                                <span class="badge bg-success">🟢 @ProjectData.ProjectMetrics.RiskLevel</span>
+                            }
+                            else if (ProjectData.ProjectMetrics.RiskLevel == "Medium")
+                            {
+                                <span class="badge bg-warning text-dark">🟡 @ProjectData.ProjectMetrics.RiskLevel</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">🔴 @ProjectData.ProjectMetrics.RiskLevel</span>
+                            }
+                        </p>
                     </div>
                 </div>
             </div>
@@ -40,19 +77,61 @@
     </div>
 </div>
 
+<style>
+    .progress-metrics {
+        border-radius: 8px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+
+    .metrics-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .metric-box {
+        border-radius: 6px;
+        transition: transform 0.2s ease;
+    }
+
+    .metric-box:hover {
+        transform: translateY(-2px);
+    }
+
+    .metric-box h3 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #0d6efd;
+    }
+
+    .metric-box p {
+        font-size: 13px;
+    }
+
+    .badge {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 0.5rem 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .metrics-title {
+            font-size: 16px;
+        }
+
+        .metric-box h3 {
+            font-size: 24px;
+        }
+    }
+
+    @media print {
+        .progress-metrics {
+            page-break-inside: avoid;
+        }
+    }
+</style>
+
 @code {
     [Parameter]
     public ProjectData ProjectData { get; set; }
-
-    private int GetOverallCompletion()
-    {
-        if (ProjectData?.Milestones == null || ProjectData.Milestones.Count == 0)
-            return 0;
-        return (int)ProjectData.Milestones.Average(m => m.CompletionPercentage);
-    }
-
-    private int GetTaskCount(string status)
-    {
-        return ProjectData?.Tasks?.Count(t => t.Status == status) ?? 0;
-    }
 }
