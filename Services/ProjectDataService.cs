@@ -87,12 +87,60 @@ public class ProjectDataService
     /// <summary>
     /// Validates whether a JSON string contains valid project data structure
     /// with all required root properties: project, milestones, tasks, and metrics.
+    /// Safely handles null and empty input by returning false.
     /// </summary>
     /// <param name="json">JSON string to validate.</param>
     /// <returns>True if JSON is valid and contains required fields; false otherwise.</returns>
     public bool ValidateJsonSchema(string json)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            _logger.LogWarning("JSON schema validation failed: input is null or empty");
+            return false;
+        }
+
+        try
+        {
+            using (var doc = JsonDocument.Parse(json))
+            {
+                var root = doc.RootElement;
+
+                if (root.ValueKind != JsonValueKind.Object)
+                {
+                    _logger.LogWarning("JSON schema validation failed: root is not an object");
+                    return false;
+                }
+
+                bool hasProject = root.TryGetProperty("project", out _);
+                bool hasMilestones = root.TryGetProperty("milestones", out _);
+                bool hasTasks = root.TryGetProperty("tasks", out _);
+                bool hasMetrics = root.TryGetProperty("metrics", out _);
+
+                bool isValid = hasProject && hasMilestones && hasTasks && hasMetrics;
+
+                if (isValid)
+                {
+                    _logger.LogInformation("JSON schema validation passed");
+                }
+                else
+                {
+                    _logger.LogWarning("JSON schema validation failed: missing required fields. Project: {HasProject}, Milestones: {HasMilestones}, Tasks: {HasTasks}, Metrics: {HasMetrics}",
+                        hasProject, hasMilestones, hasTasks, hasMetrics);
+                }
+
+                return isValid;
+            }
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "JSON schema validation failed: invalid JSON format");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error during JSON schema validation");
+            return false;
+        }
     }
 
     /// <summary>
