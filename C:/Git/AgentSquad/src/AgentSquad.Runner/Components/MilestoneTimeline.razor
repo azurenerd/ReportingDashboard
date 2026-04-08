@@ -1,25 +1,39 @@
-@using AgentSquad.Dashboard.Services
+@using AgentSquad.Dashboard.Models
 
-<div class="milestone-section mb-5">
-    <h2 class="mb-4">Project Milestone Timeline</h2>
-    <div class="milestone-timeline">
-        @foreach (var milestone in Milestones)
+<div class="timeline-container">
+    <div class="timeline">
+        @foreach (var milestone in Milestones ?? new())
         {
-            <div class="milestone-item">
-                <div class="milestone-marker" style="border-color: @GetStatusColor(milestone.Status)">
-                    <div class="milestone-dot" style="background-color: @GetStatusColor(milestone.Status)"></div>
-                </div>
-                <div class="milestone-content">
-                    <h5>@milestone.Name</h5>
-                    <p class="text-muted mb-1">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</p>
-                    @if (milestone.ActualDate.HasValue)
+            <div class="timeline-item" data-status="@milestone.Status.ToString()">
+                <div class="timeline-marker">
+                    @if (milestone.Status == MilestoneStatus.Completed)
                     {
-                        <p class="text-success mb-1">Completed: @milestone.ActualDate.Value.ToString("MMM dd, yyyy")</p>
+                        <span class="badge bg-success">✓</span>
                     }
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar" style="width: @milestone.CompletionPercentage%"></div>
+                    else if (milestone.Status == MilestoneStatus.InProgress)
+                    {
+                        <span class="badge bg-info">→</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">○</span>
+                    }
+                </div>
+                <div class="timeline-content">
+                    <h5>@milestone.Name</h5>
+                    <p class="text-muted">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</p>
+                    @if (milestone.Status == MilestoneStatus.Completed)
+                    {
+                        <p class="text-success">Completed: @milestone.ActualDate?.ToString("MMM dd, yyyy")</p>
+                    }
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: @(milestone.CompletionPercentage)%"
+                             aria-valuenow="@milestone.CompletionPercentage" 
+                             aria-valuemin="0" aria-valuemax="100">
+                            @milestone.CompletionPercentage%
+                        </div>
                     </div>
-                    <small class="text-muted">@milestone.CompletionPercentage% complete</small>
                 </div>
             </div>
         }
@@ -28,16 +42,11 @@
 
 @code {
     [Parameter]
-    public List<Milestone> Milestones { get; set; } = new();
+    public List<Milestone> Milestones { get; set; }
 
-    private string GetStatusColor(MilestoneStatus status)
-    {
-        return status switch
-        {
-            MilestoneStatus.Completed => "#28a745",
-            MilestoneStatus.InProgress => "#007bff",
-            MilestoneStatus.Pending => "#ccc",
-            _ => "#ccc"
-        };
-    }
+    [Parameter]
+    public DateTime ProjectStartDate { get; set; }
+
+    [Parameter]
+    public DateTime ProjectEndDate { get; set; }
 }
