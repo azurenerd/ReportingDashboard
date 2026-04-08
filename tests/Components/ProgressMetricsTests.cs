@@ -1,38 +1,40 @@
 using Bunit;
 using Xunit;
 using AgentSquad.Components;
+using System;
 
 namespace AgentSquad.Tests.Components
 {
     public class ProgressMetricsTests : TestContext
     {
+        private ProjectMetrics CreateTestMetrics(int totalTasks, int completedTasks)
+        {
+            return new ProjectMetrics 
+            { 
+                TotalTasks = totalTasks,
+                CompletedTasks = completedTasks,
+                ProjectStartDate = DateTime.Now.AddDays(-10),
+                ProjectEndDate = DateTime.Now.AddDays(20),
+                EstimatedBurndownRate = 5.0,
+                DaysRemaining = 20
+            };
+        }
+
         [Fact]
         public void ProgressMetrics_RendersSuccessfully()
         {
-            var projectMetrics = new ProjectMetrics 
-            { 
-                CompletionPercentage = 75,
-                BurndownData = new[] { 100, 80, 60, 40, 20 }
-            };
-
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, projectMetrics)
+                .Add(p => p.Metrics, CreateTestMetrics(100, 75))
             );
 
             Assert.NotNull(component.Instance);
         }
 
         [Fact]
-        public void ProgressMetrics_DisplaysCompletionPercentage()
+        public void ProgressMetrics_DisplaysCompletionStatus()
         {
-            var projectMetrics = new ProjectMetrics 
-            { 
-                CompletionPercentage = 85,
-                BurndownData = Array.Empty<int>()
-            };
-
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, projectMetrics)
+                .Add(p => p.Metrics, CreateTestMetrics(100, 85))
             );
 
             var markup = component.Markup;
@@ -42,14 +44,8 @@ namespace AgentSquad.Tests.Components
         [Fact]
         public void ProgressMetrics_RendersBurndownChart()
         {
-            var projectMetrics = new ProjectMetrics 
-            { 
-                CompletionPercentage = 50,
-                BurndownData = new[] { 100, 75, 50, 25 }
-            };
-
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, projectMetrics)
+                .Add(p => p.Metrics, CreateTestMetrics(100, 50))
             );
 
             var elements = component.FindAll("[data-burndown]");
@@ -57,32 +53,20 @@ namespace AgentSquad.Tests.Components
         }
 
         [Fact]
-        public void ProgressMetrics_HandlesNullBurndownData()
+        public void ProgressMetrics_HandlesNullMetrics()
         {
-            var projectMetrics = new ProjectMetrics 
-            { 
-                CompletionPercentage = 60,
-                BurndownData = null
-            };
-
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, projectMetrics)
+                .Add(p => p.Metrics, null as ProjectMetrics)
             );
 
             Assert.NotNull(component.Instance);
         }
 
         [Fact]
-        public void ProgressMetrics_HandlesEmptyBurndownData()
+        public void ProgressMetrics_HandlesZeroCompletion()
         {
-            var projectMetrics = new ProjectMetrics 
-            { 
-                CompletionPercentage = 0,
-                BurndownData = Array.Empty<int>()
-            };
-
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, projectMetrics)
+                .Add(p => p.Metrics, CreateTestMetrics(100, 0))
             );
 
             var markup = component.Markup;

@@ -1,38 +1,40 @@
 using Bunit;
 using Xunit;
 using AgentSquad.Components;
+using System;
 
 namespace AgentSquad.Tests.Components
 {
     public class ProgressMetricsEdgeCasesTests : TestContext
     {
-        [Fact]
-        public void ProgressMetrics_HandlesMaxIntPercentage()
+        private ProjectMetrics CreateTestMetrics(int totalTasks, int completedTasks, int daysRemaining = 20)
         {
-            var projectMetrics = new ProjectMetrics 
+            return new ProjectMetrics 
             { 
-                CompletionPercentage = 100,
-                BurndownData = new[] { 0 }
+                TotalTasks = totalTasks,
+                CompletedTasks = completedTasks,
+                ProjectStartDate = DateTime.Now.AddDays(-10),
+                ProjectEndDate = DateTime.Now.AddDays(daysRemaining),
+                EstimatedBurndownRate = 5.0,
+                DaysRemaining = daysRemaining
             };
+        }
 
+        [Fact]
+        public void ProgressMetrics_HandleFullCompletion()
+        {
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, projectMetrics)
+                .Add(p => p.Metrics, CreateTestMetrics(100, 100))
             );
 
             Assert.NotNull(component.Instance);
         }
 
         [Fact]
-        public void ProgressMetrics_HandlesSingleDataPoint()
+        public void ProgressMetrics_HandlesSingleTask()
         {
-            var projectMetrics = new ProjectMetrics 
-            { 
-                CompletionPercentage = 50,
-                BurndownData = new[] { 100 }
-            };
-
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, projectMetrics)
+                .Add(p => p.Metrics, CreateTestMetrics(1, 0))
             );
 
             var markup = component.Markup;
@@ -50,64 +52,70 @@ namespace AgentSquad.Tests.Components
         }
 
         [Fact]
-        public void ProgressMetrics_HandlesNegativeCompletionValue()
+        public void ProgressMetrics_HandlesMoreCompletedThanTotal()
         {
-            var projectMetrics = new ProjectMetrics 
-            { 
-                CompletionPercentage = -10,
-                BurndownData = new[] { 100, 110 }
-            };
-
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, projectMetrics)
+                .Add(p => p.Metrics, CreateTestMetrics(50, 75))
             );
 
             Assert.NotNull(component.Instance);
         }
 
         [Fact]
-        public void ProgressMetrics_HandlesBurndownWithIncreasingValues()
+        public void ProgressMetrics_HandlesZeroTotalTasks()
         {
-            var projectMetrics = new ProjectMetrics 
-            { 
-                CompletionPercentage = 50,
-                BurndownData = new[] { 10, 20, 30, 40, 50 }
-            };
-
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, projectMetrics)
+                .Add(p => p.Metrics, CreateTestMetrics(0, 0))
             );
 
             Assert.NotNull(component.Instance);
         }
 
         [Fact]
-        public void ProgressMetrics_HandlesZeroBurndownValues()
+        public void ProgressMetrics_HandlesPastEndDate()
         {
-            var projectMetrics = new ProjectMetrics 
+            var metrics = new ProjectMetrics 
             { 
-                CompletionPercentage = 0,
-                BurndownData = new[] { 0, 0, 0, 0, 0 }
+                TotalTasks = 100,
+                CompletedTasks = 50,
+                ProjectStartDate = DateTime.Now.AddDays(-30),
+                ProjectEndDate = DateTime.Now.AddDays(-5),
+                EstimatedBurndownRate = 5.0,
+                DaysRemaining = -5
             };
 
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, projectMetrics)
+                .Add(p => p.Metrics, metrics)
             );
 
             Assert.NotNull(component.Instance);
         }
 
         [Fact]
-        public void ProgressMetrics_HandlesVeryLargeCompletionValue()
+        public void ProgressMetrics_HandlesVeryLargeTaskCount()
         {
-            var projectMetrics = new ProjectMetrics 
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Metrics, CreateTestMetrics(999999, 500000))
+            );
+
+            Assert.NotNull(component.Instance);
+        }
+
+        [Fact]
+        public void ProgressMetrics_HandlesZeroBurndownRate()
+        {
+            var metrics = new ProjectMetrics 
             { 
-                CompletionPercentage = 999,
-                BurndownData = new[] { 1000 }
+                TotalTasks = 100,
+                CompletedTasks = 25,
+                ProjectStartDate = DateTime.Now.AddDays(-10),
+                ProjectEndDate = DateTime.Now.AddDays(20),
+                EstimatedBurndownRate = 0.0,
+                DaysRemaining = 20
             };
 
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, projectMetrics)
+                .Add(p => p.Metrics, metrics)
             );
 
             Assert.NotNull(component.Instance);
