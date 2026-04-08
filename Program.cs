@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IDataCache, MemoryCacheProvider>();
 builder.Services.AddScoped<IDataProvider, DataProvider>();
 
 var app = builder.Build();

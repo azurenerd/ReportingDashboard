@@ -7,44 +7,51 @@ namespace AgentSquad.Runner.Services
     {
         private readonly ILogger<DataProvider> _logger;
         private readonly IWebHostEnvironment _environment;
-        private Project _cachedProject;
+        private readonly IDataCache _cache;
+        private const string CacheKey = "ProjectData";
+        private const int CacheTTLSeconds = 3600;
 
-        public DataProvider(ILogger<DataProvider> logger, IWebHostEnvironment environment)
+        public DataProvider(ILogger<DataProvider> logger, IWebHostEnvironment environment, IDataCache cache)
         {
             _logger = logger;
             _environment = environment;
+            _cache = cache;
         }
 
         public async Task<Project> LoadProjectDataAsync()
         {
-            if (_cachedProject != null)
+            var cachedProject = _cache.Get<Project>(CacheKey);
+            if (cachedProject != null)
             {
-                return _cachedProject;
+                _logger.LogInformation("Project data loaded from cache");
+                return cachedProject;
             }
 
             try
             {
                 string dataPath = Path.Combine(_environment.ContentRootPath, "data.json");
-                
+
                 if (!File.Exists(dataPath))
                 {
                     throw new FileNotFoundException($"data.json not found at {dataPath}");
                 }
 
                 string jsonContent = await File.ReadAllTextAsync(dataPath);
-                var options = new JsonSerializerOptions 
-                { 
-                    PropertyNameCaseInsensitive = true 
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
                 };
-                _cachedProject = JsonSerializer.Deserialize<Project>(jsonContent, options);
+                var project = JsonSerializer.Deserialize<Project>(jsonContent, options);
 
-                if (_cachedProject == null)
+                if (project == null)
                 {
                     throw new InvalidOperationException("Failed to deserialize project data");
                 }
 
-                _logger.LogInformation("Project data loaded successfully");
-                return _cachedProject;
+                _cache.Set(project, CacheKey, TimeSpan.FromSeconds(CacheTTLSeconds));
+
+                _logger.LogInformation("Project data loaded successfully and cached for {TTL} seconds", CacheTTLSeconds);
+                return project;
             }
             catch (Exception ex)
             {

@@ -5,6 +5,7 @@ namespace AgentSquad.Runner.Models
         public int CompletionPercentage { get; set; }
         public HealthStatus HealthStatus { get; set; }
         public int VelocityThisMonth { get; set; }
+        public int CompletedMilestones { get; set; }
         public int MilestoneCount { get; set; }
         public int TargetMilestoneCount { get; set; }
     }
