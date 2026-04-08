@@ -197,4 +197,175 @@ public class DataProviderErrorHandlingTests
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.AtLeastOnce);
     }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithCompletionPercentageOutOfRange_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Invalid Project",
+            CompletionPercentage = 150,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone
+                {
+                    Name = "M1",
+                    Status = MilestoneStatus.InProgress,
+                    TargetDate = DateTime.Now
+                }
+            },
+            WorkItems = new List<WorkItem>()
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("completion percentage", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("0", exception.Message);
+        Assert.Contains("100", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithEmptyProjectName_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone
+                {
+                    Name = "M1",
+                    Status = MilestoneStatus.InProgress,
+                    TargetDate = DateTime.Now
+                }
+            },
+            WorkItems = new List<WorkItem>()
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("Project name", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithEmptyMilestones_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>(),
+            WorkItems = new List<WorkItem>()
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("at least one milestone", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithInvalidMilestoneStatus_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone
+                {
+                    Name = "M1",
+                    Status = (MilestoneStatus)999,
+                    TargetDate = DateTime.Now
+                }
+            },
+            WorkItems = new List<WorkItem>()
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("invalid status", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithInvalidWorkItemStatus_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone
+                {
+                    Name = "M1",
+                    Status = MilestoneStatus.InProgress,
+                    TargetDate = DateTime.Now
+                }
+            },
+            WorkItems = new List<WorkItem>
+            {
+                new WorkItem
+                {
+                    Title = "Item",
+                    Status = (WorkItemStatus)999
+                }
+            }
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("invalid status", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithNegativeVelocity_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
+            VelocityThisMonth = -5,
+            Milestones = new List<Milestone>
+            {
+                new Milestone
+                {
+                    Name = "M1",
+                    Status = MilestoneStatus.InProgress,
+                    TargetDate = DateTime.Now
+                }
+            },
+            WorkItems = new List<WorkItem>()
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("velocity", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("non-negative", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
 }

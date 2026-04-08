@@ -4,11 +4,6 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace AgentSquad.Runner.Services;
 
-/// <summary>
-/// Service for loading and managing project data from JSON configuration file.
-/// Reads from wwwroot/data.json, deserializes to Project model, validates, and caches results.
-/// Includes comprehensive error handling and logging for diagnostics.
-/// </summary>
 public class DataProvider : IDataProvider
 {
     private readonly IDataCache _cache;
@@ -18,12 +13,6 @@ public class DataProvider : IDataProvider
     private const string CacheKey = "project_data";
     private const int DefaultCacheTtlHours = 1;
 
-    /// <summary>
-    /// Initializes a new instance of DataProvider.
-    /// </summary>
-    /// <param name="cache">In-memory cache service for storing parsed project data.</param>
-    /// <param name="logger">Logger for diagnostic output.</param>
-    /// <param name="environment">Web host environment for resolving wwwroot directory.</param>
     public DataProvider(IDataCache cache, ILogger<DataProvider> logger, IWebHostEnvironment environment)
     {
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
@@ -31,21 +20,12 @@ public class DataProvider : IDataProvider
         _environment = environment ?? throw new ArgumentNullException(nameof(environment));
     }
 
-    /// <summary>
-    /// Asynchronously loads project data from wwwroot/data.json.
-    /// Returns cached result if available, otherwise reads, parses, validates, and caches file.
-    /// </summary>
-    /// <returns>Strongly-typed Project model with nested collections.</returns>
-    /// <exception cref="FileNotFoundException">Thrown when data.json is not found.</exception>
-    /// <exception cref="System.Text.Json.JsonException">Thrown when JSON is malformed.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when validation fails.</exception>
     public async Task<Project> LoadProjectDataAsync()
     {
         try
         {
             _logger.LogInformation("Attempting to load project data...");
 
-            // Check cache first
             var cached = await _cache.GetAsync<Project>(CacheKey);
             if (cached != null)
             {
@@ -55,15 +35,12 @@ public class DataProvider : IDataProvider
 
             _logger.LogWarning("Cache miss for project data. Reading from file.");
 
-            // Read JSON file
             Project? project;
             try
             {
                 var dataFilePath = GetDataFilePath();
                 var json = await ReadJsonFileAsync(dataFilePath);
                 _logger.LogDebug("Successfully read {ByteCount} bytes from {FilePath}", json.Length, dataFilePath);
-
-                // Deserialize JSON to Project model
                 project = DeserializeProjectJson(json);
             }
             catch (FileNotFoundException ex)
@@ -82,7 +59,6 @@ public class DataProvider : IDataProvider
                     ex);
             }
 
-            // Validate project data
             try
             {
                 ValidateProjectData(project);
@@ -96,9 +72,7 @@ public class DataProvider : IDataProvider
                     ex);
             }
 
-            // Cache the parsed project
             await CacheProjectDataAsync(project);
-
             _logger.LogInformation("Project data loaded and cached successfully for project: {ProjectName}", project.Name);
             return project;
         }
@@ -109,9 +83,6 @@ public class DataProvider : IDataProvider
         }
     }
 
-    /// <summary>
-    /// Invalidates the cached project data, forcing a reload on the next call.
-    /// </summary>
     public void InvalidateCache()
     {
         try
@@ -126,10 +97,6 @@ public class DataProvider : IDataProvider
         }
     }
 
-    /// <summary>
-    /// Gets the full path to the data.json file using IWebHostEnvironment.
-    /// </summary>
-    /// <returns>Full file path to data.json.</returns>
     private string GetDataFilePath()
     {
         var wwwrootPath = _environment.WebRootPath;
@@ -140,12 +107,6 @@ public class DataProvider : IDataProvider
         return Path.Combine(wwwrootPath, DataFileName);
     }
 
-    /// <summary>
-    /// Reads JSON content from data.json file.
-    /// </summary>
-    /// <param name="filePath">Full path to the data.json file.</param>
-    /// <returns>JSON string content.</returns>
-    /// <exception cref="FileNotFoundException">Thrown when file does not exist.</exception>
     private async Task<string> ReadJsonFileAsync(string filePath)
     {
         try
@@ -170,12 +131,6 @@ public class DataProvider : IDataProvider
         }
     }
 
-    /// <summary>
-    /// Deserializes JSON string to Project model.
-    /// </summary>
-    /// <param name="json">JSON string to deserialize.</param>
-    /// <returns>Deserialized Project object.</returns>
-    /// <exception cref="System.Text.Json.JsonException">Thrown when JSON deserialization fails.</exception>
     private Project? DeserializeProjectJson(string json)
     {
         try
@@ -202,10 +157,6 @@ public class DataProvider : IDataProvider
         }
     }
 
-    /// <summary>
-    /// Caches the project data with default TTL.
-    /// </summary>
-    /// <param name="project">Project to cache.</param>
     private async Task CacheProjectDataAsync(Project project)
     {
         try
@@ -219,11 +170,6 @@ public class DataProvider : IDataProvider
         }
     }
 
-    /// <summary>
-    /// Validates project data integrity and structure.
-    /// </summary>
-    /// <param name="project">Project model to validate.</param>
-    /// <exception cref="InvalidOperationException">Thrown when validation fails.</exception>
     private void ValidateProjectData(Project? project)
     {
         if (project == null)

@@ -1,8 +1,6 @@
 using AgentSquad.Runner.Models;
 using AgentSquad.Runner.Services;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 
