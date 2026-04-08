@@ -1,5 +1,0 @@
-    string description = item.Description ?? string.Empty;
-    string truncated = description.Length > 100 
-        ? description.Substring(0, 100) + "..." 
-        : description;
-}

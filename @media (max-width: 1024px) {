@@ -1,4 +1,0 @@
-    .work-item-summary {
-        grid-template-columns: 1fr; /* Stack vertically */
-    }
-}
