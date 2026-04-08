@@ -1,440 +1,36 @@
-/* ===== PRINT MEDIA - GENERAL ===== */
+/* Print Optimization Stylesheet */
+/* Ensures clean PowerPoint and screenshot exports at 1280x720 and 1920x1080 resolutions */
+
+@page {
+    size: A4;
+    margin: 1cm;
+}
+
 @media print {
-    *, *::before, *::after {
-        background: transparent !important;
-        color: black !important;
-        box-shadow: none !important;
-        text-shadow: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-    }
-
+    /* Base Elements */
     html, body {
-        width: 100%;
-        height: 100%;
         margin: 0;
         padding: 0;
-        overflow: visible;
-    }
-
-    body {
         background-color: white;
         color: black;
-        font-size: 11pt;
-        line-height: 1.5;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     }
 
-    button, input[type="button"], input[type="submit"], input[type="reset"], input[type="text"], input[type="email"], input[type="number"], input[type="date"], textarea, select {
+    /* Remove Interactive Elements */
+    button, 
+    .btn,
+    nav,
+    footer,
+    .no-print,
+    .d-print-none {
         display: none !important;
     }
 
-    nav, .nav, navigation, .navigation {
-        display: none !important;
-    }
-
-    .no-print, .no-print * {
-        display: none !important;
-    }
-
-    ::-webkit-scrollbar {
-        display: none !important;
-    }
-
-    html {
-        overflow: hidden !important;
-    }
-
-    body {
-        overflow: hidden !important;
-    }
-
-    .timeline-container, .work-item-list {
-        overflow: visible !important;
-        height: auto !important;
-        max-height: none !important;
-    }
-
-    @page {
-        size: auto;
-        margin: 0;
-        padding: 0;
-    }
-
-    #app {
-        width: 100%;
-        height: auto;
-        display: block;
-        overflow: visible;
-    }
-
-    .dashboard-container {
-        width: 100%;
-        height: auto;
-        display: block;
-        padding: 0;
-        overflow: visible;
-    }
-
-    .dashboard-header {
-        display: block;
-        width: 100%;
-        margin: 0 0 12pt 0;
-        padding: 12pt 12pt;
-        background-color: white;
-        border-bottom: 2px solid black;
-        page-break-after: avoid;
-        page-break-inside: avoid;
-    }
-
-    .dashboard-header h1 {
-        margin: 0 0 6pt 0;
-        font-size: 18pt;
-        font-weight: bold;
-        color: black;
-        line-height: 1.2;
-    }
-
-    .dashboard-header p {
-        margin: 4pt 0;
-        font-size: 10pt;
-        color: black;
-    }
-
-    .header-meta {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 18pt;
-        font-size: 9pt;
-        color: black;
-        margin-top: 6pt;
-    }
-
-    .header-meta span {
-        display: flex;
-        align-items: center;
-        gap: 4pt;
-    }
-
-    .dashboard-timeline {
-        display: block;
-        width: 100%;
-        margin: 0 0 12pt 0;
-        padding: 12pt;
-        background-color: white;
-        border: 1px solid black;
-        page-break-inside: avoid;
-        page-break-after: avoid;
-    }
-
-    .timeline-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8pt;
-        page-break-inside: avoid;
-    }
-
-    .timeline-header h2 {
-        margin: 0;
-        font-size: 13pt;
-        font-weight: bold;
-        color: black;
-    }
-
-    .timeline-header .timeline-legend {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 12pt;
-        font-size: 8pt;
-    }
-
-    .timeline-legend-item {
-        display: flex;
-        align-items: center;
-        gap: 4pt;
-    }
-
-    .timeline-legend-dot {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-    }
-
-    .timeline-legend-dot.completed {
-        background-color: black !important;
-    }
-
-    .timeline-legend-dot.in-progress {
-        background-color: gray !important;
-    }
-
-    .timeline-legend-dot.at-risk {
-        background-color: black !important;
-    }
-
-    .timeline-legend-dot.future {
-        background-color: lightgray !important;
-    }
-
-    .timeline-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 8pt;
-        width: 100%;
-        height: auto;
-        overflow: visible;
-        flex-wrap: wrap;
-        page-break-inside: avoid;
-    }
-
-    .timeline-milestone {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        min-width: 70px;
-        max-width: 120px;
-        padding: 8pt;
-        background-color: white;
-        border: 1px solid black;
-        border-radius: 4pt;
-        text-align: center;
-        flex-shrink: 0;
-        page-break-inside: avoid;
-        overflow: visible;
-    }
-
-    .timeline-milestone-status {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        margin-bottom: 4pt;
-    }
-
-    .timeline-milestone-status.completed {
-        background-color: black !important;
-    }
-
-    .timeline-milestone-status.in-progress {
-        background-color: gray !important;
-    }
-
-    .timeline-milestone-status.at-risk {
-        background-color: black !important;
-    }
-
-    .timeline-milestone-status.future {
-        background-color: lightgray !important;
-    }
-
-    .timeline-milestone-name {
-        font-weight: bold;
-        font-size: 9pt;
-        color: black;
-        margin: 2pt 0;
-        word-wrap: break-word;
-    }
-
-    .timeline-milestone-date {
-        font-size: 8pt;
-        color: black;
-        margin: 2pt 0 0 0;
-    }
-
-    .dashboard-metrics {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8pt;
-        width: 100%;
-        margin: 0 0 12pt 0;
-        overflow: visible;
-        page-break-inside: avoid;
-        page-break-after: avoid;
-    }
-
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8pt;
-        width: 100%;
-    }
-
-    .metric-card {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 10pt;
-        background-color: white;
-        border: 1px solid black;
-        border-left: 3pt solid black;
-        page-break-inside: avoid;
-    }
-
-    .metric-label {
-        font-size: 7pt;
-        font-weight: bold;
-        color: black;
-        text-transform: uppercase;
-        letter-spacing: 0.3pt;
-        margin-bottom: 4pt;
-    }
-
-    .metric-value {
-        font-size: 16pt;
-        font-weight: bold;
-        color: black;
-        margin-bottom: 4pt;
-    }
-
-    .metric-subtext {
-        font-size: 8pt;
-        color: black;
-        margin: 0;
-    }
-
-    .metric-status-badge {
-        display: inline-block;
-        padding: 2pt 6pt;
-        border-radius: 3pt;
-        font-size: 7pt;
-        font-weight: bold;
-        text-transform: uppercase;
-        margin-top: 4pt;
-        background-color: white;
-        color: black;
-        border: 1px solid black;
-    }
-
-    .dashboard-work-items {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8pt;
-        width: 100%;
-        overflow: visible;
-        page-break-inside: avoid;
-        page-break-after: avoid;
-    }
-
-    .work-item-column {
-        display: flex;
-        flex-direction: column;
-        background-color: white;
-        border: 1px solid black;
-        overflow: visible;
-        page-break-inside: avoid;
-    }
-
-    .work-item-header {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8pt;
-        background-color: white;
-        border-bottom: 1px solid black;
-        page-break-inside: avoid;
-    }
-
-    .work-item-header h3 {
-        margin: 0;
-        font-size: 10pt;
-        font-weight: bold;
-        color: black;
-    }
-
-    .work-item-count {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 22pt;
-        height: 22pt;
-        background-color: black;
-        color: white;
-        border-radius: 50%;
-        font-size: 8pt;
-        font-weight: bold;
-    }
-
-    .work-item-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        padding: 0;
-        margin: 0;
-        list-style: none;
-        overflow: visible !important;
-        height: auto !important;
-        max-height: none !important;
-        flex: 1;
-    }
-
-    .work-item {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: flex-start;
-        padding: 8pt;
-        border-bottom: 1px solid lightgray;
-        page-break-inside: avoid;
-    }
-
-    .work-item:last-child {
-        border-bottom: none;
-    }
-
-    .work-item-title {
-        font-size: 9pt;
-        font-weight: bold;
-        color: black;
-        margin: 0 0 3pt 0;
-        line-height: 1.3;
-        word-wrap: break-word;
-    }
-
-    .work-item-description {
-        font-size: 8pt;
-        color: black;
-        margin: 0;
-        line-height: 1.3;
-        word-wrap: break-word;
-    }
-
-    .work-item-meta {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 6pt;
-        margin-top: 4pt;
-        font-size: 7pt;
-        color: black;
-    }
-
-    .work-item-meta span {
-        display: flex;
-        align-items: center;
-        gap: 2pt;
-    }
-
-    a, a * {
-        text-decoration: underline;
-        color: black !important;
-    }
-
+    /* Typography */
     h1, h2, h3, h4, h5, h6 {
-        color: black !important;
+        color: black;
         page-break-after: avoid;
-        page-break-inside: avoid;
+        font-weight: 700;
     }
 
     p {
@@ -443,215 +39,145 @@
         page-break-inside: avoid;
     }
 
-    .timeline-milestone, .metric-card, .work-item-column {
-        border: 1pt solid black !important;
+    /* Container & Layout */
+    .container {
+        max-width: 100%;
+        padding: 0;
     }
 
+    .dashboard {
+        gap: 1.5cm;
+    }
+
+    /* Preserve Colors for Print */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Dashboard Header */
     .dashboard-header {
         page-break-after: avoid;
+        margin-bottom: 1cm;
+        border: 1px solid #ccc;
+        box-shadow: none;
     }
 
-    .dashboard-timeline {
-        page-break-after: avoid;
+    /* Metrics Grid */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 1cm;
+        page-break-inside: avoid;
     }
 
-    .dashboard-metrics {
-        page-break-after: avoid;
+    .metric-card {
+        page-break-inside: avoid;
+        border: 1px solid #ddd;
+        box-shadow: none;
+        background-color: white;
     }
 
-    .dashboard-work-items {
-        page-break-after: avoid;
+    /* Timeline */
+    .timeline-container {
+        page-break-inside: avoid;
+        margin-bottom: 1cm;
+        border: 1px solid #ddd;
+        box-shadow: none;
     }
 
-    @media print and (width: 1280px) and (height: 720px) {
-        body {
-            font-size: 10pt;
-        }
-
-        .dashboard-container {
-            width: 1280px;
-            height: 720px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .dashboard-header {
-            padding: 8pt 10pt;
-            margin: 0;
-        }
-
-        .dashboard-header h1 {
-            font-size: 14pt;
-            margin: 0 0 4pt 0;
-        }
-
-        .dashboard-timeline {
-            padding: 8pt;
-            margin: 0;
-        }
-
-        .timeline-header h2 {
-            font-size: 11pt;
-        }
-
-        .timeline-container {
-            gap: 6pt;
-        }
-
-        .timeline-milestone {
-            min-width: 65px;
-            max-width: 100px;
-            padding: 6pt;
-        }
-
-        .metrics-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6pt;
-        }
-
-        .metric-card {
-            padding: 8pt;
-        }
-
-        .metric-value {
-            font-size: 12pt;
-        }
-
-        .dashboard-work-items {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6pt;
-        }
-
-        .work-item-header {
-            padding: 6pt;
-        }
-
-        .work-item {
-            padding: 6pt;
-        }
+    .timeline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
-    @media print and (width: 1920px) and (height: 1080px) {
-        body {
-            font-size: 12pt;
-        }
-
-        .dashboard-container {
-            width: 1920px;
-            height: 1080px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .dashboard-header {
-            padding: 14pt 16pt;
-            margin: 0;
-        }
-
-        .dashboard-header h1 {
-            font-size: 20pt;
-            margin: 0 0 6pt 0;
-        }
-
-        .dashboard-timeline {
-            padding: 14pt 16pt;
-            margin: 0;
-        }
-
-        .timeline-header h2 {
-            font-size: 15pt;
-        }
-
-        .timeline-container {
-            gap: 12pt;
-            min-height: 100px;
-        }
-
-        .timeline-milestone {
-            min-width: 100px;
-            max-width: 160px;
-            padding: 12pt;
-        }
-
-        .timeline-milestone-name {
-            font-size: 10pt;
-        }
-
-        .timeline-milestone-date {
-            font-size: 9pt;
-        }
-
-        .metrics-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12pt;
-        }
-
-        .metric-card {
-            padding: 14pt;
-        }
-
-        .metric-value {
-            font-size: 20pt;
-        }
-
-        .dashboard-work-items {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12pt;
-        }
-
-        .work-item-header {
-            padding: 10pt;
-        }
-
-        .work-item {
-            padding: 10pt;
-        }
-
-        .work-item-title {
-            font-size: 10pt;
-        }
+    .timeline-item {
+        flex: 0 0 calc(25% - 10px);
+        border: 1px solid #ddd;
     }
 
+    /* Work Items */
+    .work-items-section {
+        page-break-inside: avoid;
+        margin-bottom: 1cm;
+        border: 1px solid #ddd;
+        box-shadow: none;
+    }
+
+    .work-items-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .work-item-column {
+        page-break-inside: avoid;
+    }
+
+    .work-item {
+        page-break-inside: avoid;
+        border: 1px solid #ddd;
+    }
+
+    /* Images */
     img {
         max-width: 100%;
         page-break-inside: avoid;
     }
 
-    table, tr, td {
-        page-break-inside: avoid;
+    /* Links */
+    a {
+        text-decoration: underline;
+        color: #0000cc;
     }
 
-    blockquote, pre {
-        page-break-inside: avoid;
+    a[href]:after {
+        content: "";
     }
 
-    ul, ol, dl {
+    /* Tables */
+    table {
         page-break-inside: avoid;
+        border-collapse: collapse;
+        width: 100%;
     }
 
-    @supports (-webkit-print-color-adjust: exact) {
-        body {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+    }
 
-        .timeline-milestone, .metric-card, .work-item-column {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
+    /* Prevent Color Fading */
+    .badge,
+    .badge-success,
+    .badge-info,
+    .badge-warning,
+    .badge-danger {
+        border: 1px solid #333;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Bootstrap Utilities */
+    .d-print-block {
+        display: block !important;
+    }
+
+    .d-print-none {
+        display: none !important;
+    }
+
+    .d-print-inline {
+        display: inline !important;
     }
 }
 
+/* Screen-only Elements */
 @media screen {
-    .print-only {
-        display: none;
-    }
-}
-
-@media print {
-    .screen-only {
-        display: none;
+    .d-print-only {
+        display: none !important;
     }
 }
