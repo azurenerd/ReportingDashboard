@@ -9,4 +9,19 @@
     public RenderFragment ChildContent { get; set; }
 
     private Exception _exception;
+
+    protected override async Task OnErrorAsync(Exception exception)
+    {
+        _exception = exception;
+        
+        Console.WriteLine($"Error caught by ErrorBoundary: {exception.Message}");
+        Console.WriteLine($"Stack trace: {exception.StackTrace}");
+        
+        if (exception.InnerException != null)
+        {
+            Console.WriteLine($"Inner exception: {exception.InnerException.Message}");
+        }
+        
+        await base.OnErrorAsync(exception);
+    }
 }
