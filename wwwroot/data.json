@@ -9,42 +9,42 @@
         "id": "m1",
         "name": "Requirements Review",
         "targetDate": "2024-01-15",
-        "status": "completed",
+        "status": "Completed",
         "description": "Stakeholder review and sign-off"
       },
       {
         "id": "m2",
         "name": "Design Sprint",
         "targetDate": "2024-02-01",
-        "status": "completed",
+        "status": "Completed",
         "description": "UI/UX design and architecture planning"
       },
       {
         "id": "m3",
         "name": "Core Development",
         "targetDate": "2024-02-28",
-        "status": "in-progress",
+        "status": "InProgress",
         "description": "Dashboard components and data services"
       },
       {
         "id": "m4",
         "name": "Integration Testing",
         "targetDate": "2024-03-15",
-        "status": "in-progress",
+        "status": "InProgress",
         "description": "End-to-end testing and bug fixes"
       },
       {
         "id": "m5",
         "name": "UAT and Refinement",
         "targetDate": "2024-03-31",
-        "status": "future",
+        "status": "Future",
         "description": "User acceptance testing and final tuning"
       },
       {
         "id": "m6",
         "name": "Production Release",
         "targetDate": "2024-04-15",
-        "status": "future",
+        "status": "Future",
         "description": "Go-live and production deployment"
       }
     ],
@@ -53,85 +53,82 @@
         "id": "wi1",
         "title": "Dashboard Layout Component",
         "description": "Main layout with CSS Grid structure",
-        "status": "shipped-this-month",
+        "status": "Shipped",
         "assignee": "Team A"
       },
       {
         "id": "wi2",
         "title": "Timeline Visualization",
         "description": "Milestone timeline with Chart.js",
-        "status": "shipped-this-month",
+        "status": "Shipped",
         "assignee": "Team B"
       },
       {
         "id": "wi3",
         "title": "Metrics Card Component",
         "description": "KPI display cards and health indicators",
-        "status": "shipped-this-month",
+        "status": "Shipped",
         "assignee": "Team A"
       },
       {
         "id": "wi4",
         "title": "Print/Screenshot Optimization",
         "description": "Print media queries and viewport optimization",
-        "status": "shipped-this-month",
+        "status": "Shipped",
         "assignee": "Team C"
       },
       {
         "id": "wi5",
         "title": "Data Integration Service",
         "description": "JSON data provider and caching layer",
-        "status": "in-progress",
+        "status": "InProgress",
         "assignee": "Team B"
       },
       {
         "id": "wi6",
         "title": "Responsive Design Testing",
         "description": "Testing at 1024x768, 1280x720, 1920x1080",
-        "status": "in-progress",
+        "status": "InProgress",
         "assignee": "Team C"
       },
       {
         "id": "wi7",
         "title": "Browser Compatibility Fixes",
         "description": "Chrome and Edge rendering consistency",
-        "status": "in-progress",
+        "status": "InProgress",
         "assignee": "Team A"
       },
       {
         "id": "wi8",
         "title": "Performance Optimization",
         "description": "Sub-1-second page load and render time",
-        "status": "carried-over",
+        "status": "CarriedOver",
         "assignee": "Team B"
       },
       {
         "id": "wi9",
         "title": "Accessibility Review",
         "description": "WCAG AA compliance and keyboard navigation",
-        "status": "carried-over",
+        "status": "CarriedOver",
         "assignee": "Team C"
       },
       {
         "id": "wi10",
         "title": "Documentation Update",
         "description": "Architecture and deployment guide",
-        "status": "carried-over",
+        "status": "CarriedOver",
         "assignee": "Team A"
       }
     ],
     "metrics": {
       "completionPercentage": 68,
-      "healthStatus": "on-track",
+      "healthStatus": "OnTrack",
       "velocityThisMonth": 7,
       "totalMilestones": 6,
       "completedMilestones": 2,
       "inProgressMilestones": 2,
       "atRiskMilestones": 0,
       "futureMilestones": 2,
-      "itemsShippedThisMonth": 4,
-      "itemsInProgress": 3,
-      "itemsCarriedOver": 3,
       "onTimePercentage": 95,
       "riskIndicators": [
         "UAT timeline compressed by 2 weeks",

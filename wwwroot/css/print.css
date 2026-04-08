@@ -25,7 +25,6 @@
         line-height: 1.5;
     }
 
-    /* ===== HIDE NON-ESSENTIAL ELEMENTS ===== */
     button, input[type="button"], input[type="submit"], input[type="reset"], input[type="text"], input[type="email"], input[type="number"], input[type="date"], textarea, select {
         display: none !important;
     }
@@ -38,7 +37,6 @@
         display: none !important;
     }
 
-    /* ===== SCROLLBAR REMOVAL ===== */
     ::-webkit-scrollbar {
         display: none !important;
     }
@@ -51,21 +49,18 @@
         overflow: hidden !important;
     }
 
-    /* ===== REMOVE SCROLLABLE CONTENT OVERFLOW ===== */
     .timeline-container, .work-item-list {
         overflow: visible !important;
         height: auto !important;
         max-height: none !important;
     }
 
-    /* ===== PAGE SETUP ===== */
     @page {
         size: auto;
         margin: 0;
         padding: 0;
     }
 
-    /* ===== DASHBOARD CONTAINER ===== */
     #app {
         width: 100%;
         height: auto;
@@ -84,7 +79,6 @@
         grid-template-rows: none;
     }
 
-    /* ===== HEADER SECTION - PRINT ===== */
     .dashboard-header {
         display: block;
         width: 100%;
@@ -127,7 +121,6 @@
         gap: 4pt;
     }
 
-    /* ===== TIMELINE SECTION - PRINT ===== */
     .dashboard-timeline {
         display: block;
         width: 100%;
@@ -210,7 +203,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        min-width: 80px;
+        min-width: 70px;
         max-width: 120px;
         padding: 8pt;
         background-color: white;
@@ -260,7 +253,6 @@
         margin: 2pt 0 0 0;
     }
 
-    /* ===== METRICS SECTION - PRINT ===== */
     .dashboard-metrics {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -326,7 +318,6 @@
         border: 1px solid black;
     }
 
-    /* ===== WORK ITEMS SECTION - PRINT ===== */
     .dashboard-work-items {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -384,9 +375,9 @@
         padding: 0;
         margin: 0;
         list-style: none;
-        overflow: visible;
-        height: auto;
-        max-height: none;
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
         flex: 1;
     }
 
@@ -438,13 +429,11 @@
         gap: 2pt;
     }
 
-    /* ===== LINKS ===== */
     a, a * {
         text-decoration: underline;
         color: black !important;
     }
 
-    /* ===== ENSURE TEXT VISIBILITY ===== */
     h1, h2, h3, h4, h5, h6 {
         color: black !important;
         page-break-after: avoid;
@@ -457,12 +446,10 @@
         page-break-inside: avoid;
     }
 
-    /* ===== HIGH CONTRAST FOR SCREENSHOT ===== */
     .timeline-milestone, .metric-card, .work-item-column {
         border: 1pt solid black !important;
     }
 
-    /* ===== PAGE BREAK RULES ===== */
     .dashboard-header {
         page-break-after: avoid;
     }
@@ -479,7 +466,6 @@
         page-break-after: avoid;
     }
 
-    /* ===== OPTIMIZATION FOR 1280x720 ===== */
     @media print and (width: 1280px) and (height: 720px) {
         body {
             font-size: 10pt;
@@ -517,7 +503,7 @@
         }
 
         .timeline-milestone {
-            min-width: 70px;
+            min-width: 65px;
             max-width: 100px;
             padding: 6pt;
         }
@@ -549,7 +535,6 @@
         }
     }
 
-    /* ===== OPTIMIZATION FOR 1920x1080 ===== */
     @media print and (width: 1920px) and (height: 1080px) {
         body {
             font-size: 12pt;
@@ -588,7 +573,7 @@
         }
 
         .timeline-milestone {
-            min-width: 110px;
+            min-width: 100px;
             max-width: 160px;
             padding: 12pt;
         }
@@ -632,27 +617,23 @@
         }
     }
 
-    /* ===== GENERIC PRINT OPTIMIZATION ===== */
-    @media print {
-        img {
-            max-width: 100%;
-            page-break-inside: avoid;
-        }
-
-        table, tr, td {
-            page-break-inside: avoid;
-        }
-
-        blockquote, pre {
-            page-break-inside: avoid;
-        }
-
-        ul, ol, dl {
-            page-break-inside: avoid;
-        }
+    img {
+        max-width: 100%;
+        page-break-inside: avoid;
     }
 
-    /* ===== EDGE AND CHROME COMPATIBILITY ===== */
+    table, tr, td {
+        page-break-inside: avoid;
+    }
+
+    blockquote, pre {
+        page-break-inside: avoid;
+    }
+
+    ul, ol, dl {
+        page-break-inside: avoid;
+    }
+
     @supports (-webkit-print-color-adjust: exact) {
         body {
             -webkit-print-color-adjust: exact;
@@ -666,7 +647,6 @@
     }
 }
 
-/* ===== SCREEN MEDIA - PRINT PREVIEW ===== */
 @media screen {
     .print-only {
         display: none;
