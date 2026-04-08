@@ -36,10 +36,13 @@
             }
         </div>
 
-        <ProgressMetrics 
-            CompletionPercentage="@ProjectData.CompletionPercentage"
-            TotalTasks="@ProjectData.Tasks.Count">
-        </ProgressMetrics>
+        @if (ProjectData.CompletionPercentage > 0)
+        {
+            <ProgressMetrics 
+                CompletionPercentage="@ProjectData.CompletionPercentage"
+                TotalTasks="@(ProjectData.Tasks?.Count ?? 0)">
+            </ProgressMetrics>
+        }
     }
     else if (!ShowError)
     {

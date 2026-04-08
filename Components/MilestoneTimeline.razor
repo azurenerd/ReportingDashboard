@@ -1,4 +1,3 @@
-@page "/milestone-timeline"
 @using AgentSquad.Models
 
 <div class="milestone-timeline-container">
@@ -62,24 +61,24 @@
         return Task.CompletedTask;
     }
 
-    private string GetStatusClass(string status)
+    private string GetStatusClass(MilestoneStatus status)
     {
-        return status?.ToLower() switch
+        return status switch
         {
-            "completed" => "status-completed",
-            "inprogress" => "status-inprogress",
-            "pending" => "status-pending",
+            MilestoneStatus.Completed => "status-completed",
+            MilestoneStatus.InProgress => "status-inprogress",
+            MilestoneStatus.Pending => "status-pending",
             _ => "status-pending"
         };
     }
 
-    private string GetStatusIcon(string status)
+    private string GetStatusIcon(MilestoneStatus status)
     {
-        return status?.ToLower() switch
+        return status switch
         {
-            "completed" => "✓",
-            "inprogress" => "◐",
-            "pending" => "○",
+            MilestoneStatus.Completed => "✓",
+            MilestoneStatus.InProgress => "◐",
+            MilestoneStatus.Pending => "○",
             _ => "○"
         };
     }
@@ -95,7 +94,7 @@
 }
 
 .timeline-title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     margin-bottom: 20px;
     color: #333;
@@ -200,7 +199,6 @@
 .completion-fill {
     height: 100%;
     background-color: #28a745;
-    transition: width 0.3s ease;
 }
 
 .milestone-card.status-inprogress .completion-fill {

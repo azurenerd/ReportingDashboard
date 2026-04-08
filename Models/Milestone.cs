@@ -13,7 +13,7 @@ namespace AgentSquad.Models
         public DateTime TargetDate { get; set; }
 
         [Required(ErrorMessage = "Status is required")]
-        public string Status { get; set; } // Completed, InProgress, Pending
+        public MilestoneStatus Status { get; set; }
 
         [Required(ErrorMessage = "Completion percentage is required")]
         [Range(0, 100, ErrorMessage = "Completion percentage must be between 0 and 100")]
