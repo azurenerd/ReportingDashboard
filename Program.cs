@@ -1,43 +1,33 @@
-using AgentSquad.Runner.Components;
 using AgentSquad.Runner.Services;
+using AgentSquad.Runner.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddAntiforgery();
-builder.Services.AddScoped<ProjectDataService>();
+// Register ProjectDataService as Singleton
+// Singleton is appropriate here because:
+// - JSON data is static and doesn't change during application lifetime
+// - No need to recreate the service or reload data on each request
+// - Reduces memory allocation overhead
+builder.Services.AddSingleton<ProjectDataService>();
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
-else
-{
-    app.UseDeveloperExceptionPage();
-}
 
 app.UseHttpsRedirection();
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    OnPrepareResponse = context =>
-    {
-        if (context.File.Name.EndsWith(".css") || context.File.Name.EndsWith(".js"))
-        {
-            context.Context.Response.Headers.CacheControl = "public, max-age=3600";
-        }
-    }
-});
-
+app.UseStaticFiles();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode()
-    .WithStaticAssets();
+    .AddInteractiveServerRenderMode();
 
 app.Run();
