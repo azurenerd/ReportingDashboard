@@ -5,7 +5,7 @@
     
     @if (Milestones == null || Milestones.Count == 0)
     {
-        <p style="color: #999; font-size: 14px;">No milestones available.</p>
+        <p style="color: #999; font-size: 16px;">No milestones available.</p>
     }
     else
     {
@@ -15,12 +15,12 @@
                 <div style="padding: 12px; border-left: 4px solid @GetMilestoneColor(milestone.Status); background-color: #f9f9f9; border-radius: 2px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <p style="margin: 0 0 4px 0; font-size: 14px; font-weight: bold; color: #333;">@milestone.Name</p>
-                            <p style="margin: 0; font-size: 13px; color: #666;">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</p>
+                            <p style="margin: 0 0 4px 0; font-size: 16px; font-weight: bold; color: #333;">@milestone.Name</p>
+                            <p style="margin: 0; font-size: 16px; color: #666;">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</p>
                         </div>
                         <div style="text-align: right;">
                             <div style="font-size: 24px; font-weight: bold; color: @GetMilestoneColor(milestone.Status);">@milestone.CompletionPercentage%</div>
-                            <span style="font-size: 12px; color: #666; text-transform: capitalize;">@milestone.Status</span>
+                            <span style="font-size: 14px; color: #666; text-transform: capitalize;">@milestone.Status</span>
                         </div>
                     </div>
                 </div>
@@ -39,13 +39,13 @@
     [Parameter]
     public DateTime ProjectEndDate { get; set; }
 
-    private string GetMilestoneColor(string status)
+    private string GetMilestoneColor(MilestoneStatus status)
     {
-        return status?.ToLower() switch
+        return status switch
         {
-            "completed" => "#28a745",
-            "inprogress" => "#0066cc",
-            "pending" => "#cccccc",
+            MilestoneStatus.Completed => "#28a745",
+            MilestoneStatus.InProgress => "#0066cc",
+            MilestoneStatus.Pending => "#cccccc",
             _ => "#999999"
         };
     }

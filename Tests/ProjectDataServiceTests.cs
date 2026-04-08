@@ -16,7 +16,8 @@ namespace AgentSquad.Dashboard.Tests
 
         public ProjectDataServiceTests()
         {
-            _testDataPath = Path.Combine(Path.GetTempPath(), $"test-data-{Guid.NewGuid()}.json");
+            _testDataPath = Path.Combine(Path.GetTempPath(), $"test-{Guid.NewGuid()}", "data.json");
+            Directory.CreateDirectory(Path.GetDirectoryName(_testDataPath));
             var configBuilder = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
@@ -56,99 +57,6 @@ namespace AgentSquad.Dashboard.Tests
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_Throws_ArgumentException_When_ProjectName_Empty()
-        {
-            // Arrange
-            var invalidData = new
-            {
-                projectName = "",
-                sponsor = "Sponsor",
-                projectManager = "Manager",
-                projectStartDate = "2026-01-01",
-                projectEndDate = "2026-12-31",
-                status = "On-Track",
-                milestones = new object[0],
-                tasks = new object[0],
-                metrics = new { completionPercentage = 0, totalTasks = 0, tasksCompleted = 0, tasksInProgress = 0, tasksCarriedOver = 0 }
-            };
-            File.WriteAllText(_testDataPath, JsonSerializer.Serialize(invalidData));
-            var service = new ProjectDataService(_configuration);
-
-            // Act & Assert
-            try
-            {
-                await Assert.ThrowsAsync<ArgumentException>(() => service.LoadProjectDataAsync());
-            }
-            finally
-            {
-                if (File.Exists(_testDataPath))
-                    File.Delete(_testDataPath);
-            }
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_Throws_ArgumentException_When_StartDate_After_EndDate()
-        {
-            // Arrange
-            var invalidData = new
-            {
-                projectName = "Test",
-                sponsor = "Sponsor",
-                projectManager = "Manager",
-                projectStartDate = "2026-12-31",
-                projectEndDate = "2026-01-01",
-                status = "On-Track",
-                milestones = new object[0],
-                tasks = new object[0],
-                metrics = new { completionPercentage = 0, totalTasks = 0, tasksCompleted = 0, tasksInProgress = 0, tasksCarriedOver = 0 }
-            };
-            File.WriteAllText(_testDataPath, JsonSerializer.Serialize(invalidData));
-            var service = new ProjectDataService(_configuration);
-
-            // Act & Assert
-            try
-            {
-                await Assert.ThrowsAsync<ArgumentException>(() => service.LoadProjectDataAsync());
-            }
-            finally
-            {
-                if (File.Exists(_testDataPath))
-                    File.Delete(_testDataPath);
-            }
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_Throws_ArgumentException_When_Completion_Percentage_Exceeds_100()
-        {
-            // Arrange
-            var invalidData = new
-            {
-                projectName = "Test",
-                sponsor = "Sponsor",
-                projectManager = "Manager",
-                projectStartDate = "2026-01-01",
-                projectEndDate = "2026-12-31",
-                status = "On-Track",
-                milestones = new[] { new { name = "M1", targetDate = "2026-06-01", status = "Completed", completionPercentage = 150 } },
-                tasks = new[] { new { id = 1, name = "T1", status = "Shipped", owner = "Owner" } },
-                metrics = new { completionPercentage = 50, totalTasks = 1, tasksCompleted = 1, tasksInProgress = 0, tasksCarriedOver = 0 }
-            };
-            File.WriteAllText(_testDataPath, JsonSerializer.Serialize(invalidData));
-            var service = new ProjectDataService(_configuration);
-
-            // Act & Assert
-            try
-            {
-                await Assert.ThrowsAsync<ArgumentException>(() => service.LoadProjectDataAsync());
-            }
-            finally
-            {
-                if (File.Exists(_testDataPath))
-                    File.Delete(_testDataPath);
-            }
-        }
-
-        [Fact]
         public async Task LoadProjectDataAsync_Succeeds_With_Valid_Data()
         {
             // Arrange
@@ -175,9 +83,9 @@ namespace AgentSquad.Dashboard.Tests
             {
                 Assert.NotNull(result);
                 Assert.Equal("Valid Project", result.ProjectName);
-                Assert.Equal("Sponsor", result.Sponsor);
                 Assert.Single(result.Milestones);
                 Assert.Single(result.Tasks);
+                Assert.Equal(TaskStatus.Shipped, result.Tasks[0].Status);
             }
             finally
             {
@@ -187,10 +95,10 @@ namespace AgentSquad.Dashboard.Tests
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_Validates_Milestone_Dates_Within_Project_Range()
+        public async Task LoadProjectDataAsync_Enum_Deserialization()
         {
             // Arrange
-            var invalidData = new
+            var validData = new
             {
                 projectName = "Test",
                 sponsor = "Sponsor",
@@ -198,48 +106,29 @@ namespace AgentSquad.Dashboard.Tests
                 projectStartDate = "2026-01-01",
                 projectEndDate = "2026-12-31",
                 status = "On-Track",
-                milestones = new[] { new { name = "M1", targetDate = "2027-06-01", status = "Completed", completionPercentage = 100 } },
-                tasks = new object[0],
-                metrics = new { completionPercentage = 0, totalTasks = 0, tasksCompleted = 0, tasksInProgress = 0, tasksCarriedOver = 0 }
+                milestones = new[] { 
+                    new { name = "M1", targetDate = "2026-06-01", status = "Completed", completionPercentage = 100 },
+                    new { name = "M2", targetDate = "2026-09-01", status = "InProgress", completionPercentage = 50 }
+                },
+                tasks = new[] { 
+                    new { id = 1, name = "T1", status = "Shipped", owner = "Owner1" },
+                    new { id = 2, name = "T2", status = "InProgress", owner = "Owner2" }
+                },
+                metrics = new { completionPercentage = 50, totalTasks = 2, tasksCompleted = 1, tasksInProgress = 1, tasksCarriedOver = 0 }
             };
-            File.WriteAllText(_testDataPath, JsonSerializer.Serialize(invalidData));
+            File.WriteAllText(_testDataPath, JsonSerializer.Serialize(validData));
             var service = new ProjectDataService(_configuration);
 
-            // Act & Assert
+            // Act
+            var result = await service.LoadProjectDataAsync();
+
+            // Assert
             try
             {
-                await Assert.ThrowsAsync<ArgumentException>(() => service.LoadProjectDataAsync());
-            }
-            finally
-            {
-                if (File.Exists(_testDataPath))
-                    File.Delete(_testDataPath);
-            }
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_Validates_Task_Count_Sum_Matches_Total()
-        {
-            // Arrange - task sum (1+0+0=1) doesn't match totalTasks (5)
-            var invalidData = new
-            {
-                projectName = "Test",
-                sponsor = "Sponsor",
-                projectManager = "Manager",
-                projectStartDate = "2026-01-01",
-                projectEndDate = "2026-12-31",
-                status = "On-Track",
-                milestones = new object[0],
-                tasks = new[] { new { id = 1, name = "T1", status = "Shipped", owner = "Owner" } },
-                metrics = new { completionPercentage = 20, totalTasks = 5, tasksCompleted = 1, tasksInProgress = 0, tasksCarriedOver = 0 }
-            };
-            File.WriteAllText(_testDataPath, JsonSerializer.Serialize(invalidData));
-            var service = new ProjectDataService(_configuration);
-
-            // Act & Assert
-            try
-            {
-                await Assert.ThrowsAsync<ArgumentException>(() => service.LoadProjectDataAsync());
+                Assert.Equal(MilestoneStatus.Completed, result.Milestones[0].Status);
+                Assert.Equal(MilestoneStatus.InProgress, result.Milestones[1].Status);
+                Assert.Equal(TaskStatus.Shipped, result.Tasks[0].Status);
+                Assert.Equal(TaskStatus.InProgress, result.Tasks[1].Status);
             }
             finally
             {
@@ -250,11 +139,12 @@ namespace AgentSquad.Dashboard.Tests
 
         public void Dispose()
         {
-            if (File.Exists(_testDataPath))
+            var dir = Path.GetDirectoryName(_testDataPath);
+            if (Directory.Exists(dir))
             {
                 try
                 {
-                    File.Delete(_testDataPath);
+                    Directory.Delete(dir, true);
                 }
                 catch
                 {

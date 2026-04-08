@@ -31,6 +31,13 @@ namespace AgentSquad.Dashboard.Models
         public ProjectMetrics Metrics { get; set; }
     }
 
+    public enum MilestoneStatus
+    {
+        Completed,
+        InProgress,
+        Pending
+    }
+
     public class Milestone
     {
         [Required(ErrorMessage = "Milestone name is required")]
@@ -39,7 +46,7 @@ namespace AgentSquad.Dashboard.Models
         public DateTime TargetDate { get; set; }
 
         [Required(ErrorMessage = "Milestone status is required")]
-        public string Status { get; set; }
+        public MilestoneStatus Status { get; set; }
 
         [Range(0, 100, ErrorMessage = "Completion percentage must be between 0 and 100")]
         public int CompletionPercentage { get; set; }
