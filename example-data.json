@@ -17,25 +17,19 @@
       "name": "Dashboard UI & Components",
       "targetDate": "2024-04-30",
       "status": "InProgress",
-      "description": "Blazor components, styling, and executive dashboard layout implementation"
-    },
-    {
-      "name": "Performance & Optimization",
-      "targetDate": "2024-06-15",
-      "status": "AtRisk",
-      "description": "Caching strategy refinement and client-side performance tuning"
+      "description": "Blazor components, styling, and executive dashboard layout"
     },
     {
       "name": "Integration & Testing",
-      "targetDate": "2024-07-31",
+      "targetDate": "2024-06-30",
       "status": "Future",
-      "description": "End-to-end testing, validation, and deployment hardening"
+      "description": "End-to-end testing, performance optimization, and deployment hardening"
     },
     {
       "name": "Production Release",
-      "targetDate": "2024-08-31",
+      "targetDate": "2024-07-31",
       "status": "Future",
-      "description": "Final sign-off, documentation, and production deployment"
+      "description": "Final validation, documentation, and production deployment"
     }
   ],
   "workItems": [
@@ -82,10 +76,10 @@
       "assignedTo": "QA Team"
     },
     {
-      "title": "Browser compatibility validation",
-      "description": "Testing and verification across Chrome and Edge browsers at target resolutions",
-      "status": "CarriedOver",
-      "assignedTo": "QA Team"
+      "title": "Integration testing and deployment",
+      "description": "End-to-end testing, self-contained executable build, and deployment documentation",
+      "status": "Future",
+      "assignedTo": "DevOps Team"
     }
   ]
 }
