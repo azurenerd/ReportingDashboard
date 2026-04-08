@@ -1,5 +1,6 @@
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using AgentSquad.Runner.Services;
-using AgentSquad.Runner.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,8 +8,14 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMemoryCache();
-builder.Services.AddScoped<IDataCache, MemoryCacheProvider>();
+builder.Services.AddScoped<IDataCache, DataCache>();
 builder.Services.AddScoped<IDataProvider, DataProvider>();
+
+builder.Services.AddLogging(config =>
+{
+    config.AddConsole();
+    config.SetMinimumLevel(LogLevel.Information);
+});
 
 var app = builder.Build();
 

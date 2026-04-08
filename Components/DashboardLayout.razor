@@ -3,6 +3,7 @@
 @using AgentSquad.Runner.Models
 @inject IDataProvider DataProvider
 @inject IDataCache DataCache
+@inject ILogger<DashboardLayout> Logger
 
 <div class="dashboard-container">
     @if (IsLoading)
@@ -66,6 +67,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Logger.LogInformation("DashboardLayout component initializing");
         await LoadProjectData();
     }
 
@@ -76,34 +78,49 @@
             IsLoading = true;
             ErrorMessage = string.Empty;
             ProjectData = null;
+            
+            Logger.LogInformation("Starting project data load");
+            StateHasChanged();
 
             ProjectData = await DataProvider.LoadProjectDataAsync();
+            
+            Logger.LogInformation("Project data loaded successfully");
             IsLoading = false;
+            StateHasChanged();
         }
         catch (FileNotFoundException ex)
         {
+            Logger.LogError(ex, "Configuration file not found");
             ErrorMessage = $"Configuration file not found: {ex.Message}";
             IsLoading = false;
+            StateHasChanged();
         }
         catch (System.Text.Json.JsonException ex)
         {
+            Logger.LogError(ex, "JSON parsing error");
             ErrorMessage = $"Invalid JSON format in configuration file: {ex.Message}";
             IsLoading = false;
+            StateHasChanged();
         }
         catch (InvalidOperationException ex)
         {
+            Logger.LogError(ex, "Project validation error");
             ErrorMessage = $"Invalid project configuration: {ex.Message}";
             IsLoading = false;
+            StateHasChanged();
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Unexpected error loading dashboard");
             ErrorMessage = $"Unexpected error loading dashboard: {ex.Message}";
             IsLoading = false;
+            StateHasChanged();
         }
     }
 
     private async Task RetryLoadData()
     {
+        Logger.LogInformation("User initiated retry - invalidating cache");
         DataCache.Remove("project_data");
         await LoadProjectData();
     }
