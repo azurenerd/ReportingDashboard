@@ -3,7 +3,7 @@
     "name": "Q2 Mobile App Release",
     "startDate": "2025-04-01",
     "endDate": "2025-06-30",
-    "overallCompletionPercentage": 0,
+    "overallCompletionPercentage": 62,
     "milestones": [
       {
         "id": "m1",
@@ -29,10 +29,64 @@
     ],
     "tasks": [
       {
-        "id": "",
-        "name": "",
+        "id": "t1",
+        "name": "User authentication module",
         "status": "Shipped",
-        "owner": ""
+        "owner": "Sarah Chen"
+      },
+      {
+        "id": "t2",
+        "name": "Database schema design",
+        "status": "Shipped",
+        "owner": "James Rodriguez"
+      },
+      {
+        "id": "t3",
+        "name": "API endpoint setup",
+        "status": "Shipped",
+        "owner": "Priya Patel"
+      },
+      {
+        "id": "t4",
+        "name": "Core UI framework",
+        "status": "Shipped",
+        "owner": "Marcus Johnson"
+      },
+      {
+        "id": "t5",
+        "name": "Payment integration",
+        "status": "InProgress",
+        "owner": "Elena Garcia"
+      },
+      {
+        "id": "t6",
+        "name": "Push notifications",
+        "status": "InProgress",
+        "owner": "David Kim"
+      },
+      {
+        "id": "t7",
+        "name": "Social sharing features",
+        "status": "InProgress",
+        "owner": "Lisa Anderson"
+      },
+      {
+        "id": "t8",
+        "name": "Analytics tracking",
+        "status": "InProgress",
+        "owner": "Thomas Mueller"
+      },
+      {
+        "id": "t9",
+        "name": "Offline mode support",
+        "status": "CarriedOver",
+        "owner": "Sophie Laurent"
+      },
+      {
+        "id": "t10",
+        "name": "Advanced search functionality",
+        "status": "CarriedOver",
+        "owner": "Ryan O'Connor"
       }
     ]
   }
