@@ -1,5 +1,6 @@
 using System.Text.Json;
 using AgentSquad.Runner.Models;
+using Microsoft.Extensions.Logging;
 
 namespace AgentSquad.Runner.Services;
 
@@ -9,58 +10,56 @@ public class DataProvider : IDataProvider
     private readonly ILogger<DataProvider> _logger;
     private const string DATA_FILE_PATH = "wwwroot/data.json";
     private const string CACHE_KEY = "project_data";
+    private static readonly TimeSpan DEFAULT_CACHE_TTL = TimeSpan.FromHours(1);
 
     public DataProvider(IDataCache cache, ILogger<DataProvider> logger)
     {
-        _cache = cache;
-        _logger = logger;
+        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<Project> LoadProjectDataAsync()
     {
-        var cached = await _cache.GetAsync<Project>(CACHE_KEY);
-        if (cached != null) return cached;
-
         try
         {
-            if (!File.Exists(DATA_FILE_PATH))
-                throw new FileNotFoundException($"Configuration file not found: {DATA_FILE_PATH}");
+            var cached = await _cache.GetAsync<Project>(CACHE_KEY);
+            if (cached != null)
+            {
+                _logger.LogInformation("Project data loaded from cache");
+                return cached;
+            }
+
+            _logger.LogInformation("Cache miss for project data, reading from file");
 
             var json = await File.ReadAllTextAsync(DATA_FILE_PATH);
-            var project = JsonSerializer.Deserialize<Project>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-                ?? throw new InvalidOperationException("Failed to deserialize project data");
+            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            var project = JsonSerializer.Deserialize<Project>(json, options);
 
-            ValidateProjectData(project);
+            if (project == null)
+            {
+                throw new InvalidOperationException("Failed to deserialize project data from JSON");
+            }
 
-            await _cache.SetAsync(CACHE_KEY, project, TimeSpan.FromHours(1));
+            await _cache.SetAsync(CACHE_KEY, project, DEFAULT_CACHE_TTL);
+            _logger.LogInformation("Project data loaded successfully and cached");
+
             return project;
         }
         catch (FileNotFoundException ex)
         {
-            _logger.LogError(ex, "Data file not found");
-            throw new InvalidOperationException("Configuration file missing. Please ensure wwwroot/data.json exists.", ex);
+            _logger.LogError(ex, "Data file not found at {Path}", DATA_FILE_PATH);
+            throw new InvalidOperationException($"Configuration file not found at {DATA_FILE_PATH}", ex);
         }
         catch (JsonException ex)
         {
-            _logger.LogError(ex, "Invalid JSON format");
-            throw new InvalidOperationException("Invalid JSON format in data.json. Please check file syntax.", ex);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error loading project data");
-            throw;
+            _logger.LogError(ex, "Failed to parse JSON from data file");
+            throw new InvalidOperationException("Invalid JSON format in data file", ex);
         }
     }
 
-    public void InvalidateCache() => _cache.Remove(CACHE_KEY);
-
-    private void ValidateProjectData(Project project)
+    public void InvalidateCache()
     {
-        if (project == null)
-            throw new InvalidOperationException("Project data is null");
-        if (string.IsNullOrWhiteSpace(project.Name))
-            throw new InvalidOperationException("Project name is required");
-        if (project.Milestones == null || project.Milestones.Count == 0)
-            throw new InvalidOperationException("At least one milestone is required");
+        _cache.Remove(CACHE_KEY);
+        _logger.LogInformation("Project data cache invalidated");
     }
 }
