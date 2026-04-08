@@ -1,0 +1,619 @@
+using AgentSquad.Runner.Data;
+using AgentSquad.Runner.Data.Exceptions;
+using AgentSquad.Runner.Services;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Xunit;
+
+namespace AgentSquad.Runner.Tests.Services;
+
+public class ProjectDataServiceTests : IDisposable
+{
+    private readonly Mock<ILogger<ProjectDataService>> _mockLogger;
+    private readonly ProjectDataService _service;
+    private readonly List<string> _tempFiles = new();
+
+    public ProjectDataServiceTests()
+    {
+        _mockLogger = new Mock<ILogger<ProjectDataService>>();
+        _service = new ProjectDataService(_mockLogger.Object);
+    }
+
+    public void Dispose()
+    {
+        foreach (var file in _tempFiles)
+        {
+            if (File.Exists(file))
+                File.Delete(file);
+        }
+    }
+
+    private string CreateTempFile(string content)
+    {
+        var tempFile = Path.GetTempFileName();
+        _tempFiles.Add(tempFile);
+        File.WriteAllText(tempFile, content);
+        return tempFile;
+    }
+
+    private string CreateValidProjectDataJson()
+    {
+        return @"{
+            ""project"": {
+                ""name"": ""Q2 Mobile App Release"",
+                ""description"": ""Mobile app release for Q2"",
+                ""startDate"": ""2026-04-01"",
+                ""endDate"": ""2026-06-30"",
+                ""status"": ""OnTrack"",
+                ""sponsor"": ""VP Engineering"",
+                ""projectManager"": ""Jane Smith""
+            },
+            ""milestones"": [
+                {
+                    ""id"": ""m1"",
+                    ""name"": ""Design Complete"",
+                    ""targetDate"": ""2026-04-15"",
+                    ""actualDate"": ""2026-04-12"",
+                    ""status"": ""Completed"",
+                    ""completionPercentage"": 100
+                }
+            ],
+            ""tasks"": [
+                {
+                    ""id"": ""t1"",
+                    ""name"": ""API Design"",
+                    ""status"": ""Shipped"",
+                    ""assignedTo"": ""John Doe"",
+                    ""dueDate"": ""2026-04-20"",
+                    ""estimatedDays"": 5,
+                    ""relatedMilestone"": ""m1""
+                }
+            ],
+            ""metrics"": {
+                ""totalTasks"": 10,
+                ""completedTasks"": 3,
+                ""inProgressTasks"": 5,
+                ""carriedOverTasks"": 2,
+                ""estimatedBurndownRate"": 1.2
+            }
+        }";
+    }
+
+    private string CreateComplexProjectDataJson()
+    {
+        return @"{
+            ""project"": {
+                ""name"": ""Complex Multi-Milestone Project"",
+                ""description"": ""Project with multiple milestones and nested data"",
+                ""startDate"": ""2026-01-01"",
+                ""endDate"": ""2026-12-31"",
+                ""status"": ""AtRisk"",
+                ""sponsor"": ""Chief Product Officer"",
+                ""projectManager"": ""Robert Johnson""
+            },
+            ""milestones"": [
+                {
+                    ""id"": ""m1"",
+                    ""name"": ""Phase 1: Discovery"",
+                    ""targetDate"": ""2026-02-28"",
+                    ""actualDate"": ""2026-02-25"",
+                    ""status"": ""Completed"",
+                    ""completionPercentage"": 100
+                },
+                {
+                    ""id"": ""m2"",
+                    ""name"": ""Phase 2: Development"",
+                    ""targetDate"": ""2026-05-31"",
+                    ""actualDate"": null,
+                    ""status"": ""InProgress"",
+                    ""completionPercentage"": 65
+                },
+                {
+                    ""id"": ""m3"",
+                    ""name"": ""Phase 3: Testing"",
+                    ""targetDate"": ""2026-08-15"",
+                    ""actualDate"": null,
+                    ""status"": ""Pending"",
+                    ""completionPercentage"": 0
+                }
+            ],
+            ""tasks"": [
+                {
+                    ""id"": ""t1"",
+                    ""name"": ""Requirements Gathering"",
+                    ""status"": ""Shipped"",
+                    ""assignedTo"": ""Alice Brown"",
+                    ""dueDate"": ""2026-02-15"",
+                    ""estimatedDays"": 10,
+                    ""relatedMilestone"": ""m1""
+                },
+                {
+                    ""id"": ""t2"",
+                    ""name"": ""Backend API Development"",
+                    ""status"": ""InProgress"",
+                    ""assignedTo"": ""Charlie Davis"",
+                    ""dueDate"": ""2026-04-30"",
+                    ""estimatedDays"": 20,
+                    ""relatedMilestone"": ""m2""
+                },
+                {
+                    ""id"": ""t3"",
+                    ""name"": ""Frontend UI Implementation"",
+                    ""status"": ""InProgress"",
+                    ""assignedTo"": ""Diana Martinez"",
+                    ""dueDate"": ""2026-05-15"",
+                    ""estimatedDays"": 15,
+                    ""relatedMilestone"": ""m2""
+                },
+                {
+                    ""id"": ""t4"",
+                    ""name"": ""Mobile App Development"",
+                    ""status"": ""CarriedOver"",
+                    ""assignedTo"": ""Edward Wilson"",
+                    ""dueDate"": ""2026-05-31"",
+                    ""estimatedDays"": 25,
+                    ""relatedMilestone"": ""m2""
+                }
+            ],
+            ""metrics"": {
+                ""totalTasks"": 15,
+                ""completedTasks"": 5,
+                ""inProgressTasks"": 8,
+                ""carriedOverTasks"": 2,
+                ""estimatedBurndownRate"": 1.8
+            }
+        }";
+    }
+
+    private string CreateMixedCaseJson()
+    {
+        return @"{
+            ""Project"": {
+                ""Name"": ""Case Insensitive Test"",
+                ""Description"": ""Testing mixed case properties"",
+                ""StartDate"": ""2026-04-01"",
+                ""EndDate"": ""2026-06-30"",
+                ""Status"": ""OnTrack"",
+                ""Sponsor"": ""Test Sponsor"",
+                ""ProjectManager"": ""Test Manager""
+            },
+            ""Milestones"": [
+                {
+                    ""Id"": ""m1"",
+                    ""Name"": ""Test Milestone"",
+                    ""TargetDate"": ""2026-04-15"",
+                    ""ActualDate"": null,
+                    ""Status"": ""Pending"",
+                    ""CompletionPercentage"": 0
+                }
+            ],
+            ""Tasks"": [
+                {
+                    ""Id"": ""t1"",
+                    ""Name"": ""Test Task"",
+                    ""Status"": ""Shipped"",
+                    ""AssignedTo"": ""Test User"",
+                    ""DueDate"": ""2026-04-20"",
+                    ""EstimatedDays"": 5,
+                    ""RelatedMilestone"": ""m1""
+                }
+            ],
+            ""Metrics"": {
+                ""TotalTasks"": 10,
+                ""CompletedTasks"": 5,
+                ""InProgressTasks"": 3,
+                ""CarriedOverTasks"": 2,
+                ""EstimatedBurndownRate"": 1.0
+            }
+        }";
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithValidJson_ReturnsProjectDataAndCaches()
+    {
+        var tempFile = CreateTempFile(CreateValidProjectDataJson());
+
+        var result = await _service.LoadProjectDataAsync(tempFile);
+
+        Assert.NotNull(result);
+        Assert.NotNull(result.Project);
+        Assert.Equal("Q2 Mobile App Release", result.Project.Name);
+        Assert.Equal("Jane Smith", result.Project.ProjectManager);
+        Assert.NotNull(result.Milestones);
+        Assert.Single(result.Milestones);
+        Assert.NotNull(result.Tasks);
+        Assert.Single(result.Tasks);
+        Assert.NotNull(result.Metrics);
+        Assert.Equal(10, result.Metrics.TotalTasks);
+        Assert.Equal(3, result.Metrics.CompletedTasks);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithComplexNestedJson_DeserializesAllData()
+    {
+        var tempFile = CreateTempFile(CreateComplexProjectDataJson());
+
+        var result = await _service.LoadProjectDataAsync(tempFile);
+
+        Assert.NotNull(result);
+        Assert.Equal("Complex Multi-Milestone Project", result.Project.Name);
+        Assert.Equal(3, result.Milestones.Count);
+        Assert.Equal("Phase 1: Discovery", result.Milestones[0].Name);
+        Assert.Equal("Completed", result.Milestones[0].Status);
+        Assert.Equal(100, result.Milestones[0].CompletionPercentage);
+        Assert.Equal("Phase 2: Development", result.Milestones[1].Name);
+        Assert.Equal(65, result.Milestones[1].CompletionPercentage);
+        Assert.Equal(4, result.Tasks.Count);
+        Assert.Equal("Shipped", result.Tasks[0].Status);
+        Assert.Equal("InProgress", result.Tasks[1].Status);
+        Assert.Equal("CarriedOver", result.Tasks[3].Status);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithMixedCaseJson_DeserializesCaseInsensitive()
+    {
+        var tempFile = CreateTempFile(CreateMixedCaseJson());
+
+        var result = await _service.LoadProjectDataAsync(tempFile);
+
+        Assert.NotNull(result);
+        Assert.Equal("Case Insensitive Test", result.Project.Name);
+        Assert.Single(result.Milestones);
+        Assert.Equal("Test Milestone", result.Milestones[0].Name);
+        Assert.Single(result.Tasks);
+        Assert.Equal("Test Task", result.Tasks[0].Name);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithMissingFile_ThrowsDataLoadException()
+    {
+        var nonExistentFile = Path.Combine(Path.GetTempPath(), "nonexistent_" + Guid.NewGuid() + ".json");
+
+        var exception = await Assert.ThrowsAsync<DataLoadException>(
+            () => _service.LoadProjectDataAsync(nonExistentFile));
+
+        Assert.NotNull(exception.Message);
+        Assert.Contains("not found in wwwroot directory", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithMalformedJson_ThrowsDataLoadException()
+    {
+        var tempFile = CreateTempFile("{ invalid json syntax }");
+
+        var exception = await Assert.ThrowsAsync<DataLoadException>(
+            () => _service.LoadProjectDataAsync(tempFile));
+
+        Assert.NotNull(exception.Message);
+        Assert.Contains("Invalid JSON format", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithEmptyJson_ThrowsDataLoadException()
+    {
+        var tempFile = CreateTempFile("");
+
+        var exception = await Assert.ThrowsAsync<DataLoadException>(
+            () => _service.LoadProjectDataAsync(tempFile));
+
+        Assert.NotNull(exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithJsonArray_ThrowsDataLoadException()
+    {
+        var tempFile = CreateTempFile("[]");
+
+        var exception = await Assert.ThrowsAsync<DataLoadException>(
+            () => _service.LoadProjectDataAsync(tempFile));
+
+        Assert.NotNull(exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithNullDeserialization_ThrowsDataLoadException()
+    {
+        var tempFile = CreateTempFile("null");
+
+        var exception = await Assert.ThrowsAsync<DataLoadException>(
+            () => _service.LoadProjectDataAsync(tempFile));
+
+        Assert.Equal("JSON deserialization resulted in null", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_CachesData()
+    {
+        var tempFile = CreateTempFile(CreateValidProjectDataJson());
+
+        var loadedData = await _service.LoadProjectDataAsync(tempFile);
+        var cachedData = _service.GetCachedData();
+
+        Assert.NotNull(cachedData);
+        Assert.Same(loadedData, cachedData);
+        Assert.Equal("Q2 Mobile App Release", cachedData.Project.Name);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_MultipleLoads_UpdatesCache()
+    {
+        var tempFile1 = CreateTempFile(CreateValidProjectDataJson());
+        var tempFile2 = CreateTempFile(CreateComplexProjectDataJson());
+
+        var firstLoad = await _service.LoadProjectDataAsync(tempFile1);
+        Assert.Equal("Q2 Mobile App Release", firstLoad.Project.Name);
+
+        var secondLoad = await _service.LoadProjectDataAsync(tempFile2);
+        Assert.Equal("Complex Multi-Milestone Project", secondLoad.Project.Name);
+
+        var cachedData = _service.GetCachedData();
+        Assert.Equal("Complex Multi-Milestone Project", cachedData.Project.Name);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithValidJson_ReturnsTrue()
+    {
+        var json = CreateValidProjectDataJson();
+
+        var result = _service.ValidateJsonSchema(json);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithComplexValidJson_ReturnsTrue()
+    {
+        var json = CreateComplexProjectDataJson();
+
+        var result = _service.ValidateJsonSchema(json);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithMissingProjectProperty_ReturnsFalse()
+    {
+        var json = @"{
+            ""milestones"": [],
+            ""tasks"": [],
+            ""metrics"": {}
+        }";
+
+        var result = _service.ValidateJsonSchema(json);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithMissingMilestonesProperty_ReturnsFalse()
+    {
+        var json = @"{
+            ""project"": {},
+            ""tasks"": [],
+            ""metrics"": {}
+        }";
+
+        var result = _service.ValidateJsonSchema(json);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithMissingTasksProperty_ReturnsFalse()
+    {
+        var json = @"{
+            ""project"": {},
+            ""milestones"": [],
+            ""metrics"": {}
+        }";
+
+        var result = _service.ValidateJsonSchema(json);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithMissingMetricsProperty_ReturnsFalse()
+    {
+        var json = @"{
+            ""project"": {},
+            ""milestones"": [],
+            ""tasks"": []
+        }";
+
+        var result = _service.ValidateJsonSchema(json);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithNullInput_ReturnsFalse()
+    {
+        var result = _service.ValidateJsonSchema(null);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithEmptyString_ReturnsFalse()
+    {
+        var result = _service.ValidateJsonSchema("");
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithWhitespaceOnly_ReturnsFalse()
+    {
+        var result = _service.ValidateJsonSchema("   \n\t  ");
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithMalformedJson_ReturnsFalse()
+    {
+        var json = "{ invalid json }";
+
+        var result = _service.ValidateJsonSchema(json);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithJsonArray_ReturnsFalse()
+    {
+        var json = "[]";
+
+        var result = _service.ValidateJsonSchema(json);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void GetCachedData_WhenNothingLoaded_ReturnsNull()
+    {
+        var result = _service.GetCachedData();
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetCachedData_AfterLoad_ReturnsCachedData()
+    {
+        var tempFile = CreateTempFile(CreateValidProjectDataJson());
+        await _service.LoadProjectDataAsync(tempFile);
+
+        var result = _service.GetCachedData();
+
+        Assert.NotNull(result);
+        Assert.Equal("Q2 Mobile App Release", result.Project.Name);
+    }
+
+    [Fact]
+    public async Task GetCachedData_AfterRefresh_ReturnsNull()
+    {
+        var tempFile = CreateTempFile(CreateValidProjectDataJson());
+        await _service.LoadProjectDataAsync(tempFile);
+        _service.RefreshData();
+
+        var result = _service.GetCachedData();
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void RefreshData_ClearsCache()
+    {
+        _service.RefreshData();
+        var result = _service.GetCachedData();
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task RefreshData_AfterLoad_ClearsCache()
+    {
+        var tempFile = CreateTempFile(CreateValidProjectDataJson());
+        await _service.LoadProjectDataAsync(tempFile);
+
+        _service.RefreshData();
+
+        var result = _service.GetCachedData();
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task RefreshData_AllowsReload()
+    {
+        var tempFile1 = CreateTempFile(CreateValidProjectDataJson());
+        var tempFile2 = CreateTempFile(CreateComplexProjectDataJson());
+
+        var firstLoad = await _service.LoadProjectDataAsync(tempFile1);
+        Assert.Equal("Q2 Mobile App Release", firstLoad.Project.Name);
+
+        _service.RefreshData();
+        Assert.Null(_service.GetCachedData());
+
+        var secondLoad = await _service.LoadProjectDataAsync(tempFile2);
+        Assert.Equal("Complex Multi-Milestone Project", secondLoad.Project.Name);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_DataLoadException_HasInnerException()
+    {
+        var tempFile = CreateTempFile("{ bad json }");
+
+        var exception = await Assert.ThrowsAsync<DataLoadException>(
+            () => _service.LoadProjectDataAsync(tempFile));
+
+        Assert.NotNull(exception.InnerException);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithMinimalValidJson_ReturnsTrue()
+    {
+        var json = @"{
+            ""project"": null,
+            ""milestones"": null,
+            ""tasks"": null,
+            ""metrics"": null
+        }";
+
+        var result = _service.ValidateJsonSchema(json);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void ValidateJsonSchema_WithExtraProperties_ReturnsTrue()
+    {
+        var json = @"{
+            ""project"": {},
+            ""milestones"": [],
+            ""tasks"": [],
+            ""metrics"": {},
+            ""extraField"": ""value"",
+            ""anotherField"": 123
+        }";
+
+        var result = _service.ValidateJsonSchema(json);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_LogsSuccessfulLoad()
+    {
+        var tempFile = CreateTempFile(CreateValidProjectDataJson());
+
+        await _service.LoadProjectDataAsync(tempFile);
+
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("loaded successfully")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_LogsFileNotFoundError()
+    {
+        var nonExistentFile = Path.Combine(Path.GetTempPath(), "nonexistent_" + Guid.NewGuid() + ".json");
+
+        await Assert.ThrowsAsync<DataLoadException>(
+            () => _service.LoadProjectDataAsync(nonExistentFile));
+
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("not found")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+}
