@@ -37,17 +37,26 @@ namespace AgentSquad.Runner.Services
             try
             {
                 var json = await File.ReadAllTextAsync(jsonFilePath);
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var data = JsonSerializer.Deserialize<ProjectData>(json, options);
-                
-                if (data == null)
-                {
-                    throw new DataLoadException("JSON deserialization resulted in null");
-                }
 
-                _cachedData = data;
-                _lastLoadTime = DateTime.UtcNow;
-                return data;
+                try
+                {
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var data = JsonSerializer.Deserialize<ProjectData>(json, options);
+
+                    if (data == null)
+                    {
+                        throw new DataLoadException("JSON deserialization resulted in null");
+                    }
+
+                    _cachedData = data;
+                    _lastLoadTime = DateTime.UtcNow;
+                    return data;
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogError(ex, "Invalid JSON format in data file");
+                    throw new DataLoadException($"Invalid JSON format: {ex.Message}");
+                }
             }
             catch (FileNotFoundException)
             {
