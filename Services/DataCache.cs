@@ -1,62 +1,62 @@
+using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace AgentSquad.Runner.Services;
-
-/// <summary>
-/// In-memory cache implementation wrapping IMemoryCache.
-/// </summary>
-public class DataCache : IDataCache
+namespace AgentSquad.Services
 {
-    private readonly IMemoryCache _memoryCache;
-
     /// <summary>
-    /// Initializes a new instance of the DataCache class.
+    /// In-memory cache implementation wrapping IMemoryCache.
+    /// Provides async-compatible caching for Project data with optional TTL.
     /// </summary>
-    public DataCache(IMemoryCache memoryCache)
+    public class DataCache : IDataCache
     {
-        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-    }
+        private readonly IMemoryCache _memoryCache;
 
-    /// <summary>
-    /// Gets a cached value by key.
-    /// </summary>
-    public T Get<T>(string key) where T : class
-    {
-        if (string.IsNullOrEmpty(key))
-            throw new ArgumentException("Cache key cannot be null or empty", nameof(key));
-
-        _memoryCache.TryGetValue(key, out T value);
-        return value;
-    }
-
-    /// <summary>
-    /// Sets a value in the cache with optional expiration.
-    /// </summary>
-    public void Set<T>(string key, T value, TimeSpan? expiration = null) where T : class
-    {
-        if (string.IsNullOrEmpty(key))
-            throw new ArgumentException("Cache key cannot be null or empty", nameof(key));
-
-        if (value == null)
-            throw new ArgumentNullException(nameof(value), "Cannot cache null values");
-
-        var cacheOptions = new MemoryCacheEntryOptions();
-        if (expiration.HasValue)
+        public DataCache(IMemoryCache memoryCache)
         {
-            cacheOptions.AbsoluteExpirationRelativeToNow = expiration.Value;
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
-        _memoryCache.Set(key, value, cacheOptions);
-    }
+        /// <summary>
+        /// Retrieves cached value asynchronously. Returns null if not found or expired.
+        /// </summary>
+        public Task<T> GetAsync<T>(string key) where T : class
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException("Cache key cannot be null or empty", nameof(key));
 
-    /// <summary>
-    /// Removes a value from the cache by key.
-    /// </summary>
-    public void Remove(string key)
-    {
-        if (string.IsNullOrEmpty(key))
-            throw new ArgumentException("Cache key cannot be null or empty", nameof(key));
+            _memoryCache.TryGetValue(key, out T cachedValue);
+            return Task.FromResult(cachedValue);
+        }
 
-        _memoryCache.Remove(key);
+        /// <summary>
+        /// Stores value in cache with optional TTL.
+        /// </summary>
+        public Task SetAsync<T>(string key, T value, TimeSpan? expiration = null) where T : class
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException("Cache key cannot be null or empty", nameof(key));
+
+            if (value == null)
+                throw new ArgumentNullException(nameof(value), "Cache value cannot be null");
+
+            var cacheOptions = new MemoryCacheEntryOptions();
+            if (expiration.HasValue)
+                cacheOptions.AbsoluteExpirationRelativeToNow = expiration.Value;
+
+            _memoryCache.Set(key, value, cacheOptions);
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Removes value from cache by key.
+        /// </summary>
+        public void Remove(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException("Cache key cannot be null or empty", nameof(key));
+
+            _memoryCache.Remove(key);
+        }
     }
 }

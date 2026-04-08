@@ -1,101 +1,90 @@
 @page "/"
-@using AgentSquad.Runner.Models
-@using AgentSquad.Runner.Services
+@using AgentSquad.Models
+@using AgentSquad.Services
 @inject IDataProvider DataProvider
+@inject ILogger<DashboardLayout> Logger
 
 <div class="dashboard-container">
     @if (IsLoading)
     {
-        <div class="loading-spinner">
+        <div class="loading-overlay">
             <p>Loading project data...</p>
         </div>
     }
     else if (!string.IsNullOrEmpty(ErrorMessage))
     {
         <div class="error-overlay">
-            <div class="error-content">
-                <h2>Dashboard Error</h2>
-                <p>@ErrorMessage</p>
-            </div>
+            <h2>Error Loading Dashboard</h2>
+            <p>@ErrorMessage</p>
+            <p>Please check the data.json file and try refreshing the page.</p>
         </div>
     }
     else if (ProjectData != null)
     {
-        <div class="dashboard-header">
+        <header class="dashboard-header">
             <h1>@ProjectData.Name</h1>
-            @if (!string.IsNullOrEmpty(ProjectData.Description))
-            {
-                <p class="project-description">@ProjectData.Description</p>
-            }
-        </div>
+            <p class="project-description">@ProjectData.Description</p>
+        </header>
 
-        <div class="dashboard-content">
-            @if (ProjectData.Milestones != null && ProjectData.Milestones.Count > 0)
-            {
-                <section class="dashboard-section">
-                    <h2>Milestones</h2>
-                    <MilestoneTimeline Milestones="@ProjectData.Milestones" />
-                </section>
-            }
-
-            <section class="dashboard-section">
-                <h2>Project Metrics</h2>
-                <ProjectMetrics 
-                    CompletionPercentage="@ProjectData.CompletionPercentage"
-                    HealthStatus="@ProjectData.HealthStatus"
-                    VelocityThisMonth="@ProjectData.VelocityThisMonth"
-                    Milestones="@ProjectData.Milestones" />
+        @if (ProjectData.Milestones?.Count > 0)
+        {
+            <section class="milestone-section">
+                <MilestoneTimeline Milestones="@ProjectData.Milestones" />
             </section>
+        }
 
-            @if (ProjectData.WorkItems != null && ProjectData.WorkItems.Count > 0)
-            {
-                <section class="dashboard-section">
-                    <h2>Work Item Status</h2>
-                    <WorkItemSummary WorkItems="@ProjectData.WorkItems" />
-                </section>
-            }
-        </div>
+        @if (ProjectMetrics != null)
+        {
+            <section class="metrics-section">
+                <ProjectMetrics Metrics="@ProjectMetrics" />
+            </section>
+        }
+
+        @if (ProjectData.WorkItems?.Count > 0)
+        {
+            <section class="work-items-section">
+                <WorkItemSummary WorkItems="@ProjectData.WorkItems" />
+            </section>
+        }
     }
 </div>
 
 @code {
-    private Project ProjectData { get; set; } = new();
-    private bool IsLoading { get; set; } = true;
-    private string ErrorMessage { get; set; } = string.Empty;
+    private Project ProjectData { get; set; }
+    private ProjectMetrics ProjectMetrics { get; set; }
+    private bool IsLoading { get; set; }
+    private string ErrorMessage { get; set; }
 
-    /// <summary>
-    /// Loads project data from IDataProvider on component initialization.
-    /// Handles errors gracefully and displays error messages to user.
-    /// </summary>
     protected override async Task OnInitializedAsync()
     {
+        IsLoading = true;
         try
         {
-            IsLoading = true;
-            ErrorMessage = string.Empty;
-
             ProjectData = await DataProvider.LoadProjectDataAsync();
 
-            if (ProjectData == null)
+            if (ProjectData != null)
             {
-                ErrorMessage = "Failed to load project data. Please ensure data.json is valid and properly formatted.";
+                // Construct metrics from project data
+                ProjectMetrics = new ProjectMetrics
+                {
+                    CompletionPercentage = ProjectData.CompletionPercentage,
+                    HealthStatus = ProjectData.HealthStatus,
+                    VelocityThisMonth = ProjectData.VelocityThisMonth,
+                    TotalMilestones = ProjectData.Milestones?.Count ?? 0,
+                    CompletedMilestones = ProjectData.Milestones?
+                        .Count(m => m.Status == MilestoneStatus.Completed) ?? 0
+                };
             }
-        }
-        catch (FileNotFoundException)
-        {
-            ErrorMessage = "Configuration file (data.json) not found. Please ensure the file exists in the application directory.";
-        }
-        catch (System.Text.Json.JsonException)
-        {
-            ErrorMessage = "Invalid JSON format in data.json. Please check the file syntax and try again.";
         }
         catch (InvalidOperationException ex)
         {
-            ErrorMessage = $"Invalid project structure: {ex.Message}";
+            ErrorMessage = ex.Message;
+            Logger.LogError(ex, "Failed to load project data");
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"An unexpected error occurred while loading project data: {ex.Message}";
+            ErrorMessage = "An unexpected error occurred while loading project data.";
+            Logger.LogError(ex, "Unexpected error in DashboardLayout.OnInitializedAsync");
         }
         finally
         {
