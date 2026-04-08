@@ -1,0 +1,14 @@
+{
+    if (project == null) 
+        throw new InvalidOperationException("Project data is null");
+    
+    if (string.IsNullOrEmpty(project.Name)) 
+        throw new InvalidOperationException("Project name is required");
+    
+    if (project.Milestones == null || project.Milestones.Count == 0)
+        throw new InvalidOperationException("At least one milestone is required");
+    
+    // ADD THIS:
+    if (project.WorkItems == null)
+        project.WorkItems = new List<WorkItem>();
+}

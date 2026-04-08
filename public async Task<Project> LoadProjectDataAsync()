@@ -1,0 +1,13 @@
+{
+    var json = await File.ReadAllTextAsync(DATA_FILE_PATH);
+    
+    // ADD THIS:
+    var options = new JsonSerializerOptions 
+    { 
+        PropertyNameCaseInsensitive = true,
+        WriteIndented = false
+    };
+    
+    var project = JsonSerializer.Deserialize<Project>(json, options);
+    // ... rest of method
+}

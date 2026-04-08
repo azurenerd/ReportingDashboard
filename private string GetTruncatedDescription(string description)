@@ -1,0 +1,9 @@
+{
+    if (string.IsNullOrEmpty(description))
+        return "No description provided";
+    
+    if (description.Length > 100)
+        return description[..100] + "...";
+    
+    return description;
+}

@@ -1,0 +1,16 @@
+{
+    IsLoading = true;
+    try
+    {
+        ProjectData = await DataProvider.LoadProjectDataAsync();
+    }
+    catch (Exception ex)
+    {
+        ErrorMessage = $"Failed to load project data: {ex.Message}";
+        _logger.LogError(ex, "DataProvider.LoadProjectDataAsync failed");
+    }
+    finally
+    {
+        IsLoading = false;
+    }
+}
