@@ -1,0 +1,60 @@
+@inherits ErrorBoundaryBase
+@using Microsoft.AspNetCore.Components.Web
+
+<ErrorBoundary @ref="_errorBoundary">
+    @ChildContent
+    <ErrorContent Context="exception">
+        <div class="container-fluid mt-5">
+            <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">Error Loading Dashboard</h4>
+                        <p class="mb-3">
+                            An error occurred while loading the project data. This is usually caused by a malformed data.json file or file access issues.
+                        </p>
+                        <hr>
+                        <p class="text-muted mb-2">
+                            <strong>Error Details:</strong> @GetErrorMessage(exception)
+                        </p>
+                        <p class="text-muted mb-3">
+                            <strong>Troubleshooting Steps:</strong>
+                        </p>
+                        <ul class="text-muted">
+                            <li>Verify that <code>wwwroot/data/data.json</code> exists and is readable</li>
+                            <li>Check that the JSON file is valid and properly formatted</li>
+                            <li>Ensure all required fields are present in the JSON structure</li>
+                            <li>Try refreshing the page (Ctrl+Shift+R or Cmd+Shift+R for hard refresh)</li>
+                        </ul>
+                        <button class="btn btn-primary mt-3" @onclick="ReloadPage">
+                            <i class="bi bi-arrow-clockwise"></i> Retry
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    private ErrorBoundary? _errorBoundary;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string GetErrorMessage(Exception exception)
+    {
+        if (exception is null)
+            return "Unknown error";
+
+        var message = exception.Message;
+        if (exception.InnerException != null)
+            message += $" -> {exception.InnerException.Message}";
+        
+        return message;
+    }
+
+    private void ReloadPage()
+    {
+        _errorBoundary?.Recover();
+    }
+}
