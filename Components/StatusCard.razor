@@ -1,3 +1,4 @@
+@namespace AgentSquad.Components
 @using AgentSquad.Models;
 
 <div class="card mb-3 border-start border-5" style="border-color: @GetColorValue(CardColor) !important;">
@@ -7,12 +8,12 @@
                 <span class="fw-bold">@StatusCategory</span>
                 <span class="badge bg-secondary ms-2">@TaskCount</span>
             </h5>
-            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#tasks-@StatusCategory" aria-expanded="false">
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#tasks-@(StatusCategory.Replace(" ", "-").ToLower())" aria-expanded="false">
                 <span class="toggle-icon">▼</span>
             </button>
         </div>
     </div>
-    <div class="collapse" id="tasks-@StatusCategory">
+    <div class="collapse" id="tasks-@(StatusCategory.Replace(" ", "-").ToLower())">
         <div class="card-body">
             @if (Tasks != null && Tasks.Count > 0)
             {
@@ -24,7 +25,7 @@
                                 <span class="me-2">✓</span>
                                 <div class="flex-grow-1">
                                     <p class="mb-1 fw-bold">@task.Name</p>
-                                    <small class="text-muted">Assigned to: @(task.AssignedOwner ?? "Unassigned")</small>
+                                    <small class="text-muted">Assigned to: @(task.AssignedTo ?? "Unassigned")</small>
                                 </div>
                             </div>
                         </li>

@@ -1,91 +1,106 @@
 @page "/"
-@namespace AgentSquad.Pages
-@using AgentSquad.Components
-@using AgentSquad.Models
+@using AgentSquad.Models;
+@using AgentSquad.Services;
+@using System.Linq;
+@inject ProjectDataService ProjectDataService
 
-<div class="container-fluid py-5">
-    <div class="row mb-5">
-        <div class="col-12">
-            <h1 class="display-5 fw-bold text-dark">Project Dashboard</h1>
-            <p class="lead text-muted">Real-time project status and task breakdown</p>
-        </div>
-    </div>
+<ErrorBoundary>
+    <ChildContent>
+        <div class="container-fluid py-4">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="display-4 fw-bold">Project Dashboard</h1>
+                </div>
+            </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-12 col-md-4">
-            <StatusCard 
-                StatusCategory="Shipped" 
-                TaskCount="@GetShippedTaskCount()" 
-                Tasks="@GetShippedTasks()" 
-                CardColor="green" />
+            @if (ProjectData != null)
+            {
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <MilestoneTimeline Milestones="ProjectData.Milestones" 
+                                         ProjectDurationDays="CalculateProjectDays()" />
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <StatusCard StatusCategory="Shipped" 
+                                   TaskCount="GetShippedTasks().Count" 
+                                   Tasks="GetShippedTasks()" 
+                                   CardColor="green" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <StatusCard StatusCategory="In-Progress" 
+                                   TaskCount="GetInProgressTasks().Count" 
+                                   Tasks="GetInProgressTasks()" 
+                                   CardColor="blue" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <StatusCard StatusCategory="Carried-Over" 
+                                   TaskCount="GetCarriedOverTasks().Count" 
+                                   Tasks="GetCarriedOverTasks()" 
+                                   CardColor="orange" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <ProgressMetrics ProjectData="ProjectData" />
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">Loading project data...</div>
+            }
         </div>
-        <div class="col-12 col-md-4">
-            <StatusCard 
-                StatusCategory="In-Progress" 
-                TaskCount="@GetInProgressTaskCount()" 
-                Tasks="@GetInProgressTasks()" 
-                CardColor="blue" />
+    </ChildContent>
+    <ErrorContent>
+        <div class="container-fluid py-4">
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">An error occurred</h4>
+                <p>The dashboard encountered an error while rendering. Please refresh the page and try again.</p>
+            </div>
         </div>
-        <div class="col-12 col-md-4">
-            <StatusCard 
-                StatusCategory="Carried-Over" 
-                TaskCount="@GetCarriedOverTaskCount()" 
-                Tasks="@GetCarriedOverTasks()" 
-                CardColor="orange" />
-        </div>
-    </div>
-</div>
+    </ErrorContent>
+</ErrorBoundary>
 
 @code {
-    private List<Task> allTasks = new();
+    private ProjectData ProjectData;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        LoadSampleData();
+        try
+        {
+            ProjectData = await ProjectDataService.LoadProjectDataAsync();
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
-    private void LoadSampleData()
+    private int CalculateProjectDays()
     {
-        allTasks = new List<Task>
+        if (ProjectData?.ProjectEndDate != null && ProjectData?.ProjectStartDate != null)
         {
-            new Task { Id = 1, Name = "API Authentication Setup", AssignedTo = "John Smith", Status = TaskStatus.Shipped },
-            new Task { Id = 2, Name = "Database Schema Design", AssignedTo = "Sarah Johnson", Status = TaskStatus.Shipped },
-            new Task { Id = 3, Name = "User Interface Framework", AssignedTo = "Mike Chen", Status = TaskStatus.InProgress },
-            new Task { Id = 4, Name = "Payment Integration", AssignedTo = "Emily Davis", Status = TaskStatus.InProgress },
-            new Task { Id = 5, Name = "Performance Optimization", AssignedTo = "David Brown", Status = TaskStatus.InProgress },
-            new Task { Id = 6, Name = "Security Audit", AssignedTo = "Lisa Anderson", Status = TaskStatus.CarriedOver },
-            new Task { Id = 7, Name = "Documentation Update", AssignedTo = "James Wilson", Status = TaskStatus.CarriedOver },
-            new Task { Id = 8, Name = "Mobile App Testing", AssignedTo = "Jennifer White", Status = TaskStatus.Shipped }
-        };
+            return (int)(ProjectData.ProjectEndDate - ProjectData.ProjectStartDate).TotalDays;
+        }
+        return 0;
     }
 
     private List<Task> GetShippedTasks()
     {
-        return allTasks.Where(t => t.Status == TaskStatus.Shipped).ToList();
+        return ProjectData?.Tasks?.Where(t => t.Status == "Shipped").ToList() ?? new List<Task>();
     }
 
     private List<Task> GetInProgressTasks()
     {
-        return allTasks.Where(t => t.Status == TaskStatus.InProgress).ToList();
+        return ProjectData?.Tasks?.Where(t => t.Status == "InProgress").ToList() ?? new List<Task>();
     }
 
     private List<Task> GetCarriedOverTasks()
     {
-        return allTasks.Where(t => t.Status == TaskStatus.CarriedOver).ToList();
-    }
-
-    private int GetShippedTaskCount()
-    {
-        return GetShippedTasks().Count;
-    }
-
-    private int GetInProgressTaskCount()
-    {
-        return GetInProgressTasks().Count;
-    }
-
-    private int GetCarriedOverTaskCount()
-    {
-        return GetCarriedOverTasks().Count;
+        return ProjectData?.Tasks?.Where(t => t.Status == "CarriedOver").ToList() ?? new List<Task>();
     }
 }
