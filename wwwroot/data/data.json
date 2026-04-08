@@ -1,29 +1,25 @@
 {
   "project": {
-    "id": "p1",
     "name": "Q2 Mobile App Release",
-    "description": "Mobile app release for Q2 2025 including core features and integration with payment systems",
     "status": "InProgress",
     "sponsor": "Executive Leadership",
     "projectManager": "Jennifer West",
-    "startDate": "2025-04-01",
-    "endDate": "2025-06-30"
+    "startDate": "2026-04-01",
+    "endDate": "2026-06-30"
   },
   "milestones": [
     {
       "id": "m1",
       "name": "Alpha Release",
-      "description": "Internal alpha release for testing",
-      "targetDate": "2025-04-15",
-      "actualDate": "2025-04-14",
+      "targetDate": "2026-04-15",
+      "actualDate": "2026-04-14",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
       "id": "m2",
       "name": "Beta Testing",
-      "description": "External beta testing with select users",
-      "targetDate": "2025-05-15",
+      "targetDate": "2026-05-15",
       "actualDate": null,
       "status": "InProgress",
       "completionPercentage": 65
@@ -31,8 +27,7 @@
     {
       "id": "m3",
       "name": "Production Launch",
-      "description": "Full production release to all users",
-      "targetDate": "2025-06-25",
+      "targetDate": "2026-06-25",
       "actualDate": null,
       "status": "Pending",
       "completionPercentage": 0
@@ -44,7 +39,7 @@
       "name": "User authentication module",
       "status": "Shipped",
       "assignedTo": "Sarah Chen",
-      "dueDate": "2025-04-10",
+      "dueDate": "2026-04-10",
       "estimatedDays": 8,
       "relatedMilestone": "m1"
     },
@@ -53,7 +48,7 @@
       "name": "Database schema design",
       "status": "Shipped",
       "assignedTo": "James Rodriguez",
-      "dueDate": "2025-04-08",
+      "dueDate": "2026-04-08",
       "estimatedDays": 5,
       "relatedMilestone": "m1"
     },
@@ -62,7 +57,7 @@
       "name": "API endpoint setup",
       "status": "Shipped",
       "assignedTo": "Priya Patel",
-      "dueDate": "2025-04-12",
+      "dueDate": "2026-04-12",
       "estimatedDays": 6,
       "relatedMilestone": "m1"
     },
@@ -71,7 +66,7 @@
       "name": "Core UI framework",
       "status": "Shipped",
       "assignedTo": "Marcus Johnson",
-      "dueDate": "2025-04-13",
+      "dueDate": "2026-04-13",
       "estimatedDays": 7,
       "relatedMilestone": "m1"
     },
@@ -80,7 +75,7 @@
       "name": "Payment integration",
       "status": "InProgress",
       "assignedTo": "Elena Garcia",
-      "dueDate": "2025-05-10",
+      "dueDate": "2026-05-10",
       "estimatedDays": 10,
       "relatedMilestone": "m2"
     },
@@ -89,7 +84,7 @@
       "name": "Push notifications",
       "status": "InProgress",
       "assignedTo": "David Kim",
-      "dueDate": "2025-05-12",
+      "dueDate": "2026-05-12",
       "estimatedDays": 8,
       "relatedMilestone": "m2"
     },
@@ -98,7 +93,7 @@
       "name": "Social sharing features",
       "status": "InProgress",
       "assignedTo": "Lisa Anderson",
-      "dueDate": "2025-05-15",
+      "dueDate": "2026-05-15",
       "estimatedDays": 9,
       "relatedMilestone": "m2"
     },
@@ -107,7 +102,7 @@
       "name": "Analytics tracking",
       "status": "InProgress",
       "assignedTo": "Thomas Mueller",
-      "dueDate": "2025-05-20",
+      "dueDate": "2026-05-20",
       "estimatedDays": 6,
       "relatedMilestone": "m2"
     },
@@ -116,7 +111,7 @@
       "name": "Offline mode support",
       "status": "CarriedOver",
       "assignedTo": "Sophie Laurent",
-      "dueDate": "2025-06-15",
+      "dueDate": "2026-06-15",
       "estimatedDays": 12,
       "relatedMilestone": "m3"
     },
@@ -125,7 +120,7 @@
       "name": "Advanced search functionality",
       "status": "CarriedOver",
       "assignedTo": "Ryan O'Connor",
-      "dueDate": "2025-06-20",
+      "dueDate": "2026-06-20",
       "estimatedDays": 10,
       "relatedMilestone": "m3"
     }
@@ -136,7 +131,7 @@
     "inProgressTasks": 4,
     "carriedOverTasks": 2,
     "estimatedBurndownRate": 0.62,
-    "projectStartDate": "2025-04-01",
-    "projectEndDate": "2025-06-30"
+    "projectStartDate": "2026-04-01",
+    "projectEndDate": "2026-06-30"
   }
 }
