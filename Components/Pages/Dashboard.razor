@@ -1,112 +1,84 @@
 @page "/"
-@using AgentSquad.Runner.Data
 @using AgentSquad.Runner.Services
-@inject ProjectDataService ProjectDataService
-@inject IWebHostEnvironment Environment
+@using AgentSquad.Runner.Models
+@inject ProjectDataService DataService
 
-<PageTitle>Executive Dashboard</PageTitle>
-
-<div class="container-fluid px-4">
-    <div class="py-4">
-        @if (LoadError)
-        {
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>Error Loading Data</strong>
-                <p>@ErrorMessage</p>
-                <button type="button" class="btn-close" @onclick="() => LoadError = false"></button>
+<div class="container-fluid p-4">
+    @if (_isLoading)
+    {
+        <div class="alert alert-info" role="alert">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Loading project data...
+        </div>
+    }
+    else if (_errorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Error:</strong> @_errorMessage
+        </div>
+    }
+    else if (_projectData != null)
+    {
+        <div class="row mb-5">
+            <div class="col-12">
+                <h1 class="display-4">@_projectData.ProjectName</h1>
             </div>
-        }
+        </div>
 
-        @if (ProjectData?.Project != null)
-        {
-            <h1 class="section-title">@ProjectData.Project.Name</h1>
-            @if (!string.IsNullOrEmpty(ProjectData.Project.Description))
-            {
-                <p class="text-muted mb-4">@ProjectData.Project.Description</p>
-            }
-        }
+        <!-- Milestones Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2>Project Milestones</h2>
+                <!-- MilestoneTimeline component will be added in step 5 -->
+            </div>
+        </div>
 
-        @if (IsLoading)
-        {
-            <div class="text-center my-5">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
+        <!-- Status Cards Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2>Task Status</h2>
+                <!-- StatusCard components will be added in step 5 -->
             </div>
-        }
-        else if (ProjectData != null)
-        {
-            <div class="dashboard-section">
-                <MilestoneTimeline Milestones="ProjectData.Milestones" 
-                                   ProjectStartDate="ProjectData.Project?.StartDate ?? DateTime.MinValue"
-                                   ProjectEndDate="ProjectData.Project?.EndDate ?? DateTime.MaxValue" />
-            </div>
+        </div>
 
-            <div class="dashboard-section">
-                <h2 class="section-title">Task Status</h2>
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <StatusCard StatusCategory="Shipped" 
-                                    TaskCount="ProjectData.Summary?.TasksShipped ?? 0"
-                                    Tasks="GetTasksByStatus(TaskStatus.Shipped)"
-                                    CardColor="shipped" />
-                    </div>
-                    <div class="col-md-4">
-                        <StatusCard StatusCategory="In Progress" 
-                                    TaskCount="ProjectData.Summary?.TasksInProgress ?? 0"
-                                    Tasks="GetTasksByStatus(TaskStatus.InProgress)"
-                                    CardColor="in-progress" />
-                    </div>
-                    <div class="col-md-4">
-                        <StatusCard StatusCategory="Carried Over" 
-                                    TaskCount="ProjectData.Summary?.TasksCarriedOver ?? 0"
-                                    Tasks="GetTasksByStatus(TaskStatus.CarriedOver)"
-                                    CardColor="carried-over" />
-                    </div>
-                </div>
+        <!-- Progress Metrics Section -->
+        <div class="row">
+            <div class="col-12">
+                <h2>Progress Metrics</h2>
+                <!-- ProgressMetrics component will be added in step 5 -->
             </div>
-
-            <div class="dashboard-section">
-                <ProgressMetrics Metrics="ProjectData.Summary" TotalTasks="ProjectData.Tasks.Count" />
-            </div>
-        }
-    </div>
+        </div>
+    }
 </div>
 
 @code {
-    private ProjectData? ProjectData;
-    private bool IsLoading = true;
-    private bool LoadError = false;
-    private string? ErrorMessage;
+    private ProjectData _projectData;
+    private string _errorMessage;
+    private bool _isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            IsLoading = true;
-            LoadError = false;
-            
-            var dataPath = Path.Combine(Environment.WebRootPath, "data.json");
-            ProjectData = await ProjectDataService.LoadProjectDataAsync(dataPath);
-            
-            IsLoading = false;
+            _isLoading = true;
+            _errorMessage = null;
+            _projectData = await DataService.LoadProjectDataAsync();
         }
-        catch (DataLoadException ex)
+        catch (FileNotFoundException ex)
         {
-            LoadError = true;
-            ErrorMessage = ex.Message;
-            IsLoading = false;
+            _errorMessage = $"Data file not found. Please ensure data.json exists in the wwwroot/data directory. Details: {ex.Message}";
+        }
+        catch (InvalidOperationException ex)
+        {
+            _errorMessage = $"Failed to load project data. The data.json file may be corrupted or invalid. Details: {ex.Message}";
         }
         catch (Exception ex)
         {
-            LoadError = true;
-            ErrorMessage = $"An unexpected error occurred: {ex.Message}";
-            IsLoading = false;
+            _errorMessage = $"An unexpected error occurred while loading project data: {ex.Message}";
         }
-    }
-
-    private List<Task> GetTasksByStatus(TaskStatus status)
-    {
-        return ProjectData?.Tasks?.Where(t => t.Status == status).ToList() ?? new();
+        finally
+        {
+            _isLoading = false;
+        }
     }
 }
