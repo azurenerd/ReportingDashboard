@@ -1,15 +1,18 @@
 using System.Diagnostics;
 using AgentSquad.Runner.Models;
 using AgentSquad.Runner.Services;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace AgentSquad.Runner.Tests.Services;
 
 public class DataProviderIntegrationTests : IDisposable
 {
     private readonly ServiceProvider _serviceProvider;
+    private readonly Mock<IWebHostEnvironment> _mockEnvironment;
     private readonly string _testDataPath;
     private readonly string _testDataDirectory;
 
@@ -19,6 +22,10 @@ public class DataProviderIntegrationTests : IDisposable
         Directory.CreateDirectory(_testDataDirectory);
         _testDataPath = Path.Combine(_testDataDirectory, "data.json");
 
+        _mockEnvironment = new Mock<IWebHostEnvironment>();
+        _mockEnvironment.Setup(e => e.WebRootPath).Returns(_testDataDirectory);
+        _mockEnvironment.Setup(e => e.ContentRootPath).Returns(_testDataDirectory);
+
         var services = new ServiceCollection();
         services.AddMemoryCache();
         services.AddScoped<IDataCache, DataCache>();
@@ -26,7 +33,7 @@ public class DataProviderIntegrationTests : IDisposable
         {
             var cache = sp.GetRequiredService<IDataCache>();
             var logger = LoggerFactory.Create(c => c.AddConsole()).CreateLogger<DataProvider>();
-            return new DataProvider(cache, logger);
+            return new DataProvider(cache, logger, _mockEnvironment.Object);
         });
         services.AddLogging(c => c.AddConsole());
 
@@ -39,8 +46,6 @@ public class DataProviderIntegrationTests : IDisposable
         // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
-
-        OverrideDataFilePath();
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
@@ -62,8 +67,6 @@ public class DataProviderIntegrationTests : IDisposable
         // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
-
-        OverrideDataFilePath();
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
@@ -87,8 +90,6 @@ public class DataProviderIntegrationTests : IDisposable
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
-        OverrideDataFilePath();
-
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
         // Act
@@ -109,8 +110,6 @@ public class DataProviderIntegrationTests : IDisposable
         // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
-
-        OverrideDataFilePath();
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
         var stopwatch = new Stopwatch();
@@ -144,8 +143,6 @@ public class DataProviderIntegrationTests : IDisposable
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
-        OverrideDataFilePath();
-
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
         // Act - Load data (caches it)
@@ -172,8 +169,6 @@ public class DataProviderIntegrationTests : IDisposable
         // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
-
-        OverrideDataFilePath();
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
@@ -213,8 +208,6 @@ public class DataProviderIntegrationTests : IDisposable
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
-        OverrideDataFilePath();
-
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
         // Act
@@ -234,8 +227,6 @@ public class DataProviderIntegrationTests : IDisposable
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
-        OverrideDataFilePath();
-
         var dataProvider1 = _serviceProvider.GetRequiredService<IDataProvider>();
         var dataProvider2 = _serviceProvider.GetRequiredService<IDataProvider>();
 
@@ -253,8 +244,6 @@ public class DataProviderIntegrationTests : IDisposable
         // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
-
-        OverrideDataFilePath();
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
@@ -284,8 +273,6 @@ public class DataProviderIntegrationTests : IDisposable
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
-        OverrideDataFilePath();
-
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
         // Act - Multiple rapid calls
@@ -300,6 +287,64 @@ public class DataProviderIntegrationTests : IDisposable
         {
             Assert.Same(results[0], results[i]);
         }
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithMissingFile_ThrowsFileNotFound()
+    {
+        // Arrange
+        var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
+        // Don't create the data.json file
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<FileNotFoundException>(() => dataProvider.LoadProjectDataAsync());
+        Assert.NotNull(exception);
+        Assert.Contains("data.json", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithInvalidJson_ThrowsJsonException()
+    {
+        // Arrange
+        var invalidJson = "{ invalid json }";
+        await File.WriteAllTextAsync(_testDataPath, invalidJson);
+
+        var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<JsonException>(() => dataProvider.LoadProjectDataAsync());
+        Assert.NotNull(exception);
+        Assert.Contains("Invalid JSON", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithMissingRequiredField_ThrowsInvalidOperation()
+    {
+        // Arrange
+        var invalidData = @"{
+  ""description"": ""Missing project name"",
+  ""startDate"": ""2024-01-01"",
+  ""targetEndDate"": ""2024-12-31"",
+  ""completionPercentage"": 45,
+  ""healthStatus"": ""OnTrack"",
+  ""velocityThisMonth"": 12,
+  ""milestones"": [
+    {
+      ""name"": ""Phase 1"",
+      ""targetDate"": ""2024-03-31"",
+      ""status"": ""Completed""
+    }
+  ],
+  ""workItems"": []
+}";
+        await File.WriteAllTextAsync(_testDataPath, invalidData);
+
+        var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => dataProvider.LoadProjectDataAsync());
+        Assert.NotNull(exception);
+        Assert.Contains("Project name", exception.Message);
     }
 
     private string CreateExampleProjectJson()
@@ -359,13 +404,6 @@ public class DataProviderIntegrationTests : IDisposable
     }
   ]
 }";
-    }
-
-    private void OverrideDataFilePath()
-    {
-        // In a real integration test, we would use reflection or a factory pattern
-        // to override the data file path. For now, this documents the test's intent.
-        // Production code would inject IOptions<DataProviderOptions> with configurable path.
     }
 
     public void Dispose()

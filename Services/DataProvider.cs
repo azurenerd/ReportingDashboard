@@ -1,5 +1,6 @@
 using System.Text.Json;
 using AgentSquad.Runner.Models;
+using Microsoft.AspNetCore.Hosting;
 
 namespace AgentSquad.Runner.Services;
 
@@ -12,7 +13,8 @@ public class DataProvider : IDataProvider
 {
     private readonly IDataCache _cache;
     private readonly ILogger<DataProvider> _logger;
-    private const string DataFilePath = "wwwroot/data.json";
+    private readonly IWebHostEnvironment _environment;
+    private const string DataFileName = "data.json";
     private const string CacheKey = "project_data";
     private const int DefaultCacheTtlHours = 1;
 
@@ -21,10 +23,12 @@ public class DataProvider : IDataProvider
     /// </summary>
     /// <param name="cache">In-memory cache service for storing parsed project data.</param>
     /// <param name="logger">Logger for diagnostic output.</param>
-    public DataProvider(IDataCache cache, ILogger<DataProvider> logger)
+    /// <param name="environment">Web host environment for resolving wwwroot directory.</param>
+    public DataProvider(IDataCache cache, ILogger<DataProvider> logger, IWebHostEnvironment environment)
     {
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _environment = environment ?? throw new ArgumentNullException(nameof(environment));
     }
 
     /// <summary>
@@ -49,31 +53,32 @@ public class DataProvider : IDataProvider
                 return cached;
             }
 
-            _logger.LogWarning("Cache miss for project data. Reading from file: {FilePath}", DataFilePath);
+            _logger.LogWarning("Cache miss for project data. Reading from file.");
 
             // Read JSON file
             Project? project;
             try
             {
-                var json = await ReadJsonFileAsync();
-                _logger.LogDebug("Successfully read {ByteCount} bytes from {FilePath}", json.Length, DataFilePath);
+                var dataFilePath = GetDataFilePath();
+                var json = await ReadJsonFileAsync(dataFilePath);
+                _logger.LogDebug("Successfully read {ByteCount} bytes from {FilePath}", json.Length, dataFilePath);
 
                 // Deserialize JSON to Project model
                 project = DeserializeProjectJson(json);
             }
             catch (FileNotFoundException ex)
             {
-                _logger.LogError(ex, "Data file not found at path: {FilePath}. Ensure data.json exists in the wwwroot directory.", DataFilePath);
+                _logger.LogError(ex, "Data file not found. Ensure data.json exists in the wwwroot directory.");
                 throw new FileNotFoundException(
-                    $"Configuration file '{DataFilePath}' not found. Please create a valid data.json file in the application's wwwroot directory.",
-                    DataFilePath,
+                    $"Configuration file 'data.json' not found. Please create a valid data.json file in the application's wwwroot directory.",
+                    DataFileName,
                     ex);
             }
             catch (JsonException ex)
             {
-                _logger.LogError(ex, "Failed to parse JSON from {FilePath}. Invalid JSON syntax or format.", DataFilePath);
+                _logger.LogError(ex, "Failed to parse JSON from data.json. Invalid JSON syntax or format.");
                 throw new JsonException(
-                    $"Invalid JSON format in '{DataFilePath}'. Please ensure the file contains valid JSON. Error: {ex.Message}",
+                    $"Invalid JSON format in 'data.json'. Please ensure the file contains valid JSON. Error: {ex.Message}",
                     ex);
             }
 
@@ -122,31 +127,46 @@ public class DataProvider : IDataProvider
     }
 
     /// <summary>
+    /// Gets the full path to the data.json file using IWebHostEnvironment.
+    /// </summary>
+    /// <returns>Full file path to data.json.</returns>
+    private string GetDataFilePath()
+    {
+        var wwwrootPath = _environment.WebRootPath;
+        if (string.IsNullOrEmpty(wwwrootPath))
+        {
+            wwwrootPath = Path.Combine(_environment.ContentRootPath, "wwwroot");
+        }
+        return Path.Combine(wwwrootPath, DataFileName);
+    }
+
+    /// <summary>
     /// Reads JSON content from data.json file.
     /// </summary>
+    /// <param name="filePath">Full path to the data.json file.</param>
     /// <returns>JSON string content.</returns>
     /// <exception cref="FileNotFoundException">Thrown when file does not exist.</exception>
-    private async Task<string> ReadJsonFileAsync()
+    private async Task<string> ReadJsonFileAsync(string filePath)
     {
         try
         {
-            if (!File.Exists(DataFilePath))
+            if (!File.Exists(filePath))
             {
-                throw new FileNotFoundException($"File not found: {DataFilePath}");
+                throw new FileNotFoundException($"File not found: {filePath}");
             }
 
-            var json = await File.ReadAllTextAsync(DataFilePath);
+            var json = await File.ReadAllTextAsync(filePath);
             return json;
         }
         catch (IOException ex)
         {
-            _logger.LogError(ex, "I/O error occurred while reading {FilePath}.", DataFilePath);
-            throw new FileNotFoundException($"Unable to read file: {DataFilePath}. {ex.Message}", DataFilePath, ex);
+            _logger.LogError(ex, "I/O error occurred while reading {FilePath}.", filePath);
+            throw new FileNotFoundException($"Unable to read file: {filePath}. {ex.Message}", filePath, ex);
         }
         catch (UnauthorizedAccessException ex)
         {
-            _logger.LogError(ex, "Access denied when trying to read {FilePath}. Check file permissions.", DataFilePath);
-            throw new FileNotFoundException($"Access denied reading file: {DataFilePath}. Check file permissions.", DataFilePath, ex);
+            _logger.LogError(ex, "Access denied when trying to read {FilePath}. Check file permissions.", filePath);
+            throw new FileNotFoundException($"Access denied reading file: {filePath}. Check file permissions.", filePath, ex);
         }
     }
 
@@ -176,7 +196,7 @@ public class DataProvider : IDataProvider
         }
         catch (JsonException ex)
         {
-            _logger.LogError(ex, "JSON deserialization error: {Message}. Line: {LineNumber}, BytePosition: {BytePosition}", 
+            _logger.LogError(ex, "JSON deserialization error: {Message}. Line: {LineNumber}, BytePosition: {BytePosition}",
                 ex.Message, ex.LineNumber, ex.BytePosition);
             throw;
         }
