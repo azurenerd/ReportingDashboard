@@ -8,24 +8,24 @@
         var itemCount = statusGroup.Count();
         
         <div class="work-item-column">
-            <h3 class="column-header">
+            <h3 class="work-item-column-header">
                 @statusLabel <span class="item-count">(@itemCount)</span>
             </h3>
             
             @if (itemCount == 0)
             {
-                <div class="empty-state">No items</div>
+                <div class="work-item-empty-state">No items</div>
             }
             else
             {
                 <div class="work-item-list">
                     @foreach (var item in statusGroup)
                     {
-                        <div class="work-item">
-                            <div class="item-title">@item.Title</div>
+                        <div class="work-item-card">
+                            <div class="work-item-title">@item.Title</div>
                             @if (!string.IsNullOrWhiteSpace(item.Description))
                             {
-                                <div class="item-description" title="@item.Description">
+                                <div class="work-item-description" title="@item.Description">
                                     @TruncateDescription(item.Description)
                                 </div>
                             }
@@ -70,9 +70,12 @@
         if (string.IsNullOrEmpty(description))
             return string.Empty;
 
-        return description.Length > 100
-            ? description.Substring(0, 100) + "..."
-            : description;
+        if (description.Length > 100)
+        {
+            return description.Substring(0, 97) + "...";
+        }
+        
+        return description;
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
