@@ -1,118 +1,90 @@
 {
-  "project": {
-    "name": "Q2 Mobile App Release",
-    "description": "iOS and Android mobile app version 2.0 with new payment integration",
-    "startDate": "2026-04-01",
-    "endDate": "2026-06-30",
-    "status": "OnTrack",
-    "sponsor": "VP of Product",
-    "projectManager": "Jane Smith"
-  },
+  "projectName": "Executive Dashboard Initiative",
+  "projectStartDate": "2024-01-15T00:00:00Z",
+  "projectEndDate": "2024-06-30T00:00:00Z",
+  "completionPercentage": 65,
   "milestones": [
     {
-      "id": "m1",
-      "name": "Design Review Complete",
-      "targetDate": "2026-04-15",
-      "actualDate": "2026-04-12",
+      "name": "Requirements & Planning",
+      "targetDate": "2024-02-15T00:00:00Z",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
-      "id": "m2",
-      "name": "Development Sprint 1 Done",
-      "targetDate": "2026-05-01",
-      "actualDate": null,
-      "status": "InProgress",
-      "completionPercentage": 65
+      "name": "Design & Architecture",
+      "targetDate": "2024-03-15T00:00:00Z",
+      "status": "Completed",
+      "completionPercentage": 100
     },
     {
-      "id": "m3",
-      "name": "QA Testing Complete",
-      "targetDate": "2026-06-01",
-      "actualDate": null,
+      "name": "Core Development",
+      "targetDate": "2024-05-15T00:00:00Z",
+      "status": "InProgress",
+      "completionPercentage": 75
+    },
+    {
+      "name": "Testing & QA",
+      "targetDate": "2024-06-15T00:00:00Z",
       "status": "Pending",
       "completionPercentage": 0
     }
   ],
   "tasks": [
     {
-      "id": "t1",
-      "name": "API Authentication Module",
+      "id": "task-001",
+      "name": "User authentication module",
       "status": "Shipped",
-      "assignedTo": "John Doe",
-      "dueDate": "2026-04-20",
-      "estimatedDays": 5,
-      "relatedMilestone": "m1"
+      "assignedTo": "Alice Johnson",
+      "dueDate": "2024-02-28T00:00:00Z"
     },
     {
-      "id": "t2",
-      "name": "Payment Integration",
+      "id": "task-002",
+      "name": "Dashboard UI framework",
+      "status": "Shipped",
+      "assignedTo": "Bob Smith",
+      "dueDate": "2024-03-31T00:00:00Z"
+    },
+    {
+      "id": "task-003",
+      "name": "Data service integration",
+      "status": "Shipped",
+      "assignedTo": "Carol Davis",
+      "dueDate": "2024-04-15T00:00:00Z"
+    },
+    {
+      "id": "task-004",
+      "name": "Milestone timeline component",
       "status": "InProgress",
-      "assignedTo": "Alice Brown",
-      "dueDate": "2026-05-10",
-      "estimatedDays": 8,
-      "relatedMilestone": "m2"
+      "assignedTo": "David Wilson",
+      "dueDate": "2024-05-10T00:00:00Z"
     },
     {
-      "id": "t3",
-      "name": "iOS Push Notifications",
+      "id": "task-005",
+      "name": "Status cards implementation",
+      "status": "InProgress",
+      "assignedTo": "Emma Martinez",
+      "dueDate": "2024-05-15T00:00:00Z"
+    },
+    {
+      "id": "task-006",
+      "name": "Progress metrics visualization",
+      "status": "InProgress",
+      "assignedTo": "Frank Taylor",
+      "dueDate": "2024-05-20T00:00:00Z"
+    },
+    {
+      "id": "task-007",
+      "name": "Performance optimization",
       "status": "CarriedOver",
-      "assignedTo": "Bob Wilson",
-      "dueDate": "2026-05-15",
-      "estimatedDays": 6,
-      "relatedMilestone": "m2"
+      "assignedTo": "Grace Lee",
+      "dueDate": "2024-05-01T00:00:00Z"
     },
     {
-      "id": "t4",
-      "name": "Android UI Polish",
-      "status": "Shipped",
-      "assignedTo": "Sarah Johnson",
-      "dueDate": "2026-04-25",
-      "estimatedDays": 4,
-      "relatedMilestone": "m1"
-    },
-    {
-      "id": "t5",
-      "name": "Database Migration",
-      "status": "Shipped",
-      "assignedTo": "Mike Chen",
-      "dueDate": "2026-04-18",
-      "estimatedDays": 3,
-      "relatedMilestone": "m1"
-    },
-    {
-      "id": "t6",
-      "name": "Security Audit",
-      "status": "InProgress",
-      "assignedTo": "Emily Davis",
-      "dueDate": "2026-05-05",
-      "estimatedDays": 5,
-      "relatedMilestone": "m2"
-    },
-    {
-      "id": "t7",
-      "name": "Performance Testing",
-      "status": "InProgress",
-      "assignedTo": "David Martinez",
-      "dueDate": "2026-05-20",
-      "estimatedDays": 7,
-      "relatedMilestone": "m3"
-    },
-    {
-      "id": "t8",
-      "name": "Release Notes Documentation",
+      "id": "task-008",
+      "name": "Documentation update",
       "status": "CarriedOver",
-      "assignedTo": "Lisa Anderson",
-      "dueDate": "2026-06-15",
-      "estimatedDays": 2,
-      "relatedMilestone": "m3"
+      "assignedTo": "Henry Brown",
+      "dueDate": "2024-04-30T00:00:00Z"
     }
-  ],
-  "metrics": {
-    "totalTasks": 8,
-    "completedTasks": 3,
-    "inProgressTasks": 3,
-    "carriedOverTasks": 2,
-    "estimatedBurndownRate": 1.2
-  }
+  ]
 }
