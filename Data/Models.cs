@@ -7,7 +7,7 @@ public class ProjectData
 {
     public ProjectInfo? Project { get; set; }
     public List<Milestone> Milestones { get; set; } = new();
-    public List<ProjectTask> Tasks { get; set; } = new();
+    public List<Task> Tasks { get; set; } = new();
     public ProjectMetrics? Summary { get; set; }
 }
 
@@ -28,7 +28,7 @@ public class Milestone
     public int CompletionPercentage { get; set; }
 }
 
-public class ProjectTask
+public class Task
 {
     public string? Id { get; set; }
     public string? Name { get; set; }
@@ -47,9 +47,9 @@ public class ProjectMetrics
 
 public enum MilestoneStatus
 {
-    Pending,
-    InProgress,
-    Completed
+    Pending = 0,
+    InProgress = 1,
+    Completed = 2
 }
 
 public enum TaskStatus

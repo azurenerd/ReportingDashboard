@@ -2,6 +2,7 @@
 @using AgentSquad.Runner.Data
 @using AgentSquad.Runner.Services
 @inject ProjectDataService ProjectDataService
+@inject IWebHostEnvironment Environment
 
 <PageTitle>Executive Dashboard</PageTitle>
 
@@ -84,18 +85,27 @@
         {
             IsLoading = true;
             LoadError = false;
-            ProjectData = await ProjectDataService.LoadProjectDataAsync();
+            
+            var dataPath = Path.Combine(Environment.WebRootPath, "data.json");
+            ProjectData = await ProjectDataService.LoadProjectDataAsync(dataPath);
+            
+            IsLoading = false;
+        }
+        catch (DataLoadException ex)
+        {
+            LoadError = true;
+            ErrorMessage = ex.Message;
             IsLoading = false;
         }
         catch (Exception ex)
         {
             LoadError = true;
-            ErrorMessage = $"Failed to load dashboard data: {ex.Message}";
+            ErrorMessage = $"An unexpected error occurred: {ex.Message}";
             IsLoading = false;
         }
     }
 
-    private List<ProjectTask> GetTasksByStatus(TaskStatus status)
+    private List<Task> GetTasksByStatus(TaskStatus status)
     {
         return ProjectData?.Tasks?.Where(t => t.Status == status).ToList() ?? new();
     }
