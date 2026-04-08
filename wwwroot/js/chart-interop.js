@@ -4,12 +4,17 @@ window.ChartInterop = {
             const canvas = document.getElementById(canvasElementId);
             if (!canvas) {
                 console.error(`Canvas element with id '${canvasElementId}' not found`);
-                return null;
+                return false;
             }
 
-            const existingChart = Chart.helpers?.instances?.find(c => c.canvas.id === canvasElementId);
-            if (existingChart) {
-                existingChart.destroy();
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js library is not loaded');
+                return false;
+            }
+
+            const existingChart = window.__charts = window.__charts || {};
+            if (existingChart[canvasElementId]) {
+                existingChart[canvasElementId].destroy();
             }
 
             const ctx = canvas.getContext('2d');
@@ -97,19 +102,22 @@ window.ChartInterop = {
                 }
             });
 
-            return chart;
+            existingChart[canvasElementId] = chart;
+            console.log(`Burn-down chart initialized successfully for ${canvasElementId}`);
+            return true;
         } catch (error) {
             console.error('Error initializing burn-down chart:', error);
-            return null;
+            return false;
         }
     },
 
     destroyChart: function(canvasElementId) {
         try {
-            const canvas = document.getElementById(canvasElementId);
-            if (canvas && canvas.__chart) {
-                canvas.__chart.destroy();
-                delete canvas.__chart;
+            const existingCharts = window.__charts = window.__charts || {};
+            if (existingCharts[canvasElementId]) {
+                existingCharts[canvasElementId].destroy();
+                delete existingCharts[canvasElementId];
+                console.log(`Chart ${canvasElementId} destroyed successfully`);
             }
         } catch (error) {
             console.error('Error destroying chart:', error);

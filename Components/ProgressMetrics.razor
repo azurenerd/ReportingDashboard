@@ -33,7 +33,39 @@
 
                     <div class="burndown-section">
                         <h4 class="text-muted mb-3">Burn-down Chart</h4>
-                        <canvas id="burndownChart" width="400" height="150"></canvas>
+                        @if (ChartInitialized)
+                        {
+                            <canvas id="burndownChart" width="400" height="150"></canvas>
+                        }
+                        else if (ChartError)
+                        {
+                            <div class="alert alert-info" role="alert">
+                                <p class="mb-0">Chart.js is not available. Showing burn-down summary:</p>
+                                <table class="table table-sm mt-2 mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Day</th>
+                                            <th>Tasks Remaining</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var dataPoint in FallbackBurndownData)
+                                        {
+                                            <tr>
+                                                <td>@dataPoint.Key</td>
+                                                <td>@dataPoint.Value</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading chart...</span>
+                            </div>
+                        }
                     </div>
                 </div>
             }
@@ -59,6 +91,10 @@
     [Parameter]
     public ProjectMetrics Metrics { get; set; }
 
+    private bool ChartInitialized { get; set; }
+    private bool ChartError { get; set; }
+    private Dictionary<string, int> FallbackBurndownData { get; set; } = new();
+
     protected override async Task OnInitializedAsync()
     {
         if (Metrics != null)
@@ -78,15 +114,56 @@
         {
             try
             {
+                Logger.LogInformation("Initializing burn-down chart for ProgressMetrics");
+                
                 var labels = GenerateSampleLabels();
                 var data = GenerateSampleBurndownData();
                 
-                await JSRuntime.InvokeVoidAsync("ChartInterop.initializeBurndownChart", "burndownChart", labels, data);
-                Logger.LogInformation("Burn-down chart initialized successfully");
+                FallbackBurndownData = new Dictionary<string, int>();
+                for (int i = 0; i < labels.Count && i < data.Count; i++)
+                {
+                    FallbackBurndownData[labels[i]] = data[i];
+                }
+
+                var result = await JSRuntime.InvokeAsync<bool>("ChartInterop.initializeBurndownChart", 
+                    "burndownChart", labels.ToArray(), data.ToArray());
+
+                if (result)
+                {
+                    ChartInitialized = true;
+                    Logger.LogInformation("Burn-down chart initialized successfully");
+                }
+                else
+                {
+                    ChartError = true;
+                    Logger.LogWarning("Burn-down chart initialization returned false");
+                }
+
+                StateHasChanged();
+            }
+            catch (JSDisconnectedException ex)
+            {
+                ChartError = true;
+                Logger.LogError(ex, "JavaScript connection lost during chart initialization");
+                StateHasChanged();
+            }
+            catch (JSException ex)
+            {
+                ChartError = true;
+                Logger.LogError(ex, "JavaScript error during chart initialization: {Message}", ex.Message);
+                StateHasChanged();
+            }
+            catch (TaskCanceledException ex)
+            {
+                ChartError = true;
+                Logger.LogError(ex, "Chart initialization timed out");
+                StateHasChanged();
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error initializing burn-down chart via JavaScript interop");
+                ChartError = true;
+                Logger.LogError(ex, "Unexpected error initializing burn-down chart");
+                StateHasChanged();
             }
         }
     }
@@ -95,16 +172,24 @@
     {
         var labels = new List<string>();
         var startDate = Metrics.ProjectStartDate;
-        var days = (int)(Metrics.ProjectEndDate - startDate).TotalDays;
+        var endDate = Metrics.ProjectEndDate;
+        var totalDays = (int)(endDate - startDate).TotalDays;
         
-        for (int i = 0; i <= Math.Min(days, 30); i += Math.Max(1, days / 7))
+        var dayInterval = Math.Max(1, totalDays / 7);
+
+        for (int i = 0; i <= totalDays; i += dayInterval)
         {
             labels.Add(startDate.AddDays(i).ToString("MM-dd"));
         }
-        
-        if (!labels.Contains(Metrics.ProjectEndDate.ToString("MM-dd")))
+
+        if (!labels.Contains(endDate.ToString("MM-dd")) && totalDays > 0)
         {
-            labels.Add(Metrics.ProjectEndDate.ToString("MM-dd"));
+            labels.Add(endDate.ToString("MM-dd"));
+        }
+
+        if (labels.Count == 0)
+        {
+            labels.Add(DateTime.Now.ToString("MM-dd"));
         }
 
         return labels;
@@ -116,13 +201,20 @@
         var completedTasks = Metrics.CompletedTasks;
         var tasksRemaining = Metrics.TotalTasks - completedTasks;
         var daysRemaining = (int)(Metrics.ProjectEndDate - DateTime.Now).TotalDays;
-        var dailyBurnRate = daysRemaining > 0 ? tasksRemaining / (double)daysRemaining : 0;
+        
+        if (daysRemaining <= 0)
+        {
+            daysRemaining = 1;
+        }
 
-        int remainingTasks = tasksRemaining;
+        var idealDailyBurnRate = tasksRemaining / (double)daysRemaining;
+
+        int currentRemaining = tasksRemaining;
+        
         for (int i = 0; i < 8; i++)
         {
-            data.Add(Math.Max(0, remainingTasks));
-            remainingTasks = (int)(remainingTasks - dailyBurnRate);
+            data.Add(Math.Max(0, currentRemaining));
+            currentRemaining = (int)(currentRemaining - idealDailyBurnRate);
         }
 
         return data;
@@ -157,5 +249,10 @@
     #burndownChart {
         max-width: 100%;
         height: auto;
+    }
+
+    .spinner-border {
+        width: 2rem;
+        height: 2rem;
     }
 </style>
