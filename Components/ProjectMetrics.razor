@@ -1,4 +1,5 @@
 @using AgentSquad.Runner.Models
+@using System.Linq
 
 <div class="metrics-grid">
     <div class="metric-card">
@@ -24,14 +25,26 @@
 
     <div class="metric-card">
         <div class="metric-label">Milestones Completed</div>
-        <div class="metric-value-large">@ProjectMetrics.CompletedMilestones/@ProjectMetrics.TotalMilestones</div>
-        <div class="metric-unit">@(ProjectMetrics.TotalMilestones == 1 ? "milestone" : "milestones")</div>
+        <div class="metric-value-large">@CompletedMilestones/@TotalMilestones</div>
+        <div class="metric-unit">@(TotalMilestones == 1 ? "milestone" : "milestones")</div>
     </div>
 </div>
 
 @code {
     [Parameter]
     public ProjectMetrics ProjectMetrics { get; set; }
+
+    [Parameter]
+    public List<Milestone> Milestones { get; set; } = new();
+
+    private int CompletedMilestones { get; set; }
+    private int TotalMilestones { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        TotalMilestones = Milestones.Count;
+        CompletedMilestones = Milestones.Count(m => m.Status == MilestoneStatus.Completed);
+    }
 
     private string GetHealthLabel(HealthStatus health)
     {

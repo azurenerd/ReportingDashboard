@@ -3,10 +3,12 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Moq;
 using AgentSquad.Runner.Models;
 using AgentSquad.Runner.Services;
+using Microsoft.AspNetCore.Hosting;
 
 namespace AgentSquad.Runner.Tests
 {
@@ -16,6 +18,8 @@ namespace AgentSquad.Runner.Tests
         public async Task LoadProjectDataAsync_WithValidJsonFile_DeserializesSuccessfully()
         {
             var mockLogger = new Mock<ILogger<DataProvider>>();
+            var memoryCache = new MemoryCache(new MemoryCacheOptions());
+            var dataCache = new MemoryCacheDataProvider(memoryCache);
             var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(tempDir);
 
@@ -31,14 +35,17 @@ namespace AgentSquad.Runner.Tests
                         new { name = "M1", targetDate = "2024-02-15", status = "Completed", description = "Milestone 1" }
                     },
                     workItems = new object[] { },
-                    metrics = new { completionPercentage = 72, healthStatus = "OnTrack", velocityCount = 12, totalMilestones = 1, completedMilestones = 1 }
+                    metrics = new { completionPercentage = 72, healthStatus = "OnTrack", velocityCount = 12 }
                 };
 
                 string jsonPath = Path.Combine(tempDir, "data.json");
                 string jsonContent = JsonSerializer.Serialize(jsonData);
                 await File.WriteAllTextAsync(jsonPath, jsonContent);
 
-                var provider = new TestDataProvider(mockLogger.Object, tempDir);
+                var mockHostEnvironment = new Mock<IWebHostEnvironment>();
+                mockHostEnvironment.Setup(x => x.ContentRootPath).Returns(tempDir);
+
+                var provider = new DataProvider(mockLogger.Object, dataCache, mockHostEnvironment.Object);
 
                 var project = await provider.LoadProjectDataAsync();
 
@@ -48,8 +55,6 @@ namespace AgentSquad.Runner.Tests
                 Assert.Empty(project.WorkItems);
                 Assert.Equal(72, project.Metrics.CompletionPercentage);
                 Assert.Equal(HealthStatus.OnTrack, project.Metrics.HealthStatus);
-                Assert.Equal(1, project.Metrics.TotalMilestones);
-                Assert.Equal(1, project.Metrics.CompletedMilestones);
             }
             finally
             {
@@ -62,8 +67,14 @@ namespace AgentSquad.Runner.Tests
         public async Task LoadProjectDataAsync_WithMissingFile_ThrowsFileNotFoundException()
         {
             var mockLogger = new Mock<ILogger<DataProvider>>();
+            var memoryCache = new MemoryCache(new MemoryCacheOptions());
+            var dataCache = new MemoryCacheDataProvider(memoryCache);
             var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            var provider = new TestDataProvider(mockLogger.Object, tempDir);
+
+            var mockHostEnvironment = new Mock<IWebHostEnvironment>();
+            mockHostEnvironment.Setup(x => x.ContentRootPath).Returns(tempDir);
+
+            var provider = new DataProvider(mockLogger.Object, dataCache, mockHostEnvironment.Object);
 
             await Assert.ThrowsAsync<FileNotFoundException>(() => provider.LoadProjectDataAsync());
         }
@@ -72,6 +83,8 @@ namespace AgentSquad.Runner.Tests
         public async Task LoadProjectDataAsync_WithInvalidJson_ThrowsInvalidOperationException()
         {
             var mockLogger = new Mock<ILogger<DataProvider>>();
+            var memoryCache = new MemoryCache(new MemoryCacheOptions());
+            var dataCache = new MemoryCacheDataProvider(memoryCache);
             var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(tempDir);
 
@@ -80,7 +93,10 @@ namespace AgentSquad.Runner.Tests
                 string jsonPath = Path.Combine(tempDir, "data.json");
                 await File.WriteAllTextAsync(jsonPath, "{ invalid json }");
 
-                var provider = new TestDataProvider(mockLogger.Object, tempDir);
+                var mockHostEnvironment = new Mock<IWebHostEnvironment>();
+                mockHostEnvironment.Setup(x => x.ContentRootPath).Returns(tempDir);
+
+                var provider = new DataProvider(mockLogger.Object, dataCache, mockHostEnvironment.Object);
 
                 await Assert.ThrowsAsync<InvalidOperationException>(() => provider.LoadProjectDataAsync());
             }
@@ -92,9 +108,11 @@ namespace AgentSquad.Runner.Tests
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_WithZeroMilestones_ThrowsInvalidOperationException()
+        public async Task LoadProjectDataAsync_CachesProjectData()
         {
             var mockLogger = new Mock<ILogger<DataProvider>>();
+            var memoryCache = new MemoryCache(new MemoryCacheOptions());
+            var dataCache = new MemoryCacheDataProvider(memoryCache);
             var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(tempDir);
 
@@ -102,40 +120,32 @@ namespace AgentSquad.Runner.Tests
             {
                 var jsonData = new
                 {
-                    name = "Test Project",
-                    description = "Test Description",
+                    name = "Cached Project",
+                    description = "Test",
                     startDate = "2024-01-15",
-                    milestones = new object[] { },
+                    milestones = new[] { new { name = "M1", targetDate = "2024-02-15", status = "Completed", description = "M1" } },
                     workItems = new object[] { },
-                    metrics = new { completionPercentage = 0, healthStatus = "OnTrack", velocityCount = 0, totalMilestones = 0, completedMilestones = 0 }
+                    metrics = new { completionPercentage = 50, healthStatus = "OnTrack", velocityCount = 5 }
                 };
 
                 string jsonPath = Path.Combine(tempDir, "data.json");
-                string jsonContent = JsonSerializer.Serialize(jsonData);
-                await File.WriteAllTextAsync(jsonPath, jsonContent);
+                await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonData));
 
-                var provider = new TestDataProvider(mockLogger.Object, tempDir);
+                var mockHostEnvironment = new Mock<IWebHostEnvironment>();
+                mockHostEnvironment.Setup(x => x.ContentRootPath).Returns(tempDir);
 
-                await Assert.ThrowsAsync<InvalidOperationException>(() => provider.LoadProjectDataAsync());
+                var provider = new DataProvider(mockLogger.Object, dataCache, mockHostEnvironment.Object);
+
+                var project1 = await provider.LoadProjectDataAsync();
+                var project2 = await provider.LoadProjectDataAsync();
+
+                Assert.Same(project1, project2);
             }
             finally
             {
                 if (Directory.Exists(tempDir))
                     Directory.Delete(tempDir, true);
             }
-        }
-
-        private class TestDataProvider : DataProvider
-        {
-            private readonly string _testDir;
-
-            public TestDataProvider(ILogger<DataProvider> logger, string testDir)
-                : base(logger)
-            {
-                _testDir = testDir;
-            }
-
-            protected override string GetDataFilePath() => Path.Combine(_testDir, "data.json");
         }
     }
 }

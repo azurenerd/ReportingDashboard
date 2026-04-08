@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using AgentSquad.Runner.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace AgentSquad.Runner.Services
@@ -11,31 +12,36 @@ namespace AgentSquad.Runner.Services
     public class DataProvider : IDataProvider
     {
         private readonly ILogger<DataProvider> _logger;
-        private readonly string _dataFilePath;
-        private Project _cachedProject;
+        private readonly IDataCache _dataCache;
+        private readonly IWebHostEnvironment _hostEnvironment;
+        private const string CacheKey = "project_data";
 
-        public DataProvider(ILogger<DataProvider> logger)
+        public DataProvider(ILogger<DataProvider> logger, IDataCache dataCache, IWebHostEnvironment hostEnvironment)
         {
             _logger = logger;
-            _dataFilePath = GetDataFilePath();
-        }
-
-        protected virtual string GetDataFilePath()
-        {
-            return Path.Combine(AppContext.BaseDirectory, "data.json");
+            _dataCache = dataCache;
+            _hostEnvironment = hostEnvironment;
         }
 
         public async Task<Project> LoadProjectDataAsync()
         {
             try
             {
-                if (!File.Exists(_dataFilePath))
+                if (_dataCache.TryGetValue<Project>(CacheKey, out var cachedProject))
                 {
-                    _logger.LogError($"data.json not found at: {_dataFilePath}");
-                    throw new FileNotFoundException($"Data file not found: {_dataFilePath}");
+                    _logger.LogInformation("Retrieved project data from cache");
+                    return cachedProject;
                 }
 
-                string jsonContent = await File.ReadAllTextAsync(_dataFilePath);
+                string dataFilePath = Path.Combine(_hostEnvironment.ContentRootPath, "data.json");
+
+                if (!File.Exists(dataFilePath))
+                {
+                    _logger.LogError($"data.json not found at: {dataFilePath}");
+                    throw new FileNotFoundException($"Data file not found: {dataFilePath}");
+                }
+
+                string jsonContent = await File.ReadAllTextAsync(dataFilePath);
 
                 var options = new JsonSerializerOptions
                 {
@@ -43,22 +49,24 @@ namespace AgentSquad.Runner.Services
                     Converters = { new JsonStringEnumConverter() }
                 };
 
-                _cachedProject = JsonSerializer.Deserialize<Project>(jsonContent, options);
+                var project = JsonSerializer.Deserialize<Project>(jsonContent, options);
 
-                if (_cachedProject == null)
+                if (project == null)
                 {
                     _logger.LogError("Failed to deserialize data.json: result was null");
                     throw new InvalidOperationException("Deserialization resulted in null project");
                 }
 
-                ValidateProjectData(_cachedProject);
+                ValidateProjectData(project);
+
+                _dataCache.Set(CacheKey, project);
 
                 _logger.LogInformation(
-                    $"Successfully loaded project data: {_cachedProject.Name} " +
-                    $"with {_cachedProject.Milestones.Count} milestones and " +
-                    $"{_cachedProject.WorkItems.Count} work items");
+                    $"Successfully loaded project data: {project.Name} " +
+                    $"with {project.Milestones.Count} milestones and " +
+                    $"{project.WorkItems.Count} work items");
 
-                return _cachedProject;
+                return project;
             }
             catch (JsonException ex)
             {
@@ -74,12 +82,12 @@ namespace AgentSquad.Runner.Services
 
         public Project GetCachedProjectData()
         {
-            if (_cachedProject == null)
+            if (_dataCache.TryGetValue<Project>(CacheKey, out var cachedProject))
             {
-                _logger.LogWarning("Attempted to access cached project data before loading");
-                return null;
+                return cachedProject;
             }
-            return _cachedProject;
+            _logger.LogWarning("Attempted to access cached project data before loading");
+            return null;
         }
 
         private void ValidateProjectData(Project project)
@@ -105,15 +113,6 @@ namespace AgentSquad.Runner.Services
 
                 if (project.Metrics.VelocityCount < 0)
                     errors.Add("VelocityCount must be non-negative");
-
-                if (project.Metrics.TotalMilestones < 0)
-                    errors.Add("TotalMilestones must be non-negative");
-
-                if (project.Metrics.CompletedMilestones < 0)
-                    errors.Add("CompletedMilestones must be non-negative");
-
-                if (project.Metrics.CompletedMilestones > project.Metrics.TotalMilestones)
-                    errors.Add("CompletedMilestones cannot exceed TotalMilestones");
             }
 
             if (errors.Count > 0)
