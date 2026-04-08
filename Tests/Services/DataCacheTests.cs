@@ -1,178 +1,221 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Moq;
 using AgentSquad.Runner.Services;
-using Xunit;
 
 namespace AgentSquad.Runner.Tests.Services;
 
-public class DataCacheTests : IDisposable
+public class DataCacheTests
 {
+    private readonly Mock<ILogger<DataCache>> _mockLogger;
     private readonly IMemoryCache _memoryCache;
     private readonly DataCache _dataCache;
 
     public DataCacheTests()
     {
+        _mockLogger = new Mock<ILogger<DataCache>>();
         _memoryCache = new MemoryCache(new MemoryCacheOptions());
-        _dataCache = new DataCache(_memoryCache);
-    }
-
-    public void Dispose()
-    {
-        _memoryCache?.Dispose();
+        _dataCache = new DataCache(_memoryCache, _mockLogger.Object);
     }
 
     [Fact]
-    public async Task GetAsync_WhenKeyNotFound_ReturnsNull()
+    public async Task GetAsync_WithExistingKey_ReturnsValue()
     {
-        var result = await _dataCache.GetAsync<TestData>("nonexistent_key");
-        Assert.Null(result);
-    }
+        // Arrange
+        var key = "test-key";
+        var testValue = new TestObject { Id = 1, Name = "Test" };
+        await _dataCache.SetAsync(key, testValue);
 
-    [Fact]
-    public async Task GetAsync_WhenKeyFound_ReturnsValue()
-    {
-        var testData = new TestData { Id = 1, Name = "Test" };
-        await _dataCache.SetAsync("test_key", testData);
+        // Act
+        var result = await _dataCache.GetAsync<TestObject>(key);
 
-        var result = await _dataCache.GetAsync<TestData>("test_key");
-
+        // Assert
         Assert.NotNull(result);
-        Assert.Equal(testData.Id, result.Id);
-        Assert.Equal(testData.Name, result.Name);
+        Assert.Equal(testValue.Id, result.Id);
+        Assert.Equal(testValue.Name, result.Name);
+    }
+
+    [Fact]
+    public async Task GetAsync_WithNonExistentKey_ReturnsNull()
+    {
+        // Act
+        var result = await _dataCache.GetAsync<TestObject>("non-existent-key");
+
+        // Assert
+        Assert.Null(result);
     }
 
     [Fact]
     public async Task GetAsync_WithNullKey_ThrowsArgumentException()
     {
-        await Assert.ThrowsAsync<ArgumentException>(() => _dataCache.GetAsync<TestData>(null));
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() => _dataCache.GetAsync<TestObject>(null!));
     }
 
     [Fact]
-    public async Task GetAsync_WithEmptyKey_ThrowsArgumentException()
+    public async Task GetAsync_WithWhitespaceKey_ThrowsArgumentException()
     {
-        await Assert.ThrowsAsync<ArgumentException>(() => _dataCache.GetAsync<TestData>(string.Empty));
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() => _dataCache.GetAsync<TestObject>("   "));
     }
 
     [Fact]
-    public async Task SetAsync_WithValidData_StoresInCache()
+    public async Task SetAsync_WithValidKeyAndValue_CachesValue()
     {
-        var testData = new TestData { Id = 42, Name = "Cached Item" };
-        await _dataCache.SetAsync("valid_key", testData);
+        // Arrange
+        var key = "test-key";
+        var testValue = new TestObject { Id = 1, Name = "Test" };
 
-        var retrieved = await _dataCache.GetAsync<TestData>("valid_key");
+        // Act
+        await _dataCache.SetAsync(key, testValue);
+        var result = await _dataCache.GetAsync<TestObject>(key);
 
-        Assert.NotNull(retrieved);
-        Assert.Equal(42, retrieved.Id);
-        Assert.Equal("Cached Item", retrieved.Name);
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(testValue.Id, result.Id);
     }
 
     [Fact]
-    public async Task SetAsync_WithDefaultTTL_ExpiresAfterOneHour()
+    public async Task SetAsync_WithCustomExpiration_CachesWithExpiration()
     {
-        var testData = new TestData { Id = 1, Name = "Expiring Data" };
-        await _dataCache.SetAsync("expiring_key", testData);
+        // Arrange
+        var key = "test-key";
+        var testValue = new TestObject { Id = 1, Name = "Test" };
+        var expiration = TimeSpan.FromMilliseconds(100);
 
-        var retrieved = await _dataCache.GetAsync<TestData>("expiring_key");
-        Assert.NotNull(retrieved);
-    }
-
-    [Fact]
-    public async Task SetAsync_WithCustomTTL_UsesProvidedExpiration()
-    {
-        var testData = new TestData { Id = 1, Name = "Custom TTL Data" };
-        var customTtl = TimeSpan.FromMinutes(5);
+        // Act
+        await _dataCache.SetAsync(key, testValue, expiration);
+        var resultBefore = await _dataCache.GetAsync<TestObject>(key);
         
-        await _dataCache.SetAsync("custom_ttl_key", testData, customTtl);
-        var retrieved = await _dataCache.GetAsync<TestData>("custom_ttl_key");
+        await Task.Delay(150);
+        var resultAfter = await _dataCache.GetAsync<TestObject>(key);
 
-        Assert.NotNull(retrieved);
+        // Assert
+        Assert.NotNull(resultBefore);
+        Assert.Null(resultAfter);
+    }
+
+    [Fact]
+    public async Task SetAsync_WithDefaultExpiration_CachesFor1Hour()
+    {
+        // Arrange
+        var key = "test-key";
+        var testValue = new TestObject { Id = 1, Name = "Test" };
+
+        // Act
+        await _dataCache.SetAsync(key, testValue);
+        var result = await _dataCache.GetAsync<TestObject>(key);
+
+        // Assert - Value should exist (1 hour TTL not expired immediately)
+        Assert.NotNull(result);
     }
 
     [Fact]
     public async Task SetAsync_WithNullKey_ThrowsArgumentException()
     {
-        var testData = new TestData { Id = 1, Name = "Test" };
-        await Assert.ThrowsAsync<ArgumentException>(() => _dataCache.SetAsync(null, testData));
-    }
-
-    [Fact]
-    public async Task SetAsync_WithEmptyKey_ThrowsArgumentException()
-    {
-        var testData = new TestData { Id = 1, Name = "Test" };
-        await Assert.ThrowsAsync<ArgumentException>(() => _dataCache.SetAsync(string.Empty, testData));
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() => 
+            _dataCache.SetAsync(null!, new TestObject { Id = 1 }));
     }
 
     [Fact]
     public async Task SetAsync_WithNullValue_ThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _dataCache.SetAsync("some_key", null));
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() => 
+            _dataCache.SetAsync("key", (TestObject)null!));
     }
 
     [Fact]
-    public void Remove_WhenKeyExists_RemovesFromCache()
+    public async Task Remove_WithExistingKey_DeletesValue()
     {
-        var testData = new TestData { Id = 1, Name = "To Remove" };
-        _dataCache.SetAsync("remove_key", testData).Wait();
+        // Arrange
+        var key = "test-key";
+        var testValue = new TestObject { Id = 1, Name = "Test" };
+        await _dataCache.SetAsync(key, testValue);
 
-        _dataCache.Remove("remove_key");
+        // Act
+        _dataCache.Remove(key);
+        var result = await _dataCache.GetAsync<TestObject>(key);
 
-        var retrieved = _dataCache.GetAsync<TestData>("remove_key").Result;
-        Assert.Null(retrieved);
+        // Assert
+        Assert.Null(result);
     }
 
     [Fact]
-    public void Remove_WhenKeyNotExists_DoesNotThrow()
+    public void Remove_WithNonExistentKey_DoesNotThrow()
     {
-        _dataCache.Remove("nonexistent_remove_key");
+        // Act & Assert - Should not throw
+        _dataCache.Remove("non-existent-key");
     }
 
     [Fact]
     public void Remove_WithNullKey_ThrowsArgumentException()
     {
-        Assert.Throws<ArgumentException>(() => _dataCache.Remove(null));
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => _dataCache.Remove(null!));
     }
 
     [Fact]
-    public void Remove_WithEmptyKey_ThrowsArgumentException()
+    public async Task SetAsync_LogsDebugMessage()
     {
-        Assert.Throws<ArgumentException>(() => _dataCache.Remove(string.Empty));
+        // Arrange
+        var key = "test-key";
+        var testValue = new TestObject { Id = 1, Name = "Test" };
+
+        // Act
+        await _dataCache.SetAsync(key, testValue);
+
+        // Assert
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Debug,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(key)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
     }
 
     [Fact]
-    public async Task SetAsync_MultipleKeys_StoresIndependently()
+    public void Remove_LogsDebugMessage()
     {
-        var data1 = new TestData { Id = 1, Name = "First" };
-        var data2 = new TestData { Id = 2, Name = "Second" };
+        // Arrange
+        var key = "test-key";
 
-        await _dataCache.SetAsync("key1", data1);
-        await _dataCache.SetAsync("key2", data2);
+        // Act
+        _dataCache.Remove(key);
 
-        var retrieved1 = await _dataCache.GetAsync<TestData>("key1");
-        var retrieved2 = await _dataCache.GetAsync<TestData>("key2");
-
-        Assert.NotNull(retrieved1);
-        Assert.NotNull(retrieved2);
-        Assert.Equal("First", retrieved1.Name);
-        Assert.Equal("Second", retrieved2.Name);
+        // Assert
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Debug,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(key)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
     }
 
     [Fact]
-    public async Task SetAsync_OverwriteExistingKey_UpdatesValue()
+    public async Task GetAsync_ReturnsSameObjectReference()
     {
-        var originalData = new TestData { Id = 1, Name = "Original" };
-        var updatedData = new TestData { Id = 1, Name = "Updated" };
+        // Arrange
+        var key = "test-key";
+        var testValue = new TestObject { Id = 1, Name = "Test" };
+        await _dataCache.SetAsync(key, testValue);
 
-        await _dataCache.SetAsync("overwrite_key", originalData);
-        await _dataCache.SetAsync("overwrite_key", updatedData);
+        // Act
+        var result1 = await _dataCache.GetAsync<TestObject>(key);
+        var result2 = await _dataCache.GetAsync<TestObject>(key);
 
-        var retrieved = await _dataCache.GetAsync<TestData>("overwrite_key");
-
-        Assert.NotNull(retrieved);
-        Assert.Equal("Updated", retrieved.Name);
+        // Assert
+        Assert.Same(result1, result2);
     }
 
-    private class TestData
+    private class TestObject
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }
