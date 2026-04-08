@@ -1,0 +1,13 @@
+# Browserslist configuration for cross-browser compatibility
+# Used by autoprefixer and other tools to determine which CSS prefixes to include
+
+# Target latest 2 versions of major browsers
+last 2 versions
+
+# Include IE 11 for extended compatibility (if needed)
+# ie >= 11
+
+# Exclude dead browsers
+not dead
+
+# Not supporting very old versions

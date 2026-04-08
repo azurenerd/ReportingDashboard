@@ -1,0 +1,123 @@
+{
+  "version": "1.0.0",
+  "description": "Executive Dashboard Static Asset Manifest",
+  "assets": {
+    "html": [
+      {
+        "path": "index.html",
+        "type": "text/html; charset=utf-8",
+        "size_kb": "~3",
+        "cache_control": "public, max-age=3600",
+        "purpose": "Blazor Server entry point"
+      }
+    ],
+    "stylesheets": [
+      {
+        "path": "css/site.css",
+        "type": "text/css",
+        "size_kb": "~25",
+        "cache_control": "public, max-age=2592000, immutable",
+        "purpose": "Main dashboard styles, responsive layout, component styling"
+      },
+      {
+        "path": "css/print.css",
+        "type": "text/css",
+        "size_kb": "~8",
+        "cache_control": "public, max-age=2592000, immutable",
+        "purpose": "Print optimization, PowerPoint export, screenshot cleanup"
+      }
+    ],
+    "scripts": [
+      {
+        "path": "js/utils.js",
+        "type": "application/javascript",
+        "size_kb": "~4",
+        "cache_control": "public, max-age=2592000, immutable",
+        "purpose": "Dashboard utility functions (date formatting, status colors)"
+      },
+      {
+        "path": "js/charts.js",
+        "type": "application/javascript",
+        "size_kb": "~6",
+        "cache_control": "public, max-age=2592000, immutable",
+        "purpose": "Chart.js initialization, timeline/metrics visualization"
+      },
+      {
+        "path": "js/dashboard.js",
+        "type": "application/javascript",
+        "size_kb": "~5",
+        "cache_control": "public, max-age=2592000, immutable",
+        "purpose": "Dashboard application logic, data loading"
+      }
+    ],
+    "data": [
+      {
+        "path": "data/data.json",
+        "type": "application/json",
+        "size_kb": "~10-50 (varies)",
+        "cache_control": "public, max-age=0, must-revalidate",
+        "purpose": "Project metrics, milestones, work items configuration",
+        "note": "No cache - always fresh on page load"
+      }
+    ],
+    "cdn": [
+      {
+        "name": "Bootstrap 5",
+        "url": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
+        "purpose": "Responsive grid utilities",
+        "fallback": "System fonts, custom grid"
+      },
+      {
+        "name": "Google Fonts - Inter",
+        "url": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800",
+        "purpose": "Cross-browser font rendering",
+        "fallback": "System font stack (-apple-system, Segoe UI, Roboto, etc.)"
+      },
+      {
+        "name": "Chart.js",
+        "url": "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js",
+        "purpose": "Milestone timeline visualization",
+        "fallback": "None (required for timeline)"
+      }
+    ]
+  },
+  "total_local_assets_kb": 48,
+  "mime_types_configured": [
+    "text/html",
+    "text/css",
+    "application/javascript",
+    "application/json",
+    "image/svg+xml",
+    "image/x-icon",
+    "font/woff2",
+    "font/woff"
+  ],
+  "caching_strategy": {
+    "html": "Short cache (1 hour) - detect updates quickly",
+    "static_assets": "Long cache (30 days) - performance optimized",
+    "data": "No cache - always fresh",
+    "fonts": "Very long cache (1 year) - CDN delivered"
+  },
+  "print_optimization": {
+    "print_css": "css/print.css",
+    "color_adjust": "exact",
+    "page_breaks": "managed",
+    "resolutions": [
+      "1024x768 (minimum)",
+      "1280x720 (PowerPoint HD)",
+      "1920x1080 (4K optimal)"
+    ]
+  },
+  "verification_checklist": [
+    "index.html loads without 404",
+    "site.css and print.css load (200 OK)",
+    "All .js files execute without errors",
+    "Google Fonts CDN accessible",
+    "Chart.js CDN accessible",
+    "Bootstrap CDN accessible",
+    "Print preview shows preserved colors",
+    "No MIME type warnings in browser console",
+    "Responsive at 1024x768, 1280x720, 1920x1080",
+    "Cache headers correct per caching_strategy"
+  ]
+}
