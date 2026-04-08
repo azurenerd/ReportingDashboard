@@ -1,85 +1,98 @@
-@using AgentSquad.Models
-@implements IAsyncDisposable
+@using AgentSquad.Runner.Models
 
 <div class="work-item-summary">
-    @foreach (var statusGroup in GroupedWorkItems)
-    {
-        var statusLabel = GetStatusLabel(statusGroup.Key);
-        var itemCount = statusGroup.Count();
-        
-        <div class="work-item-column">
-            <h3 class="work-item-column-header">
-                @statusLabel <span class="item-count">(@itemCount)</span>
-            </h3>
-            
-            @if (itemCount == 0)
-            {
-                <div class="work-item-empty-state">No items</div>
-            }
-            else
-            {
-                <div class="work-item-list">
-                    @foreach (var item in statusGroup)
-                    {
-                        <div class="work-item-card">
-                            <div class="work-item-title">@item.Title</div>
-                            @if (!string.IsNullOrWhiteSpace(item.Description))
-                            {
-                                <div class="work-item-description" title="@item.Description">
-                                    @TruncateDescription(item.Description)
-                                </div>
-                            }
-                        </div>
-                    }
+    <div class="columns-container">
+        @foreach (var statusGroup in GroupedWorkItems)
+        {
+            <div class="status-column" style="background-color: @GetColumnBackgroundColor(statusGroup.Key);">
+                <div class="column-header">
+                    <h3>@FormatStatusName(statusGroup.Key)</h3>
+                    <span class="item-count">(@statusGroup.Count())</span>
                 </div>
-            }
-        </div>
-    }
+                
+                @if (statusGroup.Count() == 0)
+                {
+                    <div class="no-items-placeholder">No items</div>
+                }
+                else
+                {
+                    <div class="items-list">
+                        @foreach (var item in statusGroup)
+                        {
+                            <div class="work-item">
+                                <div class="item-title">@item.Title</div>
+                                @if (!string.IsNullOrWhiteSpace(item.AssignedTo))
+                                {
+                                    <div class="item-assigned-to">@item.AssignedTo</div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <div class="item-description">@TruncateDescription(item.Description)</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
 </div>
 
 @code {
     [Parameter]
     public List<WorkItem> WorkItems { get; set; } = new();
 
-    private IEnumerable<IGrouping<WorkItemStatus, WorkItem>> GroupedWorkItems { get; set; } = Enumerable.Empty<IGrouping<WorkItemStatus, WorkItem>>();
+    private IEnumerable<IGrouping<WorkItemStatus, WorkItem>> GroupedWorkItems => 
+        WorkItems?.GroupByStatus() ?? Enumerable.Empty<IGrouping<WorkItemStatus, WorkItem>>();
 
-    protected override void OnParametersSet()
+    private string TruncateDescription(string description)
     {
-        if (WorkItems == null || WorkItems.Count == 0)
-        {
-            GroupedWorkItems = Enumerable.Empty<IGrouping<WorkItemStatus, WorkItem>>();
-        }
-        else
-        {
-            GroupedWorkItems = WorkItems
-                .GroupBy(w => w.Status)
-                .OrderBy(g => (int)g.Key);
-        }
+        if (string.IsNullOrWhiteSpace(description))
+            return string.Empty;
+
+        const int maxCharacters = 150;
+        const int maxLines = 2;
+
+        var lines = description.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+        var truncatedLines = lines.Take(maxLines).ToList();
+        var textToTruncate = string.Join(" ", truncatedLines).Trim();
+
+        if (textToTruncate.Length <= maxCharacters)
+            return textToTruncate;
+
+        var truncated = TruncateAtWordBoundary(textToTruncate, maxCharacters);
+        return truncated + "…";
     }
 
-    private string GetStatusLabel(WorkItemStatus status) => status switch
+    private string TruncateAtWordBoundary(string text, int maxLength)
+    {
+        if (text.Length <= maxLength)
+            return text;
+
+        var truncatedAt = maxLength;
+        var lastSpaceIndex = text.LastIndexOf(' ', truncatedAt);
+
+        if (lastSpaceIndex > 0 && lastSpaceIndex > maxLength - 20)
+        {
+            truncatedAt = lastSpaceIndex;
+        }
+
+        return text.Substring(0, truncatedAt).Trim();
+    }
+
+    private string FormatStatusName(WorkItemStatus status) => status switch
     {
         WorkItemStatus.Shipped => "Shipped This Month",
         WorkItemStatus.InProgress => "In Progress",
         WorkItemStatus.CarriedOver => "Carried Over",
-        _ => "Unknown"
+        _ => status.ToString()
     };
 
-    private string TruncateDescription(string description)
+    private string GetColumnBackgroundColor(WorkItemStatus status) => status switch
     {
-        if (string.IsNullOrEmpty(description))
-            return string.Empty;
-
-        if (description.Length > 100)
-        {
-            return description.Substring(0, 97) + "...";
-        }
-        
-        return description;
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        await ValueTask.CompletedTask;
-    }
+        WorkItemStatus.Shipped => "#e8f5e9",
+        WorkItemStatus.InProgress => "#e3f2fd",
+        WorkItemStatus.CarriedOver => "#f5f5f5",
+        _ => "#ffffff"
+    };
 }
