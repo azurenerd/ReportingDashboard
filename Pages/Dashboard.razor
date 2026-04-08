@@ -8,15 +8,34 @@
     <ChildContent>
         @if (!string.IsNullOrEmpty(errorMessage))
         {
-            <div class="alert alert-danger" role="alert">
-                <strong>Error Loading Dashboard:</strong> @errorMessage
+            <div class="container-fluid" style="padding: 30px;">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="font-size: 14px; padding: 16px;">
+                            <svg style="width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            <strong>Error Loading Dashboard</strong>
+                            <div style="margin-top: 8px;">@errorMessage</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         }
         else if (projectData == null)
         {
-            <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
+            <div class="container-fluid" style="padding: 30px;">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+                            <div class="text-center">
+                                <div class="spinner-border" role="status" style="width: 3rem; height: 3rem; color: #0066cc;">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p style="margin-top: 16px; font-size: 14px; color: #666;">Loading project dashboard...</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         }
@@ -26,7 +45,7 @@
                 <!-- Page Header Section -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <div style="padding: 20px; background-color: #f8f9fa; border-left: 5px solid #0066cc; font-size: 16px;">
+                        <div style="padding: 20px; background-color: #f8f9fa; border-left: 5px solid #0066cc; border-radius: 4px; font-size: 16px;">
                             <div class="row align-items-center">
                                 <div class="col-md-8">
                                     <h1 style="margin: 0; font-size: 32px; font-weight: bold; color: #333;">@projectData.ProjectName</h1>
@@ -36,7 +55,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4 text-end">
-                                    <span class="badge" style="background-color: @GetStatusColor(projectData.Status); font-size: 14px; padding: 8px 16px;">
+                                    <span class="badge" style="background-color: @GetStatusColor(projectData.Status); font-size: 14px; padding: 8px 16px; display: inline-block;">
                                         @projectData.Status
                                     </span>
                                 </div>
@@ -46,52 +65,92 @@
                 </div>
 
                 <!-- Row 1: MilestoneTimeline (Full Width) -->
-                <div class="row mb-5">
-                    <div class="col-12">
-                        <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px;">
-                            <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: bold; color: #333;">Milestone Timeline</h2>
-                            <!-- MilestoneTimeline component will be rendered here -->
+                @if (projectData?.Milestones != null && projectData.Milestones.Count > 0)
+                {
+                    <div class="row mb-5">
+                        <div class="col-12">
+                            <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px;">
+                                <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: bold; color: #333;">Milestone Timeline</h2>
+                                <div style="min-height: 150px; display: flex; align-items: center; justify-content: center; color: #999;">
+                                    <!-- MilestoneTimeline component will be rendered here -->
+                                    <p style="margin: 0;">Milestone timeline section</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
 
                 <!-- Row 2: StatusCard Grid (Responsive 3-Column) -->
-                <div class="row mb-5">
-                    <div class="col-12 col-md-4 mb-3">
-                        <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px; border-top: 4px solid #28a745;">
-                            <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #333;">Shipped</h3>
-                            <!-- StatusCard component for Shipped -->
+                @if (projectData?.Tasks != null && projectData.Tasks.Count > 0)
+                {
+                    <div class="row mb-5">
+                        <div class="col-12 col-md-4 mb-3">
+                            <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px; border-top: 4px solid #28a745;">
+                                <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #333;">Shipped</h3>
+                                <div style="font-size: 32px; font-weight: bold; color: #28a745; margin: 16px 0;">@GetShippedCount()</div>
+                                <div style="min-height: 80px; display: flex; align-items: center; justify-content: center; color: #999; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
+                                    <!-- StatusCard component for Shipped -->
+                                    <p style="margin: 0; font-size: 12px;">Tasks section</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px; border-top: 4px solid #0066cc;">
+                                <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #333;">In-Progress</h3>
+                                <div style="font-size: 32px; font-weight: bold; color: #0066cc; margin: 16px 0;">@GetInProgressCount()</div>
+                                <div style="min-height: 80px; display: flex; align-items: center; justify-content: center; color: #999; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
+                                    <!-- StatusCard component for In-Progress -->
+                                    <p style="margin: 0; font-size: 12px;">Tasks section</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px; border-top: 4px solid #ff9800;">
+                                <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #333;">Carried-Over</h3>
+                                <div style="font-size: 32px; font-weight: bold; color: #ff9800; margin: 16px 0;">@GetCarriedOverCount()</div>
+                                <div style="min-height: 80px; display: flex; align-items: center; justify-content: center; color: #999; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
+                                    <!-- StatusCard component for Carried-Over -->
+                                    <p style="margin: 0; font-size: 12px;">Tasks section</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4 mb-3">
-                        <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px; border-top: 4px solid #0066cc;">
-                            <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #333;">In-Progress</h3>
-                            <!-- StatusCard component for In-Progress -->
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4 mb-3">
-                        <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px; border-top: 4px solid #ff9800;">
-                            <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #333;">Carried-Over</h3>
-                            <!-- StatusCard component for Carried-Over -->
-                        </div>
-                    </div>
-                </div>
+                }
 
                 <!-- Row 3: ProgressMetrics (Full Width) -->
-                <div class="row">
-                    <div class="col-12">
-                        <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px;">
-                            <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: bold; color: #333;">Progress Metrics</h2>
-                            <!-- ProgressMetrics component will be rendered here -->
+                @if (projectData?.Metrics != null)
+                {
+                    <div class="row">
+                        <div class="col-12">
+                            <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px;">
+                                <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: bold; color: #333;">Progress Metrics</h2>
+                                <div style="min-height: 200px; display: flex; align-items: center; justify-content: center; color: #999;">
+                                    <!-- ProgressMetrics component will be rendered here -->
+                                    <div style="text-align: center;">
+                                        <p style="margin: 0; font-size: 12px;">Progress metrics section</p>
+                                        <p style="margin: 8px 0 0 0; font-size: 14px; font-weight: bold; color: #333;">@projectData.Metrics.CompletionPercentage%</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
             </div>
         }
     </ChildContent>
     <ErrorContent Context="ex">
-        <div class="alert alert-danger" role="alert">
-            <strong>Unexpected Error:</strong> @ex.Message
+        <div class="container-fluid" style="padding: 30px;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="font-size: 14px; padding: 16px;">
+                        <svg style="width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <strong>Unexpected Error</strong>
+                        <div style="margin-top: 8px;">@ex.Message</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </ErrorContent>
 </ErrorBoundary>
@@ -146,6 +205,21 @@
             "off-track" => "#dc3545",
             _ => "#6c757d"
         };
+    }
+
+    private int GetShippedCount()
+    {
+        return projectData?.Tasks?.Count(t => t.Status?.Equals("Shipped", StringComparison.OrdinalIgnoreCase) ?? false) ?? 0;
+    }
+
+    private int GetInProgressCount()
+    {
+        return projectData?.Tasks?.Count(t => t.Status?.Equals("InProgress", StringComparison.OrdinalIgnoreCase) ?? false) ?? 0;
+    }
+
+    private int GetCarriedOverCount()
+    {
+        return projectData?.Tasks?.Count(t => t.Status?.Equals("CarriedOver", StringComparison.OrdinalIgnoreCase) ?? false) ?? 0;
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
