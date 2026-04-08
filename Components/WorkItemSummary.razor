@@ -1,85 +1,11 @@
-@using AgentSquad.Models
-@implements IAsyncDisposable
+@using AgentSquad.Runner.Models
+@namespace AgentSquad.Runner.Components
 
 <div class="work-item-summary">
-    @foreach (var statusGroup in GroupedWorkItems)
-    {
-        var statusLabel = GetStatusLabel(statusGroup.Key);
-        var itemCount = statusGroup.Count();
-        
-        <div class="work-item-column">
-            <h3 class="work-item-column-header">
-                @statusLabel <span class="item-count">(@itemCount)</span>
-            </h3>
-            
-            @if (itemCount == 0)
-            {
-                <div class="work-item-empty-state">No items</div>
-            }
-            else
-            {
-                <div class="work-item-list">
-                    @foreach (var item in statusGroup)
-                    {
-                        <div class="work-item-card">
-                            <div class="work-item-title">@item.Title</div>
-                            @if (!string.IsNullOrWhiteSpace(item.Description))
-                            {
-                                <div class="work-item-description" title="@item.Description">
-                                    @TruncateDescription(item.Description)
-                                </div>
-                            }
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-    }
+    @* Component content will be added in subsequent steps *@
 </div>
 
 @code {
     [Parameter]
     public List<WorkItem> WorkItems { get; set; } = new();
-
-    private IEnumerable<IGrouping<WorkItemStatus, WorkItem>> GroupedWorkItems { get; set; } = Enumerable.Empty<IGrouping<WorkItemStatus, WorkItem>>();
-
-    protected override void OnParametersSet()
-    {
-        if (WorkItems == null || WorkItems.Count == 0)
-        {
-            GroupedWorkItems = Enumerable.Empty<IGrouping<WorkItemStatus, WorkItem>>();
-        }
-        else
-        {
-            GroupedWorkItems = WorkItems
-                .GroupBy(w => w.Status)
-                .OrderBy(g => (int)g.Key);
-        }
-    }
-
-    private string GetStatusLabel(WorkItemStatus status) => status switch
-    {
-        WorkItemStatus.Shipped => "Shipped This Month",
-        WorkItemStatus.InProgress => "In Progress",
-        WorkItemStatus.CarriedOver => "Carried Over",
-        _ => "Unknown"
-    };
-
-    private string TruncateDescription(string description)
-    {
-        if (string.IsNullOrEmpty(description))
-            return string.Empty;
-
-        if (description.Length > 100)
-        {
-            return description.Substring(0, 97) + "...";
-        }
-        
-        return description;
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        await ValueTask.CompletedTask;
-    }
 }
