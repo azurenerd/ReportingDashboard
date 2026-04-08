@@ -1,0 +1,26 @@
+/* Print Preview Helper - Optional for testing */
+@page {
+    size: A4;
+    margin: 0.5in;
+    background-color: white;
+    color: black;
+}
+
+@page :first {
+    margin-top: 0.5in;
+}
+
+body {
+    orphans: 3;
+    widows: 3;
+}
+
+.metrics-container {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.metric-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}

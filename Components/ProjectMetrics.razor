@@ -2,7 +2,7 @@
 @using AgentSquad.Runner.Services
 @inject IDataProvider DataProvider
 
-<div class="metrics-container">
+<div class="metrics-container" id="projectMetricsContainer">
     @if (IsLoading)
     {
         <div class="metrics-loading">
@@ -22,7 +22,7 @@
             <div class="metric-label">Completion</div>
             <div class="metric-content">
                 <div class="progress-wrapper">
-                    <svg class="circular-progress" viewBox="0 0 100 100">
+                    <svg class="circular-progress" viewBox="0 0 100 100" role="img" aria-label="@($"Project completion: {Metrics.CompletionPercentage}%")">
                         <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
                         <circle class="progress-fill" 
                                 cx="50" cy="50" r="45"
@@ -37,7 +37,7 @@
         <div class="metric-card">
             <div class="metric-label">Health Status</div>
             <div class="metric-content">
-                <div class="status-badge" style="background-color: @Metrics.GetStatusColor();">
+                <div class="status-badge" style="background-color: @Metrics.GetStatusColor();" role="status" aria-label="@($"Health status: {Metrics.GetStatusLabel()}")">
                     @Metrics.GetStatusLabel()
                 </div>
             </div>
@@ -46,16 +46,20 @@
         <div class="metric-card">
             <div class="metric-label">This Month Velocity</div>
             <div class="metric-content">
-                <div class="metric-value">@Metrics.VelocityThisMonth</div>
-                <div class="metric-sublabel">Items Completed</div>
+                <div>
+                    <div class="metric-value">@Metrics.VelocityThisMonth</div>
+                    <div class="metric-sublabel">Items Completed</div>
+                </div>
             </div>
         </div>
 
         <div class="metric-card">
             <div class="metric-label">Previous Month</div>
             <div class="metric-content">
-                <div class="metric-value">@Metrics.VelocityLastMonth</div>
-                <div class="metric-sublabel">Items Completed</div>
+                <div>
+                    <div class="metric-value">@Metrics.VelocityLastMonth</div>
+                    <div class="metric-sublabel">Items Completed</div>
+                </div>
             </div>
         </div>
     }
