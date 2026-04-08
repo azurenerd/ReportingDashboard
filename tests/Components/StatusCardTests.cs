@@ -1,46 +1,59 @@
-using Bunit;
+using System;
 using Xunit;
+using Bunit;
 using AgentSquad.Components;
-using AgentSquad.Models;
-using System.Collections.Generic;
 
 namespace AgentSquad.Tests.Components
 {
     public class StatusCardTests : TestContext
     {
         [Fact]
-        public void StatusCard_RendersTasks()
+        public void StatusCard_ThrowsWhenStatusCategoryNotProvided()
         {
-            var tasks = new List<ProjectTask>
+            Assert.Throws<ArgumentException>(() =>
             {
-                new ProjectTask { Id = "t1", Name = "Task 1", Status = "InProgress", Owner = "John" },
-                new ProjectTask { Id = "t2", Name = "Task 2", Status = "Shipped", Owner = "Jane" }
-            };
-
-            var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.Tasks, tasks)
-            );
-
-            var html = component.Markup;
-            Assert.Contains("Task 1", html);
-            Assert.Contains("Task 2", html);
-            Assert.Contains("John", html);
-            Assert.Contains("Jane", html);
+                RenderComponent<StatusCard>();
+            });
         }
-
+        
         [Fact]
-        public void StatusCard_DisplaysTaskStatus()
+        public void StatusCard_RendersWithValidStatus()
         {
-            var tasks = new List<ProjectTask>
+            var parameters = new ComponentParameter[]
             {
-                new ProjectTask { Id = "t1", Name = "Test", Status = "InProgress", Owner = "User" }
+                ComponentParameter.CreateParameter("StatusCategory", "Active")
             };
-
-            var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.Tasks, tasks)
-            );
-
-            Assert.Contains("InProgress", component.Markup);
+            
+            var component = RenderComponent<StatusCard>(parameters);
+            
+            Assert.Contains("Active", component.Markup);
+        }
+        
+        [Fact]
+        public void StatusCard_DisplaysCorrectStatusValue()
+        {
+            var parameters = new ComponentParameter[]
+            {
+                ComponentParameter.CreateParameter("StatusCategory", "Completed")
+            };
+            
+            var component = RenderComponent<StatusCard>(parameters);
+            
+            Assert.Contains("Completed", component.Markup);
+        }
+        
+        [Fact]
+        public void StatusCard_WithNullStatus_ThrowsArgumentException()
+        {
+            var parameters = new ComponentParameter[]
+            {
+                ComponentParameter.CreateParameter("StatusCategory", null)
+            };
+            
+            Assert.Throws<ArgumentException>(() =>
+            {
+                RenderComponent<StatusCard>(parameters);
+            });
         }
     }
 }

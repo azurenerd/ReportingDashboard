@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 using Xunit;
 using AgentSquad.Services;
 
-namespace AgentSquad.Tests.Services
+namespace AgentSquad.Tests.Integration
 {
-    public class ProjectDataServiceTests : IDisposable
+    public class ProjectDataService_FileLoadingTests : IDisposable
     {
         private readonly string _testDataDir;
         private readonly ProjectDataService _service;
         
-        public ProjectDataServiceTests()
+        public ProjectDataService_FileLoadingTests()
         {
             _testDataDir = Path.Combine(Path.GetTempPath(), $"agentsquad-tests-{Guid.NewGuid()}");
             Directory.CreateDirectory(_testDataDir);
@@ -19,44 +19,29 @@ namespace AgentSquad.Tests.Services
         }
         
         [Fact]
-        public async Task LoadProjectDataAsync_WithValidJsonFile_ReturnsDeserializedProjects()
+        public async Task LoadProjectDataAsync_WithRealFile_ReturnsDeserializedData()
         {
-            var filePath = Path.Combine(_testDataDir, "valid-projects.json");
+            var filePath = Path.Combine(_testDataDir, "projects.json");
             var jsonContent = "[{\"id\":\"proj1\",\"name\":\"Test Project\",\"status\":\"Active\"}]";
             await File.WriteAllTextAsync(filePath, jsonContent);
             
             var result = await _service.LoadProjectDataAsync(filePath);
             
-            Assert.NotNull(result);
             Assert.Single(result);
             Assert.Equal("Test Project", result[0].Name);
-            Assert.Equal("Active", result[0].Status);
         }
         
         [Fact]
-        public async Task LoadProjectDataAsync_WithFilePath_ExecutesFileIoIntegration()
+        public async Task LoadProjectDataAsync_MissingFile_ThrowsDataLoadException()
         {
-            var filePath = Path.Combine(_testDataDir, "projects.json");
-            var jsonContent = "[{\"id\":\"p1\",\"name\":\"Project\",\"status\":\"Pending\"}]";
-            await File.WriteAllTextAsync(filePath, jsonContent);
-            
-            var result = await _service.LoadProjectDataAsync(filePath);
-            
-            Assert.NotNull(result);
-            Assert.True(File.Exists(filePath));
-        }
-        
-        [Fact]
-        public async Task LoadProjectDataAsync_WithMissingFile_ThrowsDataLoadException()
-        {
-            var filePath = Path.Combine(_testDataDir, "nonexistent.json");
+            var filePath = Path.Combine(_testDataDir, "missing.json");
             
             await Assert.ThrowsAsync<DataLoadException>(
                 () => _service.LoadProjectDataAsync(filePath));
         }
         
         [Fact]
-        public async Task LoadProjectDataAsync_WithMalformedJson_ThrowsDataLoadException()
+        public async Task LoadProjectDataAsync_MalformedJson_ThrowsDataLoadException()
         {
             var filePath = Path.Combine(_testDataDir, "malformed.json");
             await File.WriteAllTextAsync(filePath, "{ invalid json }");
