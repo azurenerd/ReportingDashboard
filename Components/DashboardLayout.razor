@@ -1,66 +1,91 @@
 @page "/"
-@using AgentSquad.Runner.Models
-@using AgentSquad.Runner.Services
 @inject IDataProvider DataProvider
 
 <div class="dashboard-container">
     @if (IsLoading)
     {
-        <div class="loading-overlay">
+        <div class="loading-state">
             <div class="spinner"></div>
-            <p>Loading project data...</p>
+            <p>Loading dashboard data...</p>
         </div>
     }
-    @if (!string.IsNullOrEmpty(ErrorMessage))
+    else if (!string.IsNullOrEmpty(ErrorMessage))
     {
-        <div class="error-overlay">
-            <div class="error-content">
-                <h2>Error Loading Dashboard</h2>
-                <p>@ErrorMessage</p>
-            </div>
+        <div class="error-state">
+            <h2>Error Loading Dashboard</h2>
+            <p>@ErrorMessage</p>
         </div>
     }
-    @if (ProjectData != null && string.IsNullOrEmpty(ErrorMessage))
+    else if (ProjectData != null)
     {
-        <div class="dashboard-header">
-            <h1>@ProjectData.Name</h1>
-            <p class="project-description">@ProjectData.Description</p>
-        </div>
-
         <div class="dashboard-grid">
-            <div class="section timeline-section">
-                <h2>Project Timeline</h2>
-                <MilestoneTimeline Milestones="ProjectData.Milestones" />
-            </div>
+            <header class="dashboard-header">
+                <div class="header-content">
+                    <h1 class="project-title">@ProjectData.Name</h1>
+                    <p class="project-description">@ProjectData.Description</p>
+                    <p class="last-updated">Updated: @ProjectData.LastUpdated.ToString("g")</p>
+                </div>
+            </header>
 
-            <div class="section metrics-section">
-                <h2>Project Health</h2>
-                <ProjectMetrics Metrics="ProjectData.Metrics" Milestones="ProjectData.Milestones" />
-            </div>
+            <section class="timeline-section">
+                <h2 class="section-title">Timeline</h2>
+                <div class="timeline-content">
+                    <MilestoneTimeline Milestones="ProjectData?.Milestones ?? new()" />
+                </div>
+            </section>
 
-            <div class="section work-items-section">
-                <h2>Work Item Status</h2>
-                <WorkItemSummary WorkItems="ProjectData.WorkItems" />
-            </div>
+            <section class="metrics-section">
+                <h2 class="section-title">Metrics</h2>
+                <div class="metrics-content">
+                    <ProjectMetrics Metrics="ProjectData?.Metrics" />
+                </div>
+            </section>
+
+            <section class="workitems-section">
+                <h2 class="section-title">Work Items</h2>
+                <div class="workitems-content">
+                    <WorkItemSummary WorkItems="ProjectData?.WorkItems ?? new()" />
+                </div>
+            </section>
         </div>
     }
 </div>
 
 @code {
-    private Project ProjectData { get; set; }
-    private bool IsLoading { get; set; } = true;
-    private string ErrorMessage { get; set; }
+    public Project ProjectData { get; set; }
+    public bool IsLoading { get; set; }
+    public string ErrorMessage { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+
         try
         {
+            IsLoading = true;
+            ErrorMessage = null;
+
             ProjectData = await DataProvider.LoadProjectDataAsync();
-            IsLoading = false;
+
+            if (ProjectData == null)
+            {
+                ErrorMessage = "Project data is empty or invalid.";
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            ErrorMessage = $"Configuration file not found: {ex.Message}";
+        }
+        catch (InvalidOperationException ex)
+        {
+            ErrorMessage = $"Failed to parse project data: {ex.Message}";
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Failed to load project data: {ex.Message}";
+            ErrorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+        finally
+        {
             IsLoading = false;
         }
     }

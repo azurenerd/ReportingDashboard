@@ -1,38 +1,144 @@
 @using AgentSquad.Runner.Models
 
 <div class="milestone-timeline">
-    <div class="timeline-track">
-        @foreach (var milestone in Milestones)
-        {
-            <div class="milestone-item">
-                <div class="milestone-indicator" data-status="@milestone.Status">
-                    <span class="status-dot"></span>
-                </div>
-                <div class="milestone-content">
-                    <div class="milestone-name">@milestone.Name</div>
-                    <div class="milestone-date">@milestone.TargetDate.ToString("MMM d, yyyy")</div>
-                    <div class="milestone-status @milestone.Status.ToString().ToLower()">
-                        @GetStatusLabel(milestone.Status)
+    @if (Milestones == null || Milestones.Count == 0)
+    {
+        <div class="timeline-empty">
+            <p>No milestones available</p>
+        </div>
+    }
+    else
+    {
+        <div class="timeline-container">
+            @foreach (var milestone in Milestones)
+            {
+                <div class="milestone-item" data-status="@milestone.Status.ToString().ToLower()">
+                    <div class="milestone-indicator">
+                        <span class="milestone-status-badge"></span>
+                    </div>
+                    <div class="milestone-info">
+                        <h3 class="milestone-name">@milestone.Name</h3>
+                        <p class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</p>
+                        @if (!string.IsNullOrEmpty(milestone.Description))
+                        {
+                            <p class="milestone-description">@milestone.Description</p>
+                        }
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
 </div>
 
 @code {
     [Parameter]
-    public List<Milestone> Milestones { get; set; } = new();
-
-    private string GetStatusLabel(MilestoneStatus status)
-    {
-        return status switch
-        {
-            MilestoneStatus.Completed => "Completed",
-            MilestoneStatus.InProgress => "In Progress",
-            MilestoneStatus.AtRisk => "At Risk",
-            MilestoneStatus.Future => "Future",
-            _ => "Unknown"
-        };
-    }
+    public List<Milestone> Milestones { get; set; }
 }
+
+<style scoped>
+    .milestone-timeline {
+        width: 100%;
+        padding: 0;
+    }
+
+    .timeline-empty {
+        padding: 20px;
+        text-align: center;
+        color: #999;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+    }
+
+    .timeline-container {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        overflow-x: auto;
+        padding: 8px 0;
+    }
+
+    .milestone-item {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 140px;
+        padding: 12px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        border-left: 4px solid #ccc;
+    }
+
+    .milestone-item[data-status="completed"] {
+        border-left-color: #107c10;
+        background-color: #f0f6f0;
+    }
+
+    .milestone-item[data-status="inprogress"] {
+        border-left-color: #0078d4;
+        background-color: #f0f4f9;
+    }
+
+    .milestone-item[data-status="atrisk"] {
+        border-left-color: #ff9800;
+        background-color: #fff3f0;
+    }
+
+    .milestone-item[data-status="future"] {
+        border-left-color: #999999;
+        background-color: #fafafa;
+    }
+
+    .milestone-indicator {
+        display: flex;
+        justify-content: center;
+    }
+
+    .milestone-status-badge {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #ccc;
+    }
+
+    .milestone-item[data-status="completed"] .milestone-status-badge {
+        background-color: #107c10;
+    }
+
+    .milestone-item[data-status="inprogress"] .milestone-status-badge {
+        background-color: #0078d4;
+    }
+
+    .milestone-item[data-status="atrisk"] .milestone-status-badge {
+        background-color: #ff9800;
+    }
+
+    .milestone-item[data-status="future"] .milestone-status-badge {
+        background-color: #999999;
+    }
+
+    .milestone-info {
+        margin: 0;
+    }
+
+    .milestone-name {
+        margin: 0 0 4px 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .milestone-date {
+        margin: 0 0 4px 0;
+        font-size: 12px;
+        color: #666;
+    }
+
+    .milestone-description {
+        margin: 0;
+        font-size: 11px;
+        color: #999;
+        line-height: 1.3;
+    }
+</style>

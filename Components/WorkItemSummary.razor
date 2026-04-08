@@ -1,70 +1,140 @@
 @using AgentSquad.Runner.Models
-@using System.Linq
 
-<div class="work-items-container">
-    <div class="work-items-columns">
-        <div class="work-items-column shipped">
-            <div class="column-header">
-                <h3>Shipped This Month</h3>
-                <span class="item-count">@ShippedItems.Count</span>
+<div class="workitems-summary">
+    @if (WorkItems == null || WorkItems.Count == 0)
+    {
+        <div class="workitems-empty">
+            <p>No work items available</p>
+        </div>
+    }
+    else
+    {
+        <div class="workitems-columns">
+            <div class="workitems-column">
+                <h3 class="column-title">Shipped This Month</h3>
+                <div class="column-content">
+                    @RenderWorkItemsByStatus(WorkItemStatus.ShippedThisMonth)
+                </div>
             </div>
-            <div class="items-list">
-                @foreach (var item in ShippedItems)
-                {
-                    <div class="work-item">
-                        <div class="item-title">@item.Title</div>
-                        <div class="item-assignee">@item.AssignedTo</div>
-                    </div>
-                }
+
+            <div class="workitems-column">
+                <h3 class="column-title">In Progress</h3>
+                <div class="column-content">
+                    @RenderWorkItemsByStatus(WorkItemStatus.InProgress)
+                </div>
+            </div>
+
+            <div class="workitems-column">
+                <h3 class="column-title">Carried Over</h3>
+                <div class="column-content">
+                    @RenderWorkItemsByStatus(WorkItemStatus.CarriedOver)
+                </div>
             </div>
         </div>
-
-        <div class="work-items-column in-progress">
-            <div class="column-header">
-                <h3>In Progress</h3>
-                <span class="item-count">@InProgressItems.Count</span>
-            </div>
-            <div class="items-list">
-                @foreach (var item in InProgressItems)
-                {
-                    <div class="work-item">
-                        <div class="item-title">@item.Title</div>
-                        <div class="item-assignee">@item.AssignedTo</div>
-                    </div>
-                }
-            </div>
-        </div>
-
-        <div class="work-items-column carried-over">
-            <div class="column-header">
-                <h3>Carried Over</h3>
-                <span class="item-count">@CarriedOverItems.Count</span>
-            </div>
-            <div class="items-list">
-                @foreach (var item in CarriedOverItems)
-                {
-                    <div class="work-item">
-                        <div class="item-title">@item.Title</div>
-                        <div class="item-assignee">@item.AssignedTo</div>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
+    }
 </div>
 
 @code {
     [Parameter]
-    public List<WorkItem> WorkItems { get; set; } = new();
+    public List<WorkItem> WorkItems { get; set; }
 
-    private List<WorkItem> ShippedItems { get; set; } = new();
-    private List<WorkItem> InProgressItems { get; set; } = new();
-    private List<WorkItem> CarriedOverItems { get; set; } = new();
-
-    protected override void OnParametersSet()
+    private RenderFragment RenderWorkItemsByStatus(WorkItemStatus status)
     {
-        ShippedItems = WorkItems.Where(x => x.Status == WorkItemStatus.Shipped).ToList();
-        InProgressItems = WorkItems.Where(x => x.Status == WorkItemStatus.InProgress).ToList();
-        CarriedOverItems = WorkItems.Where(x => x.Status == WorkItemStatus.CarriedOver).ToList();
+        var items = WorkItems?.Where(w => w.Status == status).ToList() ?? new();
+        return @<text>
+            <div class="item-count">@items.Count item@(items.Count != 1 ? "s" : "")</div>
+            <div class="items-list">
+                @foreach (var item in items)
+                {
+                    <div class="work-item">
+                        <div class="item-title">@item.Title</div>
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            <div class="item-description">@item.Description</div>
+                        }
+                    </div>
+                }
+            </div>
+        </text>;
     }
 }
+
+<style scoped>
+    .workitems-summary {
+        width: 100%;
+        padding: 0;
+    }
+
+    .workitems-empty {
+        padding: 20px;
+        text-align: center;
+        color: #999;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+    }
+
+    .workitems-columns {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        width: 100%;
+    }
+
+    .workitems-column {
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        padding: 12px;
+    }
+
+    .column-title {
+        margin: 0 0 12px 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+        border-bottom: 2px solid #0078d4;
+        padding-bottom: 8px;
+    }
+
+    .column-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .item-count {
+        font-size: 12px;
+        font-weight: 600;
+        color: #666;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 8px;
+    }
+
+    .items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 140px;
+        overflow-y: auto;
+    }
+
+    .work-item {
+        padding: 8px;
+        background-color: #ffffff;
+        border-left: 3px solid #0078d4;
+        border-radius: 2px;
+        font-size: 12px;
+    }
+
+    .item-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+    }
+
+    .item-description {
+        color: #666;
+        font-size: 11px;
+        line-height: 1.3;
+    }
+</style>
