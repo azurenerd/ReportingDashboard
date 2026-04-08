@@ -1,114 +1,101 @@
-using System;
 using Xunit;
-using Microsoft.Extensions.Caching.Memory;
-using AgentSquad.Runner.Models;
-using AgentSquad.Runner.Services;
+using Moq;
+using AgentSquad.Services;
+using AgentSquad.Models;
+using System.Threading.Tasks;
 
-namespace AgentSquad.Runner.Tests.Services
+namespace AgentSquad.Tests.Services
 {
     public class MemoryCacheDataProviderTests
     {
-        private IMemoryCache CreateMemoryCache() => new MemoryCache(new MemoryCacheOptions());
+        private readonly MemoryCacheDataProvider _cacheProvider;
 
-        [Fact]
-        public void Set_StoresValueInCache()
+        public MemoryCacheDataProviderTests()
         {
-            var cache = CreateMemoryCache();
-            var provider = new MemoryCacheDataProvider(cache);
-            var project = new Project { Name = "Test" };
-
-            provider.Set("test_key", project);
-
-            var retrieved = provider.Get<Project>("test_key");
-            Assert.NotNull(retrieved);
-            Assert.Equal("Test", retrieved.Name);
+            _cacheProvider = new MemoryCacheDataProvider();
         }
 
         [Fact]
-        public void Get_ReturnsNullForMissingKey()
+        public async Task GetAsync_CachedValue_ReturnsCachedValue()
         {
-            var cache = CreateMemoryCache();
-            var provider = new MemoryCacheDataProvider(cache);
+            var key = "test-key";
+            var value = new Project { Id = "p1", Name = "Test" };
 
-            var result = provider.Get<Project>("nonexistent");
+            await _cacheProvider.SetAsync(key, value);
+            var result = await _cacheProvider.GetAsync<Project>(key);
 
+            Assert.NotNull(result);
+            Assert.Equal("p1", result.Id);
+        }
+
+        [Fact]
+        public async Task GetAsync_MissingKey_ReturnsNull()
+        {
+            var result = await _cacheProvider.GetAsync<Project>("nonexistent-key");
             Assert.Null(result);
         }
 
         [Fact]
-        public void TryGetValue_ReturnsTrueForExistingKey()
+        public async Task SetAsync_NewValue_CachesValue()
         {
-            var cache = CreateMemoryCache();
-            var provider = new MemoryCacheDataProvider(cache);
-            var project = new Project { Name = "Test" };
-            provider.Set("key", project);
+            var key = "new-key";
+            var value = new Milestone { Id = "m1", Name = "Release" };
 
-            bool success = provider.TryGetValue("key", out Project retrieved);
+            await _cacheProvider.SetAsync(key, value);
+            var result = await _cacheProvider.GetAsync<Milestone>(key);
+
+            Assert.NotNull(result);
+            Assert.Equal("m1", result.Id);
+        }
+
+        [Fact]
+        public async Task SetAsync_OverwriteExisting_UpdatesValue()
+        {
+            var key = "update-key";
+            var value1 = new Project { Id = "p1", Name = "First" };
+            var value2 = new Project { Id = "p1", Name = "Updated" };
+
+            await _cacheProvider.SetAsync(key, value1);
+            await _cacheProvider.SetAsync(key, value2);
+            var result = await _cacheProvider.GetAsync<Project>(key);
+
+            Assert.Equal("Updated", result.Name);
+        }
+
+        [Fact]
+        public async Task TryGetValueAsync_ExistingKey_ReturnsTrue()
+        {
+            var key = "exists-key";
+            await _cacheProvider.SetAsync(key, new { data = "test" });
+
+            var success = await _cacheProvider.TryGetValueAsync<dynamic>(key, out var value);
 
             Assert.True(success);
-            Assert.NotNull(retrieved);
-            Assert.Equal("Test", retrieved.Name);
+            Assert.NotNull(value);
         }
 
         [Fact]
-        public void TryGetValue_ReturnsFalseForMissingKey()
+        public async Task TryGetValueAsync_MissingKey_ReturnsFalse()
         {
-            var cache = CreateMemoryCache();
-            var provider = new MemoryCacheDataProvider(cache);
-
-            bool success = provider.TryGetValue("nonexistent", out Project retrieved);
+            var success = await _cacheProvider.TryGetValueAsync<Project>("missing", out var value);
 
             Assert.False(success);
-            Assert.Null(retrieved);
+            Assert.Null(value);
         }
 
         [Fact]
-        public void Remove_DeletesKeyFromCache()
+        public async Task ClearAsync_RemovesAllCachedValues()
         {
-            var cache = CreateMemoryCache();
-            var provider = new MemoryCacheDataProvider(cache);
-            var project = new Project { Name = "Test" };
-            provider.Set("key", project);
+            await _cacheProvider.SetAsync("key1", "value1");
+            await _cacheProvider.SetAsync("key2", "value2");
+            
+            await _cacheProvider.ClearAsync();
+            
+            var result1 = await _cacheProvider.GetAsync<string>("key1");
+            var result2 = await _cacheProvider.GetAsync<string>("key2");
 
-            provider.Remove("key");
-
-            bool success = provider.TryGetValue("key", out _);
-            Assert.False(success);
-        }
-
-        [Fact]
-        public void Set_WithSameKey_UpdatesValue()
-        {
-            var cache = CreateMemoryCache();
-            var provider = new MemoryCacheDataProvider(cache);
-            var project1 = new Project { Name = "First" };
-            var project2 = new Project { Name = "Second" };
-
-            provider.Set("key", project1);
-            provider.Set("key", project2);
-
-            var retrieved = provider.Get<Project>("key");
-            Assert.Equal("Second", retrieved.Name);
-        }
-
-        [Fact]
-        public void Set_CachesMultipleTypes()
-        {
-            var cache = CreateMemoryCache();
-            var provider = new MemoryCacheDataProvider(cache);
-            var project = new Project { Name = "Test" };
-            var metrics = new ProjectMetrics { CompletionPercentage = 50 };
-
-            provider.Set("project", project);
-            provider.Set("metrics", metrics);
-
-            var retrievedProject = provider.Get<Project>("project");
-            var retrievedMetrics = provider.Get<ProjectMetrics>("metrics");
-
-            Assert.NotNull(retrievedProject);
-            Assert.NotNull(retrievedMetrics);
-            Assert.Equal("Test", retrievedProject.Name);
-            Assert.Equal(50, retrievedMetrics.CompletionPercentage);
+            Assert.Null(result1);
+            Assert.Null(result2);
         }
     }
 }

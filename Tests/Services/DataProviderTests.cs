@@ -1,301 +1,295 @@
+using Xunit;
+using Moq;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
+using AgentSquad.Services;
+using AgentSquad.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Xunit;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using Moq;
-using AgentSquad.Runner.Models;
-using AgentSquad.Runner.Services;
-using Microsoft.AspNetCore.Hosting;
 
-namespace AgentSquad.Runner.Tests.Services
+namespace AgentSquad.Tests.Services
 {
-    public class DataProviderTests : IDisposable
+    public class DataProviderTests
     {
-        private readonly string _tempDir;
         private readonly Mock<ILogger<DataProvider>> _mockLogger;
-        private readonly IDataCache _dataCache;
+        private readonly Mock<IDataCache> _mockDataCache;
         private readonly Mock<IWebHostEnvironment> _mockHostEnvironment;
+        private readonly DataProvider _dataProvider;
 
         public DataProviderTests()
         {
-            _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            Directory.CreateDirectory(_tempDir);
             _mockLogger = new Mock<ILogger<DataProvider>>();
-            var memoryCache = new MemoryCache(new MemoryCacheOptions());
-            _dataCache = new MemoryCacheDataProvider(memoryCache);
+            _mockDataCache = new Mock<IDataCache>();
             _mockHostEnvironment = new Mock<IWebHostEnvironment>();
-            _mockHostEnvironment.Setup(x => x.ContentRootPath).Returns(_tempDir);
+            
+            _mockHostEnvironment.Setup(h => h.ContentRootPath)
+                .Returns(Path.GetTempPath());
+
+            _dataProvider = new DataProvider(_mockLogger.Object, _mockDataCache.Object, _mockHostEnvironment.Object);
         }
 
-        public void Dispose()
+        [Fact]
+        public async Task LoadProjectsAsync_ValidJsonStructure_ReturnsProjects()
         {
-            if (Directory.Exists(_tempDir))
-                Directory.Delete(_tempDir, true);
-        }
-
-        private async Task<string> CreateValidDataJson()
-        {
-            var jsonData = new
+            var json = @"
             {
-                name = "Executive Dashboard",
-                description = "Project dashboard",
-                startDate = "2024-01-15",
-                milestones = new[]
-                {
-                    new { name = "Alpha", targetDate = "2024-02-15", status = "Completed", description = "Phase 1" },
-                    new { name = "Beta", targetDate = "2024-03-15", status = "InProgress", description = "Phase 2" },
-                    new { name = "Release", targetDate = "2024-04-15", status = "Future", description = "Launch" }
-                },
-                workItems = new[]
-                {
-                    new { title = "Auth module", description = "JWT auth", status = "Shipped", assignedTo = "Alice" },
-                    new { title = "Dashboard UI", description = "UI components", status = "InProgress", assignedTo = "Bob" },
-                    new { title = "Reporting", description = "Export reports", status = "CarriedOver", assignedTo = null }
-                },
-                metrics = new { completionPercentage = 72, healthStatus = "OnTrack", velocityCount = 12 }
-            };
-
-            string jsonPath = Path.Combine(_tempDir, "data.json");
-            string jsonContent = JsonSerializer.Serialize(jsonData);
-            await File.WriteAllTextAsync(jsonPath, jsonContent);
-            return jsonPath;
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_WithValidJsonFile_DeserializesSuccessfully()
-        {
-            await CreateValidDataJson();
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-
-            var project = await provider.LoadProjectDataAsync();
-
-            Assert.NotNull(project);
-            Assert.Equal("Executive Dashboard", project.Name);
-            Assert.Equal("Project dashboard", project.Description);
-            Assert.Equal(3, project.Milestones.Count);
-            Assert.Equal(3, project.WorkItems.Count);
-            Assert.NotNull(project.Metrics);
-            Assert.Equal(72, project.Metrics.CompletionPercentage);
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_WithMissingFile_ThrowsFileNotFoundException()
-        {
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-
-            await Assert.ThrowsAsync<FileNotFoundException>(() => provider.LoadProjectDataAsync());
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_WithInvalidJson_ThrowsInvalidOperationException()
-        {
-            string jsonPath = Path.Combine(_tempDir, "data.json");
-            await File.WriteAllTextAsync(jsonPath, "{ invalid json }");
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.LoadProjectDataAsync());
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_WithNullJson_ThrowsInvalidOperationException()
-        {
-            string jsonPath = Path.Combine(_tempDir, "data.json");
-            await File.WriteAllTextAsync(jsonPath, "null");
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.LoadProjectDataAsync());
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_CachesProjectData()
-        {
-            await CreateValidDataJson();
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-
-            var project1 = await provider.LoadProjectDataAsync();
-            var project2 = await provider.LoadProjectDataAsync();
-
-            Assert.Same(project1, project2);
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_WithMissingProjectName_ThrowsInvalidOperationException()
-        {
-            var jsonData = new
-            {
-                description = "No name",
-                startDate = "2024-01-15",
-                milestones = new[] { new { name = "M1", targetDate = "2024-02-15", status = "Future", description = "M1" } },
-                workItems = new object[] { },
-                metrics = new { completionPercentage = 50, healthStatus = "OnTrack", velocityCount = 5 }
-            };
-
-            string jsonPath = Path.Combine(_tempDir, "data.json");
-            await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonData));
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.LoadProjectDataAsync());
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_WithNoMilestones_ThrowsInvalidOperationException()
-        {
-            var jsonData = new
-            {
-                name = "Test",
-                description = "No milestones",
-                startDate = "2024-01-15",
-                milestones = new object[] { },
-                workItems = new object[] { },
-                metrics = new { completionPercentage = 50, healthStatus = "OnTrack", velocityCount = 5 }
-            };
-
-            string jsonPath = Path.Combine(_tempDir, "data.json");
-            await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonData));
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.LoadProjectDataAsync());
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_WithInvalidCompletionPercentage_ThrowsInvalidOperationException()
-        {
-            var jsonData = new
-            {
-                name = "Test",
-                description = "Invalid percentage",
-                startDate = "2024-01-15",
-                milestones = new[] { new { name = "M1", targetDate = "2024-02-15", status = "Future", description = "M1" } },
-                workItems = new object[] { },
-                metrics = new { completionPercentage = 150, healthStatus = "OnTrack", velocityCount = 5 }
-            };
-
-            string jsonPath = Path.Combine(_tempDir, "data.json");
-            await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonData));
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.LoadProjectDataAsync());
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_WithNegativeVelocity_ThrowsInvalidOperationException()
-        {
-            var jsonData = new
-            {
-                name = "Test",
-                description = "Negative velocity",
-                startDate = "2024-01-15",
-                milestones = new[] { new { name = "M1", targetDate = "2024-02-15", status = "Future", description = "M1" } },
-                workItems = new object[] { },
-                metrics = new { completionPercentage = 50, healthStatus = "OnTrack", velocityCount = -5 }
-            };
-
-            string jsonPath = Path.Combine(_tempDir, "data.json");
-            await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonData));
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.LoadProjectDataAsync());
-        }
-
-        [Fact]
-        public async Task GetCachedProjectData_BeforeLoading_ReturnsNull()
-        {
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-
-            var result = provider.GetCachedProjectData();
-
-            Assert.Null(result);
-        }
-
-        [Fact]
-        public async Task GetCachedProjectData_AfterLoading_ReturnsCachedProject()
-        {
-            await CreateValidDataJson();
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-            await provider.LoadProjectDataAsync();
-
-            var result = provider.GetCachedProjectData();
-
-            Assert.NotNull(result);
-            Assert.Equal("Executive Dashboard", result.Name);
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_WithCaseInsensitiveJson_DeserializesSuccessfully()
-        {
-            var jsonContent = @"{
-                ""NAME"": ""Dashboard"",
-                ""DESCRIPTION"": ""Test"",
-                ""STARTDATE"": ""2024-01-15"",
-                ""MILESTONES"": [{ ""name"": ""M1"", ""targetDate"": ""2024-02-15"", ""status"": ""Future"", ""description"": ""M1"" }],
-                ""WORKITEMS"": [],
-                ""METRICS"": { ""completionPercentage"": 50, ""healthStatus"": ""OnTrack"", ""velocityCount"": 5 }
+                ""projects"": [
+                    {
+                        ""id"": ""p1"",
+                        ""name"": ""Test Project"",
+                        ""startDate"": ""2024-01-01T00:00:00Z"",
+                        ""endDate"": ""2024-12-31T23:59:59Z""
+                    }
+                ]
             }";
 
-            string jsonPath = Path.Combine(_tempDir, "data.json");
-            await File.WriteAllTextAsync(jsonPath, jsonContent);
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
+            var tempFile = Path.Combine(Path.GetTempPath(), "data.json");
+            await File.WriteAllTextAsync(tempFile, json);
 
-            var project = await provider.LoadProjectDataAsync();
+            try
+            {
+                var projects = await _dataProvider.LoadProjectsAsync(tempFile);
+                Assert.NotEmpty(projects);
+                Assert.Equal("p1", projects[0].Id);
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
+        }
 
-            Assert.NotNull(project);
-            Assert.Equal("Dashboard", project.Name);
+        [Fact]
+        public async Task LoadProjectsAsync_MissingFile_ThrowsFileNotFoundException()
+        {
+            var nonexistentPath = Path.Combine(Path.GetTempPath(), "nonexistent_data.json");
+            
+            await Assert.ThrowsAsync<FileNotFoundException>(() => 
+                _dataProvider.LoadProjectsAsync(nonexistentPath));
+        }
+
+        [Fact]
+        public async Task LoadProjectsAsync_InvalidJsonFormat_ThrowsJsonException()
+        {
+            var invalidJson = "{ invalid json }";
+            var tempFile = Path.Combine(Path.GetTempPath(), "invalid.json");
+            await File.WriteAllTextAsync(tempFile, invalidJson);
+
+            try
+            {
+                await Assert.ThrowsAsync<JsonException>(() => 
+                    _dataProvider.LoadProjectsAsync(tempFile));
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
         }
 
         [Theory]
-        [InlineData("Completed")]
-        [InlineData("InProgress")]
-        [InlineData("AtRisk")]
-        [InlineData("Future")]
-        public async Task LoadProjectDataAsync_WithAllMilestoneStatuses_DeserializesSuccessfully(string status)
+        [InlineData("2024-13-40")]
+        [InlineData("2024-12-32")]
+        [InlineData("invalid-date-format")]
+        public async Task LoadProjectsAsync_InvalidDateFormat_ThrowsFormatException(string invalidDate)
         {
-            var jsonData = new
+            var json = $@"
+            {{
+                ""projects"": [
+                    {{
+                        ""id"": ""p1"",
+                        ""name"": ""Test"",
+                        ""startDate"": ""{invalidDate}"",
+                        ""endDate"": ""2024-12-31T23:59:59Z""
+                    }}
+                ]
+            }}";
+
+            var tempFile = Path.Combine(Path.GetTempPath(), "date_test.json");
+            await File.WriteAllTextAsync(tempFile, json);
+
+            try
             {
-                name = "Test",
-                description = "Test",
-                startDate = "2024-01-15",
-                milestones = new[] { new { name = "M1", targetDate = "2024-02-15", status, description = "M1" } },
-                workItems = new object[] { },
-                metrics = new { completionPercentage = 50, healthStatus = "OnTrack", velocityCount = 5 }
-            };
-
-            string jsonPath = Path.Combine(_tempDir, "data.json");
-            await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonData));
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
-
-            var project = await provider.LoadProjectDataAsync();
-
-            Assert.NotNull(project);
+                await Assert.ThrowsAsync<FormatException>(() => 
+                    _dataProvider.LoadProjectsAsync(tempFile));
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
         }
 
         [Theory]
-        [InlineData("Shipped")]
-        [InlineData("InProgress")]
-        [InlineData("CarriedOver")]
-        public async Task LoadProjectDataAsync_WithAllWorkItemStatuses_DeserializesSuccessfully(string status)
+        [InlineData("InvalidMilestoneStatus")]
+        [InlineData("in_progress")]
+        [InlineData("COMPLETED")]
+        public async Task LoadProjectsAsync_InvalidMilestoneStatus_ThrowsInvalidOperationException(string invalidStatus)
         {
-            var jsonData = new
+            var json = $@"
+            {{
+                ""projects"": [
+                    {{
+                        ""id"": ""p1"",
+                        ""name"": ""Test"",
+                        ""startDate"": ""2024-01-01T00:00:00Z"",
+                        ""endDate"": ""2024-12-31T23:59:59Z"",
+                        ""milestones"": [
+                            {{
+                                ""id"": ""m1"",
+                                ""name"": ""v1.0"",
+                                ""status"": ""{invalidStatus}"",
+                                ""dueDate"": ""2024-06-30T23:59:59Z""
+                            }}
+                        ]
+                    }}
+                ]
+            }}";
+
+            var tempFile = Path.Combine(Path.GetTempPath(), "enum_test.json");
+            await File.WriteAllTextAsync(tempFile, json);
+
+            try
             {
-                name = "Test",
-                description = "Test",
-                startDate = "2024-01-15",
-                milestones = new[] { new { name = "M1", targetDate = "2024-02-15", status = "Future", description = "M1" } },
-                workItems = new[] { new { title = "WI1", description = "WI1", status, assignedTo = "User" } },
-                metrics = new { completionPercentage = 50, healthStatus = "OnTrack", velocityCount = 5 }
-            };
+                await Assert.ThrowsAsync<JsonException>(() => 
+                    _dataProvider.LoadProjectsAsync(tempFile));
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
+        }
 
-            string jsonPath = Path.Combine(_tempDir, "data.json");
-            await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonData));
-            var provider = new DataProvider(_mockLogger.Object, _dataCache, _mockHostEnvironment.Object);
+        [Theory]
+        [InlineData("InvalidWorkItemStatus")]
+        [InlineData("todo")]
+        public async Task LoadProjectsAsync_InvalidWorkItemStatus_ThrowsInvalidOperationException(string invalidStatus)
+        {
+            var json = $@"
+            {{
+                ""projects"": [
+                    {{
+                        ""id"": ""p1"",
+                        ""name"": ""Test"",
+                        ""startDate"": ""2024-01-01T00:00:00Z"",
+                        ""endDate"": ""2024-12-31T23:59:59Z"",
+                        ""workItems"": [
+                            {{
+                                ""id"": ""wi1"",
+                                ""title"": ""Task"",
+                                ""status"": ""{invalidStatus}"",
+                                ""milestoneId"": ""m1"",
+                                ""completionPercentage"": 0
+                            }}
+                        ]
+                    }}
+                ]
+            }}";
 
-            var project = await provider.LoadProjectDataAsync();
+            var tempFile = Path.Combine(Path.GetTempPath(), "wi_enum_test.json");
+            await File.WriteAllTextAsync(tempFile, json);
 
-            Assert.NotNull(project);
-            Assert.Single(project.WorkItems);
+            try
+            {
+                await Assert.ThrowsAsync<JsonException>(() => 
+                    _dataProvider.LoadProjectsAsync(tempFile));
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
+        }
+
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(-50)]
+        [InlineData(101)]
+        [InlineData(150)]
+        public async Task LoadProjectsAsync_WithInvalidCompletionPercentage_ThrowsInvalidOperationException(int percentage)
+        {
+            var json = $@"
+            {{
+                ""projects"": [
+                    {{
+                        ""id"": ""p1"",
+                        ""name"": ""Test"",
+                        ""startDate"": ""2024-01-01T00:00:00Z"",
+                        ""endDate"": ""2024-12-31T23:59:59Z"",
+                        ""workItems"": [
+                            {{
+                                ""id"": ""wi1"",
+                                ""title"": ""Task"",
+                                ""status"": ""Todo"",
+                                ""milestoneId"": ""m1"",
+                                ""completionPercentage"": {percentage}
+                            }}
+                        ]
+                    }}
+                ]
+            }}";
+
+            var tempFile = Path.Combine(Path.GetTempPath(), "cp_test.json");
+            await File.WriteAllTextAsync(tempFile, json);
+
+            try
+            {
+                var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => 
+                    _dataProvider.LoadProjectsAsync(tempFile));
+                Assert.Contains("CompletionPercentage", ex.Message);
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
+        }
+
+        [Fact]
+        public async Task LoadProjectsAsync_WithNullableFields_SuccessfullyDeserializes()
+        {
+            var json = @"
+            {
+                ""projects"": [
+                    {
+                        ""id"": ""p1"",
+                        ""name"": ""Test"",
+                        ""startDate"": ""2024-01-01T00:00:00Z"",
+                        ""endDate"": ""2024-12-31T23:59:59Z"",
+                        ""milestones"": [
+                            {
+                                ""id"": ""m1"",
+                                ""name"": ""v1.0"",
+                                ""status"": ""InProgress"",
+                                ""dueDate"": ""2024-06-30T23:59:59Z"",
+                                ""description"": null
+                            }
+                        ],
+                        ""workItems"": [
+                            {
+                                ""id"": ""wi1"",
+                                ""title"": ""Task"",
+                                ""status"": ""Todo"",
+                                ""milestoneId"": ""m1"",
+                                ""assignedTo"": null,
+                                ""completionPercentage"": 0
+                            }
+                        ]
+                    }
+                ]
+            }";
+
+            var tempFile = Path.Combine(Path.GetTempPath(), "nullable_test.json");
+            await File.WriteAllTextAsync(tempFile, json);
+
+            try
+            {
+                var projects = await _dataProvider.LoadProjectsAsync(tempFile);
+                Assert.NotEmpty(projects);
+                Assert.Null(projects[0].Milestones[0].Description);
+                Assert.Null(projects[0].WorkItems[0].AssignedTo);
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
         }
     }
 }

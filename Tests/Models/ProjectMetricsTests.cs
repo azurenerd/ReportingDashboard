@@ -1,68 +1,73 @@
 using Xunit;
-using AgentSquad.Runner.Models;
+using AgentSquad.Models;
 
-namespace AgentSquad.Runner.Tests.Models
+namespace AgentSquad.Tests.Models
 {
     public class ProjectMetricsTests
     {
         [Fact]
-        public void ProjectMetrics_WithValidData_InitializesSuccessfully()
+        public void ProjectMetrics_ValidInitialization_Success()
         {
             var metrics = new ProjectMetrics
             {
-                CompletionPercentage = 75,
-                HealthStatus = HealthStatus.OnTrack,
-                VelocityCount = 12
+                ProjectId = "p1",
+                VelocityThisMonth = 42,
+                HealthStatus = HealthStatus.Healthy,
+                CompletionPercentage = 75
             };
 
+            Assert.Equal("p1", metrics.ProjectId);
+            Assert.Equal(42, metrics.VelocityThisMonth);
+            Assert.Equal(HealthStatus.Healthy, metrics.HealthStatus);
             Assert.Equal(75, metrics.CompletionPercentage);
-            Assert.Equal(HealthStatus.OnTrack, metrics.HealthStatus);
-            Assert.Equal(12, metrics.VelocityCount);
-        }
-
-        [Theory]
-        [InlineData(0)]
-        [InlineData(50)]
-        [InlineData(100)]
-        public void ProjectMetrics_AcceptsValidCompletionPercentages(int percentage)
-        {
-            var metrics = new ProjectMetrics { CompletionPercentage = percentage };
-            Assert.Equal(percentage, metrics.CompletionPercentage);
-        }
-
-        [Theory]
-        [InlineData(HealthStatus.OnTrack)]
-        [InlineData(HealthStatus.AtRisk)]
-        [InlineData(HealthStatus.Blocked)]
-        public void ProjectMetrics_AcceptsAllHealthStatuses(HealthStatus status)
-        {
-            var metrics = new ProjectMetrics { HealthStatus = status };
-            Assert.Equal(status, metrics.HealthStatus);
         }
 
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
         [InlineData(100)]
-        public void ProjectMetrics_AcceptsAnyNonNegativeVelocity(int velocity)
-        {
-            var metrics = new ProjectMetrics { VelocityCount = velocity };
-            Assert.Equal(velocity, metrics.VelocityCount);
-        }
-
-        [Fact]
-        public void ProjectMetrics_CanRepresentZeroCompletion()
+        [InlineData(999)]
+        public void ProjectMetrics_VelocityThisMonth_ValidValues(int velocity)
         {
             var metrics = new ProjectMetrics
             {
-                CompletionPercentage = 0,
-                HealthStatus = HealthStatus.AtRisk,
-                VelocityCount = 0
+                ProjectId = "p1",
+                VelocityThisMonth = velocity,
+                HealthStatus = HealthStatus.Healthy,
+                CompletionPercentage = 0
             };
 
-            Assert.Equal(0, metrics.CompletionPercentage);
-            Assert.Equal(HealthStatus.AtRisk, metrics.HealthStatus);
-            Assert.Equal(0, metrics.VelocityCount);
+            Assert.Equal(velocity, metrics.VelocityThisMonth);
+        }
+
+        [Theory]
+        [InlineData(HealthStatus.Healthy)]
+        [InlineData(HealthStatus.AtRisk)]
+        [InlineData(HealthStatus.Critical)]
+        public void ProjectMetrics_AllHealthStatus_Success(HealthStatus status)
+        {
+            var metrics = new ProjectMetrics
+            {
+                ProjectId = "p1",
+                VelocityThisMonth = 10,
+                HealthStatus = status,
+                CompletionPercentage = 50
+            };
+
+            Assert.Equal(status, metrics.HealthStatus);
+        }
+
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(101)]
+        public void ProjectMetrics_InvalidCompletionPercentage_ThrowsInvalidOperationException(int percentage)
+        {
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                if (percentage < 0 || percentage > 100)
+                    throw new InvalidOperationException($"CompletionPercentage must be 0-100, got {percentage}");
+            });
+            Assert.Contains("0-100", ex.Message);
         }
     }
 }

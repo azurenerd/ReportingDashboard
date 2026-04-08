@@ -1,75 +1,61 @@
+using Xunit;
+using AgentSquad.Models;
 using System;
 using System.Collections.Generic;
-using Xunit;
-using AgentSquad.Runner.Models;
 
-namespace AgentSquad.Runner.Tests.Models
+namespace AgentSquad.Tests.Models
 {
     public class ProjectTests
     {
         [Fact]
-        public void Project_WithValidData_InitializesSuccessfully()
+        public void Project_ValidInitialization_Success()
         {
-            var startDate = new DateTime(2024, 1, 1);
+            var startDate = DateTime.UtcNow;
             var project = new Project
             {
-                Name = "Dashboard Project",
-                Description = "Executive dashboard",
+                Id = "p1",
+                Name = "Mobile App",
                 StartDate = startDate,
+                EndDate = startDate.AddMonths(6),
                 Milestones = new List<Milestone>(),
-                WorkItems = new List<WorkItem>(),
-                Metrics = new ProjectMetrics()
+                WorkItems = new List<WorkItem>()
             };
 
-            Assert.Equal("Dashboard Project", project.Name);
-            Assert.Equal("Executive dashboard", project.Description);
+            Assert.Equal("p1", project.Id);
+            Assert.Equal("Mobile App", project.Name);
             Assert.Equal(startDate, project.StartDate);
-            Assert.NotNull(project.Milestones);
-            Assert.NotNull(project.WorkItems);
-            Assert.NotNull(project.Metrics);
+        }
+
+        [Theory]
+        [InlineData("2024-13-01")]
+        [InlineData("2024-12-32")]
+        public void Project_InvalidDateFormat_ThrowsFormatException(string invalidDate)
+        {
+            Assert.Throws<FormatException>(() => DateTime.Parse(invalidDate));
         }
 
         [Fact]
-        public void Project_DefaultsToEmptyCollections()
+        public void Project_ValidIso8601Dates_ParsesCorrectly()
         {
-            var project = new Project();
+            var iso8601Start = "2024-01-01T00:00:00Z";
+            var iso8601End = "2024-12-31T23:59:59Z";
+            var startDate = DateTime.Parse(iso8601Start);
+            var endDate = DateTime.Parse(iso8601End);
 
-            Assert.NotNull(project.Milestones);
+            Assert.True(endDate > startDate);
+        }
+
+        [Fact]
+        public void Project_EmptyMilestonesList_Success()
+        {
+            var project = new Project
+            {
+                Id = "p1",
+                Name = "Project",
+                Milestones = new List<Milestone>()
+            };
+
             Assert.Empty(project.Milestones);
-            Assert.NotNull(project.WorkItems);
-            Assert.Empty(project.WorkItems);
-        }
-
-        [Fact]
-        public void Project_CanContainMultipleMilestones()
-        {
-            var project = new Project
-            {
-                Milestones = new List<Milestone>
-                {
-                    new() { Name = "M1" },
-                    new() { Name = "M2" },
-                    new() { Name = "M3" }
-                }
-            };
-
-            Assert.Equal(3, project.Milestones.Count);
-        }
-
-        [Fact]
-        public void Project_CanContainMultipleWorkItems()
-        {
-            var project = new Project
-            {
-                WorkItems = new List<WorkItem>
-                {
-                    new() { Title = "WI1" },
-                    new() { Title = "WI2" },
-                    new() { Title = "WI3" }
-                }
-            };
-
-            Assert.Equal(3, project.WorkItems.Count);
         }
     }
 }

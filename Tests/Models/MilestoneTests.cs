@@ -1,52 +1,64 @@
-using System;
 using Xunit;
-using AgentSquad.Runner.Models;
+using AgentSquad.Models;
+using System;
 
-namespace AgentSquad.Runner.Tests.Models
+namespace AgentSquad.Tests.Models
 {
     public class MilestoneTests
     {
         [Fact]
-        public void Milestone_WithValidData_InitializesSuccessfully()
+        public void Milestone_ValidInitialization_Success()
         {
-            var targetDate = new DateTime(2024, 3, 15);
+            var dueDate = DateTime.UtcNow.AddDays(30);
             var milestone = new Milestone
             {
-                Name = "Version 1.0 Release",
-                TargetDate = targetDate,
+                Id = "m1",
+                Name = "Release v1.0",
                 Status = MilestoneStatus.InProgress,
-                Description = "Major product release"
+                DueDate = dueDate,
+                Description = "Initial release"
             };
 
-            Assert.Equal("Version 1.0 Release", milestone.Name);
-            Assert.Equal(targetDate, milestone.TargetDate);
+            Assert.Equal("m1", milestone.Id);
+            Assert.Equal("Release v1.0", milestone.Name);
             Assert.Equal(MilestoneStatus.InProgress, milestone.Status);
-            Assert.Equal("Major product release", milestone.Description);
-        }
-
-        [Theory]
-        [InlineData(MilestoneStatus.Completed)]
-        [InlineData(MilestoneStatus.InProgress)]
-        [InlineData(MilestoneStatus.AtRisk)]
-        [InlineData(MilestoneStatus.Future)]
-        public void Milestone_AcceptsAllStatuses(MilestoneStatus status)
-        {
-            var milestone = new Milestone { Status = status };
-            Assert.Equal(status, milestone.Status);
+            Assert.Equal(dueDate, milestone.DueDate);
+            Assert.Equal("Initial release", milestone.Description);
         }
 
         [Fact]
-        public void Milestone_AllowsNullDescription()
+        public void Milestone_NullDescription_Allowed()
         {
-            var milestone = new Milestone { Description = null };
+            var milestone = new Milestone
+            {
+                Id = "m1",
+                Name = "Release v1.0",
+                Status = MilestoneStatus.NotStarted,
+                DueDate = DateTime.UtcNow.AddDays(30),
+                Description = null
+            };
+
             Assert.Null(milestone.Description);
         }
 
-        [Fact]
-        public void Milestone_WithEmptyName_IsAllowed()
+        [Theory]
+        [InlineData("2024-13-40")]
+        [InlineData("2024-12-32")]
+        [InlineData("invalid-date")]
+        [InlineData("2024/12/25")]
+        public void Milestone_InvalidDateFormat_ThrowsFormatException(string invalidDate)
         {
-            var milestone = new Milestone { Name = string.Empty };
-            Assert.Empty(milestone.Name);
+            Assert.Throws<FormatException>(() => DateTime.Parse(invalidDate));
+        }
+
+        [Fact]
+        public void Milestone_ValidIso8601Date_ParsesCorrectly()
+        {
+            var iso8601 = "2024-12-25T10:30:00Z";
+            var date = DateTime.Parse(iso8601);
+            Assert.Equal(2024, date.Year);
+            Assert.Equal(12, date.Month);
+            Assert.Equal(25, date.Day);
         }
     }
 }

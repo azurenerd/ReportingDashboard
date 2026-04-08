@@ -1,33 +1,63 @@
 using Xunit;
-using AgentSquad.Runner.Models;
+using AgentSquad.Models;
 
-namespace AgentSquad.Runner.Tests.Models
+namespace AgentSquad.Tests.Models
 {
     public class EnumsTests
     {
-        [Fact]
-        public void MilestoneStatus_HasAllRequiredValues()
+        [Theory]
+        [InlineData(nameof(MilestoneStatus.NotStarted))]
+        [InlineData(nameof(MilestoneStatus.InProgress))]
+        [InlineData(nameof(MilestoneStatus.Completed))]
+        public void MilestoneStatus_ValidEnumValues_ParseCorrectly(string value)
         {
-            Assert.True(System.Enum.IsDefined(typeof(MilestoneStatus), MilestoneStatus.Completed));
-            Assert.True(System.Enum.IsDefined(typeof(MilestoneStatus), MilestoneStatus.InProgress));
-            Assert.True(System.Enum.IsDefined(typeof(MilestoneStatus), MilestoneStatus.AtRisk));
-            Assert.True(System.Enum.IsDefined(typeof(MilestoneStatus), MilestoneStatus.Future));
+            var result = System.Enum.Parse<MilestoneStatus>(value);
+            Assert.NotEqual(default, result);
         }
 
-        [Fact]
-        public void WorkItemStatus_HasAllRequiredValues()
+        [Theory]
+        [InlineData("InvalidStatus")]
+        [InlineData("")]
+        [InlineData("null")]
+        public void MilestoneStatus_InvalidEnumValues_ThrowsArgumentException(string value)
         {
-            Assert.True(System.Enum.IsDefined(typeof(WorkItemStatus), WorkItemStatus.Shipped));
-            Assert.True(System.Enum.IsDefined(typeof(WorkItemStatus), WorkItemStatus.InProgress));
-            Assert.True(System.Enum.IsDefined(typeof(WorkItemStatus), WorkItemStatus.CarriedOver));
+            Assert.Throws<ArgumentException>(() => System.Enum.Parse<MilestoneStatus>(value));
         }
 
-        [Fact]
-        public void HealthStatus_HasAllRequiredValues()
+        [Theory]
+        [InlineData(nameof(WorkItemStatus.Todo))]
+        [InlineData(nameof(WorkItemStatus.InProgress))]
+        [InlineData(nameof(WorkItemStatus.Done))]
+        public void WorkItemStatus_ValidEnumValues_ParseCorrectly(string value)
         {
-            Assert.True(System.Enum.IsDefined(typeof(HealthStatus), HealthStatus.OnTrack));
-            Assert.True(System.Enum.IsDefined(typeof(HealthStatus), HealthStatus.AtRisk));
-            Assert.True(System.Enum.IsDefined(typeof(HealthStatus), HealthStatus.Blocked));
+            var result = System.Enum.Parse<WorkItemStatus>(value);
+            Assert.NotEqual(default, result);
+        }
+
+        [Theory]
+        [InlineData("InvalidStatus")]
+        [InlineData("DONE")]
+        public void WorkItemStatus_InvalidEnumValues_ThrowsArgumentException(string value)
+        {
+            Assert.Throws<ArgumentException>(() => System.Enum.Parse<WorkItemStatus>(value));
+        }
+
+        [Theory]
+        [InlineData(nameof(HealthStatus.Healthy))]
+        [InlineData(nameof(HealthStatus.AtRisk))]
+        [InlineData(nameof(HealthStatus.Critical))]
+        public void HealthStatus_ValidEnumValues_ParseCorrectly(string value)
+        {
+            var result = System.Enum.Parse<HealthStatus>(value);
+            Assert.NotEqual(default, result);
+        }
+
+        [Theory]
+        [InlineData("InvalidHealth")]
+        [InlineData("warning")]
+        public void HealthStatus_InvalidEnumValues_ThrowsArgumentException(string value)
+        {
+            Assert.Throws<ArgumentException>(() => System.Enum.Parse<HealthStatus>(value));
         }
     }
 }
