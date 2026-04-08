@@ -6,7 +6,7 @@
             <h5 class="mb-0 text-white">
                 <strong>@StatusCategory</strong>
             </h5>
-            <span class="badge bg-light text-dark">@TaskCount</span>
+            <span class="badge bg-light text-dark">@(Tasks?.Count ?? 0)</span>
         </div>
     </div>
     
@@ -31,25 +31,28 @@
                 <div class="task-list">
                     @foreach (var task in Tasks)
                     {
-                        <div class="task-item d-flex align-items-start mb-3">
-                            <div class="form-check me-3">
-                                <input type="checkbox" 
-                                       class="form-check-input" 
-                                       id="@GetTaskCheckboxId(task.Id)" 
-                                       disabled />
+                        @if (task != null)
+                        {
+                            <div class="task-item d-flex align-items-start mb-3">
+                                <div class="form-check me-3">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="@GetTaskCheckboxId(task.Id)" 
+                                           disabled />
+                                </div>
+                                <div class="flex-grow-1">
+                                    <label class="task-name" for="@GetTaskCheckboxId(task.Id)">
+                                        @(string.IsNullOrWhiteSpace(task.Name) ? "(Unnamed Task)" : task.Name)
+                                    </label>
+                                    @if (!string.IsNullOrWhiteSpace(task.Owner))
+                                    {
+                                        <div class="task-owner">
+                                            <small class="text-muted">@task.Owner</small>
+                                        </div>
+                                    }
+                                </div>
                             </div>
-                            <div class="flex-grow-1">
-                                <label class="task-name" for="@GetTaskCheckboxId(task.Id)">
-                                    @task.Name
-                                </label>
-                                @if (!string.IsNullOrWhiteSpace(task.Owner))
-                                {
-                                    <div class="task-owner">
-                                        <small class="text-muted">@task.Owner</small>
-                                    </div>
-                                }
-                            </div>
-                        </div>
+                        }
                     }
                 </div>
             </div>
@@ -80,7 +83,7 @@
     /// List of task items to display
     /// </summary>
     [Parameter]
-    public List<TaskItem> Tasks { get; set; } = new();
+    public List<TaskItem>? Tasks { get; set; }
 
     /// <summary>
     /// CSS class for card header color (e.g., "bg-success", "bg-primary", "bg-warning")
@@ -111,12 +114,13 @@
         {
             parameterValidationFailed = true;
             validationErrorMessage = "StatusCategory parameter is required.";
+            return;
         }
 
         if (TaskCount < 0)
         {
             parameterValidationFailed = true;
-            validationErrorMessage += " TaskCount cannot be negative.";
+            validationErrorMessage = "TaskCount cannot be negative.";
         }
 
         if (Tasks == null)
@@ -129,9 +133,10 @@
             CardColor = "bg-secondary";
         }
 
-        if (Tasks.Count != TaskCount && TaskCount > 0)
+        int actualTaskCount = Tasks.Count(t => t != null);
+        if (actualTaskCount != TaskCount && TaskCount > 0)
         {
-            validationErrorMessage += $" Warning: TaskCount ({TaskCount}) does not match Tasks list count ({Tasks.Count}).";
+            validationErrorMessage += $" Warning: TaskCount ({TaskCount}) does not match Tasks list count ({actualTaskCount}).";
         }
     }
 
@@ -154,5 +159,5 @@
     /// <summary>
     /// Generates a unique checkbox ID for a task
     /// </summary>
-    private string GetTaskCheckboxId(string taskId) => $"task-checkbox-{taskId}";
+    private string GetTaskCheckboxId(string? taskId) => $"task-checkbox-{taskId ?? "unknown"}";
 }

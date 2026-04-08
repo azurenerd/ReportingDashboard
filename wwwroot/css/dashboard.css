@@ -23,12 +23,14 @@
     margin-bottom: 0.5rem;
     font-weight: 700;
     font-size: 2rem;
+    line-height: 1.2;
 }
 
 .dashboard-header p {
     margin: 0;
     font-size: 1rem;
     opacity: 0.95;
+    line-height: 1.4;
 }
 
 /* Status cards section */
@@ -92,6 +94,27 @@
     color: #6c757d;
 }
 
+/* Alert styling */
+.alert {
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.alert-heading {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.alert ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.alert ul li {
+    margin-bottom: 0.25rem;
+}
+
 /* Loading and error states */
 .spinner-border-sm {
     width: 1rem;
@@ -103,7 +126,12 @@
     padding: 0.5rem;
 }
 
-/* Print styles */
+.btn-sm {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Print styles for screenshot capture */
 @media print {
     .dashboard-container {
         background-color: white;
@@ -112,9 +140,24 @@
     
     .dashboard-header {
         page-break-inside: avoid;
+        background: none;
+        color: #000;
+        border: 2px solid #667eea;
     }
     
     .card-grid {
         page-break-inside: avoid;
+    }
+    
+    .alert {
+        display: none !important;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
     }
 }
