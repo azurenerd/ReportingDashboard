@@ -1,0 +1,39 @@
+@page "/"
+@using AgentSquad.Dashboard.Services
+@using AgentSquad.Dashboard.Models
+@inject ProjectDataService ProjectDataService
+@inject ErrorBoundary ErrorBoundary
+
+<PageTitle>Executive Dashboard</PageTitle>
+
+<div class="container-fluid mt-4">
+    <h1>Executive Project Dashboard</h1>
+    
+    @if (_projectData == null)
+    {
+        <div class="alert alert-info">Loading project data...</div>
+    }
+    else
+    {
+        <ErrorBoundary>
+            <Dashboard ProjectData="_projectData" />
+        </ErrorBoundary>
+    }
+</div>
+
+@code {
+    private ProjectData _projectData;
+    private string _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _projectData = await ProjectDataService.LoadProjectDataAsync("data/data.json");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error loading project data: {ex.Message}";
+        }
+    }
+}

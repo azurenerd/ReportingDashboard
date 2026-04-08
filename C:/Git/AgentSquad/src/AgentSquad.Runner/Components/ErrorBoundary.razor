@@ -1,25 +1,35 @@
-<CascadingValue Value="this">
-    @ChildContent
-</CascadingValue>
+<div class="error-boundary">
+    @if (HasError)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading">Error Loading Dashboard</h4>
+            <p>@ErrorMessage</p>
+            <button type="button" class="btn btn-primary btn-sm" @onclick="Retry">Refresh</button>
+        </div>
+    }
+    else
+    {
+        @ChildContent
+    }
+</div>
 
 @code {
     [Parameter]
-    public RenderFragment? ChildContent { get; set; }
+    public RenderFragment ChildContent { get; set; }
 
-    [Parameter]
-    public RenderFragment? ErrorContent { get; set; }
+    private bool HasError { get; set; }
+    private string ErrorMessage { get; set; }
 
-    private bool hasError = false;
-
-    protected override void OnErrorFromChild(Exception ex)
+    public void SetError(string message)
     {
-        hasError = true;
+        HasError = true;
+        ErrorMessage = message;
         StateHasChanged();
     }
 
-    private void Reset()
+    private void Retry()
     {
-        hasError = false;
+        HasError = false;
         StateHasChanged();
     }
 }

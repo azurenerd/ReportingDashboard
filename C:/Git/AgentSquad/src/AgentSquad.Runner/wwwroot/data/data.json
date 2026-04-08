@@ -14,7 +14,7 @@
       "name": "Design Review Complete",
       "targetDate": "2026-04-15",
       "actualDate": "2026-04-12",
-      "status": 0,
+      "status": "Completed",
       "completionPercentage": 100
     },
     {
@@ -22,7 +22,7 @@
       "name": "Development Sprint 1 Done",
       "targetDate": "2026-05-01",
       "actualDate": null,
-      "status": 1,
+      "status": "InProgress",
       "completionPercentage": 65
     },
     {
@@ -30,15 +30,7 @@
       "name": "QA Testing Complete",
       "targetDate": "2026-06-01",
       "actualDate": null,
-      "status": 2,
-      "completionPercentage": 0
-    },
-    {
-      "id": "m4",
-      "name": "Launch Ready",
-      "targetDate": "2026-06-28",
-      "actualDate": null,
-      "status": 2,
+      "status": "Pending",
       "completionPercentage": 0
     }
   ],
@@ -46,7 +38,7 @@
     {
       "id": "t1",
       "name": "API Authentication Module",
-      "status": 0,
+      "status": "Shipped",
       "assignedTo": "John Doe",
       "dueDate": "2026-04-20",
       "estimatedDays": 5,
@@ -55,7 +47,7 @@
     {
       "id": "t2",
       "name": "Payment Integration",
-      "status": 1,
+      "status": "InProgress",
       "assignedTo": "Alice Brown",
       "dueDate": "2026-05-10",
       "estimatedDays": 8,
@@ -64,7 +56,7 @@
     {
       "id": "t3",
       "name": "iOS Push Notifications",
-      "status": 2,
+      "status": "CarriedOver",
       "assignedTo": "Bob Wilson",
       "dueDate": "2026-05-15",
       "estimatedDays": 6,
@@ -72,66 +64,66 @@
     },
     {
       "id": "t4",
-      "name": "Android FCM Integration",
-      "status": 1,
-      "assignedTo": "Carol Davis",
+      "name": "Android UI Polish",
+      "status": "InProgress",
+      "assignedTo": "Carol White",
       "dueDate": "2026-05-20",
-      "estimatedDays": 6,
+      "estimatedDays": 4,
       "relatedMilestone": "m2"
     },
     {
       "id": "t5",
-      "name": "Security Audit",
-      "status": 1,
-      "assignedTo": "Dave Miller",
-      "dueDate": "2026-05-30",
-      "estimatedDays": 4,
-      "relatedMilestone": "m3"
+      "name": "Backend Database Optimization",
+      "status": "Shipped",
+      "assignedTo": "David Green",
+      "dueDate": "2026-04-25",
+      "estimatedDays": 7,
+      "relatedMilestone": "m1"
     },
     {
       "id": "t6",
-      "name": "Database Migration",
-      "status": 0,
-      "assignedTo": "Eve Johnson",
-      "dueDate": "2026-04-25",
-      "estimatedDays": 3,
-      "relatedMilestone": "m2"
-    },
-    {
-      "id": "t7",
-      "name": "Performance Testing",
-      "status": 2,
-      "assignedTo": "Frank White",
-      "dueDate": "2026-06-10",
+      "name": "Security Audit",
+      "status": "InProgress",
+      "assignedTo": "Eve Martinez",
+      "dueDate": "2026-05-31",
       "estimatedDays": 5,
       "relatedMilestone": "m3"
     },
     {
-      "id": "t8",
-      "name": "Documentation & Training",
-      "status": 2,
-      "assignedTo": "Grace Lee",
-      "dueDate": "2026-06-20",
-      "estimatedDays": 4,
-      "relatedMilestone": "m4"
-    },
-    {
-      "id": "t9",
-      "name": "Beta User Testing",
-      "status": 1,
-      "assignedTo": "Henry Taylor",
-      "dueDate": "2026-05-25",
-      "estimatedDays": 7,
+      "id": "t7",
+      "name": "Documentation",
+      "status": "CarriedOver",
+      "assignedTo": "Frank Lee",
+      "dueDate": "2026-06-15",
+      "estimatedDays": 3,
       "relatedMilestone": "m3"
     },
     {
+      "id": "t8",
+      "name": "User Acceptance Testing",
+      "status": "Pending",
+      "assignedTo": "Grace Johnson",
+      "dueDate": "2026-06-10",
+      "estimatedDays": 4,
+      "relatedMilestone": "m3"
+    },
+    {
+      "id": "t9",
+      "name": "Release Notes",
+      "status": "Shipped",
+      "assignedTo": "Henry Brown",
+      "dueDate": "2026-04-30",
+      "estimatedDays": 2,
+      "relatedMilestone": "m1"
+    },
+    {
       "id": "t10",
-      "name": "Release Notes & Marketing",
-      "status": 2,
-      "assignedTo": "Iris Martinez",
-      "dueDate": "2026-06-25",
-      "estimatedDays": 3,
-      "relatedMilestone": "m4"
+      "name": "Deployment Infrastructure",
+      "status": "InProgress",
+      "assignedTo": "Iris Chen",
+      "dueDate": "2026-05-25",
+      "estimatedDays": 6,
+      "relatedMilestone": "m2"
     }
   ],
   "metrics": {
@@ -139,6 +131,8 @@
     "completedTasks": 3,
     "inProgressTasks": 5,
     "carriedOverTasks": 2,
-    "estimatedBurndownRate": 1.2
+    "estimatedBurndownRate": 1.2,
+    "projectStartDate": "2026-04-01",
+    "projectEndDate": "2026-06-30"
   }
 }

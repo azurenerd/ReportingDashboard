@@ -1,24 +1,21 @@
-@using AgentSquad.Dashboard.Services
+@using AgentSquad.Dashboard.Models
 
-<div class="progress-section">
-    <h2 class="mb-4">Project Progress</h2>
+<div class="metrics-container">
     <div class="row">
-        <div class="col-md-6">
-            <div class="progress-card">
-                <h5 class="card-title">Overall Completion</h5>
-                <div class="progress mb-3" style="height: 30px;">
-                    <div class="progress-bar bg-success" style="width: @GetCompletionPercentage()%">
-                        <strong>@GetCompletionPercentage()%</strong>
-                    </div>
+        <div class="col-md-8">
+            <h4>Project Completion</h4>
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar bg-success" role="progressbar" 
+                     style="width: @(CompletionPercentage)%"
+                     aria-valuenow="@CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                    @CompletionPercentage%
                 </div>
-                <p class="text-muted">@(Metrics?.CompletedTasks ?? 0) of @(Metrics?.TotalTasks ?? 0) tasks completed</p>
             </div>
+            <p class="mt-2 text-muted">@CompletedTasks of @TotalTasks tasks completed</p>
         </div>
-        <div class="col-md-6">
-            <div class="progress-card">
-                <h5 class="card-title">Time Remaining</h5>
-                <p class="display-4">@GetDaysRemaining() days</p>
-                <p class="text-muted">Target completion: @ProjectEndDate.ToString("MMM dd, yyyy")</p>
+        <div class="col-md-4 text-center">
+            <div class="completion-percentage">
+                <span class="large-percentage">@CompletionPercentage%</span>
             </div>
         </div>
     </div>
@@ -26,22 +23,11 @@
 
 @code {
     [Parameter]
-    public ProjectMetrics? Metrics { get; set; }
+    public int CompletionPercentage { get; set; }
 
     [Parameter]
-    public DateTime ProjectStartDate { get; set; }
+    public int TotalTasks { get; set; }
 
     [Parameter]
-    public DateTime ProjectEndDate { get; set; }
-
-    private int GetCompletionPercentage()
-    {
-        return Metrics?.CompletionPercentage ?? 0;
-    }
-
-    private int GetDaysRemaining()
-    {
-        var remaining = (ProjectEndDate - DateTime.Now).Days;
-        return remaining > 0 ? remaining : 0;
-    }
+    public int CompletedTasks { get; set; }
 }
