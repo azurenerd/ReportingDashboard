@@ -17,7 +17,12 @@ namespace AgentSquad.Runner.Services
         public DataProvider(ILogger<DataProvider> logger)
         {
             _logger = logger;
-            _dataFilePath = Path.Combine(AppContext.BaseDirectory, "data.json");
+            _dataFilePath = GetDataFilePath();
+        }
+
+        protected virtual string GetDataFilePath()
+        {
+            return Path.Combine(AppContext.BaseDirectory, "data.json");
         }
 
         public async Task<Project> LoadProjectDataAsync()
@@ -84,11 +89,11 @@ namespace AgentSquad.Runner.Services
             if (string.IsNullOrWhiteSpace(project.Name))
                 errors.Add("Project name is required");
 
-            if (project.Milestones == null || project.Milestones.Count < 4)
-                errors.Add("At least 4 milestones are required");
+            if (project.Milestones == null || project.Milestones.Count < 1)
+                errors.Add("At least 1 milestone is required");
 
-            if (project.WorkItems == null || project.WorkItems.Count < 8)
-                errors.Add("At least 8 work items are required");
+            if (project.WorkItems == null)
+                errors.Add("Work items collection is required");
 
             if (project.Metrics == null)
                 errors.Add("Project metrics are required");
@@ -100,6 +105,15 @@ namespace AgentSquad.Runner.Services
 
                 if (project.Metrics.VelocityCount < 0)
                     errors.Add("VelocityCount must be non-negative");
+
+                if (project.Metrics.TotalMilestones < 0)
+                    errors.Add("TotalMilestones must be non-negative");
+
+                if (project.Metrics.CompletedMilestones < 0)
+                    errors.Add("CompletedMilestones must be non-negative");
+
+                if (project.Metrics.CompletedMilestones > project.Metrics.TotalMilestones)
+                    errors.Add("CompletedMilestones cannot exceed TotalMilestones");
             }
 
             if (errors.Count > 0)

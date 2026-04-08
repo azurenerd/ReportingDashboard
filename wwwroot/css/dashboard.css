@@ -392,17 +392,32 @@ body {
     font-size: 13px;
     font-weight: 500;
     color: #1a1a1a;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     line-height: 1.4;
 }
 
-.item-category {
+.item-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.item-category, .item-assignee {
     font-size: 11px;
-    color: #999;
-    background-color: #f5f5f5;
     padding: 2px 6px;
     border-radius: 3px;
     display: inline-block;
+}
+
+.item-category {
+    background-color: #f0f0f0;
+    color: #666;
+}
+
+.item-assignee {
+    background-color: #e3f2fd;
+    color: #0066cc;
+    font-weight: 500;
 }
 
 @media (max-width: 1920px) {

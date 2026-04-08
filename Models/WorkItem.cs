@@ -1,5 +1,3 @@
-using AgentSquad.Runner.Models;
-
 namespace AgentSquad.Runner.Models
 {
     public class WorkItem
@@ -8,5 +6,6 @@ namespace AgentSquad.Runner.Models
         public string Description { get; set; }
         public WorkItemStatus Status { get; set; }
         public string Category { get; set; }
+        public string AssignedTo { get; set; }
     }
 }
