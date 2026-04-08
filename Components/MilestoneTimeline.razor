@@ -17,6 +17,10 @@
                     <div class="timeline-content">
                         <h5 class="timeline-title">@milestone.Name</h5>
                         <p class="timeline-date">Target Date: @milestone.TargetDate.ToShortDateString()</p>
+                        @if (milestone.ActualDate.HasValue)
+                        {
+                            <p class="timeline-actual-date">Actual Date: @milestone.ActualDate.Value.ToShortDateString()</p>
+                        }
                         <div class="progress" style="height: 20px;">
                             <div class="progress-bar" role="progressbar" style="width: @milestone.CompletionPercentage%;" aria-valuenow="@milestone.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
                                 @milestone.CompletionPercentage%
@@ -74,25 +78,18 @@
 .timeline-date {
     font-size: 12pt;
     color: #666;
+    margin-bottom: 8px;
+}
+
+.timeline-actual-date {
+    font-size: 12pt;
+    color: #666;
     margin-bottom: 12px;
+    font-style: italic;
 }
 
 .progress {
     background-color: #e9ecef;
-}
-
-@media (max-width: 1023px) {
-    .timeline-container {
-        gap: 20px;
-    }
-
-    .timeline-title {
-        font-size: 14pt;
-    }
-
-    .timeline-date {
-        font-size: 11pt;
-    }
 }
 </style>
 

@@ -31,8 +31,10 @@ namespace AgentSquad.Runner.Models
 
     public class Milestone
     {
+        public string Id { get; set; }
         public string Name { get; set; }
         public DateTime TargetDate { get; set; }
+        public DateTime? ActualDate { get; set; }
         public MilestoneStatus Status { get; set; }
         public int CompletionPercentage { get; set; }
     }
@@ -44,6 +46,8 @@ namespace AgentSquad.Runner.Models
         public TaskStatus Status { get; set; }
         public string AssignedTo { get; set; }
         public DateTime DueDate { get; set; }
+        public int EstimatedDays { get; set; }
+        public string RelatedMilestone { get; set; }
     }
 
     public enum MilestoneStatus

@@ -18,11 +18,19 @@
                 <ul class="list-unstyled small">
                     @foreach (var task in Tasks)
                     {
-                        <li class="mb-2 pb-2 border-bottom">
+                        <li class="task-item mb-2 pb-2 border-bottom">
                             <div class="d-flex justify-content-between">
                                 <strong>@task.Name</strong>
                             </div>
                             <small class="text-muted">Assigned to: @task.AssignedTo</small>
+                            @if (task.EstimatedDays > 0)
+                            {
+                                <small class="text-muted d-block">Estimated: @task.EstimatedDays days</small>
+                            }
+                            @if (!string.IsNullOrEmpty(task.RelatedMilestone))
+                            {
+                                <small class="text-muted d-block">Milestone: @task.RelatedMilestone</small>
+                            }
                         </li>
                     }
                 </ul>
@@ -30,6 +38,25 @@
         }
     </div>
 </div>
+
+<style>
+.card-title {
+    font-size: 12pt;
+    font-weight: 600;
+}
+
+.task-item {
+    font-size: 12pt;
+}
+
+.task-item strong {
+    font-size: 12pt;
+}
+
+.task-item small {
+    font-size: 11pt;
+}
+</style>
 
 @code {
     [Parameter]

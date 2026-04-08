@@ -11,26 +11,34 @@
   },
   "milestones": [
     {
+      "id": "m001",
       "name": "Requirements & Planning",
       "targetDate": "2024-02-15T00:00:00Z",
+      "actualDate": "2024-02-14T00:00:00Z",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
+      "id": "m002",
       "name": "Design & Architecture",
       "targetDate": "2024-03-15T00:00:00Z",
+      "actualDate": "2024-03-16T00:00:00Z",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
+      "id": "m003",
       "name": "Core Development",
       "targetDate": "2024-05-15T00:00:00Z",
+      "actualDate": null,
       "status": "InProgress",
       "completionPercentage": 75
     },
     {
+      "id": "m004",
       "name": "Testing & QA",
       "targetDate": "2024-06-15T00:00:00Z",
+      "actualDate": null,
       "status": "Pending",
       "completionPercentage": 0
     }
@@ -41,56 +49,72 @@
       "name": "User authentication module",
       "status": "Shipped",
       "assignedTo": "Alice Johnson",
-      "dueDate": "2024-02-28T00:00:00Z"
+      "dueDate": "2024-02-28T00:00:00Z",
+      "estimatedDays": 10,
+      "relatedMilestone": "m001"
     },
     {
       "id": "task-002",
       "name": "Dashboard UI framework",
       "status": "Shipped",
       "assignedTo": "Bob Smith",
-      "dueDate": "2024-03-31T00:00:00Z"
+      "dueDate": "2024-03-31T00:00:00Z",
+      "estimatedDays": 15,
+      "relatedMilestone": "m002"
     },
     {
       "id": "task-003",
       "name": "Data service integration",
       "status": "Shipped",
       "assignedTo": "Carol Davis",
-      "dueDate": "2024-04-15T00:00:00Z"
+      "dueDate": "2024-04-15T00:00:00Z",
+      "estimatedDays": 8,
+      "relatedMilestone": "m003"
     },
     {
       "id": "task-004",
       "name": "Milestone timeline component",
       "status": "InProgress",
       "assignedTo": "David Wilson",
-      "dueDate": "2024-05-10T00:00:00Z"
+      "dueDate": "2024-05-10T00:00:00Z",
+      "estimatedDays": 5,
+      "relatedMilestone": "m003"
     },
     {
       "id": "task-005",
       "name": "Status cards implementation",
       "status": "InProgress",
       "assignedTo": "Emma Martinez",
-      "dueDate": "2024-05-15T00:00:00Z"
+      "dueDate": "2024-05-15T00:00:00Z",
+      "estimatedDays": 6,
+      "relatedMilestone": "m003"
     },
     {
       "id": "task-006",
       "name": "Progress metrics visualization",
       "status": "InProgress",
       "assignedTo": "Frank Taylor",
-      "dueDate": "2024-05-20T00:00:00Z"
+      "dueDate": "2024-05-20T00:00:00Z",
+      "estimatedDays": 4,
+      "relatedMilestone": "m003"
     },
     {
       "id": "task-007",
       "name": "Performance optimization",
       "status": "CarriedOver",
       "assignedTo": "Grace Lee",
-      "dueDate": "2024-05-01T00:00:00Z"
+      "dueDate": "2024-05-01T00:00:00Z",
+      "estimatedDays": 7,
+      "relatedMilestone": "m003"
     },
     {
       "id": "task-008",
       "name": "Documentation update",
       "status": "CarriedOver",
       "assignedTo": "Henry Brown",
-      "dueDate": "2024-04-30T00:00:00Z"
+      "dueDate": "2024-04-30T00:00:00Z",
+      "estimatedDays": 3,
+      "relatedMilestone": "m004"
     }
   ],
   "metrics": {
