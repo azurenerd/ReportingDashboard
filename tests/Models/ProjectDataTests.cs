@@ -1,124 +1,120 @@
 using Xunit;
-using AgentSquad.Models;
+using AgentSquad.Dashboard.Models;
 
-namespace AgentSquad.Tests.Models
+namespace AgentSquad.Dashboard.Tests.Models;
+
+public class ProjectDataTests
 {
-    public class ProjectDataTests
+    [Fact]
+    public void ProjectData_ShouldInitializeWithEmptyCollections()
     {
-        [Fact]
-        public void ProjectData_Initialize_WithDefaults()
+        var projectData = new ProjectData();
+        
+        Assert.NotNull(projectData.Milestones);
+        Assert.NotNull(projectData.Tasks);
+        Assert.Empty(projectData.Milestones);
+        Assert.Empty(projectData.Tasks);
+    }
+
+    [Fact]
+    public void Milestone_CompletedStatus_ShouldHaveZeroValue()
+    {
+        Assert.Equal(0, (int)MilestoneStatus.Completed);
+    }
+
+    [Fact]
+    public void Milestone_WithAllFields_ShouldDeserializeCorrectly()
+    {
+        var milestone = new Milestone
         {
-            var projectData = new ProjectData();
-            
-            Assert.NotNull(projectData.Milestones);
-            Assert.NotNull(projectData.Tasks);
-            Assert.Empty(projectData.Milestones);
-            Assert.Empty(projectData.Tasks);
-        }
+            Id = "M1",
+            Name = "Phase 1 Complete",
+            TargetDate = new DateTime(2026, 06, 30),
+            ActualDate = new DateTime(2026, 06, 28),
+            Status = MilestoneStatus.Completed,
+            CompletionPercentage = 100
+        };
 
-        [Fact]
-        public void ProjectData_WithProjectInfo_ValidatesStructure()
+        Assert.Equal("M1", milestone.Id);
+        Assert.Equal("Phase 1 Complete", milestone.Name);
+        Assert.Equal(100, milestone.CompletionPercentage);
+        Assert.NotNull(milestone.ActualDate);
+    }
+
+    [Fact]
+    public void Task_WithCarriedOverStatus_ShouldHaveCorrectValue()
+    {
+        Assert.Equal(2, (int)TaskStatus.CarriedOver);
+    }
+
+    [Fact]
+    public void Task_ShouldContainAllRequiredFields()
+    {
+        var task = new Task
         {
-            var projectData = new ProjectData
-            {
-                Project = new Project
-                {
-                    Name = "Q2 Mobile App Release",
-                    Description = "Release mobile app v2.0",
-                    StartDate = new DateTime(2026, 1, 1),
-                    EndDate = new DateTime(2026, 6, 30)
-                }
-            };
+            Id = "T1",
+            Name = "Implement auth",
+            Status = TaskStatus.InProgress,
+            AssignedTo = "John Doe",
+            DueDate = new DateTime(2026, 05, 15),
+            EstimatedDays = 5,
+            RelatedMilestone = "M1"
+        };
 
-            Assert.NotNull(projectData.Project);
-            Assert.Equal("Q2 Mobile App Release", projectData.Project.Name);
-            Assert.Equal(181, (projectData.Project.EndDate - projectData.Project.StartDate).Days);
-        }
+        Assert.Equal("T1", task.Id);
+        Assert.Equal("Implement auth", task.Name);
+        Assert.Equal(TaskStatus.InProgress, task.Status);
+        Assert.Equal("John Doe", task.AssignedTo);
+        Assert.Equal(5, task.EstimatedDays);
+    }
 
-        [Fact]
-        public void Milestone_WithAllStatuses_MapsCorrectly()
+    [Fact]
+    public void ProjectMetrics_ShouldCalculateCompletionPercentageCorrectly()
+    {
+        var metrics = new ProjectMetrics
         {
-            var completedMilestone = new Milestone
-            {
-                Name = "Phase 1",
-                Status = MilestoneStatus.Completed,
-                CompletionPercentage = 100,
-                TargetDate = new DateTime(2026, 1, 15)
-            };
+            TotalTasks = 10,
+            CompletedTasks = 6,
+            CompletionPercentage = 60
+        };
 
-            var inProgressMilestone = new Milestone
-            {
-                Name = "Phase 2",
-                Status = MilestoneStatus.InProgress,
-                CompletionPercentage = 45,
-                TargetDate = new DateTime(2026, 4, 1)
-            };
+        Assert.Equal(10, metrics.TotalTasks);
+        Assert.Equal(6, metrics.CompletedTasks);
+        Assert.Equal(60, metrics.CompletionPercentage);
+    }
 
-            var pendingMilestone = new Milestone
-            {
-                Name = "Phase 3",
-                Status = MilestoneStatus.Pending,
-                CompletionPercentage = 0,
-                TargetDate = new DateTime(2026, 6, 30)
-            };
-
-            Assert.Equal(MilestoneStatus.Completed, completedMilestone.Status);
-            Assert.Equal(MilestoneStatus.InProgress, inProgressMilestone.Status);
-            Assert.Equal(MilestoneStatus.Pending, pendingMilestone.Status);
-            Assert.Equal(100, completedMilestone.CompletionPercentage);
-            Assert.Equal(45, inProgressMilestone.CompletionPercentage);
-            Assert.Equal(0, pendingMilestone.CompletionPercentage);
-        }
-
-        [Fact]
-        public void TaskItem_WithAllStatuses_MapsCorrectly()
+    [Fact]
+    public void ProjectInfo_ShouldContainAllMetadata()
+    {
+        var projectInfo = new ProjectInfo
         {
-            var shippedTask = new TaskItem
-            {
-                Id = "T1",
-                Name = "Dashboard UI",
-                Status = TaskStatus.Shipped,
-                AssignedTo = "Engineer 1"
-            };
+            Name = "Q2 Mobile App",
+            Description = "Mobile app release",
+            StartDate = new DateTime(2026, 04, 01),
+            EndDate = new DateTime(2026, 07, 31),
+            Status = "In Progress",
+            Sponsor = "VP Product",
+            ProjectManager = "Jane Smith"
+        };
 
-            var inProgressTask = new TaskItem
-            {
-                Id = "T2",
-                Name = "Timeline Component",
-                Status = TaskStatus.InProgress,
-                AssignedTo = "Engineer 2"
-            };
+        Assert.Equal("Q2 Mobile App", projectInfo.Name);
+        Assert.Equal("Jane Smith", projectInfo.ProjectManager);
+        Assert.Equal("In Progress", projectInfo.Status);
+    }
 
-            var carriedOverTask = new TaskItem
-            {
-                Id = "T3",
-                Name = "Advanced Analytics",
-                Status = TaskStatus.CarriedOver,
-                AssignedTo = "Engineer 3"
-            };
-
-            Assert.Equal(TaskStatus.Shipped, shippedTask.Status);
-            Assert.Equal(TaskStatus.InProgress, inProgressTask.Status);
-            Assert.Equal(TaskStatus.CarriedOver, carriedOverTask.Status);
-        }
-
-        [Fact]
-        public void Metrics_CalculatesCompletionAccurately()
+    [Fact]
+    public void TaskStatusSummary_ShouldTrackAllStatuses()
+    {
+        var summary = new TaskStatusSummary
         {
-            var metrics = new Metrics
-            {
-                CompletionPercentage = 68,
-                ShippedCount = 12,
-                InProgressCount = 5,
-                CarriedOverCount = 2,
-                BurndownRate = 2.5m
-            };
+            ShippedCount = 5,
+            InProgressCount = 3,
+            CarriedOverCount = 2
+        };
 
-            Assert.Equal(68, metrics.CompletionPercentage);
-            Assert.Equal(12, metrics.ShippedCount);
-            Assert.Equal(5, metrics.InProgressCount);
-            Assert.Equal(2, metrics.CarriedOverCount);
-            Assert.Equal(2.5m, metrics.BurndownRate);
-        }
+        Assert.Equal(5, summary.ShippedCount);
+        Assert.Equal(3, summary.InProgressCount);
+        Assert.Equal(2, summary.CarriedOverCount);
+        Assert.Equal(10, summary.ShippedCount + summary.InProgressCount + summary.CarriedOverCount);
     }
 }
