@@ -1,54 +1,72 @@
 using System.Text.Json;
 using AgentSquad.Runner.Data;
+using AgentSquad.Runner.Data.Exceptions;
+using Microsoft.Extensions.Logging;
 
-namespace AgentSquad.Runner.Services
+namespace AgentSquad.Runner.Services;
+
+/// <summary>
+/// Service for loading, validating, and caching project data from JSON files.
+/// Provides data access layer for the executive dashboard application.
+/// </summary>
+public class ProjectDataService
 {
+    private readonly ILogger<ProjectDataService> _logger;
+    private ProjectData _cachedData;
+    private DateTime _lastLoadTime;
+
     /// <summary>
-    /// Service for loading, parsing, and caching project data from JSON configuration files.
-    /// Provides in-memory caching and data validation for the dashboard.
+    /// Initializes a new instance of the ProjectDataService class.
     /// </summary>
-    public class ProjectDataService
+    /// <param name="logger">Logger for diagnostic information.</param>
+    public ProjectDataService(ILogger<ProjectDataService> logger)
     {
-        private readonly ILogger<ProjectDataService> _logger;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _cachedData = null;
+        _lastLoadTime = DateTime.MinValue;
+    }
 
-        public ProjectDataService(ILogger<ProjectDataService> logger)
-        {
-            _logger = logger;
-        }
+    /// <summary>
+    /// Asynchronously loads and deserializes project data from a JSON file.
+    /// Validates the JSON structure, caches the result in memory, and throws
+    /// DataLoadException for any file or deserialization errors.
+    /// </summary>
+    /// <param name="jsonFilePath">Full or relative path to the data.json file.</param>
+    /// <returns>Deserialized ProjectData object containing all project information.</returns>
+    /// <exception cref="DataLoadException">
+    /// Thrown when file is not found, JSON is malformed, or deserialization results in null.
+    /// </exception>
+    public async Task<ProjectData> LoadProjectDataAsync(string jsonFilePath)
+    {
+        throw new NotImplementedException();
+    }
 
-        /// <summary>
-        /// Loads project data from a JSON file asynchronously.
-        /// Deserializes using System.Text.Json with case-insensitive property matching.
-        /// Caches the result in memory for subsequent calls.
-        /// </summary>
-        /// <param name="jsonFilePath">Full path to the data.json file</param>
-        /// <returns>Deserialized ProjectData object</returns>
-        /// <exception cref="DataLoadException">Thrown when JSON is malformed, file not found, or deserialization fails</exception>
-        public async Task<ProjectData?> LoadProjectDataAsync(string jsonFilePath)
-        {
-            _logger.LogInformation("LoadProjectDataAsync called with path: {Path}", jsonFilePath);
-            return null;
-        }
+    /// <summary>
+    /// Validates whether a JSON string contains valid project data structure
+    /// with all required root properties: project, milestones, tasks, and metrics.
+    /// </summary>
+    /// <param name="json">JSON string to validate.</param>
+    /// <returns>True if JSON is valid and contains required fields; false otherwise.</returns>
+    public bool ValidateJsonSchema(string json)
+    {
+        throw new NotImplementedException();
+    }
 
-        /// <summary>
-        /// Validates JSON schema by attempting deserialization without storing the result.
-        /// </summary>
-        /// <param name="json">JSON string to validate</param>
-        /// <returns>True if JSON is valid; false otherwise</returns>
-        public bool ValidateJsonSchema(string json)
-        {
-            _logger.LogInformation("ValidateJsonSchema called");
-            return false;
-        }
+    /// <summary>
+    /// Retrieves the last-loaded project data from the in-memory cache.
+    /// </summary>
+    /// <returns>Cached ProjectData object, or null if no data has been loaded yet.</returns>
+    public ProjectData GetCachedData()
+    {
+        throw new NotImplementedException();
+    }
 
-        /// <summary>
-        /// Retrieves the most recently loaded and cached project data.
-        /// </summary>
-        /// <returns>Cached ProjectData object or null if no data has been loaded</returns>
-        public ProjectData? GetCachedData()
-        {
-            _logger.LogInformation("GetCachedData called");
-            return null;
-        }
+    /// <summary>
+    /// Clears the in-memory cache and resets the load timestamp.
+    /// Prepares the service for a fresh data load on the next LoadProjectDataAsync call.
+    /// </summary>
+    public void RefreshData()
+    {
+        throw new NotImplementedException();
     }
 }
