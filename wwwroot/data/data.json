@@ -1,40 +1,73 @@
 {
-  "projectName": "Executive Dashboard Project",
-  "description": "Real-time project status reporting dashboard",
-  "startDate": "2026-02-07T00:00:00Z",
-  "endDate": "2026-06-07T00:00:00Z",
-  "totalTasks": 24,
-  "completedTasks": 8,
+  "project": {
+    "name": "Q2 Mobile App Release",
+    "description": "iOS and Android mobile app version 2.0 with new payment integration",
+    "startDate": "2026-04-01",
+    "endDate": "2026-06-30",
+    "status": "OnTrack",
+    "sponsor": "VP of Product",
+    "projectManager": "Jane Smith"
+  },
   "milestones": [
     {
       "id": "m1",
-      "name": "Project Kickoff",
-      "targetDate": "2026-03-09T00:00:00Z",
-      "actualDate": "2026-03-09T00:00:00Z",
+      "name": "Design Review Complete",
+      "targetDate": "2026-04-15",
+      "actualDate": "2026-04-12",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
       "id": "m2",
-      "name": "Phase 1 Design Review",
-      "targetDate": "2026-03-29T00:00:00Z",
-      "actualDate": "2026-03-29T00:00:00Z",
-      "status": "Completed",
-      "completionPercentage": 100
-    },
-    {
-      "id": "m3",
-      "name": "Development Sprint 1",
-      "targetDate": "2026-04-23T00:00:00Z",
+      "name": "Development Sprint 1 Done",
+      "targetDate": "2026-05-01",
+      "actualDate": null,
       "status": "InProgress",
       "completionPercentage": 65
     },
     {
-      "id": "m4",
-      "name": "Quality Assurance & Testing",
-      "targetDate": "2026-05-23T00:00:00Z",
+      "id": "m3",
+      "name": "QA Testing Complete",
+      "targetDate": "2026-06-01",
+      "actualDate": null,
       "status": "Pending",
       "completionPercentage": 0
     }
-  ]
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "name": "API Authentication Module",
+      "status": "Shipped",
+      "assignedTo": "John Doe",
+      "dueDate": "2026-04-20",
+      "estimatedDays": 5,
+      "relatedMilestone": "m1"
+    },
+    {
+      "id": "t2",
+      "name": "Payment Integration",
+      "status": "InProgress",
+      "assignedTo": "Alice Brown",
+      "dueDate": "2026-05-10",
+      "estimatedDays": 8,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t3",
+      "name": "iOS Push Notifications",
+      "status": "CarriedOver",
+      "assignedTo": "Bob Wilson",
+      "dueDate": "2026-05-15",
+      "estimatedDays": 6,
+      "relatedMilestone": "m2"
+    }
+  ],
+  "metrics": {
+    "totalTasks": 10,
+    "completedTasks": 3,
+    "inProgressTasks": 5,
+    "carriedOverTasks": 2,
+    "estimatedBurndownRate": 1.2
+  }
 }

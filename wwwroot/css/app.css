@@ -1,294 +1,199 @@
-/* Status Card color scheme */
-.bg-success {
-    background-color: #28a745 !important;
-}
-
-.bg-primary {
-    background-color: #0d6efd !important;
-}
-
-.bg-warning {
-    background-color: #fd7e14 !important;
-}
-
-.bg-secondary {
-    background-color: #6c757d !important;
-}
-
-/* Card styling - no animations for screenshot compatibility */
-.card {
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-}
-
-.card-status {
-    display: flex;
-    flex-direction: column;
+html, body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
     height: 100%;
-    will-change: auto;
+    margin: 0;
+    padding: 0;
 }
 
-.card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+body {
+    padding: 20px;
 }
 
-.card-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+.dashboard-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+.timeline-section {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.timeline-section h2 {
+    font-size: 18pt;
     font-weight: 600;
-    flex-shrink: 0;
+    color: #333;
+    margin-bottom: 20px;
 }
 
-.card-body {
-    padding: 1.25rem;
-    flex-grow: 1;
-    overflow-y: auto;
+.status-cards-section {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e9ecef;
 }
 
-/* Collapse toggle button - no animations */
-.collapse-toggle {
-    color: #0d6efd;
-    font-size: 0.95rem;
-    display: inline-flex;
+.status-cards-section h2 {
+    font-size: 18pt;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.status-card {
+    border-left: 6px solid;
+    border-radius: 4px;
+    background-color: #ffffff;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: box-shadow 0.2s ease;
+}
+
+.status-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.status-card-shipped {
+    border-left-color: #28a745;
+}
+
+.status-card-inprogress {
+    border-left-color: #007bff;
+}
+
+.status-card-carriedover {
+    border-left-color: #fd7e14;
+}
+
+.status-card-header {
+    font-size: 16pt;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    user-select: none;
 }
 
-.collapse-toggle:hover {
-    color: #0a58ca;
-    text-decoration: none;
+.status-card-count {
+    font-size: 28pt;
+    font-weight: bold;
+    color: #007bff;
 }
 
-.collapse-toggle:focus {
-    box-shadow: none;
-    outline: none;
-    color: #0a58ca;
+.status-card-shipped .status-card-count {
+    color: #28a745;
 }
 
-.toggle-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.25em;
-    height: 1.25em;
-    flex-shrink: 0;
-    vertical-align: -0.125em;
+.status-card-inprogress .status-card-count {
+    color: #007bff;
 }
 
-/* Task list styling */
+.status-card-carriedover .status-card-count {
+    color: #fd7e14;
+}
+
 .task-list {
-    border-left: 3px solid #dee2e6;
-    padding-left: 1rem;
-    margin-left: 0.5rem;
+    margin-top: 15px;
 }
 
 .task-item {
-    padding: 0.5rem 0;
+    font-size: 14pt;
+    padding: 10px 0;
     border-bottom: 1px solid #f0f0f0;
+    color: #555;
 }
 
 .task-item:last-child {
     border-bottom: none;
 }
 
-.task-item:hover {
-    background-color: #f8f9fa;
-    border-radius: 0.25rem;
-    padding: 0.5rem 0.5rem;
-    margin-left: -0.5rem;
-    margin-right: -0.5rem;
+.metrics-section {
+    margin-top: 40px;
 }
 
-.task-name {
-    display: block;
-    font-weight: 500;
-    color: #212529;
-    word-break: break-word;
-    margin-bottom: 0.25rem;
-    cursor: default;
-    font-size: 0.95rem;
-    line-height: 1.4;
-}
-
-.task-owner {
-    margin-top: 0.25rem;
-}
-
-.task-owner .text-muted {
-    font-size: 0.85rem;
-    color: #6c757d !important;
-    font-style: italic;
-}
-
-/* Form check styling for disabled state */
-.form-check {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 0;
-    flex-shrink: 0;
-}
-
-.form-check-input {
-    width: 1.25em;
-    height: 1.25em;
-    margin-top: 0.25em;
-    border: 1.5px solid #dee2e6;
-    cursor: not-allowed;
-    opacity: 0.65;
-    background-color: #e9ecef;
-    flex-shrink: 0;
-    border-radius: 0.25em;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    vertical-align: top;
-}
-
-.form-check-input:disabled {
-    background-color: #e9ecef;
-    border-color: #dee2e6;
-    opacity: 0.65;
-    cursor: not-allowed;
-}
-
-/* Collapse - static display without animations */
-.collapse {
-    display: none;
-    overflow: visible;
-}
-
-.collapse.show {
-    display: block;
-}
-
-/* Bootstrap icon sizing */
-.bi {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    vertical-align: -0.125em;
-}
-
-/* Badge styling */
-.badge {
-    font-size: 0.75rem;
+.metrics-section h2 {
+    font-size: 18pt;
     font-weight: 600;
-    padding: 0.375em 0.65em;
-    border-radius: 0.25rem;
+    color: #333;
+    margin-bottom: 20px;
 }
 
-/* Typography for screenshot readability */
-body {
-    font-size: 13px;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+.progress-container {
+    text-align: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
 }
 
-h5 {
-    font-size: 1.1rem;
-    line-height: 1.3;
+.progress-percentage {
+    font-size: 24pt;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
 }
 
-small {
-    font-size: 0.85em;
-    line-height: 1.4;
+.progress-bar-container {
+    background-color: #e9ecef;
+    border-radius: 4px;
+    height: 30px;
+    margin: 20px 0;
+    overflow: hidden;
 }
 
-/* Responsive layout - desktop first */
-@media (min-width: 1024px) {
-    .card-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
+.progress-bar-fill {
+    background-color: #007bff;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 12pt;
+}
+
+.error-alert {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    color: #721c24;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    font-size: 14pt;
+}
+
+.error-alert-icon {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-container {
+        padding: 15px;
     }
-    
-    .card-status {
-        min-height: 300px;
+
+    .status-card {
+        margin-bottom: 20px;
+    }
+
+    .progress-percentage {
+        font-size: 20pt;
     }
 }
 
-/* Responsive layout - tablet and below */
-@media (max-width: 1023px) {
-    .card-grid {
-        display: flex;
+@media (max-width: 768px) {
+    .status-card-header {
         flex-direction: column;
-        gap: 1rem;
+        align-items: flex-start;
     }
-    
-    .card {
-        margin-bottom: 0;
-    }
-    
-    .card-body {
-        padding: 1rem;
-    }
-    
-    .collapse-toggle {
-        font-size: 0.9rem;
-    }
-    
-    .task-name {
-        font-size: 0.9rem;
-    }
-}
 
-/* Responsive layout - mobile */
-@media (max-width: 576px) {
-    .card-header {
-        padding: 0.75rem 1rem;
+    .status-card-count {
+        font-size: 24pt;
+        margin-top: 10px;
     }
-    
-    .card-body {
-        padding: 0.75rem;
-    }
-    
-    .task-list {
-        border-left-width: 2px;
-        padding-left: 0.75rem;
-        margin-left: 0.25rem;
-    }
-    
-    .badge {
-        font-size: 0.7rem;
-        padding: 0.3em 0.5em;
-    }
-    
-    h5 {
-        font-size: 1rem;
-    }
-}
-
-/* Print styles for screenshot capture */
-@media print {
-    .card {
-        page-break-inside: avoid;
-        box-shadow: none;
-        border: 1px solid #000;
-    }
-    
-    .collapse {
-        display: block !important;
-    }
-    
-    .collapse-toggle {
-        display: none;
-    }
-}
-
-/* Disable all transitions for screenshot consistency */
-* {
-    transition: none !important;
-}
-
-button, a {
-    transition: color 0.15s ease-in-out !important;
-}
-
-/* Ensure consistent rendering */
-.card, .card-header, .card-body {
-    background-attachment: fixed !important;
 }
