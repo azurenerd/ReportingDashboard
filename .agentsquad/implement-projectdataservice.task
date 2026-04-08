@@ -1,0 +1,4 @@
+agent: PrincipalEngineer
+task: Implement ProjectDataService
+complexity: Medium
+status: in-progress
