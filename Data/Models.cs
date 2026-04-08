@@ -357,4 +357,187 @@ public class ProjectData
     public ProjectData()
     {
     }
+
+    /// <summary>
+    /// Validates the project data for logical consistency and required relationships.
+    /// Throws an exception if validation fails.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown when validation fails with descriptive message.</exception>
+    public void Validate()
+    {
+        if (!IsValid(out var errors))
+        {
+            throw new InvalidOperationException($"Project data validation failed: {string.Join("; ", errors)}");
+        }
+    }
+
+    /// <summary>
+    /// Determines whether the project data is valid.
+    /// </summary>
+    /// <param name="errors">List of validation error messages if validation fails; empty list if valid.</param>
+    /// <returns>True if project data is valid; otherwise false.</returns>
+    public bool IsValid(out List<string> errors)
+    {
+        errors = new List<string>();
+
+        if (Project == null)
+        {
+            errors.Add("Project information is required");
+        }
+        else
+        {
+            ValidateProjectInfo(Project, errors);
+        }
+
+        if (Milestones == null)
+        {
+            errors.Add("Milestones collection is required");
+        }
+        else
+        {
+            ValidateMilestones(errors);
+        }
+
+        if (Tasks == null)
+        {
+            errors.Add("Tasks collection is required");
+        }
+        else
+        {
+            ValidateTasks(errors);
+        }
+
+        if (Metrics == null)
+        {
+            errors.Add("Project metrics is required");
+        }
+        else
+        {
+            ValidateMetrics(Metrics, errors);
+        }
+
+        ValidateMilestoneReferences(errors);
+
+        return errors.Count == 0;
+    }
+
+    /// <summary>
+    /// Determines whether the project data is valid (simplified version without error details).
+    /// </summary>
+    /// <returns>True if project data is valid; otherwise false.</returns>
+    public bool IsValid()
+    {
+        return IsValid(out _);
+    }
+
+    /// <summary>
+    /// Validates project information for date range consistency.
+    /// </summary>
+    private static void ValidateProjectInfo(ProjectInfo project, List<string> errors)
+    {
+        if (project.StartDate >= project.EndDate)
+        {
+            errors.Add($"Project start date ({project.StartDate:yyyy-MM-dd}) must be before end date ({project.EndDate:yyyy-MM-dd})");
+        }
+    }
+
+    /// <summary>
+    /// Validates milestones collection for valid statuses and date ranges.
+    /// </summary>
+    private void ValidateMilestones(List<string> errors)
+    {
+        foreach (var milestone in Milestones)
+        {
+            if (string.IsNullOrWhiteSpace(milestone.Id))
+            {
+                errors.Add("Milestone ID cannot be empty");
+            }
+
+            if (!Enum.IsDefined(typeof(MilestoneStatus), milestone.Status))
+            {
+                errors.Add($"Milestone '{milestone.Name}' has invalid status value: {milestone.Status}");
+            }
+
+            if (milestone.CompletionPercentage < 0 || milestone.CompletionPercentage > 100)
+            {
+                errors.Add($"Milestone '{milestone.Name}' completion percentage must be between 0 and 100, got {milestone.CompletionPercentage}");
+            }
+
+            if (milestone.ActualDate.HasValue && milestone.TargetDate > milestone.ActualDate.Value)
+            {
+                errors.Add($"Milestone '{milestone.Name}' actual date ({milestone.ActualDate:yyyy-MM-dd}) cannot be before target date ({milestone.TargetDate:yyyy-MM-dd})");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Validates tasks collection for valid statuses and assigned milestones.
+    /// </summary>
+    private void ValidateTasks(List<string> errors)
+    {
+        foreach (var task in Tasks)
+        {
+            if (string.IsNullOrWhiteSpace(task.Id))
+            {
+                errors.Add("Task ID cannot be empty");
+            }
+
+            if (!Enum.IsDefined(typeof(TaskStatus), task.Status))
+            {
+                errors.Add($"Task '{task.Name}' has invalid status value: {task.Status}");
+            }
+
+            if (task.EstimatedDays <= 0)
+            {
+                errors.Add($"Task '{task.Name}' estimated days must be positive, got {task.EstimatedDays}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Validates project metrics for logical consistency.
+    /// </summary>
+    private static void ValidateMetrics(ProjectMetrics metrics, List<string> errors)
+    {
+        if (metrics.ProjectStartDate >= metrics.ProjectEndDate)
+        {
+            errors.Add($"Metrics start date ({metrics.ProjectStartDate:yyyy-MM-dd}) must be before end date ({metrics.ProjectEndDate:yyyy-MM-dd})");
+        }
+
+        int totalTasksInMetrics = metrics.CompletedTasks + metrics.InProgressTasks + metrics.CarriedOverTasks;
+        if (totalTasksInMetrics != metrics.TotalTasks)
+        {
+            errors.Add($"Metrics task sum mismatch: completed ({metrics.CompletedTasks}) + in-progress ({metrics.InProgressTasks}) + carried-over ({metrics.CarriedOverTasks}) = {totalTasksInMetrics}, but total is {metrics.TotalTasks}");
+        }
+
+        if (metrics.TotalTasks > 0)
+        {
+            int calculatedCompletion = (int)((metrics.CompletedTasks / (double)metrics.TotalTasks) * 100);
+            if (calculatedCompletion != metrics.CompletionPercentage)
+            {
+                errors.Add($"Metrics completion percentage mismatch: expected {calculatedCompletion}, got {metrics.CompletionPercentage}");
+            }
+        }
+
+        if (metrics.EstimatedBurndownRate < 0)
+        {
+            errors.Add($"Metrics burn-down rate cannot be negative: {metrics.EstimatedBurndownRate}");
+        }
+    }
+
+    /// <summary>
+    /// Validates that task milestone references exist in the milestones collection.
+    /// </summary>
+    private void ValidateMilestoneReferences(List<string> errors)
+    {
+        var milestoneIds = new HashSet<string>(Milestones.Select(m => m.Id));
+
+        foreach (var task in Tasks)
+        {
+            if (!string.IsNullOrWhiteSpace(task.RelatedMilestone) && !milestoneIds.Contains(task.RelatedMilestone))
+            {
+                errors.Add($"Task '{task.Name}' references non-existent milestone: {task.RelatedMilestone}");
+            }
+        }
+    }
 }
