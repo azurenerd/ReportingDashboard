@@ -1,61 +1,51 @@
-using System.Text.Json.Serialization;
-
-namespace AgentSquad.Runner.Models;
-
-/// <summary>
-/// Represents the status of a work item for tracking and categorization.
-/// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum WorkItemStatus
+namespace AgentSquad.Models
 {
     /// <summary>
-    /// Work item has been completed and shipped this month.
+    /// Work item model representing a task or deliverable in the project.
+    /// Used for tracking status: shipped, in-progress, or carried over.
     /// </summary>
-    Shipped = 0,
+    public class WorkItem
+    {
+        /// <summary>
+        /// Title or name of the work item. Required field.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Brief description of the work item. Optional field; may be null.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Current status of the work item (Shipped, InProgress, CarriedOver).
+        /// </summary>
+        public WorkItemStatus Status { get; set; }
+
+        /// <summary>
+        /// Team member or team assigned to this work item. Optional field; may be null.
+        /// </summary>
+        public string AssignedTo { get; set; }
+    }
 
     /// <summary>
-    /// Work item is currently being worked on.
+    /// Enum representing the status category of a work item.
+    /// Used for grouping items in dashboard display.
     /// </summary>
-    InProgress = 1,
+    public enum WorkItemStatus
+    {
+        /// <summary>
+        /// Work item shipped or completed this month.
+        /// </summary>
+        Shipped = 0,
 
-    /// <summary>
-    /// Work item was not completed in the current cycle and carried over to next cycle.
-    /// </summary>
-    CarriedOver = 2
-}
+        /// <summary>
+        /// Work item currently in progress.
+        /// </summary>
+        InProgress = 1,
 
-/// <summary>
-/// Represents a single work item tracked in the project dashboard.
-/// Work items are grouped by status (Shipped, InProgress, CarriedOver) for executive visibility.
-/// </summary>
-public class WorkItem
-{
-    /// <summary>
-    /// Gets or sets the title of the work item.
-    /// Brief, executive-friendly summary of the work.
-    /// </summary>
-    [JsonPropertyName("title")]
-    public required string Title { get; set; }
-
-    /// <summary>
-    /// Gets or sets the description of the work item.
-    /// Provides additional context; truncated at 100 characters in UI display.
-    /// </summary>
-    [JsonPropertyName("description")]
-    public string? Description { get; set; }
-
-    /// <summary>
-    /// Gets or sets the current status of the work item.
-    /// Determines which column the item appears in on the dashboard.
-    /// </summary>
-    [JsonPropertyName("status")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public WorkItemStatus Status { get; set; }
-
-    /// <summary>
-    /// Gets or sets the name of the person or team assigned to this work item.
-    /// Used for accountability and visibility.
-    /// </summary>
-    [JsonPropertyName("assignedTo")]
-    public string? AssignedTo { get; set; }
+        /// <summary>
+        /// Work item carried over from previous period.
+        /// </summary>
+        CarriedOver = 2
+    }
 }

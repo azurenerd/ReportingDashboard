@@ -31,6 +31,7 @@ namespace AgentSquad.Services
 
     /// <summary>
     /// Implementation of IDataProvider using async cache and System.Text.Json deserialization.
+    /// Validates required fields, enum values, and data ranges per architecture specification.
     /// </summary>
     public class DataProvider : IDataProvider
     {
@@ -106,7 +107,8 @@ namespace AgentSquad.Services
         }
 
         /// <summary>
-        /// Validates project data structure and required fields.
+        /// Validates project data structure, required fields, enum values, and data ranges.
+        /// Per architecture specification: CompletionPercentage 0-100, DateTime fields ISO 8601 compliant.
         /// </summary>
         private static void ValidateProjectData(Project project)
         {
@@ -119,14 +121,32 @@ namespace AgentSquad.Services
             if (project.Milestones == null || project.Milestones.Count == 0)
                 throw new InvalidOperationException("At least one milestone is required");
 
-            // Initialize empty work items list if null
-            if (project.WorkItems == null)
-                project.WorkItems = new List<WorkItem>();
+            // Validate CompletionPercentage range (0-100)
+            if (project.CompletionPercentage < 0 || project.CompletionPercentage > 100)
+                throw new InvalidOperationException(
+                    $"CompletionPercentage must be between 0 and 100, got {project.CompletionPercentage}");
 
-            // Validate enum values are in range
+            // Validate HealthStatus enum value
             if (!Enum.IsDefined(typeof(HealthStatus), project.HealthStatus))
                 throw new InvalidOperationException(
                     $"Invalid HealthStatus value: {project.HealthStatus}");
+
+            // Validate DateTime fields are ISO 8601 compliant (non-default DateTime)
+            if (project.StartDate == default(DateTime))
+                throw new InvalidOperationException(
+                    "StartDate must be a valid ISO 8601 date (cannot be default/null)");
+
+            if (project.TargetEndDate == default(DateTime))
+                throw new InvalidOperationException(
+                    "TargetEndDate must be a valid ISO 8601 date (cannot be default/null)");
+
+            if (project.StartDate > project.TargetEndDate)
+                throw new InvalidOperationException(
+                    "StartDate must be before or equal to TargetEndDate");
+
+            // Initialize empty work items list if null
+            if (project.WorkItems == null)
+                project.WorkItems = new List<WorkItem>();
         }
     }
 }
