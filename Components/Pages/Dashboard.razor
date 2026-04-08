@@ -90,7 +90,7 @@
                                             <span class="badge bg-success me-2">✓</span>
                                             <span>@task.Name</span>
                                             <br/>
-                                            <small class="text-muted">@task.Owner</small>
+                                            <small class="text-muted">@task.AssignedTo</small>
                                         </li>
                                     }
                                 </ul>
@@ -119,7 +119,7 @@
                                             <span class="badge bg-primary me-2">→</span>
                                             <span>@task.Name</span>
                                             <br/>
-                                            <small class="text-muted">@task.Owner</small>
+                                            <small class="text-muted">@task.AssignedTo</small>
                                         </li>
                                     }
                                 </ul>
@@ -148,7 +148,7 @@
                                             <span class="badge bg-warning me-2">!</span>
                                             <span>@task.Name</span>
                                             <br/>
-                                            <small class="text-muted">@task.Owner</small>
+                                            <small class="text-muted">@task.AssignedTo</small>
                                         </li>
                                     }
                                 </ul>
@@ -206,9 +206,13 @@
             {
                 errorMessage = "Project data could not be loaded. ProjectData instance is null.";
             }
+            else if (projectData.Project == null)
+            {
+                errorMessage = "Project metadata is missing. Ensure data.json includes a 'project' object with name, startDate, and endDate.";
+            }
             else if (string.IsNullOrEmpty(projectData.ProjectName))
             {
-                errorMessage = "Project data is empty or invalid. Please verify that data.json is properly formatted and contains a valid ProjectName field.";
+                errorMessage = "Project name is empty or invalid. Please verify that data.json contains a valid project name.";
             }
             else if (projectData.Milestones == null)
             {

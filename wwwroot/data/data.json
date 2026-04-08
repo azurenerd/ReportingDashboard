@@ -1,30 +1,32 @@
 {
-  "projectName": "Executive Dashboard Platform",
-  "startDate": "2024-01-15T00:00:00",
-  "endDate": "2024-06-30T00:00:00",
-  "overallCompletionPercentage": 72,
+  "project": {
+    "name": "Executive Dashboard Platform",
+    "startDate": "2024-01-15T00:00:00Z",
+    "endDate": "2024-06-30T00:00:00Z",
+    "overallCompletionPercentage": 72
+  },
   "milestones": [
     {
       "name": "Requirements & Design",
-      "targetDate": "2024-02-28T00:00:00",
+      "targetDate": "2024-02-28T00:00:00Z",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
       "name": "Core Development",
-      "targetDate": "2024-04-30T00:00:00",
+      "targetDate": "2024-04-30T00:00:00Z",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
       "name": "Testing & QA",
-      "targetDate": "2024-05-31T00:00:00",
+      "targetDate": "2024-05-31T00:00:00Z",
       "status": "InProgress",
       "completionPercentage": 85
     },
     {
       "name": "Production Release",
-      "targetDate": "2024-06-30T00:00:00",
+      "targetDate": "2024-06-30T00:00:00Z",
       "status": "Pending",
       "completionPercentage": 0
     }
@@ -33,55 +35,82 @@
     {
       "id": "task-001",
       "name": "API authentication layer implementation",
-      "owner": "Sarah Chen",
+      "assignedTo": "Sarah Chen",
+      "dueDate": "2024-02-15T00:00:00Z",
+      "estimatedDays": 5,
+      "relatedMilestone": "Requirements & Design",
       "status": "Shipped"
     },
     {
       "id": "task-002",
       "name": "Database schema design",
-      "owner": "Michael Torres",
+      "assignedTo": "Michael Torres",
+      "dueDate": "2024-02-20T00:00:00Z",
+      "estimatedDays": 3,
+      "relatedMilestone": "Requirements & Design",
       "status": "Shipped"
     },
     {
       "id": "task-003",
       "name": "Dashboard component framework",
-      "owner": "James Anderson",
+      "assignedTo": "James Anderson",
+      "dueDate": "2024-03-15T00:00:00Z",
+      "estimatedDays": 8,
+      "relatedMilestone": "Core Development",
       "status": "Shipped"
     },
     {
       "id": "task-004",
       "name": "Milestone timeline visualization",
-      "owner": "Emily Rodriguez",
+      "assignedTo": "Emily Rodriguez",
+      "dueDate": "2024-04-10T00:00:00Z",
+      "estimatedDays": 6,
+      "relatedMilestone": "Core Development",
       "status": "Shipped"
     },
     {
       "id": "task-005",
       "name": "Unit test coverage expansion",
-      "owner": "David Kim",
+      "assignedTo": "David Kim",
+      "dueDate": "2024-05-15T00:00:00Z",
+      "estimatedDays": 7,
+      "relatedMilestone": "Testing & QA",
       "status": "InProgress"
     },
     {
       "id": "task-006",
       "name": "Integration testing suite",
-      "owner": "Lisa Park",
+      "assignedTo": "Lisa Park",
+      "dueDate": "2024-05-20T00:00:00Z",
+      "estimatedDays": 5,
+      "relatedMilestone": "Testing & QA",
       "status": "InProgress"
     },
     {
       "id": "task-007",
       "name": "Performance optimization",
-      "owner": "Robert Martinez",
+      "assignedTo": "Robert Martinez",
+      "dueDate": "2024-05-25T00:00:00Z",
+      "estimatedDays": 4,
+      "relatedMilestone": "Testing & QA",
       "status": "InProgress"
     },
     {
       "id": "task-008",
       "name": "Security audit completion",
-      "owner": "Jennifer White",
+      "assignedTo": "Jennifer White",
+      "dueDate": "2024-06-05T00:00:00Z",
+      "estimatedDays": 6,
+      "relatedMilestone": "Testing & QA",
       "status": "CarriedOver"
     },
     {
       "id": "task-009",
       "name": "Documentation updates",
-      "owner": "Thomas Brown",
+      "assignedTo": "Thomas Brown",
+      "dueDate": "2024-06-10T00:00:00Z",
+      "estimatedDays": 3,
+      "relatedMilestone": "Production Release",
       "status": "CarriedOver"
     }
   ]
