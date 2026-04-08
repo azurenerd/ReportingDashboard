@@ -15,10 +15,10 @@
             <h4 class="alert-heading">Error Loading Dashboard</h4>
             <p>@errorMessage</p>
             <hr>
-            <p class="mb-0">Please verify that data.json exists and is properly formatted.</p>
+            <p class="mb-0">Please verify that data.json exists in wwwroot/data/ and is properly formatted.</p>
         </div>
     }
-    @else if (projectData != null)
+    @else if (projectData != null && !string.IsNullOrEmpty(projectData.ProjectName))
     {
         <div class="row mb-5">
             <div class="col-12">
@@ -36,22 +36,66 @@
                         <h5 class="mb-0">Project Timeline</h5>
                     </div>
                     <div class="card-body">
-                        <!-- MilestoneTimeline component will be rendered here in future step -->
-                        <p class="text-muted">Timeline visualization will appear here</p>
+                        @if (projectData.Milestones != null && projectData.Milestones.Count > 0)
+                        {
+                            <div class="timeline">
+                                @foreach (var milestone in projectData.Milestones)
+                                {
+                                    <div class="timeline-item mb-3">
+                                        <div class="d-flex align-items-start">
+                                            <div class="timeline-marker me-3" style="@GetMilestoneStatusStyle(milestone.Status)"></div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">@milestone.Name</h6>
+                                                <p class="text-muted small mb-0">
+                                                    Target: @milestone.TargetDate.ToString("MMMM d, yyyy") | 
+                                                    Status: @milestone.Status | 
+                                                    Progress: @milestone.CompletionPercentage%
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No milestones available</p>
+                        }
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="row mb-5">
+            @{
+                var statusSummary = DataService.GetTaskStatusSummary(projectData);
+            }
+
             <div class="col-lg-4 col-md-6 mb-3">
                 <div class="card h-100 shadow-sm">
                     <div class="card-header" style="border-left: 4px solid #28a745;">
                         <h6 class="mb-0">Shipped</h6>
                     </div>
                     <div class="card-body">
-                        <!-- StatusCard component (Shipped) will be rendered here in future step -->
-                        <p class="text-muted">Status card will appear here</p>
+                        <h3 class="display-6 text-success mb-3">@statusSummary.ShippedCount</h3>
+                        @if (projectData.Tasks != null)
+                        {
+                            var shippedTasks = projectData.Tasks.Where(t => t.Status == TaskStatus.Shipped).ToList();
+                            @if (shippedTasks.Count > 0)
+                            {
+                                <ul class="list-unstyled">
+                                    @foreach (var task in shippedTasks)
+                                    {
+                                        <li class="mb-2">
+                                            <span class="badge bg-success me-2">✓</span>
+                                            <span>@task.Name</span>
+                                            <br/>
+                                            <small class="text-muted">@task.Owner</small>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        }
                     </div>
                 </div>
             </div>
@@ -62,8 +106,25 @@
                         <h6 class="mb-0">In Progress</h6>
                     </div>
                     <div class="card-body">
-                        <!-- StatusCard component (In Progress) will be rendered here in future step -->
-                        <p class="text-muted">Status card will appear here</p>
+                        <h3 class="display-6 text-primary mb-3">@statusSummary.InProgressCount</h3>
+                        @if (projectData.Tasks != null)
+                        {
+                            var inProgressTasks = projectData.Tasks.Where(t => t.Status == TaskStatus.InProgress).ToList();
+                            @if (inProgressTasks.Count > 0)
+                            {
+                                <ul class="list-unstyled">
+                                    @foreach (var task in inProgressTasks)
+                                    {
+                                        <li class="mb-2">
+                                            <span class="badge bg-primary me-2">→</span>
+                                            <span>@task.Name</span>
+                                            <br/>
+                                            <small class="text-muted">@task.Owner</small>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        }
                     </div>
                 </div>
             </div>
@@ -74,8 +135,25 @@
                         <h6 class="mb-0">Carried Over</h6>
                     </div>
                     <div class="card-body">
-                        <!-- StatusCard component (Carried Over) will be rendered here in future step -->
-                        <p class="text-muted">Status card will appear here</p>
+                        <h3 class="display-6 text-warning mb-3">@statusSummary.CarriedOverCount</h3>
+                        @if (projectData.Tasks != null)
+                        {
+                            var carriedOverTasks = projectData.Tasks.Where(t => t.Status == TaskStatus.CarriedOver).ToList();
+                            @if (carriedOverTasks.Count > 0)
+                            {
+                                <ul class="list-unstyled">
+                                    @foreach (var task in carriedOverTasks)
+                                    {
+                                        <li class="mb-2">
+                                            <span class="badge bg-warning me-2">!</span>
+                                            <span>@task.Name</span>
+                                            <br/>
+                                            <small class="text-muted">@task.Owner</small>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        }
                     </div>
                 </div>
             </div>
@@ -88,8 +166,24 @@
                         <h5 class="mb-0">Progress Metrics</h5>
                     </div>
                     <div class="card-body">
-                        <!-- ProgressMetrics component will be rendered here in future step -->
-                        <p class="text-muted">Progress metrics will appear here</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Overall Completion</h6>
+                                <div class="progress" style="height: 30px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: @projectData.OverallCompletionPercentage%">
+                                        @projectData.OverallCompletionPercentage%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Task Distribution</h6>
+                                <p class="mb-0">
+                                    Shipped: @statusSummary.ShippedCount | 
+                                    In Progress: @statusSummary.InProgressCount | 
+                                    Carried Over: @statusSummary.CarriedOverCount
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -108,18 +202,48 @@
         {
             projectData = await DataService.LoadProjectDataAsync();
 
-            if (projectData == null || string.IsNullOrEmpty(projectData.ProjectName))
+            if (projectData == null)
+            {
+                errorMessage = "Project data could not be loaded. ProjectData instance is null.";
+            }
+            else if (string.IsNullOrEmpty(projectData.ProjectName))
             {
                 errorMessage = "Project data is empty or invalid. Please verify that data.json is properly formatted and contains a valid ProjectName field.";
             }
+            else if (projectData.Milestones == null)
+            {
+                errorMessage = "Milestone list is null. Ensure data.json includes a 'milestones' array.";
+            }
+            else if (projectData.Tasks == null)
+            {
+                errorMessage = "Task list is null. Ensure data.json includes a 'tasks' array.";
+            }
+        }
+        catch (JsonException jsonEx)
+        {
+            errorMessage = $"JSON parsing error: {jsonEx.Message}. Check data.json formatting.";
+        }
+        catch (FileNotFoundException fileEx)
+        {
+            errorMessage = $"Data file not found: {fileEx.Message}. Ensure wwwroot/data/data.json exists.";
         }
         catch (Exception ex)
         {
-            errorMessage = $"An unexpected error occurred while loading project data: {ex.Message}";
+            errorMessage = $"An unexpected error occurred while loading project data: {ex.GetType().Name} - {ex.Message}";
         }
         finally
         {
             isLoading = false;
         }
+    }
+
+    private string GetMilestoneStatusStyle(MilestoneStatus status)
+    {
+        return status switch
+        {
+            MilestoneStatus.Completed => "width: 12px; height: 12px; background-color: #28a745; border-radius: 50%; flex-shrink: 0; margin-top: 4px;",
+            MilestoneStatus.InProgress => "width: 12px; height: 12px; background-color: #0d6efd; border-radius: 50%; flex-shrink: 0; margin-top: 4px;",
+            _ => "width: 12px; height: 12px; background-color: #6c757d; border-radius: 50%; flex-shrink: 0; margin-top: 4px;"
+        };
     }
 }
