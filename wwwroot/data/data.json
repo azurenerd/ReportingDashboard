@@ -1,8 +1,14 @@
 {
-  "projectName": "Executive Dashboard Initiative",
-  "projectStartDate": "2024-01-15T00:00:00Z",
-  "projectEndDate": "2024-06-30T00:00:00Z",
-  "completionPercentage": 65,
+  "project": {
+    "name": "Executive Dashboard Initiative",
+    "description": "Single-page executive reporting dashboard for project milestones, progress, and task status",
+    "status": "InProgress",
+    "sponsor": "Executive Leadership",
+    "projectManager": "Sarah Chen",
+    "startDate": "2024-01-15T00:00:00Z",
+    "endDate": "2024-06-30T00:00:00Z",
+    "completionPercentage": 65
+  },
   "milestones": [
     {
       "name": "Requirements & Planning",
@@ -86,5 +92,12 @@
       "assignedTo": "Henry Brown",
       "dueDate": "2024-04-30T00:00:00Z"
     }
-  ]
+  ],
+  "metrics": {
+    "totalTasks": 8,
+    "completedTasks": 3,
+    "inProgressTasks": 3,
+    "carriedOverTasks": 2,
+    "estimatedBurndownRate": 0.15
+  }
 }
