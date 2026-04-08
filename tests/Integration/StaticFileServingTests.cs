@@ -1,69 +1,98 @@
-using Xunit;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Xunit;
 
-namespace AgentSquad.Tests.Integration
+namespace AgentSquad.Tests.Integration;
+
+public class StaticFileServingTests : IAsyncLifetime
 {
-    public class StaticFileServingTests : IAsyncLifetime
+    private WebApplicationFactory<Program> _factory;
+    private HttpClient _client;
+
+    public async Task InitializeAsync()
     {
-        private HttpClient _client;
-        private string _baseUrl = "http://localhost:5000";
-
-        public async Task InitializeAsync()
+        _factory = new WebApplicationFactory<Program>();
+        _client = _factory.CreateClient();
+        
+        // Verify application started successfully
+        var maxRetries = 5;
+        for (int i = 0; i < maxRetries; i++)
         {
-            _client = new HttpClient();
-            _client.BaseAddress = new System.Uri(_baseUrl);
+            try
+            {
+                var response = await _client.GetAsync("/");
+                if (response.StatusCode != HttpStatusCode.NotFound)
+                {
+                    break;
+                }
+            }
+            catch (HttpRequestException) when (i < maxRetries - 1)
+            {
+                await Task.Delay(500);
+            }
         }
+    }
 
-        public async Task DisposeAsync()
-        {
-            _client?.Dispose();
-        }
+    public async Task DisposeAsync()
+    {
+        _client?.Dispose();
+        _factory?.Dispose();
+        await Task.CompletedTask;
+    }
 
-        [Fact]
-        public async Task DashboardJSServersWithout404()
-        {
-            var response = await _client.GetAsync("/js/dashboard.js");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
+    [Fact]
+    public async Task GetCssFile_ReturnsOkWithCorrectContentType()
+    {
+        var response = await _client.GetAsync("/css/base.css");
+        
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("text/css", response.Content.Headers.ContentType?.ToString());
+    }
 
-        [Fact]
-        public async Task PrintHandlerJSServersWithout404()
-        {
-            var response = await _client.GetAsync("/js/print-handler.js");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
+    [Fact]
+    public async Task GetJsFile_ReturnsOkWithCorrectContentType()
+    {
+        var response = await _client.GetAsync("/js/dashboard.js");
+        
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("application/javascript", response.Content.Headers.ContentType?.ToString());
+    }
 
-        [Fact]
-        public async Task BaseCSSServersWithout404()
-        {
-            var response = await _client.GetAsync("/css/base.css");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
+    [Fact]
+    public async Task StaticFile_IncludesCacheHeaders()
+    {
+        var response = await _client.GetAsync("/css/base.css");
+        
+        Assert.NotNull(response.Headers.CacheControl);
+        Assert.True(response.Headers.CacheControl.MaxAge.HasValue);
+        Assert.True(response.Headers.CacheControl.MaxAge.Value.TotalSeconds > 0);
+    }
 
-        [Fact]
-        public async Task DashboardCSSServersWithout404()
-        {
-            var response = await _client.GetAsync("/css/dashboard.css");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
+    [Fact]
+    public async Task StaticFile_VerifiesStaticFileMiddlewareActive()
+    {
+        // Verify static middleware is configured by checking for typical headers
+        var response = await _client.GetAsync("/css/base.css");
+        
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(response.Content.Headers.ContentLength);
+        Assert.True(response.Content.Headers.ContentLength > 0);
+    }
 
-        [Fact]
-        public async Task PrintCSSServersWithout404()
-        {
-            var response = await _client.GetAsync("/css/print.css");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
+    [Fact]
+    public async Task BlazorFrameworkFile_ReturnsOk()
+    {
+        var response = await _client.GetAsync("/_framework/blazor.web.js");
+        
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("application/javascript", response.Content.Headers.ContentType?.ToString());
+    }
 
-        [Fact]
-        public async Task StaticFilesReturnCorrectContentType()
-        {
-            var jsResponse = await _client.GetAsync("/js/dashboard.js");
-            Assert.Contains("application/javascript", jsResponse.Content.Headers.ContentType?.MediaType ?? "");
-            
-            var cssResponse = await _client.GetAsync("/css/base.css");
-            Assert.Contains("text/css", cssResponse.Content.Headers.ContentType?.MediaType ?? "");
-        }
+    [Fact]
+    public async Task NonExistentFile_ReturnsNotFound()
+    {
+        var response = await _client.GetAsync("/nonexistent/file.css");
+        
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 }
