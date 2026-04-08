@@ -1,0 +1,35 @@
+@implements IAsyncDisposable
+@using Microsoft.AspNetCore.Components
+
+<ErrorBoundary @ref="_errorBoundary">
+    @ChildContent
+    <ErrorContent>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading">Error rendering component</h4>
+            <p>An unexpected error occurred while rendering this page.</p>
+            <hr>
+            <button type="button" class="btn btn-sm btn-outline-danger" @onclick="RetryRender">Retry</button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private Microsoft.AspNetCore.Components.ErrorBoundary? _errorBoundary;
+
+    private async Task RetryRender()
+    {
+        _errorBoundary?.Recover();
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_errorBoundary is IAsyncDisposable asyncDisposable)
+        {
+            await asyncDisposable.DisposeAsync();
+        }
+    }
+}

@@ -1,0 +1,56 @@
+@using AgentSquad.Dashboard.Models
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-light border-0">
+        <h3 class="card-title mb-0">Project Progress</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="mb-3">Overall Completion</h5>
+                <div class="display-1 fw-bold text-center mb-3" style="font-size: 3.5rem;">
+                    @CompletionPercentage%
+                </div>
+                <div class="progress" style="height: 25px;">
+                    <div class="progress-bar progress-bar-striped" role="progressbar" 
+                         style="width: @(CompletionPercentage)%" 
+                         aria-valuenow="@CompletionPercentage" 
+                         aria-valuemin="0" aria-valuemax="100">
+                        @CompletionPercentage%
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h5 class="mb-3">Task Summary</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <strong>Total Tasks:</strong> @TotalTasks
+                    </li>
+                    <li class="mb-2">
+                        <strong>Completed:</strong> <span class="badge bg-success">@CompletedTasks</span>
+                    </li>
+                    <li class="mb-2">
+                        <strong>In Progress:</strong> <span class="badge bg-primary">@(Metrics?.InProgressTasks ?? 0)</span>
+                    </li>
+                    <li class="mb-2">
+                        <strong>Carried Over:</strong> <span class="badge bg-warning">@(Metrics?.CarriedOverTasks ?? 0)</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ProjectMetrics? Metrics { get; set; }
+
+    [Parameter]
+    public int CompletionPercentage { get; set; }
+
+    [Parameter]
+    public int TotalTasks { get; set; }
+
+    [Parameter]
+    public int CompletedTasks { get; set; }
+}

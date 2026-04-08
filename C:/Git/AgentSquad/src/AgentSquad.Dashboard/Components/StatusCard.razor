@@ -1,0 +1,60 @@
+@using AgentSquad.Dashboard.Models
+
+<div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+        <div class="card-header @CardColor text-white border-0">
+            <h5 class="card-title mb-0">@StatusCategory</h5>
+        </div>
+        <div class="card-body">
+            <div class="display-3 fw-bold text-center mb-3">@TaskCount</div>
+            <p class="text-muted text-center">@(TaskCount == 1 ? "task" : "tasks")</p>
+            
+            @if (Tasks != null && Tasks.Any())
+            {
+                <div class="accordion" id="accordion_@StatusCategory">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse_@StatusCategory" aria-expanded="false">
+                                View Tasks
+                            </button>
+                        </h2>
+                        <div id="collapse_@StatusCategory" class="accordion-collapse collapse" 
+                             data-bs-parent="#accordion_@StatusCategory">
+                            <div class="accordion-body p-0">
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var task in Tasks)
+                                    {
+                                        <li class="list-group-item">
+                                            <div class="d-flex align-items-start">
+                                                <span class="badge bg-secondary me-2 mt-1">✓</span>
+                                                <div>
+                                                    <p class="mb-1 fw-500">@task.Name</p>
+                                                    <small class="text-muted">@task.AssignedTo</small>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string StatusCategory { get; set; } = string.Empty;
+
+    [Parameter]
+    public int TaskCount { get; set; }
+
+    [Parameter]
+    public List<ProjectTask>? Tasks { get; set; }
+
+    [Parameter]
+    public string CardColor { get; set; } = "bg-secondary";
+}

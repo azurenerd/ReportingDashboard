@@ -1,0 +1,111 @@
+@page "/"
+@using AgentSquad.Dashboard.Models
+@using AgentSquad.Dashboard.Services
+@inject ProjectDataService ProjectDataService
+@inject ILogger<Dashboard> Logger
+
+<div class="container-fluid px-4 py-5">
+    @if (LoadingError != null)
+    {
+        <ErrorBoundary>
+            <div class="alert alert-danger" role="alert">
+                <strong>Error loading project data:</strong> @LoadingError
+                <button class="btn btn-sm btn-outline-danger ms-3" @onclick="RetryLoad">Refresh</button>
+            </div>
+        </ErrorBoundary>
+    }
+    else if (ProjectData == null)
+    {
+        <div class="alert alert-info">Loading project data...</div>
+    }
+    else
+    {
+        <ErrorBoundary>
+            <div class="mb-5">
+                <h1 class="display-5 mb-2">@ProjectData.Project?.Name</h1>
+                <p class="lead text-muted">@ProjectData.Project?.Description</p>
+            </div>
+
+            <MilestoneTimeline Milestones="ProjectData.Milestones" 
+                               ProjectDurationDays="CalculateProjectDuration()" />
+
+            <div class="row g-4 mt-4">
+                <StatusCard StatusCategory="Shipped" 
+                           TaskCount="ProjectData.Metrics?.CompletedTasks ?? 0"
+                           Tasks="FilterTasks(TaskStatus.Shipped)"
+                           CardColor="bg-success" />
+                <StatusCard StatusCategory="In Progress" 
+                           TaskCount="ProjectData.Metrics?.InProgressTasks ?? 0"
+                           Tasks="FilterTasks(TaskStatus.InProgress)"
+                           CardColor="bg-primary" />
+                <StatusCard StatusCategory="Carried Over" 
+                           TaskCount="ProjectData.Metrics?.CarriedOverTasks ?? 0"
+                           Tasks="FilterTasks(TaskStatus.CarriedOver)"
+                           CardColor="bg-warning" />
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-12">
+                    <ProgressMetrics Metrics="ProjectData.Metrics"
+                                     CompletionPercentage="ProjectData.Metrics?.CompletionPercentage ?? 0"
+                                     TotalTasks="ProjectData.Metrics?.TotalTasks ?? 0"
+                                     CompletedTasks="ProjectData.Metrics?.CompletedTasks ?? 0" />
+                </div>
+            </div>
+
+            <div class="mt-4 text-muted small">
+                <p>Last loaded: @LastLoadTime.ToString("g")</p>
+                <button class="btn btn-sm btn-outline-secondary" @onclick="RefreshData">Refresh Data</button>
+            </div>
+        </ErrorBoundary>
+    }
+</div>
+
+@code {
+    private ProjectData? ProjectData;
+    private DateTime LastLoadTime = DateTime.MinValue;
+    private string? LoadingError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjectData();
+    }
+
+    private async Task LoadProjectData()
+    {
+        try
+        {
+            LoadingError = null;
+            ProjectData = await ProjectDataService.LoadProjectDataAsync();
+            LastLoadTime = DateTime.Now;
+        }
+        catch (DataLoadException ex)
+        {
+            LoadingError = ex.Message;
+            Logger.LogError(ex, "Failed to load project data");
+            ProjectData = null;
+        }
+    }
+
+    private async Task RefreshData()
+    {
+        ProjectDataService.RefreshData();
+        await LoadProjectData();
+    }
+
+    private async Task RetryLoad()
+    {
+        await LoadProjectData();
+    }
+
+    private List<ProjectTask> FilterTasks(TaskStatus status)
+    {
+        return ProjectData?.Tasks?.Where(t => t.Status == status).ToList() ?? new();
+    }
+
+    private int CalculateProjectDuration()
+    {
+        if (ProjectData?.Project == null) return 0;
+        return (int)(ProjectData.Project.EndDate - ProjectData.Project.StartDate).TotalDays;
+    }
+}
