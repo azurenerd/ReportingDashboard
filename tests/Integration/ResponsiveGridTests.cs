@@ -35,5 +35,23 @@ namespace AgentSquad.Tests.Integration
                 Assert.True(element.ClassList.Contains("col-lg-4"));
             }
         }
+        
+        [Fact]
+        public void ResponsiveGrid_RowsHaveContainerParent()
+        {
+            var component = RenderComponent<Dashboard>();
+            var rows = component.FindAll(".row");
+            
+            Assert.NotEmpty(rows);
+            foreach (var row in rows)
+            {
+                var parent = row.ParentElement;
+                if (parent != null)
+                {
+                    Assert.True(parent.ClassList.Contains("container") || 
+                               parent.ClassList.Contains("container-fluid"));
+                }
+            }
+        }
     }
 }

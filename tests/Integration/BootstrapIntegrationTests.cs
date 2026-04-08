@@ -32,6 +32,7 @@ namespace AgentSquad.Tests.Integration
             var component = RenderComponent<Dashboard>();
             var rows = component.FindAll(".row");
             
+            Assert.NotEmpty(rows);
             foreach (var row in rows)
             {
                 var parent = row.ParentElement;

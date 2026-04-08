@@ -18,6 +18,7 @@ namespace AgentSquad.Tests.Acceptance
             foreach (var col in mobileColumns)
             {
                 Assert.True(col.ClassList.Contains("col-sm-12"));
+                Assert.NotNull(col.ParentElement);
             }
         }
         
@@ -46,6 +47,24 @@ namespace AgentSquad.Tests.Acceptance
             foreach (var col in desktopColumns)
             {
                 Assert.True(col.ClassList.Contains("col-lg-4"));
+            }
+        }
+        
+        [Fact]
+        public void AC3_BootstrapGridHierarchyCorrect()
+        {
+            var component = RenderComponent<Dashboard>();
+            
+            var containers = component.FindAll(".container, .container-fluid");
+            Assert.NotEmpty(containers);
+            
+            var rows = component.FindAll(".row");
+            Assert.NotEmpty(rows);
+            
+            foreach (var row in rows)
+            {
+                var columns = row.QuerySelectorAll("[class*='col-']");
+                Assert.NotEmpty(columns);
             }
         }
     }

@@ -10,14 +10,10 @@ namespace AgentSquad.Tests.Components
         [Fact]
         public void StatusCard_ThrowsWhenStatusCategoryNotProvided()
         {
-            var parameters = new ComponentParameter[] { };
-            
-            var exception = Assert.Throws<ComponentRenderException>(() =>
+            Assert.Throws<ComponentRenderException>(() =>
             {
-                RenderComponent<StatusCard>(parameters);
+                RenderComponent<StatusCard>();
             });
-            
-            Assert.NotNull(exception);
         }
         
         [Fact]
@@ -31,6 +27,19 @@ namespace AgentSquad.Tests.Components
             var component = RenderComponent<StatusCard>(parameters);
             
             Assert.Contains("Active", component.Markup);
+        }
+        
+        [Fact]
+        public void StatusCard_DisplaysCorrectStatusValue()
+        {
+            var parameters = new ComponentParameter[]
+            {
+                ComponentParameter.CreateParameter("StatusCategory", "Completed")
+            };
+            
+            var component = RenderComponent<StatusCard>(parameters);
+            
+            Assert.Contains("Completed", component.Markup);
         }
     }
 }
