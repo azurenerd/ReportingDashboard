@@ -186,21 +186,6 @@ body {
     border-bottom: 2px solid #e0e0e0;
 }
 
-.work-item-column.status-shipped h3 {
-    border-bottom-color: #4CAF50;
-    color: #2e7d32;
-}
-
-.work-item-column.status-inprogress h3 {
-    border-bottom-color: #2196F3;
-    color: #1565c0;
-}
-
-.work-item-column.status-carriedover h3 {
-    border-bottom-color: #F44336;
-    color: #c62828;
-}
-
 .item-count {
     display: inline-block;
     background-color: #e0e0e0;

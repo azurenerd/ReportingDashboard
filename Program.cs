@@ -5,15 +5,11 @@ var builder = WebApplicationBuilder.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Placeholder registrations for data services (concrete implementations in subsequent PRs)
-builder.Services.AddSingleton<IDataProvider>(sp => null);
-builder.Services.AddSingleton<IDataCache>(sp => null);
-
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseHsts();
 }
 
 var provider = new FileExtensionContentTypeProvider();
@@ -33,7 +29,7 @@ var staticFileOptions = new StaticFileOptions
     OnPrepareResponse = context =>
     {
         // data.json must never cache to ensure fresh data on each page load
-        if (context.File.Name == "data.json")
+        if (Path.GetFileName(context.File.PhysicalPath) == "data.json")
         {
             context.Context.Response.Headers.Append("Cache-Control", "max-age=0, must-revalidate");
         }
