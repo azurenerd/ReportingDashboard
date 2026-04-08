@@ -195,29 +195,76 @@
 }
 
 @media print {
-    .timeline-container {
+    * {
         break-inside: avoid;
+    }
+
+    .timeline-container {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 15px;
         margin: 0;
         padding: 10px;
+        background-color: #ffffff;
+        border-radius: 0;
         max-width: 100%;
         max-height: 200px;
         overflow: hidden;
-    }
-
-    .timeline-item {
-        break-inside: avoid;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
 
     .timeline-container::-webkit-scrollbar {
         display: none;
     }
 
-    .timeline-container {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
+    .timeline-container::-webkit-scrollbar-track {
+        display: none;
+    }
+
+    .timeline-container::-webkit-scrollbar-thumb {
+        display: none;
+    }
+
+    .timeline-item {
+        padding: 10px;
+        background-color: #ffffff;
+        border: 1px solid #d0d0d0;
+        flex-shrink: 0;
+    }
+
+    .timeline-item:hover {
+        opacity: 1;
+        box-shadow: none;
+    }
+
+    .milestone-status-badge {
+        margin-bottom: 8px;
+    }
+
+    .timeline-empty-state {
+        background-color: #ffffff;
+        margin: 0;
+        padding: 10px;
+    }
+
+    .timeline-empty-state p {
+        margin: 0;
+    }
+
+    html,
+    body {
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
+    }
+
+    html {
+        background: #ffffff;
     }
 
     body {
-        background-color: #ffffff;
+        background: #ffffff;
     }
 }
