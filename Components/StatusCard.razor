@@ -1,6 +1,6 @@
 @* StatusCard.razor - Displays task count and expandable task list for each status category *@
 
-<div class="card h-100 shadow-sm">
+<div class="card card-status h-100 shadow-sm">
     <div class="card-header @GetHeaderColorClass()">
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0 text-white">
@@ -87,6 +87,53 @@
     /// </summary>
     [Parameter]
     public string CardColor { get; set; } = "bg-secondary";
+
+    private bool parameterValidationFailed = false;
+    private string validationErrorMessage = string.Empty;
+
+    /// <summary>
+    /// Lifecycle method to validate component parameters on initialization
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        ValidateParameters();
+    }
+
+    /// <summary>
+    /// Validates component parameters and sets error state if invalid
+    /// </summary>
+    private void ValidateParameters()
+    {
+        parameterValidationFailed = false;
+        validationErrorMessage = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(StatusCategory))
+        {
+            parameterValidationFailed = true;
+            validationErrorMessage = "StatusCategory parameter is required.";
+        }
+
+        if (TaskCount < 0)
+        {
+            parameterValidationFailed = true;
+            validationErrorMessage += " TaskCount cannot be negative.";
+        }
+
+        if (Tasks == null)
+        {
+            Tasks = new();
+        }
+
+        if (string.IsNullOrWhiteSpace(CardColor))
+        {
+            CardColor = "bg-secondary";
+        }
+
+        if (Tasks.Count != TaskCount && TaskCount > 0)
+        {
+            validationErrorMessage += $" Warning: TaskCount ({TaskCount}) does not match Tasks list count ({Tasks.Count}).";
+        }
+    }
 
     /// <summary>
     /// Returns the CSS class for the card header based on CardColor parameter
