@@ -1,76 +1,59 @@
-using Bunit;
 using Xunit;
+using Bunit;
 using AgentSquad.Components;
-using System;
 
 namespace AgentSquad.Tests.Components
 {
     public class ProgressMetricsTests : TestContext
     {
-        private ProjectMetrics CreateTestMetrics(int totalTasks, int completedTasks)
+        [Fact]
+        public void ProgressMetrics_WithValidMetrics_RendersPercentage()
         {
-            return new ProjectMetrics 
-            { 
-                TotalTasks = totalTasks,
-                CompletedTasks = completedTasks,
-                ProjectStartDate = DateTime.Now.AddDays(-10),
-                ProjectEndDate = DateTime.Now.AddDays(20),
-                EstimatedBurndownRate = 5.0,
-                DaysRemaining = 20
-            };
+            var component = RenderComponent<ProgressMetrics>(parameters =>
+                parameters.Add(p => p.Completed, 5)
+                          .Add(p => p.Total, 10));
+
+            Assert.Contains("50", component.Markup);
         }
 
         [Fact]
-        public void ProgressMetrics_RendersSuccessfully()
+        public void ProgressMetrics_WithZeroTotal_RendersZeroPercent()
         {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, CreateTestMetrics(100, 75))
-            );
+            var component = RenderComponent<ProgressMetrics>(parameters =>
+                parameters.Add(p => p.Completed, 0)
+                          .Add(p => p.Total, 0));
 
-            Assert.NotNull(component.Instance);
+            Assert.Contains("0", component.Markup);
         }
 
         [Fact]
-        public void ProgressMetrics_DisplaysCompletionStatus()
+        public void ProgressMetrics_WithCompleteProgress_RendersHundredPercent()
         {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, CreateTestMetrics(100, 85))
-            );
+            var component = RenderComponent<ProgressMetrics>(parameters =>
+                parameters.Add(p => p.Completed, 10)
+                          .Add(p => p.Total, 10));
 
-            var markup = component.Markup;
-            Assert.Contains("85", markup);
+            Assert.Contains("100", component.Markup);
         }
 
         [Fact]
-        public void ProgressMetrics_RendersBurndownChart()
+        public void ProgressMetrics_CalculatesPercentageCorrectly()
         {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, CreateTestMetrics(100, 50))
-            );
+            var component = RenderComponent<ProgressMetrics>(parameters =>
+                parameters.Add(p => p.Completed, 3)
+                          .Add(p => p.Total, 4));
 
-            var elements = component.FindAll("[data-burndown]");
-            Assert.NotNull(elements);
+            Assert.Contains("75", component.Markup);
         }
 
         [Fact]
-        public void ProgressMetrics_HandlesNullMetrics()
+        public void ProgressMetrics_WithPartialProgress_RendersCorrectValue()
         {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, null as ProjectMetrics)
-            );
+            var component = RenderComponent<ProgressMetrics>(parameters =>
+                parameters.Add(p => p.Completed, 7)
+                          .Add(p => p.Total, 20));
 
-            Assert.NotNull(component.Instance);
-        }
-
-        [Fact]
-        public void ProgressMetrics_HandlesZeroCompletion()
-        {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, CreateTestMetrics(100, 0))
-            );
-
-            var markup = component.Markup;
-            Assert.NotEmpty(markup);
+            Assert.Contains("35", component.Markup);
         }
     }
 }
