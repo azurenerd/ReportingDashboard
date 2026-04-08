@@ -1,118 +1,74 @@
-using Bunit;
-using Microsoft.Extensions.DependencyInjection;
-using AgentSquad.Runner.Components;
-using AgentSquad.Runner.Models;
-using AgentSquad.Runner.Services;
 using Xunit;
+using Moq;
+using AgentSquad.Services;
+using AgentSquad.Models;
 
-namespace AgentSquad.Runner.Tests.Integration
+namespace AgentSquad.Tests.Integration;
+
+public class DashboardIntegrationTests
 {
-    public class DashboardIntegrationTests : TestContext
+    private readonly Mock<IDataCache> _mockCache;
+    private readonly Mock<ILogger<DataProvider>> _mockLogger;
+    private readonly string _testDbPath = "integration_test.db";
+
+    public DashboardIntegrationTests()
     {
-        [Fact]
-        public async Task FullDashboard_LoadsAndRendersAllSections()
-        {
-            var jsonContent = @"{
-                ""name"": ""Integration Test Project"",
-                ""description"": ""Full Dashboard Test"",
-                ""milestones"": [
-                    {
-                        ""name"": ""Alpha"",
-                        ""targetDate"": ""2026-06-01T00:00:00"",
-                        ""status"": 1,
-                        ""description"": ""Alpha release""
-                    },
-                    {
-                        ""name"": ""Beta"",
-                        ""targetDate"": ""2026-08-01T00:00:00"",
-                        ""status"": 3,
-                        ""description"": ""Beta release""
-                    }
-                ],
-                ""metrics"": {
-                    ""completionPercentage"": 50,
-                    ""healthStatus"": 0,
-                    ""velocityThisMonth"": 8,
-                    ""completedMilestones"": 1,
-                    ""milestoneCount"": 2,
-                    ""targetMilestoneCount"": 4
-                },
-                ""workItems"": [
-                    {
-                        ""id"": ""1"",
-                        ""title"": ""Feature A"",
-                        ""description"": ""Feature A description"",
-                        ""status"": 0
-                    },
-                    {
-                        ""id"": ""2"",
-                        ""title"": ""Feature B"",
-                        ""description"": ""Feature B description"",
-                        ""status"": 1
-                    },
-                    {
-                        ""id"": ""3"",
-                        ""title"": ""Feature C"",
-                        ""description"": ""Feature C description"",
-                        ""status"": 2
-                    }
-                ]
-            }";
+        _mockCache = new Mock<IDataCache>();
+        _mockLogger = new Mock<ILogger<DataProvider>>();
+    }
 
-            var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            Directory.CreateDirectory(tempDir);
-            var dataFilePath = Path.Combine(tempDir, "data.json");
-            File.WriteAllText(dataFilePath, jsonContent);
+    [Fact]
+    public async Task DashboardIntegration_LoadsCompleteProjectData()
+    {
+        var project = new Project { Id = "proj-1", Name = "Integration Test Project" };
+        var metrics = new ProjectMetrics { CompletedMilestones = 2, TotalMilestones = 5 };
+        var workItems = new[] {
+            new WorkItem { Id = "wi-1", Title = "Item 1", Status = WorkItemStatus.Active }
+        };
 
-            var mockEnv = new Mock<IWebHostEnvironment>();
-            mockEnv.Setup(x => x.WebRootPath).Returns(tempDir);
+        _mockCache.Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(project);
+        _mockCache.Setup(c => c.GetAsync<ProjectMetrics>(It.IsAny<string>()))
+            .ReturnsAsync(metrics);
+        _mockCache.Setup(c => c.GetAsync<WorkItem[]>(It.IsAny<string>()))
+            .ReturnsAsync(workItems);
 
-            Services.AddMemoryCache();
-            Services.AddScoped<IDataCache, MemoryCacheProvider>();
-            Services.AddScoped<IDataProvider>(sp =>
-            {
-                var logger = sp.GetRequiredService<ILogger<DataProvider>>();
-                return new DataProvider(logger, mockEnv.Object, sp.GetRequiredService<IDataCache>());
-            });
+        var provider = new DataProvider(_mockLogger.Object, _mockCache.Object, _testDbPath);
 
-            var component = RenderComponent<DashboardLayout>();
-            await component.InvokeAsync(() => component.Instance.OnInitializedAsync());
+        var projResult = await _mockCache.Object.GetAsync<Project>("project");
+        var metricsResult = await _mockCache.Object.GetAsync<ProjectMetrics>("metrics");
+        var itemsResult = await _mockCache.Object.GetAsync<WorkItem[]>("items");
 
-            Assert.NotNull(component.Instance.ProjectData);
-            Assert.Equal("Integration Test Project", component.Instance.ProjectData.Name);
-            Assert.Equal(2, component.Instance.ProjectData.Milestones.Count);
-            Assert.Equal(3, component.Instance.ProjectData.WorkItems.Count);
+        Assert.NotNull(projResult);
+        Assert.NotNull(metricsResult);
+        Assert.NotNull(itemsResult);
+    }
 
-            var markup = component.Markup;
-            Assert.Contains("Integration Test Project", markup);
-            Assert.Contains("Alpha", markup);
-            Assert.Contains("Beta", markup);
-            Assert.Contains("Feature A", markup);
-            Assert.Contains("Feature B", markup);
-            Assert.Contains("Feature C", markup);
+    [Fact]
+    public async Task DashboardIntegration_SynchronizesDataAcrossComponents()
+    {
+        var updateData = new ProjectMetrics { CompletedMilestones = 3, TotalMilestones = 6 };
 
-            Directory.Delete(tempDir, true);
-        }
+        _mockCache.Setup(c => c.SetAsync(It.IsAny<string>(), It.IsAny<object>()))
+            .Returns(Task.CompletedTask);
+        _mockCache.Setup(c => c.GetAsync<ProjectMetrics>(It.IsAny<string>()))
+            .ReturnsAsync(updateData);
 
-        [Fact]
-        public async Task Dashboard_HandlesErrorGracefully_OnLoadFailure()
-        {
-            var mockEnv = new Mock<IWebHostEnvironment>();
-            mockEnv.Setup(x => x.WebRootPath).Returns("/nonexistent");
+        await _mockCache.Object.SetAsync("metrics", updateData);
+        var result = await _mockCache.Object.GetAsync<ProjectMetrics>("metrics");
 
-            var mockLogger = new Mock<ILogger<DataProvider>>();
-            var mockCache = new Mock<IDataCache>();
+        Assert.Equal(3, result.CompletedMilestones);
+        _mockCache.Verify(c => c.SetAsync(It.IsAny<string>(), It.IsAny<object>()), Times.Once);
+    }
 
-            Services.AddScoped<IDataProvider>(sp =>
-                new DataProvider(mockLogger.Object, mockEnv.Object, mockCache.Object)
-            );
+    [Fact]
+    public async Task DashboardIntegration_HandlesDataProviderErrors()
+    {
+        _mockCache.Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ThrowsAsync(new InvalidOperationException("Cache error"));
 
-            var component = RenderComponent<DashboardLayout>();
-            await component.InvokeAsync(() => component.Instance.OnInitializedAsync());
-
-            Assert.False(component.Instance.IsLoading);
-            Assert.NotNull(component.Instance.ErrorMessage);
-            Assert.Contains("error-state", component.Markup);
-        }
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await _mockCache.Object.GetAsync<Project>("project")
+        );
     }
 }

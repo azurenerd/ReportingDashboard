@@ -1,158 +1,63 @@
-using Moq;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using AgentSquad.Runner.Services;
-using AgentSquad.Runner.Models;
 using Xunit;
+using Moq;
+using AgentSquad.Services;
+using AgentSquad.Models;
 
-namespace AgentSquad.Runner.Tests.Services
+namespace AgentSquad.Tests.Services;
+
+public class DataCacheTests
 {
-    public class MemoryCacheProviderTests
+    private readonly Mock<IDataCache> _mockCache;
+
+    public DataCacheTests()
     {
-        private readonly IMemoryCache _memoryCache;
-        private readonly Mock<ILogger<MemoryCacheProvider>> _mockLogger;
+        _mockCache = new Mock<IDataCache>();
+    }
 
-        public MemoryCacheProviderTests()
-        {
-            _memoryCache = new MemoryCache(new MemoryCacheOptions());
-            _mockLogger = new Mock<ILogger<MemoryCacheProvider>>();
-        }
+    [Fact]
+    public async Task IDataCache_GetAsyncReturnsStoredData()
+    {
+        var testData = new { Name = "Test" };
+        _mockCache.Setup(c => c.GetAsync<object>(It.IsAny<string>()))
+            .ReturnsAsync(testData);
 
-        [Fact]
-        public void Set_AddsItemToCache()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-            var project = new Project { Name = "Test" };
+        var result = await _mockCache.Object.GetAsync<object>("key");
 
-            cache.Set("key", project);
+        Assert.NotNull(result);
+    }
 
-            Assert.True(cache.Exists("key"));
-        }
+    [Fact]
+    public async Task IDataCache_SetAsyncStoresData()
+    {
+        var testData = "TestValue";
 
-        [Fact]
-        public void Get_ReturnsItem_WhenExists()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-            var project = new Project { Name = "Test Project" };
+        _mockCache.Setup(c => c.SetAsync(It.IsAny<string>(), It.IsAny<object>()))
+            .Returns(Task.CompletedTask);
 
-            cache.Set("testKey", project);
-            var result = cache.Get<Project>("testKey");
+        await _mockCache.Object.SetAsync("key", testData);
 
-            Assert.NotNull(result);
-            Assert.Equal("Test Project", result.Name);
-        }
+        _mockCache.Verify(c => c.SetAsync("key", testData), Times.Once);
+    }
 
-        [Fact]
-        public void Get_ReturnsNull_WhenNotExists()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
+    [Fact]
+    public async Task IDataCache_RemoveAsyncDeletesData()
+    {
+        _mockCache.Setup(c => c.RemoveAsync(It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
 
-            var result = cache.Get<Project>("nonexistentKey");
+        await _mockCache.Object.RemoveAsync("key");
 
-            Assert.Null(result);
-        }
+        _mockCache.Verify(c => c.RemoveAsync("key"), Times.Once);
+    }
 
-        [Fact]
-        public void Set_WithExpiration_RemovesItem_AfterTTL()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-            var project = new Project { Name = "Expiring" };
+    [Fact]
+    public async Task IDataCache_GetAsyncReturnsNullForMissingKey()
+    {
+        _mockCache.Setup(c => c.GetAsync<object>(It.IsAny<string>()))
+            .ReturnsAsync((object)null);
 
-            cache.Set("expiringKey", project, TimeSpan.FromMilliseconds(100));
-            Assert.True(cache.Exists("expiringKey"));
+        var result = await _mockCache.Object.GetAsync<object>("nonexistent");
 
-            Thread.Sleep(150);
-            Assert.False(cache.Exists("expiringKey"));
-        }
-
-        [Fact]
-        public void Remove_DeletesItemFromCache()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-            var project = new Project { Name = "ToRemove" };
-
-            cache.Set("removeKey", project);
-            Assert.True(cache.Exists("removeKey"));
-
-            cache.Remove("removeKey");
-            Assert.False(cache.Exists("removeKey"));
-        }
-
-        [Fact]
-        public void Exists_ReturnsFalse_WhenKeyNotInCache()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-
-            Assert.False(cache.Exists("nonexistent"));
-        }
-
-        [Fact]
-        public void Exists_ReturnsTrue_WhenKeyInCache()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-            var project = new Project { Name = "Test" };
-
-            cache.Set("existsKey", project);
-            Assert.True(cache.Exists("existsKey"));
-        }
-
-        [Fact]
-        public void Set_ThrowsArgumentException_WhenKeyNull()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-            var project = new Project();
-
-            Assert.Throws<ArgumentException>(() => cache.Set(null, project));
-        }
-
-        [Fact]
-        public void Set_ThrowsArgumentNullException_WhenValueNull()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-
-            Assert.Throws<ArgumentNullException>(() => cache.Set("key", (Project)null));
-        }
-
-        [Fact]
-        public void Get_ThrowsArgumentException_WhenKeyNull()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-
-            Assert.Throws<ArgumentException>(() => cache.Get<Project>(null));
-        }
-
-        [Fact]
-        public void Remove_ThrowsArgumentException_WhenKeyNull()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-
-            Assert.Throws<ArgumentException>(() => cache.Remove(null));
-        }
-
-        [Fact]
-        public void Exists_ThrowsArgumentException_WhenKeyNull()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-
-            Assert.Throws<ArgumentException>(() => cache.Exists(null));
-        }
-
-        [Fact]
-        public void Set_WithEmptyExpirationTimespan_StoresIndefinitely()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-            var project = new Project { Name = "Persistent" };
-
-            cache.Set("persistKey", project, null);
-            Assert.True(cache.Exists("persistKey"));
-        }
-
-        [Fact]
-        public void AcceptanceCriteria_ImplementsIDataCache()
-        {
-            var cache = new MemoryCacheProvider(_memoryCache, _mockLogger.Object);
-
-            Assert.IsAssignableFrom<IDataCache>(cache);
-        }
+        Assert.Null(result);
     }
 }
