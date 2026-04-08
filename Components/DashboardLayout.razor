@@ -5,25 +5,17 @@
 @inject IDataCache DataCache
 @inject ILogger<DashboardLayout> Logger
 
-<div class="dashboard-container">
-    @if (IsLoading)
-    {
-        <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Loading dashboard...</p>
-        </div>
-    }
-    else if (!string.IsNullOrEmpty(ErrorMessage))
-    {
-        <div class="error-state">
-            <div class="error-content">
-                <h2>Dashboard Error</h2>
-                <p>@ErrorMessage</p>
-            </div>
-        </div>
-    }
-    else if (ProjectData != null)
-    {
+@if (IsLoading)
+{
+    <LoadingSpinner />
+}
+else if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <ErrorMessage Message="@ErrorMessage" OnRetry="HandleRetry" OnDismiss="HandleDismiss" />
+}
+else if (ProjectData != null)
+{
+    <div class="dashboard-container">
         <header class="dashboard-header">
             <h1>@ProjectData.Name</h1>
             <p>@ProjectData.Description</p>
@@ -43,14 +35,16 @@
             <!-- WorkItemSummary component will be placed here in Step 4 -->
             <div class="placeholder">Work Items Section</div>
         </section>
-    }
-    else
-    {
+    </div>
+}
+else
+{
+    <div class="dashboard-container">
         <div class="empty-state">
             <p>No project data available.</p>
         </div>
-    }
-</div>
+    </div>
+}
 
 @code {
     public Project? ProjectData { get; set; }
@@ -59,6 +53,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadProjectData();
+    }
+
+    private async Task LoadProjectData()
+    {
         try
         {
             IsLoading = true;
@@ -66,7 +65,7 @@
             Logger.LogInformation("Starting to load project data");
 
             ProjectData = await DataProvider.LoadProjectDataAsync();
-            
+
             Logger.LogInformation("Project data loaded successfully: {ProjectName}", ProjectData?.Name);
             IsLoading = false;
         }
@@ -94,5 +93,16 @@
             ErrorMessage = "An unexpected error occurred while loading the dashboard. Please try again.";
             IsLoading = false;
         }
+    }
+
+    private async Task HandleRetry()
+    {
+        await LoadProjectData();
+    }
+
+    private Task HandleDismiss()
+    {
+        ErrorMessage = string.Empty;
+        return Task.CompletedTask;
     }
 }
