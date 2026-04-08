@@ -1,159 +1,77 @@
 using System.Text.Json;
 using AgentSquad.Runner.Models;
-using Microsoft.Extensions.Logging;
 
 namespace AgentSquad.Runner.Services;
 
+/// <summary>
+/// Service for loading and managing project data from JSON configuration file.
+/// Reads from wwwroot/data.json, deserializes to Project model, and caches results.
+/// </summary>
 public class DataProvider : IDataProvider
 {
     private readonly IDataCache _cache;
     private readonly ILogger<DataProvider> _logger;
-    private const string DATA_FILE_PATH = "wwwroot/data.json";
-    private const string CACHE_KEY = "project_data";
-    private static readonly TimeSpan DEFAULT_CACHE_TTL = TimeSpan.FromHours(1);
+    private const string DataFilePath = "wwwroot/data.json";
+    private const string CacheKey = "project_data";
+    private const int DefaultCacheTtlHours = 1;
 
+    /// <summary>
+    /// Initializes a new instance of DataProvider.
+    /// </summary>
+    /// <param name="cache">In-memory cache service for storing parsed project data.</param>
+    /// <param name="logger">Logger for diagnostic output.</param>
     public DataProvider(IDataCache cache, ILogger<DataProvider> logger)
     {
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    /// <summary>
+    /// Asynchronously loads project data from wwwroot/data.json.
+    /// Returns cached result if available, otherwise reads and parses file.
+    /// </summary>
+    /// <returns>Strongly-typed Project model with nested collections.</returns>
     public async Task<Project> LoadProjectDataAsync()
     {
-        try
+        _logger.LogInformation("Attempting to load project data...");
+
+        // Check cache first
+        var cached = await _cache.GetAsync<Project>(CacheKey);
+        if (cached != null)
         {
-            var cached = await _cache.GetAsync<Project>(CACHE_KEY);
-            if (cached != null)
-            {
-                _logger.LogInformation("Project data loaded from cache");
-                return cached;
-            }
-
-            _logger.LogInformation("Cache miss for project data, reading from file");
-
-            var json = await File.ReadAllTextAsync(DATA_FILE_PATH);
-            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-            var project = JsonSerializer.Deserialize<Project>(json, options);
-
-            if (project == null)
-            {
-                throw new InvalidOperationException("Failed to deserialize project data from JSON");
-            }
-
-            ValidateProjectData(project);
-
-            await _cache.SetAsync(CACHE_KEY, project, DEFAULT_CACHE_TTL);
-            _logger.LogInformation("Project data loaded successfully and cached");
-
-            return project;
+            _logger.LogInformation("Project data loaded from cache.");
+            return cached;
         }
-        catch (FileNotFoundException ex)
+
+        _logger.LogInformation("Cache miss, reading project data from file: {FilePath}", DataFilePath);
+
+        // Read JSON file
+        var json = await File.ReadAllTextAsync(DataFilePath);
+        _logger.LogDebug("Read {ByteCount} bytes from {FilePath}", json.Length, DataFilePath);
+
+        // Deserialize JSON to Project model
+        var jsonOptions = new JsonSerializerOptions
         {
-            _logger.LogError(ex, "Data file not found at {Path}", DATA_FILE_PATH);
-            throw new InvalidOperationException($"Configuration file not found at {DATA_FILE_PATH}", ex);
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogError(ex, "Failed to parse JSON from data file");
-            throw new InvalidOperationException("Invalid JSON format in data file", ex);
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Validation"))
-        {
-            _logger.LogError(ex, "Project data validation failed");
-            throw;
-        }
+            PropertyNameCaseInsensitive = true,
+            WriteIndented = false
+        };
+
+        var project = JsonSerializer.Deserialize<Project>(json, jsonOptions);
+        _logger.LogInformation("Successfully deserialized project data for project: {ProjectName}", project?.Name ?? "Unknown");
+
+        // Cache the parsed project
+        await _cache.SetAsync(CacheKey, project, TimeSpan.FromHours(DefaultCacheTtlHours));
+        _logger.LogInformation("Project data cached for {CacheTtlHours} hour(s)", DefaultCacheTtlHours);
+
+        return project;
     }
 
+    /// <summary>
+    /// Invalidates the cached project data, forcing a reload on the next call.
+    /// </summary>
     public void InvalidateCache()
     {
-        _cache.Remove(CACHE_KEY);
-        _logger.LogInformation("Project data cache invalidated");
-    }
-
-    private void ValidateProjectData(Project project)
-    {
-        if (project == null)
-        {
-            throw new InvalidOperationException("Validation: Project data is null");
-        }
-
-        if (string.IsNullOrWhiteSpace(project.Name))
-        {
-            throw new InvalidOperationException("Validation: Project name is required and cannot be empty");
-        }
-
-        if (project.Milestones == null || project.Milestones.Count == 0)
-        {
-            throw new InvalidOperationException("Validation: At least one milestone is required");
-        }
-
-        if (project.CompletionPercentage < 0 || project.CompletionPercentage > 100)
-        {
-            throw new InvalidOperationException($"Validation: CompletionPercentage must be between 0 and 100, got {project.CompletionPercentage}");
-        }
-
-        if (!Enum.IsDefined(typeof(HealthStatus), project.HealthStatus))
-        {
-            throw new InvalidOperationException($"Validation: Invalid HealthStatus value '{project.HealthStatus}'");
-        }
-
-        ValidateMilestones(project.Milestones);
-        ValidateWorkItems(project.WorkItems);
-    }
-
-    private void ValidateMilestones(List<Milestone> milestones)
-    {
-        if (milestones == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < milestones.Count; i++)
-        {
-            var milestone = milestones[i];
-
-            if (milestone == null)
-            {
-                throw new InvalidOperationException($"Validation: Milestone at index {i} is null");
-            }
-
-            if (string.IsNullOrWhiteSpace(milestone.Name))
-            {
-                throw new InvalidOperationException($"Validation: Milestone at index {i} has an empty name");
-            }
-
-            if (!Enum.IsDefined(typeof(MilestoneStatus), milestone.Status))
-            {
-                throw new InvalidOperationException($"Validation: Milestone '{milestone.Name}' has invalid status '{milestone.Status}'");
-            }
-        }
-    }
-
-    private void ValidateWorkItems(List<WorkItem> workItems)
-    {
-        if (workItems == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < workItems.Count; i++)
-        {
-            var item = workItems[i];
-
-            if (item == null)
-            {
-                throw new InvalidOperationException($"Validation: WorkItem at index {i} is null");
-            }
-
-            if (string.IsNullOrWhiteSpace(item.Title))
-            {
-                throw new InvalidOperationException($"Validation: WorkItem at index {i} has an empty title");
-            }
-
-            if (!Enum.IsDefined(typeof(WorkItemStatus), item.Status))
-            {
-                throw new InvalidOperationException($"Validation: WorkItem '{item.Title}' has invalid status '{item.Status}'");
-            }
-        }
+        _cache.Remove(CacheKey);
+        _logger.LogInformation("Project data cache invalidated.");
     }
 }
