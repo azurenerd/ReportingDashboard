@@ -1,56 +1,27 @@
-using System.Text.Json.Serialization;
+namespace AgentSquad.Runner.Models;
 
-namespace AgentSquad.Runner.Models
+public class WorkItem
 {
-    /// <summary>
-    /// Represents the status category of a work item.
-    /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum WorkItemStatus
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public WorkItemStatus Status { get; set; }
+    public string AssignedTo { get; set; }
+}
+
+public enum WorkItemStatus
+{
+    Shipped,
+    InProgress,
+    CarriedOver
+}
+
+public static class WorkItemExtensions
+{
+    public static IEnumerable<IGrouping<WorkItemStatus, WorkItem>> GroupByStatus(this List<WorkItem> items)
     {
-        /// <summary>
-        /// Work item completed and shipped this month.
-        /// </summary>
-        Shipped,
-
-        /// <summary>
-        /// Work item currently in progress.
-        /// </summary>
-        InProgress,
-
-        /// <summary>
-        /// Work item carried over from previous periods.
-        /// </summary>
-        CarriedOver
-    }
-
-    /// <summary>
-    /// Represents a work item tracked in the project dashboard.
-    /// </summary>
-    public class WorkItem
-    {
-        /// <summary>
-        /// Gets or sets the title of the work item.
-        /// </summary>
-        [JsonPropertyName("title")]
-        public string Title { get; set; }
-
-        /// <summary>
-        /// Gets or sets the description of the work item. May be null or empty.
-        /// </summary>
-        [JsonPropertyName("description")]
-        public string? Description { get; set; }
-
-        /// <summary>
-        /// Gets or sets the status category of the work item.
-        /// </summary>
-        [JsonPropertyName("status")]
-        public WorkItemStatus Status { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the team member or team assigned to this work item. May be null.
-        /// </summary>
-        [JsonPropertyName("assignedTo")]
-        public string? AssignedTo { get; set; }
+        var statusOrder = new[] { WorkItemStatus.Shipped, WorkItemStatus.InProgress, WorkItemStatus.CarriedOver };
+        return items
+            .GroupBy(i => i.Status)
+            .OrderBy(g => System.Array.IndexOf(statusOrder, g.Key));
     }
 }
