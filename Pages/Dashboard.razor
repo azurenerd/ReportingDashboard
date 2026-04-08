@@ -69,13 +69,10 @@
                 {
                     <div class="row mb-5">
                         <div class="col-12">
-                            <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px;">
-                                <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: bold; color: #333;">Milestone Timeline</h2>
-                                <div style="min-height: 150px; display: flex; align-items: center; justify-content: center; color: #999;">
-                                    <!-- MilestoneTimeline component will be rendered here -->
-                                    <p style="margin: 0;">Milestone timeline section</p>
-                                </div>
-                            </div>
+                            <MilestoneTimeline 
+                                Milestones="projectData.Milestones"
+                                ProjectStartDate="projectData.ProjectStartDate"
+                                ProjectEndDate="projectData.ProjectEndDate" />
                         </div>
                     </div>
                 }
@@ -85,34 +82,25 @@
                 {
                     <div class="row mb-5">
                         <div class="col-12 col-md-4 mb-3">
-                            <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px; border-top: 4px solid #28a745;">
-                                <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #333;">Shipped</h3>
-                                <div style="font-size: 32px; font-weight: bold; color: #28a745; margin: 16px 0;">@GetShippedCount()</div>
-                                <div style="min-height: 80px; display: flex; align-items: center; justify-content: center; color: #999; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
-                                    <!-- StatusCard component for Shipped -->
-                                    <p style="margin: 0; font-size: 12px;">Tasks section</p>
-                                </div>
-                            </div>
+                            <StatusCard 
+                                StatusCategory="Shipped"
+                                TaskCount="GetShippedCount()"
+                                Tasks="GetTasksByStatus(\"Shipped\")"
+                                CardColor="#28a745" />
                         </div>
                         <div class="col-12 col-md-4 mb-3">
-                            <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px; border-top: 4px solid #0066cc;">
-                                <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #333;">In-Progress</h3>
-                                <div style="font-size: 32px; font-weight: bold; color: #0066cc; margin: 16px 0;">@GetInProgressCount()</div>
-                                <div style="min-height: 80px; display: flex; align-items: center; justify-content: center; color: #999; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
-                                    <!-- StatusCard component for In-Progress -->
-                                    <p style="margin: 0; font-size: 12px;">Tasks section</p>
-                                </div>
-                            </div>
+                            <StatusCard 
+                                StatusCategory="In-Progress"
+                                TaskCount="GetInProgressCount()"
+                                Tasks="GetTasksByStatus(\"InProgress\")"
+                                CardColor="#0066cc" />
                         </div>
                         <div class="col-12 col-md-4 mb-3">
-                            <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px; border-top: 4px solid #ff9800;">
-                                <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #333;">Carried-Over</h3>
-                                <div style="font-size: 32px; font-weight: bold; color: #ff9800; margin: 16px 0;">@GetCarriedOverCount()</div>
-                                <div style="min-height: 80px; display: flex; align-items: center; justify-content: center; color: #999; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
-                                    <!-- StatusCard component for Carried-Over -->
-                                    <p style="margin: 0; font-size: 12px;">Tasks section</p>
-                                </div>
-                            </div>
+                            <StatusCard 
+                                StatusCategory="Carried-Over"
+                                TaskCount="GetCarriedOverCount()"
+                                Tasks="GetTasksByStatus(\"CarriedOver\")"
+                                CardColor="#ff9800" />
                         </div>
                     </div>
                 }
@@ -122,16 +110,9 @@
                 {
                     <div class="row">
                         <div class="col-12">
-                            <div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px;">
-                                <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: bold; color: #333;">Progress Metrics</h2>
-                                <div style="min-height: 200px; display: flex; align-items: center; justify-content: center; color: #999;">
-                                    <!-- ProgressMetrics component will be rendered here -->
-                                    <div style="text-align: center;">
-                                        <p style="margin: 0; font-size: 12px;">Progress metrics section</p>
-                                        <p style="margin: 8px 0 0 0; font-size: 14px; font-weight: bold; color: #333;">@projectData.Metrics.CompletionPercentage%</p>
-                                    </div>
-                                </div>
-                            </div>
+                            <ProgressMetrics 
+                                Metrics="projectData.Metrics"
+                                Tasks="projectData.Tasks" />
                         </div>
                     </div>
                 }
@@ -220,6 +201,11 @@
     private int GetCarriedOverCount()
     {
         return projectData?.Tasks?.Count(t => t.Status?.Equals("CarriedOver", StringComparison.OrdinalIgnoreCase) ?? false) ?? 0;
+    }
+
+    private List<ProjectTask> GetTasksByStatus(string status)
+    {
+        return projectData?.Tasks?.Where(t => t.Status?.Equals(status, StringComparison.OrdinalIgnoreCase) ?? false).ToList() ?? new List<ProjectTask>();
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
