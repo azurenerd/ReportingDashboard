@@ -16,6 +16,18 @@ else if (!string.IsNullOrEmpty(ErrorMessage))
 else if (ProjectData != null)
 {
     <div class="dashboard-container">
+        @if (Environment.IsDevelopment())
+        {
+            <div class="debug-panel">
+                <div class="debug-content">
+                    <span class="debug-label">🔧 Developer Mode</span>
+                    <button class="debug-button" @onclick="HandleDebugReload" title="Clear cache and reload dashboard">
+                        ↻ Reload Data
+                    </button>
+                </div>
+            </div>
+        }
+
         <header class="dashboard-header">
             <h1>@ProjectData.Name</h1>
             <p>@ProjectData.Description</p>
@@ -95,12 +107,30 @@ else
     private async Task HandleRetry()
     {
         await LoadProjectData();
+        StateHasChanged();
     }
 
     private Task HandleDismiss()
     {
         ErrorMessage = string.Empty;
+        StateHasChanged();
         return Task.CompletedTask;
+    }
+
+    private async Task HandleDebugReload()
+    {
+        try
+        {
+            Logger.LogInformation("Debug reload initiated: clearing cache and reloading data");
+            DataCache.Remove("project_data");
+            await LoadProjectData();
+            StateHasChanged();
+            Logger.LogInformation("Debug reload completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error during debug reload operation");
+        }
     }
 
     private ProjectMetrics? ExtractProjectMetrics(Project? project)
@@ -121,3 +151,58 @@ else
         };
     }
 }
+
+<style>
+    .debug-panel {
+        position: fixed;
+        top: var(--spacing-md);
+        right: var(--spacing-md);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: var(--spacing-md);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        font-size: 0.85rem;
+    }
+
+    .debug-content {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .debug-label {
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .debug-button {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .debug-button:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .debug-button:active {
+        transform: scale(0.98);
+    }
+
+    @media print {
+        .debug-panel {
+            display: none !important;
+        }
+    }
+</style>
