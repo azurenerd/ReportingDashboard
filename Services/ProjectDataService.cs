@@ -38,7 +38,50 @@ public class ProjectDataService
     /// </exception>
     public async Task<ProjectData> LoadProjectDataAsync(string jsonFilePath)
     {
-        throw new NotImplementedException();
+        try
+        {
+            _logger.LogInformation("Loading project data from: {JsonFilePath}", jsonFilePath);
+
+            var json = await File.ReadAllTextAsync(jsonFilePath);
+            
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            var data = JsonSerializer.Deserialize<ProjectData>(json, options);
+
+            if (data == null)
+            {
+                throw new DataLoadException("JSON deserialization resulted in null");
+            }
+
+            _cachedData = data;
+            _lastLoadTime = DateTime.UtcNow;
+
+            _logger.LogInformation("Project data loaded successfully at {LoadTime}", _lastLoadTime);
+
+            return data;
+        }
+        catch (FileNotFoundException ex)
+        {
+            _logger.LogError(ex, "Data file not found at {JsonFilePath}", jsonFilePath);
+            throw new DataLoadException("data.json not found in wwwroot directory", ex);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Invalid JSON format in {JsonFilePath}", jsonFilePath);
+            throw new DataLoadException($"Invalid JSON format: {ex.Message}", ex);
+        }
+        catch (DataLoadException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error loading project data from {JsonFilePath}", jsonFilePath);
+            throw new DataLoadException($"Unexpected error loading project data: {ex.Message}", ex);
+        }
     }
 
     /// <summary>
