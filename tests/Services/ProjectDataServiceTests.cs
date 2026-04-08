@@ -1,53 +1,113 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Xunit;
-using AgentSquad.Services;
 using AgentSquad.Models;
+using AgentSquad.Services;
+using System.Text.Json;
+using Moq;
 
 namespace AgentSquad.Tests.Services
 {
-    public class ProjectDataServiceTests : IDisposable
+    public class ProjectDataServiceTests
     {
-        private readonly string _testDirectory;
-        private readonly string _originalDirectory;
-        private readonly ProjectDataService _service;
+        private readonly ProjectDataService _projectDataService;
 
         public ProjectDataServiceTests()
         {
-            _originalDirectory = Directory.GetCurrentDirectory();
-            _testDirectory = Path.Combine(Path.GetTempPath(), $"ProjectDataServiceTests_{Guid.NewGuid()}");
-            Directory.CreateDirectory(_testDirectory);
-            _service = new ProjectDataService();
+            _projectDataService = new ProjectDataService();
         }
 
         [Fact]
-        public void LoadProjectDataAsync_WithValidPath_ReturnsProjectData()
+        public async Task LoadProjectDataAsync_WithValidJson_ReturnsProjectData()
         {
-            var testFile = Path.Combine(_testDirectory, "valid.json");
-            File.WriteAllText(testFile, "{}");
-
-            var result = _service.LoadProjectDataAsync(testFile).Result;
-
-            Assert.NotNull(result);
+            var projectData = await _projectDataService.LoadProjectDataAsync();
+            
+            Assert.NotNull(projectData);
+            Assert.NotNull(projectData.Project);
+            Assert.NotEmpty(projectData.Milestones);
+            Assert.NotEmpty(projectData.Tasks);
         }
 
         [Fact]
-        public void LoadProjectDataAsync_WithInvalidPath_ThrowsException()
+        public async Task LoadProjectDataAsync_PopulatesAllRequiredFields()
         {
-            var invalidPath = Path.Combine(_testDirectory, "nonexistent.json");
-
-            Assert.ThrowsAsync<FileNotFoundException>(
-                async () => await _service.LoadProjectDataAsync(invalidPath)
-            );
+            var projectData = await _projectDataService.LoadProjectDataAsync();
+            
+            Assert.NotNull(projectData.Project.Name);
+            Assert.NotNull(projectData.Project.Description);
+            Assert.NotEqual(default(DateTime), projectData.Project.StartDate);
+            Assert.NotEqual(default(DateTime), projectData.Project.EndDate);
         }
 
-        public void Dispose()
+        [Fact]
+        public async Task LoadProjectDataAsync_MilestonesContainRequiredFields()
         {
-            Directory.SetCurrentDirectory(_originalDirectory);
-            if (Directory.Exists(_testDirectory))
+            var projectData = await _projectDataService.LoadProjectDataAsync();
+            var milestone = projectData.Milestones.FirstOrDefault();
+            
+            Assert.NotNull(milestone);
+            Assert.NotNull(milestone.Name);
+            Assert.NotEqual(default(DateTime), milestone.TargetDate);
+            Assert.InRange(milestone.CompletionPercentage, 0, 100);
+        }
+
+        [Fact]
+        public async Task LoadProjectDataAsync_TasksContainRequiredFields()
+        {
+            var projectData = await _projectDataService.LoadProjectDataAsync();
+            var task = projectData.Tasks.FirstOrDefault();
+            
+            Assert.NotNull(task);
+            Assert.NotNull(task.Id);
+            Assert.NotNull(task.Name);
+            Assert.NotEqual(default(DateTime), task.DueDate);
+        }
+
+        [Fact]
+        public async Task LoadProjectDataAsync_MetricsCalculatedCorrectly()
+        {
+            var projectData = await _projectDataService.LoadProjectDataAsync();
+            
+            Assert.NotNull(projectData.Metrics);
+            Assert.InRange(projectData.Metrics.CompletionPercentage, 0, 100);
+            Assert.InRange(projectData.Metrics.ShippedCount, 0, int.MaxValue);
+            Assert.InRange(projectData.Metrics.InProgressCount, 0, int.MaxValue);
+            Assert.InRange(projectData.Metrics.CarriedOverCount, 0, int.MaxValue);
+        }
+
+        [Fact]
+        public async Task LoadProjectDataAsync_TaskCountsMatchMetrics()
+        {
+            var projectData = await _projectDataService.LoadProjectDataAsync();
+            
+            var shippedCount = projectData.Tasks.Count(t => t.Status == TaskStatus.Shipped);
+            var inProgressCount = projectData.Tasks.Count(t => t.Status == TaskStatus.InProgress);
+            var carriedOverCount = projectData.Tasks.Count(t => t.Status == TaskStatus.CarriedOver);
+            
+            Assert.Equal(shippedCount, projectData.Metrics.ShippedCount);
+            Assert.Equal(inProgressCount, projectData.Metrics.InProgressCount);
+            Assert.Equal(carriedOverCount, projectData.Metrics.CarriedOverCount);
+        }
+
+        [Fact]
+        public async Task LoadProjectDataAsync_MilestoneStatusesAreValid()
+        {
+            var projectData = await _projectDataService.LoadProjectDataAsync();
+            
+            foreach (var milestone in projectData.Milestones)
             {
-                Directory.Delete(_testDirectory, recursive: true);
+                Assert.True(Enum.IsDefined(typeof(MilestoneStatus), milestone.Status));
+            }
+        }
+
+        [Fact]
+        public async Task LoadProjectDataAsync_AllMilestonesHaveFutureDates()
+        {
+            var projectData = await _projectDataService.LoadProjectDataAsync();
+            var projectEnd = projectData.Project.EndDate;
+            
+            foreach (var milestone in projectData.Milestones)
+            {
+                Assert.True(milestone.TargetDate <= projectEnd,
+                    $"Milestone {milestone.Name} target date is after project end date");
             }
         }
     }
