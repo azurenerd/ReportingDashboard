@@ -4,7 +4,7 @@ namespace AgentSquad.Runner.Services
 {
     public interface IDataProvider
     {
-        Task<Project> GetProjectDataAsync();
-        Task<ProjectMetrics> GetProjectMetricsAsync();
+        Task<Project> LoadProjectDataAsync();
+        void InvalidateCache();
     }
 }

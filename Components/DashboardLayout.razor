@@ -182,8 +182,12 @@
             IsLoading = true;
             ErrorMessage = null;
 
-            ProjectData = await DataProvider.GetProjectDataAsync();
-            ProjectMetrics = await DataProvider.GetProjectMetricsAsync();
+            ProjectData = await DataProvider.LoadProjectDataAsync();
+            
+            if (ProjectData != null)
+            {
+                ProjectMetrics = CalculateMetrics(ProjectData);
+            }
         }
         catch (Exception ex)
         {
@@ -195,5 +199,43 @@
         {
             IsLoading = false;
         }
+    }
+
+    private ProjectMetrics CalculateMetrics(Project project)
+    {
+        if (project == null)
+        {
+            return new ProjectMetrics 
+            { 
+                CompletionPercentage = 0,
+                HealthStatus = HealthStatus.OnTrack,
+                VelocityThisMonth = 0,
+                VelocityLastMonth = 0
+            };
+        }
+
+        int completionPercentage = project.WorkItems?.Count > 0 
+            ? (int)((double)project.WorkItems.Count(w => w.Status == WorkItemStatus.Shipped) / project.WorkItems.Count * 100) 
+            : 0;
+
+        HealthStatus healthStatus = HealthStatus.OnTrack;
+        if (project.Milestones?.Count > 0)
+        {
+            if (project.Milestones.Any(m => m.Status == MilestoneStatus.AtRisk))
+            {
+                healthStatus = HealthStatus.AtRisk;
+            }
+        }
+
+        int velocityThisMonth = project.WorkItems?.Count(w => w.Status == WorkItemStatus.Shipped) ?? 0;
+        int velocityLastMonth = project.WorkItems?.Count(w => w.Status == WorkItemStatus.InProgress) ?? 0;
+
+        return new ProjectMetrics
+        {
+            CompletionPercentage = completionPercentage,
+            HealthStatus = healthStatus,
+            VelocityThisMonth = velocityThisMonth,
+            VelocityLastMonth = velocityLastMonth
+        };
     }
 }

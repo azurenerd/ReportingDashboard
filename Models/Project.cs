@@ -18,26 +18,11 @@ namespace AgentSquad.Runner.Models
         public string Description { get; set; }
     }
 
-    public enum MilestoneStatus
-    {
-        Completed,
-        InProgress,
-        AtRisk,
-        Future
-    }
-
     public class WorkItem
     {
         public string Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public WorkItemStatus Status { get; set; }
-    }
-
-    public enum WorkItemStatus
-    {
-        ShippedThisMonth,
-        InProgress,
-        CarriedOver
     }
 }

@@ -8,7 +8,6 @@ namespace AgentSquad.Runner.Services
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<DataProvider> _logger;
         private Project _cachedProject;
-        private ProjectMetrics _cachedMetrics;
         private DateTime _cacheTime = DateTime.MinValue;
         private const int CacheDurationMinutes = 5;
 
@@ -18,7 +17,7 @@ namespace AgentSquad.Runner.Services
             _logger = logger;
         }
 
-        public async Task<Project> GetProjectDataAsync()
+        public async Task<Project> LoadProjectDataAsync()
         {
             try
             {
@@ -60,87 +59,11 @@ namespace AgentSquad.Runner.Services
             }
         }
 
-        public async Task<ProjectMetrics> GetProjectMetricsAsync()
+        public void InvalidateCache()
         {
-            try
-            {
-                if (_cachedMetrics != null && DateTime.UtcNow.Subtract(_cacheTime).TotalMinutes < CacheDurationMinutes)
-                {
-                    return _cachedMetrics;
-                }
-
-                var project = await GetProjectDataAsync();
-
-                _cachedMetrics = new ProjectMetrics
-                {
-                    CompletionPercentage = CalculateCompletionPercentage(project),
-                    HealthStatus = DetermineHealthStatus(project),
-                    VelocityThisMonth = CountItemsThisMonth(project),
-                    VelocityLastMonth = CountItemsLastMonth(project)
-                };
-
-                _logger.LogInformation($"Calculated metrics - Completion: {_cachedMetrics.CompletionPercentage}%, Health: {_cachedMetrics.HealthStatus}");
-                return _cachedMetrics;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error calculating project metrics");
-                throw;
-            }
-        }
-
-        private int CalculateCompletionPercentage(Project project)
-        {
-            if (project?.WorkItems == null || project.WorkItems.Count == 0)
-            {
-                return 0;
-            }
-
-            int completedCount = project.WorkItems.Count(w => w.Status == WorkItemStatus.ShippedThisMonth);
-            return (int)((double)completedCount / project.WorkItems.Count * 100);
-        }
-
-        private HealthStatus DetermineHealthStatus(Project project)
-        {
-            if (project?.Milestones == null || project.Milestones.Count == 0)
-            {
-                return HealthStatus.OnTrack;
-            }
-
-            int atRiskCount = project.Milestones.Count(m => m.Status == MilestoneStatus.AtRisk);
-            int blockedCount = project.Milestones.Count(m => m.Status == MilestoneStatus.Blocked);
-
-            if (blockedCount > 0)
-            {
-                return HealthStatus.Blocked;
-            }
-
-            if (atRiskCount > 0)
-            {
-                return HealthStatus.AtRisk;
-            }
-
-            return HealthStatus.OnTrack;
-        }
-
-        private int CountItemsThisMonth(Project project)
-        {
-            if (project?.WorkItems == null)
-            {
-                return 0;
-            }
-
-            return project.WorkItems.Count(w => w.Status == WorkItemStatus.ShippedThisMonth);
-        }
-
-        private int CountItemsLastMonth(Project project)
-        {
-            if (project?.WorkItems == null)
-            {
-                return 0;
-            }
-
-            return project.WorkItems.Count(w => w.Status == WorkItemStatus.InProgress);
+            _cachedProject = null;
+            _cacheTime = DateTime.MinValue;
+            _logger.LogInformation("Project data cache invalidated");
         }
     }
 }
