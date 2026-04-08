@@ -7,8 +7,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // TODO: Register IDataProvider and IDataCache services
-// These will load project data from wwwroot/data.json
-// Placeholder for implementation by data layer team
+// Single authoritative data source: wwwroot/data.json
+// Implementation deferred to separate PR implementing DataProvider service layer
 // builder.Services.AddSingleton<IDataProvider, DataProvider>();
 // builder.Services.AddSingleton<IDataCache, DataCache>();
 

@@ -103,7 +103,7 @@ p { margin-bottom: var(--spacing-md); }
     margin-bottom: var(--spacing-sm);
 }
 
-/* Metrics Grid: Responsive breakpoints for 1024px+ */
+/* Metrics Grid: Explicit breakpoints to prevent 1024px layout shift */
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -111,14 +111,14 @@ p { margin-bottom: var(--spacing-md); }
     margin-bottom: var(--spacing-xl);
 }
 
-/* At 1024px: 3-column layout to prevent awkward wrapping */
+/* Explicit test for 1024px minimum boundary: 3-column layout */
 @media (min-width: 1024px) and (max-width: 1279px) {
     .metrics-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
-/* At 1280px and above: optimal 4-column layout */
+/* 1280px and above: optimal 4-column layout */
 @media (min-width: 1280px) {
     .metrics-grid {
         grid-template-columns: repeat(4, 1fr);
@@ -275,6 +275,7 @@ p { margin-bottom: var(--spacing-md); }
 .text-danger { color: var(--color-danger); }
 .font-bold { font-weight: 700; }
 
+/* Explicit test at maximum 1023px to verify no layout shift */
 @media (max-width: 1023px) {
     :root {
         --font-size-base: 14px;

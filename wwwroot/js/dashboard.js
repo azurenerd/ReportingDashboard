@@ -1,102 +1,102 @@
-// Dashboard Application Logic
+// Dashboard Data Loading & Rendering
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize dashboard on page load
-    initializeDashboard();
-});
+window.Dashboard = window.Dashboard || {};
 
-function initializeDashboard() {
-    // Load data from data.json
-    fetch('data.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load dashboard data');
-            }
-            return response.json();
-        })
-        .then(data => {
-            renderDashboard(data);
-        })
-        .catch(error => {
-            console.error('Dashboard initialization error:', error);
-            displayError('Failed to load dashboard data. ' + error.message);
-        });
-}
-
-function renderDashboard(data) {
-    // Render project header
-    const headerElement = document.querySelector('.dashboard-header h1');
-    if (headerElement) {
-        headerElement.textContent = data.project.name;
+window.Dashboard.loadData = async function() {
+    try {
+        const response = await fetch('data.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        window.Dashboard.renderDashboard(data);
+    } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+        window.Dashboard.showError('Failed to load project data. Please refresh the page.');
     }
+};
 
-    // Render metrics
-    renderMetrics(data.metrics);
+window.Dashboard.renderDashboard = function(data) {
+    if (!data) return;
+    
+    window.Dashboard.renderMetrics(data.metrics);
+    window.Dashboard.renderMilestones(data.milestones);
+    window.Dashboard.renderWorkItems(data.workItems);
+};
 
-    // Render timeline
-    renderTimeline(data.milestones);
-
-    // Render work items
-    renderWorkItems(data.workItems);
-
-    // Initialize charts (if Chart.js available)
-    if (window.Dashboard && window.Dashboard.initializeCharts) {
-        window.Dashboard.initializeCharts();
-    }
-}
-
-function renderMetrics(metrics) {
-    const metricsGrid = document.querySelector('.metrics-grid');
-    if (!metricsGrid) return;
-
-    metricsGrid.innerHTML = `
+window.Dashboard.renderMetrics = function(metrics) {
+    const metricsContainer = document.querySelector('.metrics-grid');
+    if (!metricsContainer || !metrics) return;
+    
+    metricsContainer.innerHTML = `
         <div class="metric-card success">
             <div class="metric-card-label">Completion</div>
-            <div class="metric-card-value">${metrics.completionPercentage}%</div>
-            <div class="metric-card-detail">Overall progress</div>
-        </div>
-        <div class="metric-card ${metrics.healthStatus === 'ontrack' ? 'success' : 'danger'}">
-            <div class="metric-card-label">Health Status</div>
-            <div class="metric-card-value">${metrics.healthStatus}</div>
-            <div class="metric-card-detail">Project status</div>
+            <div class="metric-card-value">${dashboardUtils.formatPercentage(metrics.completionPercentage)}</div>
+            <div class="metric-card-detail">Project progress</div>
         </div>
         <div class="metric-card info">
+            <div class="metric-card-label">Status</div>
+            <div class="metric-card-value">${metrics.healthStatus || 'N/A'}</div>
+            <div class="metric-card-detail">Current health</div>
+        </div>
+        <div class="metric-card warning">
             <div class="metric-card-label">Velocity</div>
-            <div class="metric-card-value">${metrics.velocityThisMonth}</div>
+            <div class="metric-card-value">${metrics.velocityThisMonth || 0}</div>
             <div class="metric-card-detail">Items this month</div>
         </div>
         <div class="metric-card info">
             <div class="metric-card-label">Milestones</div>
-            <div class="metric-card-value">${metrics.milestonesCompleted}/${metrics.milestonesTotal}</div>
-            <div class="metric-card-detail">Completed/Total</div>
+            <div class="metric-card-value">${metrics.milestonesCompleted || 0}/${metrics.milestonesTotal || 0}</div>
+            <div class="metric-card-detail">Completed</div>
         </div>
     `;
-}
+};
 
-function renderTimeline(milestones) {
-    const timeline = document.querySelector('.timeline');
-    if (!timeline) return;
-
-    timeline.innerHTML = milestones.map(m => `
+window.Dashboard.renderMilestones = function(milestones) {
+    const timelineContainer = document.querySelector('.timeline');
+    if (!timelineContainer || !milestones) return;
+    
+    timelineContainer.innerHTML = milestones.map(m => `
         <div class="timeline-item ${m.status}">
-            <div style="font-weight: 600; margin-bottom: 0.5rem;">${m.name}</div>
-            <div style="font-size: 0.875rem; color: #374151; margin-bottom: 0.5rem;">${dashboardUtils.formatDate(m.targetDate)}</div>
-            <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">${m.status}</div>
+            <div class="font-bold">${m.name}</div>
+            <div class="text-muted" style="font-size: 0.875rem; margin-top: 0.5rem;">
+                ${dashboardUtils.formatDate(m.targetDate)}
+            </div>
         </div>
     `).join('');
-}
+};
 
-function renderWorkItems(items) {
-    const grid = document.querySelector('.work-items-grid');
-    if (!grid) return;
-
-    grid.innerHTML = `
+window.Dashboard.renderWorkItems = function(workItems) {
+    if (!workItems) return;
+    
+    // Group items by status: shipped, inprogress, carriedover
+    const grouped = {
+        shipped: [],
+        inprogress: [],
+        carriedover: []
+    };
+    
+    workItems.forEach(item => {
+        const status = (item.status || 'carriedover').toLowerCase();
+        if (status === 'shipped') {
+            grouped.shipped.push(item);
+        } else if (status === 'inprogress') {
+            grouped.inprogress.push(item);
+        } else if (status === 'carriedover') {
+            grouped.carriedover.push(item);
+        }
+    });
+    
+    const workItemsGrid = document.querySelector('.work-items-grid');
+    if (!workItemsGrid) return;
+    
+    workItemsGrid.innerHTML = `
         <div class="work-item-column">
             <div class="work-item-column-header">
-                <div class="work-item-column-title">Shipped This Month</div>
-                <div class="work-item-count">${items.shipped.length}</div>
+                <div class="work-item-count">${grouped.shipped.length}</div>
+                <div>Shipped This Month</div>
             </div>
-            ${items.shipped.map(item => `
+            ${grouped.shipped.map(item => `
                 <div class="work-item">
                     <div class="work-item-title">${item.title}</div>
                     <div class="work-item-description">${item.description}</div>
@@ -105,10 +105,10 @@ function renderWorkItems(items) {
         </div>
         <div class="work-item-column">
             <div class="work-item-column-header">
-                <div class="work-item-column-title">In Progress</div>
-                <div class="work-item-count">${items.inProgress.length}</div>
+                <div class="work-item-count">${grouped.inprogress.length}</div>
+                <div>In Progress</div>
             </div>
-            ${items.inProgress.map(item => `
+            ${grouped.inprogress.map(item => `
                 <div class="work-item">
                     <div class="work-item-title">${item.title}</div>
                     <div class="work-item-description">${item.description}</div>
@@ -117,10 +117,10 @@ function renderWorkItems(items) {
         </div>
         <div class="work-item-column">
             <div class="work-item-column-header">
-                <div class="work-item-column-title">Carried Over</div>
-                <div class="work-item-count">${items.carriedOver.length}</div>
+                <div class="work-item-count">${grouped.carriedover.length}</div>
+                <div>Carried Over</div>
             </div>
-            ${items.carriedOver.map(item => `
+            ${grouped.carriedover.map(item => `
                 <div class="work-item">
                     <div class="work-item-title">${item.title}</div>
                     <div class="work-item-description">${item.description}</div>
@@ -128,11 +128,18 @@ function renderWorkItems(items) {
             `).join('')}
         </div>
     `;
-}
+};
 
-function displayError(message) {
-    const appDiv = document.getElementById('app');
-    if (appDiv) {
-        appDiv.innerHTML = `<div class="alert alert-danger m-5"><h4>Error</h4><p>${message}</p></div>`;
+window.Dashboard.showError = function(message) {
+    const app = document.getElementById('app');
+    if (app) {
+        app.innerHTML = `<div class="alert alert-danger m-5">${message}</div>`;
     }
+};
+
+// Load dashboard data when page ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', window.Dashboard.loadData);
+} else {
+    window.Dashboard.loadData();
 }
