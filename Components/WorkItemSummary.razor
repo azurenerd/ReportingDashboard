@@ -1,0 +1,70 @@
+@using AgentSquad.Runner.Models
+@using System.Linq
+
+<div class="work-items-container">
+    <div class="work-items-columns">
+        <div class="work-items-column shipped">
+            <div class="column-header">
+                <h3>Shipped This Month</h3>
+                <span class="item-count">@ShippedItems.Count</span>
+            </div>
+            <div class="items-list">
+                @foreach (var item in ShippedItems)
+                {
+                    <div class="work-item">
+                        <div class="item-title">@item.Title</div>
+                        <div class="item-assignee">@item.AssignedTo</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="work-items-column in-progress">
+            <div class="column-header">
+                <h3>In Progress</h3>
+                <span class="item-count">@InProgressItems.Count</span>
+            </div>
+            <div class="items-list">
+                @foreach (var item in InProgressItems)
+                {
+                    <div class="work-item">
+                        <div class="item-title">@item.Title</div>
+                        <div class="item-assignee">@item.AssignedTo</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="work-items-column carried-over">
+            <div class="column-header">
+                <h3>Carried Over</h3>
+                <span class="item-count">@CarriedOverItems.Count</span>
+            </div>
+            <div class="items-list">
+                @foreach (var item in CarriedOverItems)
+                {
+                    <div class="work-item">
+                        <div class="item-title">@item.Title</div>
+                        <div class="item-assignee">@item.AssignedTo</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<WorkItem> WorkItems { get; set; } = new();
+
+    private List<WorkItem> ShippedItems { get; set; } = new();
+    private List<WorkItem> InProgressItems { get; set; } = new();
+    private List<WorkItem> CarriedOverItems { get; set; } = new();
+
+    protected override void OnParametersSet()
+    {
+        ShippedItems = WorkItems.Where(x => x.Status == WorkItemStatus.Shipped).ToList();
+        InProgressItems = WorkItems.Where(x => x.Status == WorkItemStatus.InProgress).ToList();
+        CarriedOverItems = WorkItems.Where(x => x.Status == WorkItemStatus.CarriedOver).ToList();
+    }
+}

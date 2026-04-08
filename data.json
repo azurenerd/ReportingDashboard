@@ -1,0 +1,116 @@
+{
+  "name": "Executive Dashboard Project",
+  "description": "Blazor Server executive reporting dashboard with milestone tracking and work item management",
+  "startDate": "2024-01-15",
+  "milestones": [
+    {
+      "name": "Phase 1: Architecture & Setup",
+      "targetDate": "2024-02-15",
+      "status": "Completed",
+      "description": "Define system design, project structure, and component architecture"
+    },
+    {
+      "name": "Phase 2: Core Components",
+      "targetDate": "2024-03-15",
+      "status": "Completed",
+      "description": "Implement dashboard layout, timeline, and metrics components"
+    },
+    {
+      "name": "Phase 3: Data Integration",
+      "targetDate": "2024-04-15",
+      "status": "InProgress",
+      "description": "Integrate DataProvider service and finalize JSON deserialization"
+    },
+    {
+      "name": "Phase 4: Polish & Optimization",
+      "targetDate": "2024-05-15",
+      "status": "AtRisk",
+      "description": "Performance optimization, CSS refinement, and screenshot validation"
+    },
+    {
+      "name": "Phase 5: Launch",
+      "targetDate": "2024-06-15",
+      "status": "Future",
+      "description": "Final deployment and production release"
+    }
+  ],
+  "workItems": [
+    {
+      "title": "Implement MilestoneTimeline component",
+      "description": "Create horizontal timeline with status indicators and color coding for milestone visualization",
+      "status": "Shipped",
+      "assignedTo": "Sarah Chen"
+    },
+    {
+      "title": "Build ProjectMetrics display",
+      "description": "Design KPI cards for completion %, health status, and velocity indicators with responsive layout",
+      "status": "Shipped",
+      "assignedTo": "Alex Rodriguez"
+    },
+    {
+      "title": "Create WorkItemSummary component",
+      "description": "Render work items in three-column layout by status category with item counts and descriptions",
+      "status": "Shipped",
+      "assignedTo": "Jordan Kim"
+    },
+    {
+      "title": "Design dashboard CSS grid",
+      "description": "Responsive layout optimized for 1024x768 and 1920x1080 resolutions with print-ready styling",
+      "status": "Shipped",
+      "assignedTo": "Casey Murphy"
+    },
+    {
+      "title": "Implement DataProvider service",
+      "description": "Load and cache data.json on startup with comprehensive error handling and logging",
+      "status": "InProgress",
+      "assignedTo": "Morgan Lee"
+    },
+    {
+      "title": "Add JSON deserialization",
+      "description": "Map JSON data to Project, Milestone, WorkItem, and ProjectMetrics models with validation",
+      "status": "InProgress",
+      "assignedTo": "Taylor Johnson"
+    },
+    {
+      "title": "Optimize page load performance",
+      "description": "Achieve sub-1-second load time with client-side caching and asset compression strategies",
+      "status": "InProgress",
+      "assignedTo": "Parker Williams"
+    },
+    {
+      "title": "Configure Blazor Server startup",
+      "description": "Set up Program.cs with DI container and middleware for DataProvider initialization",
+      "status": "InProgress",
+      "assignedTo": "Morgan Lee"
+    },
+    {
+      "title": "Validate screenshot quality",
+      "description": "Test rendering at multiple resolutions for PowerPoint compatibility and visual consistency",
+      "status": "CarriedOver",
+      "assignedTo": "Jordan Kim"
+    },
+    {
+      "title": "Create deployment documentation",
+      "description": "Document setup, configuration, and Windows executable generation for end users",
+      "status": "CarriedOver",
+      "assignedTo": "Casey Murphy"
+    },
+    {
+      "title": "Test cross-browser compatibility",
+      "description": "Verify rendering consistency across Chrome and Edge browsers with screenshot validation",
+      "status": "CarriedOver",
+      "assignedTo": "Alex Rodriguez"
+    },
+    {
+      "title": "Setup error handling and logging",
+      "description": "Implement comprehensive error tracking and logging throughout the application",
+      "status": "CarriedOver",
+      "assignedTo": "Taylor Johnson"
+    }
+  ],
+  "metrics": {
+    "completionPercentage": 72,
+    "healthStatus": "OnTrack",
+    "velocityCount": 12
+  }
+}

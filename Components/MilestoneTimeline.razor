@@ -1,0 +1,38 @@
+@using AgentSquad.Runner.Models
+
+<div class="milestone-timeline">
+    <div class="timeline-track">
+        @foreach (var milestone in Milestones)
+        {
+            <div class="milestone-item">
+                <div class="milestone-indicator" data-status="@milestone.Status">
+                    <span class="status-dot"></span>
+                </div>
+                <div class="milestone-content">
+                    <div class="milestone-name">@milestone.Name</div>
+                    <div class="milestone-date">@milestone.TargetDate.ToString("MMM d, yyyy")</div>
+                    <div class="milestone-status @milestone.Status.ToString().ToLower()">
+                        @GetStatusLabel(milestone.Status)
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<Milestone> Milestones { get; set; } = new();
+
+    private string GetStatusLabel(MilestoneStatus status)
+    {
+        return status switch
+        {
+            MilestoneStatus.Completed => "Completed",
+            MilestoneStatus.InProgress => "In Progress",
+            MilestoneStatus.AtRisk => "At Risk",
+            MilestoneStatus.Future => "Future",
+            _ => "Unknown"
+        };
+    }
+}

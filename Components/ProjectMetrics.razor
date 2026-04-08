@@ -1,0 +1,59 @@
+@using AgentSquad.Runner.Models
+@using System.Linq
+
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-label">Completion</div>
+        <div class="metric-value-large">@ProjectMetrics.CompletionPercentage%</div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: @ProjectMetrics.CompletionPercentage%"></div>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-label">Project Health</div>
+        <div class="health-badge" data-health="@ProjectMetrics.HealthStatus">
+            @GetHealthLabel(ProjectMetrics.HealthStatus)
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-label">Velocity This Month</div>
+        <div class="metric-value-large">@ProjectMetrics.VelocityCount</div>
+        <div class="metric-unit">items shipped</div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-label">Milestones Completed</div>
+        <div class="metric-value-large">@CompletedMilestones/@TotalMilestones</div>
+        <div class="metric-unit">@(TotalMilestones == 1 ? "milestone" : "milestones")</div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ProjectMetrics ProjectMetrics { get; set; }
+
+    [Parameter]
+    public List<Milestone> Milestones { get; set; } = new();
+
+    private int CompletedMilestones { get; set; }
+    private int TotalMilestones { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        TotalMilestones = Milestones.Count;
+        CompletedMilestones = Milestones.Count(m => m.Status == MilestoneStatus.Completed);
+    }
+
+    private string GetHealthLabel(HealthStatus health)
+    {
+        return health switch
+        {
+            HealthStatus.OnTrack => "On Track",
+            HealthStatus.AtRisk => "At Risk",
+            HealthStatus.Blocked => "Blocked",
+            _ => "Unknown"
+        };
+    }
+}
