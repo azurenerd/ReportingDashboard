@@ -15,11 +15,64 @@ else
                 <span class="oi oi-warning" style="font-size: 2rem;"></span>
             </div>
             <h4 class="alert-heading">Dashboard Error</h4>
-            <p style="font-size: 14pt; margin: 0;">An error occurred while loading the dashboard. Please refresh your browser.</p>
-            <button class="btn btn-primary mt-3" style="font-size: 14pt; padding: 0.5rem 1.5rem;" @onclick="RefreshPage">Refresh</button>
+            <p class="error-message">An error occurred while loading the dashboard. Please refresh your browser.</p>
+            <button class="btn btn-primary mt-3 refresh-button" @onclick="RefreshPage">Refresh</button>
         </div>
     </div>
 }
+
+<style>
+    .error-boundary-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+
+    .error-boundary-container .alert {
+        max-width: 600px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .error-message {
+        font-size: 14pt;
+        font-weight: 500;
+        margin: 1rem 0;
+    }
+
+    .refresh-button {
+        font-size: 14pt;
+        padding: 0.5rem 1.5rem;
+        min-width: 150px;
+    }
+
+    .refresh-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+
+    .refresh-button:active {
+        transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+        .error-boundary-container {
+            min-height: auto;
+            padding: 1rem;
+        }
+
+        .error-boundary-container .alert {
+            margin: 1rem auto;
+        }
+
+        .refresh-button {
+            font-size: 12pt;
+            padding: 0.4rem 1rem;
+        }
+    }
+</style>
 
 @code {
     [Parameter]
