@@ -335,9 +335,9 @@ body::-webkit-scrollbar-thumb:hover {
     .dashboard-grid {
         height: 720px;
         overflow: hidden;
-        gap: 8px;
-        padding: 8px;
-        grid-template-rows: 70px 145px 145px 165px;
+        gap: 6px;
+        padding: 6px;
+        grid-template-rows: 65px 130px 130px 155px;
     }
 
     .dashboard-header {
@@ -363,15 +363,15 @@ body::-webkit-scrollbar-thumb:hover {
     .timeline-section,
     .metrics-section,
     .workitems-section {
-        padding: 8px;
+        padding: 6px;
         border-radius: 2px;
         border-left-width: 2px;
         margin: 0;
     }
 
     .section-title {
-        font-size: 11px;
-        margin: 0 0 4px 0;
+        font-size: 10px;
+        margin: 0 0 3px 0;
         padding-bottom: 2px;
     }
 
@@ -401,9 +401,9 @@ body::-webkit-scrollbar-thumb:hover {
     .dashboard-grid {
         height: 1080px;
         overflow: hidden;
-        gap: 12px;
-        padding: 12px;
-        grid-template-rows: 90px 250px 250px 270px;
+        gap: 10px;
+        padding: 10px;
+        grid-template-rows: 85px 230px 230px 250px;
     }
 
     .dashboard-header {
@@ -432,7 +432,7 @@ body::-webkit-scrollbar-thumb:hover {
     .timeline-section,
     .metrics-section,
     .workitems-section {
-        padding: 12px;
+        padding: 10px;
         border-radius: 3px;
         border-left-width: 3px;
         margin: 0;
@@ -440,8 +440,8 @@ body::-webkit-scrollbar-thumb:hover {
     }
 
     .section-title {
-        font-size: 13px;
-        margin: 0 0 8px 0;
+        font-size: 12px;
+        margin: 0 0 6px 0;
         padding-bottom: 4px;
     }
 

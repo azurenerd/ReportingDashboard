@@ -29,7 +29,7 @@ namespace AgentSquad.Runner.Services
 
             try
             {
-                string dataPath = Path.Combine(_environment.ContentRootPath, "data.json");
+                string dataPath = Path.Combine(_environment.WebRootPath, "data.json");
 
                 if (!File.Exists(dataPath))
                 {
@@ -48,7 +48,7 @@ namespace AgentSquad.Runner.Services
                     throw new InvalidOperationException("Failed to deserialize project data");
                 }
 
-                _cache.Set(project, CacheKey, TimeSpan.FromSeconds(CacheTTLSeconds));
+                _cache.Set(CacheKey, project, TimeSpan.FromSeconds(CacheTTLSeconds));
 
                 _logger.LogInformation("Project data loaded successfully and cached for {TTL} seconds", CacheTTLSeconds);
                 return project;
