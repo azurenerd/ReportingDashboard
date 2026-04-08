@@ -72,7 +72,8 @@
     {
         try
         {
-            ProjectData = await ProjectDataService.LoadProjectDataAsync();
+            string jsonFilePath = Path.Combine(AppContext.BaseDirectory, "wwwroot", "data.json");
+            ProjectData = await ProjectDataService.LoadProjectDataAsync(jsonFilePath);
         }
         catch (Exception ex)
         {
@@ -91,16 +92,16 @@
 
     private List<Task> GetShippedTasks()
     {
-        return ProjectData?.Tasks?.Where(t => t.Status == "Shipped").ToList() ?? new List<Task>();
+        return ProjectData?.Tasks?.Where(t => t.Status == TaskStatus.Shipped).ToList() ?? new List<Task>();
     }
 
     private List<Task> GetInProgressTasks()
     {
-        return ProjectData?.Tasks?.Where(t => t.Status == "InProgress").ToList() ?? new List<Task>();
+        return ProjectData?.Tasks?.Where(t => t.Status == TaskStatus.InProgress).ToList() ?? new List<Task>();
     }
 
     private List<Task> GetCarriedOverTasks()
     {
-        return ProjectData?.Tasks?.Where(t => t.Status == "CarriedOver").ToList() ?? new List<Task>();
+        return ProjectData?.Tasks?.Where(t => t.Status == TaskStatus.CarriedOver).ToList() ?? new List<Task>();
     }
 }
