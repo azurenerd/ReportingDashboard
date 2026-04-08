@@ -22,18 +22,15 @@ else if (ProjectData != null)
         </header>
 
         <section class="dashboard-timeline">
-            <!-- MilestoneTimeline component will be placed here in Step 4 -->
-            <div class="placeholder">Timeline Section</div>
+            <MilestoneTimeline Milestones="@ProjectData?.Milestones" />
         </section>
 
         <section class="dashboard-metrics">
-            <!-- ProjectMetrics component will be placed here in Step 4 -->
-            <div class="placeholder">Metrics Section</div>
+            <ProjectMetrics Metrics="@ExtractProjectMetrics(ProjectData)" />
         </section>
 
         <section class="dashboard-workitems">
-            <!-- WorkItemSummary component will be placed here in Step 4 -->
-            <div class="placeholder">Work Items Section</div>
+            <WorkItemSummary WorkItems="@ProjectData?.WorkItems" />
         </section>
     </div>
 }
@@ -104,5 +101,23 @@ else
     {
         ErrorMessage = string.Empty;
         return Task.CompletedTask;
+    }
+
+    private ProjectMetrics? ExtractProjectMetrics(Project? project)
+    {
+        if (project == null)
+            return null;
+
+        var completedMilestones = project.Milestones?.Count(m => m.Status == MilestoneStatus.Completed) ?? 0;
+        var totalMilestones = project.Milestones?.Count ?? 0;
+
+        return new ProjectMetrics
+        {
+            CompletionPercentage = Math.Clamp(project.CompletionPercentage, 0, 100),
+            HealthStatus = project.HealthStatus,
+            VelocityThisMonth = project.VelocityThisMonth,
+            TotalMilestones = totalMilestones,
+            CompletedMilestones = completedMilestones
+        };
     }
 }
