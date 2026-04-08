@@ -1,0 +1,47 @@
+@* Example metric card component structure for site.css compatibility *@
+
+@if (Metrics != null)
+{
+    <section class="metrics-grid">
+        <article class="metric-card @GetHealthStatusClass()">
+            <h3>Completion %</h3>
+            <div class="metric-value">@Metrics.CompletionPercentage%</div>
+        </article>
+        <article class="metric-card @GetHealthStatusClass()">
+            <h3>Status</h3>
+            <div class="metric-value">@Metrics.HealthStatus</div>
+        </article>
+        <article class="metric-card">
+            <h3>Velocity</h3>
+            <div class="metric-value">@Metrics.VelocityCount items</div>
+        </article>
+        <article class="metric-card">
+            <h3>Milestones</h3>
+            <div class="metric-value">@Metrics.CompletedMilestones / @Metrics.TotalMilestones</div>
+        </article>
+    </section>
+}
+
+@code {
+    [Parameter]
+    public ProjectMetrics Metrics { get; set; }
+
+    private string GetHealthStatusClass()
+    {
+        return Metrics?.HealthStatus switch
+        {
+            "OnTrack" => "status-ontrack",
+            "AtRisk" => "status-atrisk",
+            _ => ""
+        };
+    }
+}
+
+public class ProjectMetrics
+{
+    public int CompletionPercentage { get; set; }
+    public string HealthStatus { get; set; }
+    public int VelocityCount { get; set; }
+    public int CompletedMilestones { get; set; }
+    public int TotalMilestones { get; set; }
+}
