@@ -1,127 +1,116 @@
 {
   "project": {
-    "name": "Executive Dashboard Initiative",
-    "description": "Single-page executive reporting dashboard for project milestones, progress, and task status",
+    "name": "Q2 Mobile App Release",
+    "description": "Mobile application development and release for Q2 2026",
     "status": "InProgress",
-    "sponsor": "Executive Leadership",
-    "projectManager": "Sarah Chen",
-    "startDate": "2024-01-15T00:00:00Z",
-    "endDate": "2024-06-30T00:00:00Z",
+    "sponsor": "Chief Product Officer",
+    "projectManager": "Jennifer Liu",
+    "startDate": "2026-04-01",
+    "endDate": "2026-06-30",
     "completionPercentage": 65
   },
   "milestones": [
     {
-      "id": "m001",
-      "name": "Requirements & Planning",
-      "targetDate": "2024-02-15T00:00:00Z",
-      "actualDate": "2024-02-14T00:00:00Z",
+      "id": 1,
+      "name": "API Backend Complete",
+      "targetDate": "2026-04-30",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
-      "id": "m002",
-      "name": "Design & Architecture",
-      "targetDate": "2024-03-15T00:00:00Z",
-      "actualDate": "2024-03-16T00:00:00Z",
-      "status": "Completed",
-      "completionPercentage": 100
-    },
-    {
-      "id": "m003",
-      "name": "Core Development",
-      "targetDate": "2024-05-15T00:00:00Z",
-      "actualDate": null,
+      "id": 2,
+      "name": "iOS Build 1.0",
+      "targetDate": "2026-05-31",
       "status": "InProgress",
       "completionPercentage": 75
     },
     {
-      "id": "m004",
-      "name": "Testing & QA",
-      "targetDate": "2024-06-15T00:00:00Z",
-      "actualDate": null,
+      "id": 3,
+      "name": "Android Build 1.0",
+      "targetDate": "2026-05-31",
+      "status": "InProgress",
+      "completionPercentage": 60
+    },
+    {
+      "id": 4,
+      "name": "Release Ready",
+      "targetDate": "2026-06-30",
       "status": "Pending",
       "completionPercentage": 0
     }
   ],
   "tasks": [
     {
-      "id": "task-001",
-      "name": "User authentication module",
+      "id": 1,
+      "name": "Design System Components",
+      "description": "Create reusable UI component library and design tokens for mobile platforms with consistent styling across iOS and Android implementations",
+      "assignedTo": "Sarah Chen",
       "status": "Shipped",
-      "assignedTo": "Alice Johnson",
-      "dueDate": "2024-02-28T00:00:00Z",
-      "estimatedDays": 10,
-      "relatedMilestone": "m001"
+      "estimatedDays": 8
     },
     {
-      "id": "task-002",
-      "name": "Dashboard UI framework",
+      "id": 2,
+      "name": "Backend Authentication API",
+      "description": "Implement OAuth 2.0 authentication service with token refresh mechanisms, session management, and secure credential handling for mobile clients",
+      "assignedTo": "Michael Rodriguez",
       "status": "Shipped",
-      "assignedTo": "Bob Smith",
-      "dueDate": "2024-03-31T00:00:00Z",
-      "estimatedDays": 15,
-      "relatedMilestone": "m002"
+      "estimatedDays": 12
     },
     {
-      "id": "task-003",
-      "name": "Data service integration",
+      "id": 3,
+      "name": "Database Schema Implementation",
+      "description": "Design and deploy PostgreSQL database schema including user profiles, projects, activity logs, and supporting indexes for optimal query performance",
+      "assignedTo": "James Park",
       "status": "Shipped",
-      "assignedTo": "Carol Davis",
-      "dueDate": "2024-04-15T00:00:00Z",
-      "estimatedDays": 8,
-      "relatedMilestone": "m003"
+      "estimatedDays": 6
     },
     {
-      "id": "task-004",
-      "name": "Milestone timeline component",
+      "id": 4,
+      "name": "API Documentation",
+      "description": "Complete OpenAPI/Swagger documentation for all REST endpoints including request/response schemas, error responses, and authentication requirements",
+      "assignedTo": "Emma Watson",
+      "status": "Shipped",
+      "estimatedDays": 5
+    },
+    {
+      "id": 5,
+      "name": "iOS UI Implementation",
+      "description": "Build SwiftUI screens for onboarding, dashboard, task management, and settings modules with full navigation and state management integration",
+      "assignedTo": "David Kim",
       "status": "InProgress",
-      "assignedTo": "David Wilson",
-      "dueDate": "2024-05-10T00:00:00Z",
-      "estimatedDays": 5,
-      "relatedMilestone": "m003"
+      "estimatedDays": 15
     },
     {
-      "id": "task-005",
-      "name": "Status cards implementation",
+      "id": 6,
+      "name": "Android UI Implementation",
+      "description": "Develop Jetpack Compose interfaces for onboarding, dashboard, task management, and settings modules with proper lifecycle handling and data binding",
+      "assignedTo": "Priya Sharma",
       "status": "InProgress",
-      "assignedTo": "Emma Martinez",
-      "dueDate": "2024-05-15T00:00:00Z",
-      "estimatedDays": 6,
-      "relatedMilestone": "m003"
+      "estimatedDays": 15
     },
     {
-      "id": "task-006",
-      "name": "Progress metrics visualization",
+      "id": 7,
+      "name": "Integration Testing",
+      "description": "Execute comprehensive end-to-end testing across iOS and Android platforms verifying backend service integration, error handling, and data synchronization",
+      "assignedTo": "Marcus Johnson",
       "status": "InProgress",
-      "assignedTo": "Frank Taylor",
-      "dueDate": "2024-05-20T00:00:00Z",
-      "estimatedDays": 4,
-      "relatedMilestone": "m003"
+      "estimatedDays": 10
     },
     {
-      "id": "task-007",
-      "name": "Performance optimization",
+      "id": 8,
+      "name": "Performance Optimization",
+      "description": "Optimize application startup time, memory usage patterns, network request efficiency, and rendering performance across target devices",
+      "assignedTo": "Lisa Zhang",
       "status": "CarriedOver",
-      "assignedTo": "Grace Lee",
-      "dueDate": "2024-05-01T00:00:00Z",
-      "estimatedDays": 7,
-      "relatedMilestone": "m003"
+      "estimatedDays": 12
     },
     {
-      "id": "task-008",
-      "name": "Documentation update",
+      "id": 9,
+      "name": "Security Audit",
+      "description": "Conduct third-party security assessment covering authentication mechanisms, data encryption, API security, and mobile-specific vulnerabilities",
+      "assignedTo": "Alex Thompson",
       "status": "CarriedOver",
-      "assignedTo": "Henry Brown",
-      "dueDate": "2024-04-30T00:00:00Z",
-      "estimatedDays": 3,
-      "relatedMilestone": "m004"
+      "estimatedDays": 8
     }
-  ],
-  "metrics": {
-    "totalTasks": 8,
-    "completedTasks": 3,
-    "inProgressTasks": 3,
-    "carriedOverTasks": 2,
-    "estimatedBurndownRate": 0.15
-  }
+  ]
 }
