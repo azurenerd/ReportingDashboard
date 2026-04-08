@@ -1,7 +1,10 @@
-using Moq;
 using AgentSquad.Runner.Models;
 using AgentSquad.Runner.Services;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace AgentSquad.Runner.Tests.Services;
 
@@ -9,48 +12,40 @@ public class DataProviderValidationTests
 {
     private readonly Mock<IDataCache> _mockCache;
     private readonly Mock<ILogger<DataProvider>> _mockLogger;
+    private readonly Mock<IWebHostEnvironment> _mockEnvironment;
     private readonly DataProvider _dataProvider;
 
     public DataProviderValidationTests()
     {
         _mockCache = new Mock<IDataCache>();
         _mockLogger = new Mock<ILogger<DataProvider>>();
-        _dataProvider = new DataProvider(_mockCache.Object, _mockLogger.Object);
+        _mockEnvironment = new Mock<IWebHostEnvironment>();
+        _mockEnvironment.Setup(e => e.WebRootPath).Returns("/wwwroot");
+        
+        _dataProvider = new DataProvider(_mockCache.Object, _mockLogger.Object, _mockEnvironment.Object);
     }
 
     [Fact]
-    public async Task LoadProjectDataAsync_WithNullProject_ThrowsInvalidOperationException()
+    public async Task LoadProjectDataAsync_WithNullProject_ThrowsInvalidOperation()
     {
-        // Arrange
         _mockCache
             .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync((Project?)null);
+            .ReturnsAsync((Project?)null)
+            .Verifiable();
 
-        // Create a test file with null (invalid JSON)
-        var testFilePath = Path.Combine(Path.GetTempPath(), $"test_null_{Guid.NewGuid()}.json");
-        await File.WriteAllTextAsync(testFilePath, "null");
-
-        try
-        {
-            // Note: This test documents behavior; actual file I/O would require refactoring for DI
-            // The validation will be tested through unit tests of the validation method
-        }
-        finally
-        {
-            if (File.Exists(testFilePath))
-            {
-                File.Delete(testFilePath);
-            }
-        }
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.NotNull(exception);
+        Assert.Contains("null", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public async Task LoadProjectDataAsync_WithEmptyProjectName_ThrowsInvalidOperationException()
+    public async Task LoadProjectDataAsync_WithEmptyProjectName_ThrowsValidationError()
     {
-        // Arrange
         var invalidProject = new Project
         {
             Name = "",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
             Milestones = new List<Milestone>
             {
                 new Milestone
@@ -67,17 +62,18 @@ public class DataProviderValidationTests
             .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
             .ReturnsAsync(invalidProject);
 
-        // Act & Assert - This would throw during validation
-        // Testing through mock to verify validation is called
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("Project name", exception.Message);
     }
 
     [Fact]
-    public async Task LoadProjectDataAsync_WithNullMilestones_ThrowsInvalidOperationException()
+    public async Task LoadProjectDataAsync_WithNullMilestones_ThrowsValidationError()
     {
-        // Arrange
         var invalidProject = new Project
         {
-            Name = "Test Project",
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
             Milestones = null,
             WorkItems = new List<WorkItem>()
         };
@@ -86,17 +82,18 @@ public class DataProviderValidationTests
             .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
             .ReturnsAsync(invalidProject);
 
-        // Act & Assert
-        // Validation would catch this in actual implementation
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("milestones collection is null", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public async Task LoadProjectDataAsync_WithEmptyMilestones_ThrowsInvalidOperationException()
+    public async Task LoadProjectDataAsync_WithEmptyMilestones_ThrowsValidationError()
     {
-        // Arrange
         var invalidProject = new Project
         {
-            Name = "Test Project",
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
             Milestones = new List<Milestone>(),
             WorkItems = new List<WorkItem>()
         };
@@ -105,393 +102,92 @@ public class DataProviderValidationTests
             .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
             .ReturnsAsync(invalidProject);
 
-        // Act & Assert
-        // Validation would catch this - at least one milestone required
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("at least one milestone", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public async Task LoadProjectDataAsync_WithInvalidMilestoneStatus_ThrowsInvalidOperationException()
+    public async Task LoadProjectDataAsync_WithNullMilestoneInCollection_ThrowsValidationError()
     {
-        // Arrange
-        var validProject = new Project
-        {
-            Name = "Valid Project",
-            Milestones = new List<Milestone>
-            {
-                new Milestone
-                {
-                    Name = "M1",
-                    TargetDate = DateTime.Now,
-                    Status = MilestoneStatus.Completed
-                }
-            },
-            WorkItems = new List<WorkItem>(),
-            CompletionPercentage = 50,
-            HealthStatus = HealthStatus.OnTrack,
-            VelocityThisMonth = 10
-        };
-
-        _mockCache
-            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync(validProject);
-
-        // Act
-        var result = await _dataProvider.LoadProjectDataAsync();
-
-        // Assert
-        Assert.NotNull(result);
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_WithNullMilestoneInCollection_ThrowsInvalidOperationException()
-    {
-        // Arrange
         var invalidProject = new Project
         {
-            Name = "Test Project",
-            Milestones = new List<Milestone> { null! },
-            WorkItems = new List<WorkItem>()
-        };
-
-        _mockCache
-            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync(invalidProject);
-
-        // Act & Assert
-        // Validation would catch null milestone
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_WithEmptyMilestoneName_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        var invalidProject = new Project
-        {
-            Name = "Test Project",
-            Milestones = new List<Milestone>
-            {
-                new Milestone
-                {
-                    Name = "",
-                    Status = MilestoneStatus.InProgress,
-                    TargetDate = DateTime.Now
-                }
-            },
-            WorkItems = new List<WorkItem>()
-        };
-
-        _mockCache
-            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync(invalidProject);
-
-        // Act & Assert
-        // Validation would catch empty milestone name
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_WithCompletionPercentageBelow0_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        var invalidProject = new Project
-        {
-            Name = "Test Project",
-            CompletionPercentage = -1,
-            HealthStatus = HealthStatus.OnTrack,
-            Milestones = new List<Milestone>
-            {
-                new Milestone
-                {
-                    Name = "M1",
-                    Status = MilestoneStatus.InProgress,
-                    TargetDate = DateTime.Now
-                }
-            },
-            WorkItems = new List<WorkItem>()
-        };
-
-        _mockCache
-            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync(invalidProject);
-
-        // Act & Assert
-        // Validation would catch invalid completion percentage
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_WithCompletionPercentageAbove100_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        var invalidProject = new Project
-        {
-            Name = "Test Project",
-            CompletionPercentage = 101,
-            HealthStatus = HealthStatus.OnTrack,
-            Milestones = new List<Milestone>
-            {
-                new Milestone
-                {
-                    Name = "M1",
-                    Status = MilestoneStatus.InProgress,
-                    TargetDate = DateTime.Now
-                }
-            },
-            WorkItems = new List<WorkItem>()
-        };
-
-        _mockCache
-            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync(invalidProject);
-
-        // Act & Assert
-        // Validation would catch invalid completion percentage
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_WithValidCompletionPercentage0_Succeeds()
-    {
-        // Arrange
-        var validProject = new Project
-        {
-            Name = "Test Project",
-            CompletionPercentage = 0,
-            HealthStatus = HealthStatus.OnTrack,
-            Milestones = new List<Milestone>
-            {
-                new Milestone
-                {
-                    Name = "M1",
-                    Status = MilestoneStatus.Future,
-                    TargetDate = DateTime.Now
-                }
-            },
-            WorkItems = new List<WorkItem>()
-        };
-
-        _mockCache
-            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync(validProject);
-
-        // Act
-        var result = await _dataProvider.LoadProjectDataAsync();
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(0, result.CompletionPercentage);
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_WithValidCompletionPercentage100_Succeeds()
-    {
-        // Arrange
-        var validProject = new Project
-        {
-            Name = "Test Project",
-            CompletionPercentage = 100,
-            HealthStatus = HealthStatus.OnTrack,
-            Milestones = new List<Milestone>
-            {
-                new Milestone
-                {
-                    Name = "M1",
-                    Status = MilestoneStatus.Completed,
-                    TargetDate = DateTime.Now
-                }
-            },
-            WorkItems = new List<WorkItem>()
-        };
-
-        _mockCache
-            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync(validProject);
-
-        // Act
-        var result = await _dataProvider.LoadProjectDataAsync();
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(100, result.CompletionPercentage);
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_WithInvalidHealthStatus_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        var validProject = new Project
-        {
-            Name = "Test Project",
-            CompletionPercentage = 50,
-            HealthStatus = HealthStatus.AtRisk,
-            Milestones = new List<Milestone>
-            {
-                new Milestone
-                {
-                    Name = "M1",
-                    Status = MilestoneStatus.InProgress,
-                    TargetDate = DateTime.Now
-                }
-            },
-            WorkItems = new List<WorkItem>()
-        };
-
-        _mockCache
-            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync(validProject);
-
-        // Act
-        var result = await _dataProvider.LoadProjectDataAsync();
-
-        // Assert
-        Assert.NotNull(result);
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_WithNegativeVelocity_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        var invalidProject = new Project
-        {
-            Name = "Test Project",
-            CompletionPercentage = 50,
-            HealthStatus = HealthStatus.OnTrack,
-            VelocityThisMonth = -5,
-            Milestones = new List<Milestone>
-            {
-                new Milestone
-                {
-                    Name = "M1",
-                    Status = MilestoneStatus.InProgress,
-                    TargetDate = DateTime.Now
-                }
-            },
-            WorkItems = new List<WorkItem>()
-        };
-
-        _mockCache
-            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync(invalidProject);
-
-        // Act & Assert
-        // Validation would catch negative velocity
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_WithValidData_PassesValidation()
-    {
-        // Arrange
-        var validProject = new Project
-        {
-            Name = "Valid Project",
-            Description = "A valid project",
-            StartDate = new DateTime(2024, 1, 1),
-            TargetEndDate = new DateTime(2024, 12, 31),
+            Name = "Project",
             CompletionPercentage = 45,
             HealthStatus = HealthStatus.OnTrack,
-            VelocityThisMonth = 12,
-            Milestones = new List<Milestone>
-            {
-                new Milestone
-                {
-                    Name = "Phase 1 Launch",
-                    TargetDate = new DateTime(2024, 3, 31),
-                    Status = MilestoneStatus.Completed,
-                    Description = "Core feature rollout"
-                },
-                new Milestone
-                {
-                    Name = "Phase 2 Expansion",
-                    TargetDate = new DateTime(2024, 6, 30),
-                    Status = MilestoneStatus.InProgress,
-                    Description = "Feature expansion"
-                }
-            },
-            WorkItems = new List<WorkItem>
-            {
-                new WorkItem
-                {
-                    Title = "API Integration",
-                    Description = "Connect to external service",
-                    Status = WorkItemStatus.Shipped,
-                    AssignedTo = "Team A"
-                },
-                new WorkItem
-                {
-                    Title = "Database Migration",
-                    Description = "Migrate to new schema",
-                    Status = WorkItemStatus.InProgress,
-                    AssignedTo = "Team B"
-                }
-            }
+            Milestones = new List<Milestone> { null },
+            WorkItems = new List<WorkItem>()
         };
 
         _mockCache
             .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync(validProject);
+            .ReturnsAsync(invalidProject);
 
-        // Act
-        var result = await _dataProvider.LoadProjectDataAsync();
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal("Valid Project", result.Name);
-        Assert.Equal(45, result.CompletionPercentage);
-        Assert.Equal(2, result.Milestones.Count);
-        Assert.Equal(2, result.WorkItems.Count);
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("Milestone at index 0 is null", exception.Message);
     }
 
     [Fact]
-    public async Task LoadProjectDataAsync_WithInvalidWorkItemStatus_ThrowsInvalidOperationException()
+    public async Task LoadProjectDataAsync_WithEmptyMilestoneName_ThrowsValidationError()
     {
-        // Arrange
-        var validProject = new Project
+        var invalidProject = new Project
         {
-            Name = "Test Project",
-            CompletionPercentage = 50,
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone { Name = "", Status = MilestoneStatus.InProgress, TargetDate = DateTime.Now }
+            },
+            WorkItems = new List<WorkItem>()
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("empty or null name", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithInvalidMilestoneStatus_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 45,
             HealthStatus = HealthStatus.OnTrack,
             Milestones = new List<Milestone>
             {
                 new Milestone
                 {
                     Name = "M1",
-                    Status = MilestoneStatus.InProgress,
+                    Status = (MilestoneStatus)999,
                     TargetDate = DateTime.Now
                 }
             },
-            WorkItems = new List<WorkItem>
-            {
-                new WorkItem
-                {
-                    Title = "Valid Item",
-                    Status = WorkItemStatus.InProgress
-                }
-            }
+            WorkItems = new List<WorkItem>()
         };
 
         _mockCache
             .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
-            .ReturnsAsync(validProject);
+            .ReturnsAsync(invalidProject);
 
-        // Act
-        var result = await _dataProvider.LoadProjectDataAsync();
-
-        // Assert
-        Assert.NotNull(result);
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("invalid status", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public async Task LoadProjectDataAsync_WithNullWorkItemsCollection_ThrowsInvalidOperationException()
+    public async Task LoadProjectDataAsync_WithNullWorkItems_ThrowsValidationError()
     {
-        // Arrange
         var invalidProject = new Project
         {
-            Name = "Test Project",
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
             Milestones = new List<Milestone>
             {
-                new Milestone
-                {
-                    Name = "M1",
-                    Status = MilestoneStatus.InProgress,
-                    TargetDate = DateTime.Now
-                }
+                new Milestone { Name = "M1", Status = MilestoneStatus.InProgress, TargetDate = DateTime.Now }
             },
             WorkItems = null
         };
@@ -500,19 +196,192 @@ public class DataProviderValidationTests
             .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
             .ReturnsAsync(invalidProject);
 
-        // Act & Assert
-        // Validation would catch null work items collection
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("work items collection is null", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public async Task LoadProjectDataAsync_LogsValidationPassedMessage()
+    public async Task LoadProjectDataAsync_WithNullWorkItemInCollection_ThrowsValidationError()
     {
-        // Arrange
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone { Name = "M1", Status = MilestoneStatus.InProgress, TargetDate = DateTime.Now }
+            },
+            WorkItems = new List<WorkItem> { null }
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("Work item at index 0 is null", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithEmptyWorkItemTitle_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone { Name = "M1", Status = MilestoneStatus.InProgress, TargetDate = DateTime.Now }
+            },
+            WorkItems = new List<WorkItem>
+            {
+                new WorkItem { Title = "", Status = WorkItemStatus.Shipped }
+            }
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("empty or null title", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithInvalidWorkItemStatus_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone { Name = "M1", Status = MilestoneStatus.InProgress, TargetDate = DateTime.Now }
+            },
+            WorkItems = new List<WorkItem>
+            {
+                new WorkItem { Title = "Item", Status = (WorkItemStatus)999 }
+            }
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("invalid status", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithCompletionPercentageNegative_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = -5,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone { Name = "M1", Status = MilestoneStatus.InProgress, TargetDate = DateTime.Now }
+            },
+            WorkItems = new List<WorkItem>()
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("completion percentage", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("0", exception.Message);
+        Assert.Contains("100", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithCompletionPercentageOverHundred_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 150,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone { Name = "M1", Status = MilestoneStatus.InProgress, TargetDate = DateTime.Now }
+            },
+            WorkItems = new List<WorkItem>()
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("completion percentage", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("0", exception.Message);
+        Assert.Contains("100", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithInvalidHealthStatus_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = (HealthStatus)999,
+            Milestones = new List<Milestone>
+            {
+                new Milestone { Name = "M1", Status = MilestoneStatus.InProgress, TargetDate = DateTime.Now }
+            },
+            WorkItems = new List<WorkItem>()
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("invalid health status", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithNegativeVelocity_ThrowsValidationError()
+    {
+        var invalidProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 45,
+            HealthStatus = HealthStatus.OnTrack,
+            VelocityThisMonth = -5,
+            Milestones = new List<Milestone>
+            {
+                new Milestone { Name = "M1", Status = MilestoneStatus.InProgress, TargetDate = DateTime.Now }
+            },
+            WorkItems = new List<WorkItem>()
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(invalidProject);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _dataProvider.LoadProjectDataAsync());
+        Assert.Contains("velocity", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("non-negative", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithValidData_SucceedsValidation()
+    {
         var validProject = new Project
         {
-            Name = "Test Project",
-            CompletionPercentage = 50,
+            Name = "Valid Project",
+            CompletionPercentage = 45,
             HealthStatus = HealthStatus.OnTrack,
+            VelocityThisMonth = 10,
             Milestones = new List<Milestone>
             {
                 new Milestone
@@ -522,6 +391,33 @@ public class DataProviderValidationTests
                     TargetDate = DateTime.Now
                 }
             },
+            WorkItems = new List<WorkItem>
+            {
+                new WorkItem { Title = "Item1", Status = WorkItemStatus.Shipped }
+            }
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(validProject);
+
+        var result = await _dataProvider.LoadProjectDataAsync();
+        Assert.NotNull(result);
+        Assert.Equal("Valid Project", result.Name);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithCompletionPercentageBoundary_Zero_Succeeds()
+    {
+        var validProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 0,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone { Name = "M1", Status = MilestoneStatus.Future, TargetDate = DateTime.Now }
+            },
             WorkItems = new List<WorkItem>()
         };
 
@@ -529,17 +425,32 @@ public class DataProviderValidationTests
             .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
             .ReturnsAsync(validProject);
 
-        // Act
-        await _dataProvider.LoadProjectDataAsync();
+        var result = await _dataProvider.LoadProjectDataAsync();
+        Assert.NotNull(result);
+        Assert.Equal(0, result.CompletionPercentage);
+    }
 
-        // Assert
-        _mockLogger.Verify(
-            x => x.Log(
-                LogLevel.Information,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("validation")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.AtLeastOnce);
+    [Fact]
+    public async Task LoadProjectDataAsync_WithCompletionPercentageBoundary_Hundred_Succeeds()
+    {
+        var validProject = new Project
+        {
+            Name = "Project",
+            CompletionPercentage = 100,
+            HealthStatus = HealthStatus.OnTrack,
+            Milestones = new List<Milestone>
+            {
+                new Milestone { Name = "M1", Status = MilestoneStatus.Completed, TargetDate = DateTime.Now }
+            },
+            WorkItems = new List<WorkItem>()
+        };
+
+        _mockCache
+            .Setup(c => c.GetAsync<Project>(It.IsAny<string>()))
+            .ReturnsAsync(validProject);
+
+        var result = await _dataProvider.LoadProjectDataAsync();
+        Assert.NotNull(result);
+        Assert.Equal(100, result.CompletionPercentage);
     }
 }

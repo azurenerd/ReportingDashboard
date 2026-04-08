@@ -29,45 +29,27 @@
   "workItems": [
     {
       "title": "DataProvider Service Implementation",
-      "description": "Implement JSON reading and caching service layer with validation and error handling",
+      "description": "Implement JSON reading and caching service layer",
       "status": "Shipped",
       "assignedTo": "Engineering Team"
     },
     {
       "title": "Dashboard Layout Component",
-      "description": "Create main dashboard Blazor component with CSS grid layout for responsive display",
+      "description": "Create main dashboard Blazor component with grid layout",
       "status": "InProgress",
       "assignedTo": "UI Team"
     },
     {
       "title": "Milestone Timeline Visualization",
-      "description": "Implement horizontal timeline with Chart.js for milestone status display",
+      "description": "Implement milestone timeline with Chart.js",
       "status": "InProgress",
       "assignedTo": "Frontend Team"
     },
     {
       "title": "Project Metrics Display",
-      "description": "Create KPI cards for project health indicators and completion percentage",
-      "status": "InProgress",
-      "assignedTo": "Design Team"
-    },
-    {
-      "title": "Work Item Tracking",
-      "description": "Implement three-column layout for shipped, in-progress, and carried-over items",
-      "status": "InProgress",
-      "assignedTo": "Frontend Team"
-    },
-    {
-      "title": "Print/Screenshot Optimization",
-      "description": "Optimize CSS for clean output on 1280x720 and 1920x1080 resolutions",
+      "description": "Create KPI cards for project health indicators",
       "status": "CarriedOver",
       "assignedTo": "Design Team"
-    },
-    {
-      "title": "Cross-Browser Testing",
-      "description": "Verify dashboard renders correctly in Chrome and Edge",
-      "status": "CarriedOver",
-      "assignedTo": "QA Team"
     }
   ]
 }

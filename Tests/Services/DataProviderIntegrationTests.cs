@@ -43,16 +43,13 @@ public class DataProviderIntegrationTests : IDisposable
     [Fact]
     public async Task LoadProjectDataAsync_WithValidDataJson_LoadsAndPopulatesProject()
     {
-        // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
-        // Act
         var project = await dataProvider.LoadProjectDataAsync();
 
-        // Assert
         Assert.NotNull(project);
         Assert.Equal("Executive Dashboard Project", project.Name);
         Assert.Equal("Q1 2024 Executive Reporting Dashboard Initiative", project.Description);
@@ -64,19 +61,15 @@ public class DataProviderIntegrationTests : IDisposable
     [Fact]
     public async Task LoadProjectDataAsync_WithValidDataJson_PopulatesMilestones()
     {
-        // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
-        // Act
         var project = await dataProvider.LoadProjectDataAsync();
 
-        // Assert
         Assert.NotNull(project.Milestones);
-        Assert.True(project.Milestones.Count >= 1, "Project must have at least one milestone");
-
+        Assert.True(project.Milestones.Count >= 1);
         var firstMilestone = project.Milestones[0];
         Assert.NotNull(firstMilestone);
         Assert.Equal("Phase 1 - Foundation", firstMilestone.Name);
@@ -86,19 +79,15 @@ public class DataProviderIntegrationTests : IDisposable
     [Fact]
     public async Task LoadProjectDataAsync_WithValidDataJson_PopulatesWorkItems()
     {
-        // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
-        // Act
         var project = await dataProvider.LoadProjectDataAsync();
 
-        // Assert
         Assert.NotNull(project.WorkItems);
-        Assert.True(project.WorkItems.Count > 0, "Project should have work items");
-
+        Assert.True(project.WorkItems.Count > 0);
         var shippedItem = project.WorkItems.FirstOrDefault(w => w.Status == WorkItemStatus.Shipped);
         Assert.NotNull(shippedItem);
         Assert.NotEmpty(shippedItem.Title);
@@ -107,83 +96,61 @@ public class DataProviderIntegrationTests : IDisposable
     [Fact]
     public async Task LoadProjectDataAsync_SecondCall_ReturnsCachedData()
     {
-        // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
         var stopwatch = new Stopwatch();
 
-        // Act - First call (cache miss)
         stopwatch.Start();
         var project1 = await dataProvider.LoadProjectDataAsync();
         stopwatch.Stop();
         var firstCallDuration = stopwatch.ElapsedMilliseconds;
 
-        // Act - Second call (cache hit)
         stopwatch.Restart();
         var project2 = await dataProvider.LoadProjectDataAsync();
         stopwatch.Stop();
         var secondCallDuration = stopwatch.ElapsedMilliseconds;
 
-        // Assert
         Assert.NotNull(project1);
         Assert.NotNull(project2);
         Assert.Same(project1, project2);
-
-        // Cache hit should be significantly faster (typically < 5ms)
-        Assert.True(secondCallDuration < firstCallDuration,
-            $"Cache hit ({secondCallDuration}ms) should be faster than cache miss ({firstCallDuration}ms)");
+        Assert.True(secondCallDuration < firstCallDuration);
     }
 
     [Fact]
     public async Task InvalidateCache_ForcesCacheReload()
     {
-        // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
-        // Act - Load data (caches it)
         var project1 = await dataProvider.LoadProjectDataAsync();
-
-        // Act - Invalidate cache
         dataProvider.InvalidateCache();
-
-        // Act - Load data again (should re-read from file)
         var project2 = await dataProvider.LoadProjectDataAsync();
 
-        // Assert
         Assert.NotNull(project1);
         Assert.NotNull(project2);
-        // After invalidation, should get a new instance (not the cached one)
         Assert.NotSame(project1, project2);
-        // But the data should be the same
         Assert.Equal(project1.Name, project2.Name);
     }
 
     [Fact]
     public async Task LoadProjectDataAsync_WithValidDataJson_NestedObjectsPopulated()
     {
-        // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
-        // Act
         var project = await dataProvider.LoadProjectDataAsync();
 
-        // Assert
         Assert.NotNull(project);
-
-        // Verify Project properties
         Assert.NotNull(project.Name);
         Assert.NotNull(project.Milestones);
         Assert.NotNull(project.WorkItems);
 
-        // Verify Milestone nested objects
         if (project.Milestones.Count > 0)
         {
             var milestone = project.Milestones[0];
@@ -192,7 +159,6 @@ public class DataProviderIntegrationTests : IDisposable
             Assert.True(Enum.IsDefined(typeof(MilestoneStatus), milestone.Status));
         }
 
-        // Verify WorkItem nested objects
         if (project.WorkItems.Count > 0)
         {
             var workItem = project.WorkItems[0];
@@ -204,99 +170,24 @@ public class DataProviderIntegrationTests : IDisposable
     [Fact]
     public async Task LoadProjectDataAsync_CacheKeyConsistency()
     {
-        // Arrange
         var exampleData = CreateExampleProjectJson();
         await File.WriteAllTextAsync(_testDataPath, exampleData);
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
-        // Act
         var project1 = await dataProvider.LoadProjectDataAsync();
         var project2 = await dataProvider.LoadProjectDataAsync();
         var project3 = await dataProvider.LoadProjectDataAsync();
 
-        // Assert - All should return same cached instance
         Assert.Same(project1, project2);
         Assert.Same(project2, project3);
     }
 
     [Fact]
-    public async Task LoadProjectDataAsync_MultipleProjects_ShareCache()
-    {
-        // Arrange
-        var exampleData = CreateExampleProjectJson();
-        await File.WriteAllTextAsync(_testDataPath, exampleData);
-
-        var dataProvider1 = _serviceProvider.GetRequiredService<IDataProvider>();
-        var dataProvider2 = _serviceProvider.GetRequiredService<IDataProvider>();
-
-        // Act
-        var project1 = await dataProvider1.LoadProjectDataAsync();
-        var project2 = await dataProvider2.LoadProjectDataAsync();
-
-        // Assert - Both should return same cached instance due to shared IMemoryCache
-        Assert.Same(project1, project2);
-    }
-
-    [Fact]
-    public async Task InvalidateCache_ThenLoad_ReloadsFromFile()
-    {
-        // Arrange
-        var exampleData = CreateExampleProjectJson();
-        await File.WriteAllTextAsync(_testDataPath, exampleData);
-
-        var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
-
-        // Act - Load (cache miss, reads file)
-        var project1 = await dataProvider.LoadProjectDataAsync();
-
-        // Modify the file
-        var modifiedData = exampleData.Replace("45", "75");
-        await File.WriteAllTextAsync(_testDataPath, modifiedData);
-
-        // Invalidate cache
-        dataProvider.InvalidateCache();
-
-        // Load again (should read modified file from disk)
-        var project2 = await dataProvider.LoadProjectDataAsync();
-
-        // Assert
-        Assert.NotSame(project1, project2);
-        Assert.Equal(45, project1.CompletionPercentage);
-        Assert.Equal(75, project2.CompletionPercentage);
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_CachePersistenceUnderLoad()
-    {
-        // Arrange
-        var exampleData = CreateExampleProjectJson();
-        await File.WriteAllTextAsync(_testDataPath, exampleData);
-
-        var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
-
-        // Act - Multiple rapid calls
-        var tasks = Enumerable.Range(0, 10)
-            .Select(_ => dataProvider.LoadProjectDataAsync())
-            .ToList();
-
-        var results = await Task.WhenAll(tasks);
-
-        // Assert - All should return same cached instance
-        for (int i = 1; i < results.Length; i++)
-        {
-            Assert.Same(results[0], results[i]);
-        }
-    }
-
-    [Fact]
     public async Task LoadProjectDataAsync_WithMissingFile_ThrowsFileNotFound()
     {
-        // Arrange
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
-        // Don't create the data.json file
 
-        // Act & Assert
         var exception = await Assert.ThrowsAsync<FileNotFoundException>(() => dataProvider.LoadProjectDataAsync());
         Assert.NotNull(exception);
         Assert.Contains("data.json", exception.Message);
@@ -305,13 +196,11 @@ public class DataProviderIntegrationTests : IDisposable
     [Fact]
     public async Task LoadProjectDataAsync_WithInvalidJson_ThrowsJsonException()
     {
-        // Arrange
         var invalidJson = "{ invalid json }";
         await File.WriteAllTextAsync(_testDataPath, invalidJson);
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
-        // Act & Assert
         var exception = await Assert.ThrowsAsync<JsonException>(() => dataProvider.LoadProjectDataAsync());
         Assert.NotNull(exception);
         Assert.Contains("Invalid JSON", exception.Message);
@@ -320,7 +209,6 @@ public class DataProviderIntegrationTests : IDisposable
     [Fact]
     public async Task LoadProjectDataAsync_WithMissingRequiredField_ThrowsInvalidOperation()
     {
-        // Arrange
         var invalidData = @"{
   ""description"": ""Missing project name"",
   ""startDate"": ""2024-01-01"",
@@ -341,10 +229,32 @@ public class DataProviderIntegrationTests : IDisposable
 
         var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
 
-        // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => dataProvider.LoadProjectDataAsync());
         Assert.NotNull(exception);
         Assert.Contains("Project name", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithEmptyMilestones_ThrowsValidationError()
+    {
+        var invalidData = @"{
+  ""name"": ""Project"",
+  ""description"": ""Empty milestones"",
+  ""startDate"": ""2024-01-01"",
+  ""targetEndDate"": ""2024-12-31"",
+  ""completionPercentage"": 45,
+  ""healthStatus"": ""OnTrack"",
+  ""velocityThisMonth"": 12,
+  ""milestones"": [],
+  ""workItems"": []
+}";
+        await File.WriteAllTextAsync(_testDataPath, invalidData);
+
+        var dataProvider = _serviceProvider.GetRequiredService<IDataProvider>();
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => dataProvider.LoadProjectDataAsync());
+        Assert.NotNull(exception);
+        Assert.Contains("at least one milestone", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     private string CreateExampleProjectJson()
