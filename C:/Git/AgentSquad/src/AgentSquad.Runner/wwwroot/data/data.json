@@ -14,7 +14,7 @@
       "name": "Design Review Complete",
       "targetDate": "2026-04-15",
       "actualDate": "2026-04-12",
-      "status": "Completed",
+      "status": 0,
       "completionPercentage": 100
     },
     {
@@ -22,7 +22,7 @@
       "name": "Development Sprint 1 Done",
       "targetDate": "2026-05-01",
       "actualDate": null,
-      "status": "InProgress",
+      "status": 1,
       "completionPercentage": 65
     },
     {
@@ -30,15 +30,15 @@
       "name": "QA Testing Complete",
       "targetDate": "2026-06-01",
       "actualDate": null,
-      "status": "Pending",
+      "status": 2,
       "completionPercentage": 0
     },
     {
       "id": "m4",
-      "name": "Production Release",
-      "targetDate": "2026-06-30",
+      "name": "Launch Ready",
+      "targetDate": "2026-06-28",
       "actualDate": null,
-      "status": "Pending",
+      "status": 2,
       "completionPercentage": 0
     }
   ],
@@ -46,7 +46,7 @@
     {
       "id": "t1",
       "name": "API Authentication Module",
-      "status": "Shipped",
+      "status": 0,
       "assignedTo": "John Doe",
       "dueDate": "2026-04-20",
       "estimatedDays": 5,
@@ -55,7 +55,7 @@
     {
       "id": "t2",
       "name": "Payment Integration",
-      "status": "InProgress",
+      "status": 1,
       "assignedTo": "Alice Brown",
       "dueDate": "2026-05-10",
       "estimatedDays": 8,
@@ -64,7 +64,7 @@
     {
       "id": "t3",
       "name": "iOS Push Notifications",
-      "status": "CarriedOver",
+      "status": 2,
       "assignedTo": "Bob Wilson",
       "dueDate": "2026-05-15",
       "estimatedDays": 6,
@@ -72,65 +72,65 @@
     },
     {
       "id": "t4",
-      "name": "Android Payment Flow",
-      "status": "InProgress",
-      "assignedTo": "Carol Martinez",
+      "name": "Android FCM Integration",
+      "status": 1,
+      "assignedTo": "Carol Davis",
       "dueDate": "2026-05-20",
-      "estimatedDays": 7,
+      "estimatedDays": 6,
       "relatedMilestone": "m2"
     },
     {
       "id": "t5",
-      "name": "Dark Mode Support",
-      "status": "InProgress",
-      "assignedTo": "David Lee",
-      "dueDate": "2026-05-25",
+      "name": "Security Audit",
+      "status": 1,
+      "assignedTo": "Dave Miller",
+      "dueDate": "2026-05-30",
       "estimatedDays": 4,
-      "relatedMilestone": "m2"
+      "relatedMilestone": "m3"
     },
     {
       "id": "t6",
-      "name": "QA Test Plan Documentation",
-      "status": "Shipped",
-      "assignedTo": "Eva Chen",
+      "name": "Database Migration",
+      "status": 0,
+      "assignedTo": "Eve Johnson",
       "dueDate": "2026-04-25",
       "estimatedDays": 3,
-      "relatedMilestone": "m1"
+      "relatedMilestone": "m2"
     },
     {
       "id": "t7",
-      "name": "Regression Testing Phase 1",
-      "status": "CarriedOver",
-      "assignedTo": "Frank Rodriguez",
-      "dueDate": "2026-05-30",
+      "name": "Performance Testing",
+      "status": 2,
+      "assignedTo": "Frank White",
+      "dueDate": "2026-06-10",
       "estimatedDays": 5,
       "relatedMilestone": "m3"
     },
     {
       "id": "t8",
-      "name": "Performance Optimization",
-      "status": "Shipped",
-      "assignedTo": "Grace Kim",
-      "dueDate": "2026-05-05",
+      "name": "Documentation & Training",
+      "status": 2,
+      "assignedTo": "Grace Lee",
+      "dueDate": "2026-06-20",
       "estimatedDays": 4,
-      "relatedMilestone": "m2"
+      "relatedMilestone": "m4"
     },
     {
       "id": "t9",
-      "name": "Security Audit",
-      "status": "InProgress",
-      "assignedTo": "Henry Zhang",
-      "dueDate": "2026-06-10",
-      "estimatedDays": 6,
+      "name": "Beta User Testing",
+      "status": 1,
+      "assignedTo": "Henry Taylor",
+      "dueDate": "2026-05-25",
+      "estimatedDays": 7,
       "relatedMilestone": "m3"
     },
     {
       "id": "t10",
-      "name": "Release Notes & Documentation",
-      "status": "CarriedOver",
-      "assignedTo": "Iris Johnson",
-      "dueDate": "2026-06-20",
-      "estimatedDays": 2,
+      "name": "Release Notes & Marketing",
+      "status": 2,
+      "assignedTo": "Iris Martinez",
+      "dueDate": "2026-06-25",
+      "estimatedDays": 3,
       "relatedMilestone": "m4"
     }
   ],

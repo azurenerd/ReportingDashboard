@@ -1,0 +1,43 @@
+@using AgentSquad.Dashboard.Services
+
+<div class="milestone-section mb-5">
+    <h2 class="mb-4">Project Milestone Timeline</h2>
+    <div class="milestone-timeline">
+        @foreach (var milestone in Milestones)
+        {
+            <div class="milestone-item">
+                <div class="milestone-marker" style="border-color: @GetStatusColor(milestone.Status)">
+                    <div class="milestone-dot" style="background-color: @GetStatusColor(milestone.Status)"></div>
+                </div>
+                <div class="milestone-content">
+                    <h5>@milestone.Name</h5>
+                    <p class="text-muted mb-1">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</p>
+                    @if (milestone.ActualDate.HasValue)
+                    {
+                        <p class="text-success mb-1">Completed: @milestone.ActualDate.Value.ToString("MMM dd, yyyy")</p>
+                    }
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar" style="width: @milestone.CompletionPercentage%"></div>
+                    </div>
+                    <small class="text-muted">@milestone.CompletionPercentage% complete</small>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<Milestone> Milestones { get; set; } = new();
+
+    private string GetStatusColor(MilestoneStatus status)
+    {
+        return status switch
+        {
+            MilestoneStatus.Completed => "#28a745",
+            MilestoneStatus.InProgress => "#007bff",
+            MilestoneStatus.Pending => "#ccc",
+            _ => "#ccc"
+        };
+    }
+}

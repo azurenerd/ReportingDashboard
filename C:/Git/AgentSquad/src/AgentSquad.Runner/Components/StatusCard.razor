@@ -1,0 +1,70 @@
+@using AgentSquad.Dashboard.Services
+
+<div class="card status-card border-top border-5" style="border-color: @GetCardColor()!important">
+    <div class="card-body">
+        <h5 class="card-title">@StatusCategory</h5>
+        <h2 class="card-text mb-3">@TaskCount</h2>
+        
+        @if (Tasks.Any())
+        {
+            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleTaskList">
+                @(showTasks ? "Hide Tasks" : "Show Tasks")
+            </button>
+
+            @if (showTasks)
+            {
+                <div class="mt-3">
+                    <ul class="list-unstyled">
+                        @foreach (var task in Tasks)
+                        {
+                            <li class="mb-2">
+                                <span class="task-checkbox me-2">✓</span>
+                                <span>@task.Name</span>
+                                @if (!string.IsNullOrEmpty(task.AssignedTo))
+                                {
+                                    <small class="text-muted d-block ms-4">@task.AssignedTo</small>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-muted mb-0">No tasks in this category</p>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string StatusCategory { get; set; } = string.Empty;
+
+    [Parameter]
+    public int TaskCount { get; set; }
+
+    [Parameter]
+    public List<Task> Tasks { get; set; } = new();
+
+    [Parameter]
+    public string CardColor { get; set; } = "secondary";
+
+    private bool showTasks = false;
+
+    private void ToggleTaskList()
+    {
+        showTasks = !showTasks;
+    }
+
+    private string GetCardColor()
+    {
+        return CardColor switch
+        {
+            "success" => "#28a745",
+            "info" => "#17a2b8",
+            "warning" => "#ffc107",
+            _ => "#6c757d"
+        };
+    }
+}

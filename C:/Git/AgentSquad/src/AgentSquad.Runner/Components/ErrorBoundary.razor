@@ -1,0 +1,25 @@
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? ErrorContent { get; set; }
+
+    private bool hasError = false;
+
+    protected override void OnErrorFromChild(Exception ex)
+    {
+        hasError = true;
+        StateHasChanged();
+    }
+
+    private void Reset()
+    {
+        hasError = false;
+        StateHasChanged();
+    }
+}

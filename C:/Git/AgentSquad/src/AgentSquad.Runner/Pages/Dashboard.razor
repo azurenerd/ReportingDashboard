@@ -1,0 +1,104 @@
+@page "/"
+@using AgentSquad.Dashboard.Services
+@inject ProjectDataService DataService
+@inject ILogger<Dashboard> Logger
+
+<div class="container-fluid dashboard-container">
+    <ErrorBoundary>
+        <ChildContent>
+            @if (projectData != null)
+            {
+                <div class="dashboard-header mb-4">
+                    <h1>@projectData.Project?.Name</h1>
+                    <p class="text-muted">@projectData.Project?.Description</p>
+                </div>
+
+                <MilestoneTimeline Milestones="projectData.Milestones" />
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <StatusCard 
+                            StatusCategory="Shipped" 
+                            TaskCount="projectData.Metrics?.CompletedTasks ?? 0"
+                            Tasks="GetTasksByStatus(TaskStatus.Shipped)"
+                            CardColor="success" />
+                    </div>
+                    <div class="col-md-4">
+                        <StatusCard 
+                            StatusCategory="In-Progress" 
+                            TaskCount="projectData.Metrics?.InProgressTasks ?? 0"
+                            Tasks="GetTasksByStatus(TaskStatus.InProgress)"
+                            CardColor="info" />
+                    </div>
+                    <div class="col-md-4">
+                        <StatusCard 
+                            StatusCategory="Carried-Over" 
+                            TaskCount="projectData.Metrics?.CarriedOverTasks ?? 0"
+                            Tasks="GetTasksByStatus(TaskStatus.CarriedOver)"
+                            CardColor="warning" />
+                    </div>
+                </div>
+
+                <ProgressMetrics Metrics="projectData.Metrics" ProjectStartDate="projectData.Project?.StartDate ?? DateTime.Now" ProjectEndDate="projectData.Project?.EndDate ?? DateTime.Now" />
+            }
+            else if (errorMessage != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Error Loading Dashboard</h4>
+                    <p>@errorMessage</p>
+                    <hr />
+                    <button class="btn btn-primary" @onclick="RefreshData">Retry</button>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
+        </ChildContent>
+        <ErrorContent>
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Component Error</h4>
+                <p>An error occurred while rendering the dashboard. Please refresh the page.</p>
+            </div>
+        </ErrorContent>
+    </ErrorBoundary>
+</div>
+
+@code {
+    private ProjectData? projectData;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshData();
+    }
+
+    private async Task RefreshData()
+    {
+        try
+        {
+            errorMessage = null;
+            var jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "data", "data.json");
+            projectData = await DataService.LoadProjectDataAsync(jsonPath);
+        }
+        catch (DataLoadException ex)
+        {
+            errorMessage = $"Error loading project data: {ex.Message}";
+            Logger.LogError(ex, errorMessage);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An unexpected error occurred while loading the dashboard.";
+            Logger.LogError(ex, errorMessage);
+        }
+    }
+
+    private List<Task> GetTasksByStatus(TaskStatus status)
+    {
+        return projectData?.Tasks.Where(t => t.Status == status).ToList() ?? new();
+    }
+}

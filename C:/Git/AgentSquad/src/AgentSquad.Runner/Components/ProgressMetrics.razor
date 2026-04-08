@@ -1,0 +1,47 @@
+@using AgentSquad.Dashboard.Services
+
+<div class="progress-section">
+    <h2 class="mb-4">Project Progress</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="progress-card">
+                <h5 class="card-title">Overall Completion</h5>
+                <div class="progress mb-3" style="height: 30px;">
+                    <div class="progress-bar bg-success" style="width: @GetCompletionPercentage()%">
+                        <strong>@GetCompletionPercentage()%</strong>
+                    </div>
+                </div>
+                <p class="text-muted">@(Metrics?.CompletedTasks ?? 0) of @(Metrics?.TotalTasks ?? 0) tasks completed</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="progress-card">
+                <h5 class="card-title">Time Remaining</h5>
+                <p class="display-4">@GetDaysRemaining() days</p>
+                <p class="text-muted">Target completion: @ProjectEndDate.ToString("MMM dd, yyyy")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ProjectMetrics? Metrics { get; set; }
+
+    [Parameter]
+    public DateTime ProjectStartDate { get; set; }
+
+    [Parameter]
+    public DateTime ProjectEndDate { get; set; }
+
+    private int GetCompletionPercentage()
+    {
+        return Metrics?.CompletionPercentage ?? 0;
+    }
+
+    private int GetDaysRemaining()
+    {
+        var remaining = (ProjectEndDate - DateTime.Now).Days;
+        return remaining > 0 ? remaining : 0;
+    }
+}
