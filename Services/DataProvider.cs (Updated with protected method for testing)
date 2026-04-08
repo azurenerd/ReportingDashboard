@@ -17,7 +17,12 @@ namespace AgentSquad.Runner.Services
         public DataProvider(ILogger<DataProvider> logger)
         {
             _logger = logger;
-            _dataFilePath = Path.Combine(AppContext.BaseDirectory, "data.json");
+            _dataFilePath = GetDataFilePath();
+        }
+
+        protected virtual string GetDataFilePath()
+        {
+            return Path.Combine(AppContext.BaseDirectory, "data.json");
         }
 
         public async Task<Project> LoadProjectDataAsync()

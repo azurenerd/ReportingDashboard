@@ -1,9 +1,11 @@
+using System.Threading.Tasks;
 using AgentSquad.Runner.Models;
 
-namespace AgentSquad.Runner.Services;
-
-public interface IDataProvider
+namespace AgentSquad.Runner.Services
 {
-    Task<Project> LoadProjectDataAsync();
-    void InvalidateCache();
+    public interface IDataProvider
+    {
+        Task<Project> LoadProjectDataAsync();
+        Project GetCachedProjectData();
+    }
 }

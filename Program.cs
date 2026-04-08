@@ -1,13 +1,13 @@
-using AgentSquad.Runner.Models;
 using AgentSquad.Runner.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplicationBuilder.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
 
-builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<IDataCache, MemoryCacheAdapter>();
 builder.Services.AddScoped<IDataProvider, DataProvider>();
 
 builder.Logging.ClearProviders();
@@ -15,17 +15,32 @@ builder.Logging.AddConsole();
 
 var app = builder.Build();
 
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+
+try
+{
+    var dataProvider = app.Services.GetRequiredService<IDataProvider>();
+    var projectData = dataProvider.LoadProjectDataAsync().GetAwaiter().GetResult();
+    logger.LogInformation("Application startup: Data loaded successfully");
+}
+catch (Exception ex)
+{
+    logger.LogError($"Application startup failed: {ex.Message}");
+    logger.LogError($"Stack trace: {ex.StackTrace}");
+    throw;
+}
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseRouting();
+app.UseAntiforgery();
 
-app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
+app.MapRazorComponents<AgentSquad.Runner.App>()
+    .AddInteractiveServerRenderMode();
 
-await app.RunAsync("http://localhost:5000");
+app.Run();
