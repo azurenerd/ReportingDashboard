@@ -1,59 +1,77 @@
 using Xunit;
+using FluentAssertions;
 using Bunit;
 using AgentSquad.Components;
+using AgentSquad.Services.Models;
 
 namespace AgentSquad.Tests.Components
 {
     public class ProgressMetricsTests : TestContext
     {
         [Fact]
-        public void ProgressMetrics_WithValidMetrics_RendersPercentage()
+        public void ProgressMetrics_DisplaysCompletionPercentage()
         {
+            var metrics = new ProjectMetrics { CompletionPercentage = 75 };
             var component = RenderComponent<ProgressMetrics>(parameters =>
-                parameters.Add(p => p.Completed, 5)
-                          .Add(p => p.Total, 10));
-
-            Assert.Contains("50", component.Markup);
+                parameters.Add(p => p.Metrics, metrics));
+            
+            component.Markup.Should().Contain("75");
         }
 
         [Fact]
-        public void ProgressMetrics_WithZeroTotal_RendersZeroPercent()
+        public void ProgressMetrics_HandlesNullMetrics_RendersSafely()
         {
             var component = RenderComponent<ProgressMetrics>(parameters =>
-                parameters.Add(p => p.Completed, 0)
-                          .Add(p => p.Total, 0));
-
-            Assert.Contains("0", component.Markup);
+                parameters.Add(p => p.Metrics, (ProjectMetrics)null));
+            
+            component.Markup.Should().NotBeNullOrEmpty();
         }
 
         [Fact]
-        public void ProgressMetrics_WithCompleteProgress_RendersHundredPercent()
+        public void ProgressMetrics_DisplaysProgressBar()
         {
+            var metrics = new ProjectMetrics { CompletionPercentage = 50 };
             var component = RenderComponent<ProgressMetrics>(parameters =>
-                parameters.Add(p => p.Completed, 10)
-                          .Add(p => p.Total, 10));
-
-            Assert.Contains("100", component.Markup);
+                parameters.Add(p => p.Metrics, metrics));
+            
+            component.Find(".progress-bar").Should().NotBeNull();
         }
 
         [Fact]
-        public void ProgressMetrics_CalculatesPercentageCorrectly()
+        public void ProgressMetrics_ProgressBarWidth_MatchesPercentage()
         {
+            var metrics = new ProjectMetrics { CompletionPercentage = 60 };
             var component = RenderComponent<ProgressMetrics>(parameters =>
-                parameters.Add(p => p.Completed, 3)
-                          .Add(p => p.Total, 4));
-
-            Assert.Contains("75", component.Markup);
+                parameters.Add(p => p.Metrics, metrics));
+            
+            var progressBar = component.Find(".progress-bar");
+            var style = progressBar.GetAttribute("style");
+            
+            style.Should().Contain("60%");
         }
 
         [Fact]
-        public void ProgressMetrics_WithPartialProgress_RendersCorrectValue()
+        public void ProgressMetrics_FontSize_MeetsMinimumRequirement()
         {
+            var metrics = new ProjectMetrics { CompletionPercentage = 50 };
             var component = RenderComponent<ProgressMetrics>(parameters =>
-                parameters.Add(p => p.Completed, 7)
-                          .Add(p => p.Total, 20));
+                parameters.Add(p => p.Metrics, metrics));
+            
+            var percentageElement = component.Find(".percentage-text");
+            var computedStyle = percentageElement.GetAttribute("style");
+            
+            computedStyle.Should().NotBeNullOrEmpty();
+            computedStyle.Should().NotContain("font-size: 8pt");
+        }
 
-            Assert.Contains("35", component.Markup);
+        [Fact]
+        public void ProgressMetrics_AppliesResponsiveClass()
+        {
+            var metrics = new ProjectMetrics { CompletionPercentage = 50 };
+            var component = RenderComponent<ProgressMetrics>(parameters =>
+                parameters.Add(p => p.Metrics, metrics));
+            
+            component.Markup.Should().Contain("col-md-4");
         }
     }
 }

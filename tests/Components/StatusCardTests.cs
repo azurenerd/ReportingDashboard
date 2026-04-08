@@ -1,104 +1,80 @@
 using Xunit;
+using FluentAssertions;
 using Bunit;
 using AgentSquad.Components;
-using AgentSquad.Data;
+using AgentSquad.Services.Models;
+using System.Collections.Generic;
 
 namespace AgentSquad.Tests.Components
 {
     public class StatusCardTests : TestContext
     {
         [Fact]
-        public void StatusCard_WithValidStatusCategory_DisplaysCategory()
+        public void StatusCard_DisplaysTaskCount()
         {
-            var tasks = new List<Task> 
-            { 
-                new Task { Id = "t1", Name = "Task 1", Status = "In Progress", AssignedTo = "Dev", DueDate = DateTime.Now.AddDays(5) } 
-            };
-
-            var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.StatusCategory, "Active")
-                          .Add(p => p.TaskCount, 1)
-                          .Add(p => p.Tasks, tasks)
-                          .Add(p => p.CardColor, "#FF5733"));
-
-            Assert.Contains("Active", component.Markup);
-        }
-
-        [Fact]
-        public void StatusCard_WithTaskList_DisplaysTaskNames()
-        {
-            var tasks = new List<Task>
+            var tasks = new List<TaskItem>
             {
-                new Task { Id = "t1", Name = "Review Code", Status = "Complete", AssignedTo = "Alice", DueDate = DateTime.Now },
-                new Task { Id = "t2", Name = "Write Docs", Status = "In Progress", AssignedTo = "Bob", DueDate = DateTime.Now.AddDays(2) }
+                new TaskItem { Id = 1, Title = "Task 1", Status = TaskStatus.InProgress },
+                new TaskItem { Id = 2, Title = "Task 2", Status = TaskStatus.Completed }
             };
-
             var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.StatusCategory, "Complete")
-                          .Add(p => p.TaskCount, 2)
-                          .Add(p => p.Tasks, tasks)
-                          .Add(p => p.CardColor, "#28A745"));
-
-            Assert.Contains("Review Code", component.Markup);
-            Assert.Contains("Write Docs", component.Markup);
+                parameters.Add(p => p.Tasks, tasks));
+            
+            component.Markup.Should().Contain("2");
         }
 
         [Fact]
-        public void StatusCard_WithEmptyTasks_RenderWithZeroCount()
+        public void StatusCard_HandlesEmptyTasks()
         {
-            var tasks = new List<Task>();
             var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.StatusCategory, "Pending")
-                          .Add(p => p.TaskCount, 0)
-                          .Add(p => p.Tasks, tasks)
-                          .Add(p => p.CardColor, "#FFC107"));
-
-            Assert.Contains("0", component.Markup);
+                parameters.Add(p => p.Tasks, new List<TaskItem>()));
+            
+            component.Markup.Should().Contain("0");
         }
 
         [Fact]
-        public void StatusCard_RequiresStatusCategoryParameter()
+        public void StatusCard_HandleNullTasks_RendersSafely()
         {
-            var tasks = new List<Task>();
-            Assert.Throws<InvalidOperationException>(() =>
+            var component = RenderComponent<StatusCard>(parameters =>
+                parameters.Add(p => p.Tasks, (List<TaskItem>)null));
+            
+            component.Markup.Should().NotBeNullOrEmpty();
+        }
+
+        [Fact]
+        public void StatusCard_DisplaysCompletedTasksCount()
+        {
+            var tasks = new List<TaskItem>
             {
-                var component = RenderComponent<StatusCard>(parameters =>
-                    parameters.Add(p => p.TaskCount, 0)
-                              .Add(p => p.Tasks, tasks)
-                              .Add(p => p.CardColor, "#FFC107"));
-            });
-        }
-
-        [Fact]
-        public void StatusCard_AppliesCardColor()
-        {
-            var customColor = "#1E90FF";
-            var tasks = new List<Task>();
-
-            var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.StatusCategory, "In Progress")
-                          .Add(p => p.TaskCount, 0)
-                          .Add(p => p.Tasks, tasks)
-                          .Add(p => p.CardColor, customColor));
-
-            Assert.Contains(customColor, component.Markup);
-        }
-
-        [Fact]
-        public void StatusCard_DisplaysTaskStatus()
-        {
-            var tasks = new List<Task>
-            {
-                new Task { Id = "t1", Name = "Deploy", Status = "Blocked", AssignedTo = "Charlie", DueDate = DateTime.Now }
+                new TaskItem { Id = 1, Title = "Task 1", Status = TaskStatus.Completed },
+                new TaskItem { Id = 2, Title = "Task 2", Status = TaskStatus.InProgress },
+                new TaskItem { Id = 3, Title = "Task 3", Status = TaskStatus.Completed }
             };
-
             var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.StatusCategory, "Active")
-                          .Add(p => p.TaskCount, 1)
-                          .Add(p => p.Tasks, tasks)
-                          .Add(p => p.CardColor, "#FFA500"));
+                parameters.Add(p => p.Tasks, tasks));
+            
+            component.Markup.Should().Contain("2");
+        }
 
-            Assert.Contains("Blocked", component.Markup);
+        [Fact]
+        public void StatusCard_FontSize_MeetsMinimumRequirement()
+        {
+            var component = RenderComponent<StatusCard>(parameters =>
+                parameters.Add(p => p.Tasks, new List<TaskItem>()));
+            
+            var styleElement = component.Find(".status-card-title");
+            var computedStyle = styleElement.GetAttribute("style");
+            
+            computedStyle.Should().Contain("font-size").And.NotContain("font-size: 8pt");
+        }
+
+        [Fact]
+        public void StatusCard_AppliesResponsiveClass()
+        {
+            var component = RenderComponent<StatusCard>(parameters =>
+                parameters.Add(p => p.Tasks, new List<TaskItem>()));
+            
+            component.Markup.Should().Contain("col-md-4");
         }
     }
 }

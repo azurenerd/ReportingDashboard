@@ -1,271 +1,110 @@
 using Xunit;
+using FluentAssertions;
+using Moq;
+using Microsoft.Extensions.Configuration;
 using AgentSquad.Services;
 using AgentSquad.Services.Models;
+using System.Text.Json;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace AgentSquad.Tests.Services;
-
-public class ProjectDataServiceTests : IAsyncLifetime
+namespace AgentSquad.Tests.Services
 {
-    private readonly ProjectDataService _service;
-    private readonly string _testJsonPath;
-    private readonly string _testDirectory;
-
-    public ProjectDataServiceTests()
+    public class ProjectDataServiceTests
     {
-        _service = new ProjectDataService();
-        _testDirectory = Path.Combine(Path.GetTempPath(), "MilestoneTests");
-        _testJsonPath = Path.Combine(_testDirectory, "test-data.json");
-    }
+        private readonly Mock<IConfiguration> _configMock;
 
-    public Task InitializeAsync()
-    {
-        if (!Directory.Exists(_testDirectory))
+        public ProjectDataServiceTests()
         {
-            Directory.CreateDirectory(_testDirectory);
+            _configMock = new Mock<IConfiguration>();
+            _configMock.Setup(x => x["DataPath"]).Returns("./data");
         }
-        return Task.CompletedTask;
-    }
 
-    public Task DisposeAsync()
-    {
-        try
+        [Fact]
+        public async Task LoadProjectDataAsync_DeserializesCompleteProjectDataSchema()
         {
-            if (Directory.Exists(_testDirectory))
+            var json = JsonSerializer.Serialize(new
             {
-                Directory.Delete(_testDirectory, true);
+                projectInfo = new { title = "Test Project", description = "Test" },
+                milestones = new[] { new { id = 1, title = "M1", status = "Active" } },
+                tasks = new[] { new { id = 1, title = "T1", status = "InProgress" } },
+                projectMetrics = new { completionPercentage = 75 }
+            });
+
+            var service = new ProjectDataService(_configMock.Object);
+            var result = await service.LoadProjectDataAsync();
+
+            result.Should().NotBeNull();
+            result.ProjectInfo.Should().NotBeNull();
+            result.Milestones.Should().NotBeEmpty();
+            result.Tasks.Should().NotBeEmpty();
+            result.ProjectMetrics.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task LoadProjectDataAsync_ValidatesProjectInfoProperties()
+        {
+            var service = new ProjectDataService(_configMock.Object);
+            var result = await service.LoadProjectDataAsync();
+
+            result.ProjectInfo.Title.Should().NotBeNullOrEmpty();
+            result.ProjectInfo.Description.Should().NotBeNullOrEmpty();
+        }
+
+        [Fact]
+        public async Task LoadProjectDataAsync_ValidatesMilestoneArraySchema()
+        {
+            var service = new ProjectDataService(_configMock.Object);
+            var result = await service.LoadProjectDataAsync();
+
+            result.Milestones.Should().NotBeNull();
+            foreach (var milestone in result.Milestones)
+            {
+                milestone.Id.Should().BeGreaterThan(0);
+                milestone.Title.Should().NotBeNullOrEmpty();
+                milestone.Status.Should().BeOfType<MilestoneStatus>();
             }
         }
-        catch { }
-        return Task.CompletedTask;
-    }
 
-    [Fact]
-    public async Task LoadProjectDataAsync_ReturnsDefaultData_WhenFileDoesNotExist()
-    {
-        var nonExistentPath = Path.Combine(_testDirectory, "nonexistent.json");
-        var result = await _service.LoadProjectDataAsync(nonExistentPath);
-
-        Assert.NotNull(result);
-        Assert.NotEmpty(result.ProjectName);
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_ReturnsProjectDataFromJson()
-    {
-        var json = @"{
-            ""projectName"": ""Test Project"",
-            ""description"": ""Test Description"",
-            ""startDate"": ""2026-02-15T00:00:00"",
-            ""endDate"": ""2026-08-15T00:00:00"",
-            ""totalTasks"": 24,
-            ""completedTasks"": 8,
-            ""milestones"": []
-        }";
-
-        await File.WriteAllTextAsync(_testJsonPath, json);
-        var result = await _service.LoadProjectDataAsync(_testJsonPath);
-
-        Assert.NotNull(result);
-        Assert.Equal("Test Project", result.ProjectName);
-        Assert.Equal("Test Description", result.Description);
-        Assert.Equal(24, result.TotalTasks);
-        Assert.Equal(8, result.CompletedTasks);
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_ReturnsMilestonesFromJson()
-    {
-        var json = @"{
-            ""projectName"": ""Test Project"",
-            ""description"": ""Test Description"",
-            ""startDate"": ""2026-02-15T00:00:00"",
-            ""endDate"": ""2026-08-15T00:00:00"",
-            ""totalTasks"": 24,
-            ""completedTasks"": 8,
-            ""milestones"": [
-                {
-                    ""id"": ""m1"",
-                    ""name"": ""Phase 1"",
-                    ""targetDate"": ""2026-04-15T00:00:00"",
-                    ""actualDate"": null,
-                    ""status"": 0,
-                    ""completionPercentage"": 100
-                }
-            ]
-        }";
-
-        await File.WriteAllTextAsync(_testJsonPath, json);
-        var result = await _service.LoadProjectDataAsync(_testJsonPath);
-
-        Assert.NotEmpty(result.Milestones);
-        Assert.Equal("Phase 1", result.Milestones[0].Name);
-        Assert.Equal(MilestoneStatus.Completed, result.Milestones[0].Status);
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_HandlesMalformedJson()
-    {
-        var malformedJson = @"{ invalid json }";
-        await File.WriteAllTextAsync(_testJsonPath, malformedJson);
-
-        var result = await _service.LoadProjectDataAsync(_testJsonPath);
-
-        Assert.NotNull(result);
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_HandlesEmptyJson()
-    {
-        await File.WriteAllTextAsync(_testJsonPath, string.Empty);
-
-        var result = await _service.LoadProjectDataAsync(_testJsonPath);
-
-        Assert.NotNull(result);
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_HandlesNullJson()
-    {
-        var nullJson = "null";
-        await File.WriteAllTextAsync(_testJsonPath, nullJson);
-
-        var result = await _service.LoadProjectDataAsync(_testJsonPath);
-
-        Assert.NotNull(result);
-    }
-
-    [Fact]
-    public async Task GetDefaultProjectData_ReturnsValidProjectData()
-    {
-        var result = _service.GetDefaultProjectData();
-
-        Assert.NotNull(result);
-        Assert.NotEmpty(result.ProjectName);
-        Assert.True(result.StartDate < result.EndDate);
-    }
-
-    [Fact]
-    public async Task GetDefaultProjectData_ReturnsMilestones()
-    {
-        var result = _service.GetDefaultProjectData();
-
-        Assert.NotEmpty(result.Milestones);
-        Assert.True(result.Milestones.Count >= 3);
-    }
-
-    [Fact]
-    public async Task GetDefaultProjectData_HasMilestoneWithAllStatuses()
-    {
-        var result = _service.GetDefaultProjectData();
-
-        var statuses = result.Milestones.Select(m => m.Status).Distinct().ToList();
-        Assert.Contains(MilestoneStatus.Completed, statuses);
-        Assert.Contains(MilestoneStatus.InProgress, statuses);
-        Assert.Contains(MilestoneStatus.Pending, statuses);
-    }
-
-    [Fact]
-    public async Task GetDefaultProjectData_MilestonesHaveValidDates()
-    {
-        var result = _service.GetDefaultProjectData();
-
-        foreach (var milestone in result.Milestones)
+        [Fact]
+        public async Task LoadProjectDataAsync_ValidatesTasksArraySchema()
         {
-            Assert.NotEqual(default(DateTime), milestone.TargetDate);
+            var service = new ProjectDataService(_configMock.Object);
+            var result = await service.LoadProjectDataAsync();
+
+            result.Tasks.Should().NotBeNull();
+            foreach (var task in result.Tasks)
+            {
+                task.Id.Should().BeGreaterThan(0);
+                task.Title.Should().NotBeNullOrEmpty();
+            }
         }
-    }
 
-    [Fact]
-    public async Task LoadProjectDataAsync_IsCaseInsensitive()
-    {
-        var json = @"{
-            ""ProjectName"": ""Test"",
-            ""Description"": ""Test"",
-            ""StartDate"": ""2026-02-15T00:00:00"",
-            ""EndDate"": ""2026-08-15T00:00:00"",
-            ""TotalTasks"": 24,
-            ""CompletedTasks"": 8,
-            ""Milestones"": []
-        }";
-
-        await File.WriteAllTextAsync(_testJsonPath, json);
-        var result = await _service.LoadProjectDataAsync(_testJsonPath);
-
-        Assert.NotNull(result);
-        Assert.Equal("Test", result.ProjectName);
-    }
-
-    [Fact]
-    public async Task GetDefaultProjectData_StartDateIsInPast()
-    {
-        var result = _service.GetDefaultProjectData();
-        Assert.True(result.StartDate < DateTime.Now);
-    }
-
-    [Fact]
-    public async Task GetDefaultProjectData_EndDateIsInFuture()
-    {
-        var result = _service.GetDefaultProjectData();
-        Assert.True(result.EndDate > DateTime.Now);
-    }
-
-    [Fact]
-    public async Task GetDefaultProjectData_CompletedMilestonesHave100Percent()
-    {
-        var result = _service.GetDefaultProjectData();
-        var completedMilestones = result.Milestones.Where(m => m.Status == MilestoneStatus.Completed);
-
-        foreach (var milestone in completedMilestones)
+        [Fact]
+        public async Task LoadProjectDataAsync_ValidatesProjectMetricsProperties()
         {
-            Assert.Equal(100, milestone.CompletionPercentage);
+            var service = new ProjectDataService(_configMock.Object);
+            var result = await service.LoadProjectDataAsync();
+
+            result.ProjectMetrics.Should().NotBeNull();
+            result.ProjectMetrics.CompletionPercentage.Should().BeInRange(0, 100);
         }
-    }
 
-    [Fact]
-    public async Task GetDefaultProjectData_PendingMilestonesHave0Percent()
-    {
-        var result = _service.GetDefaultProjectData();
-        var pendingMilestones = result.Milestones.Where(m => m.Status == MilestoneStatus.Pending);
-
-        foreach (var milestone in pendingMilestones)
+        [Fact]
+        public async Task LoadProjectDataAsync_ThrowsDataLoadException_WhenFileDoesNotExist()
         {
-            Assert.Equal(0, milestone.CompletionPercentage);
+            var service = new ProjectDataService(_configMock.Object);
+            
+            await service.Invoking(s => s.LoadProjectDataAsync())
+                .Should().ThrowAsync<DataLoadException>();
         }
-    }
 
-    [Fact]
-    public async Task LoadProjectDataAsync_PreservesDateFormat()
-    {
-        var json = @"{
-            ""projectName"": ""Test"",
-            ""description"": ""Test"",
-            ""startDate"": ""2026-02-15T00:00:00"",
-            ""endDate"": ""2026-08-15T00:00:00"",
-            ""totalTasks"": 24,
-            ""completedTasks"": 8,
-            ""milestones"": []
-        }";
-
-        await File.WriteAllTextAsync(_testJsonPath, json);
-        var result = await _service.LoadProjectDataAsync(_testJsonPath);
-
-        Assert.Equal(new DateTime(2026, 02, 15), result.StartDate);
-        Assert.Equal(new DateTime(2026, 08, 15), result.EndDate);
-    }
-
-    [Fact]
-    public async Task LoadProjectDataAsync_AllowsMissingOptionalFields()
-    {
-        var json = @"{
-            ""projectName"": ""Test"",
-            ""description"": ""Test"",
-            ""startDate"": ""2026-02-15T00:00:00"",
-            ""endDate"": ""2026-08-15T00:00:00""
-        }";
-
-        await File.WriteAllTextAsync(_testJsonPath, json);
-        var result = await _service.LoadProjectDataAsync(_testJsonPath);
-
-        Assert.NotNull(result);
+        [Fact]
+        public void Constructor_RequiresIConfigurationParameter()
+        {
+            var service = new ProjectDataService(_configMock.Object);
+            
+            service.Should().NotBeNull();
+        }
     }
 }

@@ -1,324 +1,169 @@
-using Bunit;
 using Xunit;
+using FluentAssertions;
+using Bunit;
 using AgentSquad.Components;
 using AgentSquad.Services.Models;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace AgentSquad.Tests.Acceptance;
-
-public class MilestoneTimelineAcceptanceTests : TestContext
+namespace AgentSquad.Tests.Acceptance
 {
-    [Fact]
-    public void AC1_TimelineDisplaysMilestoneNameTargetDateAndStatus()
+    public class MilestoneTimelineAcceptanceTests : TestContext
     {
-        var milestones = new List<Milestone>
+        [Fact]
+        public void AC1_TimelineDisplaysMilestones()
         {
-            new Milestone
+            var milestones = new List<Milestone>
             {
-                Id = "m1",
-                Name = "Design Review",
-                TargetDate = new DateTime(2026, 04, 15),
-                Status = MilestoneStatus.Completed,
-                CompletionPercentage = 100
-            }
-        };
+                new Milestone { Id = 1, Title = "Phase 1", Status = MilestoneStatus.Active }
+            };
+            var component = RenderComponent<MilestoneTimeline>(parameters =>
+                parameters.Add(p => p.Milestones, milestones));
+            
+            component.Markup.Should().Contain("Phase 1");
+        }
 
-        var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-            .Add(p => p.Milestones, milestones));
-
-        var timelineItem = component.Find(".timeline-item");
-        
-        Assert.Contains("Design Review", timelineItem.TextContent);
-        Assert.Contains("2026-04-15", timelineItem.TextContent);
-        Assert.Contains("Completed", timelineItem.TextContent);
-    }
-
-    [Fact]
-    public void AC2_TimelineIsFullWidthAndVisuallyProminent()
-    {
-        var milestones = new List<Milestone>
+        [Fact]
+        public void AC2_TimelineDisplaysMultipleMilestones()
         {
-            new Milestone
+            var milestones = new List<Milestone>
             {
-                Id = "m1",
-                Name = "Test",
-                TargetDate = DateTime.Now,
-                Status = MilestoneStatus.Completed,
-                CompletionPercentage = 100
-            }
-        };
+                new Milestone { Id = 1, Title = "Phase 1", Status = MilestoneStatus.Active },
+                new Milestone { Id = 2, Title = "Phase 2", Status = MilestoneStatus.Active },
+                new Milestone { Id = 3, Title = "Phase 3", Status = MilestoneStatus.Active }
+            };
+            var component = RenderComponent<MilestoneTimeline>(parameters =>
+                parameters.Add(p => p.Milestones, milestones));
+            
+            component.Markup.Should().Contain("Phase 1").And.Contain("Phase 2").And.Contain("Phase 3");
+        }
 
-        var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-            .Add(p => p.Milestones, milestones));
-
-        var container = component.Find(".milestone-timeline-container");
-        Assert.NotNull(container);
-
-        var wrapper = component.Find(".timeline-wrapper");
-        Assert.NotNull(wrapper);
-        
-        var styleAttr = wrapper.GetAttribute("class");
-        Assert.Contains("timeline-wrapper", styleAttr);
-    }
-
-    [Fact]
-    public void AC3_CompletedMilestonesAreGreen()
-    {
-        var milestones = new List<Milestone>
+        [Fact]
+        public void AC3_TimelineCalculatesMilestonePositions()
         {
-            new Milestone
+            var milestones = new List<Milestone>
             {
-                Id = "m1",
-                Name = "Completed",
-                TargetDate = DateTime.Now,
-                Status = MilestoneStatus.Completed,
-                CompletionPercentage = 100
-            }
-        };
+                new Milestone { Id = 1, Title = "Phase 1", Status = MilestoneStatus.Active, DaysFromStart = 0 },
+                new Milestone { Id = 2, Title = "Phase 2", Status = MilestoneStatus.Active, DaysFromStart = 50 }
+            };
+            var component = RenderComponent<MilestoneTimeline>(parameters =>
+                parameters.Add(p => p.Milestones, milestones)
+                .Add(p => p.ProjectDurationDays, 100));
+            
+            var phase1 = component.Find(".milestone-item:nth-child(1)");
+            var phase2 = component.Find(".milestone-item:nth-child(2)");
+            
+            var left1 = phase1.GetAttribute("style");
+            var left2 = phase2.GetAttribute("style");
+            
+            left1.Should().Contain("left: 0%");
+            left2.Should().Contain("left: 50%");
+        }
 
-        var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-            .Add(p => p.Milestones, milestones));
-
-        var dot = component.Find(".milestone-dot");
-        Assert.Contains("status-completed", dot.GetAttribute("class"));
-
-        var badge = component.Find(".status-indicator");
-        Assert.Contains("badge-completed", badge.GetAttribute("class"));
-    }
-
-    [Fact]
-    public void AC3_InProgressMilestonesAreBlue()
-    {
-        var milestones = new List<Milestone>
+        [Fact]
+        public void AC4_TimelineHorizontalLayoutMath()
         {
-            new Milestone
+            var milestones = new List<Milestone>
             {
-                Id = "m1",
-                Name = "In Progress",
-                TargetDate = DateTime.Now,
-                Status = MilestoneStatus.InProgress,
-                CompletionPercentage = 50
-            }
-        };
+                new Milestone { Id = 1, Title = "Phase 1", Status = MilestoneStatus.Active, DaysFromStart = 25 },
+                new Milestone { Id = 2, Title = "Phase 2", Status = MilestoneStatus.Active, DaysFromStart = 75 }
+            };
+            var component = RenderComponent<MilestoneTimeline>(parameters =>
+                parameters.Add(p => p.Milestones, milestones)
+                .Add(p => p.ProjectDurationDays, 100));
+            
+            var timeline = component.Find(".timeline-axis");
+            
+            timeline.Should().NotBeNull();
+            timeline.GetAttribute("style").Should().Contain("width");
+        }
 
-        var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-            .Add(p => p.Milestones, milestones));
-
-        var dot = component.Find(".milestone-dot");
-        Assert.Contains("status-inprogress", dot.GetAttribute("class"));
-
-        var badge = component.Find(".status-indicator");
-        Assert.Contains("badge-in-progress", badge.GetAttribute("class"));
-    }
-
-    [Fact]
-    public void AC3_PendingMilestonesAreGray()
-    {
-        var milestones = new List<Milestone>
+        [Fact]
+        public void AC5_FontSizeIs12ptOrGreater()
         {
-            new Milestone
+            var milestones = new List<Milestone>
             {
-                Id = "m1",
-                Name = "Pending",
-                TargetDate = DateTime.Now,
-                Status = MilestoneStatus.Pending,
-                CompletionPercentage = 0
-            }
-        };
+                new Milestone { Id = 1, Title = "Phase 1", Status = MilestoneStatus.Active }
+            };
+            var component = RenderComponent<MilestoneTimeline>(parameters =>
+                parameters.Add(p => p.Milestones, milestones));
+            
+            var titleElement = component.Find(".milestone-title");
+            var style = titleElement.GetAttribute("style");
+            
+            style.Should().NotBeNullOrEmpty();
+            style.Should().NotContain("font-size: 8pt");
+            style.Should().NotContain("font-size: 9pt");
+            style.Should().NotContain("font-size: 10pt");
+            style.Should().NotContain("font-size: 11pt");
+        }
 
-        var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-            .Add(p => p.Milestones, milestones));
-
-        var dot = component.Find(".milestone-dot");
-        Assert.Contains("status-pending", dot.GetAttribute("class"));
-
-        var badge = component.Find(".status-indicator");
-        Assert.Contains("badge-pending", badge.GetAttribute("class"));
-    }
-
-    [Fact]
-    public void AC4_ResponsiveAndReadableOn1024pxAndAbove()
-    {
-        var milestones = new List<Milestone>
+        [Fact]
+        public void AC6_StatusColorCodeByMilestoneState()
         {
-            new Milestone
+            var milestones = new List<Milestone>
             {
-                Id = "m1",
-                Name = "Test",
-                TargetDate = DateTime.Now,
-                Status = MilestoneStatus.Completed,
-                CompletionPercentage = 100
-            }
-        };
+                new Milestone { Id = 1, Title = "Active Milestone", Status = MilestoneStatus.Active },
+                new Milestone { Id = 2, Title = "Completed Milestone", Status = MilestoneStatus.Completed },
+                new Milestone { Id = 3, Title = "Blocked Milestone", Status = MilestoneStatus.Blocked }
+            };
+            var component = RenderComponent<MilestoneTimeline>(parameters =>
+                parameters.Add(p => p.Milestones, milestones));
+            
+            component.Markup.Should().Contain("status-active").And.Contain("status-completed").And.Contain("status-blocked");
+        }
 
-        var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-            .Add(p => p.Milestones, milestones));
-
-        var container = component.Find(".container-fluid");
-        Assert.NotNull(container);
-
-        var row = component.Find(".row");
-        Assert.NotNull(row);
-
-        var col = component.Find(".col-12");
-        Assert.NotNull(col);
-    }
-
-    [Fact]
-    public void AC5_FontSizeIs12ptOrGreater()
-    {
-        var milestones = new List<Milestone>
+        [Fact]
+        public void AC7_NoAnimationsInterfering()
         {
-            new Milestone
+            var milestones = new List<Milestone>
             {
-                Id = "m1",
-                Name = "Test Milestone",
-                TargetDate = DateTime.Now,
-                Status = MilestoneStatus.Completed,
-                CompletionPercentage = 100
-            }
-        };
+                new Milestone { Id = 1, Title = "Phase 1", Status = MilestoneStatus.Active }
+            };
+            var component = RenderComponent<MilestoneTimeline>(parameters =>
+                parameters.Add(p => p.Milestones, milestones));
+            
+            var styleElements = component.FindAll("[style*='animation']").ToList();
+            var transitionElements = component.FindAll("[style*='transition']").ToList();
+            
+            styleElements.Should().BeEmpty("no animation properties should be applied");
+            transitionElements.Should().BeEmpty("no transition properties should be applied");
+        }
 
-        var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-            .Add(p => p.Milestones, milestones));
-
-        var name = component.Find(".milestone-name");
-        Assert.NotNull(name);
-
-        var date = component.Find(".target-date");
-        Assert.NotNull(date);
-
-        var badge = component.Find(".status-indicator");
-        Assert.NotNull(badge);
-    }
-
-    [Fact]
-    public void AC6_ComponentAcceptsMilestonesListParameter()
-    {
-        var milestones = new List<Milestone>
+        [Fact]
+        public void AC8_TimelineResponsiveAtMobileViewport()
         {
-            new Milestone
+            var milestones = new List<Milestone>
             {
-                Id = "m1",
-                Name = "Milestone 1",
-                TargetDate = DateTime.Now,
-                Status = MilestoneStatus.Completed,
-                CompletionPercentage = 100
-            },
-            new Milestone
-            {
-                Id = "m2",
-                Name = "Milestone 2",
-                TargetDate = DateTime.Now.AddDays(30),
-                Status = MilestoneStatus.Pending,
-                CompletionPercentage = 0
-            }
-        };
+                new Milestone { Id = 1, Title = "Phase 1", Status = MilestoneStatus.Active }
+            };
+            var component = RenderComponent<MilestoneTimeline>(parameters =>
+                parameters.Add(p => p.Milestones, milestones));
+            
+            component.Markup.Should().Contain("col-12");
+        }
 
-        var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-            .Add(p => p.Milestones, milestones));
-
-        Assert.NotNull(component.Instance.Milestones);
-        Assert.Equal(2, component.Instance.Milestones.Count);
-    }
-
-    [Fact]
-    public void AC6_ComponentAcceptsProjectDurationDaysParameter()
-    {
-        var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-            .Add(p => p.ProjectDurationDays, 365)
-            .Add(p => p.Milestones, new List<Milestone>()));
-
-        Assert.Equal(365, component.Instance.ProjectDurationDays);
-    }
-
-    [Fact]
-    public void AC7_NoAnimationsInterfering()
-    {
-        var milestones = new List<Milestone>
+        [Fact]
+        public void AC9_IntegrationFullWorkflow_LoadData_RenderTimeline()
         {
-            new Milestone
+            var milestones = new List<Milestone>
             {
-                Id = "m1",
-                Name = "Test",
-                TargetDate = DateTime.Now,
-                Status = MilestoneStatus.Completed,
-                CompletionPercentage = 100
-            }
-        };
-
-        var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-            .Add(p => p.Milestones, milestones));
-
-        var markup = component.Markup;
-        Assert.DoesNotContain("animation", markup.ToLower());
-        Assert.DoesNotContain("transition", markup.ToLower());
-    }
-
-    [Fact]
-    public void AllAcceptanceCriteria_WithMultipleMilestones()
-    {
-        var milestones = new List<Milestone>
-        {
-            new Milestone
-            {
-                Id = "m1",
-                Name = "Project Kickoff",
-                TargetDate = new DateTime(2026, 02, 15),
-                ActualDate = new DateTime(2026, 02, 15),
-                Status = MilestoneStatus.Completed,
-                CompletionPercentage = 100
-            },
-            new Milestone
-            {
-                Id = "m2",
-                Name = "Phase 1 Design",
-                TargetDate = new DateTime(2026, 03, 15),
-                Status = MilestoneStatus.InProgress,
-                CompletionPercentage = 65
-            },
-            new Milestone
-            {
-                Id = "m3",
-                Name = "Development",
-                TargetDate = new DateTime(2026, 04, 15),
-                Status = MilestoneStatus.Pending,
-                CompletionPercentage = 0
-            },
-            new Milestone
-            {
-                Id = "m4",
-                Name = "Testing & QA",
-                TargetDate = new DateTime(2026, 05, 15),
-                Status = MilestoneStatus.Pending,
-                CompletionPercentage = 0
-            }
-        };
-
-        var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-            .Add(p => p.Milestones, milestones)
-            .Add(p => p.ProjectDurationDays, 180)
-            .Add(p => p.ProjectStartDate, new DateTime(2026, 02, 15))
-            .Add(p => p.ProjectEndDate, new DateTime(2026, 08, 15)));
-
-        var timelineItems = component.FindAll(".timeline-item");
-        Assert.Equal(4, timelineItems.Count);
-
-        var names = component.FindAll(".milestone-name");
-        Assert.Contains(names, n => n.TextContent.Contains("Project Kickoff"));
-        Assert.Contains(names, n => n.TextContent.Contains("Phase 1 Design"));
-        Assert.Contains(names, n => n.TextContent.Contains("Development"));
-        Assert.Contains(names, n => n.TextContent.Contains("Testing & QA"));
-
-        var badges = component.FindAll(".status-indicator");
-        var completedBadges = badges.Where(b => b.GetAttribute("class").Contains("badge-completed"));
-        var inProgressBadges = badges.Where(b => b.GetAttribute("class").Contains("badge-in-progress"));
-        var pendingBadges = badges.Where(b => b.GetAttribute("class").Contains("badge-pending"));
-
-        Assert.NotEmpty(completedBadges);
-        Assert.NotEmpty(inProgressBadges);
-        Assert.NotEmpty(pendingBadges);
-
-        var markup = component.Markup;
-        Assert.DoesNotContain("animation", markup.ToLower());
+                new Milestone { Id = 1, Title = "Discovery", Status = MilestoneStatus.Completed, DaysFromStart = 0 },
+                new Milestone { Id = 2, Title = "Development", Status = MilestoneStatus.Active, DaysFromStart = 30 },
+                new Milestone { Id = 3, Title = "Testing", Status = MilestoneStatus.Active, DaysFromStart = 60 },
+                new Milestone { Id = 4, Title = "Launch", Status = MilestoneStatus.Active, DaysFromStart = 90 }
+            };
+            
+            var component = RenderComponent<MilestoneTimeline>(parameters =>
+                parameters.Add(p => p.Milestones, milestones)
+                .Add(p => p.ProjectDurationDays, 100));
+            
+            component.Markup.Should().Contain("Discovery");
+            component.Markup.Should().Contain("Development");
+            component.Markup.Should().Contain("Testing");
+            component.Markup.Should().Contain("Launch");
+            
+            component.FindAll(".milestone-item").Should().HaveCount(4);
+        }
     }
 }
