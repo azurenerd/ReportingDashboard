@@ -1,0 +1,171 @@
+{
+  "projectName": "Executive Dashboard Project",
+  "projectDescription": "Zero-authentication executive reporting dashboard for project health visibility",
+  "lastUpdated": "2026-04-08T00:00:00Z",
+  "metrics": {
+    "completionPercentage": 68,
+    "healthStatus": "OnTrack",
+    "velocityThisMonth": 12,
+    "totalMilestones": 6,
+    "completedMilestones": 3,
+    "atRiskItems": 2
+  },
+  "milestones": [
+    {
+      "id": "m1",
+      "name": "Project Kickoff",
+      "targetDate": "2026-01-15T00:00:00Z",
+      "status": "Completed",
+      "description": "Initial project planning and team alignment"
+    },
+    {
+      "id": "m2",
+      "name": "Architecture & Design",
+      "targetDate": "2026-02-15T00:00:00Z",
+      "status": "Completed",
+      "description": "System design and component architecture finalization"
+    },
+    {
+      "id": "m3",
+      "name": "Core Implementation",
+      "targetDate": "2026-03-31T00:00:00Z",
+      "status": "InProgress",
+      "description": "Build core dashboard components and data layer"
+    },
+    {
+      "id": "m4",
+      "name": "Testing & QA",
+      "targetDate": "2026-04-30T00:00:00Z",
+      "status": "AtRisk",
+      "description": "Comprehensive testing and quality assurance pass"
+    },
+    {
+      "id": "m5",
+      "name": "Performance Optimization",
+      "targetDate": "2026-05-15T00:00:00Z",
+      "status": "Future",
+      "description": "Optimize rendering performance and load times"
+    },
+    {
+      "id": "m6",
+      "name": "Production Release",
+      "targetDate": "2026-06-01T00:00:00Z",
+      "status": "Future",
+      "description": "Final deployment and production support"
+    }
+  ],
+  "workItems": {
+    "shippedThisMonth": [
+      {
+        "id": "wi1",
+        "title": "Dashboard Layout Component",
+        "description": "Main dashboard grid layout with responsive design",
+        "status": "Completed"
+      },
+      {
+        "id": "wi2",
+        "title": "Milestone Timeline Visualization",
+        "description": "Horizontal timeline component with status indicators",
+        "status": "Completed"
+      },
+      {
+        "id": "wi3",
+        "title": "Project Metrics Display",
+        "description": "KPI cards for completion percentage and health status",
+        "status": "Completed"
+      },
+      {
+        "id": "wi4",
+        "title": "Print-Optimized CSS",
+        "description": "Screenshot and print media query styling",
+        "status": "Completed"
+      },
+      {
+        "id": "wi5",
+        "title": "Data Loading Service",
+        "description": "JSON file loading and caching service",
+        "status": "Completed"
+      }
+    ],
+    "inProgress": [
+      {
+        "id": "wi6",
+        "title": "Work Item Summary Component",
+        "description": "Three-column layout for work items by status",
+        "status": "InProgress"
+      },
+      {
+        "id": "wi7",
+        "title": "Responsive Design Testing",
+        "description": "Verify layout at 1024x768, 1280x720, 1920x1080 resolutions",
+        "status": "InProgress"
+      },
+      {
+        "id": "wi8",
+        "title": "Chart.js Integration",
+        "description": "Add advanced visualization library for timeline rendering",
+        "status": "InProgress"
+      },
+      {
+        "id": "wi9",
+        "title": "Error Handling UI",
+        "description": "Display graceful error messages for missing or invalid data",
+        "status": "InProgress"
+      }
+    ],
+    "carriedOver": [
+      {
+        "id": "wi10",
+        "title": "Performance Profiling",
+        "description": "Benchmark rendering performance and identify bottlenecks",
+        "status": "Blocked"
+      },
+      {
+        "id": "wi11",
+        "title": "Cross-Browser Compatibility",
+        "description": "Test and fix Chrome, Edge, Safari rendering differences",
+        "status": "Blocked"
+      },
+      {
+        "id": "wi12",
+        "title": "Accessibility Audit",
+        "description": "WCAG 2.1 Level AA compliance review",
+        "status": "Blocked"
+      }
+    ]
+  },
+  "schema": {
+    "version": "1.0",
+    "description": "Executive Project Dashboard data schema",
+    "projectName": "string - Display name of the project",
+    "projectDescription": "string - Brief project description",
+    "lastUpdated": "ISO 8601 timestamp - When data was last updated",
+    "metrics": {
+      "completionPercentage": "integer (0-100) - Overall project completion",
+      "healthStatus": "enum [OnTrack, AtRisk, Blocked] - Project health indicator",
+      "velocityThisMonth": "integer - Work items completed this month",
+      "totalMilestones": "integer - Total number of milestones",
+      "completedMilestones": "integer - Count of completed milestones",
+      "atRiskItems": "integer - Count of items at risk"
+    },
+    "milestones": "array of Milestone objects",
+    "Milestone": {
+      "id": "string - Unique identifier",
+      "name": "string - Milestone name",
+      "targetDate": "ISO 8601 timestamp - Target completion date",
+      "status": "enum [Completed, InProgress, AtRisk, Future]",
+      "description": "string - Milestone description"
+    },
+    "workItems": {
+      "shippedThisMonth": "array of WorkItem objects",
+      "inProgress": "array of WorkItem objects",
+      "carriedOver": "array of WorkItem objects"
+    },
+    "WorkItem": {
+      "id": "string - Unique identifier",
+      "title": "string - Work item title",
+      "description": "string - Brief description",
+      "status": "string - Current status"
+    }
+  }
+}
