@@ -12,12 +12,12 @@ namespace AgentSquad.Tests.Acceptance
         {
             var component = RenderComponent<Dashboard>();
             
-            var mobileColumns = component.FindAll(".col-sm-12");
+            var mobileColumns = component.FindAll(".col-12");
             Assert.NotEmpty(mobileColumns);
             
             foreach (var col in mobileColumns)
             {
-                Assert.True(col.ClassList.Contains("col-sm-12"));
+                Assert.True(col.ClassList.Contains("col-12"));
                 Assert.NotNull(col.ParentElement);
             }
         }
