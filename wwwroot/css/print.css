@@ -1,407 +1,672 @@
-/* ============================================================================
-   PRINT AND SCREENSHOT OPTIMIZATION
-   Media queries and styles optimized for printing and PowerPoint screenshot
-   capture at 1280x720 and 1920x1080 resolutions. Ensures color preservation,
-   no clipping, and professional output.
-   ========================================================================= */
-
-/* ============================================================================
-   PRINT MEDIA BASE STYLES
-   ========================================================================= */
-
+/* ===== PRINT MEDIA - GENERAL ===== */
 @media print {
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        color-adjust: exact !important;
+    *, *::before, *::after {
+        background: transparent !important;
+        color: black !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
     }
-    
+
     html, body {
-        margin: 0;
-        padding: 0;
         width: 100%;
         height: 100%;
-        background-color: var(--color-white) !important;
-    }
-    
-    #app {
-        display: block;
-        min-height: auto;
+        margin: 0;
         padding: 0;
-        background-color: var(--color-white) !important;
+        overflow: visible;
     }
-    
+
     body {
-        font-size: 12pt;
-        color: var(--color-dark);
-        background-color: var(--color-white) !important;
-    }
-}
-
-/* ============================================================================
-   PRINT LAYOUT AND SPACING
-   ========================================================================= */
-
-@media print {
-    .dashboard-wrapper {
-        padding: 0.4in 0.5in;
-        gap: 0.3in;
-        margin: 0;
-        page-break-inside: avoid;
-    }
-    
-    .dashboard-header {
-        page-break-after: avoid;
-        padding: 0.25in 0.3in;
-        margin-bottom: 0.2in;
-        box-shadow: none;
-        border-width: 2px;
-    }
-    
-    .dashboard-header h1 {
-        font-size: 22pt;
-        margin: 0 0 0.1in 0;
-    }
-    
-    .dashboard-header-meta {
-        font-size: 10pt;
-    }
-    
-    .timeline-section,
-    .work-items-section {
-        page-break-inside: avoid;
-        padding: 0.25in 0.3in;
-        margin-bottom: 0.2in;
-        box-shadow: none;
-        border: 1px solid #999;
-    }
-    
-    .timeline-section h2,
-    .work-items-section h2 {
-        font-size: 14pt;
-        page-break-after: avoid;
-        margin: 0 0 0.15in 0;
-        border-bottom: 1px solid #999;
-        padding-bottom: 0.1in;
-    }
-}
-
-/* ============================================================================
-   PRINT METRICS SECTION
-   ========================================================================= */
-
-@media print {
-    .metrics-section {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 0.15in;
-        margin-bottom: 0.2in;
-        page-break-inside: avoid;
-    }
-    
-    .kpi-card {
-        page-break-inside: avoid;
-        padding: 0.2in 0.15in;
-        margin: 0;
-        box-shadow: none;
-        border: 1px solid #999;
-        background-color: var(--color-white) !important;
-    }
-    
-    .kpi-card-label {
-        font-size: 9pt;
-        margin-bottom: 0.08in;
-    }
-    
-    .kpi-card-value {
-        font-size: 24pt;
-        margin-bottom: 0.08in;
-    }
-    
-    .kpi-card-unit {
+        background-color: white;
+        color: black;
         font-size: 11pt;
+        line-height: 1.5;
     }
-    
-    .kpi-card-subtitle {
+
+    /* ===== HIDE NON-ESSENTIAL ELEMENTS ===== */
+    button, input[type="button"], input[type="submit"], input[type="reset"], input[type="text"], input[type="email"], input[type="number"], input[type="date"], textarea, select {
+        display: none !important;
+    }
+
+    nav, .nav, navigation, .navigation {
+        display: none !important;
+    }
+
+    .no-print, .no-print * {
+        display: none !important;
+    }
+
+    /* ===== SCROLLBAR REMOVAL ===== */
+    ::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    html {
+        overflow: hidden !important;
+    }
+
+    body {
+        overflow: hidden !important;
+    }
+
+    /* ===== REMOVE SCROLLABLE CONTENT OVERFLOW ===== */
+    .timeline-container, .work-item-list {
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+
+    /* ===== PAGE SETUP ===== */
+    @page {
+        size: auto;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* ===== DASHBOARD CONTAINER ===== */
+    #app {
+        width: 100%;
+        height: auto;
+        display: block;
+        overflow: visible;
+    }
+
+    .dashboard-container {
+        width: 100%;
+        height: auto;
+        display: block;
+        padding: 0;
+        overflow: visible;
+        gap: 0;
+        grid-template-columns: none;
+        grid-template-rows: none;
+    }
+
+    /* ===== HEADER SECTION - PRINT ===== */
+    .dashboard-header {
+        display: block;
+        width: 100%;
+        margin: 0 0 12pt 0;
+        padding: 12pt 12pt;
+        background-color: white;
+        border-bottom: 2px solid black;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+    }
+
+    .dashboard-header h1 {
+        margin: 0 0 6pt 0;
+        font-size: 18pt;
+        font-weight: bold;
+        color: black;
+        line-height: 1.2;
+    }
+
+    .dashboard-header p {
+        margin: 4pt 0;
+        font-size: 10pt;
+        color: black;
+    }
+
+    .header-meta {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 18pt;
         font-size: 9pt;
-        margin-top: 0.08in;
-        padding-top: 0.08in;
-        border-top: 1px solid #ccc;
+        color: black;
+        margin-top: 6pt;
     }
-    
-    .kpi-card-trend {
+
+    .header-meta span {
+        display: flex;
+        align-items: center;
+        gap: 4pt;
+    }
+
+    /* ===== TIMELINE SECTION - PRINT ===== */
+    .dashboard-timeline {
+        display: block;
+        width: 100%;
+        margin: 0 0 12pt 0;
+        padding: 12pt;
+        background-color: white;
+        border: 1px solid black;
+        page-break-inside: avoid;
+        page-break-after: avoid;
+    }
+
+    .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8pt;
+        page-break-inside: avoid;
+    }
+
+    .timeline-header h2 {
+        margin: 0;
+        font-size: 13pt;
+        font-weight: bold;
+        color: black;
+    }
+
+    .timeline-header .timeline-legend {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12pt;
         font-size: 8pt;
-        margin-top: 0.08in;
     }
-}
 
-/* ============================================================================
-   PRINT TIMELINE SECTION
-   ========================================================================= */
+    .timeline-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 4pt;
+    }
 
-@media print {
+    .timeline-legend-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .timeline-legend-dot.completed {
+        background-color: black !important;
+    }
+
+    .timeline-legend-dot.in-progress {
+        background-color: gray !important;
+    }
+
+    .timeline-legend-dot.at-risk {
+        background-color: black !important;
+    }
+
+    .timeline-legend-dot.future {
+        background-color: lightgray !important;
+    }
+
     .timeline-container {
         display: flex;
-        gap: 0.15in;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8pt;
+        width: 100%;
+        height: auto;
         overflow: visible;
-        padding: 0.15in 0;
-        min-height: auto;
         flex-wrap: wrap;
         page-break-inside: avoid;
     }
-    
-    .milestone-item {
-        flex-shrink: 1;
-        min-width: 100px;
-        padding: 0.15in;
+
+    .timeline-milestone {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-width: 90px;
+        padding: 8pt;
+        background-color: white;
+        border: 1px solid black;
+        border-radius: 4pt;
+        text-align: center;
+        flex-shrink: 0;
+        page-break-inside: avoid;
+    }
+
+    .timeline-milestone-status {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-bottom: 4pt;
+    }
+
+    .timeline-milestone-status.completed {
+        background-color: black !important;
+    }
+
+    .timeline-milestone-status.in-progress {
+        background-color: gray !important;
+    }
+
+    .timeline-milestone-status.at-risk {
+        background-color: black !important;
+    }
+
+    .timeline-milestone-status.future {
+        background-color: lightgray !important;
+    }
+
+    .timeline-milestone-name {
+        font-weight: bold;
         font-size: 9pt;
-        border: 1px solid #999;
-        background-color: var(--color-white) !important;
+        color: black;
+        margin: 2pt 0;
     }
-    
-    .milestone-indicator {
-        width: 24px;
-        height: 24px;
-        font-size: 12pt;
-    }
-    
-    .milestone-name {
-        font-size: 10pt;
-        margin: 0.05in 0;
-    }
-    
-    .milestone-date {
+
+    .timeline-milestone-date {
         font-size: 8pt;
+        color: black;
+        margin: 2pt 0 0 0;
     }
-}
 
-/* ============================================================================
-   PRINT WORK ITEMS SECTION
-   ========================================================================= */
-
-@media print {
-    .work-item-columns {
+    /* ===== METRICS SECTION - PRINT ===== */
+    .dashboard-metrics {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.15in;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8pt;
+        width: 100%;
+        margin: 0 0 12pt 0;
+        overflow: visible;
+        page-break-inside: avoid;
+        page-break-after: avoid;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8pt;
+        width: 100%;
+    }
+
+    .metric-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 10pt;
+        background-color: white;
+        border: 1px solid black;
+        border-left: 3pt solid black;
         page-break-inside: avoid;
     }
-    
-    .work-item-column {
-        page-break-inside: avoid;
-        border: 1px solid #999;
-        background-color: var(--color-white) !important;
+
+    .metric-label {
+        font-size: 7pt;
+        font-weight: bold;
+        color: black;
+        text-transform: uppercase;
+        letter-spacing: 0.3pt;
+        margin-bottom: 4pt;
+    }
+
+    .metric-value {
+        font-size: 16pt;
+        font-weight: bold;
+        color: black;
+        margin-bottom: 4pt;
+    }
+
+    .metric-subtext {
+        font-size: 8pt;
+        color: black;
         margin: 0;
     }
-    
-    .work-item-column-header {
-        padding: 0.15in 0.2in;
-        font-size: 10pt;
-        background-color: var(--color-info) !important;
-        color: var(--color-white) !important;
+
+    .metric-status-badge {
+        display: inline-block;
+        padding: 2pt 6pt;
+        border-radius: 3pt;
+        font-size: 7pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-top: 4pt;
+        background-color: white;
+        color: black;
+        border: 1px solid black;
     }
-    
-    .work-item-column-count {
-        font-size: 9pt;
-    }
-    
-    .work-item-list {
-        padding: 0.15in;
-        max-height: none;
+
+    /* ===== WORK ITEMS SECTION - PRINT ===== */
+    .dashboard-work-items {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8pt;
+        width: 100%;
         overflow: visible;
+        page-break-inside: avoid;
+        page-break-after: avoid;
     }
-    
-    .work-item-list li {
-        margin-bottom: 0.1in;
+
+    .work-item-column {
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+        border: 1px solid black;
+        overflow: visible;
         page-break-inside: avoid;
     }
-    
-    .work-item {
-        padding: 0.1in 0.12in;
-        background-color: var(--color-white) !important;
-        border-left-width: 3px;
-        font-size: 9pt;
+
+    .work-item-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8pt;
+        background-color: white;
+        border-bottom: 1px solid black;
+        page-break-inside: avoid;
     }
-    
+
+    .work-item-header h3 {
+        margin: 0;
+        font-size: 10pt;
+        font-weight: bold;
+        color: black;
+    }
+
+    .work-item-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22pt;
+        height: 22pt;
+        background-color: black;
+        color: white;
+        border-radius: 50%;
+        font-size: 8pt;
+        font-weight: bold;
+    }
+
+    .work-item-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        overflow: visible;
+        height: auto;
+        flex: 1;
+    }
+
+    .work-item {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding: 8pt;
+        border-bottom: 1px solid lightgray;
+        page-break-inside: avoid;
+    }
+
+    .work-item:last-child {
+        border-bottom: none;
+    }
+
     .work-item-title {
         font-size: 9pt;
-        margin-bottom: 0.05in;
+        font-weight: bold;
+        color: black;
+        margin: 0 0 3pt 0;
+        line-height: 1.3;
     }
-    
+
     .work-item-description {
         font-size: 8pt;
+        color: black;
+        margin: 0;
+        line-height: 1.3;
     }
-    
-    .work-item-empty {
-        padding: 0.15in;
-        font-size: 9pt;
-    }
-}
 
-/* ============================================================================
-   PRINT PAGE BREAKS AND ORIENTATION
-   ========================================================================= */
+    .work-item-meta {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 6pt;
+        margin-top: 4pt;
+        font-size: 7pt;
+        color: black;
+    }
 
-@media print {
-    @page {
-        size: letter landscape;
-        margin: 0.4in;
+    .work-item-meta span {
+        display: flex;
+        align-items: center;
+        gap: 2pt;
     }
-    
-    .page-break {
-        page-break-before: always;
+
+    /* ===== LINKS ===== */
+    a, a * {
+        text-decoration: underline;
+        color: black !important;
     }
-    
-    .avoid-break {
+
+    /* ===== ENSURE TEXT VISIBILITY ===== */
+    h1, h2, h3, h4, h5, h6 {
+        color: black !important;
+        page-break-after: avoid;
         page-break-inside: avoid;
+    }
+
+    p {
         orphans: 3;
         widows: 3;
+        page-break-inside: avoid;
+    }
+
+    /* ===== HIGH CONTRAST FOR SCREENSHOT ===== */
+    .timeline-milestone, .metric-card, .work-item-column {
+        border: 1pt solid black !important;
+    }
+
+    /* ===== PAGE BREAK RULES ===== */
+    .dashboard-header {
+        page-break-after: avoid;
+    }
+
+    .dashboard-timeline {
+        page-break-after: avoid;
+    }
+
+    .dashboard-metrics {
+        page-break-after: avoid;
+    }
+
+    .dashboard-work-items {
+        page-break-after: avoid;
+    }
+
+    /* ===== OPTIMIZATION FOR 1280x720 ===== */
+    @media print and (width: 1280px) and (height: 720px) {
+        body {
+            font-size: 10pt;
+        }
+
+        .dashboard-container {
+            width: 1280px;
+            height: 720px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .dashboard-header {
+            padding: 8pt 10pt;
+            margin: 0;
+        }
+
+        .dashboard-header h1 {
+            font-size: 14pt;
+            margin: 0 0 4pt 0;
+        }
+
+        .dashboard-timeline {
+            padding: 8pt;
+            margin: 0;
+        }
+
+        .timeline-header h2 {
+            font-size: 11pt;
+        }
+
+        .timeline-container {
+            gap: 6pt;
+        }
+
+        .timeline-milestone {
+            min-width: 80px;
+            padding: 6pt;
+        }
+
+        .metrics-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6pt;
+        }
+
+        .metric-card {
+            padding: 8pt;
+        }
+
+        .metric-value {
+            font-size: 12pt;
+        }
+
+        .dashboard-work-items {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6pt;
+        }
+
+        .work-item-header {
+            padding: 6pt;
+        }
+
+        .work-item {
+            padding: 6pt;
+        }
+    }
+
+    /* ===== OPTIMIZATION FOR 1920x1080 ===== */
+    @media print and (width: 1920px) and (height: 1080px) {
+        body {
+            font-size: 12pt;
+        }
+
+        .dashboard-container {
+            width: 1920px;
+            height: 1080px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .dashboard-header {
+            padding: 14pt 16pt;
+            margin: 0;
+        }
+
+        .dashboard-header h1 {
+            font-size: 20pt;
+            margin: 0 0 6pt 0;
+        }
+
+        .dashboard-timeline {
+            padding: 14pt 16pt;
+            margin: 0;
+        }
+
+        .timeline-header h2 {
+            font-size: 15pt;
+        }
+
+        .timeline-container {
+            gap: 12pt;
+            min-height: 100px;
+        }
+
+        .timeline-milestone {
+            min-width: 130px;
+            padding: 12pt;
+        }
+
+        .timeline-milestone-name {
+            font-size: 10pt;
+        }
+
+        .timeline-milestone-date {
+            font-size: 9pt;
+        }
+
+        .metrics-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12pt;
+        }
+
+        .metric-card {
+            padding: 14pt;
+        }
+
+        .metric-value {
+            font-size: 20pt;
+        }
+
+        .dashboard-work-items {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12pt;
+        }
+
+        .work-item-header {
+            padding: 10pt;
+        }
+
+        .work-item {
+            padding: 10pt;
+        }
+
+        .work-item-title {
+            font-size: 10pt;
+        }
+    }
+
+    /* ===== GENERIC PRINT OPTIMIZATION ===== */
+    @media print {
+        img {
+            max-width: 100%;
+            page-break-inside: avoid;
+        }
+
+        table, tr, td {
+            page-break-inside: avoid;
+        }
+
+        blockquote, pre {
+            page-break-inside: avoid;
+        }
+
+        ul, ol, dl {
+            page-break-inside: avoid;
+        }
+    }
+
+    /* ===== EDGE AND CHROME COMPATIBILITY ===== */
+    @supports (-webkit-print-color-adjust: exact) {
+        body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .timeline-milestone, .metric-card, .work-item-column {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
     }
 }
 
-/* ============================================================================
-   HIDE NON-ESSENTIAL ELEMENTS DURING PRINT
-   ========================================================================= */
+/* ===== SCREEN MEDIA - PRINT PREVIEW ===== */
+@media screen {
+    .print-only {
+        display: none;
+    }
+}
 
 @media print {
-    .no-print,
-    .hidden-on-print,
-    nav,
-    footer,
-    .controls,
-    .debug-info {
-        display: none !important;
-    }
-    
-    .loading-spinner {
-        display: none !important;
-    }
-}
-
-/* ============================================================================
-   SCREENSHOT OPTIMIZATION FOR 1280x720
-   ========================================================================= */
-
-@media screen and (max-width: 1280px) {
-    body {
-        overflow: hidden;
-    }
-    
-    #app {
-        overflow: hidden;
-        height: 720px;
-    }
-    
-    .dashboard-wrapper {
-        overflow: hidden;
-        max-height: 680px;
-        padding: 12px;
-        gap: 12px;
-    }
-    
-    .timeline-container {
-        max-height: 140px;
-        overflow: hidden;
-    }
-    
-    .work-item-list {
-        max-height: 200px;
-        overflow: hidden;
-    }
-    
-    .metrics-section {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    
-    .kpi-card-value {
-        font-size: 28px;
-    }
-}
-
-/* ============================================================================
-   SCREENSHOT OPTIMIZATION FOR 1920x1080
-   ========================================================================= */
-
-@media screen and (min-width: 1920px) {
-    body {
-        overflow: auto;
-    }
-    
-    #app {
-        min-height: 100vh;
-        overflow: auto;
-    }
-    
-    .dashboard-wrapper {
-        gap: 28px;
-        padding: 28px;
-        max-width: 100%;
-    }
-    
-    .metrics-section {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    
-    .work-item-columns {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .kpi-card {
-        padding: 28px;
-    }
-    
-    .kpi-card-value {
-        font-size: 56px;
-    }
-    
-    .timeline-container {
-        max-height: auto;
-        overflow: visible;
-    }
-    
-    .work-item-list {
-        max-height: 500px;
-    }
-}
-
-/* ============================================================================
-   COLOR PRESERVATION FOR ALL STATES
-   ========================================================================= */
-
-@media print {
-    .milestone-indicator.completed {
-        background-color: var(--color-completed) !important;
-    }
-    
-    .milestone-indicator.in-progress {
-        background-color: var(--color-in-progress) !important;
-    }
-    
-    .milestone-indicator.at-risk {
-        background-color: var(--color-at-risk) !important;
-    }
-    
-    .milestone-indicator.future {
-        background-color: var(--color-future) !important;
-    }
-    
-    .kpi-card.success {
-        border-left-color: var(--color-success) !important;
-    }
-    
-    .kpi-card.warning {
-        border-left-color: var(--color-warning) !important;
-    }
-    
-    .work-item-shipped {
-        border-left-color: var(--color-success) !important;
-    }
-    
-    .work-item-in-progress {
-        border-left-color: var(--color-in-progress) !important;
-    }
-    
-    .work-item-carried-over {
-        border-left-color: var(--color-warning) !important;
+    .screen-only {
+        display: none;
     }
 }
