@@ -7,9 +7,17 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Register ProjectDataService as Singleton
-// Rationale: Service is stateless and thread-safe, loads data from file system.
-// Singleton lifetime allows for efficient resource usage and consistent data access
-// across all Blazor circuits and components.
+// 
+// Rationale for Singleton Lifetime:
+// - ProjectDataService is stateless: It only reads from the file system and deserializes JSON.
+// - Thread-safe by design: No mutable state is maintained across requests/circuits.
+// - File-based operation: Loading data.json multiple times per circuit is inefficient; a single
+//   instance can safely serve all components across all Blazor circuits.
+// - Consistent data access: Singleton ensures all components receive the same data instance
+//   during their lifecycle, improving performance and memory efficiency.
+// 
+// Note: If service design changes to maintain state or become request-specific, consider changing
+// to Scoped or Transient. For now, Singleton is optimal for this read-only file-based service.
 builder.Services.AddSingleton<ProjectDataService>();
 
 var app = builder.Build();
