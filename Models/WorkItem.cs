@@ -1,11 +1,20 @@
+using System.Text.Json.Serialization;
+
 namespace AgentSquad.Runner.Models;
 
 public class WorkItem
 {
+    [JsonPropertyName("title")]
     public string Title { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("status")]
     public WorkItemStatus Status { get; set; }
-    public string AssignedTo { get; set; } = string.Empty;
+
+    [JsonPropertyName("assignedTo")]
+    public string? AssignedTo { get; set; }
 }
 
 public enum WorkItemStatus

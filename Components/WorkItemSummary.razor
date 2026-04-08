@@ -1,184 +1,138 @@
-@namespace AgentSquad.Runner.Components
 @using AgentSquad.Runner.Models
+@namespace AgentSquad.Runner.Components
 
-@if (WorkItems != null && WorkItems.Count > 0)
+@if (WorkItems == null || WorkItems.Count == 0)
 {
-    <div class="work-items-container">
-        <div class="work-items-grid">
-            @foreach (var status in new[] { WorkItemStatus.Shipped, WorkItemStatus.InProgress, WorkItemStatus.CarriedOver })
-            {
-                var itemsForStatus = WorkItems.Where(w => w.Status == status).ToList();
-                <div class="work-items-column">
-                    <div class="column-header">
-                        <h3 class="column-title">@GetColumnTitle(status)</h3>
-                        <span class="column-count">@itemsForStatus.Count</span>
-                    </div>
-                    <div class="items-list">
-                        @if (itemsForStatus.Count > 0)
-                        {
-                            @foreach (var item in itemsForStatus)
-                            {
-                                <div class="work-item">
-                                    <div class="item-title">@item.Title</div>
-                                    @if (!string.IsNullOrEmpty(item.Description))
-                                    {
-                                        <div class="item-description">@TruncateDescription(item.Description)</div>
-                                    }
-                                    @if (!string.IsNullOrEmpty(item.AssignedTo))
-                                    {
-                                        <div class="item-assigned">👤 @item.AssignedTo</div>
-                                    }
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <div class="items-empty">No items</div>
-                        }
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
+    <div class="work-items-empty">No work items available</div>
 }
 else
 {
-    <div class="work-items-empty">
-        <p>No work items available</p>
+    <div class="work-items-container">
+        @foreach (var status in new[] { WorkItemStatus.Shipped, WorkItemStatus.InProgress, WorkItemStatus.CarriedOver })
+        {
+            var items = WorkItems.Where(w => w.Status == status).ToList();
+            <div class="work-items-column">
+                <div class="column-header">
+                    <h3>@GetStatusLabel(status)</h3>
+                    <span class="item-count">@items.Count</span>
+                </div>
+                <div class="items-list">
+                    @foreach (var item in items)
+                    {
+                        <div class="work-item">
+                            <div class="item-title">@item.Title</div>
+                            @if (!string.IsNullOrEmpty(item.Description))
+                            {
+                                <div class="item-description">@item.Description</div>
+                            }
+                            @if (!string.IsNullOrEmpty(item.AssignedTo))
+                            {
+                                <div class="item-assigned">@item.AssignedTo</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
     </div>
 }
 
-@code {
-    [Parameter]
-    public List<WorkItem>? WorkItems { get; set; }
-
-    private string GetColumnTitle(WorkItemStatus status) => status switch
-    {
-        WorkItemStatus.Shipped => "Shipped This Month",
-        WorkItemStatus.InProgress => "In Progress",
-        WorkItemStatus.CarriedOver => "Carried Over",
-        _ => "Unknown"
-    };
-
-    private string TruncateDescription(string description, int maxLength = 100)
-    {
-        if (string.IsNullOrEmpty(description))
-            return string.Empty;
-
-        return description.Length > maxLength
-            ? description[..maxLength] + "..."
-            : description;
-    }
-}
-
 <style>
-    .work-items-container {
-        width: 100%;
+    .work-items-empty {
+        padding: 20px;
+        text-align: center;
+        color: #999;
+        font-style: italic;
     }
 
-    .work-items-grid {
+    .work-items-container {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
     }
 
     .work-items-column {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background: #f9f9f9;
+        overflow: hidden;
     }
 
     .column-header {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        border-bottom: 2px solid #1b6ca8;
-        padding-bottom: 0.75rem;
+        align-items: center;
+        padding: 12px;
+        background: #f0f0f0;
+        border-bottom: 1px solid #e0e0e0;
     }
 
-    .column-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #0a3d62;
+    .column-header h3 {
         margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
     }
 
-    .column-count {
-        background-color: #e8f0f8;
-        color: #0a3d62;
-        font-weight: 700;
-        font-size: 0.875rem;
-        padding: 0.25rem 0.75rem;
+    .item-count {
+        background: #1a1a1a;
+        color: white;
+        padding: 2px 8px;
         border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        min-width: 24px;
+        text-align: center;
     }
 
     .items-list {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
-        flex: 1;
+        gap: 8px;
+        padding: 12px;
+        max-height: 400px;
+        overflow-y: auto;
     }
 
     .work-item {
-        padding: 0.75rem;
-        background-color: #f8f9fa;
-        border-left: 3px solid #1b6ca8;
+        padding: 8px;
+        background: white;
         border-radius: 4px;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .work-item:hover {
-        background-color: #e8f0f8;
-        transform: translateX(2px);
+        border-left: 3px solid #2196f3;
     }
 
     .item-title {
-        font-size: 0.95rem;
         font-weight: 600;
-        color: #2c3e50;
-        word-break: break-word;
+        color: #1a1a1a;
+        font-size: 13px;
+        margin-bottom: 4px;
     }
 
     .item-description {
-        font-size: 0.825rem;
-        color: #7f8c8d;
-        line-height: 1.4;
-        word-break: break-word;
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .item-assigned {
-        font-size: 0.75rem;
-        color: #95a5a6;
-        margin-top: 0.25rem;
-    }
-
-    .items-empty {
-        text-align: center;
-        padding: 1.5rem;
-        color: #bdc3c7;
-        font-size: 0.875rem;
-        background-color: #f8f9fa;
-        border-radius: 4px;
-    }
-
-    .work-items-empty {
-        text-align: center;
-        padding: 2rem;
-        color: #bdc3c7;
-    }
-
-    @media (max-width: 1024px) {
-        .work-items-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .work-items-grid {
-            grid-template-columns: 1fr;
-        }
+        font-size: 11px;
+        color: #999;
+        font-style: italic;
     }
 </style>
+
+@code {
+    [Parameter]
+    public List<WorkItem>? WorkItems { get; set; }
+
+    private string GetStatusLabel(WorkItemStatus status) => status switch
+    {
+        WorkItemStatus.Shipped => "Shipped This Month",
+        WorkItemStatus.InProgress => "In Progress",
+        WorkItemStatus.CarriedOver => "Carried Over",
+        _ => status.ToString()
+    };
+}

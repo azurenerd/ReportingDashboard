@@ -1,0 +1,131 @@
+@namespace AgentSquad.Runner.Components
+
+<style>
+    .error-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(2px);
+    }
+
+    .error-overlay-content {
+        background: white;
+        border-radius: 8px;
+        padding: 40px 30px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .error-icon {
+        font-size: 48px;
+        text-align: center;
+        margin-bottom: 16px;
+        line-height: 1;
+    }
+
+    .error-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0 0 12px 0;
+        text-align: center;
+    }
+
+    .error-message {
+        font-size: 16px;
+        color: #333;
+        margin: 0 0 24px 0;
+        line-height: 1.5;
+        text-align: center;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .retry-button,
+    .dismiss-button {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .retry-button {
+        background-color: #d32f2f;
+        color: white;
+    }
+
+    .retry-button:hover {
+        background-color: #b71c1c;
+        box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+    }
+
+    .retry-button:active {
+        transform: scale(0.98);
+    }
+
+    .dismiss-button {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+
+    .dismiss-button:hover {
+        background-color: #bdbdbd;
+    }
+
+    @media (max-width: 768px) {
+        .error-overlay-content {
+            padding: 30px 20px;
+            width: 95%;
+        }
+
+        .error-title {
+            font-size: 20px;
+        }
+
+        .error-message {
+            font-size: 14px;
+        }
+
+        .retry-button,
+        .dismiss-button {
+            padding: 8px 20px;
+            font-size: 12px;
+        }
+    }
+
+    @media print {
+        .error-overlay {
+            display: none !important;
+        }
+    }
+</style>
+
+@ChildContent
