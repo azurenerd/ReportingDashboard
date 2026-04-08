@@ -8,7 +8,7 @@ namespace AgentSquad.Tests
     public class DataModelTests
     {
         [Fact]
-        public void Project_Constructor_InitializesProperties()
+        public void ProjectInfo_Constructor_InitializesProperties()
         {
             // Arrange
             var id = "proj-001";
@@ -17,7 +17,7 @@ namespace AgentSquad.Tests
             var status = "Active";
 
             // Act
-            var project = new Project
+            var project = new ProjectInfo
             {
                 Id = id,
                 Name = name,
@@ -38,20 +38,20 @@ namespace AgentSquad.Tests
             // Arrange
             var id = "mile-001";
             var name = "Phase 1";
-            var dueDate = new DateTime(2026, 06, 30);
+            var targetDate = new DateTime(2026, 06, 30);
 
             // Act
             var milestone = new Milestone
             {
                 Id = id,
                 Name = name,
-                DueDate = dueDate
+                TargetDate = targetDate
             };
 
             // Assert
             Assert.Equal(id, milestone.Id);
             Assert.Equal(name, milestone.Name);
-            Assert.Equal(dueDate, milestone.DueDate);
+            Assert.Equal(targetDate, milestone.TargetDate);
         }
 
         [Fact]
@@ -59,25 +59,25 @@ namespace AgentSquad.Tests
         {
             // Arrange
             var id = "task-001";
-            var title = "Create API";
+            var name = "Create API";
             var status = "InProgress";
 
             // Act
             var task = new Task
             {
                 Id = id,
-                Title = title,
+                Name = name,
                 Status = status
             };
 
             // Assert
             Assert.Equal(id, task.Id);
-            Assert.Equal(title, task.Title);
+            Assert.Equal(name, task.Name);
             Assert.Equal(status, task.Status);
         }
 
         [Fact]
-        public void Metrics_Constructor_InitializesProperties()
+        public void ProjectMetrics_Constructor_InitializesProperties()
         {
             // Arrange
             var completionPercentage = 75;
@@ -85,7 +85,7 @@ namespace AgentSquad.Tests
             var totalTasks = 20;
 
             // Act
-            var metrics = new Metrics
+            var metrics = new ProjectMetrics
             {
                 CompletionPercentage = completionPercentage,
                 TasksCompleted = tasksCompleted,
@@ -104,10 +104,10 @@ namespace AgentSquad.Tests
             // Arrange & Act
             var projectData = new ProjectData
             {
-                Project = new Project { Id = "p1", Name = "Test" },
+                Project = new ProjectInfo { Id = "p1", Name = "Test" },
                 Milestones = new List<Milestone>(),
                 Tasks = new List<Task>(),
-                Metrics = new Metrics()
+                Metrics = new ProjectMetrics()
             };
 
             // Assert
@@ -120,18 +120,18 @@ namespace AgentSquad.Tests
         }
 
         [Fact]
-        public void Milestone_WithNullDueDate_IsValid()
+        public void Milestone_WithNullTargetDate_IsValid()
         {
             // Arrange & Act
             var milestone = new Milestone
             {
                 Id = "mile-002",
                 Name = "Future Phase",
-                DueDate = null
+                TargetDate = null
             };
 
             // Assert
-            Assert.Null(milestone.DueDate);
+            Assert.Null(milestone.TargetDate);
         }
 
         [Fact]
@@ -141,13 +141,13 @@ namespace AgentSquad.Tests
             var task = new Task
             {
                 Id = "task-002",
-                Title = "Flexible Task",
+                Name = "Flexible Task",
                 Status = "Pending",
-                Assignee = null
+                AssignedTo = null
             };
 
             // Assert
-            Assert.Null(task.Assignee);
+            Assert.Null(task.AssignedTo);
         }
     }
 }

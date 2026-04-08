@@ -9,10 +9,10 @@ namespace AgentSquad.Tests
     public class DataModelValidationTests
     {
         [Fact]
-        public void Project_ValidatesRequiredFields()
+        public void ProjectInfo_ValidatesRequiredFields()
         {
             // Arrange
-            var project = new Project { Id = "proj-001", Name = "Valid Project" };
+            var project = new ProjectInfo { Id = "proj-001", Name = "Valid Project" };
 
             // Assert
             Assert.NotNull(project.Id);
@@ -35,17 +35,17 @@ namespace AgentSquad.Tests
         public void Task_ValidatesStatusIsNotNull()
         {
             // Arrange & Act
-            var task = new Task { Id = "task-001", Title = "Test", Status = null };
+            var task = new Task { Id = "task-001", Name = "Test", Status = null };
 
             // Assert
             Assert.Null(task.Status);
         }
 
         [Fact]
-        public void Metrics_ValidatesCompletionPercentageRange()
+        public void ProjectMetrics_ValidatesCompletionPercentageRange()
         {
             // Arrange
-            var metrics = new Metrics { CompletionPercentage = 150 };
+            var metrics = new ProjectMetrics { CompletionPercentage = 150 };
 
             // Assert - percentage can exceed 100 in test (validation logic handled elsewhere)
             Assert.Equal(150, metrics.CompletionPercentage);
@@ -57,10 +57,10 @@ namespace AgentSquad.Tests
             // Arrange
             var projectData = new ProjectData
             {
-                Project = new Project { Id = "p1", Name = "Test" },
+                Project = new ProjectInfo { Id = "p1", Name = "Test" },
                 Milestones = new List<Milestone>(),
                 Tasks = new List<Task>(),
-                Metrics = new Metrics()
+                Metrics = new ProjectMetrics()
             };
 
             // Assert
@@ -74,7 +74,7 @@ namespace AgentSquad.Tests
         public void Task_WithJsonPropertyName_SerializesCorrectly()
         {
             // Arrange
-            var task = new Task { Id = "task-001", Title = "Test Task" };
+            var task = new Task { Id = "task-001", Name = "Test Task" };
 
             // Assert - Verify object can be serialized
             Assert.NotNull(task);
