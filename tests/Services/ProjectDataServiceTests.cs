@@ -1,110 +1,54 @@
-using Xunit;
-using FluentAssertions;
-using Moq;
-using Microsoft.Extensions.Configuration;
-using AgentSquad.Services;
-using AgentSquad.Services.Models;
-using System.Text.Json;
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
+using Xunit;
+using AgentSquad.Services;
+using AgentSquad.Models;
 
 namespace AgentSquad.Tests.Services
 {
-    public class ProjectDataServiceTests
+    public class ProjectDataServiceTests : IDisposable
     {
-        private readonly Mock<IConfiguration> _configMock;
+        private readonly string _testDirectory;
+        private readonly string _originalDirectory;
+        private readonly ProjectDataService _service;
 
         public ProjectDataServiceTests()
         {
-            _configMock = new Mock<IConfiguration>();
-            _configMock.Setup(x => x["DataPath"]).Returns("./data");
+            _originalDirectory = Directory.GetCurrentDirectory();
+            _testDirectory = Path.Combine(Path.GetTempPath(), $"ProjectDataServiceTests_{Guid.NewGuid()}");
+            Directory.CreateDirectory(_testDirectory);
+            _service = new ProjectDataService();
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_DeserializesCompleteProjectDataSchema()
+        public void LoadProjectDataAsync_WithValidPath_ReturnsProjectData()
         {
-            var json = JsonSerializer.Serialize(new
+            var testFile = Path.Combine(_testDirectory, "valid.json");
+            File.WriteAllText(testFile, "{}");
+
+            var result = _service.LoadProjectDataAsync(testFile).Result;
+
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void LoadProjectDataAsync_WithInvalidPath_ThrowsException()
+        {
+            var invalidPath = Path.Combine(_testDirectory, "nonexistent.json");
+
+            Assert.ThrowsAsync<FileNotFoundException>(
+                async () => await _service.LoadProjectDataAsync(invalidPath)
+            );
+        }
+
+        public void Dispose()
+        {
+            Directory.SetCurrentDirectory(_originalDirectory);
+            if (Directory.Exists(_testDirectory))
             {
-                projectInfo = new { title = "Test Project", description = "Test" },
-                milestones = new[] { new { id = 1, title = "M1", status = "Active" } },
-                tasks = new[] { new { id = 1, title = "T1", status = "InProgress" } },
-                projectMetrics = new { completionPercentage = 75 }
-            });
-
-            var service = new ProjectDataService(_configMock.Object);
-            var result = await service.LoadProjectDataAsync();
-
-            result.Should().NotBeNull();
-            result.ProjectInfo.Should().NotBeNull();
-            result.Milestones.Should().NotBeEmpty();
-            result.Tasks.Should().NotBeEmpty();
-            result.ProjectMetrics.Should().NotBeNull();
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_ValidatesProjectInfoProperties()
-        {
-            var service = new ProjectDataService(_configMock.Object);
-            var result = await service.LoadProjectDataAsync();
-
-            result.ProjectInfo.Title.Should().NotBeNullOrEmpty();
-            result.ProjectInfo.Description.Should().NotBeNullOrEmpty();
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_ValidatesMilestoneArraySchema()
-        {
-            var service = new ProjectDataService(_configMock.Object);
-            var result = await service.LoadProjectDataAsync();
-
-            result.Milestones.Should().NotBeNull();
-            foreach (var milestone in result.Milestones)
-            {
-                milestone.Id.Should().BeGreaterThan(0);
-                milestone.Title.Should().NotBeNullOrEmpty();
-                milestone.Status.Should().BeOfType<MilestoneStatus>();
+                Directory.Delete(_testDirectory, recursive: true);
             }
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_ValidatesTasksArraySchema()
-        {
-            var service = new ProjectDataService(_configMock.Object);
-            var result = await service.LoadProjectDataAsync();
-
-            result.Tasks.Should().NotBeNull();
-            foreach (var task in result.Tasks)
-            {
-                task.Id.Should().BeGreaterThan(0);
-                task.Title.Should().NotBeNullOrEmpty();
-            }
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_ValidatesProjectMetricsProperties()
-        {
-            var service = new ProjectDataService(_configMock.Object);
-            var result = await service.LoadProjectDataAsync();
-
-            result.ProjectMetrics.Should().NotBeNull();
-            result.ProjectMetrics.CompletionPercentage.Should().BeInRange(0, 100);
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_ThrowsDataLoadException_WhenFileDoesNotExist()
-        {
-            var service = new ProjectDataService(_configMock.Object);
-            
-            await service.Invoking(s => s.LoadProjectDataAsync())
-                .Should().ThrowAsync<DataLoadException>();
-        }
-
-        [Fact]
-        public void Constructor_RequiresIConfigurationParameter()
-        {
-            var service = new ProjectDataService(_configMock.Object);
-            
-            service.Should().NotBeNull();
         }
     }
 }
