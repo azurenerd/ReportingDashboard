@@ -6,24 +6,26 @@
 <div class="progress-metrics-container">
     <div class="row">
         <div class="col-12">
-            @if (Metrics != null)
+            @if (Metrics != null && Metrics.TotalTasks > 0)
             {
+                int completionPercentage = (int)((Metrics.CompletedTasks / (double)Metrics.TotalTasks) * 100);
+                
                 <div class="metrics-content">
                     <div class="progress-section mb-4">
                         <h3 class="text-muted mb-3">Project Progress</h3>
                         
-                        <div class="progress mb-3" style="height: 30px;">
+                        <div class="progress mb-4" style="height: 30px;">
                             <div class="progress-bar bg-success" 
                                  role="progressbar" 
-                                 style="width: @(Metrics.CompletionPercentage)%;" 
-                                 aria-valuenow="@Metrics.CompletionPercentage" 
+                                 style="width: @(completionPercentage)%;" 
+                                 aria-valuenow="@completionPercentage" 
                                  aria-valuemin="0" 
                                  aria-valuemax="100">
                             </div>
                         </div>
                         
                         <div class="completion-percentage text-center mb-4">
-                            <span class="display-4 fw-bold">@Metrics.CompletionPercentage%</span>
+                            <div class="display-4 fw-bold" style="font-size: 24pt;">@completionPercentage%</div>
                             <p class="text-muted">Complete (@Metrics.CompletedTasks of @Metrics.TotalTasks tasks)</p>
                         </div>
                     </div>
@@ -32,6 +34,13 @@
                         <h4 class="text-muted mb-3">Burn-down Chart</h4>
                         <canvas id="burndownChart" width="400" height="150"></canvas>
                     </div>
+                </div>
+            }
+            else if (Metrics != null && Metrics.TotalTasks == 0)
+            {
+                <div class="alert alert-info" role="alert">
+                    <strong>No tasks defined</strong>
+                    <p class="mb-0">Project has no tasks configured. Please check data.json configuration.</p>
                 </div>
             }
             else
@@ -51,8 +60,15 @@
 
     protected override void OnInitialized()
     {
-        Logger.LogInformation("ProgressMetrics component initialized with metrics: {Metrics}", 
-            Metrics != null ? $"CP={Metrics.CompletionPercentage}%" : "null");
+        if (Metrics != null)
+        {
+            Logger.LogInformation("ProgressMetrics component initialized: TotalTasks={TotalTasks}, CompletedTasks={CompletedTasks}", 
+                Metrics.TotalTasks, Metrics.CompletedTasks);
+        }
+        else
+        {
+            Logger.LogWarning("ProgressMetrics component initialized with null metrics");
+        }
     }
 }
 
@@ -74,8 +90,6 @@
     }
 
     .completion-percentage {
-        font-size: 24pt;
-        font-weight: bold;
         color: #495057;
     }
 
