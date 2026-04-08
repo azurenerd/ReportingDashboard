@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Total Tasks:** 14 | **Completed:** 2 | **In Progress:** 3 | **Pending:** 9
+**Total Tasks:** 14 | **Completed:** 3 | **In Progress:** 3 | **Pending:** 8
 
 ## Tasks
 
@@ -10,8 +10,8 @@
 |----|------|-----------|-------------|-------|-----|--------|-------------|
 | T1 | Project structure and Blazor Server setup | Low | PrincipalEngineer | #52 | #57 | Done | — |
 | T2 | Data models and enums | Low | PrincipalEngineer | #52 | #58 | Done | — |
-| T3 | DataProvider service implementation | High | PrincipalEngineer | #52 | #67 | InProgress | T2 |
-| T4 | DashboardLayout component | Medium | — | #52 | — | Pending | T3 |
+| T3 | DataProvider service implementation | High | PrincipalEngineer | #52 | #67 | Done | T2 |
+| T4 | DashboardLayout component | Medium | Junior Engineer 1 | #52 | — | Assigned | T3 |
 | T5 | MilestoneTimeline component | High | — | #53 | — | Pending | T2, T4 |
 | T6 | WorkItemSummary component | Medium | — | #54 | — | Pending | T2, T4 |
 | T7 | ProjectMetrics component | Medium | — | #55 | — | Pending | T2, T4 |
