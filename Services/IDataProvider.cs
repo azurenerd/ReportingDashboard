@@ -1,11 +1,10 @@
-using System.Threading.Tasks;
 using AgentSquad.Runner.Models;
 
-namespace AgentSquad.Runner.Services
+namespace AgentSquad.Runner.Services;
+
+public interface IDataProvider
 {
-    public interface IDataProvider
-    {
-        Task<Project> LoadProjectDataAsync();
-        Project GetCachedProjectData();
-    }
+    Project GetProjectData();
+    bool IsLoaded { get; }
+    string ErrorMessage { get; }
 }

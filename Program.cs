@@ -1,24 +1,23 @@
 using AgentSquad.Runner.Services;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
-var builder = WebApplicationBuilder.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
+
+var dataJsonPath = Path.Combine(AppContext.BaseDirectory, "data.json");
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddMemoryCache();
-builder.Services.AddScoped<IDataCache, MemoryCacheDataProvider>();
-builder.Services.AddScoped<IDataProvider, DataProvider>();
+builder.Services.AddScoped<IDataValidator, DataValidator>();
 
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
+builder.Services.AddSingleton<IDataProvider>(sp =>
+{
+    var logger = sp.GetRequiredService<ILogger<DataProvider>>();
+    return new DataProvider(logger, dataJsonPath);
+});
 
 var app = builder.Build();
-
-var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -27,10 +26,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<AgentSquad.Runner.App>()
+app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
