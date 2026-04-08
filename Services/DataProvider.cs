@@ -1,73 +1,146 @@
-namespace AgentSquad.Runner.Services;
-
 using System.Text.Json;
 using AgentSquad.Runner.Models;
 
-public class DataProvider : IDataProvider
+namespace AgentSquad.Runner.Services
 {
-    private readonly IDataCache _cache;
-    private readonly ILogger<DataProvider> _logger;
-    private const string DataFilePath = "wwwroot/data.json";
-    private const string CacheKey = "project_data";
-
-    public DataProvider(IDataCache cache, ILogger<DataProvider> logger)
+    public class DataProvider : IDataProvider
     {
-        _cache = cache;
-        _logger = logger;
-    }
+        private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<DataProvider> _logger;
+        private Project _cachedProject;
+        private ProjectMetrics _cachedMetrics;
+        private DateTime _cacheTime = DateTime.MinValue;
+        private const int CacheDurationMinutes = 5;
 
-    public async Task<Project> LoadProjectDataAsync()
-    {
-        var cached = await _cache.GetAsync<Project>(CacheKey);
-        if (cached != null)
+        public DataProvider(IWebHostEnvironment environment, ILogger<DataProvider> logger)
         {
-            _logger.LogInformation("Retrieved project data from cache");
-            return cached;
+            _environment = environment;
+            _logger = logger;
         }
 
-        if (!File.Exists(DataFilePath))
+        public async Task<Project> GetProjectDataAsync()
         {
-            throw new FileNotFoundException($"Data file not found at {DataFilePath}");
+            try
+            {
+                if (_cachedProject != null && DateTime.UtcNow.Subtract(_cacheTime).TotalMinutes < CacheDurationMinutes)
+                {
+                    return _cachedProject;
+                }
+
+                var dataPath = Path.Combine(_environment.WebRootPath, "data", "data.json");
+
+                if (!File.Exists(dataPath))
+                {
+                    _logger.LogError($"data.json not found at {dataPath}");
+                    throw new FileNotFoundException($"Project data file not found at {dataPath}");
+                }
+
+                var json = await File.ReadAllTextAsync(dataPath);
+                var options = new JsonSerializerOptions 
+                { 
+                    PropertyNameCaseInsensitive = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                _cachedProject = JsonSerializer.Deserialize<Project>(json, options);
+                _cacheTime = DateTime.UtcNow;
+
+                if (_cachedProject == null)
+                {
+                    throw new InvalidOperationException("Failed to deserialize project data from data.json");
+                }
+
+                _logger.LogInformation($"Loaded project data: {_cachedProject.Name}");
+                return _cachedProject;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading project data");
+                throw;
+            }
         }
 
-        var json = await File.ReadAllTextAsync(DataFilePath);
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var project = JsonSerializer.Deserialize<Project>(json, options);
-
-        ValidateProjectData(project);
-
-        await _cache.SetAsync(CacheKey, project, TimeSpan.FromHours(1));
-        _logger.LogInformation("Loaded and cached project data successfully");
-
-        return project;
-    }
-
-    public void InvalidateCache()
-    {
-        _cache.Remove(CacheKey);
-        _logger.LogInformation("Project data cache invalidated");
-    }
-
-    private void ValidateProjectData(Project? project)
-    {
-        if (project == null)
+        public async Task<ProjectMetrics> GetProjectMetricsAsync()
         {
-            throw new InvalidOperationException("Project data is null");
+            try
+            {
+                if (_cachedMetrics != null && DateTime.UtcNow.Subtract(_cacheTime).TotalMinutes < CacheDurationMinutes)
+                {
+                    return _cachedMetrics;
+                }
+
+                var project = await GetProjectDataAsync();
+
+                _cachedMetrics = new ProjectMetrics
+                {
+                    CompletionPercentage = CalculateCompletionPercentage(project),
+                    HealthStatus = DetermineHealthStatus(project),
+                    VelocityThisMonth = CountItemsThisMonth(project),
+                    VelocityLastMonth = CountItemsLastMonth(project)
+                };
+
+                _logger.LogInformation($"Calculated metrics - Completion: {_cachedMetrics.CompletionPercentage}%, Health: {_cachedMetrics.HealthStatus}");
+                return _cachedMetrics;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating project metrics");
+                throw;
+            }
         }
 
-        if (string.IsNullOrWhiteSpace(project.Name))
+        private int CalculateCompletionPercentage(Project project)
         {
-            throw new InvalidOperationException("Project name is required");
+            if (project?.WorkItems == null || project.WorkItems.Count == 0)
+            {
+                return 0;
+            }
+
+            int completedCount = project.WorkItems.Count(w => w.Status == WorkItemStatus.ShippedThisMonth);
+            return (int)((double)completedCount / project.WorkItems.Count * 100);
         }
 
-        if (project.Milestones == null || project.Milestones.Count == 0)
+        private HealthStatus DetermineHealthStatus(Project project)
         {
-            throw new InvalidOperationException("At least one milestone is required");
+            if (project?.Milestones == null || project.Milestones.Count == 0)
+            {
+                return HealthStatus.OnTrack;
+            }
+
+            int atRiskCount = project.Milestones.Count(m => m.Status == MilestoneStatus.AtRisk);
+            int blockedCount = project.Milestones.Count(m => m.Status == MilestoneStatus.Blocked);
+
+            if (blockedCount > 0)
+            {
+                return HealthStatus.Blocked;
+            }
+
+            if (atRiskCount > 0)
+            {
+                return HealthStatus.AtRisk;
+            }
+
+            return HealthStatus.OnTrack;
         }
 
-        if (project.WorkItems == null)
+        private int CountItemsThisMonth(Project project)
         {
-            project.WorkItems = new List<WorkItem>();
+            if (project?.WorkItems == null)
+            {
+                return 0;
+            }
+
+            return project.WorkItems.Count(w => w.Status == WorkItemStatus.ShippedThisMonth);
+        }
+
+        private int CountItemsLastMonth(Project project)
+        {
+            if (project?.WorkItems == null)
+            {
+                return 0;
+            }
+
+            return project.WorkItems.Count(w => w.Status == WorkItemStatus.InProgress);
         }
     }
 }

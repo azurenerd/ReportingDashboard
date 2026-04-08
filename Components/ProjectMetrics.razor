@@ -22,11 +22,17 @@
             <div class="metric-label">Completion</div>
             <div class="metric-content">
                 <div class="progress-wrapper">
-                    <svg class="circular-progress" viewBox="0 0 100 100" role="img" aria-label="@($"Project completion: {Metrics.CompletionPercentage}%")">
+                    <svg class="circular-progress" 
+                         viewBox="0 0 100 100" 
+                         role="progressbar" 
+                         aria-valuenow="@Metrics.CompletionPercentage" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100"
+                         aria-label="@($"Project completion: {Metrics.CompletionPercentage}%")">
                         <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
                         <circle class="progress-fill" 
                                 cx="50" cy="50" r="45"
-                                style="stroke-dasharray: @(Metrics.CompletionPercentage * 2.83); stroke-dashoffset: 283;">
+                                style="stroke-dasharray: 283; stroke-dashoffset: @(283 - (Metrics.CompletionPercentage * 2.83));">
                         </circle>
                     </svg>
                     <div class="progress-text">@Metrics.CompletionPercentage%</div>
