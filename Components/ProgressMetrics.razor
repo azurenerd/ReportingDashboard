@@ -35,7 +35,7 @@
                     <span style="color: #666;">@Metrics.CompletionPercentage% of @Metrics.TotalTasks tasks</span>
                 </div>
                 <div style="background-color: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
-                    <div style="background-color: #0066cc; height: 100%; width: @Metrics.CompletionPercentage%; transition: none;"></div>
+                    <div class="progress-bar" style="background-color: #0066cc; height: 100%; width: @Metrics.CompletionPercentage%;"></div>
                 </div>
             </div>
         </div>
@@ -47,5 +47,5 @@
     public ProjectMetrics Metrics { get; set; }
 
     [Parameter]
-    public List<ProjectTask> Tasks { get; set; }
+    public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
 }
