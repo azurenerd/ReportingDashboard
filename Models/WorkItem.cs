@@ -1,18 +1,10 @@
-using System.Text.Json.Serialization;
-
-namespace AgentSquad.Runner.Models;
-
-public class WorkItem
+namespace AgentSquad.Runner.Models
 {
-    [JsonPropertyName("title")]
-    public string Title { get; set; }
-
-    [JsonPropertyName("description")]
-    public string Description { get; set; }
-
-    [JsonPropertyName("status")]
-    public WorkItemStatus Status { get; set; }
-
-    [JsonPropertyName("assignedTo")]
-    public string AssignedTo { get; set; }
+    public class WorkItem
+    {
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public WorkItemStatus Status { get; set; }
+        public string AssignedTo { get; set; }
+    }
 }

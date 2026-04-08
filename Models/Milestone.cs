@@ -1,18 +1,13 @@
-using System.Text.Json.Serialization;
+using System;
+using AgentSquad.Runner.Models;
 
-namespace AgentSquad.Runner.Models;
-
-public class Milestone
+namespace AgentSquad.Runner.Models
 {
-    [JsonPropertyName("name")]
-    public string Name { get; set; }
-
-    [JsonPropertyName("targetDate")]
-    public DateTime TargetDate { get; set; }
-
-    [JsonPropertyName("status")]
-    public MilestoneStatus Status { get; set; }
-
-    [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public class Milestone
+    {
+        public string Name { get; set; }
+        public DateTime TargetDate { get; set; }
+        public MilestoneStatus Status { get; set; }
+        public string Description { get; set; }
+    }
 }

@@ -1,23 +1,24 @@
-namespace AgentSquad.Runner.Models;
-
-public enum MilestoneStatus
+namespace AgentSquad.Runner.Models
 {
-    Completed,
-    InProgress,
-    AtRisk,
-    Future
-}
+    public enum MilestoneStatus
+    {
+        Completed,
+        InProgress,
+        AtRisk,
+        Future
+    }
 
-public enum WorkItemStatus
-{
-    Shipped,
-    InProgress,
-    CarriedOver
-}
+    public enum WorkItemStatus
+    {
+        Shipped,
+        InProgress,
+        CarriedOver
+    }
 
-public enum HealthStatus
-{
-    OnTrack,
-    AtRisk,
-    Blocked
+    public enum HealthStatus
+    {
+        OnTrack,
+        AtRisk,
+        Blocked
+    }
 }

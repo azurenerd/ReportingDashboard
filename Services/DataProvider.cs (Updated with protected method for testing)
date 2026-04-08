@@ -1,0 +1,118 @@
+using System;
+using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using AgentSquad.Runner.Models;
+using Microsoft.Extensions.Logging;
+
+namespace AgentSquad.Runner.Services
+{
+    public class DataProvider : IDataProvider
+    {
+        private readonly ILogger<DataProvider> _logger;
+        private readonly string _dataFilePath;
+        private Project _cachedProject;
+
+        public DataProvider(ILogger<DataProvider> logger)
+        {
+            _logger = logger;
+            _dataFilePath = GetDataFilePath();
+        }
+
+        protected virtual string GetDataFilePath()
+        {
+            return Path.Combine(AppContext.BaseDirectory, "data.json");
+        }
+
+        public async Task<Project> LoadProjectDataAsync()
+        {
+            try
+            {
+                if (!File.Exists(_dataFilePath))
+                {
+                    _logger.LogError($"data.json not found at: {_dataFilePath}");
+                    throw new FileNotFoundException($"Data file not found: {_dataFilePath}");
+                }
+
+                string jsonContent = await File.ReadAllTextAsync(_dataFilePath);
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    Converters = { new JsonStringEnumConverter() }
+                };
+
+                _cachedProject = JsonSerializer.Deserialize<Project>(jsonContent, options);
+
+                if (_cachedProject == null)
+                {
+                    _logger.LogError("Failed to deserialize data.json: result was null");
+                    throw new InvalidOperationException("Deserialization resulted in null project");
+                }
+
+                ValidateProjectData(_cachedProject);
+
+                _logger.LogInformation(
+                    $"Successfully loaded project data: {_cachedProject.Name} " +
+                    $"with {_cachedProject.Milestones.Count} milestones and " +
+                    $"{_cachedProject.WorkItems.Count} work items");
+
+                return _cachedProject;
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError($"JSON parsing error in data.json: {ex.Message}");
+                throw new InvalidOperationException("Invalid JSON format in data.json", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error loading project data: {ex.Message}");
+                throw;
+            }
+        }
+
+        public Project GetCachedProjectData()
+        {
+            if (_cachedProject == null)
+            {
+                _logger.LogWarning("Attempted to access cached project data before loading");
+                return null;
+            }
+            return _cachedProject;
+        }
+
+        private void ValidateProjectData(Project project)
+        {
+            var errors = new System.Collections.Generic.List<string>();
+
+            if (string.IsNullOrWhiteSpace(project.Name))
+                errors.Add("Project name is required");
+
+            if (project.Milestones == null || project.Milestones.Count < 4)
+                errors.Add("At least 4 milestones are required");
+
+            if (project.WorkItems == null || project.WorkItems.Count < 8)
+                errors.Add("At least 8 work items are required");
+
+            if (project.Metrics == null)
+                errors.Add("Project metrics are required");
+
+            if (project.Metrics != null)
+            {
+                if (project.Metrics.CompletionPercentage < 0 || project.Metrics.CompletionPercentage > 100)
+                    errors.Add("CompletionPercentage must be between 0 and 100");
+
+                if (project.Metrics.VelocityCount < 0)
+                    errors.Add("VelocityCount must be non-negative");
+            }
+
+            if (errors.Count > 0)
+            {
+                string errorMessage = string.Join("; ", errors);
+                _logger.LogError($"Data validation errors: {errorMessage}");
+                throw new InvalidOperationException($"Data validation failed: {errorMessage}");
+            }
+        }
+    }
+}

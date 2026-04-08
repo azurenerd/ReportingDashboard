@@ -1,79 +1,141 @@
 {
-  "name": "Executive Project Dashboard",
-  "description": "Real-time executive visibility into project milestones, work items, and health metrics",
-  "startDate": "2024-01-15",
-  "targetEndDate": "2024-12-31",
-  "completionPercentage": 45,
-  "healthStatus": "OnTrack",
-  "velocityThisMonth": 12,
-  "milestones": [
-    {
-      "name": "Phase 1 - Foundation",
-      "targetDate": "2024-03-31",
-      "status": "Completed",
-      "description": "Core infrastructure and project setup"
-    },
-    {
-      "name": "Phase 2 - Dashboard Design",
-      "targetDate": "2024-06-15",
-      "status": "InProgress",
-      "description": "Executive dashboard and visualization components"
-    },
-    {
-      "name": "Phase 3 - Integration",
-      "targetDate": "2024-09-30",
-      "status": "Future",
-      "description": "Data integration and real-time updates"
-    },
-    {
-      "name": "Phase 4 - Launch",
-      "targetDate": "2024-12-31",
-      "status": "Future",
-      "description": "Production deployment and optimization"
+  "project": {
+    "name": "Executive Dashboard Q1 2024",
+    "description": "Executive reporting dashboard for project milestone tracking and status visibility",
+    "organization": "AgentSquad",
+    "lastUpdated": "2024-03-08T14:30:00Z",
+    "milestones": [
+      {
+        "id": "m1",
+        "name": "Requirements Review",
+        "targetDate": "2024-01-15",
+        "status": "Completed",
+        "description": "Stakeholder review and sign-off"
+      },
+      {
+        "id": "m2",
+        "name": "Design Sprint",
+        "targetDate": "2024-02-01",
+        "status": "Completed",
+        "description": "UI/UX design and architecture planning"
+      },
+      {
+        "id": "m3",
+        "name": "Core Development",
+        "targetDate": "2024-02-28",
+        "status": "InProgress",
+        "description": "Dashboard components and data services"
+      },
+      {
+        "id": "m4",
+        "name": "Integration Testing",
+        "targetDate": "2024-03-15",
+        "status": "InProgress",
+        "description": "End-to-end testing and bug fixes"
+      },
+      {
+        "id": "m5",
+        "name": "UAT and Refinement",
+        "targetDate": "2024-03-31",
+        "status": "Future",
+        "description": "User acceptance testing and final tuning"
+      },
+      {
+        "id": "m6",
+        "name": "Production Release",
+        "targetDate": "2024-04-15",
+        "status": "Future",
+        "description": "Go-live and production deployment"
+      }
+    ],
+    "workItems": [
+      {
+        "id": "wi1",
+        "title": "Dashboard Layout Component",
+        "description": "Main layout with CSS Grid structure",
+        "status": "Shipped",
+        "assignee": "Team A"
+      },
+      {
+        "id": "wi2",
+        "title": "Timeline Visualization",
+        "description": "Milestone timeline with Chart.js",
+        "status": "Shipped",
+        "assignee": "Team B"
+      },
+      {
+        "id": "wi3",
+        "title": "Metrics Card Component",
+        "description": "KPI display cards and health indicators",
+        "status": "Shipped",
+        "assignee": "Team A"
+      },
+      {
+        "id": "wi4",
+        "title": "Print/Screenshot Optimization",
+        "description": "Print media queries and viewport optimization",
+        "status": "Shipped",
+        "assignee": "Team C"
+      },
+      {
+        "id": "wi5",
+        "title": "Data Integration Service",
+        "description": "JSON data provider and caching layer",
+        "status": "InProgress",
+        "assignee": "Team B"
+      },
+      {
+        "id": "wi6",
+        "title": "Responsive Design Testing",
+        "description": "Testing at 1024x768, 1280x720, 1920x1080",
+        "status": "InProgress",
+        "assignee": "Team C"
+      },
+      {
+        "id": "wi7",
+        "title": "Browser Compatibility Fixes",
+        "description": "Chrome and Edge rendering consistency",
+        "status": "InProgress",
+        "assignee": "Team A"
+      },
+      {
+        "id": "wi8",
+        "title": "Performance Optimization",
+        "description": "Sub-1-second page load and render time",
+        "status": "CarriedOver",
+        "assignee": "Team B"
+      },
+      {
+        "id": "wi9",
+        "title": "Accessibility Review",
+        "description": "WCAG AA compliance and keyboard navigation",
+        "status": "CarriedOver",
+        "assignee": "Team C"
+      },
+      {
+        "id": "wi10",
+        "title": "Documentation Update",
+        "description": "Architecture and deployment guide",
+        "status": "CarriedOver",
+        "assignee": "Team A"
+      }
+    ],
+    "metrics": {
+      "completionPercentage": 68,
+      "healthStatus": "OnTrack",
+      "velocityThisMonth": 7,
+      "totalMilestones": 6,
+      "completedMilestones": 2,
+      "inProgressMilestones": 2,
+      "atRiskMilestones": 0,
+      "futureMilestones": 2,
+      "onTimePercentage": 95,
+      "riskIndicators": [
+        "UAT timeline compressed by 2 weeks",
+        "One critical resource unavailable next sprint"
+      ],
+      "nextMilestoneDate": "2024-03-15",
+      "nextMilestoneName": "Integration Testing Complete"
     }
-  ],
-  "workItems": [
-    {
-      "title": "Blazor Server Setup",
-      "description": "Project scaffolding and DI configuration",
-      "status": "Shipped",
-      "assignedTo": "Platform Team"
-    },
-    {
-      "title": "Dashboard Layout Component",
-      "description": "Main dashboard grid and section layout",
-      "status": "Shipped",
-      "assignedTo": "Frontend Team"
-    },
-    {
-      "title": "Milestone Timeline Visualization",
-      "description": "Horizontal timeline component with status indicators",
-      "status": "InProgress",
-      "assignedTo": "Visualization Team"
-    },
-    {
-      "title": "Project Metrics Component",
-      "description": "KPI cards and health status display",
-      "status": "InProgress",
-      "assignedTo": "Analytics Team"
-    },
-    {
-      "title": "Work Item Status Tracking",
-      "description": "Shipped, In Progress, and Carried Over columns",
-      "status": "InProgress",
-      "assignedTo": "Frontend Team"
-    },
-    {
-      "title": "Print/Screenshot Optimization",
-      "description": "CSS media queries and responsive layout for PowerPoint",
-      "status": "CarriedOver",
-      "assignedTo": "Design Team"
-    },
-    {
-      "title": "Error Handling and Validation",
-      "description": "JSON validation and user-friendly error messages",
-      "status": "CarriedOver",
-      "assignedTo": "Backend Team"
-    }
-  ]
+  }
 }
