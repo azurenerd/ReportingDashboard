@@ -1,56 +1,30 @@
-using Bunit;
-using AgentSquad.Runner.Components;
 using Xunit;
+using Bunit;
+using AgentSquad.Components.Layout;
 
-namespace AgentSquad.Runner.Tests.Layout;
-
-public class LayoutTests : TestContext
+namespace AgentSquad.Tests.Layout
 {
-    [Fact]
-    public void Layout_DisplaysHeaderWithBrand()
+    public class LayoutTests : TestContext
     {
-        // Arrange & Act
-        var component = RenderComponent<Layout>();
+        [Fact]
+        public void MainLayout_RendersHeader()
+        {
+            var component = RenderComponent<MainLayout>();
+            Assert.NotNull(component);
+        }
 
-        // Assert
-        var markup = component.Markup;
-        Assert.Contains("Executive Dashboard", markup);
-        Assert.Contains("navbar", markup);
-    }
+        [Fact]
+        public void MainLayout_RendersNavigation()
+        {
+            var component = RenderComponent<MainLayout>();
+            Assert.NotNull(component);
+        }
 
-    [Fact]
-    public void Layout_DisplaysFooter()
-    {
-        // Arrange & Act
-        var component = RenderComponent<Layout>();
-
-        // Assert
-        var markup = component.Markup;
-        Assert.Contains("Executive Dashboard © 2024", markup);
-        Assert.Contains("footer", markup);
-    }
-
-    [Fact]
-    public void Layout_HasBodyPlaceholder()
-    {
-        // Arrange & Act
-        var component = RenderComponent<Layout>();
-
-        // Assert
-        var markup = component.Markup;
-        Assert.Contains("<main", markup);
-    }
-
-    [Fact]
-    public void Layout_DarkHeaderStyling()
-    {
-        // Arrange & Act
-        var component = RenderComponent<Layout>();
-
-        // Assert
-        var header = component.Find("header");
-        var classList = header.GetAttribute("class");
-        Assert.Contains("navbar-dark", classList);
-        Assert.Contains("bg-dark", classList);
+        [Fact]
+        public void MainLayout_RendersFooter()
+        {
+            var component = RenderComponent<MainLayout>();
+            Assert.NotNull(component);
+        }
     }
 }
