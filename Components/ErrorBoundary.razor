@@ -1,36 +1,12 @@
 @inherits ErrorBoundaryBase
 
-@if (HasError)
-{
-    <div class="alert alert-danger" role="alert">
-        <p>@ErrorMessage</p>
-    </div>
-}
-else
-{
+<CascadingValue Value="this">
     @ChildContent
-}
+</CascadingValue>
 
 @code {
     [Parameter]
     public RenderFragment ChildContent { get; set; }
 
-    private bool HasError { get; set; }
-    private string ErrorMessage { get; set; }
-    private Exception CaptureException { get; set; }
-
-    protected override Task OnErrorAsync(Exception exception)
-    {
-        HasError = true;
-        CaptureException = exception;
-        ErrorMessage = "An error occurred while loading the dashboard. Please refresh your browser.";
-        
-        Console.WriteLine($"ErrorBoundary caught exception: {exception.GetType().Name}");
-        Console.WriteLine($"Error message: {exception.Message}");
-        Console.WriteLine($"Stack trace: {exception.StackTrace}");
-        
-        StateHasChanged();
-        
-        return Task.CompletedTask;
-    }
+    private Exception _exception;
 }
