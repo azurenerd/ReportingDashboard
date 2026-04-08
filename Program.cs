@@ -1,36 +1,35 @@
+using AgentSquad.Runner.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using AgentSquad.Runner.Components;
-using AgentSquad.Runner.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
+// Add services to the container
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+builder.Services.AddLogging();
 builder.Services.AddMemoryCache();
+
+// Register custom services
 builder.Services.AddScoped<IDataCache, DataCache>();
 builder.Services.AddScoped<IDataProvider, DataProvider>();
-builder.Services.AddLogging(config =>
-{
-    config.AddConsole();
-    config.AddDebug();
-});
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
-app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.UseRouting();
+
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
 
 app.Run();

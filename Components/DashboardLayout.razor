@@ -1,208 +1,96 @@
-@page "/"
+@namespace AgentSquad.Runner.Components
 @using AgentSquad.Runner.Models
 @using AgentSquad.Runner.Services
+@implements IAsyncDisposable
 @inject IDataProvider DataProvider
-@inject IDataCache DataCache
 @inject ILogger<DashboardLayout> Logger
 
-@if (IsLoading)
-{
-    <LoadingSpinner />
-}
-else if (!string.IsNullOrEmpty(ErrorMessage))
-{
-    <ErrorMessage Message="@ErrorMessage" OnRetry="HandleRetry" OnDismiss="HandleDismiss" />
-}
-else if (ProjectData != null)
-{
-    <div class="dashboard-container">
-        @if (Environment.IsDevelopment())
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        @if (ProjectData != null)
         {
-            <div class="debug-panel">
-                <div class="debug-content">
-                    <span class="debug-label">🔧 Developer Mode</span>
-                    <button class="debug-button" @onclick="HandleDebugReload" title="Clear cache and reload dashboard">
-                        ↻ Reload Data
-                    </button>
-                </div>
-            </div>
-        }
-
-        <header class="dashboard-header">
             <h1>@ProjectData.Name</h1>
-            <p>@ProjectData.Description</p>
-        </header>
-
-        <section class="dashboard-timeline">
-            <MilestoneTimeline Milestones="@ProjectData?.Milestones" />
-        </section>
-
-        <section class="dashboard-metrics">
-            <ProjectMetrics Metrics="@ExtractProjectMetrics(ProjectData)" />
-        </section>
-
-        <section class="dashboard-workitems">
-            <WorkItemSummary WorkItems="@ProjectData?.WorkItems" />
-        </section>
+            @if (!string.IsNullOrWhiteSpace(ProjectData.Description))
+            {
+                <p>@ProjectData.Description</p>
+            }
+        }
     </div>
-}
-else
-{
-    <div class="dashboard-container">
+
+    @if (IsLoading)
+    {
+        <div class="loading-spinner">
+            <p>Loading project data...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="error-message">
+            <strong>Error loading dashboard:</strong> @ErrorMessage
+        </div>
+    }
+    else if (ProjectData != null)
+    {
+        <!-- Work Item Summary Section -->
+        <WorkItemSummary WorkItems="@ProjectData.WorkItems" />
+    }
+    else
+    {
         <div class="empty-state">
             <p>No project data available.</p>
         </div>
-    </div>
-}
+    }
+</div>
 
 @code {
-    public Project? ProjectData { get; set; }
-    public bool IsLoading { get; set; }
-    public string ErrorMessage { get; set; } = string.Empty;
+    public Project ProjectData { get; set; }
+    public bool IsLoading { get; set; } = true;
+    public string ErrorMessage { get; set; }
 
     protected override async Task OnInitializedAsync()
-    {
-        await LoadProjectData();
-    }
-
-    private async Task LoadProjectData()
     {
         try
         {
             IsLoading = true;
-            ErrorMessage = string.Empty;
-            Logger.LogInformation("Starting to load project data");
+            ErrorMessage = null;
 
             ProjectData = await DataProvider.LoadProjectDataAsync();
 
-            Logger.LogInformation("Project data loaded successfully: {ProjectName}", ProjectData?.Name);
-            IsLoading = false;
+            if (ProjectData == null)
+            {
+                ErrorMessage = "Project data is null or invalid.";
+                Logger.LogWarning("ProjectData is null after loading from DataProvider");
+            }
         }
         catch (FileNotFoundException ex)
         {
-            Logger.LogError(ex, "Project data file not found at expected location");
-            ErrorMessage = "Configuration file not found. Please ensure data.json exists in the application directory.";
-            IsLoading = false;
+            ErrorMessage = "Configuration file not found. Please ensure data.json exists in the wwwroot directory.";
+            Logger.LogError(ex, "data.json file not found");
         }
-        catch (JsonException ex)
+        catch (System.Text.Json.JsonException ex)
         {
-            Logger.LogError(ex, "Failed to parse project data JSON - syntax error in data.json");
-            ErrorMessage = "Invalid JSON format in configuration file. Please check data.json for syntax errors.";
-            IsLoading = false;
+            ErrorMessage = "Invalid JSON format in configuration file. Please check data.json syntax.";
+            Logger.LogError(ex, "JSON parsing error");
         }
         catch (InvalidOperationException ex)
         {
-            Logger.LogError(ex, "Project data validation failed - missing required fields");
-            ErrorMessage = $"Configuration validation failed: {ex.Message}";
-            IsLoading = false;
+            ErrorMessage = $"Invalid project data: {ex.Message}";
+            Logger.LogError(ex, "Project validation failed");
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Unexpected error occurred while loading project data");
-            ErrorMessage = "An unexpected error occurred while loading the dashboard. Please try again.";
+            ErrorMessage = "An unexpected error occurred while loading project data.";
+            Logger.LogError(ex, "Unexpected error loading project data");
+        }
+        finally
+        {
             IsLoading = false;
         }
     }
 
-    private async Task HandleRetry()
+    async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        await LoadProjectData();
-        StateHasChanged();
-    }
-
-    private Task HandleDismiss()
-    {
-        ErrorMessage = string.Empty;
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
-
-    private async Task HandleDebugReload()
-    {
-        try
-        {
-            Logger.LogInformation("Debug reload initiated: clearing cache and reloading data");
-            DataCache.Remove("project_data");
-            await LoadProjectData();
-            StateHasChanged();
-            Logger.LogInformation("Debug reload completed successfully");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error during debug reload operation");
-        }
-    }
-
-    private ProjectMetrics? ExtractProjectMetrics(Project? project)
-    {
-        if (project == null)
-            return null;
-
-        var completedMilestones = project.Milestones?.Count(m => m.Status == MilestoneStatus.Completed) ?? 0;
-        var totalMilestones = project.Milestones?.Count ?? 0;
-
-        return new ProjectMetrics
-        {
-            CompletionPercentage = Math.Clamp(project.CompletionPercentage, 0, 100),
-            HealthStatus = project.HealthStatus,
-            VelocityThisMonth = project.VelocityThisMonth,
-            TotalMilestones = totalMilestones,
-            CompletedMilestones = completedMilestones
-        };
+        // Cleanup if needed in future phases
+        await ValueTask.CompletedTask;
     }
 }
-
-<style>
-    .debug-panel {
-        position: fixed;
-        top: var(--spacing-md);
-        right: var(--spacing-md);
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: var(--spacing-md);
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 100;
-        font-size: 0.85rem;
-    }
-
-    .debug-content {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-    }
-
-    .debug-label {
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .debug-button {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .debug-button:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-        border-color: rgba(255, 255, 255, 0.5);
-    }
-
-    .debug-button:active {
-        transform: scale(0.98);
-    }
-
-    @media print {
-        .debug-panel {
-            display: none !important;
-        }
-    }
-</style>
