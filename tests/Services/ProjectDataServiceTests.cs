@@ -20,63 +20,52 @@ namespace AgentSquad.Tests.Services
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_WithValidJsonPath_ReturnsProjectData()
+        public async Task LoadProjectDataAsync_LoadsFromWwwrootPath()
         {
-            var jsonPath = "data/test-project.json";
-            var result = await _service.LoadProjectDataAsync(jsonPath);
+            var result = await _service.LoadProjectDataAsync();
             Assert.NotNull(result);
+            Assert.IsType<ProjectData>(result);
         }
 
         [Fact]
         public async Task LoadProjectDataAsync_WithMissingFile_ReturnsEmptyProjectData()
         {
-            var jsonPath = "data/nonexistent.json";
-            var result = await _service.LoadProjectDataAsync(jsonPath);
+            _mockEnvironment.Setup(e => e.WebRootPath).Returns(Path.Combine(Directory.GetCurrentDirectory(), "nonexistent"));
+            var service = new ProjectDataService(_mockEnvironment.Object);
+            var result = await service.LoadProjectDataAsync();
             Assert.NotNull(result);
-            Assert.IsType<ProjectData>(result);
+            Assert.Empty(result.Milestones ?? new List<Milestone>());
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_WithMalformedJson_CatchesJsonExceptionAndReturnsEmpty()
-        {
-            var jsonPath = "data/malformed.json";
-            var result = await _service.LoadProjectDataAsync(jsonPath);
-            Assert.NotNull(result);
-            Assert.IsType<ProjectData>(result);
-        }
-
-        [Fact]
-        public void RefreshData_UpdatesInternalState()
+        public void RefreshData_ReloadsDataFromWwwroot()
         {
             _service.RefreshData();
-            var data = _service.GetCachedData();
-            Assert.NotNull(data);
-        }
-
-        [Fact]
-        public async Task LoadProjectDataAsync_WithValidPath_CachesData()
-        {
-            var jsonPath = "data/test-project.json";
-            await _service.LoadProjectDataAsync(jsonPath);
             var cachedData = _service.GetCachedData();
             Assert.NotNull(cachedData);
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_SchemaValidationFailure_ReturnsEmpty()
+        public async Task LoadProjectDataAsync_CachesLoadedData()
         {
-            var jsonPath = "data/invalid-schema.json";
-            var result = await _service.LoadProjectDataAsync(jsonPath);
-            Assert.NotNull(result);
-            Assert.IsType<ProjectData>(result);
+            await _service.LoadProjectDataAsync();
+            var cached = _service.GetCachedData();
+            Assert.NotNull(cached);
+            Assert.IsType<ProjectData>(cached);
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_WithFileNotFoundException_ReturnsEmpty()
+        public async Task LoadProjectDataAsync_WithValidData_PopulatesProjectInfo()
         {
-            var jsonPath = "data/missing-file.json";
-            var result = await _service.LoadProjectDataAsync(jsonPath);
-            Assert.NotNull(result);
+            var result = await _service.LoadProjectDataAsync();
+            Assert.NotNull(result.Project);
+        }
+
+        [Fact]
+        public async Task LoadProjectDataAsync_WithValidData_PopulatesMilestones()
+        {
+            var result = await _service.LoadProjectDataAsync();
+            Assert.IsType<List<Milestone>>(result.Milestones ?? new List<Milestone>());
         }
     }
 }

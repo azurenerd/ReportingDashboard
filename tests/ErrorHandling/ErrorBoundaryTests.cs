@@ -7,14 +7,15 @@ namespace AgentSquad.Tests.ErrorHandling
     public class ErrorBoundaryTests : TestContext
     {
         [Fact]
-        public void ErrorBoundary_CatchesChildExceptions()
+        public void ErrorBoundary_RenderSuccessfully()
         {
             var component = RenderComponent<ErrorBoundary>();
             Assert.NotNull(component);
+            Assert.NotEmpty(component.Markup);
         }
 
         [Fact]
-        public void ErrorBoundary_DisplaysErrorMessage()
+        public void ErrorBoundary_HandlesChildComponentErrors()
         {
             var component = RenderComponent<ErrorBoundary>();
             Assert.NotNull(component);

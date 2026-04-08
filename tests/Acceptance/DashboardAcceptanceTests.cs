@@ -17,22 +17,23 @@ namespace AgentSquad.Tests.Acceptance
             mockEnvironment.Setup(e => e.WebRootPath).Returns(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
             
             var service = new ProjectDataService(mockEnvironment.Object);
-            Services.AddScoped<IProjectDataService>(_ => service);
+            Services.AddScoped(_ => service);
 
             var component = RenderComponent<Dashboard>();
             component.WaitForAsyncOperation();
 
             Assert.NotNull(component);
+            Assert.NotEmpty(component.Markup);
         }
 
         [Fact]
-        public void Dashboard_HandlesMissingProjectDataFile()
+        public void Dashboard_HandlesMissingDataGracefully()
         {
             var mockEnvironment = new Mock<IWebHostEnvironment>();
             mockEnvironment.Setup(e => e.WebRootPath).Returns(Path.Combine(Directory.GetCurrentDirectory(), "nonexistent"));
             
             var service = new ProjectDataService(mockEnvironment.Object);
-            Services.AddScoped<IProjectDataService>(_ => service);
+            Services.AddScoped(_ => service);
 
             var component = RenderComponent<Dashboard>();
             component.WaitForAsyncOperation();
@@ -41,16 +42,34 @@ namespace AgentSquad.Tests.Acceptance
         }
 
         [Fact]
-        public void Dashboard_IntegrationWithMultipleComponents()
+        public void Dashboard_InitializesWithProjectService()
         {
             var mockEnvironment = new Mock<IWebHostEnvironment>();
             mockEnvironment.Setup(e => e.WebRootPath).Returns(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
             
             var service = new ProjectDataService(mockEnvironment.Object);
-            Services.AddScoped<IProjectDataService>(_ => service);
+            Services.AddScoped(_ => service);
 
             var component = RenderComponent<Dashboard>();
+            
             Assert.NotNull(component);
+            Assert.IsType<Dashboard>(component.Instance);
+        }
+
+        [Fact]
+        public void Dashboard_RefreshesDataOnComponentLoad()
+        {
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+            mockEnvironment.Setup(e => e.WebRootPath).Returns(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
+            
+            var service = new ProjectDataService(mockEnvironment.Object);
+            Services.AddScoped(_ => service);
+
+            var component = RenderComponent<Dashboard>();
+            component.WaitForAsyncOperation();
+
+            var cachedData = service.GetCachedData();
+            Assert.NotNull(cachedData);
         }
     }
 }
