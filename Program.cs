@@ -1,31 +1,27 @@
-using AgentSquad.Runner.Models;
 using AgentSquad.Runner.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
 
 builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<IDataCache, MemoryCacheAdapter>();
-builder.Services.AddScoped<IDataProvider, DataProvider>();
-
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
+builder.Services.AddScoped<IDataCache, DataCache>();
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
-app.UseRouting();
+app.UseAntiforgery();
 
-app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
 
-await app.RunAsync("http://localhost:5000");
+app.Run();
