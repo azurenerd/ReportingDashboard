@@ -20,21 +20,33 @@ public class Project
     public int CompletionPercentage { get; set; }
 
     [JsonPropertyName("healthStatus")]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public HealthStatus HealthStatus { get; set; }
 
     [JsonPropertyName("velocityThisMonth")]
     public int VelocityThisMonth { get; set; }
+
+    [JsonPropertyName("totalMilestones")]
+    public int TotalMilestones { get; set; }
+
+    [JsonPropertyName("completedMilestones")]
+    public int CompletedMilestones { get; set; }
 
     [JsonPropertyName("milestones")]
     public List<Milestone> Milestones { get; set; } = new();
 
     [JsonPropertyName("workItems")]
     public List<WorkItem> WorkItems { get; set; } = new();
-}
 
-public enum HealthStatus
-{
-    OnTrack,
-    AtRisk,
-    Blocked
+    public ProjectMetrics ToProjectMetrics()
+    {
+        return new ProjectMetrics
+        {
+            CompletionPercentage = CompletionPercentage,
+            HealthStatus = HealthStatus,
+            VelocityThisMonth = VelocityThisMonth,
+            TotalMilestones = TotalMilestones,
+            CompletedMilestones = CompletedMilestones
+        };
+    }
 }

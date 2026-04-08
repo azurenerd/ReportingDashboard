@@ -1,9 +1,8 @@
-namespace AgentSquad.Runner.Models
+namespace AgentSquad.Runner.Models;
+
+public enum HealthStatus
 {
-    public enum HealthStatus
-    {
-        OnTrack,
-        AtRisk,
-        Blocked
-    }
+    OnTrack,
+    AtRisk,
+    Blocked
 }
