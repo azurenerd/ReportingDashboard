@@ -16,8 +16,8 @@ A lightweight, single-page executive reporting dashboard built with C# .NET 8 an
 ### Prerequisites
 - .NET 8 SDK installed
 - Chrome or Edge browser (latest 2 versions)
-- Windows 10+ (primary), macOS 10.15+, or Linux
+- Windows 10+, macOS 10.15+, or Linux
 
 ### Development Setup
 
-1. Clone the repository:
+1. Clone repository:
