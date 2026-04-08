@@ -1,424 +1,232 @@
-@namespace AgentSquad.Components
+@page "/milestone-timeline"
 @using AgentSquad.Models
 
-<section class="milestone-timeline-section">
-    <div class="container-fluid">
-        <div class="milestone-timeline-header">
-            <h2>Project Milestones</h2>
-        </div>
-        
-        @if (IsInitialized)
+<div class="milestone-timeline-container">
+    <h2 class="timeline-title">Project Milestones</h2>
+    <div class="timeline-wrapper">
+        @if (Milestones != null && Milestones.Count > 0)
         {
-            @if (HasMilestones)
-            {
-                <div class="milestone-timeline-container">
-                    <div class="timeline-row d-flex flex-wrap">
-                        @foreach (var milestone in Milestones)
-                        {
-                            <div class="timeline-card-wrapper">
-                                <div class="timeline-card @GetStatusClass(milestone.Status)">
-                                    <div class="status-color-stripe"></div>
-                                    <div class="timeline-card-header">
-                                        <h3 class="milestone-name">@milestone.Name</h3>
-                                    </div>
-                                    <div class="timeline-card-body">
-                                        <div class="milestone-info">
-                                            <p class="info-label">Target Date:</p>
-                                            <p class="info-value">@milestone.TargetDate.ToString("MMM dd, yyyy")</p>
-                                        </div>
-                                        <div class="milestone-status-section">
-                                            <p class="info-label">Status:</p>
-                                            <div class="status-indicator @GetStatusIndicatorClass(milestone.Status)">
-                                                @RenderStatusIcon(milestone.Status)
-                                                <span class="status-text">@milestone.Status</span>
-                                            </div>
-                                        </div>
-                                        <div class="milestone-completion-section">
-                                            <div class="completion-header">
-                                                <p class="info-label">Progress:</p>
-                                                <p class="completion-percentage">@milestone.CompletionPercentage%</p>
-                                            </div>
-                                            <div class="progress-bar-container">
-                                                <div class="progress-bar-background">
-                                                    <div class="progress-bar-fill @GetProgressBarClass(milestone.Status)" style="width: @milestone.CompletionPercentage%;">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
+            <div class="timeline-grid">
+                @foreach (var milestone in Milestones)
+                {
+                    var statusClass = GetStatusClass(milestone.Status);
+                    var statusIcon = GetStatusIcon(milestone.Status);
+                    var daysFromStart = (milestone.TargetDate - ProjectStartDate).TotalDays;
+                    var percentagePosition = ProjectDurationDays > 0 
+                        ? (daysFromStart / ProjectDurationDays) * 100 
+                        : 0;
+
+                    <div class="milestone-card @statusClass">
+                        <div class="milestone-header">
+                            <span class="milestone-name">@milestone.Name</span>
+                            <span class="status-icon">@statusIcon</span>
+                        </div>
+                        <div class="milestone-details">
+                            <div class="target-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</div>
+                            <div class="status-text">@milestone.Status</div>
+                        </div>
+                        <div class="completion-bar">
+                            <div class="completion-fill" style="width: @(milestone.CompletionPercentage)%"></div>
+                        </div>
+                        <div class="percentage-text">@milestone.CompletionPercentage%</div>
                     </div>
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-info" role="alert">
-                    <p class="mb-0">No milestones available.</p>
-                </div>
-            }
+                }
+            </div>
         }
         else
         {
-            <div class="loading-state">
-                <p class="text-muted">Loading milestones...</p>
-            </div>
+            <div class="no-milestones">No milestones available.</div>
         }
     </div>
-</section>
+</div>
 
 @code {
     [Parameter]
     public List<Milestone> Milestones { get; set; }
 
-    private bool IsInitialized { get; set; }
-    private bool HasMilestones { get; set; }
+    [Parameter]
+    public DateTime ProjectStartDate { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    [Parameter]
+    public DateTime ProjectEndDate { get; set; }
+
+    [Parameter]
+    public int ProjectDurationDays { get; set; }
+
+    protected override Task OnInitializedAsync()
     {
-        await Task.Delay(0);
-        InitializeMilestones();
-        IsInitialized = true;
+        if (ProjectDurationDays == 0 && ProjectStartDate != default && ProjectEndDate != default)
+        {
+            ProjectDurationDays = (int)(ProjectEndDate - ProjectStartDate).TotalDays;
+        }
+        return Task.CompletedTask;
     }
 
-    private void InitializeMilestones()
+    private string GetStatusClass(string status)
     {
-        if (Milestones == null)
+        return status?.ToLower() switch
         {
-            Milestones = new List<Milestone>();
-            HasMilestones = false;
-        }
-        else
-        {
-            HasMilestones = Milestones.Count > 0;
-        }
-
-        foreach (var milestone in Milestones)
-        {
-            if (string.IsNullOrWhiteSpace(milestone.Name))
-            {
-                milestone.Name = "Untitled Milestone";
-            }
-
-            if (milestone.CompletionPercentage < 0)
-            {
-                milestone.CompletionPercentage = 0;
-            }
-            else if (milestone.CompletionPercentage > 100)
-            {
-                milestone.CompletionPercentage = 100;
-            }
-        }
-    }
-
-    private string GetStatusClass(MilestoneStatus status)
-    {
-        return status switch
-        {
-            MilestoneStatus.Completed => "status-completed",
-            MilestoneStatus.InProgress => "status-in-progress",
-            MilestoneStatus.Pending => "status-pending",
+            "completed" => "status-completed",
+            "inprogress" => "status-inprogress",
+            "pending" => "status-pending",
             _ => "status-pending"
         };
     }
 
-    private string GetStatusIndicatorClass(MilestoneStatus status)
+    private string GetStatusIcon(string status)
     {
-        return status switch
+        return status?.ToLower() switch
         {
-            MilestoneStatus.Completed => "indicator-completed",
-            MilestoneStatus.InProgress => "indicator-in-progress",
-            MilestoneStatus.Pending => "indicator-pending",
-            _ => "indicator-pending"
-        };
-    }
-
-    private string GetProgressBarClass(MilestoneStatus status)
-    {
-        return status switch
-        {
-            MilestoneStatus.Completed => "progress-completed",
-            MilestoneStatus.InProgress => "progress-in-progress",
-            MilestoneStatus.Pending => "progress-pending",
-            _ => "progress-pending"
-        };
-    }
-
-    private MarkupString RenderStatusIcon(MilestoneStatus status)
-    {
-        return status switch
-        {
-            MilestoneStatus.Completed => (MarkupString)@"<svg class='status-icon' viewBox='0 0 24 24' fill='currentColor'><path d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/></svg>",
-            MilestoneStatus.InProgress => (MarkupString)@"<svg class='status-icon' viewBox='0 0 24 24' fill='currentColor'><circle cx='12' cy='12' r='10'/></svg>",
-            MilestoneStatus.Pending => (MarkupString)@"<svg class='status-icon' viewBox='0 0 24 24' fill='currentColor'><circle cx='12' cy='12' r='9'/></svg>",
-            _ => (MarkupString)""
+            "completed" => "✓",
+            "inprogress" => "◐",
+            "pending" => "○",
+            _ => "○"
         };
     }
 }
 
-<style scoped>
-    .milestone-timeline-section {
-        width: 100%;
-        background-color: #f8f9fa;
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-    }
+<style>
+.milestone-timeline-container {
+    width: 100%;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
 
-    .milestone-timeline-header {
-        padding: 0 1rem 1.5rem 1rem;
-    }
+.timeline-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
 
-    .milestone-timeline-header h2 {
-        font-size: 18pt;
-        font-weight: 700;
-        margin: 0;
-        color: #212529;
-    }
+.timeline-wrapper {
+    display: flex;
+    flex-direction: column;
+}
 
-    .milestone-timeline-container {
-        padding: 0 1rem;
-    }
+.timeline-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: flex-start;
+}
 
-    .timeline-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        justify-content: flex-start;
-    }
+.milestone-card {
+    flex: 1 1 300px;
+    min-width: 300px;
+    max-width: 350px;
+    padding: 16px;
+    border-radius: 6px;
+    border-left: 5px solid #6c757d;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
 
-    .timeline-card-wrapper {
-        flex: 1 1 calc(25% - 0.75rem);
-        min-width: 250px;
-    }
+.milestone-card.status-completed {
+    border-left-color: #28a745;
+    background-color: #f0f8f4;
+}
 
-    .timeline-card {
-        background-color: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        padding: 1.5rem;
-        height: 100%;
-        display: flex;
+.milestone-card.status-inprogress {
+    border-left-color: #007bff;
+    background-color: #f0f7ff;
+}
+
+.milestone-card.status-pending {
+    border-left-color: #6c757d;
+    background-color: #f8f9fa;
+}
+
+.milestone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.milestone-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.status-icon {
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.milestone-card.status-completed .status-icon {
+    color: #28a745;
+}
+
+.milestone-card.status-inprogress .status-icon {
+    color: #007bff;
+}
+
+.milestone-card.status-pending .status-icon {
+    color: #6c757d;
+}
+
+.milestone-details {
+    margin-bottom: 12px;
+}
+
+.target-date {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.status-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.completion-bar {
+    width: 100%;
+    height: 2px;
+    background-color: #e9ecef;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.completion-fill {
+    height: 100%;
+    background-color: #28a745;
+    transition: width 0.3s ease;
+}
+
+.milestone-card.status-inprogress .completion-fill {
+    background-color: #007bff;
+}
+
+.percentage-text {
+    font-size: 14px;
+    color: #666;
+    text-align: right;
+}
+
+.no-milestones {
+    font-size: 14px;
+    color: #999;
+    text-align: center;
+    padding: 20px;
+}
+
+@media (max-width: 1024px) {
+    .timeline-grid {
         flex-direction: column;
-        justify-content: space-between;
-        position: relative;
-        border-left: 4px solid #ccc;
-        cursor: pointer;
     }
 
-    .status-color-stripe {
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        border-radius: 0.5rem 0 0 0.5rem;
+    .milestone-card {
+        max-width: 100%;
     }
-
-    .timeline-card.status-completed {
-        border-left-color: #28a745;
-    }
-
-    .timeline-card.status-completed .status-color-stripe {
-        background-color: #28a745;
-    }
-
-    .timeline-card.status-in-progress {
-        border-left-color: #007bff;
-    }
-
-    .timeline-card.status-in-progress .status-color-stripe {
-        background-color: #007bff;
-    }
-
-    .timeline-card.status-pending {
-        border-left-color: #6c757d;
-    }
-
-    .timeline-card.status-pending .status-color-stripe {
-        background-color: #6c757d;
-    }
-
-    .timeline-card-header {
-        margin-bottom: 1rem;
-    }
-
-    .milestone-name {
-        font-size: 12pt;
-        font-weight: 700;
-        margin: 0;
-        line-height: 1.4;
-        color: #212529;
-    }
-
-    .timeline-card-body {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .milestone-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .info-label {
-        font-size: 11pt;
-        font-weight: 600;
-        margin: 0;
-        color: #6c757d;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .info-value {
-        font-size: 12pt;
-        margin: 0;
-        color: #212529;
-        font-weight: 500;
-    }
-
-    .milestone-status-section {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .status-indicator {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 0.75rem;
-        border-radius: 0.25rem;
-        font-size: 12pt;
-        font-weight: 500;
-    }
-
-    .indicator-completed {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-
-    .indicator-in-progress {
-        background-color: #d1ecf1;
-        color: #0c5460;
-        border: 1px solid #bee5eb;
-    }
-
-    .indicator-pending {
-        background-color: #e2e3e5;
-        color: #383d41;
-        border: 1px solid #d6d8db;
-    }
-
-    .status-icon {
-        width: 1rem;
-        height: 1rem;
-        flex-shrink: 0;
-    }
-
-    .status-text {
-        line-height: 1;
-    }
-
-    .milestone-completion-section {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        padding-top: 0.5rem;
-        border-top: 1px solid #e9ecef;
-    }
-
-    .completion-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .completion-header .info-label {
-        margin: 0;
-    }
-
-    .completion-percentage {
-        font-size: 12pt;
-        font-weight: 700;
-        margin: 0;
-        color: #212529;
-    }
-
-    .progress-bar-container {
-        width: 100%;
-    }
-
-    .progress-bar-background {
-        width: 100%;
-        height: 2px;
-        background-color: #e9ecef;
-        border-radius: 1px;
-        overflow: hidden;
-    }
-
-    .progress-bar-fill {
-        height: 100%;
-        border-radius: 1px;
-        transition: none;
-    }
-
-    .progress-completed {
-        background-color: #28a745;
-    }
-
-    .progress-in-progress {
-        background-color: #007bff;
-    }
-
-    .progress-pending {
-        background-color: #6c757d;
-    }
-
-    .alert {
-        font-size: 12pt;
-        margin: 0;
-    }
-
-    .loading-state {
-        padding: 2rem;
-        text-align: center;
-    }
-
-    .text-muted {
-        color: #6c757d;
-        font-size: 12pt;
-        margin: 0;
-    }
-
-    @media (max-width: 1199px) {
-        .timeline-card-wrapper {
-            flex: 1 1 calc(50% - 0.5rem);
-        }
-    }
-
-    @media (max-width: 767px) {
-        .timeline-card-wrapper {
-            flex: 1 1 100%;
-        }
-
-        .milestone-timeline-section {
-            padding: 1.5rem 0;
-        }
-
-        .timeline-row {
-            flex-direction: column;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .timeline-row {
-            display: flex;
-            flex-direction: row;
-        }
-    }
+}
 </style>

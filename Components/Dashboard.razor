@@ -1,150 +1,143 @@
 @page "/"
-@namespace AgentSquad.Components
 @using AgentSquad.Models
-@using AgentSquad.Components
+@using AgentSquad.Services
+@inject ProjectDataService ProjectDataService
 
 <div class="dashboard-container">
-    <header class="dashboard-header">
-        <h1>Executive Project Dashboard</h1>
-        <p class="dashboard-subtitle">Real-time project milestone and task status tracking</p>
-    </header>
+    <div class="dashboard-header">
+        <h1>@(ProjectData?.ProjectName ?? "Project Dashboard")</h1>
+    </div>
 
-    <main class="dashboard-main">
-        <MilestoneTimeline Milestones="SampleMilestones" />
-        
-        <section class="dashboard-content">
-            <div class="container-fluid">
-                <p class="section-placeholder">Additional dashboard sections (Status Cards, Progress Metrics) to be integrated in future iterations</p>
-            </div>
-        </section>
-    </main>
+    @if (ShowError)
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Error:</strong> @ErrorMessage
+        </div>
+    }
 
-    <footer class="dashboard-footer">
-        <p>&copy; 2026 Executive Project Dashboard. All rights reserved.</p>
-    </footer>
+    @if (ProjectData != null)
+    {
+        <MilestoneTimeline 
+            Milestones="@ProjectData.Milestones"
+            ProjectStartDate="@ProjectData.ProjectStartDate"
+            ProjectEndDate="@ProjectData.ProjectEndDate"
+            ProjectDurationDays="@((int)(ProjectData.ProjectEndDate - ProjectData.ProjectStartDate).TotalDays)">
+        </MilestoneTimeline>
+
+        <div class="status-cards-container">
+            @foreach (var statusCategory in GetStatusCategories())
+            {
+                <StatusCard 
+                    StatusCategory="@statusCategory.Key"
+                    TaskCount="@statusCategory.Value.Count"
+                    Tasks="@statusCategory.Value"
+                    CardColor="@GetCardColor(statusCategory.Key)">
+                </StatusCard>
+            }
+        </div>
+
+        <ProgressMetrics 
+            CompletionPercentage="@ProjectData.CompletionPercentage"
+            TotalTasks="@ProjectData.Tasks.Count">
+        </ProgressMetrics>
+    }
+    else if (!ShowError)
+    {
+        <div class="loading">Loading project data...</div>
+    }
 </div>
 
 @code {
-    private List<Milestone> SampleMilestones { get; set; } = new();
+    private ProjectData ProjectData;
+    private bool ShowError = false;
+    private string ErrorMessage = string.Empty;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        InitializeSampleData();
+        try
+        {
+            ProjectData = await ProjectDataService.LoadProjectDataAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowError = true;
+            ErrorMessage = $"Failed to load project data: {ex.Message}";
+        }
     }
 
-    private void InitializeSampleData()
+    private Dictionary<string, List<TaskItem>> GetStatusCategories()
     {
-        SampleMilestones = new List<Milestone>
+        var categories = new Dictionary<string, List<TaskItem>>
         {
-            new Milestone
+            { "Shipped", new List<TaskItem>() },
+            { "InProgress", new List<TaskItem>() },
+            { "CarriedOver", new List<TaskItem>() }
+        };
+
+        if (ProjectData?.Tasks != null)
+        {
+            foreach (var task in ProjectData.Tasks)
             {
-                Name = "Requirements Gathering",
-                TargetDate = new DateTime(2026, 3, 31),
-                Status = MilestoneStatus.Completed,
-                CompletionPercentage = 100
-            },
-            new Milestone
-            {
-                Name = "Design Phase",
-                TargetDate = new DateTime(2026, 4, 30),
-                Status = MilestoneStatus.InProgress,
-                CompletionPercentage = 65
-            },
-            new Milestone
-            {
-                Name = "Development Sprint 1",
-                TargetDate = new DateTime(2026, 5, 31),
-                Status = MilestoneStatus.Pending,
-                CompletionPercentage = 0
-            },
-            new Milestone
-            {
-                Name = "QA & Testing",
-                TargetDate = new DateTime(2026, 6, 30),
-                Status = MilestoneStatus.Pending,
-                CompletionPercentage = 0
+                if (categories.ContainsKey(task.Status))
+                {
+                    categories[task.Status].Add(task);
+                }
             }
+        }
+
+        return categories;
+    }
+
+    private string GetCardColor(string status)
+    {
+        return status switch
+        {
+            "Shipped" => "status-shipped",
+            "InProgress" => "status-inprogress",
+            "CarriedOver" => "status-carriedover",
+            _ => "status-default"
         };
     }
 }
 
-<style scoped>
-    .dashboard-container {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        background-color: #ffffff;
-    }
+<style>
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-    .dashboard-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 2rem 1rem;
-        text-align: center;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.dashboard-header {
+    margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+}
+
+.status-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.loading {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    padding: 40px;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-container {
+        padding: 15px;
     }
 
     .dashboard-header h1 {
-        font-size: 28pt;
-        font-weight: 700;
-        margin: 0 0 0.5rem 0;
-        line-height: 1.2;
+        font-size: 24px;
     }
-
-    .dashboard-subtitle {
-        font-size: 14pt;
-        font-weight: 400;
-        margin: 0;
-        opacity: 0.95;
-    }
-
-    .dashboard-main {
-        flex: 1;
-        padding: 2rem 0;
-    }
-
-    .dashboard-content {
-        padding: 2rem 0;
-        background-color: #f8f9fa;
-    }
-
-    .section-placeholder {
-        font-size: 12pt;
-        color: #6c757d;
-        margin: 0;
-        padding: 1rem;
-        text-align: center;
-        font-style: italic;
-    }
-
-    .dashboard-footer {
-        background-color: #212529;
-        color: #adb5bd;
-        padding: 1.5rem;
-        text-align: center;
-        font-size: 11pt;
-        margin-top: auto;
-    }
-
-    .dashboard-footer p {
-        margin: 0;
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-header {
-            padding: 1.5rem 1rem;
-        }
-
-        .dashboard-header h1 {
-            font-size: 20pt;
-        }
-
-        .dashboard-subtitle {
-            font-size: 12pt;
-        }
-
-        .dashboard-main {
-            padding: 1rem 0;
-        }
-    }
+}
 </style>

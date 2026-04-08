@@ -1,16 +1,22 @@
-namespace AgentSquad.Models;
+using System;
+using System.ComponentModel.DataAnnotations;
 
-public enum MilestoneStatus
+namespace AgentSquad.Models
 {
-    Pending,
-    InProgress,
-    Completed
-}
+    public class Milestone
+    {
+        [Required(ErrorMessage = "Milestone name is required")]
+        [StringLength(100, MinimumLength = 1, ErrorMessage = "Milestone name must be between 1 and 100 characters")]
+        public string Name { get; set; }
 
-public class Milestone
-{
-    public string Name { get; set; } = string.Empty;
-    public DateTime TargetDate { get; set; }
-    public MilestoneStatus Status { get; set; }
-    public int CompletionPercentage { get; set; }
+        [Required(ErrorMessage = "Target date is required")]
+        public DateTime TargetDate { get; set; }
+
+        [Required(ErrorMessage = "Status is required")]
+        public string Status { get; set; } // Completed, InProgress, Pending
+
+        [Required(ErrorMessage = "Completion percentage is required")]
+        [Range(0, 100, ErrorMessage = "Completion percentage must be between 0 and 100")]
+        public int CompletionPercentage { get; set; }
+    }
 }
