@@ -1,7 +1,36 @@
 @using AgentSquad.Runner.Data
 
-<div class="milestone-timeline">
-    <p class="text-muted">Milestone timeline component placeholder</p>
+<div class="timeline-container">
+    <h2 class="section-title">Milestones</h2>
+    @if (Milestones == null || Milestones.Count == 0)
+    {
+        <div class="timeline-placeholder">
+            <p class="text-muted">No milestones defined.</p>
+        </div>
+    }
+    else
+    {
+        <div class="timeline-grid">
+            @foreach (var milestone in Milestones)
+            {
+                var statusClass = milestone.Status switch
+                {
+                    MilestoneStatus.Completed => "completed",
+                    MilestoneStatus.InProgress => "in-progress",
+                    _ => "pending"
+                };
+
+                <div class="milestone @statusClass">
+                    <div class="milestone-name">@milestone.Name</div>
+                    <div class="milestone-date">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</div>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar" role="progressbar" style="width: @milestone.CompletionPercentage%" aria-valuenow="@milestone.CompletionPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small class="text-muted mt-1 d-block">@milestone.CompletionPercentage% complete</small>
+                </div>
+            }
+        </div>
+    }
 </div>
 
 @code {
@@ -14,3 +43,19 @@
     [Parameter]
     public DateTime ProjectEndDate { get; set; }
 }
+
+<style>
+    .timeline-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .timeline-placeholder {
+        background: #f8f9fa;
+        border: 1px dashed #dee2e6;
+        border-radius: 0.375rem;
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+</style>

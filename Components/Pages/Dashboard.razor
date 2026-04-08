@@ -1,0 +1,102 @@
+@page "/"
+@using AgentSquad.Runner.Data
+@using AgentSquad.Runner.Services
+@inject ProjectDataService ProjectDataService
+
+<PageTitle>Executive Dashboard</PageTitle>
+
+<div class="container-fluid px-4">
+    <div class="py-4">
+        @if (LoadError)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error Loading Data</strong>
+                <p>@ErrorMessage</p>
+                <button type="button" class="btn-close" @onclick="() => LoadError = false"></button>
+            </div>
+        }
+
+        @if (ProjectData?.Project != null)
+        {
+            <h1 class="section-title">@ProjectData.Project.Name</h1>
+            @if (!string.IsNullOrEmpty(ProjectData.Project.Description))
+            {
+                <p class="text-muted mb-4">@ProjectData.Project.Description</p>
+            }
+        }
+
+        @if (IsLoading)
+        {
+            <div class="text-center my-5">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else if (ProjectData != null)
+        {
+            <div class="dashboard-section">
+                <MilestoneTimeline Milestones="ProjectData.Milestones" 
+                                   ProjectStartDate="ProjectData.Project?.StartDate ?? DateTime.MinValue"
+                                   ProjectEndDate="ProjectData.Project?.EndDate ?? DateTime.MaxValue" />
+            </div>
+
+            <div class="dashboard-section">
+                <h2 class="section-title">Task Status</h2>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <StatusCard StatusCategory="Shipped" 
+                                    TaskCount="ProjectData.Summary?.TasksShipped ?? 0"
+                                    Tasks="GetTasksByStatus(TaskStatus.Shipped)"
+                                    CardColor="shipped" />
+                    </div>
+                    <div class="col-md-4">
+                        <StatusCard StatusCategory="In Progress" 
+                                    TaskCount="ProjectData.Summary?.TasksInProgress ?? 0"
+                                    Tasks="GetTasksByStatus(TaskStatus.InProgress)"
+                                    CardColor="in-progress" />
+                    </div>
+                    <div class="col-md-4">
+                        <StatusCard StatusCategory="Carried Over" 
+                                    TaskCount="ProjectData.Summary?.TasksCarriedOver ?? 0"
+                                    Tasks="GetTasksByStatus(TaskStatus.CarriedOver)"
+                                    CardColor="carried-over" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <ProgressMetrics Metrics="ProjectData.Summary" TotalTasks="ProjectData.Tasks.Count" />
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private ProjectData? ProjectData;
+    private bool IsLoading = true;
+    private bool LoadError = false;
+    private string? ErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            IsLoading = true;
+            LoadError = false;
+            ProjectData = await ProjectDataService.LoadProjectDataAsync();
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            LoadError = true;
+            ErrorMessage = $"Failed to load dashboard data: {ex.Message}";
+            IsLoading = false;
+        }
+    }
+
+    private List<ProjectTask> GetTasksByStatus(TaskStatus status)
+    {
+        return ProjectData?.Tasks?.Where(t => t.Status == status).ToList() ?? new();
+    }
+}

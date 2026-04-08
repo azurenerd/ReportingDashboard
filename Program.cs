@@ -1,4 +1,5 @@
 using AgentSquad.Runner.Components;
+using AgentSquad.Runner.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddAntiforgery();
+builder.Services.AddScoped<ProjectDataService>();
 
 var app = builder.Build();
 

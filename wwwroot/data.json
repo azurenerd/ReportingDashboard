@@ -1,8 +1,10 @@
 {
-  "projectName": "AgentSquad Initiative",
-  "projectDescription": "Building an intelligent agent coordination system",
-  "startDate": "2024-01-15",
-  "endDate": "2024-12-31",
+  "project": {
+    "name": "AgentSquad Initiative",
+    "description": "Building an intelligent agent coordination system",
+    "startDate": "2024-01-15",
+    "endDate": "2024-12-31"
+  },
   "milestones": [
     {
       "id": "m1",
