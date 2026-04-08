@@ -1,7 +1,7 @@
 {
   "project": {
     "name": "Q2 Mobile App Release",
-    "description": "iOS and Android mobile app version 2.0 with new payment integration and enhanced security features",
+    "description": "iOS and Android mobile app version 2.0 with new payment integration",
     "startDate": "2026-04-01",
     "endDate": "2026-06-30",
     "status": "OnTrack",
@@ -29,14 +29,6 @@
       "id": "m3",
       "name": "QA Testing Complete",
       "targetDate": "2026-06-01",
-      "actualDate": null,
-      "status": "Pending",
-      "completionPercentage": 0
-    },
-    {
-      "id": "m4",
-      "name": "Release to Production",
-      "targetDate": "2026-06-30",
       "actualDate": null,
       "status": "Pending",
       "completionPercentage": 0
@@ -72,48 +64,48 @@
     },
     {
       "id": "t4",
-      "name": "Android Security Hardening",
-      "status": "InProgress",
-      "assignedTo": "Carol Johnson",
-      "dueDate": "2026-05-20",
-      "estimatedDays": 7,
-      "relatedMilestone": "m2"
-    },
-    {
-      "id": "t5",
-      "name": "User Interface Refinement",
+      "name": "Android UI Polish",
       "status": "Shipped",
-      "assignedTo": "David Lee",
+      "assignedTo": "Sarah Johnson",
       "dueDate": "2026-04-25",
       "estimatedDays": 4,
       "relatedMilestone": "m1"
     },
     {
+      "id": "t5",
+      "name": "Database Migration",
+      "status": "Shipped",
+      "assignedTo": "Mike Chen",
+      "dueDate": "2026-04-18",
+      "estimatedDays": 3,
+      "relatedMilestone": "m1"
+    },
+    {
       "id": "t6",
-      "name": "Backend Database Optimization",
+      "name": "Security Audit",
       "status": "InProgress",
-      "assignedTo": "Emma Davis",
-      "dueDate": "2026-05-25",
-      "estimatedDays": 10,
+      "assignedTo": "Emily Davis",
+      "dueDate": "2026-05-05",
+      "estimatedDays": 5,
       "relatedMilestone": "m2"
     },
     {
       "id": "t7",
-      "name": "QA Test Plan Documentation",
-      "status": "CarriedOver",
-      "assignedTo": "Frank Miller",
-      "dueDate": "2026-05-05",
-      "estimatedDays": 3,
+      "name": "Performance Testing",
+      "status": "InProgress",
+      "assignedTo": "David Martinez",
+      "dueDate": "2026-05-20",
+      "estimatedDays": 7,
       "relatedMilestone": "m3"
     },
     {
       "id": "t8",
-      "name": "Performance Load Testing",
-      "status": "Shipped",
-      "assignedTo": "Grace Wilson",
-      "dueDate": "2026-04-30",
-      "estimatedDays": 5,
-      "relatedMilestone": "m1"
+      "name": "Release Notes Documentation",
+      "status": "CarriedOver",
+      "assignedTo": "Lisa Anderson",
+      "dueDate": "2026-06-15",
+      "estimatedDays": 2,
+      "relatedMilestone": "m3"
     }
   ],
   "metrics": {
@@ -121,10 +113,6 @@
     "completedTasks": 3,
     "inProgressTasks": 3,
     "carriedOverTasks": 2,
-    "completionPercentage": 38,
-    "estimatedBurndownRate": 1.2,
-    "projectStartDate": "2026-04-01",
-    "projectEndDate": "2026-06-30",
-    "daysRemaining": 83
+    "estimatedBurndownRate": 1.2
   }
 }
