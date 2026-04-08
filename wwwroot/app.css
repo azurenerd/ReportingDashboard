@@ -1,13 +1,119 @@
-html, body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+:root {
+    --primary-color: #0d6efd;
+    --success-color: #198754;
+    --info-color: #0dcaf0;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
 }
 
-.page {
+html, body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.dashboard-header {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 20px;
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    color: #212529;
+    margin-bottom: 10px;
+}
+
+.card {
+    border-radius: 8px;
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    padding-left: 30px;
     position: relative;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.timeline-content {
+    width: 100%;
+}
+
+.status-card {
     display: flex;
     flex-direction: column;
 }
 
-main {
-    flex: 1;
+.task-item {
+    border-left: 3px solid #e9ecef;
+    transition: all 0.2s ease;
+}
+
+.task-item:hover {
+    border-left-color: var(--primary-color);
+    background-color: white !important;
+}
+
+.progress-metrics {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.metric-box {
+    transition: transform 0.2s ease;
+}
+
+.badge {
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 20px 15px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .row {
+        margin-left: -8px;
+        margin-right: -8px;
+    }
+
+    [class*='col-'] {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+@media print {
+    .dashboard-container {
+        max-width: 100%;
+    }
+
+    .card {
+        page-break-inside: avoid;
+    }
 }

@@ -1,56 +1,58 @@
-@using AgentSquad.Runner.Data
+@using AgentSquad.Runner.Models
 
-<div class="metrics-container">
-    <h2 class="section-title">Progress Metrics</h2>
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <p class="metric-label">Overall Completion</p>
-            <p class="metric-value">@(Metrics?.CompletionPercentage ?? 0)%</p>
-            <div class="progress" style="height: 8px;">
-                <div class="progress-bar bg-success" role="progressbar" style="width: @(Metrics?.CompletionPercentage ?? 0)%" aria-valuenow="@(Metrics?.CompletionPercentage ?? 0)" aria-valuemin="0" aria-valuemax="100"></div>
+<div class="progress-metrics card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <h2 class="card-title mb-4">Project Progress</h2>
+
+        @if (ProjectData != null)
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="metric-box p-3 rounded" style="background-color: #f8f9fa;">
+                        <p class="text-muted mb-2">Overall Completion</p>
+                        <h3 class="mb-3">@GetOverallCompletion()%</h3>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: @GetOverallCompletion()%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-box p-3 rounded" style="background-color: #f8f9fa;">
+                        <p class="text-muted mb-2">Tasks Summary</p>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="badge bg-success">@GetTaskCount("Shipped")</span>
+                                <small class="d-block text-muted">Shipped</small>
+                            </div>
+                            <div>
+                                <span class="badge bg-info">@GetTaskCount("InProgress")</span>
+                                <small class="d-block text-muted">In Progress</small>
+                            </div>
+                            <div>
+                                <span class="badge bg-warning text-dark">@GetTaskCount("CarriedOver")</span>
+                                <small class="d-block text-muted">Carried Over</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="metric-card">
-            <p class="metric-label">Total Tasks</p>
-            <p class="metric-value">@TotalTasks</p>
-        </div>
-        <div class="metric-card">
-            <p class="metric-label">Tasks Shipped</p>
-            <p class="metric-value">@(Metrics?.TasksShipped ?? 0)</p>
-            <small class="text-success">Completed</small>
-        </div>
-        <div class="metric-card">
-            <p class="metric-label">Tasks In Progress</p>
-            <p class="metric-value">@(Metrics?.TasksInProgress ?? 0)</p>
-            <small class="text-info">Active work</small>
-        </div>
-        <div class="metric-card">
-            <p class="metric-label">Tasks Carried Over</p>
-            <p class="metric-value">@(Metrics?.TasksCarriedOver ?? 0)</p>
-            <small class="text-warning">Delayed</small>
-        </div>
+        }
     </div>
 </div>
 
 @code {
     [Parameter]
-    public ProjectMetrics? Metrics { get; set; }
+    public ProjectData ProjectData { get; set; }
 
-    [Parameter]
-    public int TotalTasks { get; set; }
+    private int GetOverallCompletion()
+    {
+        if (ProjectData?.Milestones == null || ProjectData.Milestones.Count == 0)
+            return 0;
+        return (int)ProjectData.Milestones.Average(m => m.CompletionPercentage);
+    }
+
+    private int GetTaskCount(string status)
+    {
+        return ProjectData?.Tasks?.Count(t => t.Status == status) ?? 0;
+    }
 }
-
-<style>
-    .metrics-container {
-        background: white;
-        border-radius: 0.375rem;
-        padding: 2rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-    }
-</style>
