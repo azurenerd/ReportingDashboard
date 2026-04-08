@@ -15,8 +15,8 @@ namespace AgentSquad.Tests.Components
             // Arrange
             var milestones = new List<Milestone>
             {
-                new Milestone { Name = "Phase 1", TargetDate = DateTime.Now.AddDays(30), Status = "Pending", CompletionPercentage = 0 },
-                new Milestone { Name = "Phase 2", TargetDate = DateTime.Now.AddDays(60), Status = "InProgress", CompletionPercentage = 50 }
+                new Milestone { Name = "Phase 1", TargetDate = DateTime.Now.AddDays(30), Status = MilestoneStatus.Pending, CompletionPercentage = 0 },
+                new Milestone { Name = "Phase 2", TargetDate = DateTime.Now.AddDays(60), Status = MilestoneStatus.InProgress, CompletionPercentage = 50 }
             };
 
             var startDate = DateTime.Now;
@@ -49,7 +49,7 @@ namespace AgentSquad.Tests.Components
             // Arrange
             var milestones = new List<Milestone>
             {
-                new Milestone { Name = "Planning", TargetDate = DateTime.Now.AddDays(30), Status = "Completed", CompletionPercentage = 100 }
+                new Milestone { Name = "Planning", TargetDate = DateTime.Now.AddDays(30), Status = MilestoneStatus.Completed, CompletionPercentage = 100 }
             };
 
             var startDate = DateTime.Now;
@@ -72,7 +72,7 @@ namespace AgentSquad.Tests.Components
             // Arrange
             var milestones = new List<Milestone>
             {
-                new Milestone { Name = "Test", TargetDate = DateTime.Now.AddDays(30), Status = "Completed", CompletionPercentage = 100 }
+                new Milestone { Name = "Test", TargetDate = DateTime.Now.AddDays(30), Status = MilestoneStatus.Completed, CompletionPercentage = 100 }
             };
 
             var startDate = DateTime.Now;
@@ -115,7 +115,7 @@ namespace AgentSquad.Tests.Components
             // Arrange
             var milestones = new List<Milestone>
             {
-                new Milestone { Name = "Phase 1", TargetDate = DateTime.Now.AddDays(30), Status = "InProgress", CompletionPercentage = 75 }
+                new Milestone { Name = "Phase 1", TargetDate = DateTime.Now.AddDays(30), Status = MilestoneStatus.InProgress, CompletionPercentage = 75 }
             };
 
             var startDate = DateTime.Now;
@@ -138,7 +138,7 @@ namespace AgentSquad.Tests.Components
             // Arrange
             var milestones = new List<Milestone>
             {
-                new Milestone { Name = "Planning", TargetDate = DateTime.Now.AddDays(30), Status = "Pending", CompletionPercentage = 0 }
+                new Milestone { Name = "Planning", TargetDate = DateTime.Now.AddDays(30), Status = MilestoneStatus.Pending, CompletionPercentage = 0 }
             };
 
             var startDate = DateTime.Now;
@@ -151,8 +151,8 @@ namespace AgentSquad.Tests.Components
                 .Add(p => p.ProjectEndDate, endDate)
                 .Add(p => p.ProjectDurationDays, 90));
 
-            // Assert - Verify CSS contains font-size declarations
-            Assert.Contains("font-size: 14px", component.Markup);
+            // Assert - Verify CSS contains font-size declarations at 16px or higher
+            Assert.Contains("font-size: 16px", component.Markup);
         }
     }
 }

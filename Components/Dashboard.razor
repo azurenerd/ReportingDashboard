@@ -81,9 +81,10 @@
         {
             foreach (var task in ProjectData.Tasks)
             {
-                if (categories.ContainsKey(task.Status))
+                var statusKey = task.Status.ToString();
+                if (categories.ContainsKey(statusKey))
                 {
-                    categories[task.Status].Add(task);
+                    categories[statusKey].Add(task);
                 }
             }
         }
