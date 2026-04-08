@@ -43,5 +43,34 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+
+        try
+        {
+            IsLoading = true;
+            ErrorMessage = null;
+
+            ProjectData = await DataProvider.LoadProjectDataAsync();
+
+            if (ProjectData == null)
+            {
+                ErrorMessage = "Project data is empty or invalid.";
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            ErrorMessage = $"Configuration file not found: {ex.Message}";
+        }
+        catch (InvalidOperationException ex)
+        {
+            ErrorMessage = $"Failed to parse project data: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 }
