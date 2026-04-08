@@ -1,56 +1,29 @@
-@using AgentSquad.Runner.Data
-
-<div class="metrics-container">
-    <h2 class="section-title">Progress Metrics</h2>
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <p class="metric-label">Overall Completion</p>
-            <p class="metric-value">@(Metrics?.CompletionPercentage ?? 0)%</p>
-            <div class="progress" style="height: 8px;">
-                <div class="progress-bar bg-success" role="progressbar" style="width: @(Metrics?.CompletionPercentage ?? 0)%" aria-valuenow="@(Metrics?.CompletionPercentage ?? 0)" aria-valuemin="0" aria-valuemax="100"></div>
+<div class="progress-metrics-container">
+    <div class="row">
+        <div class="col-12">
+            <h4>Overall Project Completion</h4>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <div class="progress" style="height: 40px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: @CompletionPercentage%;" aria-valuenow="@CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                    <strong>@CompletionPercentage%</strong>
+                </div>
             </div>
         </div>
-        <div class="metric-card">
-            <p class="metric-label">Total Tasks</p>
-            <p class="metric-value">@TotalTasks</p>
-        </div>
-        <div class="metric-card">
-            <p class="metric-label">Tasks Shipped</p>
-            <p class="metric-value">@(Metrics?.TasksShipped ?? 0)</p>
-            <small class="text-success">Completed</small>
-        </div>
-        <div class="metric-card">
-            <p class="metric-label">Tasks In Progress</p>
-            <p class="metric-value">@(Metrics?.TasksInProgress ?? 0)</p>
-            <small class="text-info">Active work</small>
-        </div>
-        <div class="metric-card">
-            <p class="metric-label">Tasks Carried Over</p>
-            <p class="metric-value">@(Metrics?.TasksCarriedOver ?? 0)</p>
-            <small class="text-warning">Delayed</small>
+        <div class="col-md-6">
+            <p class="text-muted">
+                <strong>@ProjectName</strong> is <strong>@CompletionPercentage% complete</strong>
+            </p>
         </div>
     </div>
 </div>
 
 @code {
     [Parameter]
-    public ProjectMetrics? Metrics { get; set; }
+    public int CompletionPercentage { get; set; }
 
     [Parameter]
-    public int TotalTasks { get; set; }
+    public string ProjectName { get; set; }
 }
-
-<style>
-    .metrics-container {
-        background: white;
-        border-radius: 0.375rem;
-        padding: 2rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-    }
-</style>

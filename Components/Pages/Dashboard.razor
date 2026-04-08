@@ -29,7 +29,11 @@
         <div class="row mb-5">
             <div class="col-12">
                 <h2>Project Milestones</h2>
-                <!-- MilestoneTimeline component will be added in step 5 -->
+                <MilestoneTimeline 
+                    Milestones="@_projectData.Milestones"
+                    ProjectStartDate="@_projectData.ProjectStartDate"
+                    ProjectEndDate="@_projectData.ProjectEndDate">
+                </MilestoneTimeline>
             </div>
         </div>
 
@@ -37,15 +41,40 @@
         <div class="row mb-5">
             <div class="col-12">
                 <h2>Task Status</h2>
-                <!-- StatusCard components will be added in step 5 -->
+            </div>
+            <div class="col-md-4 mb-3">
+                <StatusCard 
+                    StatusCategory="Shipped"
+                    TaskCount="@_shippedTasks.Count"
+                    Tasks="@_shippedTasks"
+                    CardColor="success">
+                </StatusCard>
+            </div>
+            <div class="col-md-4 mb-3">
+                <StatusCard 
+                    StatusCategory="In-Progress"
+                    TaskCount="@_inProgressTasks.Count"
+                    Tasks="@_inProgressTasks"
+                    CardColor="primary">
+                </StatusCard>
+            </div>
+            <div class="col-md-4 mb-3">
+                <StatusCard 
+                    StatusCategory="Carried-Over"
+                    TaskCount="@_carriedOverTasks.Count"
+                    Tasks="@_carriedOverTasks"
+                    CardColor="warning">
+                </StatusCard>
             </div>
         </div>
 
         <!-- Progress Metrics Section -->
         <div class="row">
             <div class="col-12">
-                <h2>Progress Metrics</h2>
-                <!-- ProgressMetrics component will be added in step 5 -->
+                <ProgressMetrics 
+                    CompletionPercentage="@_projectData.CompletionPercentage"
+                    ProjectName="@_projectData.ProjectName">
+                </ProgressMetrics>
             </div>
         </div>
     }
@@ -55,6 +84,9 @@
     private ProjectData _projectData;
     private string _errorMessage;
     private bool _isLoading = true;
+    private List<ProjectTask> _shippedTasks;
+    private List<ProjectTask> _inProgressTasks;
+    private List<ProjectTask> _carriedOverTasks;
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,6 +95,7 @@
             _isLoading = true;
             _errorMessage = null;
             _projectData = await DataService.LoadProjectDataAsync();
+            OrganizeTasksByStatus();
         }
         catch (FileNotFoundException ex)
         {
@@ -80,5 +113,12 @@
         {
             _isLoading = false;
         }
+    }
+
+    private void OrganizeTasksByStatus()
+    {
+        _shippedTasks = _projectData.Tasks.Where(t => t.Status == TaskStatus.Shipped).ToList();
+        _inProgressTasks = _projectData.Tasks.Where(t => t.Status == TaskStatus.InProgress).ToList();
+        _carriedOverTasks = _projectData.Tasks.Where(t => t.Status == TaskStatus.CarriedOver).ToList();
     }
 }

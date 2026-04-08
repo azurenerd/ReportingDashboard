@@ -1,39 +1,28 @@
-@using AgentSquad.Runner.Data
+@using AgentSquad.Runner.Models
 
-<div class="timeline-container">
-    <h2 class="section-title">Milestones</h2>
-    @if (Milestones == null || Milestones.Count == 0)
+<div class="milestone-timeline">
+    @if (Milestones == null || !Milestones.Any())
     {
-        <div class="timeline-placeholder">
-            <p class="text-muted">No milestones defined.</p>
-        </div>
+        <p class="text-muted">No milestones available.</p>
     }
     else
     {
-        <div class="timeline-axis">
-            <div class="timeline-start">@(ProjectStartDate.ToString("MMM yyyy"))</div>
-            <div class="timeline-end">@(ProjectEndDate.ToString("MMM yyyy"))</div>
-        </div>
-        <div class="timeline-grid">
+        <div class="timeline-container">
             @foreach (var milestone in Milestones)
             {
-                var statusClass = milestone.Status switch
-                {
-                    MilestoneStatus.Completed => "completed",
-                    MilestoneStatus.InProgress => "in-progress",
-                    _ => "pending"
-                };
-
-                var position = CalculateMilestonePosition(milestone.TargetDate);
-
-                <div class="milestone @statusClass" style="left: @position%">
-                    <div class="milestone-marker"></div>
-                    <div class="milestone-name">@milestone.Name</div>
-                    <div class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</div>
-                    <div class="progress mt-2" style="height: 6px;">
-                        <div class="progress-bar" role="progressbar" style="width: @milestone.CompletionPercentage%" aria-valuenow="@milestone.CompletionPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="timeline-item">
+                    <div class="timeline-marker" style="@GetMilestoneMarkerStyle(milestone.Status)">
+                        <span class="timeline-status">@GetStatusBadge(milestone.Status)</span>
                     </div>
-                    <small class="text-muted mt-1 d-block">@milestone.CompletionPercentage% complete</small>
+                    <div class="timeline-content">
+                        <h5>@milestone.Name</h5>
+                        <p class="text-muted">Target Date: @milestone.TargetDate.ToShortDateString()</p>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar" role="progressbar" style="width: @milestone.CompletionPercentage%;" aria-valuenow="@milestone.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                                @milestone.CompletionPercentage%
+                            </div>
+                        </div>
+                    </div>
                 </div>
             }
         </div>
@@ -42,7 +31,7 @@
 
 @code {
     [Parameter]
-    public List<Milestone>? Milestones { get; set; }
+    public List<Milestone> Milestones { get; set; }
 
     [Parameter]
     public DateTime ProjectStartDate { get; set; }
@@ -50,83 +39,23 @@
     [Parameter]
     public DateTime ProjectEndDate { get; set; }
 
-    private double CalculateMilestonePosition(DateTime milestoneDate)
+    private string GetMilestoneMarkerStyle(MilestoneStatus status)
     {
-        if (ProjectStartDate >= ProjectEndDate)
-            return 0;
+        return status switch
+        {
+            MilestoneStatus.Completed => "background-color: #28a745;",
+            MilestoneStatus.InProgress => "background-color: #007bff;",
+            _ => "background-color: #6c757d;"
+        };
+    }
 
-        var totalDays = (ProjectEndDate - ProjectStartDate).TotalDays;
-        if (totalDays <= 0)
-            return 0;
-
-        var daysFromStart = (milestoneDate - ProjectStartDate).TotalDays;
-        var percentage = (daysFromStart / totalDays) * 100;
-
-        return Math.Max(0, Math.Min(100, percentage));
+    private string GetStatusBadge(MilestoneStatus status)
+    {
+        return status switch
+        {
+            MilestoneStatus.Completed => "✓",
+            MilestoneStatus.InProgress => "→",
+            _ => "○"
+        };
     }
 }
-
-<style>
-    .timeline-axis {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-        font-size: 0.875rem;
-        color: #6c757d;
-    }
-
-    .timeline-grid {
-        position: relative;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        padding: 2rem 1rem;
-        background: linear-gradient(to right, #e9ecef 1px, transparent 1px);
-        background-size: 25% 100%;
-    }
-
-    .milestone {
-        position: relative;
-        padding: 1.5rem;
-        border-radius: 0.375rem;
-        background: white;
-        border-left: 4px solid #6c757d;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .milestone.completed {
-        border-left-color: #28a745;
-        background: #d4edda;
-    }
-
-    .milestone.in-progress {
-        border-left-color: #007bff;
-        background: #d1ecf1;
-    }
-
-    .milestone.pending {
-        border-left-color: #6c757d;
-        background: #e2e3e5;
-    }
-
-    .milestone-marker {
-        position: absolute;
-        top: -12px;
-        left: -8px;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: white;
-        border: 3px solid currentColor;
-    }
-
-    .milestone-name {
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    .milestone-date {
-        font-size: 0.875rem;
-        color: #6c757d;
-    }
-</style>
