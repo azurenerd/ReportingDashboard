@@ -1,4 +1,14 @@
-/* Print and Screenshot Optimization */
+/* ============================================================================
+   PRINT AND SCREENSHOT OPTIMIZATION
+   Media queries and styles optimized for printing and PowerPoint screenshot
+   capture at 1280x720 and 1920x1080 resolutions. Ensures color preservation,
+   no clipping, and professional output.
+   ========================================================================= */
+
+/* ============================================================================
+   PRINT MEDIA BASE STYLES
+   ========================================================================= */
+
 @media print {
     * {
         -webkit-print-color-adjust: exact !important;
@@ -11,69 +21,387 @@
         padding: 0;
         width: 100%;
         height: 100%;
-    }
-    
-    body {
-        background-color: var(--color-white);
+        background-color: var(--color-white) !important;
     }
     
     #app {
-        grid-template-rows: auto 1fr;
+        display: block;
+        min-height: auto;
+        padding: 0;
+        background-color: var(--color-white) !important;
     }
     
-    .dashboard-content {
-        overflow: visible;
-        page-break-inside: avoid;
-        padding: 0.5in;
+    body {
+        font-size: 12pt;
+        color: var(--color-dark);
+        background-color: var(--color-white) !important;
     }
-    
-    .timeline-container,
-    .work-items-container,
-    .kpi-card,
-    .work-item-column {
+}
+
+/* ============================================================================
+   PRINT LAYOUT AND SPACING
+   ========================================================================= */
+
+@media print {
+    .dashboard-wrapper {
+        padding: 0.4in 0.5in;
+        gap: 0.3in;
+        margin: 0;
         page-break-inside: avoid;
-        box-shadow: none;
-        border: 1px solid #ddd;
     }
     
     .dashboard-header {
         page-break-after: avoid;
-        border-bottom: 2px solid var(--color-success);
+        padding: 0.25in 0.3in;
+        margin-bottom: 0.2in;
+        box-shadow: none;
+        border-width: 2px;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 22pt;
+        margin: 0 0 0.1in 0;
+    }
+    
+    .dashboard-header-meta {
+        font-size: 10pt;
+    }
+    
+    .timeline-section,
+    .work-items-section {
+        page-break-inside: avoid;
+        padding: 0.25in 0.3in;
+        margin-bottom: 0.2in;
+        box-shadow: none;
+        border: 1px solid #999;
+    }
+    
+    .timeline-section h2,
+    .work-items-section h2 {
+        font-size: 14pt;
+        page-break-after: avoid;
+        margin: 0 0 0.15in 0;
+        border-bottom: 1px solid #999;
+        padding-bottom: 0.1in;
     }
 }
 
-/* Optimization for 1280x720 screenshot */
-@media (max-width: 1280px) {
-    .dashboard-content {
-        padding: var(--spacing-md);
-        gap: var(--spacing-md);
+/* ============================================================================
+   PRINT METRICS SECTION
+   ========================================================================= */
+
+@media print {
+    .metrics-section {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.15in;
+        margin-bottom: 0.2in;
+        page-break-inside: avoid;
     }
     
     .kpi-card {
-        padding: var(--spacing-md);
+        page-break-inside: avoid;
+        padding: 0.2in 0.15in;
+        margin: 0;
+        box-shadow: none;
+        border: 1px solid #999;
+        background-color: var(--color-white) !important;
     }
     
-    .kpi-value {
-        font-size: 24px;
+    .kpi-card-label {
+        font-size: 9pt;
+        margin-bottom: 0.08in;
     }
     
-    .metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .kpi-card-value {
+        font-size: 24pt;
+        margin-bottom: 0.08in;
+    }
+    
+    .kpi-card-unit {
+        font-size: 11pt;
+    }
+    
+    .kpi-card-subtitle {
+        font-size: 9pt;
+        margin-top: 0.08in;
+        padding-top: 0.08in;
+        border-top: 1px solid #ccc;
+    }
+    
+    .kpi-card-trend {
+        font-size: 8pt;
+        margin-top: 0.08in;
     }
 }
 
-/* Optimization for 1920x1080 presentation */
-@media (min-width: 1920px) {
+/* ============================================================================
+   PRINT TIMELINE SECTION
+   ========================================================================= */
+
+@media print {
+    .timeline-container {
+        display: flex;
+        gap: 0.15in;
+        overflow: visible;
+        padding: 0.15in 0;
+        min-height: auto;
+        flex-wrap: wrap;
+        page-break-inside: avoid;
+    }
+    
+    .milestone-item {
+        flex-shrink: 1;
+        min-width: 100px;
+        padding: 0.15in;
+        font-size: 9pt;
+        border: 1px solid #999;
+        background-color: var(--color-white) !important;
+    }
+    
+    .milestone-indicator {
+        width: 24px;
+        height: 24px;
+        font-size: 12pt;
+    }
+    
+    .milestone-name {
+        font-size: 10pt;
+        margin: 0.05in 0;
+    }
+    
+    .milestone-date {
+        font-size: 8pt;
+    }
+}
+
+/* ============================================================================
+   PRINT WORK ITEMS SECTION
+   ========================================================================= */
+
+@media print {
+    .work-item-columns {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.15in;
+        page-break-inside: avoid;
+    }
+    
+    .work-item-column {
+        page-break-inside: avoid;
+        border: 1px solid #999;
+        background-color: var(--color-white) !important;
+        margin: 0;
+    }
+    
+    .work-item-column-header {
+        padding: 0.15in 0.2in;
+        font-size: 10pt;
+        background-color: var(--color-info) !important;
+        color: var(--color-white) !important;
+    }
+    
+    .work-item-column-count {
+        font-size: 9pt;
+    }
+    
+    .work-item-list {
+        padding: 0.15in;
+        max-height: none;
+        overflow: visible;
+    }
+    
+    .work-item-list li {
+        margin-bottom: 0.1in;
+        page-break-inside: avoid;
+    }
+    
+    .work-item {
+        padding: 0.1in 0.12in;
+        background-color: var(--color-white) !important;
+        border-left-width: 3px;
+        font-size: 9pt;
+    }
+    
+    .work-item-title {
+        font-size: 9pt;
+        margin-bottom: 0.05in;
+    }
+    
+    .work-item-description {
+        font-size: 8pt;
+    }
+    
+    .work-item-empty {
+        padding: 0.15in;
+        font-size: 9pt;
+    }
+}
+
+/* ============================================================================
+   PRINT PAGE BREAKS AND ORIENTATION
+   ========================================================================= */
+
+@media print {
+    @page {
+        size: letter landscape;
+        margin: 0.4in;
+    }
+    
+    .page-break {
+        page-break-before: always;
+    }
+    
+    .avoid-break {
+        page-break-inside: avoid;
+        orphans: 3;
+        widows: 3;
+    }
+}
+
+/* ============================================================================
+   HIDE NON-ESSENTIAL ELEMENTS DURING PRINT
+   ========================================================================= */
+
+@media print {
+    .no-print,
+    .hidden-on-print,
+    nav,
+    footer,
+    .controls,
+    .debug-info {
+        display: none !important;
+    }
+    
+    .loading-spinner {
+        display: none !important;
+    }
+}
+
+/* ============================================================================
+   SCREENSHOT OPTIMIZATION FOR 1280x720
+   ========================================================================= */
+
+@media screen and (max-width: 1280px) {
     body {
-        font-size: 16px;
+        overflow: hidden;
     }
     
-    .dashboard-content {
-        padding: var(--spacing-xl);
-        gap: var(--spacing-xl);
+    #app {
+        overflow: hidden;
+        height: 720px;
     }
     
-    .kpi-value {
-        font-size: 48px;
+    .dashboard-wrapper {
+        overflow: hidden;
+        max-height: 680px;
+        padding: 12px;
+        gap: 12px;
+    }
+    
+    .timeline-container {
+        max-height: 140px;
+        overflow: hidden;
+    }
+    
+    .work-item-list {
+        max-height: 200px;
+        overflow: hidden;
+    }
+    
+    .metrics-section {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .kpi-card-value {
+        font-size: 28px;
+    }
+}
+
+/* ============================================================================
+   SCREENSHOT OPTIMIZATION FOR 1920x1080
+   ========================================================================= */
+
+@media screen and (min-width: 1920px) {
+    body {
+        overflow: auto;
+    }
+    
+    #app {
+        min-height: 100vh;
+        overflow: auto;
+    }
+    
+    .dashboard-wrapper {
+        gap: 28px;
+        padding: 28px;
+        max-width: 100%;
+    }
+    
+    .metrics-section {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .work-item-columns {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .kpi-card {
+        padding: 28px;
+    }
+    
+    .kpi-card-value {
+        font-size: 56px;
+    }
+    
+    .timeline-container {
+        max-height: auto;
+        overflow: visible;
+    }
+    
+    .work-item-list {
+        max-height: 500px;
+    }
+}
+
+/* ============================================================================
+   COLOR PRESERVATION FOR ALL STATES
+   ========================================================================= */
+
+@media print {
+    .milestone-indicator.completed {
+        background-color: var(--color-completed) !important;
+    }
+    
+    .milestone-indicator.in-progress {
+        background-color: var(--color-in-progress) !important;
+    }
+    
+    .milestone-indicator.at-risk {
+        background-color: var(--color-at-risk) !important;
+    }
+    
+    .milestone-indicator.future {
+        background-color: var(--color-future) !important;
+    }
+    
+    .kpi-card.success {
+        border-left-color: var(--color-success) !important;
+    }
+    
+    .kpi-card.warning {
+        border-left-color: var(--color-warning) !important;
+    }
+    
+    .work-item-shipped {
+        border-left-color: var(--color-success) !important;
+    }
+    
+    .work-item-in-progress {
+        border-left-color: var(--color-in-progress) !important;
+    }
+    
+    .work-item-carried-over {
+        border-left-color: var(--color-warning) !important;
     }
 }
