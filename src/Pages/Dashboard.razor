@@ -1,58 +1,70 @@
 @page "/"
-@using AgentSquad.Runner.Models
-@using AgentSquad.Runner.Services
+@using AgentSquad.Models
+@using AgentSquad.Services
 @inject ProjectDataService ProjectDataService
 
-<div class="container-fluid py-5">
-    <div class="row mb-5">
-        <div class="col-12">
-            <h1 class="mb-4">Executive Dashboard</h1>
-        </div>
-    </div>
+<div class="container-fluid">
+    <h1 class="section-spacing">Project Dashboard</h1>
 
-    @if (ProjectData != null)
+    @if (projectData == null)
     {
-        <section class="section-spacing">
-            <MilestoneTimeline Milestones="ProjectData.Milestones" />
-        </section>
-
-        <section class="section-spacing">
-            <div class="row">
-                <div class="col-12">
-                    <h2 class="mb-4">Task Status Overview</h2>
-                </div>
-            </div>
-            <div class="row metrics-row">
-                <StatusCard StatusLabel="Shipped" TaskCount="ProjectData.ShippedCount" Tasks="ProjectData.ShippedTasks" />
-                <StatusCard StatusLabel="In Progress" TaskCount="ProjectData.InProgressCount" Tasks="ProjectData.InProgressTasks" />
-                <StatusCard StatusLabel="Carried Over" TaskCount="ProjectData.CarriedOverCount" Tasks="ProjectData.CarriedOverTasks" />
-            </div>
-        </section>
-
-        <section class="section-spacing">
-            <div class="row">
-                <div class="col-12">
-                    <h2 class="mb-4">Progress Metrics</h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <ProgressMetrics CompletionPercentage="ProjectData.CompletionPercentage" />
-                </div>
-            </div>
-        </section>
+        <p>Loading project data...</p>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
     }
     else
     {
-        <div class="alert alert-info">Loading dashboard data...</div>
+        <MilestoneTimeline Milestones="projectData.Milestones" 
+                          ProjectStartDate="projectData.Project.StartDate"
+                          ProjectEndDate="projectData.Project.EndDate" />
+
+        <div class="row section-spacing">
+            <div class="col-12 col-md-6 col-lg-4">
+                <StatusCard StatusCategory="Shipped" 
+                           TaskCount="projectData.Metrics.ShippedCount"
+                           Tasks="projectData.Tasks.Where(t => t.Status == TaskStatus.Shipped).ToList()"
+                           CardColor="status-card-green" />
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <StatusCard StatusCategory="In-Progress"
+                           TaskCount="projectData.Metrics.InProgressCount"
+                           Tasks="projectData.Tasks.Where(t => t.Status == TaskStatus.InProgress).ToList()"
+                           CardColor="status-card-blue" />
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <StatusCard StatusCategory="Carried-Over"
+                           TaskCount="projectData.Metrics.CarriedOverCount"
+                           Tasks="projectData.Tasks.Where(t => t.Status == TaskStatus.CarriedOver).ToList()"
+                           CardColor="status-card-orange" />
+            </div>
+        </div>
+
+        <ProgressMetrics CompletionPercentage="projectData.Metrics.CompletionPercentage"
+                        TotalTasks="projectData.Tasks.Count"
+                        CompletedTasks="projectData.Tasks.Count(t => t.Status == TaskStatus.Shipped)"
+                        BurndownRate="projectData.Metrics.BurndownRate" />
     }
 </div>
 
 @code {
-    private ProjectData ProjectData;
+    private ProjectData projectData;
+    private string errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        ProjectData = await ProjectDataService.LoadProjectDataAsync();
+        try
+        {
+            projectData = await ProjectDataService.LoadProjectDataAsync();
+            if (projectData == null)
+            {
+                errorMessage = "Failed to load project data.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading project data: {ex.Message}";
+        }
     }
 }

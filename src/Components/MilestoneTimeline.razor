@@ -1,47 +1,35 @@
-@using AgentSquad.Runner.Models
+@using AgentSquad.Models
 
-@if (Milestones != null && Milestones.Count > 0)
-{
-    <div class="timeline-section">
-        <h2>Project Milestones</h2>
-        <div class="timeline-container">
-            <div class="row">
-                @foreach (var milestone in Milestones)
-                {
-                    <div class="col-12 col-md-6 col-lg-4 mb-4">
-                        <div class="card status-card milestone-card h-100">
-                            <div class="card-body card-spacing">
-                                <h5 class="card-title">@milestone.Name</h5>
-                                <p class="text-muted small mb-2">Target: @milestone.TargetDate.ToShortDateString()</p>
-                                <div class="progress mb-3">
-                                    <div class="progress-bar bg-primary progress-bar-text" role="progressbar" style="width: @milestone.CompletionPercentage%" aria-valuenow="@milestone.CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
-                                        <span class="progress-text">@milestone.CompletionPercentage%</span>
-                                    </div>
-                                </div>
-                                <p class="mb-0">
-                                    @if (milestone.Status == MilestoneStatus.Completed)
-                                    {
-                                        <span class="badge milestone-badge-completed">Completed</span>
-                                    }
-                                    else if (milestone.Status == MilestoneStatus.InProgress)
-                                    {
-                                        <span class="badge milestone-badge-inprogress">In Progress</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge milestone-badge-pending">Pending</span>
-                                    }
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                }
+<section class="section-spacing">
+    <h2>Project Timeline</h2>
+    <div class="timeline">
+        @foreach (var milestone in Milestones ?? new())
+        {
+            <div class="timeline-item">
+                <div class="timeline-marker" style="background-color: @GetStatusColor(milestone.Status)"></div>
+                <div class="timeline-content">
+                    <h4>@milestone.Name</h4>
+                    <p>Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</p>
+                    <p>Completion: @milestone.CompletionPercentage%</p>
+                </div>
             </div>
-        </div>
+        }
     </div>
-}
+</section>
 
 @code {
-    [Parameter]
-    public List<Milestone> Milestones { get; set; } = new();
+    [Parameter] public List<Milestone> Milestones { get; set; }
+    [Parameter] public DateTime ProjectStartDate { get; set; }
+    [Parameter] public DateTime ProjectEndDate { get; set; }
+
+    private string GetStatusColor(MilestoneStatus status)
+    {
+        return status switch
+        {
+            MilestoneStatus.Completed => "#28a745",
+            MilestoneStatus.InProgress => "#007bff",
+            MilestoneStatus.Pending => "#6c757d",
+            _ => "#6c757d"
+        };
+    }
 }
