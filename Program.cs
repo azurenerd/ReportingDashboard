@@ -1,152 +1,57 @@
-using AgentSquad.Core.Configuration;
-using AgentSquad.Core.Messaging;
-using AgentSquad.Core.GitHub;
-using AgentSquad.Core.Persistence;
-using AgentSquad.Orchestrator;
-using AgentSquad.Agents;
-using AgentSquad.Dashboard.Components;
-using AgentSquad.Dashboard.Hubs;
-using AgentSquad.Dashboard.Services;
-using AgentSquad.Runner;
 using Microsoft.AspNetCore.StaticFiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Bind configuration
-builder.Services.Configure<AgentSquadConfig>(
-    builder.Configuration.GetSection("AgentSquad"));
-builder.Services.Configure<LimitsConfig>(
-    builder.Configuration.GetSection("AgentSquad:Limits"));
-
-// Core services
-builder.Services.AddInProcessMessageBus();
-builder.Services.AddSingleton<AgentSquad.Core.AI.AgentUsageTracker>();
-builder.Services.AddSingleton<AgentSquad.Core.Diagnostics.RequirementsCache>();
-builder.Services.AddSingleton<AgentSquad.Core.Diagnostics.AgentChatService>();
-builder.Services.AddSemanticKernelModels();
-builder.Services.AddGitHubIntegration();
-
-// Persistence — database scoped per repo to prevent cross-project contamination
-var repoSlug = builder.Configuration["AgentSquad:Project:GitHubRepo"]?.Replace('/', '_') ?? "default";
-var dbPath = $"agentsquad_{repoSlug}.db";
-builder.Services.AddSingleton(new AgentStateStore(dbPath));
-builder.Services.AddSingleton(new AgentMemoryStore(dbPath));
-builder.Services.AddSingleton<ProjectFileManager>(sp =>
-{
-    var config = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AgentSquadConfig>>().Value;
-    return new ProjectFileManager(
-        sp.GetRequiredService<IGitHubService>(),
-        sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<ProjectFileManager>>(),
-        config.Project.DefaultBranch);
-});
-
-// GitHub workflows
-builder.Services.AddSingleton<PullRequestWorkflow>(sp =>
-{
-    var config = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AgentSquadConfig>>().Value;
-    return new PullRequestWorkflow(
-        sp.GetRequiredService<IGitHubService>(),
-        sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<PullRequestWorkflow>>(),
-        config.Project.DefaultBranch);
-});
-builder.Services.AddSingleton<IssueWorkflow>();
-builder.Services.AddSingleton<ConflictResolver>();
-
-// Orchestrator (registry, health monitor, deadlock detector, spawn manager, workflow)
-builder.Services.AddOrchestrator();
-
-// Agent factory
-builder.Services.AddSingleton<IAgentFactory, AgentFactory>();
-
-// Dashboard: Blazor Server + SignalR
+// Blazor Server registration
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddSignalR();
-builder.Services.AddSingleton<DashboardDataService>();
-builder.Services.AddHostedService(sp => sp.GetRequiredService<DashboardDataService>());
 
-// Worker service that starts the core agents and kicks off the workflow
-builder.Services.AddHostedService<AgentSquadWorker>();
+// TODO: Register IDataProvider and IDataCache services
+// These will load project data from wwwroot/data.json
+// Placeholder for implementation by data layer team
+// builder.Services.AddSingleton<IDataProvider, DataProvider>();
+// builder.Services.AddSingleton<IDataCache, DataCache>();
 
 var app = builder.Build();
 
-// Configure HTTP pipeline
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
-}
-
-// Static file middleware configuration
-// Serves files from wwwroot/ with appropriate cache headers
+// Static file serving with cache versioning strategy
+// Files are cached based on version query parameter, not time-based max-age
+// Example: /css/site.css?v=1.0.0 can be cached long-term
+// data.json should not be cached (serve fresh on each request)
 app.UseStaticFiles(new StaticFileOptions
 {
-    // Configure MIME types for proper browser rendering
-    ContentTypeProvider = new FileExtensionContentTypeProvider
-    {
-        Mappings = new Dictionary<string, string>
-        {
-            // Standard MIME types
-            { ".json", "application/json" },
-            { ".js", "application/javascript" },
-            { ".css", "text/css" },
-            { ".html", "text/html; charset=utf-8" },
-            { ".svg", "image/svg+xml" },
-            { ".ico", "image/x-icon" },
-            // Font MIME types
-            { ".woff", "font/woff" },
-            { ".woff2", "font/woff2" },
-            { ".ttf", "font/ttf" },
-            { ".otf", "font/otf" },
-            { ".eot", "application/vnd.ms-fontobject" }
-        }
-    },
+    ContentTypeProvider = new FileExtensionContentTypeProvider(),
     OnPrepareResponse = ctx =>
     {
-        // Cache policy: long-lived for static assets, short-lived for data files
-        if (ctx.File.Name.EndsWith(".html"))
+        // Check for version query parameter (e.g., ?v=1.0.0)
+        var hasVersionParameter = ctx.Context.Request.QueryString.HasValue &&
+                                  ctx.Context.Request.QueryString.Value.Contains("v=");
+
+        if (ctx.File.Name == "data.json")
         {
-            // HTML: short cache (1 hour) to detect updates quickly
-            ctx.Context.Response.Headers.CacheControl = "public, max-age=3600";
-        }
-        else if (ctx.File.Name.EndsWith(".json") && ctx.File.Name.Contains("data.json"))
-        {
-            // Data: no cache (revalidate on every load)
+            // Data files: never cache (always fresh)
             ctx.Context.Response.Headers.CacheControl = "public, max-age=0, must-revalidate";
         }
-        else if (ctx.File.Name.EndsWith(".css") || ctx.File.Name.EndsWith(".js"))
+        else if (hasVersionParameter)
         {
-            // Static assets: long cache (30 days, safe for production use)
-            ctx.Context.Response.Headers.CacheControl = "public, max-age=2592000, immutable";
-        }
-        else if (ctx.File.Name.EndsWith(".woff2") || ctx.File.Name.EndsWith(".woff"))
-        {
-            // Fonts: very long cache (1 year)
+            // Versioned assets (e.g., site.css?v=1.0.0): cache 1 year (immutable)
             ctx.Context.Response.Headers.CacheControl = "public, max-age=31536000, immutable";
         }
         else
         {
-            // Default: moderate cache (1 day)
-            ctx.Context.Response.Headers.CacheControl = "public, max-age=86400";
+            // Unversioned HTML: cache 1 hour (check for updates)
+            ctx.Context.Response.Headers.CacheControl = "public, max-age=3600";
         }
 
-        // Disable MIME sniffing for security
+        // Disable MIME sniffing
         ctx.Context.Response.Headers.XContentTypeOptions = "nosniff";
-        
-        // Enable compression for text assets
-        if (ctx.File.Name.EndsWith(".css") || ctx.File.Name.EndsWith(".js") || ctx.File.Name.EndsWith(".json"))
-        {
-            ctx.Context.Response.Headers.ContentEncoding = "gzip";
-        }
     }
 });
 
+// Antiforgery for form submissions
 app.UseAntiforgery();
 
-// SignalR hub for real-time dashboard updates
-app.MapHub<AgentHub>("/agenthub");
-
-// Blazor Server components
+// Blazor Server routing
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

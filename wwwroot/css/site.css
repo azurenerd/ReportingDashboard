@@ -1,47 +1,7 @@
-/* ========================================================================
-   Executive Dashboard - Main Stylesheet
-   
-   PURPOSE:
-   - Responsive layout optimized for 1024x768 minimum to 1920x1080 optimal
-   - Cross-browser consistent rendering with system fonts
-   - Print/screenshot-optimized styling for PowerPoint exports
-   - High-contrast, executive-friendly visual design
-   
-   KEY FEATURES:
-   - CSS Custom Properties for maintainable theming
-   - Mobile-first responsive design with explicit breakpoints
-   - Print media queries for clean export output
-   - Accessibility features (focus states, motion preferences)
-   
-   BROWSER SUPPORT: Chrome, Edge, Safari, Firefox (latest versions)
-   ======================================================================== */
-
-/* ========================================================================
-   SECTION 1: CSS Custom Properties (Design Tokens)
-   
-   All design values (colors, typography, spacing, shadows) defined as
-   CSS variables for easy maintenance and consistent theming.
-   ======================================================================== */
+/* Executive Dashboard - Main Stylesheet */
 
 :root {
-    /* 
-     * Font Stack: System fonts for cross-browser consistency
-     * - macOS: -apple-system, BlinkMacSystemFont
-     * - Windows: Segoe UI, Roboto
-     * - Linux: Ubuntu, Cantarell
-     * - Fallback: Helvetica Neue, sans-serif
-     */
     --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    --font-family-mono: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
-    
-    /* 
-     * Color Palette: Status-based colors for executive visibility
-     * - Green (#10b981): Success, completed, on-track
-     * - Blue (#3b82f6): Info, in-progress
-     * - Amber (#f59e0b): Warning, at-risk/caution
-     * - Red (#ef4444): Danger, blocked, critical
-     * - Neutral: Backgrounds, text, borders
-     */
     --color-success: #10b981;
     --color-info: #3b82f6;
     --color-warning: #f59e0b;
@@ -52,48 +12,25 @@
     --color-neutral-300: #d1d5db;
     --color-neutral-700: #374151;
     --color-neutral-900: #111827;
-
-    /* 
-     * Typography Scale: 8px base unit with consistent ratios
-     * Ensures readable text at 1024x768 minimum resolution
-     */
-    --font-size-xs: 0.75rem;        /* 12px - for labels, badges */
-    --font-size-sm: 0.875rem;       /* 14px - for descriptions, metadata */
-    --font-size-base: 1rem;         /* 16px - body text, default */
-    --font-size-lg: 1.125rem;       /* 18px - section headings */
-    --font-size-xl: 1.25rem;        /* 20px - subsection headings */
-    --font-size-2xl: 1.5rem;        /* 24px - metric values */
-    --font-size-3xl: 1.875rem;      /* 30px - section titles */
-    --font-size-4xl: 2.25rem;       /* 36px - page title */
-
-    /* Line heights for readability */
-    --line-height-tight: 1.25;      /* Headings */
-    --line-height-normal: 1.5;      /* Body text */
-    --line-height-relaxed: 1.75;    /* Descriptions, long-form content */
-
-    /* 
-     * Spacing Scale: 4px base unit (0.25rem)
-     * Used for margins, padding, gaps in flexbox/grid
-     */
-    --spacing-xs: 0.25rem;          /* 4px */
-    --spacing-sm: 0.5rem;           /* 8px */
-    --spacing-md: 1rem;             /* 16px */
-    --spacing-lg: 1.5rem;           /* 24px */
-    --spacing-xl: 2rem;             /* 32px */
-    --spacing-2xl: 3rem;            /* 48px */
-
-    /* Shadow depths for visual hierarchy */
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
-
-/* ========================================================================
-   SECTION 2: Base/Reset Styles
-   
-   Universal box-sizing ensures padding/border included in element width.
-   Improves predictability in responsive layouts.
-   ======================================================================== */
 
 * {
     margin: 0;
@@ -103,10 +40,8 @@
 
 html {
     font-size: 16px;
-    /* Subpixel rendering for smoother text on macOS */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    height: 100%;
 }
 
 body {
@@ -120,13 +55,6 @@ body {
     flex-direction: column;
 }
 
-/* ========================================================================
-   SECTION 3: Typography
-   
-   Hierarchical heading styles (h1-h6) with consistent margins.
-   Optimized for executive dashboards: large, legible, high-contrast.
-   ======================================================================== */
-
 h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     line-height: var(--line-height-tight);
@@ -134,47 +62,12 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-neutral-900);
 }
 
-h1 {
-    font-size: var(--font-size-4xl);
-    margin-bottom: var(--spacing-lg);
-}
+h1 { font-size: var(--font-size-4xl); margin-bottom: var(--spacing-lg); }
+h2 { font-size: var(--font-size-3xl); margin-bottom: var(--spacing-lg); }
+h3 { font-size: var(--font-size-2xl); margin-bottom: var(--spacing-md); }
+h4 { font-size: var(--font-size-xl); }
 
-h2 {
-    font-size: var(--font-size-3xl);
-    margin-bottom: var(--spacing-lg);
-}
-
-h3 {
-    font-size: var(--font-size-2xl);
-    margin-bottom: var(--spacing-md);
-}
-
-h4 {
-    font-size: var(--font-size-xl);
-}
-
-h5 {
-    font-size: var(--font-size-lg);
-}
-
-h6 {
-    font-size: var(--font-size-base);
-}
-
-p {
-    margin-bottom: var(--spacing-md);
-}
-
-small {
-    font-size: var(--font-size-sm);
-}
-
-/* ========================================================================
-   SECTION 4: Layout Containers
-   
-   Main layout structure: dashboard container with max-width for optimal
-   viewing at 1920x1080, gracefully scales down to 1024x768 minimum.
-   ======================================================================== */
+p { margin-bottom: var(--spacing-md); }
 
 .container {
     width: 100%;
@@ -190,12 +83,6 @@ small {
     min-height: 100vh;
 }
 
-/* ========================================================================
-   SECTION 5: Loading & Error States
-   
-   User feedback during data loading and error conditions.
-   ======================================================================== */
-
 .app-loading {
     display: flex;
     flex-direction: column;
@@ -203,21 +90,7 @@ small {
     align-items: center;
     height: 100vh;
     background-color: var(--color-neutral-50);
-    font-size: var(--font-size-lg);
-    color: var(--color-neutral-700);
 }
-
-.spinner-border {
-    width: 48px;
-    height: 48px;
-}
-
-/* ========================================================================
-   SECTION 6: Dashboard Header Component
-   
-   Page title, project name, metadata display.
-   Full-width with subtle bottom border for visual separation.
-   ======================================================================== */
 
 .dashboard-header {
     background-color: white;
@@ -230,45 +103,18 @@ small {
     margin-bottom: var(--spacing-sm);
 }
 
-.dashboard-header-subtitle {
-    font-size: var(--font-size-lg);
-    color: var(--color-neutral-700);
-}
-
-/* ========================================================================
-   SECTION 7: Metrics Grid Layout
-   
-   RESPONSIVE BREAKPOINTS:
-   - Mobile (< 1024px): auto-fit minmax(250px, 1fr) → wraps to 1-2 columns
-   - Tablet (1024px+): Fixed 4-column layout
-   - Desktop (1920px+): 4-column with optimized spacing
-   
-   Uses CSS Grid auto-fit for mobile, explicit 4-column for larger screens.
-   Ensures metrics visible without horizontal scroll at 1024px minimum.
-   ======================================================================== */
-
 .metrics-grid {
     display: grid;
-    /* Mobile: responsive columns, minimum 250px width */
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-xl);
 }
 
 @media (min-width: 1024px) {
-    /* Tablet/Desktop: fixed 4-column layout for consistency */
     .metrics-grid {
         grid-template-columns: repeat(4, 1fr);
     }
 }
-
-/* ========================================================================
-   SECTION 8: Metric Card Component
-   
-   Individual KPI cards with status-based border colors.
-   Hover effect provides feedback on interactive card.
-   Border-top color coded: green (success), blue (info), amber (warning), red (danger).
-   ======================================================================== */
 
 .metric-card {
     background-color: white;
@@ -286,22 +132,10 @@ small {
     box-shadow: var(--shadow-lg);
 }
 
-/* Status-based color variants */
-.metric-card.success {
-    border-top-color: var(--color-success);
-}
-
-.metric-card.info {
-    border-top-color: var(--color-info);
-}
-
-.metric-card.warning {
-    border-top-color: var(--color-warning);
-}
-
-.metric-card.danger {
-    border-top-color: var(--color-danger);
-}
+.metric-card.success { border-top-color: var(--color-success); }
+.metric-card.info { border-top-color: var(--color-info); }
+.metric-card.warning { border-top-color: var(--color-warning); }
+.metric-card.danger { border-top-color: var(--color-danger); }
 
 .metric-card-label {
     font-size: var(--font-size-sm);
@@ -324,14 +158,6 @@ small {
     font-size: var(--font-size-sm);
     color: var(--color-neutral-700);
 }
-
-/* ========================================================================
-   SECTION 9: Timeline Container & Items
-   
-   Horizontal scrollable timeline for milestone visualization.
-   Status-coded left border (green/blue/red/gray).
-   Flex layout allows horizontal scrolling on small screens.
-   ======================================================================== */
 
 .timeline-container {
     background-color: white;
@@ -367,33 +193,10 @@ small {
     box-shadow: var(--shadow-md);
 }
 
-/* Status-based color coding for timeline items */
-.timeline-item.completed {
-    border-left-color: var(--color-success);
-}
-
-.timeline-item.in-progress {
-    border-left-color: var(--color-info);
-}
-
-.timeline-item.at-risk {
-    border-left-color: var(--color-danger);
-}
-
-.timeline-item.future {
-    border-left-color: var(--color-neutral-300);
-}
-
-/* ========================================================================
-   SECTION 10: Work Items Section
-   
-   RESPONSIVE BREAKPOINTS:
-   - Mobile (< 1024px): Single column layout
-   - Tablet/Desktop (1024px+): Fixed 3-column layout
-   
-   Each column represents a work item status: Shipped, In Progress, Carried Over
-   Column headers include count totals for velocity tracking.
-   ======================================================================== */
+.timeline-item.completed { border-left-color: var(--color-success); }
+.timeline-item.in-progress { border-left-color: var(--color-info); }
+.timeline-item.at-risk { border-left-color: var(--color-danger); }
+.timeline-item.future { border-left-color: var(--color-neutral-300); }
 
 .work-items-section {
     background-color: white;
@@ -409,13 +212,11 @@ small {
 
 .work-items-grid {
     display: grid;
-    /* Mobile: responsive columns */
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: var(--spacing-lg);
 }
 
 @media (min-width: 1024px) {
-    /* Tablet/Desktop: fixed 3-column layout for consistent status tracking */
     .work-items-grid {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -459,256 +260,20 @@ small {
     line-height: var(--line-height-relaxed);
 }
 
-/* ========================================================================
-   SECTION 11: Utility Classes
-   
-   Convenience classes for text alignment, colors, spacing.
-   ======================================================================== */
-
-.text-center {
-    text-align: center;
-}
-
-.text-right {
-    text-align: right;
-}
-
-.font-bold {
-    font-weight: 700;
-}
-
-.font-semibold {
-    font-weight: 600;
-}
-
-.text-muted {
-    color: var(--color-neutral-700);
-}
-
-.text-success {
-    color: var(--color-success);
-}
-
-.text-info {
-    color: var(--color-info);
-}
-
-.text-warning {
-    color: var(--color-warning);
-}
-
-.text-danger {
-    color: var(--color-danger);
-}
-
-/* ========================================================================
-   SECTION 12: Responsive Design Breakpoints
-   
-   BREAKPOINT STRATEGY:
-   
-   1. MOBILE FIRST (< 1024px)
-      - Base styles apply to small screens
-      - This breakpoint (@media max-width: 1024px) reduces font sizes
-      - Single-column layouts for metrics and work items
-      - Horizontal scroll for timeline
-      - Optimized for executive displays with 1024x768 minimum resolution
-   
-   2. TABLET (1024px to 1920px)
-      - Main content at readable width
-      - Metrics: 2-column at 1024px, 4-column at 1280px+
-      - Work items: 3-column fixed layout
-   
-   3. DESKTOP (1920px+)
-      - Full-width optimization
-      - Maximum readable line lengths
-      - Generous spacing
-   
-   RATIONALE:
-   - Explicit min-width breakpoints (1024px) for predictable behavior
-   - Ensures all content visible at executive display resolution (1024x768)
-   - Graceful scaling up to 1920x1080 (4K presentation displays)
-   ======================================================================== */
+.text-center { text-align: center; }
+.text-muted { color: var(--color-neutral-700); }
+.text-success { color: var(--color-success); }
+.text-danger { color: var(--color-danger); }
+.font-bold { font-weight: 700; }
 
 @media (max-width: 1024px) {
-    /* Reduce font sizes for smaller displays */
     :root {
         --font-size-base: 14px;
-        --font-size-xl: 1.1rem;
-        --font-size-2xl: 1.4rem;
-        --font-size-3xl: 1.7rem;
-        --font-size-4xl: 2rem;
     }
-
-    .container {
-        padding: var(--spacing-md);
-    }
-
-    /* Stack metrics in 2 columns on mobile */
-    .metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    /* Stack work items in single column on mobile */
-    .work-items-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .metric-card-value {
-        font-size: var(--font-size-3xl);
-    }
+    .container { padding: var(--spacing-md); }
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .work-items-grid { grid-template-columns: 1fr; }
 }
-
-/* ========================================================================
-   SECTION 13: Print Optimization (@media print)
-   
-   PRINT STRATEGY:
-   
-   1. COLOR PRESERVATION
-      - print-color-adjust: exact → preserves brand colors in print
-      - Prevents browser color desaturation during export
-      - Essential for PowerPoint screenshot consistency
-   
-   2. PAGE BREAK MANAGEMENT
-      - page-break-inside: avoid → keeps sections intact
-      - Prevents metrics/timeline from splitting across pages
-      - Improves visual coherence in exports
-   
-   3. LAYOUT OPTIMIZATION FOR SCREENSHOTS
-      - Converts 4-column metrics to 2-column (fits narrower viewport)
-      - Converts 3-column work items to 3-column (maintains proportions)
-      - Removes shadows, adds subtle borders for print clarity
-   
-   4. ELEMENT HIDING
-      - Hides nav, footer, buttons (UI chrome not needed in export)
-      - Removes decorative elements
-   
-   5. RESOLUTION TARGETS
-      - 1280x720 (PowerPoint 16:9 HD) → metrics scale to 2-column
-      - 1920x1080 (4K widescreen) → metrics scale appropriately
-      - A4 page size with 1cm margins (standard print)
-   
-   RATIONALE:
-   - PowerPoint screenshots require exact color matching
-   - Page breaks prevent content splitting mid-section
-   - Reduced columns fit narrower capture resolutions
-   - Print-ready without additional configuration
-   ======================================================================== */
-
-@media print {
-    /* Hide interactive elements not needed in print */
-    .no-print,
-    nav,
-    footer,
-    .action-buttons {
-        display: none !important;
-    }
-
-    /* Reset page background */
-    html, body {
-        margin: 0;
-        padding: 0;
-        background-color: white;
-        color: black;
-    }
-
-    /* Preserve exact colors during print */
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        color-adjust: exact !important;
-    }
-
-    /* Page break management: keep sections intact */
-    .timeline-container,
-    .work-items-section {
-        page-break-inside: avoid;
-        margin-bottom: 2cm;
-    }
-
-    .metric-card {
-        page-break-inside: avoid;
-    }
-
-    /* Print-specific card styling */
-    .metric-card,
-    .timeline-container,
-    .work-items-section {
-        box-shadow: none;
-        border: 1px solid #ddd;
-    }
-
-    /* Heading page break prevention */
-    h1, h2, h3, h4, h5, h6 {
-        color: black;
-        page-break-after: avoid;
-    }
-
-    /* Paragraph orphan/widow control */
-    p {
-        orphans: 3;
-        widows: 3;
-    }
-
-    /* Print layout optimization */
-    .dashboard-header {
-        box-shadow: none;
-        border: 1px solid #ddd;
-        margin-bottom: 1cm;
-    }
-
-    .container {
-        max-width: 100%;
-        width: 100%;
-    }
-
-    /* Reduce columns for print (narrower viewport) */
-    .metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-
-    .work-items-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-    }
-
-    /* Responsive timeline in print */
-    .timeline {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .timeline-item {
-        flex: 0 0 calc(25% - 10px);
-    }
-
-    /* Image optimization */
-    img {
-        max-width: 100%;
-    }
-
-    /* Link styling for print */
-    a {
-        text-decoration: underline;
-    }
-}
-
-/* ========================================================================
-   SECTION 14: Accessibility Features
-   
-   MOTION PREFERENCES:
-   - Reduces animations for users with motion sensitivity
-   - Sets animation-duration to 0.01ms (effectively disabled)
-   
-   FOCUS STATES:
-   - Clear 2px outline on focused buttons/links
-   - Essential for keyboard navigation
-   
-   HIGH CONTRAST MODE:
-   - Darker neutral colors for prefers-contrast: more
-   - Improved visibility for users with vision impairments
-   ======================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
     * {
@@ -718,21 +283,7 @@ small {
     }
 }
 
-/* Keyboard navigation focus state */
-button:focus,
-a:focus {
+button:focus, a:focus {
     outline: 2px solid var(--color-info);
     outline-offset: 2px;
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: more) {
-    :root {
-        --color-neutral-700: #1a1a1a;
-        --color-neutral-900: #000000;
-    }
-
-    body {
-        border: 1px solid #000;
-    }
 }

@@ -1,85 +1,129 @@
 {
-  "name": "Executive Project Dashboard Demo",
-  "description": "Sample project for dashboard demonstration",
-  "startDate": "2024-01-15",
-  "targetEndDate": "2024-12-31",
-  "completionPercentage": 62,
-  "healthStatus": "OnTrack",
-  "velocityThisMonth": 18,
+  "project": {
+    "name": "Executive Dashboard Test Project",
+    "description": "Real-time project status and milestone tracking"
+  },
+  "metrics": {
+    "completionPercentage": 72,
+    "healthStatus": "ontrack",
+    "velocityThisMonth": 18,
+    "milestonesCompleted": 3,
+    "milestonesTotal": 8
+  },
   "milestones": [
     {
-      "name": "Phase 1: Foundation",
-      "targetDate": "2024-03-31",
-      "status": "Completed",
-      "description": "Core infrastructure and setup"
+      "id": "m1",
+      "name": "Project Kickoff",
+      "targetDate": "2024-01-15",
+      "status": "completed",
+      "description": "Initial planning and resource allocation"
     },
     {
-      "name": "Phase 2: Core Features",
-      "targetDate": "2024-06-30",
-      "status": "InProgress",
-      "description": "Primary feature development"
+      "id": "m2",
+      "name": "Design Phase",
+      "targetDate": "2024-02-28",
+      "status": "completed",
+      "description": "UI/UX design and architecture review"
     },
     {
-      "name": "Phase 3: Integration",
-      "targetDate": "2024-09-30",
-      "status": "Future",
-      "description": "Third-party integrations"
+      "id": "m3",
+      "name": "Core Development",
+      "targetDate": "2024-04-30",
+      "status": "inprogress",
+      "description": "Backend services and API implementation"
     },
     {
-      "name": "Phase 4: Launch",
-      "targetDate": "2024-12-15",
-      "status": "Future",
-      "description": "Production release"
+      "id": "m4",
+      "name": "Frontend Integration",
+      "targetDate": "2024-06-15",
+      "status": "atrisk",
+      "description": "Dashboard UI and real-time updates"
+    },
+    {
+      "id": "m5",
+      "name": "Testing & QA",
+      "targetDate": "2024-07-31",
+      "status": "future",
+      "description": "Comprehensive testing and performance optimization"
+    },
+    {
+      "id": "m6",
+      "name": "Deployment Prep",
+      "targetDate": "2024-08-30",
+      "status": "future",
+      "description": "Release planning and documentation"
+    },
+    {
+      "id": "m7",
+      "name": "Production Launch",
+      "targetDate": "2024-09-15",
+      "status": "future",
+      "description": "Go-live and production support"
+    },
+    {
+      "id": "m8",
+      "name": "Post-Launch Optimization",
+      "targetDate": "2024-10-31",
+      "status": "future",
+      "description": "Performance tuning and feature enhancements"
     }
   ],
-  "workItems": [
-    {
-      "title": "API Authentication",
-      "description": "Implement OAuth2 authentication layer",
-      "status": "Shipped",
-      "assignedTo": "Backend Team"
-    },
-    {
-      "title": "Dashboard UI",
-      "description": "Build responsive executive dashboard",
-      "status": "Shipped",
-      "assignedTo": "Frontend Team"
-    },
-    {
-      "title": "Reporting Engine",
-      "description": "Create real-time reporting system",
-      "status": "Shipped",
-      "assignedTo": "Data Team"
-    },
-    {
-      "title": "Data Migration",
-      "description": "Migrate historical data to new platform",
-      "status": "InProgress",
-      "assignedTo": "Infrastructure Team"
-    },
-    {
-      "title": "Performance Optimization",
-      "description": "Optimize query performance and caching",
-      "status": "InProgress",
-      "assignedTo": "Platform Team"
-    },
-    {
-      "title": "Security Audit",
-      "description": "Third-party security assessment",
-      "status": "InProgress",
-      "assignedTo": "Security Team"
-    },
-    {
-      "title": "Documentation",
-      "description": "Complete API and user documentation",
-      "status": "CarriedOver",
-      "assignedTo": "Technical Writer"
-    },
-    {
-      "title": "Mobile App",
-      "description": "Native mobile application development",
-      "status": "CarriedOver",
-      "assignedTo": "Mobile Team"
-    }
-  ]
+  "workItems": {
+    "shipped": [
+      {
+        "id": "wi-001",
+        "title": "User authentication system",
+        "description": "OAuth 2.0 integration with single sign-on"
+      },
+      {
+        "id": "wi-002",
+        "title": "Dashboard layout framework",
+        "description": "Responsive grid layout for all screen sizes"
+      },
+      {
+        "id": "wi-003",
+        "title": "Data persistence layer",
+        "description": "SQLite database with caching strategy"
+      }
+    ],
+    "inProgress": [
+      {
+        "id": "wi-004",
+        "title": "Real-time metrics API",
+        "description": "WebSocket endpoint for live dashboard updates"
+      },
+      {
+        "id": "wi-005",
+        "title": "Timeline visualization",
+        "description": "Chart.js milestone and dependency visualization"
+      },
+      {
+        "id": "wi-006",
+        "title": "Print optimization",
+        "description": "CSS media queries for PowerPoint export"
+      },
+      {
+        "id": "wi-007",
+        "title": "Work item filtering",
+        "description": "Status-based filtering and search functionality"
+      }
+    ],
+    "carriedOver": [
+      {
+        "id": "wi-008",
+        "title": "Mobile responsiveness",
+        "description": "Optimize dashboard for tablet and mobile devices (blocked by design review)"
+      },
+      {
+        "id": "wi-009",
+        "title": "Accessibility compliance",
+        "description": "WCAG 2.1 AA compliance and screen reader support (waiting for stakeholder approval)"
+      },
+      {
+        "id": "wi-010",
+        "title": "Performance monitoring",
+        "description": "Add APM instrumentation and metrics collection (waiting on ops team)"
+      }
+    ]
+  }
 }

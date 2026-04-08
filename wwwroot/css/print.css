@@ -1,5 +1,4 @@
 /* Print Optimization Stylesheet */
-/* Ensures clean PowerPoint and screenshot exports at 1280x720 and 1920x1080 resolutions */
 
 @page {
     size: A4;
@@ -7,85 +6,66 @@
 }
 
 @media print {
-    /* Base Elements */
+    .no-print, nav, footer, .action-buttons {
+        display: none !important;
+    }
+
     html, body {
         margin: 0;
         padding: 0;
         background-color: white;
         color: black;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     }
 
-    /* Remove Interactive Elements */
-    button, 
-    .btn,
-    nav,
-    footer,
-    .no-print,
-    .d-print-none {
-        display: none !important;
-    }
-
-    /* Typography */
-    h1, h2, h3, h4, h5, h6 {
-        color: black;
-        page-break-after: avoid;
-        font-weight: 700;
-    }
-
-    p {
-        orphans: 3;
-        widows: 3;
-        page-break-inside: avoid;
-    }
-
-    /* Container & Layout */
-    .container {
-        max-width: 100%;
-        padding: 0;
-    }
-
-    .dashboard {
-        gap: 1.5cm;
-    }
-
-    /* Preserve Colors for Print */
     * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         color-adjust: exact !important;
     }
 
-    /* Dashboard Header */
-    .dashboard-header {
-        page-break-after: avoid;
-        margin-bottom: 1cm;
-        border: 1px solid #ccc;
-        box-shadow: none;
-    }
-
-    /* Metrics Grid */
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        margin-bottom: 1cm;
+    .timeline-container, .work-items-section {
         page-break-inside: avoid;
+        margin-bottom: 2cm;
     }
 
     .metric-card {
         page-break-inside: avoid;
-        border: 1px solid #ddd;
-        box-shadow: none;
-        background-color: white;
     }
 
-    /* Timeline */
-    .timeline-container {
-        page-break-inside: avoid;
-        margin-bottom: 1cm;
-        border: 1px solid #ddd;
+    .metric-card, .timeline-container, .work-items-section {
         box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: black;
+        page-break-after: avoid;
+    }
+
+    p {
+        orphans: 3;
+        widows: 3;
+    }
+
+    .dashboard-header {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        margin-bottom: 1cm;
+    }
+
+    .container {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .work-items-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
     }
 
     .timeline {
@@ -96,88 +76,13 @@
 
     .timeline-item {
         flex: 0 0 calc(25% - 10px);
-        border: 1px solid #ddd;
     }
 
-    /* Work Items */
-    .work-items-section {
-        page-break-inside: avoid;
-        margin-bottom: 1cm;
-        border: 1px solid #ddd;
-        box-shadow: none;
-    }
-
-    .work-items-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-    }
-
-    .work-item-column {
-        page-break-inside: avoid;
-    }
-
-    .work-item {
-        page-break-inside: avoid;
-        border: 1px solid #ddd;
-    }
-
-    /* Images */
     img {
         max-width: 100%;
-        page-break-inside: avoid;
     }
 
-    /* Links */
     a {
         text-decoration: underline;
-        color: #0000cc;
-    }
-
-    a[href]:after {
-        content: "";
-    }
-
-    /* Tables */
-    table {
-        page-break-inside: avoid;
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    th, td {
-        border: 1px solid #ccc;
-        padding: 8px;
-    }
-
-    /* Prevent Color Fading */
-    .badge,
-    .badge-success,
-    .badge-info,
-    .badge-warning,
-    .badge-danger {
-        border: 1px solid #333;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    /* Bootstrap Utilities */
-    .d-print-block {
-        display: block !important;
-    }
-
-    .d-print-none {
-        display: none !important;
-    }
-
-    .d-print-inline {
-        display: inline !important;
-    }
-}
-
-/* Screen-only Elements */
-@media screen {
-    .d-print-only {
-        display: none !important;
     }
 }
