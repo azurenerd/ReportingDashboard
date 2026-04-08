@@ -1,36 +1,41 @@
 using AgentSquad.Runner.Services;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
-var builder = WebApplicationBuilder.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+// Add services to the container.
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 
-builder.Services.AddMemoryCache();
-builder.Services.AddScoped<IDataCache, MemoryCacheDataProvider>();
-builder.Services.AddScoped<IDataProvider, DataProvider>();
-
+// Configure logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
+
+// Register data caching service as Singleton
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<IDataCache, MemoryCacheProvider>();
+
+// Register data provider service as Scoped
+builder.Services.AddScoped<IDataProvider, DataProvider>();
 
 var app = builder.Build();
 
-var logger = app.Services.GetRequiredService<ILogger<Program>>();
-
+// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseAntiforgery();
 
-app.MapRazorComponents<AgentSquad.Runner.App>()
-    .AddInteractiveServerRenderMode();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
 
 app.Run();
