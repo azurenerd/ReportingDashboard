@@ -1,5 +1,6 @@
 @namespace AgentSquad.Runner.Components
 @using AgentSquad.Runner.Models
+@using System.Linq
 
 <div class="work-item-summary">
     @if (WorkItems == null || WorkItems.Count == 0)
@@ -8,11 +9,88 @@
     }
     else
     {
-        <!-- Component implementation will follow in subsequent steps -->
+        <div class="work-items-grid">
+            <!-- Shipped This Month Column -->
+            <div class="work-item-column">
+                <div class="column-header">
+                    <h3>Shipped This Month</h3>
+                    <span class="item-count-badge">@GetItemCountForStatus(WorkItemStatus.Shipped)</span>
+                </div>
+                <div class="column-items">
+                    @foreach (var item in WorkItems.Where(w => w.Status == WorkItemStatus.Shipped))
+                    {
+                        <div class="work-item">
+                            <div class="item-title">@item.Title</div>
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <div class="item-description">@item.Description</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.AssignedTo))
+                            {
+                                <div class="item-assigned">@item.AssignedTo</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- In Progress Column -->
+            <div class="work-item-column">
+                <div class="column-header">
+                    <h3>In Progress</h3>
+                    <span class="item-count-badge">@GetItemCountForStatus(WorkItemStatus.InProgress)</span>
+                </div>
+                <div class="column-items">
+                    @foreach (var item in WorkItems.Where(w => w.Status == WorkItemStatus.InProgress))
+                    {
+                        <div class="work-item">
+                            <div class="item-title">@item.Title</div>
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <div class="item-description">@item.Description</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.AssignedTo))
+                            {
+                                <div class="item-assigned">@item.AssignedTo</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Carried Over Column -->
+            <div class="work-item-column">
+                <div class="column-header">
+                    <h3>Carried Over</h3>
+                    <span class="item-count-badge">@GetItemCountForStatus(WorkItemStatus.CarriedOver)</span>
+                </div>
+                <div class="column-items">
+                    @foreach (var item in WorkItems.Where(w => w.Status == WorkItemStatus.CarriedOver))
+                    {
+                        <div class="work-item">
+                            <div class="item-title">@item.Title</div>
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <div class="item-description">@item.Description</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.AssignedTo))
+                            {
+                                <div class="item-assigned">@item.AssignedTo</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
     }
 </div>
 
 @code {
     [Parameter]
     public List<WorkItem> WorkItems { get; set; }
+
+    private int GetItemCountForStatus(WorkItemStatus status)
+    {
+        return WorkItems?.Count(w => w.Status == status) ?? 0;
+    }
 }
