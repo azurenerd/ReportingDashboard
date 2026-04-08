@@ -16,13 +16,16 @@
                     <div class="item-list">
                         @foreach (var item in statusGroup.Items)
                         {
-                            <div class="work-item">
-                                <div class="item-title">@item.Title</div>
-                                @if (!string.IsNullOrEmpty(item.Description))
-                                {
-                                    <div class="item-description">@TruncateDescription(item.Description)</div>
-                                }
-                            </div>
+                            @if (!string.IsNullOrEmpty(item.Title))
+                            {
+                                <div class="work-item">
+                                    <div class="item-title">@item.Title</div>
+                                    @if (!string.IsNullOrEmpty(item.Description))
+                                    {
+                                        <div class="item-description">@TruncateDescription(item.Description)</div>
+                                    }
+                                </div>
+                            }
                         }
                     </div>
                 }
@@ -45,16 +48,16 @@
     private Dictionary<WorkItemStatus, List<WorkItem>> GroupedWorkItems { get; set; } = new();
 
     /// <summary>
-    /// Groups work items by status whenever parameters change (initialization or update).
+    /// Groups work items by status on component initialization.
     /// </summary>
-    protected override void OnParametersSet()
+    protected override void OnInitialized()
     {
         GroupWorkItems();
     }
 
     /// <summary>
     /// Groups work items by their status for display.
-    /// Initializes all three status categories even if empty.
+    /// Validates status enum values and skips invalid items.
     /// </summary>
     private void GroupWorkItems()
     {
@@ -65,14 +68,17 @@
             { WorkItemStatus.CarriedOver, new List<WorkItem>() }
         };
 
-        if (WorkItems?.Count > 0)
+        if (WorkItems == null || WorkItems.Count == 0)
+            return;
+
+        foreach (var item in WorkItems)
         {
-            foreach (var item in WorkItems)
+            if (item == null || string.IsNullOrEmpty(item.Title))
+                continue;
+
+            if (GroupedWorkItems.ContainsKey(item.Status))
             {
-                if (GroupedWorkItems.ContainsKey(item.Status))
-                {
-                    GroupedWorkItems[item.Status].Add(item);
-                }
+                GroupedWorkItems[item.Status].Add(item);
             }
         }
     }
@@ -103,6 +109,7 @@
 
     /// <summary>
     /// Truncates description to 100 characters with ellipsis if needed.
+    /// Returns empty string for null/empty input.
     /// </summary>
     private string TruncateDescription(string description)
     {
@@ -110,7 +117,7 @@
             return string.Empty;
 
         return description.Length > 100
-            ? description.Substring(0, 100) + "..."
+            ? description[..100] + "..."
             : description;
     }
 }
