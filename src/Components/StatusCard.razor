@@ -1,0 +1,46 @@
+@using AgentSquad.Runner.Models
+<div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <div class="card status-card @CardCssClass">
+        <div class="card-body card-spacing">
+            <h5 class="card-title">@StatusLabel</h5>
+            <p class="display-6 mb-3">@TaskCount</p>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#tasks-@StatusLabel">
+                View Tasks
+            </button>
+            <div class="collapse mt-3" id="tasks-@StatusLabel">
+                <div class="component-gutter">
+                    @if (Tasks != null && Tasks.Count > 0)
+                    {
+                        <ul class="list-unstyled">
+                            @foreach (var task in Tasks)
+                            {
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle"></i> @task.Name (@task.Owner)
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string StatusLabel { get; set; } = "";
+
+    [Parameter]
+    public int TaskCount { get; set; }
+
+    [Parameter]
+    public List<Task> Tasks { get; set; } = new();
+
+    private string CardCssClass => StatusLabel switch
+    {
+        "Shipped" => "status-card-shipped",
+        "In Progress" => "status-card-inprogress",
+        "Carried Over" => "status-card-carriedover",
+        _ => ""
+    };
+}
