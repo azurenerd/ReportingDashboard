@@ -22,7 +22,7 @@ namespace AgentSquad.Runner.Services
 
         public async Task<ProjectData> LoadProjectDataAsync()
         {
-            if (_cachedData != null)
+            if (_cachedData?.Project != null)
             {
                 return _cachedData;
             }
@@ -40,12 +40,10 @@ namespace AgentSquad.Runner.Services
                 ValidateJsonSchema(json);
                 
                 var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                _cachedData = JsonSerializer.Deserialize<ProjectData>(json, options);
+                var data = JsonSerializer.Deserialize<ProjectData>(json, options);
 
-                if (_cachedData == null)
-                {
-                    throw new DataLoadException("Failed to deserialize project data");
-                }
+                ValidateDeserializedData(data);
+                _cachedData = data;
 
                 return _cachedData;
             }
@@ -100,6 +98,54 @@ namespace AgentSquad.Runner.Services
             catch (JsonException ex)
             {
                 throw new DataLoadException("JSON schema validation failed", ex);
+            }
+        }
+
+        public void ValidateDeserializedData(ProjectData data)
+        {
+            if (data == null)
+            {
+                throw new DataLoadException("Deserialized project data is null");
+            }
+
+            if (data.Project == null)
+            {
+                throw new DataLoadException("Project object is null in deserialized data");
+            }
+
+            if (string.IsNullOrWhiteSpace(data.Project.Name))
+            {
+                throw new DataLoadException("Project name is null or empty");
+            }
+
+            if (data.Milestones == null)
+            {
+                throw new DataLoadException("Milestones collection is null");
+            }
+
+            if (data.Tasks == null)
+            {
+                throw new DataLoadException("Tasks collection is null");
+            }
+
+            if (data.Metrics == null)
+            {
+                throw new DataLoadException("Metrics object is null");
+            }
+
+            if (data.Milestones.Any(m => string.IsNullOrWhiteSpace(m.Id) || string.IsNullOrWhiteSpace(m.Name)))
+            {
+                throw new DataLoadException("One or more milestones have missing Id or Name");
+            }
+
+            if (data.Tasks.Any(t => string.IsNullOrWhiteSpace(t.Id) || string.IsNullOrWhiteSpace(t.Name)))
+            {
+                throw new DataLoadException("One or more tasks have missing Id or Name");
+            }
+
+            if (data.Metrics.TotalTasks < 0 || data.Metrics.CompletedTasks < 0 || data.Metrics.InProgressTasks < 0 || data.Metrics.CarriedOverTasks < 0)
+            {
+                throw new DataLoadException("Metrics contain negative values");
             }
         }
 
