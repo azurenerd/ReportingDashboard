@@ -1,57 +1,73 @@
-@using AgentSquad.Runner.Data
+@using AgentSquad.Runner.Models
 
-<div class="status-card">
-    <div class="status-card-header @CardColor">
-        <p class="status-card-count">@TaskCount</p>
-        <p class="status-card-label">@StatusCategory</p>
-    </div>
-    <div class="status-card-body">
-        @if (Tasks == null || Tasks.Count == 0)
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">@StatusCategory</h5>
+        <div class="display-4 text-@CardColor mb-3">@TaskCount</div>
+        
+        @if (Tasks == null || !Tasks.Any())
         {
             <p class="text-muted small">No tasks in this category.</p>
         }
         else
         {
-            <button class="btn btn-sm btn-outline-secondary w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@(StatusCategory?.Replace(" ", "-"))" aria-expanded="false">
-                Show Tasks (@Tasks.Count)
+            <button class="btn btn-sm btn-outline-secondary w-100 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#tasks-@StatusCategory.Replace(" ", "-")">
+                View Tasks
             </button>
-            <div class="collapse" id="collapse-@(StatusCategory?.Replace(" ", "-"))">
-                <div class="task-list">
+            <div class="collapse" id="tasks-@StatusCategory.Replace(" ", "-")">
+                <ul class="list-unstyled small">
                     @foreach (var task in Tasks)
                     {
-                        <div class="task-item">
-                            <span class="task-checkbox">✓</span>
-                            <span>@task.Name</span>
-                            @if (!string.IsNullOrEmpty(task.Owner))
+                        <li class="task-item mb-2 pb-2 border-bottom">
+                            <div class="d-flex justify-content-between">
+                                <strong>@task.Name</strong>
+                            </div>
+                            <small class="text-muted">Assigned to: @task.AssignedTo</small>
+                            @if (task.EstimatedDays > 0)
                             {
-                                <span class="task-owner">@task.Owner</span>
+                                <small class="text-muted d-block">Estimated: @task.EstimatedDays days</small>
                             }
-                        </div>
+                            @if (!string.IsNullOrEmpty(task.RelatedMilestone))
+                            {
+                                <small class="text-muted d-block">Milestone: @task.RelatedMilestone</small>
+                            }
+                        </li>
                     }
-                </div>
+                </ul>
             </div>
         }
     </div>
 </div>
 
+<style>
+.card-title {
+    font-size: 12pt;
+    font-weight: 600;
+}
+
+.task-item {
+    font-size: 12pt;
+}
+
+.task-item strong {
+    font-size: 12pt;
+}
+
+.task-item small {
+    font-size: 11pt;
+}
+</style>
+
 @code {
     [Parameter]
-    public string? StatusCategory { get; set; }
+    public string StatusCategory { get; set; }
 
     [Parameter]
     public int TaskCount { get; set; }
 
     [Parameter]
-    public List<Task>? Tasks { get; set; }
+    public List<ProjectTask> Tasks { get; set; }
 
     [Parameter]
-    public string? CardColor { get; set; }
-
-    protected override void OnInitialized()
-    {
-        if (string.IsNullOrEmpty(StatusCategory))
-            throw new InvalidOperationException("StatusCategory parameter is required");
-
-        Tasks ??= new();
-    }
+    public string CardColor { get; set; }
 }
