@@ -89,6 +89,13 @@ public class ProjectInfo
     [Required(ErrorMessage = "Project manager is required")]
     [JsonPropertyName("projectManager")]
     public string ProjectManager { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProjectInfo"/> class.
+    /// </summary>
+    public ProjectInfo()
+    {
+    }
 }
 
 /// <summary>
@@ -139,6 +146,13 @@ public class Milestone
     [Range(0, 100, ErrorMessage = "Completion percentage must be between 0 and 100")]
     [JsonPropertyName("completionPercentage")]
     public int CompletionPercentage { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Milestone"/> class.
+    /// </summary>
+    public Milestone()
+    {
+    }
 }
 
 /// <summary>
@@ -196,6 +210,13 @@ public class Task
     /// </summary>
     [JsonPropertyName("relatedMilestone")]
     public string? RelatedMilestone { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Task"/> class.
+    /// </summary>
+    public Task()
+    {
+    }
 }
 
 /// <summary>
@@ -286,5 +307,54 @@ public class ProjectMetrics
         {
             return (int)(ProjectEndDate - DateTime.Now).TotalDays;
         }
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProjectMetrics"/> class.
+    /// </summary>
+    public ProjectMetrics()
+    {
+    }
+}
+
+/// <summary>
+/// Root project data container aggregating all project information, milestones, tasks, and metrics.
+/// This is the top-level object for JSON deserialization from data.json.
+/// </summary>
+public class ProjectData
+{
+    /// <summary>
+    /// Gets or sets the project information metadata.
+    /// </summary>
+    [Required(ErrorMessage = "Project information is required")]
+    [JsonPropertyName("project")]
+    public ProjectInfo? Project { get; set; }
+
+    /// <summary>
+    /// Gets or sets the collection of project milestones.
+    /// </summary>
+    [Required(ErrorMessage = "Milestones collection is required")]
+    [JsonPropertyName("milestones")]
+    public List<Milestone> Milestones { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the collection of project tasks.
+    /// </summary>
+    [Required(ErrorMessage = "Tasks collection is required")]
+    [JsonPropertyName("tasks")]
+    public List<Task> Tasks { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the aggregated project metrics.
+    /// </summary>
+    [Required(ErrorMessage = "Project metrics is required")]
+    [JsonPropertyName("metrics")]
+    public ProjectMetrics? Metrics { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProjectData"/> class.
+    /// </summary>
+    public ProjectData()
+    {
     }
 }
