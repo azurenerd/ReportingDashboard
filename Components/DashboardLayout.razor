@@ -1,352 +1,111 @@
-@page "/"
 @using AgentSquad.Runner.Models
 @using AgentSquad.Runner.Services
 @inject IDataProvider DataProvider
-@inject ILogger<DashboardLayout> Logger
 
-<div class="dashboard-wrapper">
+<div class="dashboard-container">
     @if (IsLoading)
     {
-        <div class="loading-container">
-            <div class="loading-spinner"></div>
-            <p class="loading-text">Loading dashboard...</p>
+        <div class="loading-overlay">
+            <div class="loading-spinner">
+                <p>Loading dashboard...</p>
+            </div>
         </div>
     }
-    @else if (!string.IsNullOrEmpty(ErrorMessage))
+    else if (!string.IsNullOrEmpty(ErrorMessage))
     {
-        <div class="error-container">
-            <div class="error-header">
+        <div class="error-overlay">
+            <div class="error-container">
                 <h2>Dashboard Error</h2>
-            </div>
-            <div class="error-body">
-                <p class="error-message">@ErrorMessage</p>
-                <button class="btn-retry" @onclick="ReloadData">Retry</button>
+                <p>@ErrorMessage</p>
+                <p class="error-hint">Please ensure data.json exists in the wwwroot directory and is valid JSON.</p>
+                <button class="retry-button" @onclick="RetryLoadData">Retry</button>
             </div>
         </div>
     }
     else if (ProjectData != null)
     {
-        <div class="dashboard-container">
-            <!-- Dashboard Header -->
+        <div class="dashboard-grid">
             <header class="dashboard-header">
-                <div class="header-content">
-                    <h1 class="project-title">@ProjectData.Name</h1>
-                    @if (!string.IsNullOrEmpty(ProjectData.Description))
-                    {
-                        <p class="project-description">@ProjectData.Description</p>
-                    }
-                </div>
+                <h1>@ProjectData.Name</h1>
+                @if (!string.IsNullOrEmpty(ProjectData.Description))
+                {
+                    <p class="project-description">@ProjectData.Description</p>
+                }
             </header>
 
-            <!-- Project Metrics Section -->
-            <section class="dashboard-section metrics-section">
-                <ProjectMetrics Metrics="@ExtractMetrics(ProjectData)" />
-            </section>
+            @if (ProjectData.Milestones != null && ProjectData.Milestones.Count > 0)
+            {
+                <section class="dashboard-section">
+                    <h2>Milestones</h2>
+                    <!-- MilestoneTimeline component will be rendered here in Step 7 -->
+                </section>
+            }
 
-            <!-- Milestone Timeline Section (Placeholder) -->
-            <section class="dashboard-section timeline-section">
-                <h2 class="section-title">Milestone Timeline</h2>
-                @if (ProjectData.Milestones != null && ProjectData.Milestones.Count > 0)
-                {
-                    <div class="timeline-container">
-                        <p class="placeholder-text">Timeline visualization will render here</p>
-                    </div>
-                }
-                else
-                {
-                    <p class="no-data-message">No milestones available</p>
-                }
-            </section>
-
-            <!-- Work Items Summary Section (Placeholder) -->
             <section class="dashboard-section work-items-section">
-                <h2 class="section-title">Work Item Status</h2>
-                @if (ProjectData.WorkItems != null && ProjectData.WorkItems.Count > 0)
-                {
-                    <div class="work-items-container">
-                        <p class="placeholder-text">Work items summary will render here</p>
-                    </div>
-                }
-                else
-                {
-                    <p class="no-data-message">No work items available</p>
-                }
+                <WorkItemSummary WorkItems="@ProjectData.WorkItems" />
             </section>
-
-            <!-- Footer -->
-            <footer class="dashboard-footer">
-                <p class="footer-text">
-                    Last loaded: @LoadedAt.ToString("g")
-                </p>
-            </footer>
-        </div>
-    }
-    else
-    {
-        <div class="empty-container">
-            <p class="empty-message">Unable to load dashboard</p>
         </div>
     }
 </div>
 
-<style>
-    .dashboard-wrapper {
-        width: 100%;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        background-color: #f5f5f5;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    }
-
-    .loading-container,
-    .error-container,
-    .empty-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
-        padding: 2rem;
-    }
-
-    .loading-spinner {
-        width: 50px;
-        height: 50px;
-        border: 4px solid #e0e0e0;
-        border-top-color: #2c3e50;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-
-    .loading-text,
-    .empty-message {
-        margin-top: 1rem;
-        font-size: 1rem;
-        color: #666;
-    }
-
-    .error-container {
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 0.5rem;
-        padding: 2rem;
-        max-width: 500px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .error-header {
-        margin-bottom: 1rem;
-    }
-
-    .error-header h2 {
-        margin: 0;
-        color: #d32f2f;
-        font-size: 1.5rem;
-    }
-
-    .error-body {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .error-message {
-        margin: 0;
-        color: #555;
-        line-height: 1.5;
-    }
-
-    .btn-retry {
-        padding: 0.75rem 1.5rem;
-        background-color: #2c3e50;
-        color: white;
-        border: none;
-        border-radius: 0.375rem;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: background-color 0.2s;
-    }
-
-    .btn-retry:hover {
-        background-color: #1a252f;
-    }
-
-    .dashboard-container {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100%;
-        overflow-y: auto;
-        background-color: #ffffff;
-    }
-
-    .dashboard-header {
-        padding: 2rem;
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        color: white;
-        border-bottom: 1px solid #ddd;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .header-content {
-        max-width: 1400px;
-        margin: 0 auto;
-        width: 100%;
-        padding: 0 1rem;
-    }
-
-    .project-title {
-        margin: 0 0 0.5rem 0;
-        font-size: 2rem;
-        font-weight: 700;
-        line-height: 1.2;
-    }
-
-    .project-description {
-        margin: 0;
-        font-size: 1rem;
-        opacity: 0.9;
-    }
-
-    .dashboard-section {
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .metrics-section {
-        padding: 2rem;
-        background-color: #f8f9fa;
-    }
-
-    .section-title {
-        margin: 0 0 1.5rem 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-
-    .timeline-container,
-    .work-items-container {
-        min-height: 200px;
-        padding: 1.5rem;
-        background-color: #f8f9fa;
-        border-radius: 0.5rem;
-        border: 1px dashed #ddd;
-    }
-
-    .placeholder-text,
-    .no-data-message {
-        margin: 0;
-        color: #999;
-        text-align: center;
-        padding: 2rem 0;
-    }
-
-    .dashboard-footer {
-        margin-top: auto;
-        padding: 1rem 2rem;
-        background-color: #f8f9fa;
-        border-top: 1px solid #e9ecef;
-        text-align: right;
-    }
-
-    .footer-text {
-        margin: 0;
-        font-size: 0.875rem;
-        color: #999;
-    }
-
-    /* Responsive adjustments */
-    @media (min-width: 1920px) {
-        .dashboard-header {
-            padding: 2.5rem;
-        }
-
-        .header-content {
-            max-width: 1600px;
-        }
-
-        .project-title {
-            font-size: 2.25rem;
-        }
-    }
-
-    @media (max-width: 1024px) {
-        .dashboard-header {
-            padding: 1.5rem;
-        }
-
-        .dashboard-section {
-            padding: 1rem;
-        }
-
-        .project-title {
-            font-size: 1.75rem;
-        }
-    }
-
-    /* Print optimization */
-    @media print {
-        .dashboard-footer {
-            display: none;
-        }
-
-        .dashboard-header {
-            page-break-after: avoid;
-        }
-
-        .dashboard-section {
-            page-break-inside: avoid;
-        }
-    }
-
-    /* Accessibility */
-    .dashboard-header:focus-within {
-        outline: 2px solid #0056b3;
-        outline-offset: 2px;
-    }
-</style>
-
 @code {
-    private Project? ProjectData { get; set; }
-    private bool IsLoading { get; set; } = true;
-    private string? ErrorMessage { get; set; }
-    private DateTime LoadedAt { get; set; } = DateTime.Now;
+    /// <summary>
+    /// Gets or sets the loaded project data from data.json.
+    /// </summary>
+    public Project? ProjectData { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether data is currently being loaded.
+    /// </summary>
+    public bool IsLoading { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the error message to display if data loading fails.
+    /// </summary>
+    public string? ErrorMessage { get; set; }
+
+    /// <summary>
+    /// Lifecycle method called after component initialization.
+    /// Loads project data from the data provider asynchronously.
+    /// </summary>
     protected override async Task OnInitializedAsync()
+    {
+        await LoadProjectDataAsync();
+    }
+
+    /// <summary>
+    /// Loads project data from the data provider and updates component state.
+    /// Handles errors gracefully by setting ErrorMessage for display to user.
+    /// </summary>
+    private async Task LoadProjectDataAsync()
     {
         try
         {
             IsLoading = true;
             ErrorMessage = null;
+
             ProjectData = await DataProvider.LoadProjectDataAsync();
-            LoadedAt = DateTime.Now;
+
+            if (ProjectData == null)
+            {
+                ErrorMessage = "Failed to load project data: Data is null.";
+            }
         }
         catch (FileNotFoundException ex)
         {
-            Logger.LogError(ex, "data.json file not found");
-            ErrorMessage = "Configuration file missing. Please ensure data.json exists in the application directory.";
+            ErrorMessage = $"Configuration file not found: {ex.Message}";
         }
         catch (System.Text.Json.JsonException ex)
         {
-            Logger.LogError(ex, "Invalid JSON format in data.json");
-            ErrorMessage = "Invalid JSON format in configuration file. Please check the data.json file for syntax errors.";
+            ErrorMessage = $"Invalid JSON format in data.json: {ex.Message}";
         }
         catch (InvalidOperationException ex)
         {
-            Logger.LogError(ex, "Invalid project data structure");
-            ErrorMessage = $"Invalid project data: {ex.Message}";
+            ErrorMessage = $"Invalid project structure: {ex.Message}";
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Unexpected error loading dashboard");
-            ErrorMessage = "An unexpected error occurred while loading the dashboard. Please try again.";
+            ErrorMessage = $"An unexpected error occurred while loading dashboard: {ex.Message}";
         }
         finally
         {
@@ -355,30 +114,10 @@
     }
 
     /// <summary>
-    /// Extracts metrics from project data, handling null values gracefully.
+    /// Allows user to retry loading data after an error occurs.
     /// </summary>
-    private ProjectMetrics? ExtractMetrics(Project? project)
+    private async Task RetryLoadData()
     {
-        if (project == null)
-            return null;
-
-        // Calculate completed milestones count
-        var completedMilestones = project.Milestones?
-            .Count(m => m.Status == MilestoneStatus.Completed) ?? 0;
-
-        return new ProjectMetrics
-        {
-            CompletionPercentage = Math.Clamp(project.CompletionPercentage, 0, 100),
-            HealthStatus = project.HealthStatus,
-            VelocityThisMonth = Math.Max(project.VelocityThisMonth, 0),
-            TotalMilestones = project.Milestones?.Count ?? 0,
-            CompletedMilestones = completedMilestones
-        };
-    }
-
-    private async Task ReloadData()
-    {
-        DataProvider.InvalidateCache();
-        await OnInitializedAsync();
+        await LoadProjectDataAsync();
     }
 }
