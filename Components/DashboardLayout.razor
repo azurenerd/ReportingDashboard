@@ -1,103 +1,82 @@
-@using AgentSquad.Runner.Models
-@using AgentSquad.Runner.Services
+@using AgentSquad.Models
+@using AgentSquad.Services
 @inject IDataProvider DataProvider
 
-<div class="dashboard-container">
+<div class="dashboard-layout">
     @if (IsLoading)
     {
-        <div class="loading-overlay">
-            <div class="loading-spinner">
-                <p>Loading dashboard...</p>
-            </div>
+        <div class="loading-spinner">
+            <p>Loading dashboard data...</p>
         </div>
     }
-    else if (!string.IsNullOrEmpty(ErrorMessage))
+    @else if (!string.IsNullOrEmpty(ErrorMessage))
     {
         <div class="error-overlay">
-            <div class="error-container">
+            <div class="error-content">
                 <h2>Dashboard Error</h2>
                 <p>@ErrorMessage</p>
-                <p class="error-hint">Please ensure data.json exists in the wwwroot directory and is valid JSON.</p>
-                <button class="retry-button" @onclick="RetryLoadData">Retry</button>
+                <button @onclick="Reload" class="btn-retry">Retry</button>
             </div>
         </div>
     }
     else if (ProjectData != null)
     {
-        <div class="dashboard-grid">
-            <header class="dashboard-header">
-                <h1>@ProjectData.Name</h1>
-                @if (!string.IsNullOrEmpty(ProjectData.Description))
-                {
-                    <p class="project-description">@ProjectData.Description</p>
-                }
-            </header>
+        <div class="dashboard-header">
+            <h1>@ProjectData.Name</h1>
+            <p class="project-description">@ProjectData.Description</p>
+        </div>
 
-            @if (ProjectData.Milestones != null && ProjectData.Milestones.Count > 0)
-            {
-                <section class="dashboard-section">
-                    <h2>Milestones</h2>
-                    <!-- MilestoneTimeline component will be rendered here in Step 7 -->
-                </section>
-            }
+        @if (ProjectData.Milestones != null && ProjectData.Milestones.Count > 0)
+        {
+            <MilestoneTimeline Milestones="@ProjectData.Milestones" />
+        }
 
-            <section class="dashboard-section work-items-section">
-                <WorkItemSummary WorkItems="@ProjectData.WorkItems" />
-            </section>
+        @if (ProjectData.Milestones != null)
+        {
+            <ProjectMetrics Milestones="@ProjectData.Milestones" CompletionPercentage="@ProjectData.CompletionPercentage" HealthStatus="@ProjectData.HealthStatus" VelocityThisMonth="@ProjectData.VelocityThisMonth" />
+        }
+
+        @if (ProjectData.WorkItems != null && ProjectData.WorkItems.Count > 0)
+        {
+            <WorkItemSummary WorkItems="@(ProjectData.WorkItems ?? new List<WorkItem>())" />
+        }
+    }
+    else
+    {
+        <div class="error-overlay">
+            <div class="error-content">
+                <h2>No Data</h2>
+                <p>Project data could not be loaded. Please check your data.json file.</p>
+            </div>
         </div>
     }
 </div>
 
 @code {
-    /// <summary>
-    /// Gets or sets the loaded project data from data.json.
-    /// </summary>
-    public Project? ProjectData { get; set; }
+    private Project ProjectData { get; set; }
+    private bool IsLoading { get; set; } = true;
+    private string ErrorMessage { get; set; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether data is currently being loaded.
-    /// </summary>
-    public bool IsLoading { get; set; } = true;
-
-    /// <summary>
-    /// Gets or sets the error message to display if data loading fails.
-    /// </summary>
-    public string? ErrorMessage { get; set; }
-
-    /// <summary>
-    /// Lifecycle method called after component initialization.
-    /// Loads project data from the data provider asynchronously.
-    /// </summary>
     protected override async Task OnInitializedAsync()
     {
-        await LoadProjectDataAsync();
+        await LoadProjectData();
     }
 
-    /// <summary>
-    /// Loads project data from the data provider and updates component state.
-    /// Handles errors gracefully by setting ErrorMessage for display to user.
-    /// </summary>
-    private async Task LoadProjectDataAsync()
+    private async Task LoadProjectData()
     {
         try
         {
             IsLoading = true;
             ErrorMessage = null;
-
             ProjectData = await DataProvider.LoadProjectDataAsync();
-
-            if (ProjectData == null)
-            {
-                ErrorMessage = "Failed to load project data: Data is null.";
-            }
         }
-        catch (FileNotFoundException ex)
+        catch (FileNotFoundException)
         {
-            ErrorMessage = $"Configuration file not found: {ex.Message}";
+            ErrorMessage = "Configuration file not found. Please ensure data.json exists in the wwwroot directory.";
         }
         catch (System.Text.Json.JsonException ex)
         {
-            ErrorMessage = $"Invalid JSON format in data.json: {ex.Message}";
+            ErrorMessage = $"Invalid JSON format: {ex.Message}";
         }
         catch (InvalidOperationException ex)
         {
@@ -105,7 +84,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"An unexpected error occurred while loading dashboard: {ex.Message}";
+            ErrorMessage = $"An unexpected error occurred: {ex.Message}";
         }
         finally
         {
@@ -113,11 +92,9 @@
         }
     }
 
-    /// <summary>
-    /// Allows user to retry loading data after an error occurs.
-    /// </summary>
-    private async Task RetryLoadData()
+    private async Task Reload()
     {
-        await LoadProjectDataAsync();
+        DataProvider.InvalidateCache();
+        await LoadProjectData();
     }
 }

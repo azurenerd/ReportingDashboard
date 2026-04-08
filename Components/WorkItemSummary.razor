@@ -1,33 +1,32 @@
-@using AgentSquad.Runner.Models
+@using AgentSquad.Models
+@implements IAsyncDisposable
 
 <div class="work-item-summary">
-    @foreach (var status in new[] { WorkItemStatus.Shipped, WorkItemStatus.InProgress, WorkItemStatus.CarriedOver })
+    @foreach (var statusGroup in GroupedWorkItems)
     {
-        var itemsForStatus = WorkItems?.Where(w => w.Status == status).ToList() ?? new List<WorkItem>();
-        var columnTitle = GetStatusColumnTitle(status);
-
+        var statusLabel = GetStatusLabel(statusGroup.Key);
+        var itemCount = statusGroup.Count();
+        
         <div class="work-item-column">
-            <h3 class="work-item-column-header">
-                @columnTitle (@itemsForStatus.Count)
+            <h3 class="column-header">
+                @statusLabel <span class="item-count">(@itemCount)</span>
             </h3>
-
-            @if (itemsForStatus.Count == 0)
+            
+            @if (itemCount == 0)
             {
-                <div class="work-item-empty-state">
-                    No items
-                </div>
+                <div class="empty-state">No items</div>
             }
             else
             {
                 <div class="work-item-list">
-                    @foreach (var item in itemsForStatus)
+                    @foreach (var item in statusGroup)
                     {
-                        <div class="work-item-card">
-                            <div class="work-item-title">@(item?.Title ?? "Untitled")</div>
-                            @if (!string.IsNullOrWhiteSpace(item?.Description))
+                        <div class="work-item">
+                            <div class="item-title">@item.Title</div>
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
                             {
-                                <div class="work-item-description">
-                                    @TruncateDescription(item.Description, 100)
+                                <div class="item-description" title="@item.Description">
+                                    @TruncateDescription(item.Description)
                                 </div>
                             }
                         </div>
@@ -39,16 +38,26 @@
 </div>
 
 @code {
-    /// <summary>
-    /// Gets or sets the list of work items to display, grouped by status.
-    /// </summary>
     [Parameter]
-    public List<WorkItem>? WorkItems { get; set; }
+    public List<WorkItem> WorkItems { get; set; } = new();
 
-    /// <summary>
-    /// Gets the display title for a work item status category.
-    /// </summary>
-    private string GetStatusColumnTitle(WorkItemStatus status) => status switch
+    private IEnumerable<IGrouping<WorkItemStatus, WorkItem>> GroupedWorkItems { get; set; } = Enumerable.Empty<IGrouping<WorkItemStatus, WorkItem>>();
+
+    protected override void OnParametersSet()
+    {
+        if (WorkItems == null || WorkItems.Count == 0)
+        {
+            GroupedWorkItems = Enumerable.Empty<IGrouping<WorkItemStatus, WorkItem>>();
+        }
+        else
+        {
+            GroupedWorkItems = WorkItems
+                .GroupBy(w => w.Status)
+                .OrderBy(g => (int)g.Key);
+        }
+    }
+
+    private string GetStatusLabel(WorkItemStatus status) => status switch
     {
         WorkItemStatus.Shipped => "Shipped This Month",
         WorkItemStatus.InProgress => "In Progress",
@@ -56,18 +65,18 @@
         _ => "Unknown"
     };
 
-    /// <summary>
-    /// Truncates description to specified maximum length with ellipsis if needed.
-    /// Returns empty string for null or empty input.
-    /// </summary>
-    private string TruncateDescription(string? description, int maxLength)
+    private string TruncateDescription(string description)
     {
-        if (string.IsNullOrWhiteSpace(description))
+        if (string.IsNullOrEmpty(description))
             return string.Empty;
 
-        if (description.Length <= maxLength)
-            return description;
+        return description.Length > 100
+            ? description.Substring(0, 100) + "..."
+            : description;
+    }
 
-        return description[..maxLength] + "…";
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        await ValueTask.CompletedTask;
     }
 }
