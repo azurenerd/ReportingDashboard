@@ -1,157 +1,117 @@
 using System.Text.Json;
 using AgentSquad.Runner.Models;
+using Microsoft.Extensions.Logging;
 
 namespace AgentSquad.Runner.Services;
 
+/// <summary>
+/// Service for reading, parsing, validating, and caching JSON project data.
+/// </summary>
 public class DataProvider : IDataProvider
 {
     private readonly IDataCache _cache;
-    private readonly IDataValidator _validator;
     private readonly ILogger<DataProvider> _logger;
     private const string DATA_FILE_PATH = "wwwroot/data.json";
     private const string CACHE_KEY = "project_data";
-
-    public DataProvider(IDataCache cache, IDataValidator validator, ILogger<DataProvider> logger)
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        _cache = cache;
-        _validator = validator;
-        _logger = logger;
+        PropertyNameCaseInsensitive = true,
+        WriteIndented = true
+    };
+
+    /// <summary>
+    /// Initializes a new instance of the DataProvider class.
+    /// </summary>
+    public DataProvider(IDataCache cache, ILogger<DataProvider> logger)
+    {
+        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    /// <summary>
+    /// Loads project data asynchronously from data.json.
+    /// </summary>
     public async Task<Project> LoadProjectDataAsync()
     {
-        _logger.LogInformation("[{Timestamp}] Loading project data from {FilePath}", 
-            DateTime.UtcNow:O, DATA_FILE_PATH);
+        _logger.LogInformation("Attempting to load project data from {DataFilePath}", DATA_FILE_PATH);
 
         try
         {
-            var cached = await _cache.GetAsync<Project>(CACHE_KEY);
-            if (cached != null)
+            // Check cache first
+            var cachedProject = _cache.Get<Project>(CACHE_KEY);
+            if (cachedProject != null)
             {
-                _logger.LogInformation("[{Timestamp}] Project data loaded from cache", 
-                    DateTime.UtcNow:O);
-                return cached;
+                _logger.LogInformation("Project data retrieved from cache");
+                return cachedProject;
             }
 
-            _logger.LogInformation("[{Timestamp}] Cache miss, reading from file", 
-                DateTime.UtcNow:O);
-
-            string json;
-            try
+            // Read file
+            if (!File.Exists(DATA_FILE_PATH))
             {
-                json = await File.ReadAllTextAsync(DATA_FILE_PATH);
-                _logger.LogInformation("[{Timestamp}] Successfully read data.json ({SizeBytes} bytes)", 
-                    DateTime.UtcNow:O, json.Length);
-            }
-            catch (FileNotFoundException ex)
-            {
-                _logger.LogError(ex, "[{Timestamp}] FileNotFoundException: File not found at {FilePath}", 
-                    DateTime.UtcNow:O, DATA_FILE_PATH);
-                throw new FileNotFoundException(
-                    "Configuration file missing. Please ensure data.json exists in the application directory.",
-                    DATA_FILE_PATH,
-                    ex);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogError(ex, "[{Timestamp}] UnauthorizedAccessException: Access denied to {FilePath}", 
-                    DateTime.UtcNow:O, DATA_FILE_PATH);
-                throw new InvalidOperationException(
-                    "Access denied reading configuration file. Please check file permissions.",
-                    ex);
-            }
-            catch (IOException ex)
-            {
-                _logger.LogError(ex, "[{Timestamp}] IOException: Error reading {FilePath}", 
-                    DateTime.UtcNow:O, DATA_FILE_PATH);
-                throw new InvalidOperationException(
-                    $"Error reading configuration file: {ex.Message}",
-                    ex);
+                _logger.LogError("Data file not found at {DataFilePath}", DATA_FILE_PATH);
+                throw new FileNotFoundException($"Configuration file not found: {DATA_FILE_PATH}");
             }
 
-            Project? project;
-            try
-            {
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    WriteIndented = false
-                };
-                project = JsonSerializer.Deserialize<Project>(json, options);
-                _logger.LogInformation("[{Timestamp}] Successfully parsed JSON", DateTime.UtcNow:O);
-            }
-            catch (JsonException ex)
-            {
-                _logger.LogError(ex, 
-                    "[{Timestamp}] JsonException: Invalid JSON at line {LineNumber}, column {Column}\nException: {Message}", 
-                    DateTime.UtcNow:O, ex.LineNumber, ex.BytePositionInLine, ex.Message);
-                throw new JsonException(
-                    "Invalid JSON format in configuration file. Please check data.json syntax.",
-                    ex);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[{Timestamp}] Unexpected error during JSON parsing: {ExceptionType}: {Message}", 
-                    DateTime.UtcNow:O, ex.GetType().Name, ex.Message);
-                throw new InvalidOperationException(
-                    "Unexpected error parsing configuration file.",
-                    ex);
-            }
+            // Parse JSON
+            string json = await File.ReadAllTextAsync(DATA_FILE_PATH);
+            var project = JsonSerializer.Deserialize<Project>(json, JsonOptions);
 
-            var validationResult = _validator.ValidateProjectData(project);
-            if (!validationResult.IsValid)
-            {
-                var missingFields = validationResult.Errors
-                    .Where(e => !string.IsNullOrEmpty(e.FieldName))
-                    .Select(e => e.FieldName)
-                    .Distinct()
-                    .ToList();
+            // Validate
+            ValidateProjectData(project);
 
-                var errorMessage = missingFields.Any()
-                    ? $"Configuration validation failed. Required fields missing: {string.Join(", ", missingFields)}"
-                    : "Configuration validation failed. Please verify data.json structure.";
-
-                _logger.LogError(
-                    "[{Timestamp}] InvalidOperationException: Validation failed with {ErrorCount} errors:\n{Errors}",
-                    DateTime.UtcNow:O,
-                    validationResult.Errors.Count,
-                    string.Join("\n", validationResult.Errors.Select(e => $"  - {e.ToString()}")));
-
-                throw new InvalidOperationException(errorMessage);
-            }
-
-            await _cache.SetAsync(CACHE_KEY, project, TimeSpan.FromHours(1));
-            _logger.LogInformation("[{Timestamp}] Project data cached successfully (1 hour TTL)", 
-                DateTime.UtcNow:O);
+            // Cache result
+            _cache.Set(CACHE_KEY, project, TimeSpan.FromHours(1));
+            _logger.LogInformation("Project data loaded successfully and cached for 1 hour");
 
             return project;
         }
-        catch (FileNotFoundException)
+        catch (JsonException ex)
         {
+            _logger.LogError(ex, "Failed to parse data.json: Invalid JSON syntax");
             throw;
         }
-        catch (JsonException)
+        catch (IOException ex)
         {
-            throw;
-        }
-        catch (InvalidOperationException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, 
-                "[{Timestamp}] Unexpected exception type {ExceptionType}: {Message}\n{StackTrace}", 
-                DateTime.UtcNow:O, ex.GetType().Name, ex.Message, ex.StackTrace);
-            throw new InvalidOperationException(
-                "An unexpected error occurred while loading project data.",
-                ex);
+            _logger.LogError(ex, "I/O error while reading data.json: {Message}", ex.Message);
+            throw new FileNotFoundException($"Cannot read configuration file: {DATA_FILE_PATH}", ex);
         }
     }
 
+    /// <summary>
+    /// Invalidates the cached project data.
+    /// </summary>
     public void InvalidateCache()
     {
         _cache.Remove(CACHE_KEY);
-        _logger.LogInformation("[{Timestamp}] Project data cache invalidated", DateTime.UtcNow:O);
+        _logger.LogInformation("Project data cache invalidated");
+    }
+
+    /// <summary>
+    /// Validates the project data structure and required fields.
+    /// </summary>
+    private void ValidateProjectData(Project project)
+    {
+        if (project == null)
+        {
+            throw new InvalidOperationException("Project data cannot be null");
+        }
+
+        if (string.IsNullOrWhiteSpace(project.Name))
+        {
+            throw new InvalidOperationException("Project name is required and cannot be empty");
+        }
+
+        if (project.Milestones == null || project.Milestones.Count == 0)
+        {
+            throw new InvalidOperationException("At least one milestone is required");
+        }
+
+        if (project.CompletionPercentage < 0 || project.CompletionPercentage > 100)
+        {
+            throw new InvalidOperationException("Completion percentage must be between 0 and 100");
+        }
+
+        _logger.LogInformation("Project data validation passed. Project: {ProjectName}, Milestones: {MilestoneCount}, WorkItems: {WorkItemCount}",
+            project.Name, project.Milestones.Count, project.WorkItems?.Count ?? 0);
     }
 }

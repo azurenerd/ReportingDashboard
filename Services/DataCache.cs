@@ -2,38 +2,44 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace AgentSquad.Runner.Services;
 
-public interface IDataCache
-{
-    Task<T?> GetAsync<T>(string key) where T : class;
-    Task SetAsync<T>(string key, T value, TimeSpan? expiration = null) where T : class;
-    void Remove(string key);
-}
-
+/// <summary>
+/// In-memory cache implementation wrapping IMemoryCache.
+/// </summary>
 public class DataCache : IDataCache
 {
     private readonly IMemoryCache _memoryCache;
-    private readonly ILogger<DataCache> _logger;
 
-    public DataCache(IMemoryCache memoryCache, ILogger<DataCache> logger)
+    /// <summary>
+    /// Initializes a new instance of the DataCache class.
+    /// </summary>
+    public DataCache(IMemoryCache memoryCache)
     {
-        _memoryCache = memoryCache;
-        _logger = logger;
+        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
     }
 
-    public Task<T?> GetAsync<T>(string key) where T : class
+    /// <summary>
+    /// Gets a cached value by key.
+    /// </summary>
+    public T Get<T>(string key) where T : class
     {
-        if (_memoryCache.TryGetValue(key, out T? value))
-        {
-            _logger.LogDebug("Cache hit for key: {Key}", key);
-            return Task.FromResult(value);
-        }
+        if (string.IsNullOrEmpty(key))
+            throw new ArgumentException("Cache key cannot be null or empty", nameof(key));
 
-        _logger.LogDebug("Cache miss for key: {Key}", key);
-        return Task.FromResult<T?>(null);
+        _memoryCache.TryGetValue(key, out T value);
+        return value;
     }
 
-    public Task SetAsync<T>(string key, T value, TimeSpan? expiration = null) where T : class
+    /// <summary>
+    /// Sets a value in the cache with optional expiration.
+    /// </summary>
+    public void Set<T>(string key, T value, TimeSpan? expiration = null) where T : class
     {
+        if (string.IsNullOrEmpty(key))
+            throw new ArgumentException("Cache key cannot be null or empty", nameof(key));
+
+        if (value == null)
+            throw new ArgumentNullException(nameof(value), "Cannot cache null values");
+
         var cacheOptions = new MemoryCacheEntryOptions();
         if (expiration.HasValue)
         {
@@ -41,15 +47,16 @@ public class DataCache : IDataCache
         }
 
         _memoryCache.Set(key, value, cacheOptions);
-        _logger.LogDebug("Cached key: {Key} with expiration: {Expiration}", key,
-            expiration?.TotalMinutes ?? -1);
-
-        return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Removes a value from the cache by key.
+    /// </summary>
     public void Remove(string key)
     {
+        if (string.IsNullOrEmpty(key))
+            throw new ArgumentException("Cache key cannot be null or empty", nameof(key));
+
         _memoryCache.Remove(key);
-        _logger.LogDebug("Removed cache entry for key: {Key}", key);
     }
 }
