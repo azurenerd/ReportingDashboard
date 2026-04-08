@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Total Tasks:** 14 | **Completed:** 4 | **In Progress:** 3 | **Pending:** 7
+**Total Tasks:** 14 | **Completed:** 5 | **In Progress:** 4 | **Pending:** 5
 
 ## Tasks
 
@@ -12,9 +12,9 @@
 | T2 | Data models and enums | Low | PrincipalEngineer | #52 | #58 | Done | — |
 | T3 | DataProvider service implementation | High | PrincipalEngineer | #52 | #67 | Done | T2 |
 | T4 | DashboardLayout component | Medium | PrincipalEngineer | #74 | #72 | Done | T3 |
-| T5 | MilestoneTimeline component | High | PrincipalEngineer | #53 | #76 | InProgress | T2, T4 |
-| T6 | WorkItemSummary component | Medium | — | #54 | — | Pending | T2, T4 |
-| T7 | ProjectMetrics component | Medium | — | #55 | — | Pending | T2, T4 |
+| T5 | MilestoneTimeline component | High | PrincipalEngineer | #53 | #76 | Done | T2, T4 |
+| T6 | WorkItemSummary component | Medium | Senior Engineer 1 | #54 | — | Assigned | T2, T4 |
+| T7 | ProjectMetrics component | Medium | Junior Engineer 1 | #55 | — | Assigned | T2, T4 |
 | T8 | Print and screenshot CSS optimization | Medium | — | #56 | — | Pending | T4, T5, T6, T7 |
 | T9 | Create data.json schema and example file | Low | Junior Engineer 1 | #73 | — | Assigned | T2 |
 | T10 | Static assets and wwwroot configuration | Low | Junior Engineer 1 | #75 | — | Assigned | T1 |
