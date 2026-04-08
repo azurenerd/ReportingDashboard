@@ -1,138 +1,85 @@
-@using AgentSquad.Runner.Models
-@namespace AgentSquad.Runner.Components
+@using AgentSquad.Models
+@implements IAsyncDisposable
 
-@if (WorkItems == null || WorkItems.Count == 0)
-{
-    <div class="work-items-empty">No work items available</div>
-}
-else
-{
-    <div class="work-items-container">
-        @foreach (var status in new[] { WorkItemStatus.Shipped, WorkItemStatus.InProgress, WorkItemStatus.CarriedOver })
-        {
-            var items = WorkItems.Where(w => w.Status == status).ToList();
-            <div class="work-items-column">
-                <div class="column-header">
-                    <h3>@GetStatusLabel(status)</h3>
-                    <span class="item-count">@items.Count</span>
-                </div>
-                <div class="items-list">
-                    @foreach (var item in items)
+<div class="work-item-summary">
+    @foreach (var statusGroup in GroupedWorkItems)
+    {
+        var statusLabel = GetStatusLabel(statusGroup.Key);
+        var itemCount = statusGroup.Count();
+        
+        <div class="work-item-column">
+            <h3 class="work-item-column-header">
+                @statusLabel <span class="item-count">(@itemCount)</span>
+            </h3>
+            
+            @if (itemCount == 0)
+            {
+                <div class="work-item-empty-state">No items</div>
+            }
+            else
+            {
+                <div class="work-item-list">
+                    @foreach (var item in statusGroup)
                     {
-                        <div class="work-item">
-                            <div class="item-title">@item.Title</div>
-                            @if (!string.IsNullOrEmpty(item.Description))
+                        <div class="work-item-card">
+                            <div class="work-item-title">@item.Title</div>
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
                             {
-                                <div class="item-description">@item.Description</div>
-                            }
-                            @if (!string.IsNullOrEmpty(item.AssignedTo))
-                            {
-                                <div class="item-assigned">@item.AssignedTo</div>
+                                <div class="work-item-description" title="@item.Description">
+                                    @TruncateDescription(item.Description)
+                                </div>
                             }
                         </div>
                     }
                 </div>
-            </div>
-        }
-    </div>
-}
-
-<style>
-    .work-items-empty {
-        padding: 20px;
-        text-align: center;
-        color: #999;
-        font-style: italic;
+            }
+        </div>
     }
-
-    .work-items-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 16px;
-    }
-
-    .work-items-column {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        background: #f9f9f9;
-        overflow: hidden;
-    }
-
-    .column-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px;
-        background: #f0f0f0;
-        border-bottom: 1px solid #e0e0e0;
-    }
-
-    .column-header h3 {
-        margin: 0;
-        font-size: 14px;
-        font-weight: 600;
-        color: #1a1a1a;
-    }
-
-    .item-count {
-        background: #1a1a1a;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 600;
-        min-width: 24px;
-        text-align: center;
-    }
-
-    .items-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding: 12px;
-        max-height: 400px;
-        overflow-y: auto;
-    }
-
-    .work-item {
-        padding: 8px;
-        background: white;
-        border-radius: 4px;
-        border-left: 3px solid #2196f3;
-    }
-
-    .item-title {
-        font-weight: 600;
-        color: #1a1a1a;
-        font-size: 13px;
-        margin-bottom: 4px;
-    }
-
-    .item-description {
-        font-size: 12px;
-        color: #666;
-        margin-bottom: 4px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .item-assigned {
-        font-size: 11px;
-        color: #999;
-        font-style: italic;
-    }
-</style>
+</div>
 
 @code {
     [Parameter]
-    public List<WorkItem>? WorkItems { get; set; }
+    public List<WorkItem> WorkItems { get; set; } = new();
+
+    private IEnumerable<IGrouping<WorkItemStatus, WorkItem>> GroupedWorkItems { get; set; } = Enumerable.Empty<IGrouping<WorkItemStatus, WorkItem>>();
+
+    protected override void OnParametersSet()
+    {
+        if (WorkItems == null || WorkItems.Count == 0)
+        {
+            GroupedWorkItems = Enumerable.Empty<IGrouping<WorkItemStatus, WorkItem>>();
+        }
+        else
+        {
+            GroupedWorkItems = WorkItems
+                .GroupBy(w => w.Status)
+                .OrderBy(g => (int)g.Key);
+        }
+    }
 
     private string GetStatusLabel(WorkItemStatus status) => status switch
     {
         WorkItemStatus.Shipped => "Shipped This Month",
         WorkItemStatus.InProgress => "In Progress",
         WorkItemStatus.CarriedOver => "Carried Over",
-        _ => status.ToString()
+        _ => "Unknown"
     };
+
+    private string TruncateDescription(string description)
+    {
+        if (string.IsNullOrEmpty(description))
+            return string.Empty;
+
+        if (description.Length > 100)
+        {
+            return description.Substring(0, 97) + "...";
+        }
+        
+        return description;
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        await ValueTask.CompletedTask;
+    }
 }
