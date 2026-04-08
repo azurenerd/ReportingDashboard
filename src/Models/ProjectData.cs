@@ -39,7 +39,7 @@ namespace AgentSquad.Models
         public string Id { get; set; }
         public string Name { get; set; }
         public TaskStatus Status { get; set; }
-        public string AssignedOwner { get; set; }
+        public string AssignedTo { get; set; }
         public DateTime DueDate { get; set; }
     }
 

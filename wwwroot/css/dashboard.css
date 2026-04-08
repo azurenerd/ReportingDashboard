@@ -16,7 +16,8 @@ body {
 h1 { font-size: 28px; font-weight: 700; margin-bottom: 1.5rem; }
 h2 { font-size: 24px; font-weight: 600; margin-bottom: 1.5rem; }
 h3 { font-size: 20px; font-weight: 600; margin-bottom: 1rem; }
-h4, h5, h6 { font-size: 16px; font-weight: 600; }
+h4 { font-size: 18px; font-weight: 600; }
+h5, h6 { font-size: 16px; font-weight: 600; }
 
 .section-spacing { margin-bottom: 2rem; }
 .card-spacing { padding: 1.5rem; }
@@ -24,15 +25,40 @@ h4, h5, h6 { font-size: 16px; font-weight: 600; }
 
 .container-fluid { max-width: 100%; padding-left: 1.5rem; padding-right: 1.5rem; }
 
-.status-card { padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.status-card { 
+  padding: 1.5rem; 
+  border-radius: 8px; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: box-shadow 0.2s ease;
+}
+.status-card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 .status-card-green { border-left: 4px solid var(--primary-color); }
 .status-card-blue { border-left: 4px solid var(--secondary-color); }
 .status-card-orange { border-left: 4px solid var(--accent-color); }
 
-.timeline { display: flex; flex-direction: column; gap: 1.5rem; }
-.timeline-item { display: flex; gap: 1rem; }
-.timeline-marker { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 0.25rem; }
-.timeline-content { flex: 1; }
+.timeline { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+}
+.timeline-item { 
+  display: flex; 
+  gap: 1rem;
+  align-items: flex-start;
+}
+.timeline-marker { 
+  width: 12px; 
+  height: 12px; 
+  border-radius: 50%; 
+  flex-shrink: 0; 
+  margin-top: 0.5rem;
+}
+.timeline-content { 
+  flex: 1;
+}
+.timeline-content h4 { margin-bottom: 0.5rem; }
+.timeline-content p { margin-bottom: 0.25rem; font-size: 14px; }
 
 .collapse {
   display: none;
@@ -47,6 +73,7 @@ h4, h5, h6 { font-size: 16px; font-weight: 600; }
   h2 { font-size: 20px; }
   h3 { font-size: 18px; }
   .section-spacing { margin-bottom: 1.5rem; }
+  .container-fluid { padding-left: 1rem; padding-right: 1rem; }
 }
 
 @media (min-width: 768px) {
@@ -64,6 +91,7 @@ h4, h5, h6 { font-size: 16px; font-weight: 600; }
   .container-fluid { max-width: 1400px; margin-left: auto; margin-right: auto; }
   h1 { font-size: 32px; }
   h2 { font-size: 28px; }
+  body { font-size: max(15px, 12pt); }
 }
 
 @media (min-width: 1920px) {

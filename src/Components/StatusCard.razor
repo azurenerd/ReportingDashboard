@@ -2,27 +2,36 @@
 
 <div class="card status-card @CardColor">
     <div class="card-header">
-        <h4>@StatusCategory</h4>
-        <p class="fs-2">@TaskCount</p>
+        <h4 class="mb-2">@StatusCategory</h4>
+        <p class="fs-2 mb-0">@TaskCount</p>
     </div>
     <div class="card-body">
-        <button class="btn btn-sm btn-link" data-bs-toggle="collapse" data-bs-target="#tasks-@StatusCategory">
-            View Tasks
-        </button>
-        <div class="collapse" id="tasks-@StatusCategory">
-            <ul class="list-unstyled mt-2">
-                @foreach (var task in Tasks ?? new())
-                {
-                    <li class="mb-2">
-                        <input type="checkbox" disabled /> @task.Name
-                        @if (!string.IsNullOrEmpty(task.AssignedOwner))
-                        {
-                            <small class="text-muted">(@task.AssignedOwner)</small>
-                        }
-                    </li>
-                }
-            </ul>
-        </div>
+        @if ((Tasks?.Count ?? 0) > 0)
+        {
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#tasks-@StatusCategory.Replace(" ", "-")">
+                View Tasks
+            </button>
+            <div class="collapse mt-3" id="tasks-@StatusCategory.Replace(" ", "-")">
+                <ul class="list-unstyled">
+                    @foreach (var task in Tasks)
+                    {
+                        <li class="mb-2">
+                            <input type="checkbox" class="form-check-input" disabled /> 
+                            <span>@task.Name</span>
+                            @if (!string.IsNullOrEmpty(task.AssignedTo))
+                            {
+                                <br />
+                                <small class="text-muted">Assigned to: @task.AssignedTo</small>
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0">No tasks</p>
+        }
     </div>
 </div>
 
