@@ -1,126 +1,151 @@
-using System;
-using System.Collections.Generic;
-using AgentSquad.Runner.Components;
-using AgentSquad.Runner.Data;
-using Bunit;
 using Xunit;
+using Bunit;
+using AgentSquad.Dashboard.Components;
+using AgentSquad.Dashboard.Models;
 
-namespace AgentSquad.Runner.Tests.Components
+namespace AgentSquad.Dashboard.Tests.Components;
+
+public class MilestoneTimelineTests : TestContext
 {
-    public class MilestoneTimelineTests : TestContext
+    [Fact]
+    public void MilestoneTimeline_RendersMilestones()
     {
-        [Fact]
-        public void MilestoneTimeline_DisplaysAllMilestones()
+        var milestones = new List<Milestone>
         {
-            var milestones = new List<Milestone>
+            new Milestone
             {
-                new Milestone { Name = "Phase 1", TargetDate = new DateTime(2024, 3, 1), Status = "Completed", CompletionPercentage = 100 },
-                new Milestone { Name = "Phase 2", TargetDate = new DateTime(2024, 6, 1), Status = "InProgress", CompletionPercentage = 50 },
-                new Milestone { Name = "Phase 3", TargetDate = new DateTime(2024, 9, 1), Status = "Pending", CompletionPercentage = 0 }
-            };
+                Id = "M1",
+                Name = "Phase 1",
+                TargetDate = DateTime.Now.AddDays(30),
+                Status = MilestoneStatus.InProgress,
+                CompletionPercentage = 50
+            },
+            new Milestone
+            {
+                Id = "M2",
+                Name = "Phase 2",
+                TargetDate = DateTime.Now.AddDays(60),
+                Status = MilestoneStatus.Pending,
+                CompletionPercentage = 0
+            }
+        };
 
-            var component = RenderComponent<MilestoneTimeline>(parameters => parameters
+        var component = RenderComponent<MilestoneTimeline>(
+            parameters => parameters
                 .Add(p => p.Milestones, milestones)
-                .Add(p => p.ProjectDurationDays, 273));
+                .Add(p => p.ProjectStartDate, DateTime.Now)
+                .Add(p => p.ProjectEndDate, DateTime.Now.AddDays(90))
+        );
 
-            Assert.Contains("Phase 1", component.Markup);
-            Assert.Contains("Phase 2", component.Markup);
-            Assert.Contains("Phase 3", component.Markup);
-        }
+        var timelineItems = component.FindAll(".timeline-item");
+        Assert.Equal(2, timelineItems.Count);
+    }
 
-        [Fact]
-        public void MilestoneTimeline_DisplaysMilestoneTargetDates()
+    [Fact]
+    public void MilestoneTimeline_DisplaysMilestoneNames()
+    {
+        var milestones = new List<Milestone>
         {
-            var milestones = new List<Milestone>
-            {
-                new Milestone { Name = "Milestone 1", TargetDate = new DateTime(2024, 3, 15), Status = "Completed" }
-            };
+            new Milestone { Id = "M1", Name = "Phase 1", TargetDate = DateTime.Now.AddDays(30), Status = MilestoneStatus.Completed, CompletionPercentage = 100 }
+        };
 
-            var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-                .Add(p => p.Milestones, milestones));
+        var component = RenderComponent<MilestoneTimeline>(
+            parameters => parameters
+                .Add(p => p.Milestones, milestones)
+                .Add(p => p.ProjectStartDate, DateTime.Now)
+                .Add(p => p.ProjectEndDate, DateTime.Now.AddDays(90))
+        );
 
-            Assert.Contains("2024-03-15", component.Markup);
-        }
+        Assert.Contains("Phase 1", component.Markup);
+    }
 
-        [Fact]
-        public void MilestoneTimeline_ColorCodesCompletedMilestones()
+    [Fact]
+    public void MilestoneTimeline_ShowsCompletionPercentage()
+    {
+        var milestones = new List<Milestone>
         {
-            var milestones = new List<Milestone>
-            {
-                new Milestone { Name = "Completed", Status = "Completed" }
-            };
+            new Milestone { Id = "M1", Name = "Phase 1", TargetDate = DateTime.Now.AddDays(30), Status = MilestoneStatus.InProgress, CompletionPercentage = 75 }
+        };
 
-            var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-                .Add(p => p.Milestones, milestones));
+        var component = RenderComponent<MilestoneTimeline>(
+            parameters => parameters
+                .Add(p => p.Milestones, milestones)
+                .Add(p => p.ProjectStartDate, DateTime.Now)
+                .Add(p => p.ProjectEndDate, DateTime.Now.AddDays(90))
+        );
 
-            Assert.Contains("bg-success", component.Markup);
-        }
+        Assert.Contains("75%", component.Markup);
+    }
 
-        [Fact]
-        public void MilestoneTimeline_ColorCodesInProgressMilestones()
+    [Fact]
+    public void MilestoneTimeline_IndicatesCompletedStatus()
+    {
+        var milestones = new List<Milestone>
         {
-            var milestones = new List<Milestone>
-            {
-                new Milestone { Name = "In Progress", Status = "InProgress" }
-            };
+            new Milestone { Id = "M1", Name = "Phase 1", TargetDate = DateTime.Now.AddDays(-10), ActualDate = DateTime.Now.AddDays(-5), Status = MilestoneStatus.Completed, CompletionPercentage = 100 }
+        };
 
-            var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-                .Add(p => p.Milestones, milestones));
+        var component = RenderComponent<MilestoneTimeline>(
+            parameters => parameters
+                .Add(p => p.Milestones, milestones)
+                .Add(p => p.ProjectStartDate, DateTime.Now.AddDays(-30))
+                .Add(p => p.ProjectEndDate, DateTime.Now.AddDays(60))
+        );
 
-            Assert.Contains("bg-info", component.Markup);
-        }
+        var completedBadge = component.FindAll(".badge.bg-success");
+        Assert.NotEmpty(completedBadge);
+    }
 
-        [Fact]
-        public void MilestoneTimeline_ColorCodesPendingMilestones()
+    [Fact]
+    public void MilestoneTimeline_HandleEmptyMilestonesList()
+    {
+        var component = RenderComponent<MilestoneTimeline>(
+            parameters => parameters
+                .Add(p => p.Milestones, new List<Milestone>())
+                .Add(p => p.ProjectStartDate, DateTime.Now)
+                .Add(p => p.ProjectEndDate, DateTime.Now.AddDays(90))
+        );
+
+        var timelineItems = component.FindAll(".timeline-item");
+        Assert.Empty(timelineItems);
+    }
+
+    [Fact]
+    public void MilestoneTimeline_DisplaysTargetDate()
+    {
+        var targetDate = new DateTime(2026, 06, 30);
+        var milestones = new List<Milestone>
         {
-            var milestones = new List<Milestone>
-            {
-                new Milestone { Name = "Pending", Status = "Pending" }
-            };
+            new Milestone { Id = "M1", Name = "Phase 1", TargetDate = targetDate, Status = MilestoneStatus.Pending, CompletionPercentage = 0 }
+        };
 
-            var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-                .Add(p => p.Milestones, milestones));
+        var component = RenderComponent<MilestoneTimeline>(
+            parameters => parameters
+                .Add(p => p.Milestones, milestones)
+                .Add(p => p.ProjectStartDate, DateTime.Now)
+                .Add(p => p.ProjectEndDate, DateTime.Now.AddDays(90))
+        );
 
-            Assert.Contains("bg-secondary", component.Markup);
-        }
+        Assert.Contains("Jun 30, 2026", component.Markup);
+    }
 
-        [Fact]
-        public void MilestoneTimeline_DisplaysCompletionPercentage()
+    [Fact]
+    public void MilestoneTimeline_DisplaysActualDateWhenCompleted()
+    {
+        var actualDate = new DateTime(2026, 06, 28);
+        var milestones = new List<Milestone>
         {
-            var milestones = new List<Milestone>
-            {
-                new Milestone { Name = "Phase 1", Status = "InProgress", CompletionPercentage = 75 }
-            };
+            new Milestone { Id = "M1", Name = "Phase 1", TargetDate = new DateTime(2026, 06, 30), ActualDate = actualDate, Status = MilestoneStatus.Completed, CompletionPercentage = 100 }
+        };
 
-            var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-                .Add(p => p.Milestones, milestones));
+        var component = RenderComponent<MilestoneTimeline>(
+            parameters => parameters
+                .Add(p => p.Milestones, milestones)
+                .Add(p => p.ProjectStartDate, DateTime.Now)
+                .Add(p => p.ProjectEndDate, DateTime.Now.AddDays(90))
+        );
 
-            Assert.Contains("75%", component.Markup);
-        }
-
-        [Fact]
-        public void MilestoneTimeline_WithEmptyList_RendersSafely()
-        {
-            var milestones = new List<Milestone>();
-
-            var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-                .Add(p => p.Milestones, milestones));
-
-            Assert.NotNull(component.Markup);
-        }
-
-        [Fact]
-        public void MilestoneTimeline_IsFullWidth()
-        {
-            var milestones = new List<Milestone>
-            {
-                new Milestone { Name = "Test", Status = "Completed" }
-            };
-
-            var component = RenderComponent<MilestoneTimeline>(parameters => parameters
-                .Add(p => p.Milestones, milestones));
-
-            Assert.Contains("w-100", component.Markup);
-        }
+        Assert.Contains("Completed", component.Markup);
+        Assert.Contains("Jun 28, 2026", component.Markup);
     }
 }
