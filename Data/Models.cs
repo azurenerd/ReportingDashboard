@@ -140,3 +140,151 @@ public class Milestone
     [JsonPropertyName("completionPercentage")]
     public int CompletionPercentage { get; set; }
 }
+
+/// <summary>
+/// Project task representing a unit of work with status and ownership.
+/// </summary>
+public class Task
+{
+    /// <summary>
+    /// Gets or sets the unique task identifier.
+    /// Example: "t1"
+    /// </summary>
+    [Required(ErrorMessage = "Task ID is required")]
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the task name.
+    /// Example: "API Authentication Module"
+    /// </summary>
+    [Required(ErrorMessage = "Task name is required")]
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the task status.
+    /// </summary>
+    [Required(ErrorMessage = "Task status is required")]
+    [JsonPropertyName("status")]
+    public TaskStatus Status { get; set; }
+
+    /// <summary>
+    /// Gets or sets the name of the person assigned to this task.
+    /// </summary>
+    [Required(ErrorMessage = "Assigned owner is required")]
+    [JsonPropertyName("assignedTo")]
+    public string AssignedTo { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the task due date.
+    /// </summary>
+    [Required(ErrorMessage = "Task due date is required")]
+    [JsonPropertyName("dueDate")]
+    public DateTime DueDate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the estimated number of days to complete.
+    /// </summary>
+    [Required(ErrorMessage = "Estimated days is required")]
+    [Range(1, int.MaxValue, ErrorMessage = "Estimated days must be greater than 0")]
+    [JsonPropertyName("estimatedDays")]
+    public int EstimatedDays { get; set; }
+
+    /// <summary>
+    /// Gets or sets the related milestone ID.
+    /// </summary>
+    [JsonPropertyName("relatedMilestone")]
+    public string? RelatedMilestone { get; set; }
+}
+
+/// <summary>
+/// Project metrics containing aggregated progress and completion data.
+/// </summary>
+public class ProjectMetrics
+{
+    /// <summary>
+    /// Gets or sets the total number of tasks in the project.
+    /// </summary>
+    [Required(ErrorMessage = "Total tasks is required")]
+    [Range(0, int.MaxValue, ErrorMessage = "Total tasks must be non-negative")]
+    [JsonPropertyName("totalTasks")]
+    public int TotalTasks { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number of completed tasks.
+    /// </summary>
+    [Required(ErrorMessage = "Completed tasks is required")]
+    [Range(0, int.MaxValue, ErrorMessage = "Completed tasks must be non-negative")]
+    [JsonPropertyName("completedTasks")]
+    public int CompletedTasks { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number of tasks currently in progress.
+    /// </summary>
+    [Required(ErrorMessage = "In-progress tasks is required")]
+    [Range(0, int.MaxValue, ErrorMessage = "In-progress tasks must be non-negative")]
+    [JsonPropertyName("inProgressTasks")]
+    public int InProgressTasks { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number of tasks carried over from previous iterations.
+    /// </summary>
+    [Required(ErrorMessage = "Carried-over tasks is required")]
+    [Range(0, int.MaxValue, ErrorMessage = "Carried-over tasks must be non-negative")]
+    [JsonPropertyName("carriedOverTasks")]
+    public int CarriedOverTasks { get; set; }
+
+    /// <summary>
+    /// Gets or sets the estimated burn-down rate in tasks per day.
+    /// </summary>
+    [Required(ErrorMessage = "Estimated burn-down rate is required")]
+    [Range(0.0, double.MaxValue, ErrorMessage = "Burn-down rate must be non-negative")]
+    [JsonPropertyName("estimatedBurndownRate")]
+    public double EstimatedBurndownRate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the project start date.
+    /// </summary>
+    [Required(ErrorMessage = "Project start date is required")]
+    [JsonPropertyName("projectStartDate")]
+    public DateTime ProjectStartDate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the project end date (target completion).
+    /// </summary>
+    [Required(ErrorMessage = "Project end date is required")]
+    [JsonPropertyName("projectEndDate")]
+    public DateTime ProjectEndDate { get; set; }
+
+    /// <summary>
+    /// Gets the calculated completion percentage (0-100).
+    /// Returns 0 if total tasks is 0 to avoid division by zero.
+    /// </summary>
+    [JsonIgnore]
+    public int CompletionPercentage
+    {
+        get
+        {
+            if (TotalTasks == 0)
+            {
+                return 0;
+            }
+
+            return (int)((CompletedTasks / (double)TotalTasks) * 100);
+        }
+    }
+
+    /// <summary>
+    /// Gets the calculated number of days remaining until project end date.
+    /// Returns negative value if end date is in the past.
+    /// </summary>
+    [JsonIgnore]
+    public int DaysRemaining
+    {
+        get
+        {
+            return (int)(ProjectEndDate - DateTime.Now).TotalDays;
+        }
+    }
+}
