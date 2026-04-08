@@ -30,10 +30,64 @@
   ],
   "tasks": [
     {
-      "name": "",
+      "name": "API Integration",
       "status": "Shipped",
-      "owner": "",
-      "description": ""
+      "owner": "Sarah Chen",
+      "description": "Integrated backend REST API endpoints for user and project data retrieval"
+    },
+    {
+      "name": "User Authentication",
+      "status": "Shipped",
+      "owner": "Marcus Rodriguez",
+      "description": "Implemented secure login and session management for mobile platform"
+    },
+    {
+      "name": "Database Schema",
+      "status": "Shipped",
+      "owner": "Priya Patel",
+      "description": "Designed and deployed production database schema for project and task data"
+    },
+    {
+      "name": "Initial UI Framework",
+      "status": "Shipped",
+      "owner": "James Wilson",
+      "description": "Created responsive UI components and navigation framework for mobile app"
+    },
+    {
+      "name": "Push Notifications",
+      "status": "InProgress",
+      "owner": "Emma Thompson",
+      "description": "Implementing real-time push notifications for task updates and alerts"
+    },
+    {
+      "name": "Offline Sync",
+      "status": "InProgress",
+      "owner": "Daniel Kim",
+      "description": "Building offline data synchronization and conflict resolution logic"
+    },
+    {
+      "name": "Performance Optimization",
+      "status": "InProgress",
+      "owner": "Aisha Hassan",
+      "description": "Optimizing app load time and database query performance"
+    },
+    {
+      "name": "Advanced Analytics",
+      "status": "CarriedOver",
+      "owner": "Robert Jenkins",
+      "description": "Deferred: Implement user behavior analytics and engagement tracking"
+    },
+    {
+      "name": "User Analytics Dashboard",
+      "status": "CarriedOver",
+      "owner": "Lisa Chang",
+      "description": "Deferred: Create analytics dashboard for administrators to monitor user activity"
+    },
+    {
+      "name": "Security Audit",
+      "status": "CarriedOver",
+      "owner": "Michael Torres",
+      "description": "Deferred: Third-party security audit and penetration testing"
     }
   ]
 }
