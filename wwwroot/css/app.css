@@ -19,80 +19,136 @@
 .card {
     border: 1px solid #dee2e6;
     transition: box-shadow 0.15s ease-in-out;
+    border-radius: 0.375rem;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
 }
 
 .card-header {
     padding: 1rem 1.25rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    font-weight: 600;
 }
 
 .card-body {
     padding: 1.25rem;
 }
 
+/* Collapse toggle button */
+.collapse-toggle {
+    color: #0d6efd;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s ease-in-out;
+}
+
+.collapse-toggle:hover {
+    color: #0a58ca;
+}
+
+.collapse-toggle:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.collapse-toggle[aria-expanded="true"] .toggle-icon {
+    transform: rotate(0deg);
+    transition: transform 0.2s ease-in-out;
+}
+
+.collapse-toggle[aria-expanded="false"] .toggle-icon {
+    transform: rotate(-90deg);
+    transition: transform 0.2s ease-in-out;
+}
+
+.toggle-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25em;
+    height: 1.25em;
+}
+
 /* Task list styling */
 .task-list {
-    border-left: 2px solid #dee2e6;
+    border-left: 3px solid #dee2e6;
     padding-left: 1rem;
+    margin-left: 0.5rem;
 }
 
 .task-item {
     padding: 0.5rem 0;
     border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.15s ease-in-out;
 }
 
 .task-item:last-child {
     border-bottom: none;
 }
 
+.task-item:hover {
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.5rem;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+}
+
 .task-name {
     display: block;
     font-weight: 500;
-    color: #333;
+    color: #212529;
     word-break: break-word;
+    margin-bottom: 0.25rem;
+    cursor: default;
 }
 
-.task-item .text-muted {
+.task-owner {
+    margin-top: 0.25rem;
+}
+
+.task-owner .text-muted {
     font-size: 0.875rem;
     color: #6c757d !important;
+    font-style: italic;
 }
 
-/* Collapse button styling */
-.btn-link {
-    color: #0d6efd;
-    text-decoration: none;
+/* Form check styling for disabled state */
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0;
 }
 
-.btn-link:hover {
-    color: #0a58ca;
-}
-
-.btn-link:focus {
-    box-shadow: none;
-}
-
-/* Collapse animation - disabled for screenshot compatibility */
-.collapse {
-    display: none;
-}
-
-.collapse.show {
-    display: block;
-}
-
-/* Checkbox styling */
 .form-check-input {
     width: 1.25em;
     height: 1.25em;
-    margin-top: 0.3em;
-    border: 1px solid #dee2e6;
+    margin-top: 0.25em;
+    border: 1.5px solid #dee2e6;
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.65;
+    background-color: #e9ecef;
+    flex-shrink: 0;
 }
 
 .form-check-input:disabled {
     background-color: #e9ecef;
     border-color: #dee2e6;
+    opacity: 0.65;
+}
+
+/* Collapse animation - disabled for screenshot compatibility */
+.collapse {
+    display: none;
+    overflow: visible;
+}
+
+.collapse.show {
+    display: block;
 }
 
 /* Bootstrap icon sizing */
@@ -107,7 +163,8 @@
 .badge {
     font-size: 0.75rem;
     font-weight: 600;
-    padding: 0.35em 0.65em;
+    padding: 0.375em 0.65em;
+    border-radius: 0.25rem;
 }
 
 /* Responsive adjustments */
@@ -119,4 +176,22 @@
     .card-body {
         padding: 1rem;
     }
+    
+    .collapse-toggle {
+        font-size: 0.9rem;
+    }
+}
+
+/* Typography adjustments for readability in screenshots */
+body {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+h5 {
+    font-size: 1.1rem;
+}
+
+small {
+    font-size: 0.85em;
 }

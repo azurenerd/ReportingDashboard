@@ -13,14 +13,16 @@
     <div class="card-body">
         @if (Tasks != null && Tasks.Any())
         {
-            <button class="btn btn-link btn-sm p-0 text-decoration-none w-100 text-start" 
+            <button class="btn btn-link btn-sm p-0 text-decoration-none w-100 text-start collapse-toggle" 
                     type="button" 
                     data-bs-toggle="collapse" 
                     data-bs-target="@GetCollapseId()" 
                     aria-expanded="false" 
                     aria-controls="@GetCollapseId()">
-                <span class="text-muted">
+                <span class="toggle-icon">
                     <i class="bi bi-chevron-down"></i>
+                </span>
+                <span class="toggle-text text-muted">
                     Show @Tasks.Count task@(Tasks.Count != 1 ? "s" : "")
                 </span>
             </button>
@@ -30,12 +32,21 @@
                     @foreach (var task in Tasks)
                     {
                         <div class="task-item d-flex align-items-start mb-3">
-                            <input type="checkbox" class="form-check-input mt-1 me-2" disabled />
+                            <div class="form-check me-3">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       id="@GetTaskCheckboxId(task.Id)" 
+                                       disabled />
+                            </div>
                             <div class="flex-grow-1">
-                                <div class="task-name">@task.Name</div>
+                                <label class="task-name" for="@GetTaskCheckboxId(task.Id)">
+                                    @task.Name
+                                </label>
                                 @if (!string.IsNullOrWhiteSpace(task.Owner))
                                 {
-                                    <small class="text-muted">@task.Owner</small>
+                                    <div class="task-owner">
+                                        <small class="text-muted">@task.Owner</small>
+                                    </div>
                                 }
                             </div>
                         </div>
@@ -91,5 +102,10 @@
     /// <summary>
     /// Generates a unique collapse ID for this card's task list
     /// </summary>
-    private string GetCollapseId() => $"collapse-{StatusCategory.Replace(" ", "-").ToLower()}";
+    private string GetCollapseId() => $"#collapse-{StatusCategory.Replace(" ", "-").Replace(".", "").ToLower()}";
+
+    /// <summary>
+    /// Generates a unique checkbox ID for a task
+    /// </summary>
+    private string GetTaskCheckboxId(string taskId) => $"task-checkbox-{taskId}";
 }
