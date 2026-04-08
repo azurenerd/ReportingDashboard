@@ -1,215 +1,72 @@
-@page "/dashboard"
-@using AgentSquad.Dashboard.Models
-@using AgentSquad.Dashboard.Services
-@using System.Text.Json
-@implements IAsyncDisposable
+@page "/"
+@using AgentSquad.Runner.Components
+@inject IJSRuntime JS
 
 <ErrorBoundary>
-    <ChildContent>
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="container-fluid" style="padding: 30px;">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="font-size: 16px; padding: 16px;">
-                            <svg style="width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                            </svg>
-                            <strong>Error Loading Dashboard</strong>
-                            <div style="margin-top: 8px;">@errorMessage</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-        else if (projectData == null)
-        {
-            <div class="container-fluid" style="padding: 30px;">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
-                            <div class="text-center">
-                                <div class="spinner-border" role="status" style="width: 3rem; height: 3rem; color: #0066cc;">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <p style="margin-top: 16px; font-size: 16px; color: #666;">Loading project dashboard...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-        else
-        {
-            <div class="container-fluid" style="padding: 30px;">
-                <!-- Page Header Section -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div style="padding: 20px; background-color: #f8f9fa; border-left: 5px solid #0066cc; border-radius: 4px; font-size: 16px;">
-                            <div class="row align-items-center">
-                                <div class="col-md-8">
-                                    <h1 style="margin: 0; font-size: 32px; font-weight: bold; color: #333;">@projectData.ProjectName</h1>
-                                    <div style="margin-top: 12px; color: #666;">
-                                        <p style="margin: 4px 0; font-size: 16px;"><strong>Sponsor:</strong> @projectData.Sponsor</p>
-                                        <p style="margin: 4px 0; font-size: 16px;"><strong>Project Manager:</strong> @projectData.ProjectManager</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-end">
-                                    <span class="badge" style="background-color: @GetStatusColor(projectData.Status); font-size: 16px; padding: 8px 16px; display: inline-block;">
-                                        @projectData.Status
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Row 1: MilestoneTimeline (Full Width) -->
-                @if (projectData?.Milestones != null && projectData.Milestones.Count > 0)
-                {
-                    <div class="row mb-5">
-                        <div class="col-12">
-                            <MilestoneTimeline 
-                                Milestones="projectData.Milestones"
-                                ProjectStartDate="projectData.ProjectStartDate"
-                                ProjectEndDate="projectData.ProjectEndDate" />
-                        </div>
-                    </div>
-                }
-
-                <!-- Row 2: StatusCard Grid (Responsive 3-Column) -->
-                @if (projectData?.Tasks != null && projectData.Tasks.Count > 0)
-                {
-                    <div class="row mb-5">
-                        <div class="col-12 col-md-4 mb-3">
-                            <StatusCard 
-                                StatusCategory="Shipped"
-                                TaskCount="GetShippedCount()"
-                                Tasks="GetTasksByStatus(TaskStatus.Shipped)"
-                                CardColor="#28a745" />
-                        </div>
-                        <div class="col-12 col-md-4 mb-3">
-                            <StatusCard 
-                                StatusCategory="In-Progress"
-                                TaskCount="GetInProgressCount()"
-                                Tasks="GetTasksByStatus(TaskStatus.InProgress)"
-                                CardColor="#0066cc" />
-                        </div>
-                        <div class="col-12 col-md-4 mb-3">
-                            <StatusCard 
-                                StatusCategory="Carried-Over"
-                                TaskCount="GetCarriedOverCount()"
-                                Tasks="GetTasksByStatus(TaskStatus.CarriedOver)"
-                                CardColor="#ff9800" />
-                        </div>
-                    </div>
-                }
-
-                <!-- Row 3: ProgressMetrics (Full Width) -->
-                @if (projectData?.Metrics != null)
-                {
-                    <div class="row">
-                        <div class="col-12">
-                            <ProgressMetrics 
-                                Metrics="projectData.Metrics"
-                                Tasks="projectData.Tasks ?? new List<ProjectTask>()" />
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-    </ChildContent>
-    <ErrorContent Context="ex">
-        <div class="container-fluid" style="padding: 30px;">
-            <div class="row">
+    <div class="dashboard-container">
+        <div class="container-fluid py-4">
+            <div class="row mb-4">
                 <div class="col-12">
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="font-size: 16px; padding: 16px;">
-                        <svg style="width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                        </svg>
-                        <strong>Unexpected Error</strong>
-                        <div style="margin-top: 8px;">@ex.Message</div>
-                    </div>
+                    <h1 class="display-4">Executive Dashboard</h1>
                 </div>
             </div>
+
+            @if (_shouldThrowTestException)
+            {
+                @throw new InvalidOperationException("Test error for ErrorBoundary verification - remove _shouldThrowTestException to continue");
+            }
+
+            @if (_isLoading)
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (_projectData != null)
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <h2>Project: @_projectData.ProjectName</h2>
+                        <p class="text-muted">Status page for executive reporting</p>
+                    </div>
+                </div>
+            }
         </div>
-    </ErrorContent>
+    </div>
 </ErrorBoundary>
 
-@code {
-    private ProjectData projectData;
-    private string errorMessage;
+<style>
+    .dashboard-container {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+</style>
 
-    [Inject]
-    private ProjectDataService ProjectDataService { get; set; }
+@code {
+    private bool _isLoading = true;
+    private bool _shouldThrowTestException = false;
+    private ProjectData _projectData;
 
     protected override async Task OnInitializedAsync()
     {
-        try
+        await Task.Delay(500);
+        _projectData = new ProjectData
         {
-            projectData = await ProjectDataService.LoadProjectDataAsync();
-            errorMessage = null;
-            StateHasChanged();
-        }
-        catch (JsonException jex)
-        {
-            errorMessage = $"Invalid project data format: {jex.Message}. Please check the data.json file for syntax errors.";
-            projectData = null;
-            StateHasChanged();
-        }
-        catch (FileNotFoundException fnex)
-        {
-            errorMessage = $"Project data file not found: {fnex.Message}. Ensure data.json exists in the configured location.";
-            projectData = null;
-            StateHasChanged();
-        }
-        catch (ArgumentException aex)
-        {
-            errorMessage = $"Invalid project data: {aex.Message}. Please verify the data structure matches the expected schema.";
-            projectData = null;
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Failed to load project data: {ex.GetType().Name} - {ex.Message}";
-            projectData = null;
-            StateHasChanged();
-        }
-    }
-
-    private string GetStatusColor(string status)
-    {
-        return status?.ToLower() switch
-        {
-            "on-track" => "#28a745",
-            "at-risk" => "#ffc107",
-            "off-track" => "#dc3545",
-            _ => "#6c757d"
+            ProjectName = "Sample Executive Project",
+            StartDate = DateTime.Now,
+            EndDate = DateTime.Now.AddMonths(6)
         };
+        _isLoading = false;
     }
 
-    private int GetShippedCount()
+    public class ProjectData
     {
-        return projectData?.Tasks?.Count(t => t.Status == TaskStatus.Shipped) ?? 0;
-    }
-
-    private int GetInProgressCount()
-    {
-        return projectData?.Tasks?.Count(t => t.Status == TaskStatus.InProgress) ?? 0;
-    }
-
-    private int GetCarriedOverCount()
-    {
-        return projectData?.Tasks?.Count(t => t.Status == TaskStatus.CarriedOver) ?? 0;
-    }
-
-    private List<ProjectTask> GetTasksByStatus(TaskStatus status)
-    {
-        return projectData?.Tasks?.Where(t => t.Status == status).ToList() ?? new List<ProjectTask>();
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        await Task.CompletedTask;
+        public string ProjectName { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
     }
 }
