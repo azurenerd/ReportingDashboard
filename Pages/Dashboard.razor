@@ -11,11 +11,6 @@
                 </div>
             </div>
 
-            @if (_shouldThrowTestException)
-            {
-                @throw new InvalidOperationException("Test error for ErrorBoundary verification - remove _shouldThrowTestException to continue");
-            }
-
             @if (_isLoading)
             {
                 <div class="row">
@@ -48,7 +43,6 @@
 
 @code {
     private bool _isLoading = true;
-    private bool _shouldThrowTestException = false;
     private ProjectData _projectData;
 
     protected override async Task OnInitializedAsync()
