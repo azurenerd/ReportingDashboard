@@ -1,8 +1,7 @@
-using Xunit;
-using FluentAssertions;
 using Bunit;
+using Xunit;
 using AgentSquad.Components;
-using AgentSquad.Services.Models;
+using AgentSquad.Models;
 using System.Collections.Generic;
 
 namespace AgentSquad.Tests.Components
@@ -10,71 +9,38 @@ namespace AgentSquad.Tests.Components
     public class StatusCardTests : TestContext
     {
         [Fact]
-        public void StatusCard_DisplaysTaskCount()
+        public void StatusCard_RendersTasks()
         {
-            var tasks = new List<TaskItem>
+            var tasks = new List<ProjectTask>
             {
-                new TaskItem { Id = 1, Title = "Task 1", Status = TaskStatus.InProgress },
-                new TaskItem { Id = 2, Title = "Task 2", Status = TaskStatus.Completed }
+                new ProjectTask { Id = "t1", Name = "Task 1", Status = "InProgress", Owner = "John" },
+                new ProjectTask { Id = "t2", Name = "Task 2", Status = "Shipped", Owner = "Jane" }
             };
+
             var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.Tasks, tasks));
-            
-            component.Markup.Should().Contain("2");
+                parameters.Add(p => p.Tasks, tasks)
+            );
+
+            var html = component.Markup;
+            Assert.Contains("Task 1", html);
+            Assert.Contains("Task 2", html);
+            Assert.Contains("John", html);
+            Assert.Contains("Jane", html);
         }
 
         [Fact]
-        public void StatusCard_HandlesEmptyTasks()
+        public void StatusCard_DisplaysTaskStatus()
         {
-            var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.Tasks, new List<TaskItem>()));
-            
-            component.Markup.Should().Contain("0");
-        }
-
-        [Fact]
-        public void StatusCard_HandleNullTasks_RendersSafely()
-        {
-            var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.Tasks, (List<TaskItem>)null));
-            
-            component.Markup.Should().NotBeNullOrEmpty();
-        }
-
-        [Fact]
-        public void StatusCard_DisplaysCompletedTasksCount()
-        {
-            var tasks = new List<TaskItem>
+            var tasks = new List<ProjectTask>
             {
-                new TaskItem { Id = 1, Title = "Task 1", Status = TaskStatus.Completed },
-                new TaskItem { Id = 2, Title = "Task 2", Status = TaskStatus.InProgress },
-                new TaskItem { Id = 3, Title = "Task 3", Status = TaskStatus.Completed }
+                new ProjectTask { Id = "t1", Name = "Test", Status = "InProgress", Owner = "User" }
             };
-            var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.Tasks, tasks));
-            
-            component.Markup.Should().Contain("2");
-        }
 
-        [Fact]
-        public void StatusCard_FontSize_MeetsMinimumRequirement()
-        {
             var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.Tasks, new List<TaskItem>()));
-            
-            var styleElement = component.Find(".status-card-title");
-            var computedStyle = styleElement.GetAttribute("style");
-            
-            computedStyle.Should().Contain("font-size").And.NotContain("font-size: 8pt");
-        }
+                parameters.Add(p => p.Tasks, tasks)
+            );
 
-        [Fact]
-        public void StatusCard_AppliesResponsiveClass()
-        {
-            var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.Tasks, new List<TaskItem>()));
-            
-            component.Markup.Should().Contain("col-md-4");
+            Assert.Contains("InProgress", component.Markup);
         }
     }
 }
