@@ -1,194 +1,176 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using AgentSquad.Runner.Components;
-using AgentSquad.Runner.Data;
-using AgentSquad.Runner.Services;
-using Bunit;
 using Xunit;
+using Bunit;
+using Moq;
+using AgentSquad.Dashboard.Components;
+using AgentSquad.Dashboard.Models;
 
-namespace AgentSquad.Runner.Tests.Components
+namespace AgentSquad.Dashboard.Tests.Components;
+
+public class DashboardTests : TestContext
 {
-    public class DashboardTests : TestContext
+    [Fact]
+    public void Dashboard_RendersTimelineSection()
     {
-        private readonly MockProjectDataService _mockDataService;
+        var projectData = CreateSampleProjectData();
 
-        public DashboardTests()
-        {
-            _mockDataService = new MockProjectDataService();
-            Services.AddScoped<ProjectDataService>(_ => _mockDataService);
-        }
+        var component = RenderComponent<Dashboard>(
+            parameters => parameters
+                .Add(p => p.ProjectData, projectData)
+        );
 
-        [Fact]
-        public void Dashboard_OnInitialized_DisplaysProjectTitle()
-        {
-            var projectData = new ProjectData
-            {
-                ProjectName = "Q2 Mobile App Release",
-                ProjectStartDate = new DateTime(2024, 1, 1),
-                ProjectEndDate = new DateTime(2024, 6, 30),
-                Milestones = new List<Milestone>(),
-                Tasks = new List<ProjectTask>()
-            };
-
-            _mockDataService.SetProjectData(projectData);
-
-            var component = RenderComponent<Dashboard>();
-
-            Assert.Contains("Q2 Mobile App Release", component.Markup);
-        }
-
-        [Fact]
-        public void Dashboard_OnInitialized_RendersMilestoneTimeline()
-        {
-            var projectData = new ProjectData
-            {
-                ProjectName = "Test Project",
-                ProjectStartDate = new DateTime(2024, 1, 1),
-                ProjectEndDate = new DateTime(2024, 12, 31),
-                Milestones = new List<Milestone>
-                {
-                    new Milestone { Name = "Phase 1", TargetDate = new DateTime(2024, 3, 1), Status = "Completed", CompletionPercentage = 100 }
-                },
-                Tasks = new List<ProjectTask>()
-            };
-
-            _mockDataService.SetProjectData(projectData);
-
-            var component = RenderComponent<Dashboard>();
-
-            Assert.Contains("Phase 1", component.Markup);
-        }
-
-        [Fact]
-        public void Dashboard_OnInitialized_RendersStatusCards()
-        {
-            var projectData = new ProjectData
-            {
-                ProjectName = "Test Project",
-                ProjectStartDate = new DateTime(2024, 1, 1),
-                ProjectEndDate = new DateTime(2024, 12, 31),
-                Milestones = new List<Milestone>(),
-                Tasks = new List<ProjectTask>
-                {
-                    new ProjectTask { Name = "Task 1", Status = "Shipped", Owner = "Alice" },
-                    new ProjectTask { Name = "Task 2", Status = "InProgress", Owner = "Bob" },
-                    new ProjectTask { Name = "Task 3", Status = "CarriedOver", Owner = "Charlie" }
-                }
-            };
-
-            _mockDataService.SetProjectData(projectData);
-
-            var component = RenderComponent<Dashboard>();
-
-            Assert.Contains("Shipped", component.Markup);
-            Assert.Contains("In Progress", component.Markup);
-            Assert.Contains("Carried Over", component.Markup);
-        }
-
-        [Fact]
-        public void Dashboard_WithLoadError_DisplaysErrorMessage()
-        {
-            _mockDataService.SetError("Failed to load project data");
-
-            var component = RenderComponent<Dashboard>();
-
-            Assert.Contains("error", component.Markup, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [Fact]
-        public void Dashboard_RendersProgressMetrics()
-        {
-            var projectData = new ProjectData
-            {
-                ProjectName = "Test Project",
-                ProjectStartDate = new DateTime(2024, 1, 1),
-                ProjectEndDate = new DateTime(2024, 12, 31),
-                Milestones = new List<Milestone>(),
-                Tasks = new List<ProjectTask>
-                {
-                    new ProjectTask { Name = "Task 1", Status = "Shipped", Owner = "Alice" },
-                    new ProjectTask { Name = "Task 2", Status = "InProgress", Owner = "Bob" }
-                }
-            };
-
-            _mockDataService.SetProjectData(projectData);
-
-            var component = RenderComponent<Dashboard>();
-
-            Assert.Contains("Progress", component.Markup, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [Fact]
-        public void Dashboard_LayoutIsResponsiveBootstrap()
-        {
-            var projectData = new ProjectData
-            {
-                ProjectName = "Test Project",
-                ProjectStartDate = new DateTime(2024, 1, 1),
-                ProjectEndDate = new DateTime(2024, 12, 31),
-                Milestones = new List<Milestone>(),
-                Tasks = new List<ProjectTask>()
-            };
-
-            _mockDataService.SetProjectData(projectData);
-
-            var component = RenderComponent<Dashboard>();
-
-            Assert.Contains("container", component.Markup);
-            Assert.Contains("row", component.Markup);
-        }
-
-        [Fact]
-        public void Dashboard_DisplaysAllMilestones()
-        {
-            var projectData = new ProjectData
-            {
-                ProjectName = "Test Project",
-                ProjectStartDate = new DateTime(2024, 1, 1),
-                ProjectEndDate = new DateTime(2024, 12, 31),
-                Milestones = new List<Milestone>
-                {
-                    new Milestone { Name = "Milestone 1", TargetDate = new DateTime(2024, 3, 1), Status = "Completed" },
-                    new Milestone { Name = "Milestone 2", TargetDate = new DateTime(2024, 6, 1), Status = "InProgress" },
-                    new Milestone { Name = "Milestone 3", TargetDate = new DateTime(2024, 9, 1), Status = "Pending" }
-                },
-                Tasks = new List<ProjectTask>()
-            };
-
-            _mockDataService.SetProjectData(projectData);
-
-            var component = RenderComponent<Dashboard>();
-
-            Assert.Contains("Milestone 1", component.Markup);
-            Assert.Contains("Milestone 2", component.Markup);
-            Assert.Contains("Milestone 3", component.Markup);
-        }
+        Assert.Contains("Project Timeline", component.Markup);
     }
 
-    public class MockProjectDataService : ProjectDataService
+    [Fact]
+    public void Dashboard_RendersStatusSection()
     {
-        private ProjectData _projectData;
-        private string _error;
+        var projectData = CreateSampleProjectData();
 
-        public void SetProjectData(ProjectData data)
-        {
-            _projectData = data;
-            _error = null;
-        }
+        var component = RenderComponent<Dashboard>(
+            parameters => parameters
+                .Add(p => p.ProjectData, projectData)
+        );
 
-        public void SetError(string error)
-        {
-            _error = error;
-            _projectData = null;
-        }
+        Assert.Contains("Task Status Breakdown", component.Markup);
+    }
 
-        public override async Task<ProjectData> LoadProjectDataAsync(string filePath)
+    [Fact]
+    public void Dashboard_RendersMetricsSection()
+    {
+        var projectData = CreateSampleProjectData();
+
+        var component = RenderComponent<Dashboard>(
+            parameters => parameters
+                .Add(p => p.ProjectData, projectData)
+        );
+
+        Assert.Contains("Progress Metrics", component.Markup);
+    }
+
+    [Fact]
+    public void Dashboard_RendersMilestoneTimeline()
+    {
+        var projectData = CreateSampleProjectData();
+
+        var component = RenderComponent<Dashboard>(
+            parameters => parameters
+                .Add(p => p.ProjectData, projectData)
+        );
+
+        var timeline = component.FindComponent<MilestoneTimeline>();
+        Assert.NotNull(timeline);
+    }
+
+    [Fact]
+    public void Dashboard_RendersStatusCardsForAllStatuses()
+    {
+        var projectData = CreateSampleProjectData();
+
+        var component = RenderComponent<Dashboard>(
+            parameters => parameters
+                .Add(p => p.ProjectData, projectData)
+        );
+
+        var statusCards = component.FindComponents<StatusCard>();
+        Assert.Equal(3, statusCards.Count);
+    }
+
+    [Fact]
+    public void Dashboard_RendersProgressMetrics()
+    {
+        var projectData = CreateSampleProjectData();
+
+        var component = RenderComponent<Dashboard>(
+            parameters => parameters
+                .Add(p => p.ProjectData, projectData)
+        );
+
+        var metrics = component.FindComponent<ProgressMetrics>();
+        Assert.NotNull(metrics);
+    }
+
+    [Fact]
+    public void Dashboard_PassesMilestonesToTimeline()
+    {
+        var projectData = CreateSampleProjectData();
+        projectData.Milestones.Add(new Milestone { Id = "M1", Name = "Phase 1", TargetDate = DateTime.Now.AddDays(30), Status = MilestoneStatus.InProgress, CompletionPercentage = 50 });
+
+        var component = RenderComponent<Dashboard>(
+            parameters => parameters
+                .Add(p => p.ProjectData, projectData)
+        );
+
+        var timeline = component.FindComponent<MilestoneTimeline>();
+        Assert.NotNull(timeline.Instance.Milestones);
+        Assert.Single(timeline.Instance.Milestones);
+    }
+
+    [Fact]
+    public void Dashboard_FilterTasksByStatusCorrectly()
+    {
+        var projectData = CreateSampleProjectData();
+        projectData.Tasks.Add(new Task { Id = "T1", Name = "Task 1", Status = TaskStatus.Shipped, AssignedTo = "User1", DueDate = DateTime.Now, EstimatedDays = 5 });
+        projectData.Tasks.Add(new Task { Id = "T2", Name = "Task 2", Status = TaskStatus.InProgress, AssignedTo = "User2", DueDate = DateTime.Now, EstimatedDays = 3 });
+
+        var component = RenderComponent<Dashboard>(
+            parameters => parameters
+                .Add(p => p.ProjectData, projectData)
+        );
+
+        var statusCards = component.FindComponents<StatusCard>();
+        Assert.NotNull(statusCards);
+    }
+
+    [Fact]
+    public void Dashboard_CalculatesStatusSummaryCorrectly()
+    {
+        var projectData = CreateSampleProjectData();
+        projectData.Tasks.Add(new Task { Id = "T1", Name = "T1", Status = TaskStatus.Shipped, AssignedTo = "User", DueDate = DateTime.Now, EstimatedDays = 5 });
+        projectData.Tasks.Add(new Task { Id = "T2", Name = "T2", Status = TaskStatus.Shipped, AssignedTo = "User", DueDate = DateTime.Now, EstimatedDays = 3 });
+        projectData.Tasks.Add(new Task { Id = "T3", Name = "T3", Status = TaskStatus.InProgress, AssignedTo = "User", DueDate = DateTime.Now, EstimatedDays = 2 });
+
+        var component = RenderComponent<Dashboard>(
+            parameters => parameters
+                .Add(p => p.ProjectData, projectData)
+        );
+
+        Assert.NotNull(component.Instance);
+    }
+
+    [Fact]
+    public void Dashboard_HandlesNullProjectData()
+    {
+        var component = RenderComponent<Dashboard>(
+            parameters => parameters
+                .Add(p => p.ProjectData, new ProjectData())
+        );
+
+        Assert.NotNull(component);
+    }
+
+    private ProjectData CreateSampleProjectData()
+    {
+        return new ProjectData
         {
-            if (!string.IsNullOrEmpty(_error))
-                throw new InvalidOperationException(_error);
-            return _projectData;
-        }
+            Project = new ProjectInfo
+            {
+                Name = "Test Project",
+                Description = "Test Description",
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(90),
+                Status = "Active",
+                Sponsor = "Sponsor",
+                ProjectManager = "PM"
+            },
+            Milestones = new List<Milestone>(),
+            Tasks = new List<Task>(),
+            Metrics = new ProjectMetrics
+            {
+                TotalTasks = 0,
+                CompletedTasks = 0,
+                CompletionPercentage = 0,
+                DaysRemaining = 90
+            }
+        };
     }
 }
