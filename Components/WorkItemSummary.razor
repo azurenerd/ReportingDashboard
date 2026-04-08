@@ -6,11 +6,29 @@
         <section class="work-item-column shipped-column">
             <header class="column-header">
                 <h3>Shipped This Month</h3>
+                <span class="item-count">@ShippedItems.Count</span>
             </header>
             <div class="column-content">
                 @if (ShippedItems == null || ShippedItems.Count == 0)
                 {
                     <p class="no-items">No items</p>
+                }
+                else
+                {
+                    @foreach (var item in ShippedItems)
+                    {
+                        <div class="work-item">
+                            <h4 class="item-title">@item.Title</h4>
+                            @if (!string.IsNullOrEmpty(item.Description))
+                            {
+                                <p class="item-description">@TruncateDescription(item.Description)</p>
+                            }
+                            @if (!string.IsNullOrEmpty(item.AssignedTo))
+                            {
+                                <p class="item-assigned-to">@item.AssignedTo</p>
+                            }
+                        </div>
+                    }
                 }
             </div>
         </section>
@@ -18,11 +36,29 @@
         <section class="work-item-column inprogress-column">
             <header class="column-header">
                 <h3>In Progress</h3>
+                <span class="item-count">@InProgressItems.Count</span>
             </header>
             <div class="column-content">
                 @if (InProgressItems == null || InProgressItems.Count == 0)
                 {
                     <p class="no-items">No items</p>
+                }
+                else
+                {
+                    @foreach (var item in InProgressItems)
+                    {
+                        <div class="work-item">
+                            <h4 class="item-title">@item.Title</h4>
+                            @if (!string.IsNullOrEmpty(item.Description))
+                            {
+                                <p class="item-description">@TruncateDescription(item.Description)</p>
+                            }
+                            @if (!string.IsNullOrEmpty(item.AssignedTo))
+                            {
+                                <p class="item-assigned-to">@item.AssignedTo</p>
+                            }
+                        </div>
+                    }
                 }
             </div>
         </section>
@@ -30,11 +66,29 @@
         <section class="work-item-column carriedover-column">
             <header class="column-header">
                 <h3>Carried Over</h3>
+                <span class="item-count">@CarriedOverItems.Count</span>
             </header>
             <div class="column-content">
                 @if (CarriedOverItems == null || CarriedOverItems.Count == 0)
                 {
                     <p class="no-items">No items</p>
+                }
+                else
+                {
+                    @foreach (var item in CarriedOverItems)
+                    {
+                        <div class="work-item">
+                            <h4 class="item-title">@item.Title</h4>
+                            @if (!string.IsNullOrEmpty(item.Description))
+                            {
+                                <p class="item-description">@TruncateDescription(item.Description)</p>
+                            }
+                            @if (!string.IsNullOrEmpty(item.AssignedTo))
+                            {
+                                <p class="item-assigned-to">@item.AssignedTo</p>
+                            }
+                        </div>
+                    }
                 }
             </div>
         </section>
@@ -83,6 +137,17 @@
             }
         }
     }
+
+    private string TruncateDescription(string description)
+    {
+        if (string.IsNullOrEmpty(description))
+            return string.Empty;
+
+        if (description.Length <= 150)
+            return description;
+
+        return description.Substring(0, 147) + "...";
+    }
 }
 
 <style>
@@ -109,6 +174,9 @@
 .column-header {
     padding: 1rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .column-header h3 {
@@ -118,11 +186,56 @@
     color: #333;
 }
 
+.item-count {
+    background-color: #f0f0f0;
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
 .column-content {
     flex: 1;
     padding: 1rem;
     overflow-y: auto;
     min-height: 300px;
+}
+
+.work-item {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.work-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.item-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #222;
+    line-height: 1.3;
+}
+
+.item-description {
+    margin: 0.25rem 0 0.5rem 0;
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.item-assigned-to {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.8rem;
+    color: #999;
+    font-style: italic;
 }
 
 .no-items {
