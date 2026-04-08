@@ -1,39 +1,91 @@
 @namespace AgentSquad.Components
+@using AgentSquad.Models
 
 <div class="milestone-timeline w-100">
     <div class="container-fluid p-4">
-        <div class="row g-3">
-            @if (Milestones != null && Milestones.Count > 0)
+        @if (IsInitialized)
+        {
+            @if (HasMilestones)
             {
-                @foreach (var milestone in Milestones)
-                {
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <div class="milestone-card">
-                            <div class="milestone-header">
-                                <h5>@milestone.Name</h5>
-                            </div>
-                            <div class="milestone-body">
-                                <p class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</p>
-                                <p class="milestone-status">@milestone.Status</p>
-                                <p class="milestone-progress">@milestone.CompletionPercentage%</p>
+                <div class="row g-3">
+                    @foreach (var milestone in Milestones)
+                    {
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <div class="milestone-card">
+                                <div class="milestone-header">
+                                    <h5>@milestone.Name</h5>
+                                </div>
+                                <div class="milestone-body">
+                                    <p class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</p>
+                                    <p class="milestone-status">@milestone.Status</p>
+                                    <p class="milestone-progress">@milestone.CompletionPercentage%</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                }
+                    }
+                </div>
             }
             else
             {
-                <div class="col-12">
-                    <p class="text-muted">No milestones available.</p>
+                <div class="alert alert-info" role="alert">
+                    <p class="mb-0">No milestones available.</p>
                 </div>
             }
-        </div>
+        }
+        else
+        {
+            <div class="text-center">
+                <p class="text-muted">Loading milestones...</p>
+            </div>
+        }
     </div>
 </div>
 
 @code {
     [Parameter]
-    public List<Milestone> Milestones { get; set; } = new();
+    public List<Milestone> Milestones { get; set; }
+
+    private bool IsInitialized { get; set; }
+    private bool HasMilestones { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(0); // Placeholder for async operations
+        
+        InitializeMilestones();
+        IsInitialized = true;
+    }
+
+    private void InitializeMilestones()
+    {
+        if (Milestones == null)
+        {
+            Milestones = new List<Milestone>();
+            HasMilestones = false;
+        }
+        else
+        {
+            HasMilestones = Milestones.Count > 0;
+        }
+
+        // Ensure all milestones have valid data
+        foreach (var milestone in Milestones)
+        {
+            if (string.IsNullOrWhiteSpace(milestone.Name))
+            {
+                milestone.Name = "Untitled Milestone";
+            }
+
+            if (milestone.CompletionPercentage < 0)
+            {
+                milestone.CompletionPercentage = 0;
+            }
+            else if (milestone.CompletionPercentage > 100)
+            {
+                milestone.CompletionPercentage = 100;
+            }
+        }
+    }
 }
 
 <style scoped>
@@ -85,5 +137,14 @@
         font-size: 12pt;
         margin: 0;
         font-weight: 600;
+    }
+
+    .alert {
+        font-size: 12pt;
+        margin: 0;
+    }
+
+    .text-center {
+        text-align: center;
     }
 </style>
