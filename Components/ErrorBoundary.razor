@@ -1,32 +1,102 @@
-@using Microsoft.AspNetCore.Components.Web
+@inherits ErrorBoundaryBase
+@inject IJSRuntime JS
 
-<ErrorBoundary>
-    <ChildContent>
+@if (_exception == null)
+{
+    <CascadingValue Value="this">
         @ChildContent
-    </ChildContent>
-    <ErrorContent Context="ex">
-        <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
-            <h4 class="alert-heading">An error has occurred</h4>
-            <p>@ex.Message</p>
-            @if (ShowDetails)
-            {
-                <hr />
-                <pre class="small"><code>@ex.StackTrace</code></pre>
-            }
-            <button type="button" class="btn-close" @onclick="ResetError"></button>
+    </CascadingValue>
+}
+else
+{
+    <div class="error-boundary-container">
+        <div class="alert alert-danger" role="alert">
+            <div class="alert-icon mb-3">
+                <span style="font-size: 2rem;">⚠️</span>
+            </div>
+            <h4 class="alert-heading">Dashboard Error</h4>
+            <p class="error-message">An error occurred while loading the dashboard. Please refresh your browser.</p>
+            <button class="btn btn-primary mt-3 refresh-button" @onclick="RefreshPage">Refresh</button>
         </div>
-    </ErrorContent>
-</ErrorBoundary>
+    </div>
+}
+
+<style>
+    .error-boundary-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+
+    .error-boundary-container .alert {
+        max-width: 600px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .error-message {
+        font-size: 14pt;
+        font-weight: 500;
+        margin: 1rem 0;
+    }
+
+    .refresh-button {
+        font-size: 14pt;
+        padding: 0.5rem 1.5rem;
+        min-width: 150px;
+    }
+
+    .refresh-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+
+    .refresh-button:active {
+        transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+        .error-boundary-container {
+            min-height: auto;
+            padding: 1rem;
+        }
+
+        .error-boundary-container .alert {
+            margin: 1rem auto;
+        }
+
+        .refresh-button {
+            font-size: 12pt;
+            padding: 0.4rem 1rem;
+        }
+    }
+</style>
 
 @code {
     [Parameter]
-    public RenderFragment? ChildContent { get; set; }
+    public RenderFragment ChildContent { get; set; }
 
-    private bool ShowDetails => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")) &&
-                                 Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+    private Exception _exception;
 
-    private void ResetError()
+    protected override async Task OnErrorAsync(Exception exception)
     {
-        // Error boundary will reset on next render
+        _exception = exception;
+        
+        Console.WriteLine($"Error caught by ErrorBoundary: {exception.Message}");
+        Console.WriteLine($"Stack trace: {exception.StackTrace}");
+        
+        if (exception.InnerException != null)
+        {
+            Console.WriteLine($"Inner exception: {exception.InnerException.Message}");
+        }
+        
+        await base.OnErrorAsync(exception);
+    }
+
+    private async Task RefreshPage()
+    {
+        await JS.InvokeVoidAsync("location.reload");
     }
 }
