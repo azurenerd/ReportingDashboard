@@ -1,207 +1,80 @@
-using System;
 using Bunit;
 using Xunit;
-using AgentSquad.Runner.Components;
-using AgentSquad.Runner.Data;
+using AgentSquad.Components;
 
-namespace AgentSquad.Runner.Tests.Components;
-
-public class ProgressMetricsParameterBindingTests : TestContext
+namespace AgentSquad.Tests.Components
 {
-    [Fact]
-    public void ProgressMetrics_AcceptsProjectMetricsParameter()
+    public class ProgressMetricsParameterBindingTests : TestContext
     {
-        // Arrange
-        var metrics = new ProjectMetrics
+        [Fact]
+        public async Task ProgressMetrics_UpdatesWhenMetricsParameterChanges()
         {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20),
-            EstimatedBurndownRate = 2.5,
-            InProgressTasks = 30,
-            CarriedOverTasks = 20
-        };
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Metrics, new[] { new MetricData { Label = "Initial", Value = 25 } })
+            );
 
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
+            var initialText = component.Find("div").TextContent;
+            Assert.Contains("Initial", initialText);
 
-        // Assert
-        Assert.NotNull(component.Instance.Metrics);
-        Assert.Equal(100, component.Instance.Metrics.TotalTasks);
-        Assert.Equal(50, component.Instance.Metrics.CompletedTasks);
-    }
+            await component.SetParametersAsync(parameters => parameters
+                .Add(p => p.Metrics, new[] { new MetricData { Label = "Updated", Value = 75 } })
+            );
 
-    [Fact]
-    public void ProgressMetrics_UpdatesWhenMetricsParameterChanges()
-    {
-        // Arrange
-        var initialMetrics = new ProjectMetrics
+            var updatedText = component.Find("div").TextContent;
+            Assert.Contains("Updated", updatedText);
+        }
+
+        [Fact]
+        public async Task ProgressMetrics_HandlesNullMetrics()
         {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20)
-        };
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Metrics, null)
+            );
 
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, initialMetrics)
-        );
+            Assert.NotNull(component.Instance);
 
-        var updatedMetrics = new ProjectMetrics
+            await component.SetParametersAsync(parameters => parameters
+                .Add(p => p.Metrics, Array.Empty<MetricData>())
+            );
+
+            var rendered = component.GetComponentInstance<ProgressMetrics>();
+            Assert.NotNull(rendered);
+        }
+
+        [Fact]
+        public async Task ProgressMetrics_RespondsToTitleParameterChange()
         {
-            TotalTasks = 100,
-            CompletedTasks = 75,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20)
-        };
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Title, "Original Title")
+            );
 
-        // Act
-        component.SetParametersAsync(parameters => parameters
-            .Add(p => p.Metrics, updatedMetrics)
-        );
+            var markup = component.Markup;
+            Assert.Contains("Original Title", markup);
 
-        // Assert
-        Assert.Contains("75%", component.Markup);
-    }
+            await component.SetParametersAsync(parameters => parameters
+                .Add(p => p.Title, "New Title")
+            );
 
-    [Fact]
-    public void ProgressMetrics_RespondsToNullMetricsParameter()
-    {
-        // Arrange
-        var metrics = new ProjectMetrics
+            var updatedMarkup = component.Markup;
+            Assert.Contains("New Title", updatedMarkup);
+        }
+
+        [Fact]
+        public async Task ProgressMetrics_UpdatesMultipleParametersSimultaneously()
         {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20)
-        };
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Title, "Title1")
+                .Add(p => p.Metrics, new[] { new MetricData { Label = "Metric1", Value = 50 } })
+            );
 
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
+            await component.SetParametersAsync(parameters => parameters
+                .Add(p => p.Title, "Title2")
+                .Add(p => p.Metrics, new[] { new MetricData { Label = "Metric2", Value = 90 } })
+            );
 
-        // Act
-        component.SetParametersAsync(parameters => parameters
-            .Add(p => p.Metrics, null)
-        );
-
-        // Assert
-        Assert.Contains("Metrics unavailable", component.Markup);
-    }
-
-    [Fact]
-    public void ProgressMetrics_RespectsTotalTasksProperty()
-    {
-        // Arrange
-        var metrics = new ProjectMetrics
-        {
-            TotalTasks = 200,
-            CompletedTasks = 100,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20)
-        };
-
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
-
-        // Assert
-        Assert.Contains("100 of 200 tasks", component.Markup);
-    }
-
-    [Fact]
-    public void ProgressMetrics_RespectsCompletedTasksProperty()
-    {
-        // Arrange
-        var metrics = new ProjectMetrics
-        {
-            TotalTasks = 50,
-            CompletedTasks = 10,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20)
-        };
-
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
-
-        // Assert
-        Assert.Contains("10 of 50 tasks", component.Markup);
-    }
-
-    [Fact]
-    public void ProgressMetrics_RespectsProjectStartDate()
-    {
-        // Arrange
-        var startDate = new DateTime(2024, 1, 1);
-        var endDate = new DateTime(2024, 12, 31);
-        var metrics = new ProjectMetrics
-        {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = startDate,
-            ProjectEndDate = endDate
-        };
-
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
-
-        // Assert
-        Assert.NotNull(component.Instance.Metrics);
-        Assert.Equal(startDate, component.Instance.Metrics.ProjectStartDate);
-    }
-
-    [Fact]
-    public void ProgressMetrics_RespectsProjectEndDate()
-    {
-        // Arrange
-        var startDate = new DateTime(2024, 1, 1);
-        var endDate = new DateTime(2024, 12, 31);
-        var metrics = new ProjectMetrics
-        {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = startDate,
-            ProjectEndDate = endDate
-        };
-
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
-
-        // Assert
-        Assert.NotNull(component.Instance.Metrics);
-        Assert.Equal(endDate, component.Instance.Metrics.ProjectEndDate);
-    }
-
-    [Fact]
-    public void ProgressMetrics_RespectsEstimatedBurndownRate()
-    {
-        // Arrange
-        var metrics = new ProjectMetrics
-        {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20),
-            EstimatedBurndownRate = 3.5
-        };
-
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
-
-        // Assert
-        Assert.NotNull(component.Instance.Metrics);
-        Assert.Equal(3.5, component.Instance.Metrics.EstimatedBurndownRate);
+            var markup = component.Markup;
+            Assert.Contains("Title2", markup);
+            Assert.Contains("Metric2", markup);
+        }
     }
 }

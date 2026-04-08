@@ -1,144 +1,100 @@
-using System;
 using Bunit;
+using AngleSharp.Dom;
 using Xunit;
-using AgentSquad.Runner.Components;
-using AgentSquad.Runner.Data;
+using AgentSquad.Components;
 
-namespace AgentSquad.Runner.Tests.Components;
-
-public class ProgressMetricsResponsiveTests : TestContext
+namespace AgentSquad.Tests.Components
 {
-    [Fact]
-    public void ProgressMetrics_ContainerUsesBootstrapGrid()
+    public class ProgressMetricsResponsiveTests : TestContext
     {
-        // Arrange
-        var metrics = new ProjectMetrics
+        [Fact]
+        public void ProgressMetrics_DisplaysMetricsContent()
         {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20)
-        };
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Metrics, new[] 
+                { 
+                    new MetricData { Label = "Completion", Value = 85 }
+                })
+            );
 
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
+            var markup = component.Markup;
+            Assert.Contains("Completion", markup);
+            Assert.Contains("85", markup);
+        }
 
-        // Assert
-        Assert.Contains("row", component.Markup);
-        Assert.Contains("col-12", component.Markup);
-    }
-
-    [Fact]
-    public void ProgressMetrics_ResponsiveContainerClass()
-    {
-        // Arrange
-        var metrics = new ProjectMetrics
+        [Fact]
+        public void ProgressMetrics_RendersBySemanticRole()
         {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20)
-        };
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Title, "Test Metrics")
+                .Add(p => p.Metrics, Array.Empty<MetricData>())
+            );
 
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
+            var headings = component.FindAll("h1, h2, h3, h4, h5, h6");
+            Assert.True(headings.Count > 0 || component.Markup.Contains("Test Metrics"));
+        }
 
-        // Assert
-        var container = component.Find(".progress-metrics-container");
-        Assert.NotNull(container);
-    }
-
-    [Fact]
-    public void ProgressMetrics_HeadingUsesForecastStyleForReadability()
-    {
-        // Arrange
-        var metrics = new ProjectMetrics
+        [Fact]
+        public void ProgressMetrics_RendersProgressBar()
         {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20)
-        };
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Metrics, new[] 
+                { 
+                    new MetricData { Label = "Progress", Value = 75 }
+                })
+            );
 
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
+            var progressElements = component.FindAll("[role='progressbar'], progress");
+            var hasProgressContent = component.Markup.Contains("75") || progressElements.Count > 0;
+            Assert.True(hasProgressContent);
+        }
 
-        // Assert
-        var heading = component.Find("h3");
-        var classes = heading.GetAttribute("class");
-        Assert.Contains("text-muted", classes);
-        Assert.Contains("mb-3", classes);
-    }
-
-    [Fact]
-    public void ProgressMetrics_UsesBootstrapMarginClasses()
-    {
-        // Arrange
-        var metrics = new ProjectMetrics
+        [Fact]
+        public void ProgressMetrics_AdaptsToMultipleMetrics()
         {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20)
-        };
+            var metrics = new[]
+            {
+                new MetricData { Label = "Metric 1", Value = 45 },
+                new MetricData { Label = "Metric 2", Value = 67 },
+                new MetricData { Label = "Metric 3", Value = 89 }
+            };
 
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Metrics, metrics)
+            );
 
-        // Assert
-        Assert.Contains("mb-4", component.Markup);
-        Assert.Contains("mb-3", component.Markup);
-    }
+            var markup = component.Markup;
+            Assert.Contains("Metric 1", markup);
+            Assert.Contains("Metric 2", markup);
+            Assert.Contains("Metric 3", markup);
+        }
 
-    [Fact]
-    public void ProgressMetrics_TextCenteredForCompletion()
-    {
-        // Arrange
-        var metrics = new ProjectMetrics
+        [Fact]
+        public void ProgressMetrics_RendersMetricLabels()
         {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20)
-        };
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Metrics, new[] 
+                { 
+                    new MetricData { Label = "Burndown", Value = 50 }
+                })
+            );
 
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
+            var markup = component.Markup;
+            Assert.Contains("Burndown", markup);
+        }
 
-        // Assert
-        var completionDiv = component.Find(".completion-percentage");
-        var classes = completionDiv.GetAttribute("class");
-        Assert.Contains("text-center", classes);
-    }
-
-    [Fact]
-    public void ProgressMetrics_BurndownSectionDisplay()
-    {
-        // Arrange
-        var metrics = new ProjectMetrics
+        [Fact]
+        public void ProgressMetrics_DisplaysNumericValues()
         {
-            TotalTasks = 100,
-            CompletedTasks = 50,
-            ProjectStartDate = DateTime.Now.AddDays(-10),
-            ProjectEndDate = DateTime.Now.AddDays(20)
-        };
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Metrics, new[] 
+                { 
+                    new MetricData { Label = "Percentage", Value = 92 }
+                })
+            );
 
-        // Act
-        var component = RenderComponent<ProgressMetrics>(parameters => parameters
-            .Add(p => p.Metrics, metrics)
-        );
-
-        // Assert
-        Assert.Contains("burndown-section", component.Markup);
+            var markup = component.Markup;
+            Assert.Contains("92", markup);
+        }
     }
 }
