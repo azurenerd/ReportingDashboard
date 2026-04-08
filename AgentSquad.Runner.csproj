@@ -4,71 +4,14 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-AgentSquad.Runner-05b42be2-086a-4fbc-853a-02db14a86dd7</UserSecretsId>
-    <OutputType>Exe</OutputType>
-    <PublishDir>bin\publish</PublishDir>
-    <SelfContained>true</SelfContained>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PublishSingleFile>false</PublishSingleFile>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <PublishTrimmed>false</PublishTrimmed>
-    <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AgentSquad.Core\AgentSquad.Core.csproj" />
-    <ProjectReference Include="..\AgentSquad.Agents\AgentSquad.Agents.csproj" />
-    <ProjectReference Include="..\AgentSquad.Orchestrator\AgentSquad.Orchestrator.csproj" />
-    <ProjectReference Include="..\AgentSquad.Dashboard\AgentSquad.Dashboard.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
   </ItemGroup>
 
-  <!-- CSS Files -->
   <ItemGroup>
-    <Content Include="wwwroot\css\base.css" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="wwwroot\css\dashboard.css" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="wwwroot\css\print.css" CopyToPublishDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <!-- JavaScript Files -->
-  <ItemGroup>
-    <Content Include="wwwroot\js\dashboard.js" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="wwwroot\js\print-handler.js" CopyToPublishDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <!-- HTML Files -->
-  <ItemGroup>
-    <Content Include="wwwroot\index.html" CopyToPublishDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <!-- Data Configuration -->
-  <ItemGroup>
-    <Content Include="wwwroot\data.json" CopyToPublishDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <!-- Images Directory (will include all image files) -->
-  <ItemGroup>
-    <Content Include="wwwroot\images\**\*" CopyToPublishDirectory="PreserveNewest" Exclude="wwwroot\images\.gitkeep" />
-  </ItemGroup>
-
-  <!-- Fonts Directory (will include all font files) -->
-  <ItemGroup>
-    <Content Include="wwwroot\fonts\**\*" CopyToPublishDirectory="PreserveNewest" Exclude="wwwroot\fonts\.gitkeep" />
-  </ItemGroup>
-
-  <!-- Library Files (third-party libraries) -->
-  <ItemGroup>
-    <Content Include="wwwroot\lib\**\*" CopyToPublishDirectory="PreserveNewest" Exclude="wwwroot\lib\.gitkeep" />
-  </ItemGroup>
-
-  <!-- Ensure wwwroot directory exists and all subdirectories are included -->
-  <ItemGroup>
-    <Watch Include="wwwroot\**\*" />
-  </ItemGroup>
-
-  <!-- Razor Component Files (if any) -->
-  <ItemGroup>
-    <Compile Remove="Components\**" />
-    <Content Include="Components\**\*.razor" />
+    <Content Include="wwwroot/**/*" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
