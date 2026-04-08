@@ -2,6 +2,7 @@
 @using System.Collections.Generic
 @using AgentSquad.Runner.Data
 @inject ILogger<ProgressMetrics> Logger
+@inject IJSRuntime JSRuntime
 
 <div class="progress-metrics-container">
     <div class="row">
@@ -58,7 +59,7 @@
     [Parameter]
     public ProjectMetrics Metrics { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (Metrics != null)
         {
@@ -69,6 +70,62 @@
         {
             Logger.LogWarning("ProgressMetrics component initialized with null metrics");
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && Metrics != null && Metrics.TotalTasks > 0)
+        {
+            try
+            {
+                var labels = GenerateSampleLabels();
+                var data = GenerateSampleBurndownData();
+                
+                await JSRuntime.InvokeVoidAsync("ChartInterop.initializeBurndownChart", "burndownChart", labels, data);
+                Logger.LogInformation("Burn-down chart initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error initializing burn-down chart via JavaScript interop");
+            }
+        }
+    }
+
+    private List<string> GenerateSampleLabels()
+    {
+        var labels = new List<string>();
+        var startDate = Metrics.ProjectStartDate;
+        var days = (int)(Metrics.ProjectEndDate - startDate).TotalDays;
+        
+        for (int i = 0; i <= Math.Min(days, 30); i += Math.Max(1, days / 7))
+        {
+            labels.Add(startDate.AddDays(i).ToString("MM-dd"));
+        }
+        
+        if (!labels.Contains(Metrics.ProjectEndDate.ToString("MM-dd")))
+        {
+            labels.Add(Metrics.ProjectEndDate.ToString("MM-dd"));
+        }
+
+        return labels;
+    }
+
+    private List<int> GenerateSampleBurndownData()
+    {
+        var data = new List<int>();
+        var completedTasks = Metrics.CompletedTasks;
+        var tasksRemaining = Metrics.TotalTasks - completedTasks;
+        var daysRemaining = (int)(Metrics.ProjectEndDate - DateTime.Now).TotalDays;
+        var dailyBurnRate = daysRemaining > 0 ? tasksRemaining / (double)daysRemaining : 0;
+
+        int remainingTasks = tasksRemaining;
+        for (int i = 0; i < 8; i++)
+        {
+            data.Add(Math.Max(0, remainingTasks));
+            remainingTasks = (int)(remainingTasks - dailyBurnRate);
+        }
+
+        return data;
     }
 }
 
