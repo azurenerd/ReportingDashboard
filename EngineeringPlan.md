@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Total Tasks:** 14 | **Completed:** 2 | **In Progress:** 2 | **Pending:** 10
+**Total Tasks:** 14 | **Completed:** 2 | **In Progress:** 3 | **Pending:** 9
 
 ## Tasks
 
@@ -17,7 +17,7 @@
 | T7 | ProjectMetrics component | Medium | — | #55 | — | Pending | T2, T4 |
 | T8 | Print and screenshot CSS optimization | Medium | — | #56 | — | Pending | T4, T5, T6, T7 |
 | T9 | Create data.json schema and example file | Low | Junior Engineer 1 | #62 | — | Assigned | T2 |
-| T10 | Static assets and wwwroot configuration | Low | — | #52 | — | Pending | T1 |
+| T10 | Static assets and wwwroot configuration | Low | Junior Engineer 1 | #52 | — | Assigned | T1 |
 | T11 | Error handling and validation | Medium | — | #52 | — | Pending | T4 |
 | T12 | Browser compatibility testing | Low | — | #56 | — | Pending | T5, T6, T7, T8 |
 | T13 | Self-contained executable build and deployment | Medium | — | #52 | — | Pending | T1, T8, T10 |
