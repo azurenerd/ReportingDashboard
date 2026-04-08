@@ -12,24 +12,43 @@
     else if (!string.IsNullOrEmpty(ErrorMessage))
     {
         <div class="error-state">
-            <p>Error loading dashboard: @ErrorMessage</p>
+            <h2>Error Loading Dashboard</h2>
+            <p>@ErrorMessage</p>
         </div>
     }
     else if (ProjectData != null)
     {
         <div class="dashboard-grid">
-            <!-- Placeholder sections for child components -->
             <header class="dashboard-header">
-                <h1>@ProjectData.Name</h1>
+                <div class="header-content">
+                    <h1 class="project-title">@ProjectData.Name</h1>
+                    <p class="project-description">@ProjectData.Description</p>
+                    <p class="last-updated">Last updated: @ProjectData.LastUpdated.ToString("g")</p>
+                </div>
             </header>
+
             <section class="timeline-section">
-                <!-- MilestoneTimeline component will be rendered here -->
+                <h2 class="section-title">Project Timeline</h2>
+                <div class="timeline-content">
+                    <!-- MilestoneTimeline component will be rendered here -->
+                    <div class="placeholder">Timeline placeholder</div>
+                </div>
             </section>
+
             <section class="metrics-section">
-                <!-- ProjectMetrics component will be rendered here -->
+                <h2 class="section-title">Project Metrics</h2>
+                <div class="metrics-content">
+                    <!-- ProjectMetrics component will be rendered here -->
+                    <div class="placeholder">Metrics placeholder</div>
+                </div>
             </section>
+
             <section class="workitems-section">
-                <!-- WorkItemSummary component will be rendered here -->
+                <h2 class="section-title">Work Items</h2>
+                <div class="workitems-content">
+                    <!-- WorkItemSummary component will be rendered here -->
+                    <div class="placeholder">Work items placeholder</div>
+                </div>
             </section>
         </div>
     }
