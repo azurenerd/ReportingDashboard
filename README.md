@@ -1,24 +1,17 @@
-# AgentSquad Dashboard
+# AgentSquad Executive Dashboard
 
-Executive reporting dashboard built with C# .NET 8 Blazor Server for displaying project milestones, task status, and progress metrics.
+## Project Overview
 
-## Features
+AgentSquad is a lightweight executive reporting dashboard built with C# .NET 8 Blazor Server that displays project milestones, task status, and progress metrics through a single-page interface. The dashboard reads project data from a JSON configuration file, requires no external authentication or cloud dependencies, and prioritizes screenshot-ready visuals for PowerPoint integration.
 
-- **Milestone Timeline**: Visual timeline of project milestones with completion status
-- **Task Status Cards**: Summary cards for Shipped, In-Progress, and Carried-Over tasks
-- **Progress Metrics**: Overall project completion percentage and task breakdown
-- **JSON-Based Configuration**: Load project data from data.json without database
-- **Responsive Design**: Bootstrap 5 responsive layout optimized for desktop
-- **Screenshot-Ready**: Deterministic rendering with no animations for PowerPoint integration
+The system provides three key capabilities: a visual timeline of project milestones with completion indicators, status breakdown cards showing counts of shipped, in-progress, and carried-over tasks, and project completion percentage metrics with burn-down visualization. All data is stored in a human-editable JSON file, eliminating the need for databases or external services.
 
-## Architecture
+**Technology Stack:** Blazor Server (C# .NET 8), Bootstrap 5, Chart.js v4, System.Text.Json
 
-- **Dashboard.razor**: Main page component orchestrating three child components
-- **MilestoneTimeline.razor**: Displays project milestones with status indicators
-- **StatusCard.razor**: Shows task counts and lists by status category
-- **ProgressMetrics.razor**: Displays completion percentage and progress bar
-- **ProjectDataService**: Loads and validates project data from JSON
+**Target Users:** Executives, project managers, and stakeholders who need quick visibility into project health for status briefings and PowerPoint presentations.
 
-## Data Schema
+## Quick Start
 
-The `wwwroot/data.json` file contains project information:
+Follow these 5 commands to clone, build, and run the dashboard:
+
+1. Clone the repository:
