@@ -8,4 +8,43 @@
 @code {
     [Parameter]
     public List<WorkItem> WorkItems { get; set; } = new();
+
+    private List<WorkItem> ShippedItems { get; set; } = new();
+    private List<WorkItem> InProgressItems { get; set; } = new();
+    private List<WorkItem> CarriedOverItems { get; set; } = new();
+
+    protected override void OnParametersSet()
+    {
+        GroupWorkItems();
+    }
+
+    private void GroupWorkItems()
+    {
+        ShippedItems = new();
+        InProgressItems = new();
+        CarriedOverItems = new();
+
+        if (WorkItems == null || WorkItems.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var item in WorkItems)
+        {
+            if (item == null) continue;
+
+            switch (item.Status)
+            {
+                case WorkItemStatus.Shipped:
+                    ShippedItems.Add(item);
+                    break;
+                case WorkItemStatus.InProgress:
+                    InProgressItems.Add(item);
+                    break;
+                case WorkItemStatus.CarriedOver:
+                    CarriedOverItems.Add(item);
+                    break;
+            }
+        }
+    }
 }
