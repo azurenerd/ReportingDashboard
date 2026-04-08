@@ -1,116 +1,106 @@
 {
   "name": "Executive Dashboard Project",
-  "description": "Blazor Server executive reporting dashboard with milestone tracking and work item management",
-  "startDate": "2024-01-15",
+  "description": "Real-time project status and milestone tracking for executive visibility",
+  "lastUpdated": "2026-04-08T05:00:00Z",
   "milestones": [
     {
-      "name": "Phase 1: Architecture & Setup",
-      "targetDate": "2024-02-15",
+      "name": "Project Kickoff",
+      "targetDate": "2026-01-15T00:00:00Z",
       "status": "Completed",
-      "description": "Define system design, project structure, and component architecture"
+      "description": "Initial planning and team setup"
     },
     {
-      "name": "Phase 2: Core Components",
-      "targetDate": "2024-03-15",
+      "name": "Design Phase",
+      "targetDate": "2026-02-28T00:00:00Z",
       "status": "Completed",
-      "description": "Implement dashboard layout, timeline, and metrics components"
+      "description": "UI/UX design and architecture review"
     },
     {
-      "name": "Phase 3: Data Integration",
-      "targetDate": "2024-04-15",
+      "name": "Development Sprint 1",
+      "targetDate": "2026-03-31T00:00:00Z",
       "status": "InProgress",
-      "description": "Integrate DataProvider service and finalize JSON deserialization"
+      "description": "Core dashboard components implementation"
     },
     {
-      "name": "Phase 4: Polish & Optimization",
-      "targetDate": "2024-05-15",
+      "name": "Development Sprint 2",
+      "targetDate": "2026-04-30T00:00:00Z",
+      "status": "InProgress",
+      "description": "Data integration and optimization"
+    },
+    {
+      "name": "Quality Assurance",
+      "targetDate": "2026-05-15T00:00:00Z",
       "status": "AtRisk",
-      "description": "Performance optimization, CSS refinement, and screenshot validation"
+      "description": "Testing and bug fixes"
     },
     {
-      "name": "Phase 5: Launch",
-      "targetDate": "2024-06-15",
+      "name": "Production Release",
+      "targetDate": "2026-06-01T00:00:00Z",
       "status": "Future",
-      "description": "Final deployment and production release"
-    }
-  ],
-  "workItems": [
-    {
-      "title": "Implement MilestoneTimeline component",
-      "description": "Create horizontal timeline with status indicators and color coding for milestone visualization",
-      "status": "Shipped",
-      "assignedTo": "Sarah Chen"
-    },
-    {
-      "title": "Build ProjectMetrics display",
-      "description": "Design KPI cards for completion %, health status, and velocity indicators with responsive layout",
-      "status": "Shipped",
-      "assignedTo": "Alex Rodriguez"
-    },
-    {
-      "title": "Create WorkItemSummary component",
-      "description": "Render work items in three-column layout by status category with item counts and descriptions",
-      "status": "Shipped",
-      "assignedTo": "Jordan Kim"
-    },
-    {
-      "title": "Design dashboard CSS grid",
-      "description": "Responsive layout optimized for 1024x768 and 1920x1080 resolutions with print-ready styling",
-      "status": "Shipped",
-      "assignedTo": "Casey Murphy"
-    },
-    {
-      "title": "Implement DataProvider service",
-      "description": "Load and cache data.json on startup with comprehensive error handling and logging",
-      "status": "InProgress",
-      "assignedTo": "Morgan Lee"
-    },
-    {
-      "title": "Add JSON deserialization",
-      "description": "Map JSON data to Project, Milestone, WorkItem, and ProjectMetrics models with validation",
-      "status": "InProgress",
-      "assignedTo": "Taylor Johnson"
-    },
-    {
-      "title": "Optimize page load performance",
-      "description": "Achieve sub-1-second load time with client-side caching and asset compression strategies",
-      "status": "InProgress",
-      "assignedTo": "Parker Williams"
-    },
-    {
-      "title": "Configure Blazor Server startup",
-      "description": "Set up Program.cs with DI container and middleware for DataProvider initialization",
-      "status": "InProgress",
-      "assignedTo": "Morgan Lee"
-    },
-    {
-      "title": "Validate screenshot quality",
-      "description": "Test rendering at multiple resolutions for PowerPoint compatibility and visual consistency",
-      "status": "CarriedOver",
-      "assignedTo": "Jordan Kim"
-    },
-    {
-      "title": "Create deployment documentation",
-      "description": "Document setup, configuration, and Windows executable generation for end users",
-      "status": "CarriedOver",
-      "assignedTo": "Casey Murphy"
-    },
-    {
-      "title": "Test cross-browser compatibility",
-      "description": "Verify rendering consistency across Chrome and Edge browsers with screenshot validation",
-      "status": "CarriedOver",
-      "assignedTo": "Alex Rodriguez"
-    },
-    {
-      "title": "Setup error handling and logging",
-      "description": "Implement comprehensive error tracking and logging throughout the application",
-      "status": "CarriedOver",
-      "assignedTo": "Taylor Johnson"
+      "description": "Final deployment and monitoring"
     }
   ],
   "metrics": {
-    "completionPercentage": 72,
+    "completionPercentage": 68,
     "healthStatus": "OnTrack",
-    "velocityCount": 12
-  }
+    "velocityThisMonth": 42,
+    "milestoneCount": 4,
+    "targetMilestoneCount": 6
+  },
+  "workItems": [
+    {
+      "id": "wi-001",
+      "title": "Dashboard layout component",
+      "description": "Implemented responsive grid layout",
+      "status": "ShippedThisMonth"
+    },
+    {
+      "id": "wi-002",
+      "title": "Milestone timeline visualization",
+      "description": "Created horizontal timeline with status indicators",
+      "status": "ShippedThisMonth"
+    },
+    {
+      "id": "wi-003",
+      "title": "Project metrics display",
+      "description": "Added KPI cards and health indicators",
+      "status": "ShippedThisMonth"
+    },
+    {
+      "id": "wi-004",
+      "title": "Work item summary component",
+      "description": "Implemented three-column status view",
+      "status": "ShippedThisMonth"
+    },
+    {
+      "id": "wi-005",
+      "title": "Data provider service",
+      "description": "JSON file loading and caching",
+      "status": "InProgress"
+    },
+    {
+      "id": "wi-006",
+      "title": "Print/screenshot optimization",
+      "description": "CSS media queries for export",
+      "status": "InProgress"
+    },
+    {
+      "id": "wi-007",
+      "title": "Error handling and validation",
+      "description": "User-friendly error messages",
+      "status": "CarriedOver"
+    },
+    {
+      "id": "wi-008",
+      "title": "Browser compatibility testing",
+      "description": "Chrome and Edge verification",
+      "status": "CarriedOver"
+    },
+    {
+      "id": "wi-009",
+      "title": "Performance optimization",
+      "description": "Sub-1-second load times",
+      "status": "CarriedOver"
+    }
+  ]
 }
