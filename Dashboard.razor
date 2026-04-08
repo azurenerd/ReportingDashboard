@@ -1,0 +1,91 @@
+@page "/"
+@using AgentSquad.Models;
+@using AgentSquad.Services;
+@inject ProjectDataService ProjectDataService
+
+<ErrorBoundary>
+    <ChildContent>
+        <div class="container-fluid py-4">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="display-4 fw-bold">Project Dashboard</h1>
+                </div>
+            </div>
+
+            @if (ProjectData != null)
+            {
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <MilestoneTimeline Milestones="ProjectData.Milestones" 
+                                         ProjectDurationDays="CalculateProjectDays()" />
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <StatusCard StatusCategory="Shipped" 
+                                   TaskCount="ProjectData.ShippedTaskCount" 
+                                   Tasks="ProjectData.ShippedTasks" 
+                                   CardColor="green" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <StatusCard StatusCategory="In-Progress" 
+                                   TaskCount="ProjectData.InProgressTaskCount" 
+                                   Tasks="ProjectData.InProgressTasks" 
+                                   CardColor="blue" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <StatusCard StatusCategory="Carried-Over" 
+                                   TaskCount="ProjectData.CarriedOverTaskCount" 
+                                   Tasks="ProjectData.CarriedOverTasks" 
+                                   CardColor="orange" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <ProgressMetrics ProjectData="ProjectData" />
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">Loading project data...</div>
+            }
+        </div>
+    </ChildContent>
+    <ErrorContent>
+        <div class="container-fluid py-4">
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">An error occurred</h4>
+                <p>The dashboard encountered an error while rendering. Please refresh the page and try again.</p>
+            </div>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    private ProjectData ProjectData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ProjectData = await ProjectDataService.LoadProjectDataAsync();
+        }
+        catch (Exception ex)
+        {
+            // Error handling delegated to ErrorBoundary
+            throw;
+        }
+    }
+
+    private int CalculateProjectDays()
+    {
+        if (ProjectData?.ProjectEndDate != null && ProjectData?.ProjectStartDate != null)
+        {
+            return (int)(ProjectData.ProjectEndDate - ProjectData.ProjectStartDate).TotalDays;
+        }
+        return 0;
+    }
+}

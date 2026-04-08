@@ -1,120 +1,65 @@
-@namespace AgentSquad.Components
-@inherits ComponentBase
+@using AgentSquad.Models;
 
-<div class="card status-card h-100 shadow-sm" style="@GetBorderStyle()">
-    <div class="card-header bg-light border-0 p-4">
-        <div class="d-flex align-items-center justify-content-between">
-            <h4 class="mb-0 fw-bold text-dark">
-                @StatusCategory
-            </h4>
-            <span class="badge @GetBadgeColorClass() fs-6 px-3 py-2">
-                @TaskCount
-            </span>
+<div class="card mb-3 border-start border-5" style="border-color: @GetColorValue(CardColor) !important;">
+    <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <span class="fw-bold">@StatusCategory</span>
+                <span class="badge bg-secondary ms-2">@TaskCount</span>
+            </h5>
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#tasks-@StatusCategory" aria-expanded="false">
+                <span class="toggle-icon">▼</span>
+            </button>
         </div>
     </div>
-    <div class="card-body p-4">
-        @if (Tasks == null || Tasks.Count == 0)
-        {
-            <p class="text-muted mb-0 text-center py-3">
-                <i class="bi bi-inbox me-2"></i>No tasks
-            </p>
-        }
-        else
-        {
-            <button class="btn btn-sm btn-outline-secondary w-100 mb-3" 
-                    type="button" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target="#collapse-@GetCollapseId()" 
-                    aria-expanded="true" 
-                    aria-controls="collapse-@GetCollapseId()">
-                <i class="bi bi-chevron-down me-2"></i>View Tasks (@Tasks.Count)
-            </button>
-            <div class="collapse show" id="collapse-@GetCollapseId()">
-                <div class="list-group list-group-flush">
+    <div class="collapse" id="tasks-@StatusCategory">
+        <div class="card-body">
+            @if (Tasks != null && Tasks.Count > 0)
+            {
+                <ul class="list-unstyled">
                     @foreach (var task in Tasks)
                     {
-                        @if (task != null)
-                        {
-                            <div class="list-group-item px-0 py-3 border-bottom">
-                                <div class="d-flex align-items-start gap-3">
-                                    <div class="flex-shrink-0 pt-1">
-                                        <i class="bi bi-check-circle text-success fs-6"></i>
-                                    </div>
-                                    <div class="flex-grow-1 min-width-0">
-                                        <p class="mb-1 fw-500 text-break">
-                                            @task.Name
-                                        </p>
-                                        @if (!string.IsNullOrWhiteSpace(task.AssignedTo))
-                                        {
-                                            <small class="text-muted d-block">
-                                                <i class="bi bi-person me-1"></i>@task.AssignedTo
-                                            </small>
-                                        }
-                                    </div>
+                        <li class="mb-2 pb-2 border-bottom">
+                            <div class="d-flex align-items-start">
+                                <span class="me-2">✓</span>
+                                <div class="flex-grow-1">
+                                    <p class="mb-1 fw-bold">@task.Name</p>
+                                    <small class="text-muted">Assigned to: @(task.AssignedOwner ?? "Unassigned")</small>
                                 </div>
                             </div>
-                        }
+                        </li>
                     }
-                </div>
-            </div>
-        }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted mb-0">No tasks</p>
+            }
+        </div>
     </div>
 </div>
 
 @code {
-    /// <summary>
-    /// The status category name to display in the card header.
-    /// Examples: "Shipped", "In-Progress", "Carried-Over"
-    /// </summary>
     [Parameter]
-    public string StatusCategory { get; set; } = string.Empty;
+    public string StatusCategory { get; set; }
 
-    /// <summary>
-    /// The count of tasks in this status category. Displayed in badge next to status name.
-    /// </summary>
     [Parameter]
-    public int TaskCount { get; set; } = 0;
+    public int TaskCount { get; set; }
 
-    /// <summary>
-    /// The list of tasks to display in the collapsible task list.
-    /// Null or empty lists display a "No tasks" message.
-    /// </summary>
     [Parameter]
-    public List<Task> Tasks { get; set; } = new();
+    public List<Task> Tasks { get; set; }
 
-    /// <summary>
-    /// The color code for the left border stripe. Valid values: "green", "blue", "orange".
-    /// Colors map to status: green=Shipped, blue=In-Progress, orange=Carried-Over.
-    /// </summary>
     [Parameter]
-    public string CardColor { get; set; } = "gray";
+    public string CardColor { get; set; }
 
-    private string GetCollapseId()
+    private string GetColorValue(string color)
     {
-        return StatusCategory.Replace(" ", "-").ToLower();
-    }
-
-    private string GetBorderStyle()
-    {
-        var borderColor = CardColor?.ToLower() switch
+        return color switch
         {
             "green" => "#28a745",
             "blue" => "#007bff",
             "orange" => "#fd7e14",
             _ => "#6c757d"
-        };
-
-        return $"border-left: 4px solid {borderColor};";
-    }
-
-    private string GetBadgeColorClass()
-    {
-        return CardColor?.ToLower() switch
-        {
-            "green" => "bg-success",
-            "blue" => "bg-primary",
-            "orange" => "bg-warning text-dark",
-            _ => "bg-secondary"
         };
     }
 }
