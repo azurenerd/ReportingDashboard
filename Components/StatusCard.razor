@@ -1,64 +1,95 @@
-@* StatusCard.razor - Reusable component for displaying task status breakdown *@
+@* StatusCard.razor - Displays task count and expandable task list for each status category *@
 
-@if (Tasks != null && Tasks.Any())
-{
-    <div class="card h-100 shadow-sm">
-        <div class="card-header @($"bg-{CardColor}") text-white">
-            <h5 class="mb-0">
+<div class="card h-100 shadow-sm">
+    <div class="card-header @GetHeaderColorClass()">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-white">
                 <strong>@StatusCategory</strong>
-                <span class="badge bg-light text-dark ms-2">@TaskCount</span>
             </h5>
+            <span class="badge bg-light text-dark">@TaskCount</span>
         </div>
-        <div class="card-body">
-            <button class="btn btn-link p-0 w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="@($"#collapse-{StatusCategory}")" aria-expanded="false" aria-controls="@($"collapse-{StatusCategory}")">
-                <span class="text-muted">@(Tasks.Count > 0 ? "Show tasks" : "No tasks")</span>
-                <i class="bi bi-chevron-down ms-2"></i>
+    </div>
+    
+    <div class="card-body">
+        @if (Tasks != null && Tasks.Any())
+        {
+            <button class="btn btn-link btn-sm p-0 text-decoration-none w-100 text-start" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="@GetCollapseId()" 
+                    aria-expanded="false" 
+                    aria-controls="@GetCollapseId()">
+                <span class="text-muted">
+                    <i class="bi bi-chevron-down"></i>
+                    Show @Tasks.Count task@(Tasks.Count != 1 ? "s" : "")
+                </span>
             </button>
-            <div class="collapse" id="@($"collapse-{StatusCategory}")">
-                <div class="mt-3">
+            
+            <div class="collapse mt-3" id="@GetCollapseId()">
+                <div class="task-list">
                     @foreach (var task in Tasks)
                     {
-                        <div class="d-flex align-items-center mb-2">
-                            <input type="checkbox" class="form-check-input me-2" disabled />
+                        <div class="task-item d-flex align-items-start mb-3">
+                            <input type="checkbox" class="form-check-input mt-1 me-2" disabled />
                             <div class="flex-grow-1">
-                                <span class="task-name">@task.Name</span>
+                                <div class="task-name">@task.Name</div>
                                 @if (!string.IsNullOrWhiteSpace(task.Owner))
                                 {
-                                    <small class="text-muted d-block">@task.Owner</small>
+                                    <small class="text-muted">@task.Owner</small>
                                 }
                             </div>
                         </div>
                     }
                 </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="text-muted text-center py-3">
+                <small>No tasks</small>
+            </div>
+        }
     </div>
-}
-else
-{
-    <div class="card h-100 shadow-sm">
-        <div class="card-header @($"bg-{CardColor}") text-white">
-            <h5 class="mb-0">
-                <strong>@StatusCategory</strong>
-                <span class="badge bg-light text-dark ms-2">0</span>
-            </h5>
-        </div>
-        <div class="card-body text-muted text-center">
-            No tasks
-        </div>
-    </div>
-}
+</div>
 
 @code {
+    /// <summary>
+    /// Status category name (e.g., "Shipped", "In-Progress", "Carried-Over")
+    /// </summary>
     [Parameter]
     public string StatusCategory { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Total count of tasks in this status category
+    /// </summary>
     [Parameter]
     public int TaskCount { get; set; } = 0;
 
+    /// <summary>
+    /// List of task items to display
+    /// </summary>
     [Parameter]
     public List<TaskItem> Tasks { get; set; } = new();
 
+    /// <summary>
+    /// CSS class for card header color (e.g., "bg-success", "bg-primary", "bg-warning")
+    /// </summary>
     [Parameter]
-    public string CardColor { get; set; } = "secondary";
+    public string CardColor { get; set; } = "bg-secondary";
+
+    /// <summary>
+    /// Returns the CSS class for the card header based on CardColor parameter
+    /// </summary>
+    private string GetHeaderColorClass() => CardColor switch
+    {
+        "shipped" or "Shipped" or "success" or "bg-success" => "bg-success",
+        "inprogress" or "in-progress" or "InProgress" or "primary" or "bg-primary" => "bg-primary",
+        "carriedover" or "carried-over" or "CarriedOver" or "warning" or "bg-warning" => "bg-warning",
+        _ => "bg-secondary"
+    };
+
+    /// <summary>
+    /// Generates a unique collapse ID for this card's task list
+    /// </summary>
+    private string GetCollapseId() => $"collapse-{StatusCategory.Replace(" ", "-").ToLower()}";
 }
