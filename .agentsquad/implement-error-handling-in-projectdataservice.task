@@ -1,0 +1,4 @@
+agent: PrincipalEngineer
+task: Implement error handling in ProjectDataService
+complexity: Medium
+status: in-progress
