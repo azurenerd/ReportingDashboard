@@ -1,18 +1,17 @@
-namespace AgentSquad.Runner.Models
-{
-    public class Milestone
-    {
-        public string Name { get; set; }
-        public DateTime TargetDate { get; set; }
-        public MilestoneStatus Status { get; set; }
-        public string Description { get; set; }
-    }
+namespace AgentSquad.Runner.Models;
 
-    public enum MilestoneStatus
-    {
-        Completed,
-        InProgress,
-        AtRisk,
-        Future
-    }
+public class Milestone
+{
+    public string Name { get; set; } = string.Empty;
+    public DateTime TargetDate { get; set; }
+    public MilestoneStatus Status { get; set; }
+    public string Description { get; set; } = string.Empty;
+}
+
+public enum MilestoneStatus
+{
+    Completed,
+    InProgress,
+    AtRisk,
+    Future
 }

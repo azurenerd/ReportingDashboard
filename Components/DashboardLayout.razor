@@ -1,6 +1,6 @@
 @page "/"
-@using AgentSquad.Runner.Services
 @using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
 @inject IDataProvider DataProvider
 @inject IDataCache DataCache
 @inject ILogger<DashboardLayout> Logger
@@ -8,105 +8,88 @@
 <div class="dashboard-container">
     @if (IsLoading)
     {
-        <LoadingSpinner />
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading dashboard...</p>
+        </div>
     }
     else if (!string.IsNullOrEmpty(ErrorMessage))
     {
-        <ErrorMessage ErrorText="@ErrorMessage" OnRetry="@RetryLoadData" />
+        <div class="error-state">
+            <div class="error-content">
+                <h2>Dashboard Error</h2>
+                <p>@ErrorMessage</p>
+            </div>
+        </div>
     }
     else if (ProjectData != null)
     {
         <header class="dashboard-header">
             <h1>@ProjectData.Name</h1>
-            <p class="project-description">@ProjectData.Description</p>
+            <p>@ProjectData.Description</p>
         </header>
 
         <section class="dashboard-timeline">
-            <h2>Milestone Timeline</h2>
-            <!-- MilestoneTimeline component will be rendered here in Step 4 -->
-            <div class="timeline-placeholder">Timeline component coming in Step 4</div>
+            <!-- MilestoneTimeline component will be placed here in Step 4 -->
+            <div class="placeholder">Timeline Section</div>
         </section>
 
         <section class="dashboard-metrics">
-            <h2>Project Metrics</h2>
-            <!-- ProjectMetrics component will be rendered here in Step 4 -->
-            <div class="metrics-placeholder">Metrics component coming in Step 4</div>
+            <!-- ProjectMetrics component will be placed here in Step 4 -->
+            <div class="placeholder">Metrics Section</div>
         </section>
 
         <section class="dashboard-workitems">
-            <h2>Work Items</h2>
-            <!-- WorkItemSummary component will be rendered here in Step 4 -->
-            <div class="workitems-placeholder">Work items component coming in Step 4</div>
+            <!-- WorkItemSummary component will be placed here in Step 4 -->
+            <div class="placeholder">Work Items Section</div>
         </section>
     }
     else
     {
-        <ErrorMessage ErrorText="Project data could not be loaded. Please ensure data.json is properly configured." OnRetry="@RetryLoadData" />
+        <div class="empty-state">
+            <p>No project data available.</p>
+        </div>
     }
 </div>
 
 @code {
-    public Project ProjectData { get; set; }
-    public bool IsLoading { get; set; } = true;
+    public Project? ProjectData { get; set; }
+    public bool IsLoading { get; set; }
     public string ErrorMessage { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
-    {
-        Logger.LogInformation("DashboardLayout component initializing");
-        await LoadProjectData();
-    }
-
-    private async Task LoadProjectData()
     {
         try
         {
             IsLoading = true;
             ErrorMessage = string.Empty;
-            ProjectData = null;
-            
-            Logger.LogInformation("Starting project data load");
-            StateHasChanged();
 
             ProjectData = await DataProvider.LoadProjectDataAsync();
-            
-            Logger.LogInformation("Project data loaded successfully");
             IsLoading = false;
-            StateHasChanged();
         }
         catch (FileNotFoundException ex)
         {
-            Logger.LogError(ex, "Configuration file not found");
-            ErrorMessage = $"Configuration file not found: {ex.Message}";
+            Logger.LogError(ex, "Project data file not found");
+            ErrorMessage = "Configuration file not found. Please ensure data.json exists in the application directory.";
             IsLoading = false;
-            StateHasChanged();
         }
-        catch (System.Text.Json.JsonException ex)
+        catch (JsonException ex)
         {
-            Logger.LogError(ex, "JSON parsing error");
-            ErrorMessage = $"Invalid JSON format in configuration file: {ex.Message}";
+            Logger.LogError(ex, "Failed to parse project data JSON");
+            ErrorMessage = "Invalid JSON format in configuration file. Please check data.json for syntax errors.";
             IsLoading = false;
-            StateHasChanged();
         }
         catch (InvalidOperationException ex)
         {
-            Logger.LogError(ex, "Project validation error");
-            ErrorMessage = $"Invalid project configuration: {ex.Message}";
+            Logger.LogError(ex, "Project data validation failed");
+            ErrorMessage = $"Configuration validation failed: {ex.Message}";
             IsLoading = false;
-            StateHasChanged();
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Unexpected error loading dashboard");
-            ErrorMessage = $"Unexpected error loading dashboard: {ex.Message}";
+            Logger.LogError(ex, "Unexpected error loading project data");
+            ErrorMessage = "An unexpected error occurred while loading the dashboard. Please try again.";
             IsLoading = false;
-            StateHasChanged();
         }
-    }
-
-    private async Task RetryLoadData()
-    {
-        Logger.LogInformation("User initiated retry - invalidating cache");
-        DataCache.Remove("project_data");
-        await LoadProjectData();
     }
 }

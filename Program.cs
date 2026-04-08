@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using AgentSquad.Runner.Components;
 using AgentSquad.Runner.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,11 +11,10 @@ builder.Services.AddRazorComponents()
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IDataCache, DataCache>();
 builder.Services.AddScoped<IDataProvider, DataProvider>();
-
 builder.Services.AddLogging(config =>
 {
     config.AddConsole();
-    config.SetMinimumLevel(LogLevel.Information);
+    config.AddDebug();
 });
 
 var app = builder.Build();

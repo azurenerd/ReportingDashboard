@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Executive Project Dashboard</title>
+    <base href="/" />
     
     <!-- Pico CSS Framework -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
@@ -11,24 +12,21 @@
     <!-- Custom Dashboard Styles -->
     <link rel="stylesheet" href="css/dashboard.css" />
     
-    <!-- Blazor Framework -->
-    <base href="/" />
-    <link href="_framework/bootstrap/bootstrap.min.css" rel="stylesheet" />
-    <link href="css/app.css" rel="stylesheet" />
+    <link href="_framework/bootstrap.webassembly.css" rel="stylesheet" />
+    <link href="app.css" rel="stylesheet" />
     <link href="AgentSquad.Runner.styles.css" rel="stylesheet" />
 </head>
 <body>
     <div id="app">
-        <svg class="oi oi-reload" viewBox="0 0 256 256" style="
-            animation: spin 2s linear infinite;
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            margin: 50px;
-            color: #0066cc;">
-            <circle cx="128" cy="128" r="100" fill="none" stroke="currentColor" stroke-width="16"></circle>
+        <svg style="display: none;">
+            <defs>
+                <symbol id="loading" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="80" stroke-dashoffset="0">
+                        <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite" />
+                    </circle>
+                </symbol>
+            </defs>
         </svg>
-        <p>Loading...</p>
     </div>
 
     <div id="blazor-error-ui">
@@ -36,12 +34,13 @@
             An error has occurred. This application may no longer respond until reloaded.
         </environment>
         <environment include="Development">
-            An unhandled exception has occurred. See browser dev tools for details.
+            An unhandled exception has occurred. See browser console for details.
         </environment>
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
 
-    <script src="_framework/blazor.server.js"></script>
+    <script src="_framework/blazor.web.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </body>
 </html>

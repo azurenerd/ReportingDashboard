@@ -1,132 +1,73 @@
+namespace AgentSquad.Runner.Services;
+
 using System.Text.Json;
 using AgentSquad.Runner.Models;
-using Microsoft.Extensions.Logging;
 
-namespace AgentSquad.Runner.Services
+public class DataProvider : IDataProvider
 {
-    public class DataProvider : IDataProvider
+    private readonly IDataCache _cache;
+    private readonly ILogger<DataProvider> _logger;
+    private const string DataFilePath = "wwwroot/data.json";
+    private const string CacheKey = "project_data";
+
+    public DataProvider(IDataCache cache, ILogger<DataProvider> logger)
     {
-        private readonly IDataCache _cache;
-        private readonly ILogger<DataProvider> _logger;
-        private const string DATA_FILE_PATH = "wwwroot/data.json";
-        private const string CACHE_KEY = "project_data";
+        _cache = cache;
+        _logger = logger;
+    }
 
-        public DataProvider(IDataCache cache, ILogger<DataProvider> logger)
+    public async Task<Project> LoadProjectDataAsync()
+    {
+        var cached = await _cache.GetAsync<Project>(CacheKey);
+        if (cached != null)
         {
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger.LogInformation("Retrieved project data from cache");
+            return cached;
         }
 
-        public async Task<Project> LoadProjectDataAsync()
+        if (!File.Exists(DataFilePath))
         {
-            try
-            {
-                _logger.LogInformation("Loading project data from cache or file...");
-
-                var cached = await _cache.GetAsync<Project>(CACHE_KEY);
-                if (cached != null)
-                {
-                    _logger.LogInformation("Project data loaded from cache");
-                    return cached;
-                }
-
-                _logger.LogInformation($"Reading project data from {DATA_FILE_PATH}");
-                
-                if (!File.Exists(DATA_FILE_PATH))
-                {
-                    _logger.LogError($"Data file not found: {DATA_FILE_PATH}");
-                    throw new FileNotFoundException($"Configuration file not found at {DATA_FILE_PATH}. Please ensure data.json exists in the wwwroot directory.");
-                }
-
-                var json = await File.ReadAllTextAsync(DATA_FILE_PATH);
-                _logger.LogInformation("Successfully read data.json file");
-
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    WriteIndented = true
-                };
-
-                Project project;
-                try
-                {
-                    project = JsonSerializer.Deserialize<Project>(json, options);
-                    _logger.LogInformation("Successfully deserialized JSON to Project object");
-                }
-                catch (JsonException ex)
-                {
-                    _logger.LogError(ex, "JSON deserialization failed");
-                    throw new System.Text.Json.JsonException($"Invalid JSON format in data.json: {ex.Message}", ex);
-                }
-
-                ValidateProjectData(project);
-                _logger.LogInformation("Project data validation passed");
-
-                await _cache.SetAsync(CACHE_KEY, project, TimeSpan.FromHours(1));
-                _logger.LogInformation("Project data cached for 1 hour");
-
-                return project;
-            }
-            catch (FileNotFoundException)
-            {
-                _logger.LogError("Data file not found");
-                throw;
-            }
-            catch (System.Text.Json.JsonException)
-            {
-                _logger.LogError("JSON parsing error");
-                throw;
-            }
-            catch (InvalidOperationException)
-            {
-                _logger.LogError("Project validation error");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error loading project data");
-                throw new InvalidOperationException($"Unexpected error loading project data: {ex.Message}", ex);
-            }
+            throw new FileNotFoundException($"Data file not found at {DataFilePath}");
         }
 
-        public void InvalidateCache()
+        var json = await File.ReadAllTextAsync(DataFilePath);
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var project = JsonSerializer.Deserialize<Project>(json, options);
+
+        ValidateProjectData(project);
+
+        await _cache.SetAsync(CacheKey, project, TimeSpan.FromHours(1));
+        _logger.LogInformation("Loaded and cached project data successfully");
+
+        return project;
+    }
+
+    public void InvalidateCache()
+    {
+        _cache.Remove(CacheKey);
+        _logger.LogInformation("Project data cache invalidated");
+    }
+
+    private void ValidateProjectData(Project? project)
+    {
+        if (project == null)
         {
-            _logger.LogInformation("Invalidating project data cache");
-            _cache.Remove(CACHE_KEY);
+            throw new InvalidOperationException("Project data is null");
         }
 
-        private void ValidateProjectData(Project project)
+        if (string.IsNullOrWhiteSpace(project.Name))
         {
-            if (project == null)
-            {
-                _logger.LogError("Project object is null");
-                throw new InvalidOperationException("Project data is null. Ensure data.json contains valid project information.");
-            }
+            throw new InvalidOperationException("Project name is required");
+        }
 
-            if (string.IsNullOrWhiteSpace(project.Name))
-            {
-                _logger.LogError("Project name is empty or null");
-                throw new InvalidOperationException("Project name is required. Ensure the 'name' field is populated in data.json.");
-            }
+        if (project.Milestones == null || project.Milestones.Count == 0)
+        {
+            throw new InvalidOperationException("At least one milestone is required");
+        }
 
-            if (project.Milestones == null || project.Milestones.Count == 0)
-            {
-                _logger.LogError("Milestones array is null or empty");
-                throw new InvalidOperationException("At least one milestone is required. Ensure the 'milestones' array contains at least one item in data.json.");
-            }
-
-            if (project.CompletionPercentage < 0 || project.CompletionPercentage > 100)
-            {
-                _logger.LogError($"Invalid completion percentage: {project.CompletionPercentage}");
-                throw new InvalidOperationException("Completion percentage must be between 0 and 100.");
-            }
-
-            if (project.WorkItems == null)
-            {
-                project.WorkItems = new List<WorkItem>();
-            }
-
-            _logger.LogInformation($"Validation passed: Project '{project.Name}' has {project.Milestones.Count} milestones and {project.WorkItems.Count} work items");
+        if (project.WorkItems == null)
+        {
+            project.WorkItems = new List<WorkItem>();
         }
     }
 }
