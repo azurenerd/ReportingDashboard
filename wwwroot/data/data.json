@@ -4,7 +4,22 @@
     "startDate": "2025-04-01",
     "endDate": "2025-06-30",
     "overallCompletionPercentage": 0,
-    "milestones": [],
-    "tasks": []
+    "milestones": [
+      {
+        "id": "",
+        "name": "",
+        "targetDate": "",
+        "status": "Pending",
+        "completionPercentage": 0
+      }
+    ],
+    "tasks": [
+      {
+        "id": "",
+        "name": "",
+        "status": "Shipped",
+        "owner": ""
+      }
+    ]
   }
 }
