@@ -2,7 +2,43 @@
 @namespace AgentSquad.Runner.Components
 
 <div class="work-item-summary">
-    @* Component content will be added in subsequent steps *@
+    <div class="work-item-columns">
+        <section class="work-item-column shipped-column">
+            <header class="column-header">
+                <h3>Shipped This Month</h3>
+            </header>
+            <div class="column-content">
+                @if (ShippedItems == null || ShippedItems.Count == 0)
+                {
+                    <p class="no-items">No items</p>
+                }
+            </div>
+        </section>
+
+        <section class="work-item-column inprogress-column">
+            <header class="column-header">
+                <h3>In Progress</h3>
+            </header>
+            <div class="column-content">
+                @if (InProgressItems == null || InProgressItems.Count == 0)
+                {
+                    <p class="no-items">No items</p>
+                }
+            </div>
+        </section>
+
+        <section class="work-item-column carriedover-column">
+            <header class="column-header">
+                <h3>Carried Over</h3>
+            </header>
+            <div class="column-content">
+                @if (CarriedOverItems == null || CarriedOverItems.Count == 0)
+                {
+                    <p class="no-items">No items</p>
+                }
+            </div>
+        </section>
+    </div>
 </div>
 
 @code {
@@ -48,3 +84,80 @@
         }
     }
 }
+
+<style>
+.work-item-summary {
+    width: 100%;
+    padding: 1rem;
+}
+
+.work-item-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    min-height: 400px;
+}
+
+.work-item-column {
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.column-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.column-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.column-content {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    min-height: 300px;
+}
+
+.no-items {
+    color: #999;
+    font-style: italic;
+    margin: 0;
+    padding: 1rem 0;
+}
+
+@media (max-width: 1023px) {
+    .work-item-columns {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .column-content {
+        min-height: auto;
+    }
+}
+
+@media print {
+    .work-item-summary {
+        padding: 0.75rem;
+    }
+
+    .work-item-columns {
+        gap: 1rem;
+    }
+
+    .work-item-column {
+        page-break-inside: avoid;
+    }
+
+    .column-content {
+        overflow: visible;
+    }
+}
+</style>
