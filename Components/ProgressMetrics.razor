@@ -7,9 +7,9 @@
 <div class="progress-metrics-container">
     <div class="row">
         <div class="col-12">
-            @if (Metrics != null && Metrics.TotalTasks > 0)
+            @if (IsValidMetrics())
             {
-                int completionPercentage = (int)((Metrics.CompletedTasks / (double)Metrics.TotalTasks) * 100);
+                int completionPercentage = CalculateCompletionPercentage();
                 
                 <div class="metrics-content">
                     <div class="progress-section mb-4">
@@ -40,7 +40,7 @@
                         else if (ChartError)
                         {
                             <div class="alert alert-info" role="alert">
-                                <p class="mb-0">Chart.js is not available. Showing burn-down summary:</p>
+                                <p class="mb-0">Chart.js unavailable. Showing burn-down summary:</p>
                                 <table class="table table-sm mt-2 mb-0">
                                     <thead>
                                         <tr>
@@ -76,6 +76,31 @@
                     <p class="mb-0">Project has no tasks configured. Please check data.json configuration.</p>
                 </div>
             }
+            else if (Metrics != null && !IsValidMetrics())
+            {
+                <div class="alert alert-warning" role="alert">
+                    <strong>Invalid metrics data</strong>
+                    <p class="mb-0">
+                        @if (Metrics.TotalTasks < 0)
+                        {
+                            <span>TotalTasks cannot be negative. </span>
+                        }
+                        @if (Metrics.CompletedTasks < 0)
+                        {
+                            <span>CompletedTasks cannot be negative. </span>
+                        }
+                        @if (Metrics.CompletedTasks > Metrics.TotalTasks)
+                        {
+                            <span>CompletedTasks cannot exceed TotalTasks. </span>
+                        }
+                        @if (Metrics.ProjectStartDate >= Metrics.ProjectEndDate)
+                        {
+                            <span>ProjectEndDate must be after ProjectStartDate. </span>
+                        }
+                    </p>
+                    <p class="mb-0">Please verify data.json configuration.</p>
+                </div>
+            }
             else
             {
                 <div class="alert alert-warning" role="alert">
@@ -97,20 +122,33 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Metrics != null)
+        try
         {
-            Logger.LogInformation("ProgressMetrics component initialized: TotalTasks={TotalTasks}, CompletedTasks={CompletedTasks}", 
-                Metrics.TotalTasks, Metrics.CompletedTasks);
+            if (Metrics == null)
+            {
+                Logger.LogWarning("ProgressMetrics component initialized with null metrics");
+                return;
+            }
+
+            if (!IsValidMetrics())
+            {
+                Logger.LogWarning("ProgressMetrics component initialized with invalid metrics: TotalTasks={TotalTasks}, CompletedTasks={CompletedTasks}, StartDate={StartDate}, EndDate={EndDate}",
+                    Metrics.TotalTasks, Metrics.CompletedTasks, Metrics.ProjectStartDate, Metrics.ProjectEndDate);
+                return;
+            }
+
+            Logger.LogInformation("ProgressMetrics component initialized: TotalTasks={TotalTasks}, CompletedTasks={CompletedTasks}, StartDate={StartDate}, EndDate={EndDate}",
+                Metrics.TotalTasks, Metrics.CompletedTasks, Metrics.ProjectStartDate, Metrics.ProjectEndDate);
         }
-        else
+        catch (Exception ex)
         {
-            Logger.LogWarning("ProgressMetrics component initialized with null metrics");
+            Logger.LogError(ex, "Unexpected error in ProgressMetrics OnInitializedAsync");
         }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && Metrics != null && Metrics.TotalTasks > 0)
+        if (firstRender && IsValidMetrics() && Metrics.TotalTasks > 0)
         {
             try
             {
@@ -119,6 +157,14 @@
                 var labels = GenerateSampleLabels();
                 var data = GenerateSampleBurndownData();
                 
+                if (labels == null || labels.Count == 0 || data == null || data.Count == 0)
+                {
+                    ChartError = true;
+                    Logger.LogWarning("Chart data generation produced empty results");
+                    StateHasChanged();
+                    return;
+                }
+
                 FallbackBurndownData = new Dictionary<string, int>();
                 for (int i = 0; i < labels.Count && i < data.Count; i++)
                 {
@@ -168,56 +214,131 @@
         }
     }
 
+    private bool IsValidMetrics()
+    {
+        if (Metrics == null)
+        {
+            return false;
+        }
+
+        if (Metrics.TotalTasks < 0)
+        {
+            return false;
+        }
+
+        if (Metrics.CompletedTasks < 0)
+        {
+            return false;
+        }
+
+        if (Metrics.CompletedTasks > Metrics.TotalTasks)
+        {
+            return false;
+        }
+
+        if (Metrics.ProjectStartDate == default(DateTime) || Metrics.ProjectEndDate == default(DateTime))
+        {
+            return false;
+        }
+
+        if (Metrics.ProjectStartDate >= Metrics.ProjectEndDate)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private int CalculateCompletionPercentage()
+    {
+        if (!IsValidMetrics() || Metrics.TotalTasks == 0)
+        {
+            return 0;
+        }
+
+        int percentage = (int)((Metrics.CompletedTasks / (double)Metrics.TotalTasks) * 100);
+        return Math.Min(100, Math.Max(0, percentage));
+    }
+
     private List<string> GenerateSampleLabels()
     {
-        var labels = new List<string>();
-        var startDate = Metrics.ProjectStartDate;
-        var endDate = Metrics.ProjectEndDate;
-        var totalDays = (int)(endDate - startDate).TotalDays;
-        
-        var dayInterval = Math.Max(1, totalDays / 7);
-
-        for (int i = 0; i <= totalDays; i += dayInterval)
+        try
         {
-            labels.Add(startDate.AddDays(i).ToString("MM-dd"));
-        }
+            if (!IsValidMetrics())
+            {
+                return new List<string>();
+            }
 
-        if (!labels.Contains(endDate.ToString("MM-dd")) && totalDays > 0)
+            var labels = new List<string>();
+            var startDate = Metrics.ProjectStartDate;
+            var endDate = Metrics.ProjectEndDate;
+            var totalDays = (int)(endDate - startDate).TotalDays;
+            
+            if (totalDays <= 0)
+            {
+                labels.Add(DateTime.Now.ToString("MM-dd"));
+                return labels;
+            }
+
+            var dayInterval = Math.Max(1, totalDays / 7);
+
+            for (int i = 0; i <= totalDays; i += dayInterval)
+            {
+                labels.Add(startDate.AddDays(i).ToString("MM-dd"));
+            }
+
+            if (!labels.Contains(endDate.ToString("MM-dd")))
+            {
+                labels.Add(endDate.ToString("MM-dd"));
+            }
+
+            return labels.Count > 0 ? labels : new List<string> { DateTime.Now.ToString("MM-dd") };
+        }
+        catch (Exception ex)
         {
-            labels.Add(endDate.ToString("MM-dd"));
+            Logger.LogError(ex, "Error generating chart labels");
+            return new List<string>();
         }
-
-        if (labels.Count == 0)
-        {
-            labels.Add(DateTime.Now.ToString("MM-dd"));
-        }
-
-        return labels;
     }
 
     private List<int> GenerateSampleBurndownData()
     {
-        var data = new List<int>();
-        var completedTasks = Metrics.CompletedTasks;
-        var tasksRemaining = Metrics.TotalTasks - completedTasks;
-        var daysRemaining = (int)(Metrics.ProjectEndDate - DateTime.Now).TotalDays;
-        
-        if (daysRemaining <= 0)
+        try
         {
-            daysRemaining = 1;
+            if (!IsValidMetrics() || Metrics.TotalTasks == 0)
+            {
+                return new List<int>();
+            }
+
+            var data = new List<int>();
+            var completedTasks = Math.Max(0, Math.Min(Metrics.CompletedTasks, Metrics.TotalTasks));
+            var tasksRemaining = Metrics.TotalTasks - completedTasks;
+            var daysRemaining = (int)(Metrics.ProjectEndDate - DateTime.Now).TotalDays;
+            
+            if (daysRemaining <= 0)
+            {
+                daysRemaining = 1;
+            }
+
+            var idealDailyBurnRate = tasksRemaining > 0 
+                ? tasksRemaining / (double)daysRemaining 
+                : 0;
+
+            int currentRemaining = tasksRemaining;
+            
+            for (int i = 0; i < 8; i++)
+            {
+                data.Add(Math.Max(0, currentRemaining));
+                currentRemaining = (int)(currentRemaining - idealDailyBurnRate);
+            }
+
+            return data.Count > 0 ? data : new List<int>();
         }
-
-        var idealDailyBurnRate = tasksRemaining / (double)daysRemaining;
-
-        int currentRemaining = tasksRemaining;
-        
-        for (int i = 0; i < 8; i++)
+        catch (Exception ex)
         {
-            data.Add(Math.Max(0, currentRemaining));
-            currentRemaining = (int)(currentRemaining - idealDailyBurnRate);
+            Logger.LogError(ex, "Error generating burn-down data");
+            return new List<int>();
         }
-
-        return data;
     }
 }
 
