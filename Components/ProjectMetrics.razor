@@ -1,7 +1,22 @@
 @using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
+@inject IDataProvider DataProvider
 
 <div class="metrics-container">
-    @if (Metrics != null)
+    @if (IsLoading)
+    {
+        <div class="metrics-loading">
+            <div class="spinner"></div>
+            <span>Loading metrics...</span>
+        </div>
+    }
+    @else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="metrics-error">
+            <span>⚠️ @ErrorMessage</span>
+        </div>
+    }
+    @else if (Metrics != null)
     {
         <div class="metric-card">
             <div class="metric-label">Completion</div>
@@ -44,13 +59,35 @@
             </div>
         </div>
     }
-    else
-    {
-        <div class="metrics-loading">Loading metrics...</div>
-    }
 </div>
 
 @code {
     [Parameter]
     public ProjectMetrics Metrics { get; set; }
+
+    private bool IsLoading { get; set; } = false;
+    private string ErrorMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            IsLoading = true;
+            ErrorMessage = null;
+
+            if (Metrics == null)
+            {
+                Metrics = await DataProvider.GetProjectMetricsAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Failed to load project metrics: {ex.Message}";
+            Metrics = null;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
 }

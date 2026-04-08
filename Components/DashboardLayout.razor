@@ -1,208 +1,202 @@
-@page "/"
 @using AgentSquad.Runner.Models
 @using AgentSquad.Runner.Services
+@page "/"
 @inject IDataProvider DataProvider
-@inject IDataCache DataCache
-@inject ILogger<DashboardLayout> Logger
 
-@if (IsLoading)
-{
-    <LoadingSpinner />
-}
-else if (!string.IsNullOrEmpty(ErrorMessage))
-{
-    <ErrorMessage Message="@ErrorMessage" OnRetry="HandleRetry" OnDismiss="HandleDismiss" />
-}
-else if (ProjectData != null)
-{
-    <div class="dashboard-container">
-        @if (Environment.IsDevelopment())
-        {
-            <div class="debug-panel">
-                <div class="debug-content">
-                    <span class="debug-label">🔧 Developer Mode</span>
-                    <button class="debug-button" @onclick="HandleDebugReload" title="Clear cache and reload dashboard">
-                        ↻ Reload Data
-                    </button>
-                </div>
+<div class="dashboard-container">
+    @if (IsLoading)
+    {
+        <div class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Loading dashboard...</p>
+        </div>
+    }
+    @else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="error-overlay">
+            <div class="error-content">
+                <h2>⚠️ Dashboard Error</h2>
+                <p>@ErrorMessage</p>
             </div>
-        }
-
+        </div>
+    }
+    else
+    {
         <header class="dashboard-header">
-            <h1>@ProjectData.Name</h1>
-            <p>@ProjectData.Description</p>
+            <h1>@ProjectData?.Name</h1>
+            <p class="dashboard-subtitle">@ProjectData?.Description</p>
         </header>
 
-        <section class="dashboard-timeline">
-            <MilestoneTimeline Milestones="@ProjectData?.Milestones" />
-        </section>
-
         <section class="dashboard-metrics">
-            <ProjectMetrics Metrics="@ExtractProjectMetrics(ProjectData)" />
+            <ProjectMetrics Metrics="ProjectMetrics"></ProjectMetrics>
         </section>
 
-        <section class="dashboard-workitems">
-            <WorkItemSummary WorkItems="@ProjectData?.WorkItems" />
-        </section>
-    </div>
-}
-else
-{
-    <div class="dashboard-container">
-        <div class="empty-state">
-            <p>No project data available.</p>
-        </div>
-    </div>
-}
+        @if (ProjectData != null)
+        {
+            <section class="dashboard-timeline">
+                <!-- MilestoneTimeline component will be integrated in future steps -->
+            </section>
 
-@code {
-    public Project? ProjectData { get; set; }
-    public bool IsLoading { get; set; }
-    public string ErrorMessage { get; set; } = string.Empty;
+            <section class="dashboard-workitems">
+                <!-- WorkItemSummary component will be integrated in future steps -->
+            </section>
+        }
+    }
+</div>
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadProjectData();
+<style>
+    .dashboard-container {
+        padding: 20px;
+        max-width: 1920px;
+        margin: 0 auto;
+        background-color: #f8f9fa;
+        min-height: 100vh;
     }
 
-    private async Task LoadProjectData()
+    .loading-overlay {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 600px;
+        color: #6c757d;
+    }
+
+    .spinner {
+        border: 4px solid #e9ecef;
+        border-top: 4px solid #28a745;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .error-overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 600px;
+    }
+
+    .error-content {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 24px;
+        max-width: 500px;
+        text-align: center;
+    }
+
+    .error-content h2 {
+        color: #856404;
+        margin-bottom: 12px;
+    }
+
+    .error-content p {
+        color: #856404;
+        margin: 0;
+    }
+
+    .dashboard-header {
+        background-color: #ffffff;
+        border-bottom: 1px solid #dee2e6;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .dashboard-header h1 {
+        margin: 0 0 8px 0;
+        color: #212529;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .dashboard-subtitle {
+        margin: 0;
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .dashboard-metrics {
+        background-color: #ffffff;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .dashboard-timeline {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .dashboard-workitems {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    @media print {
+        .dashboard-container {
+            background-color: #ffffff;
+            padding: 0;
+        }
+
+        .dashboard-header {
+            border: 1px solid #212529;
+        }
+
+        .dashboard-metrics {
+            border: 1px solid #212529;
+        }
+
+        .dashboard-timeline {
+            border: 1px solid #212529;
+        }
+
+        .dashboard-workitems {
+            border: 1px solid #212529;
+        }
+    }
+</style>
+
+@code {
+    private Project ProjectData { get; set; }
+    private ProjectMetrics ProjectMetrics { get; set; }
+    private bool IsLoading { get; set; } = true;
+    private string ErrorMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
         try
         {
             IsLoading = true;
-            ErrorMessage = string.Empty;
-            Logger.LogInformation("Starting to load project data");
+            ErrorMessage = null;
 
-            ProjectData = await DataProvider.LoadProjectDataAsync();
-
-            Logger.LogInformation("Project data loaded successfully: {ProjectName}", ProjectData?.Name);
-            IsLoading = false;
-        }
-        catch (FileNotFoundException ex)
-        {
-            Logger.LogError(ex, "Project data file not found at expected location");
-            ErrorMessage = "Configuration file not found. Please ensure data.json exists in the application directory.";
-            IsLoading = false;
-        }
-        catch (JsonException ex)
-        {
-            Logger.LogError(ex, "Failed to parse project data JSON - syntax error in data.json");
-            ErrorMessage = "Invalid JSON format in configuration file. Please check data.json for syntax errors.";
-            IsLoading = false;
-        }
-        catch (InvalidOperationException ex)
-        {
-            Logger.LogError(ex, "Project data validation failed - missing required fields");
-            ErrorMessage = $"Configuration validation failed: {ex.Message}";
-            IsLoading = false;
+            ProjectData = await DataProvider.GetProjectDataAsync();
+            ProjectMetrics = await DataProvider.GetProjectMetricsAsync();
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Unexpected error occurred while loading project data");
-            ErrorMessage = "An unexpected error occurred while loading the dashboard. Please try again.";
+            ErrorMessage = $"Failed to load dashboard: {ex.Message}";
+            ProjectData = null;
+            ProjectMetrics = null;
+        }
+        finally
+        {
             IsLoading = false;
         }
-    }
-
-    private async Task HandleRetry()
-    {
-        await LoadProjectData();
-        StateHasChanged();
-    }
-
-    private Task HandleDismiss()
-    {
-        ErrorMessage = string.Empty;
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
-
-    private async Task HandleDebugReload()
-    {
-        try
-        {
-            Logger.LogInformation("Debug reload initiated: clearing cache and reloading data");
-            DataCache.Remove("project_data");
-            await LoadProjectData();
-            StateHasChanged();
-            Logger.LogInformation("Debug reload completed successfully");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error during debug reload operation");
-        }
-    }
-
-    private ProjectMetrics? ExtractProjectMetrics(Project? project)
-    {
-        if (project == null)
-            return null;
-
-        var completedMilestones = project.Milestones?.Count(m => m.Status == MilestoneStatus.Completed) ?? 0;
-        var totalMilestones = project.Milestones?.Count ?? 0;
-
-        return new ProjectMetrics
-        {
-            CompletionPercentage = Math.Clamp(project.CompletionPercentage, 0, 100),
-            HealthStatus = project.HealthStatus,
-            VelocityThisMonth = project.VelocityThisMonth,
-            TotalMilestones = totalMilestones,
-            CompletedMilestones = completedMilestones
-        };
     }
 }
-
-<style>
-    .debug-panel {
-        position: fixed;
-        top: var(--spacing-md);
-        right: var(--spacing-md);
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: var(--spacing-md);
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 100;
-        font-size: 0.85rem;
-    }
-
-    .debug-content {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-    }
-
-    .debug-label {
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .debug-button {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .debug-button:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-        border-color: rgba(255, 255, 255, 0.5);
-    }
-
-    .debug-button:active {
-        transform: scale(0.98);
-    }
-
-    @media print {
-        .debug-panel {
-            display: none !important;
-        }
-    }
-</style>
