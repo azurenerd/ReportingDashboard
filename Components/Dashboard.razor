@@ -1,9 +1,223 @@
 @page "/"
-@using AgentSquad.Runner.Data
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
+@inject ProjectDataService ProjectDataService
+@inject ILogger<Dashboard> Logger
 
-<PageTitle>AgentSquad Dashboard</PageTitle>
+<div class="dashboard-container">
+    <div class="container-fluid dashboard-main">
+        @if (isLoading)
+        {
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="alert alert-info text-center" role="alert">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Loading dashboard data...
+                    </div>
+                </div>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <h4 class="alert-heading">Error Loading Dashboard</h4>
+                        <p class="mb-2">@errorMessage</p>
+                        <hr />
+                        <p class="mb-0"><small>Please ensure data.json is properly formatted and located in wwwroot/data.json</small></p>
+                        <button type="button" class="btn btn-sm btn-danger mt-2" @onclick="RetryLoadData">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Retry
+                        </button>
+                        <button type="button" class="btn-close" @onclick="DismissError"></button>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (projectData != null)
+        {
+            <div class="dashboard-header mb-4">
+                <h1 class="display-5">@projectData.ProjectName</h1>
+                @if (!string.IsNullOrWhiteSpace(projectData.ProjectDescription))
+                {
+                    <p class="text-muted">@projectData.ProjectDescription</p>
+                }
+            </div>
 
-<div class="container-fluid mt-5">
-    <h1>Executive Dashboard</h1>
-    <p class="text-muted">Dashboard placeholder - data loading and rendering coming in future steps</p>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="status-cards-section">
+                        @if (shippedTasks != null && inProgressTasks != null && carriedOverTasks != null)
+                        {
+                            <div class="row g-4 card-grid">
+                                <div class="col-lg-4 col-md-6 col-12">
+                                    <StatusCard 
+                                        StatusCategory="Shipped" 
+                                        TaskCount="shippedTasks.Count" 
+                                        Tasks="shippedTasks" 
+                                        CardColor="bg-success" />
+                                </div>
+                                <div class="col-lg-4 col-md-6 col-12">
+                                    <StatusCard 
+                                        StatusCategory="In-Progress" 
+                                        TaskCount="inProgressTasks.Count" 
+                                        Tasks="inProgressTasks" 
+                                        CardColor="bg-primary" />
+                                </div>
+                                <div class="col-lg-4 col-md-6 col-12">
+                                    <StatusCard 
+                                        StatusCategory="Carried-Over" 
+                                        TaskCount="carriedOverTasks.Count" 
+                                        Tasks="carriedOverTasks" 
+                                        CardColor="bg-warning" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @if (projectData.Tasks != null && projectData.Tasks.Any())
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <div class="dashboard-footer text-muted small mt-4 pt-3 border-top">
+                            <p>
+                                Total Tasks: <strong>@projectData.Tasks.Count</strong> | 
+                                Completion: <strong>@projectData.CompletionPercentage%</strong> | 
+                                Last Updated: <strong>@lastLoadTime.ToString("g")</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="alert alert-warning text-center" role="alert">
+                        <h4 class="alert-heading">No Project Data Available</h4>
+                        <p>Unable to load project data. Please verify:</p>
+                        <ul class="text-start d-inline-block">
+                            <li>data.json exists in wwwroot directory</li>
+                            <li>JSON format is valid</li>
+                            <li>Required fields are present</li>
+                        </ul>
+                        <button type="button" class="btn btn-warning btn-sm mt-3" @onclick="RetryLoadData">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Retry
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
+
+@code {
+    private ProjectData? projectData;
+    private List<TaskItem>? shippedTasks;
+    private List<TaskItem>? inProgressTasks;
+    private List<TaskItem>? carriedOverTasks;
+    
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
+    private DateTime lastLoadTime = DateTime.Now;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjectData();
+    }
+
+    private async Task LoadProjectData()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = string.Empty;
+            
+            projectData = await ProjectDataService.LoadProjectDataAsync();
+            
+            if (projectData != null && projectData.Tasks != null && projectData.Tasks.Any())
+            {
+                GroupTasksByStatus();
+                lastLoadTime = DateTime.Now;
+                Logger.LogInformation("Dashboard loaded successfully with {TaskCount} tasks", projectData.Tasks.Count);
+            }
+            else if (projectData != null)
+            {
+                Logger.LogInformation("Dashboard loaded successfully but no tasks found");
+                shippedTasks = new();
+                inProgressTasks = new();
+                carriedOverTasks = new();
+            }
+            else
+            {
+                errorMessage = "Project data could not be loaded. Please check data.json file.";
+                Logger.LogWarning("Project data is null after load attempt");
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            errorMessage = $"Invalid data format: {ex.Message}";
+            Logger.LogError(ex, "Invalid operation while loading project data");
+            projectData = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load project data: {ex.Message}";
+            Logger.LogError(ex, "Unexpected error while loading project data");
+            projectData = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void GroupTasksByStatus()
+    {
+        if (projectData?.Tasks == null)
+        {
+            shippedTasks = new();
+            inProgressTasks = new();
+            carriedOverTasks = new();
+            return;
+        }
+
+        try
+        {
+            shippedTasks = projectData.Tasks
+                .Where(t => t != null && t.Status == TaskStatus.Shipped)
+                .ToList();
+
+            inProgressTasks = projectData.Tasks
+                .Where(t => t != null && t.Status == TaskStatus.InProgress)
+                .ToList();
+
+            carriedOverTasks = projectData.Tasks
+                .Where(t => t != null && t.Status == TaskStatus.CarriedOver)
+                .ToList();
+
+            Logger.LogInformation("Tasks grouped successfully: {Shipped} shipped, {InProgress} in-progress, {CarriedOver} carried-over",
+                shippedTasks.Count, inProgressTasks.Count, carriedOverTasks.Count);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error while grouping tasks by status");
+            shippedTasks = new();
+            inProgressTasks = new();
+            carriedOverTasks = new();
+        }
+    }
+
+    private async Task RetryLoadData()
+    {
+        await LoadProjectData();
+    }
+
+    private void DismissError()
+    {
+        errorMessage = string.Empty;
+    }
+}
