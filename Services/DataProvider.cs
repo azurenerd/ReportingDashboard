@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -108,9 +109,10 @@ namespace AgentSquad.Services
 
         /// <summary>
         /// Validates project data structure, required fields, enum values, and data ranges.
-        /// Per architecture specification: CompletionPercentage 0-100, DateTime fields ISO 8601 compliant.
+        /// Per architecture specification: CompletionPercentage 0-100, DateTime fields ISO 8601 compliant,
+        /// all enum values valid, milestones individually validated, work items enum values validated.
         /// </summary>
-        private static void ValidateProjectData(Project project)
+        private void ValidateProjectData(Project project)
         {
             if (project == null)
                 throw new InvalidOperationException("Project data is null");
@@ -126,7 +128,7 @@ namespace AgentSquad.Services
                 throw new InvalidOperationException(
                     $"CompletionPercentage must be between 0 and 100, got {project.CompletionPercentage}");
 
-            // Validate HealthStatus enum value
+            // Validate project-level HealthStatus enum value
             if (!Enum.IsDefined(typeof(HealthStatus), project.HealthStatus))
                 throw new InvalidOperationException(
                     $"Invalid HealthStatus value: {project.HealthStatus}");
@@ -144,9 +146,76 @@ namespace AgentSquad.Services
                 throw new InvalidOperationException(
                     "StartDate must be before or equal to TargetEndDate");
 
+            // Validate each milestone individually (per architecture requirement)
+            ValidateMilestones(project.Milestones);
+
+            // Validate work items enum values
+            ValidateWorkItems(project.WorkItems);
+
             // Initialize empty work items list if null
             if (project.WorkItems == null)
                 project.WorkItems = new List<WorkItem>();
+        }
+
+        /// <summary>
+        /// Validates individual milestone objects for valid enum values and required fields.
+        /// </summary>
+        private void ValidateMilestones(List<Milestone> milestones)
+        {
+            if (milestones == null || milestones.Count == 0)
+                throw new InvalidOperationException("Milestones collection cannot be empty");
+
+            for (int i = 0; i < milestones.Count; i++)
+            {
+                var milestone = milestones[i];
+
+                if (milestone == null)
+                    throw new InvalidOperationException($"Milestone at index {i} is null");
+
+                if (string.IsNullOrEmpty(milestone.Name))
+                    throw new InvalidOperationException(
+                        $"Milestone at index {i} has empty or null Name field (required)");
+
+                if (milestone.TargetDate == default(DateTime))
+                    throw new InvalidOperationException(
+                        $"Milestone '{milestone.Name}' at index {i} has invalid TargetDate (cannot be default/null)");
+
+                if (!Enum.IsDefined(typeof(MilestoneStatus), milestone.Status))
+                    throw new InvalidOperationException(
+                        $"Milestone '{milestone.Name}' at index {i} has invalid Status enum value: {milestone.Status}");
+
+                _logger.LogDebug("Milestone validated: {Name} (Status={Status})", milestone.Name, milestone.Status);
+            }
+        }
+
+        /// <summary>
+        /// Validates work item enum values to ensure all Status fields are valid.
+        /// </summary>
+        private void ValidateWorkItems(List<WorkItem> workItems)
+        {
+            if (workItems == null)
+            {
+                _logger.LogInformation("WorkItems collection is null, will be initialized as empty");
+                return;
+            }
+
+            for (int i = 0; i < workItems.Count; i++)
+            {
+                var item = workItems[i];
+
+                if (item == null)
+                    throw new InvalidOperationException($"WorkItem at index {i} is null");
+
+                if (string.IsNullOrEmpty(item.Title))
+                    throw new InvalidOperationException(
+                        $"WorkItem at index {i} has empty or null Title field (required)");
+
+                if (!Enum.IsDefined(typeof(WorkItemStatus), item.Status))
+                    throw new InvalidOperationException(
+                        $"WorkItem '{item.Title}' at index {i} has invalid Status enum value: {item.Status}");
+
+                _logger.LogDebug("WorkItem validated: {Title} (Status={Status})", item.Title, item.Status);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 @using AgentSquad.Models
+@inject ILogger<WorkItemSummary> Logger
 
 <div class="work-item-summary">
     @foreach (var statusGroup in GetStatusGroups())
@@ -40,9 +41,43 @@
     {
         var groups = new List<(WorkItemStatus Status, List<WorkItem> Items)>();
         
-        var shipped = WorkItems?.Where(w => w.Status == WorkItemStatus.Shipped).ToList() ?? new List<WorkItem>();
-        var inProgress = WorkItems?.Where(w => w.Status == WorkItemStatus.InProgress).ToList() ?? new List<WorkItem>();
-        var carriedOver = WorkItems?.Where(w => w.Status == WorkItemStatus.CarriedOver).ToList() ?? new List<WorkItem>();
+        var shipped = new List<WorkItem>();
+        var inProgress = new List<WorkItem>();
+        var carriedOver = new List<WorkItem>();
+
+        if (WorkItems != null)
+        {
+            foreach (var item in WorkItems)
+            {
+                if (item == null)
+                {
+                    Logger.LogWarning("Encountered null WorkItem in collection");
+                    continue;
+                }
+
+                // Validate enum value before grouping
+                if (!Enum.IsDefined(typeof(WorkItemStatus), item.Status))
+                {
+                    Logger.LogWarning(
+                        "WorkItem '{Title}' has invalid Status enum value: {Status}; item will be skipped",
+                        item.Title ?? "(unknown)", item.Status);
+                    continue;
+                }
+
+                switch (item.Status)
+                {
+                    case WorkItemStatus.Shipped:
+                        shipped.Add(item);
+                        break;
+                    case WorkItemStatus.InProgress:
+                        inProgress.Add(item);
+                        break;
+                    case WorkItemStatus.CarriedOver:
+                        carriedOver.Add(item);
+                        break;
+                }
+            }
+        }
 
         groups.Add((WorkItemStatus.Shipped, shipped));
         groups.Add((WorkItemStatus.InProgress, inProgress));
