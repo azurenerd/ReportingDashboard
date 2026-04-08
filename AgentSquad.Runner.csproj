@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-AgentSquad.Runner-05b42be2-086a-4fbc-853a-02db14a86dd7</UserSecretsId>
+    <PublishDir>bin\publish</PublishDir>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AgentSquad.Core\AgentSquad.Core.csproj" />
+    <ProjectReference Include="..\AgentSquad.Agents\AgentSquad.Agents.csproj" />
+    <ProjectReference Include="..\AgentSquad.Orchestrator\AgentSquad.Orchestrator.csproj" />
+    <ProjectReference Include="..\AgentSquad.Dashboard\AgentSquad.Dashboard.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Static files from wwwroot -->
+    <StaticFiles Include="wwwroot\**\*" />
+    
+    <!-- CSS Files -->
+    <Content Include="wwwroot\css\*.css" CopyToPublishDirectory="PreserveNewest" />
+    
+    <!-- JavaScript Files -->
+    <Content Include="wwwroot\js\*.js" CopyToPublishDirectory="PreserveNewest" />
+    
+    <!-- Data Configuration -->
+    <Content Include="wwwroot\data.json" CopyToPublishDirectory="PreserveNewest" />
+    
+    <!-- HTML -->
+    <Content Include="wwwroot\index.html" CopyToPublishDirectory="PreserveNewest" />
+    
+    <!-- Images -->
+    <Content Include="wwwroot\images\**\*" CopyToPublishDirectory="PreserveNewest" />
+    
+    <!-- Fonts -->
+    <Content Include="wwwroot\fonts\**\*" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
