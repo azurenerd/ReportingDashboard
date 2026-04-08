@@ -9,32 +9,50 @@ namespace AgentSquad.Tests.Components
         [Fact]
         public async Task ProgressMetrics_UpdatesWhenMetricsParameterChanges()
         {
+            var initialMetrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 25,
+                BurndownData = new[] { 100, 75 }
+            };
+
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, new[] { new MetricData { Label = "Initial", Value = 25 } })
+                .Add(p => p.Metrics, initialMetrics)
             );
 
-            var initialText = component.Find("div").TextContent;
-            Assert.Contains("Initial", initialText);
+            var initialText = component.Markup;
+            Assert.Contains("25", initialText);
+
+            var updatedMetrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 75,
+                BurndownData = new[] { 100, 25 }
+            };
 
             await component.SetParametersAsync(parameters => parameters
-                .Add(p => p.Metrics, new[] { new MetricData { Label = "Updated", Value = 75 } })
+                .Add(p => p.Metrics, updatedMetrics)
             );
 
-            var updatedText = component.Find("div").TextContent;
-            Assert.Contains("Updated", updatedText);
+            var updatedText = component.Markup;
+            Assert.Contains("75", updatedText);
         }
 
         [Fact]
         public async Task ProgressMetrics_HandlesNullMetrics()
         {
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, null)
+                .Add(p => p.Metrics, null as ProjectMetrics)
             );
 
             Assert.NotNull(component.Instance);
 
+            var metrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 40,
+                BurndownData = Array.Empty<int>()
+            };
+
             await component.SetParametersAsync(parameters => parameters
-                .Add(p => p.Metrics, Array.Empty<MetricData>())
+                .Add(p => p.Metrics, metrics)
             );
 
             var rendered = component.GetComponentInstance<ProgressMetrics>();
@@ -42,39 +60,75 @@ namespace AgentSquad.Tests.Components
         }
 
         [Fact]
-        public async Task ProgressMetrics_RespondsToTitleParameterChange()
+        public async Task ProgressMetrics_HandlesEmptyBurndownData()
         {
+            var metrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 50,
+                BurndownData = Array.Empty<int>()
+            };
+
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Title, "Original Title")
+                .Add(p => p.Metrics, metrics)
             );
 
             var markup = component.Markup;
-            Assert.Contains("Original Title", markup);
+            Assert.Contains("50", markup);
+
+            var updatedMetrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 100,
+                BurndownData = new[] { 100, 0 }
+            };
 
             await component.SetParametersAsync(parameters => parameters
-                .Add(p => p.Title, "New Title")
+                .Add(p => p.Metrics, updatedMetrics)
             );
 
             var updatedMarkup = component.Markup;
-            Assert.Contains("New Title", updatedMarkup);
+            Assert.Contains("100", updatedMarkup);
         }
 
         [Fact]
-        public async Task ProgressMetrics_UpdatesMultipleParametersSimultaneously()
+        public async Task ProgressMetrics_HandlesHighCompletionPercentage()
         {
+            var metrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 99,
+                BurndownData = new[] { 100, 1 }
+            };
+
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Title, "Title1")
-                .Add(p => p.Metrics, new[] { new MetricData { Label = "Metric1", Value = 50 } })
+                .Add(p => p.Metrics, metrics)
             );
 
             await component.SetParametersAsync(parameters => parameters
-                .Add(p => p.Title, "Title2")
-                .Add(p => p.Metrics, new[] { new MetricData { Label = "Metric2", Value = 90 } })
+                .Add(p => p.Metrics, metrics)
             );
 
             var markup = component.Markup;
-            Assert.Contains("Title2", markup);
-            Assert.Contains("Metric2", markup);
+            Assert.Contains("99", markup);
+        }
+
+        [Fact]
+        public async Task ProgressMetrics_HandlesZeroCompletion()
+        {
+            var metrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 0,
+                BurndownData = new[] { 100 }
+            };
+
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Metrics, metrics)
+            );
+
+            await component.SetParametersAsync(parameters => parameters
+                .Add(p => p.Metrics, metrics)
+            );
+
+            var markup = component.Markup;
+            Assert.NotEmpty(markup);
         }
     }
 }

@@ -9,26 +9,33 @@ namespace AgentSquad.Tests.Components
         [Fact]
         public async Task ProgressMetrics_LoadsChartDataViaInterop()
         {
+            var projectMetrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 45,
+                BurndownData = new[] { 100, 80, 60, 40, 20 }
+            };
+
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, new[] 
-                { 
-                    new MetricData { Label = "Sprint 1", Value = 45 },
-                    new MetricData { Label = "Sprint 2", Value = 78 }
-                })
+                .Add(p => p.Metrics, projectMetrics)
             );
 
             await component.WaitForAsyncLoad();
 
             var markup = component.Markup;
-            Assert.Contains("Sprint 1", markup);
-            Assert.Contains("Sprint 2", markup);
+            Assert.Contains("45", markup);
         }
 
         [Fact]
         public async Task ProgressMetrics_HandlesMissingChartLibrary()
         {
+            var projectMetrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 50,
+                BurndownData = new[] { 100, 50 }
+            };
+
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, new[] { new MetricData { Label = "Test", Value = 50 } })
+                .Add(p => p.Metrics, projectMetrics)
             );
 
             await component.WaitForAsyncLoad();
@@ -41,8 +48,14 @@ namespace AgentSquad.Tests.Components
         [Fact]
         public async Task ProgressMetrics_RendersChartContainerAfterInteropCall()
         {
+            var projectMetrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 65,
+                BurndownData = new[] { 100, 70, 40, 20 }
+            };
+
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, new[] { new MetricData { Label = "Data", Value = 65 } })
+                .Add(p => p.Metrics, projectMetrics)
             );
 
             await component.WaitForAsyncLoad();
@@ -54,20 +67,56 @@ namespace AgentSquad.Tests.Components
         [Fact]
         public async Task ProgressMetrics_UpdatesChartOnMetricsChange()
         {
+            var initialMetrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 30,
+                BurndownData = new[] { 100, 70 }
+            };
+
             var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, new[] { new MetricData { Label = "Initial", Value = 30 } })
+                .Add(p => p.Metrics, initialMetrics)
             );
 
             await component.WaitForAsyncLoad();
 
+            var updatedMetrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 85,
+                BurndownData = new[] { 100, 15 }
+            };
+
             await component.SetParametersAsync(parameters => parameters
-                .Add(p => p.Metrics, new[] { new MetricData { Label = "Updated", Value = 85 } })
+                .Add(p => p.Metrics, updatedMetrics)
             );
 
             await component.WaitForAsyncLoad();
 
             var markup = component.Markup;
-            Assert.Contains("Updated", markup);
+            Assert.Contains("85", markup);
+        }
+
+        [Fact]
+        public async Task ProgressMetrics_HandlesLargeBurndownDataset()
+        {
+            var burndownData = new int[100];
+            for (int i = 0; i < 100; i++)
+            {
+                burndownData[i] = 1000 - (i * 10);
+            }
+
+            var projectMetrics = new ProjectMetrics 
+            { 
+                CompletionPercentage = 90,
+                BurndownData = burndownData
+            };
+
+            var component = RenderComponent<ProgressMetrics>(parameters => parameters
+                .Add(p => p.Metrics, projectMetrics)
+            );
+
+            await component.WaitForAsyncLoad();
+
+            Assert.NotNull(component.Instance);
         }
     }
 }
