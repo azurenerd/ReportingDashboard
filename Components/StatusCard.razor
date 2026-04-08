@@ -44,10 +44,10 @@
                                         <p class="mb-1 fw-500 text-break">
                                             @task.Name
                                         </p>
-                                        @if (!string.IsNullOrWhiteSpace(task.AssignedOwner))
+                                        @if (!string.IsNullOrWhiteSpace(task.AssignedTo))
                                         {
                                             <small class="text-muted d-block">
-                                                <i class="bi bi-person me-1"></i>@task.AssignedOwner
+                                                <i class="bi bi-person me-1"></i>@task.AssignedTo
                                             </small>
                                         }
                                     </div>
