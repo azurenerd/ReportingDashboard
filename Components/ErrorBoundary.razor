@@ -25,6 +25,12 @@ else
         CaptureException = exception;
         ErrorMessage = "An error occurred while loading the dashboard. Please refresh your browser.";
         
+        Console.WriteLine($"ErrorBoundary caught exception: {exception.GetType().Name}");
+        Console.WriteLine($"Error message: {exception.Message}");
+        Console.WriteLine($"Stack trace: {exception.StackTrace}");
+        
+        StateHasChanged();
+        
         return Task.CompletedTask;
     }
 }
