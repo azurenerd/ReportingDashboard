@@ -6,9 +6,23 @@
     "overallCompletionPercentage": 0,
     "milestones": [
       {
-        "id": "",
-        "name": "",
-        "targetDate": "",
+        "id": "m1",
+        "name": "Alpha Release",
+        "targetDate": "2025-04-15",
+        "status": "Completed",
+        "completionPercentage": 100
+      },
+      {
+        "id": "m2",
+        "name": "Beta Testing",
+        "targetDate": "2025-05-15",
+        "status": "InProgress",
+        "completionPercentage": 65
+      },
+      {
+        "id": "m3",
+        "name": "Production Launch",
+        "targetDate": "2025-06-25",
         "status": "Pending",
         "completionPercentage": 0
       }
