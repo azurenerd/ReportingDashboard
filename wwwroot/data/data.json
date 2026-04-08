@@ -4,7 +4,7 @@
     "description": "Mobile application development and release for Q2 2026",
     "startDate": "2026-04-01",
     "endDate": "2026-06-30",
-    "completionPercentage": 0
+    "completionPercentage": 65
   },
   "milestones": [
     {
@@ -39,75 +39,75 @@
   "tasks": [
     {
       "id": 1,
-      "name": "Shipped Task 1",
-      "description": "Task description",
-      "owner": "Owner Name",
+      "name": "Design System Components",
+      "description": "Create reusable UI component library and design tokens for mobile platforms",
+      "owner": "Sarah Chen",
       "status": "Shipped",
-      "estimatedDays": 5
+      "estimatedDays": 8
     },
     {
       "id": 2,
-      "name": "Shipped Task 2",
-      "description": "Task description",
-      "owner": "Owner Name",
+      "name": "Backend Authentication API",
+      "description": "Implement OAuth 2.0 authentication service with token refresh and session management",
+      "owner": "Michael Rodriguez",
       "status": "Shipped",
-      "estimatedDays": 5
+      "estimatedDays": 12
     },
     {
       "id": 3,
-      "name": "Shipped Task 3",
-      "description": "Task description",
-      "owner": "Owner Name",
+      "name": "Database Schema Implementation",
+      "description": "Design and deploy PostgreSQL schema for user profiles, projects, and activity logs",
+      "owner": "James Park",
       "status": "Shipped",
-      "estimatedDays": 5
+      "estimatedDays": 6
     },
     {
       "id": 4,
-      "name": "In-Progress Task 1",
-      "description": "Task description",
-      "owner": "Owner Name",
-      "status": "InProgress",
+      "name": "API Documentation",
+      "description": "Complete OpenAPI/Swagger documentation for all REST endpoints and error responses",
+      "owner": "Emma Watson",
+      "status": "Shipped",
       "estimatedDays": 5
     },
     {
       "id": 5,
-      "name": "In-Progress Task 2",
-      "description": "Task description",
-      "owner": "Owner Name",
+      "name": "iOS UI Implementation",
+      "description": "Build SwiftUI screens for onboarding, dashboard, and settings modules",
+      "owner": "David Kim",
       "status": "InProgress",
-      "estimatedDays": 5
+      "estimatedDays": 15
     },
     {
       "id": 6,
-      "name": "In-Progress Task 3",
-      "description": "Task description",
-      "owner": "Owner Name",
+      "name": "Android UI Implementation",
+      "description": "Develop Jetpack Compose interfaces for onboarding, dashboard, and settings modules",
+      "owner": "Priya Sharma",
       "status": "InProgress",
-      "estimatedDays": 5
+      "estimatedDays": 15
     },
     {
       "id": 7,
-      "name": "Carried-Over Task 1",
-      "description": "Task description",
-      "owner": "Owner Name",
-      "status": "CarriedOver",
-      "estimatedDays": 5
+      "name": "Integration Testing",
+      "description": "Execute end-to-end testing across iOS and Android platforms with backend services",
+      "owner": "Marcus Johnson",
+      "status": "InProgress",
+      "estimatedDays": 10
     },
     {
       "id": 8,
-      "name": "Carried-Over Task 2",
-      "description": "Task description",
-      "owner": "Owner Name",
+      "name": "Performance Optimization",
+      "description": "Optimize app startup time, memory usage, and network request efficiency",
+      "owner": "Lisa Zhang",
       "status": "CarriedOver",
-      "estimatedDays": 5
+      "estimatedDays": 12
     },
     {
       "id": 9,
-      "name": "Carried-Over Task 3",
-      "description": "Task description",
-      "owner": "Owner Name",
+      "name": "Security Audit",
+      "description": "Conduct third-party security assessment and remediate identified vulnerabilities",
+      "owner": "Alex Thompson",
       "status": "CarriedOver",
-      "estimatedDays": 5
+      "estimatedDays": 8
     }
   ]
 }
