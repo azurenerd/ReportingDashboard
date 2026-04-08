@@ -1,130 +1,102 @@
-using AgentSquad.Runner.Data;
+using System;
+using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
+using AgentSquad.Runner.Models;
+using Microsoft.Extensions.Logging;
 
-namespace AgentSquad.Runner.Services;
-
-public class ProjectDataService
+namespace AgentSquad.Runner.Services
 {
-    private readonly IWebHostEnvironment _environment;
-    private ProjectData? _cachedData;
-    private DateTime _lastLoadTime = DateTime.MinValue;
-    private const int CacheDurationSeconds = 300;
-
-    public ProjectDataService(IWebHostEnvironment environment)
+    public class ProjectDataService
     {
-        _environment = environment;
-    }
+        private readonly ILogger<ProjectDataService> _logger;
+        private readonly string _dataFilePath;
 
-    public async Task<ProjectData> LoadProjectDataAsync(string jsonFilePath)
-    {
-        try
+        public ProjectDataService(ILogger<ProjectDataService> logger)
         {
-            if (!File.Exists(jsonFilePath))
+            _logger = logger;
+            _dataFilePath = Path.Combine("wwwroot", "data", "data.json");
+        }
+
+        public async Task<ProjectData> LoadProjectDataAsync()
+        {
+            try
             {
-                throw new DataLoadException($"Data file not found at path: {jsonFilePath}");
+                if (!File.Exists(_dataFilePath))
+                {
+                    _logger.LogError($"Data file not found at {_dataFilePath}");
+                    throw new FileNotFoundException($"Data file not found: {_dataFilePath}");
+                }
+
+                var json = await File.ReadAllTextAsync(_dataFilePath);
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var projectData = JsonSerializer.Deserialize<ProjectData>(json, options);
+
+                if (projectData == null)
+                {
+                    throw new InvalidOperationException("Failed to deserialize project data");
+                }
+
+                ValidateProjectData(projectData);
+                _logger.LogInformation($"Successfully loaded project data: {projectData.ProjectName}");
+
+                return projectData;
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError($"JSON parsing error: {ex.Message}");
+                throw new InvalidOperationException("Invalid JSON format in data.json", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error loading project data: {ex.Message}");
+                throw;
+            }
+        }
+
+        private void ValidateProjectData(ProjectData data)
+        {
+            if (string.IsNullOrWhiteSpace(data.ProjectName))
+                throw new InvalidOperationException("ProjectName is required");
+
+            if (string.IsNullOrWhiteSpace(data.ProjectStartDate))
+                throw new InvalidOperationException("ProjectStartDate is required");
+
+            if (string.IsNullOrWhiteSpace(data.ProjectEndDate))
+                throw new InvalidOperationException("ProjectEndDate is required");
+
+            ValidateDateFormat(data.ProjectStartDate, nameof(data.ProjectStartDate));
+            ValidateDateFormat(data.ProjectEndDate, nameof(data.ProjectEndDate));
+
+            if (data.Milestones != null)
+            {
+                foreach (var milestone in data.Milestones)
+                {
+                    if (string.IsNullOrWhiteSpace(milestone.Name))
+                        throw new InvalidOperationException("Milestone name is required");
+                    ValidateDateFormat(milestone.TargetDate, "Milestone.TargetDate");
+                }
             }
 
-            var json = await File.ReadAllTextAsync(jsonFilePath);
-            
-            if (string.IsNullOrWhiteSpace(json))
+            if (data.Tasks != null)
             {
-                throw new DataLoadException("Data file is empty");
+                foreach (var task in data.Tasks)
+                {
+                    if (string.IsNullOrWhiteSpace(task.Name))
+                        throw new InvalidOperationException("Task name is required");
+                    if (string.IsNullOrWhiteSpace(task.Status))
+                        throw new InvalidOperationException("Task status is required");
+                }
             }
+        }
 
-            ValidateJsonSchema(json);
-
-            var data = JsonSerializer.Deserialize<ProjectData>(json, new JsonSerializerOptions
+        private void ValidateDateFormat(string dateString, string fieldName)
+        {
+            if (!DateTime.TryParseExact(dateString, "yyyy-MM-dd", null, 
+                System.Globalization.DateTimeStyles.None, out _))
             {
-                PropertyNameCaseInsensitive = true
-            });
-
-            if (data == null)
-            {
-                throw new DataLoadException("Failed to deserialize project data");
+                throw new InvalidOperationException($"{fieldName} must be in ISO 8601 format (YYYY-MM-DD): {dateString}");
             }
-
-            _cachedData = data;
-            _lastLoadTime = DateTime.UtcNow;
-
-            return data;
-        }
-        catch (DataLoadException)
-        {
-            throw;
-        }
-        catch (JsonException ex)
-        {
-            throw new DataLoadException($"Invalid JSON format in data file: {ex.Message}", ex);
-        }
-        catch (Exception ex)
-        {
-            throw new DataLoadException($"Error loading project data: {ex.Message}", ex);
-        }
-    }
-
-    public ProjectData? GetCachedData()
-    {
-        if (_cachedData != null && (DateTime.UtcNow - _lastLoadTime).TotalSeconds < CacheDurationSeconds)
-        {
-            return _cachedData;
-        }
-
-        return null;
-    }
-
-    public async Task<ProjectData> RefreshData(string jsonFilePath)
-    {
-        _cachedData = null;
-        _lastLoadTime = DateTime.MinValue;
-        return await LoadProjectDataAsync(jsonFilePath);
-    }
-
-    public bool ValidateJsonSchema(string json)
-    {
-        try
-        {
-            var data = JsonSerializer.Deserialize<ProjectData>(json, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            if (data?.Project == null)
-                throw new DataLoadException("Project information is required in data.json");
-
-            if (string.IsNullOrWhiteSpace(data.Project.Name))
-                throw new DataLoadException("Project name is required");
-
-            foreach (var milestone in data.Milestones ?? new())
-            {
-                if (string.IsNullOrWhiteSpace(milestone.Name))
-                    throw new DataLoadException("Milestone name is required");
-
-                if (milestone.TargetDate == default)
-                    throw new DataLoadException("Milestone target date is required");
-            }
-
-            foreach (var task in data.Tasks ?? new())
-            {
-                if (string.IsNullOrWhiteSpace(task.Name))
-                    throw new DataLoadException("Task name is required");
-
-                if (string.IsNullOrWhiteSpace(task.Owner))
-                    throw new DataLoadException("Task owner is required");
-            }
-
-            return true;
-        }
-        catch (DataLoadException)
-        {
-            throw;
-        }
-        catch (JsonException ex)
-        {
-            throw new DataLoadException($"JSON validation failed: {ex.Message}", ex);
-        }
-        catch (Exception ex)
-        {
-            throw new DataLoadException($"Schema validation error: {ex.Message}", ex);
         }
     }
 }

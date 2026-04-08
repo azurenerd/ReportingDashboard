@@ -1,42 +1,54 @@
-namespace AgentSquad.Runner.Models;
+using System;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
-/// <summary>
-/// Represents the complete project data model including metadata and task list.
-/// </summary>
-public class ProjectData
+namespace AgentSquad.Runner.Models
 {
-    /// <summary>
-    /// Project name or title.
-    /// </summary>
-    public string ProjectName { get; set; } = string.Empty;
+    public class ProjectData
+    {
+        [JsonPropertyName("projectName")]
+        public string ProjectName { get; set; }
 
-    /// <summary>
-    /// Detailed project description.
-    /// </summary>
-    public string ProjectDescription { get; set; } = string.Empty;
+        [JsonPropertyName("projectStartDate")]
+        public string ProjectStartDate { get; set; }
 
-    /// <summary>
-    /// Project start date.
-    /// </summary>
-    public DateTime StartDate { get; set; }
+        [JsonPropertyName("projectEndDate")]
+        public string ProjectEndDate { get; set; }
 
-    /// <summary>
-    /// Project end date or planned completion date.
-    /// </summary>
-    public DateTime EndDate { get; set; }
+        [JsonPropertyName("milestones")]
+        public List<Milestone> Milestones { get; set; } = new();
 
-    /// <summary>
-    /// Overall project completion percentage (0-100).
-    /// </summary>
-    public int CompletionPercentage { get; set; }
+        [JsonPropertyName("tasks")]
+        public List<ProjectTask> Tasks { get; set; } = new();
+    }
 
-    /// <summary>
-    /// List of all project tasks.
-    /// </summary>
-    public List<TaskItem> Tasks { get; set; } = new();
+    public class Milestone
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
 
-    /// <summary>
-    /// List of project milestones.
-    /// </summary>
-    public List<Milestone> Milestones { get; set; } = new();
+        [JsonPropertyName("targetDate")]
+        public string TargetDate { get; set; }
+
+        [JsonPropertyName("status")]
+        public string Status { get; set; }
+
+        [JsonPropertyName("completionPercentage")]
+        public int CompletionPercentage { get; set; }
+    }
+
+    public class ProjectTask
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("status")]
+        public string Status { get; set; }
+
+        [JsonPropertyName("owner")]
+        public string Owner { get; set; }
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+    }
 }
