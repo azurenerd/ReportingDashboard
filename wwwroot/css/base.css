@@ -1,0 +1,126 @@
+/* CSS Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #2c3e50;
+    background-color: #ecf0f1;
+}
+
+/* Color Palette */
+:root {
+    --color-success: #27AE60;
+    --color-warning: #E74C3C;
+    --color-info: #3498DB;
+    --color-neutral: #95A5A6;
+    --color-dark: #2c3e50;
+    --color-light: #ecf0f1;
+    --color-white: #ffffff;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    
+    /* Breakpoints */
+    --breakpoint-tablet: 1024px;
+    --breakpoint-desktop: 1280px;
+    --breakpoint-presentation: 1920px;
+}
+
+/* Utility Classes */
+.container {
+    max-width: 100%;
+    padding: var(--spacing-md);
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.grid {
+    display: grid;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-bold {
+    font-weight: 600;
+}
+
+.mt-lg {
+    margin-top: var(--spacing-lg);
+}
+
+.mb-lg {
+    margin-bottom: var(--spacing-lg);
+}
+
+.p-md {
+    padding: var(--spacing-md);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: var(--spacing-md);
+}
+
+h1 {
+    font-size: 28px;
+}
+
+h2 {
+    font-size: 24px;
+}
+
+h3 {
+    font-size: 20px;
+}
+
+p {
+    margin-bottom: var(--spacing-md);
+}
+
+/* Responsive Typography */
+@media (min-width: 1280px) {
+    h1 {
+        font-size: 32px;
+    }
+    h2 {
+        font-size: 28px;
+    }
+}
+
+@media (min-width: 1920px) {
+    body {
+        font-size: 15px;
+    }
+    h1 {
+        font-size: 36px;
+    }
+    h2 {
+        font-size: 30px;
+    }
+}

@@ -1,0 +1,79 @@
+/* Print and Screenshot Optimization */
+@media print {
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+    
+    body {
+        background-color: var(--color-white);
+    }
+    
+    #app {
+        grid-template-rows: auto 1fr;
+    }
+    
+    .dashboard-content {
+        overflow: visible;
+        page-break-inside: avoid;
+        padding: 0.5in;
+    }
+    
+    .timeline-container,
+    .work-items-container,
+    .kpi-card,
+    .work-item-column {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .dashboard-header {
+        page-break-after: avoid;
+        border-bottom: 2px solid var(--color-success);
+    }
+}
+
+/* Optimization for 1280x720 screenshot */
+@media (max-width: 1280px) {
+    .dashboard-content {
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+    }
+    
+    .kpi-card {
+        padding: var(--spacing-md);
+    }
+    
+    .kpi-value {
+        font-size: 24px;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Optimization for 1920x1080 presentation */
+@media (min-width: 1920px) {
+    body {
+        font-size: 16px;
+    }
+    
+    .dashboard-content {
+        padding: var(--spacing-xl);
+        gap: var(--spacing-xl);
+    }
+    
+    .kpi-value {
+        font-size: 48px;
+    }
+}
