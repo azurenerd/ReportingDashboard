@@ -1,54 +1,75 @@
 @using AgentSquad.Runner.Models
-@using System.Linq
 
-<div class="metrics-grid">
-    <div class="metric-card">
-        <div class="metric-label">Completion</div>
-        <div class="metric-value-large">@ProjectMetrics.CompletionPercentage%</div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: @ProjectMetrics.CompletionPercentage%"></div>
+<div class="project-metrics">
+    @if (Metrics == null)
+    {
+        <div class="metrics-empty">
+            <p>No metrics available</p>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3 class="metric-label">Completion</h3>
+                <div class="metric-value">
+                    <div class="progress-circle">
+                        <svg width="80" height="80" viewBox="0 0 80 80">
+                            <circle cx="40" cy="40" r="36" fill="none" stroke="#e8e8e8" stroke-width="3" />
+                            <circle cx="40" cy="40" r="36" fill="none" stroke="#107c10" stroke-width="3" 
+                                    stroke-dasharray="@CalculateDashArray(Metrics.CompletionPercentage)" 
+                                    stroke-dashoffset="0" stroke-linecap="round"
+                                    transform="rotate(-90 40 40)" />
+                            <text x="40" y="48" text-anchor="middle" font-size="20" font-weight="bold" fill="#333">
+                                @Metrics.CompletionPercentage%
+                            </text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
 
-    <div class="metric-card">
-        <div class="metric-label">Project Health</div>
-        <div class="health-badge" data-health="@ProjectMetrics.HealthStatus">
-            @GetHealthLabel(ProjectMetrics.HealthStatus)
+            <div class="metric-card">
+                <h3 class="metric-label">Health Status</h3>
+                <div class="metric-value">
+                    <span class="health-badge" data-status="@Metrics.HealthStatus.ToString().ToLower()">
+                        @GetHealthStatusDisplay(Metrics.HealthStatus)
+                    </span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3 class="metric-label">Velocity This Month</h3>
+                <div class="metric-value">
+                    <span class="metric-number">@Metrics.VelocityThisMonth</span>
+                    <span class="metric-unit">items</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3 class="metric-label">Milestones</h3>
+                <div class="metric-value">
+                    <span class="metric-number">@Metrics.MilestoneCount</span>
+                    <span class="metric-unit">of @Metrics.TargetMilestoneCount</span>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <div class="metric-card">
-        <div class="metric-label">Velocity This Month</div>
-        <div class="metric-value-large">@ProjectMetrics.VelocityCount</div>
-        <div class="metric-unit">items shipped</div>
-    </div>
-
-    <div class="metric-card">
-        <div class="metric-label">Milestones Completed</div>
-        <div class="metric-value-large">@CompletedMilestones/@TotalMilestones</div>
-        <div class="metric-unit">@(TotalMilestones == 1 ? "milestone" : "milestones")</div>
-    </div>
+    }
 </div>
 
 @code {
     [Parameter]
-    public ProjectMetrics ProjectMetrics { get; set; }
+    public ProjectMetrics Metrics { get; set; }
 
-    [Parameter]
-    public List<Milestone> Milestones { get; set; } = new();
-
-    private int CompletedMilestones { get; set; }
-    private int TotalMilestones { get; set; }
-
-    protected override void OnParametersSet()
+    private string CalculateDashArray(int percentage)
     {
-        TotalMilestones = Milestones.Count;
-        CompletedMilestones = Milestones.Count(m => m.Status == MilestoneStatus.Completed);
+        double circumference = 2 * Math.PI * 36;
+        double dashLength = (circumference * percentage) / 100;
+        return $"{dashLength} {circumference}";
     }
 
-    private string GetHealthLabel(HealthStatus health)
+    private string GetHealthStatusDisplay(HealthStatus status)
     {
-        return health switch
+        return status switch
         {
             HealthStatus.OnTrack => "On Track",
             HealthStatus.AtRisk => "At Risk",
@@ -57,3 +78,91 @@
         };
     }
 }
+
+<style scoped>
+    .project-metrics {
+        width: 100%;
+        padding: 0;
+    }
+
+    .metrics-empty {
+        padding: 20px;
+        text-align: center;
+        color: #999;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 16px;
+        width: 100%;
+    }
+
+    .metric-card {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        padding: 16px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .metric-label {
+        margin: 0 0 12px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .progress-circle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .health-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #ffffff;
+    }
+
+    .health-badge[data-status="ontrack"] {
+        background-color: #107c10;
+    }
+
+    .health-badge[data-status="atrisk"] {
+        background-color: #ff9800;
+    }
+
+    .health-badge[data-status="blocked"] {
+        background-color: #da3b01;
+    }
+
+    .metric-number {
+        display: block;
+        font-size: 24px;
+        font-weight: 700;
+        color: #0078d4;
+    }
+
+    .metric-unit {
+        display: block;
+        font-size: 11px;
+        color: #999;
+    }
+</style>

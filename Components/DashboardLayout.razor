@@ -30,24 +30,21 @@
             <section class="timeline-section">
                 <h2 class="section-title">Project Timeline</h2>
                 <div class="timeline-content">
-                    <!-- MilestoneTimeline component will be rendered here -->
-                    <div class="placeholder">Timeline placeholder</div>
+                    <MilestoneTimeline Milestones="ProjectData?.Milestones ?? new()" />
                 </div>
             </section>
 
             <section class="metrics-section">
                 <h2 class="section-title">Project Metrics</h2>
                 <div class="metrics-content">
-                    <!-- ProjectMetrics component will be rendered here -->
-                    <div class="placeholder">Metrics placeholder</div>
+                    <ProjectMetrics Metrics="ProjectData?.Metrics" />
                 </div>
             </section>
 
             <section class="workitems-section">
                 <h2 class="section-title">Work Items</h2>
                 <div class="workitems-content">
-                    <!-- WorkItemSummary component will be rendered here -->
-                    <div class="placeholder">Work items placeholder</div>
+                    <WorkItemSummary WorkItems="ProjectData?.WorkItems ?? new()" />
                 </div>
             </section>
         </div>
