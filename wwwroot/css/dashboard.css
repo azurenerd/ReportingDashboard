@@ -1,434 +1,381 @@
-/* Project Metrics Component Styling */
+/* Executive Dashboard - Professional Styling */
 
-/* Metrics Container - Responsive Grid Layout */
-.metrics-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background-color: #f8f9fa;
-  border-radius: 0.5rem;
-  border: 1px solid #e9ecef;
+:root {
+    --color-primary: #1e3a5f;
+    --color-primary-light: #2d5a8c;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+    --color-neutral: #6b7280;
+    --color-light: #f3f4f6;
+    --color-lighter: #fafafa;
+    --color-white: #ffffff;
+    --color-border: #e5e7eb;
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-weight-normal: 400;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --border-radius: 0.375rem;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* 4-column layout at wider viewports */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    background-color: var(--color-lighter);
+    color: #1f2937;
+    line-height: 1.6;
+    font-size: var(--font-size-base);
+}
+
+/* Work Item Summary Section */
+
+.work-item-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xl);
+    background-color: var(--color-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.work-item-column {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    background-color: var(--color-light);
+    padding: var(--spacing-lg);
+    min-height: 300px;
+}
+
+.work-item-column-header {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: var(--spacing-sm);
+}
+
+.work-item-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.work-item-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease;
+}
+
+.work-item-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.work-item-title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.work-item-description {
+    font-size: var(--font-size-sm);
+    color: var(--color-neutral);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.work-item-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    color: var(--color-neutral);
+    font-size: var(--font-size-base);
+    font-style: italic;
+    text-align: center;
+    padding: var(--spacing-lg);
+    background-color: var(--color-lighter);
+    border-radius: var(--border-radius);
+    border: 1px dashed var(--color-border);
+    min-height: 150px;
+}
+
+/* Responsive Layout for Desktop (1920px) */
 @media (min-width: 1920px) {
-  .metrics-container {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.25rem;
-    padding: 1.25rem;
-  }
+    .work-item-summary {
+        gap: var(--spacing-2xl);
+        padding: var(--spacing-2xl);
+    }
+
+    .work-item-column {
+        padding: var(--spacing-xl);
+        min-height: 350px;
+    }
+
+    .work-item-list {
+        max-height: 500px;
+    }
+
+    .work-item-card {
+        padding: var(--spacing-lg);
+    }
 }
 
-/* 2-column layout at tablet/desktop minimum */
-@media (min-width: 1024px) and (max-width: 1919px) {
-  .metrics-container {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
+/* Responsive Layout for Tablet (1024px) */
+@media (max-width: 1280px) {
+    .work-item-summary {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-md);
+        padding: var(--spacing-lg);
+    }
+
+    .work-item-column {
+        padding: var(--spacing-md);
+        min-height: 250px;
+    }
+
+    .work-item-list {
+        max-height: 300px;
+    }
+
+    .work-item-card {
+        padding: var(--spacing-sm);
+    }
+
+    .work-item-title {
+        font-size: var(--font-size-base);
+    }
+
+    .work-item-description {
+        font-size: var(--font-size-sm);
+    }
 }
 
-/* Single column layout for smaller screens (if needed) */
-@media (max-width: 1023px) {
-  .metrics-container {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 1rem;
-  }
+/* Responsive Layout for 1024x768 (Minimum Supported) */
+@media (max-width: 1024px) {
+    .work-item-summary {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-md);
+        padding: var(--spacing-lg);
+    }
+
+    .work-item-column {
+        padding: var(--spacing-md);
+        min-height: 220px;
+    }
+
+    .work-item-list {
+        max-height: 280px;
+    }
+
+    .work-item-card {
+        padding: var(--spacing-sm);
+    }
+
+    .work-item-column-header {
+        font-size: var(--font-size-base);
+    }
+
+    .work-item-title {
+        font-size: var(--font-size-sm);
+    }
+
+    .work-item-description {
+        font-size: 0.75rem;
+    }
 }
 
-/* Individual Metric Card */
-.metric-card {
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  background-color: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.2s ease-in-out;
+/* Mobile/Tablet Fallback (If Needed - Not Primary Target) */
+@media (max-width: 768px) {
+    .work-item-summary {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+        padding: var(--spacing-md);
+    }
+
+    .work-item-column {
+        padding: var(--spacing-md);
+        min-height: auto;
+    }
+
+    .work-item-list {
+        max-height: none;
+    }
 }
 
-.metric-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Loading/Placeholder State */
-.metric-card.metric-placeholder {
-  background-color: #f0f0f0;
-  border: 1px dashed #bbb;
-  justify-content: center;
-  align-items: center;
-  min-height: 150px;
-}
-
-.metric-loading-text {
-  color: #666;
-  font-size: 0.95rem;
-  margin: 0;
-  text-align: center;
-}
-
-.metrics-loading {
-  background-color: #f8f9fa;
-}
-
-/* Metric Card Header */
-.metric-header {
-  margin-bottom: 1rem;
-}
-
-.metric-label {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #495057;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Metric Card Body */
-.metric-body {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-/* Metric Card Footer */
-.metric-footer {
-  margin-top: auto;
-}
-
-.metric-description {
-  display: block;
-  font-size: 0.8rem;
-  color: #6c757d;
-  text-align: center;
-  font-style: italic;
-}
-
-/* Progress Circle - CSS-Only Implementation */
-.progress-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-
-.progress-circle {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: conic-gradient(
-    #2ecc71 0deg,
-    #2ecc71 calc(var(--completion-percentage) * 3.6deg),
-    #e9ecef calc(var(--completion-percentage) * 3.6deg),
-    #e9ecef 360deg
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: inset 0 0 0 4px #ffffff;
-}
-
-.progress-circle::before {
-  content: '';
-  position: absolute;
-  width: 106px;
-  height: 106px;
-  border-radius: 50%;
-  background-color: #ffffff;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-}
-
-.progress-value {
-  position: relative;
-  z-index: 2;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #2c3e50;
-  line-height: 1;
-}
-
-/* Responsive progress circle */
-@media (min-width: 1920px) {
-  .progress-circle {
-    width: 100px;
-    height: 100px;
-  }
-
-  .progress-circle::before {
-    width: 88px;
-    height: 88px;
-  }
-
-  .progress-value {
-    font-size: 1.75rem;
-  }
-}
-
-@media (max-width: 1023px) {
-  .progress-circle {
-    width: 100px;
-    height: 100px;
-  }
-
-  .progress-circle::before {
-    width: 88px;
-    height: 88px;
-  }
-
-  .progress-value {
-    font-size: 1.5rem;
-  }
-}
-
-/* Health Status Badge */
-.health-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 0.375rem;
-  font-weight: 700;
-  font-size: 1rem;
-  text-align: center;
-  letter-spacing: 0.5px;
-  width: 100%;
-  justify-content: center;
-  transition: all 0.2s ease-in-out;
-}
-
-/* Health Status Colors - WCAG AA Compliant */
-.health-badge[data-status="ontrack"] {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.health-badge[data-status="atrisk"] {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.health-badge[data-status="blocked"] {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
-}
-
-.badge-icon {
-  font-size: 0.75rem;
-  line-height: 1;
-}
-
-.badge-text {
-  display: inline;
-}
-
-/* Velocity and Milestones Large Values */
-.metric-value-large {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #2c3e50;
-  text-align: center;
-  line-height: 1.2;
-}
-
-@media (min-width: 1920px) {
-  .metric-value-large {
-    font-size: 2.25rem;
-  }
-}
-
-@media (max-width: 1023px) {
-  .metric-value-large {
-    font-size: 2rem;
-  }
-}
-
-/* Milestone Progress Styling */
-.milestone-completed {
-  color: #2ecc71;
-  font-weight: 700;
-}
-
-.milestone-separator {
-  margin: 0 0.25rem;
-  color: #bbb;
-  font-size: 1.75rem;
-  font-weight: 300;
-}
-
-.milestone-total {
-  color: #6c757d;
-  font-weight: 500;
-}
-
-/* Metric-Specific Card Styling */
-.metric-completion {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-}
-
-.metric-status {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-}
-
-.metric-velocity {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-}
-
-.metric-milestones {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-}
-
-/* Print/Screenshot Optimization */
+/* Print Optimization */
 @media print {
-  .metrics-container {
-    background-color: #ffffff;
-    border: 1px solid #000;
-    page-break-inside: avoid;
-    box-shadow: none;
-    gap: 1rem;
-    padding: 1rem;
-  }
+    .work-item-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15mm;
+        padding: 10mm;
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid var(--color-border);
+    }
 
-  .metric-card {
-    background-color: #ffffff;
-    border: 1px solid #000;
-    box-shadow: none;
-    page-break-inside: avoid;
-    padding: 1rem;
-  }
+    .work-item-column {
+        border: 1px solid var(--color-border);
+        padding: 8mm;
+        background-color: var(--color-white);
+        page-break-inside: avoid;
+    }
 
-  .metric-card:hover {
-    box-shadow: none;
-  }
+    .work-item-list {
+        max-height: none;
+        overflow: visible;
+    }
 
-  .progress-circle {
-    width: 100px;
-    height: 100px;
-  }
+    .work-item-card {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 0.5pt solid var(--color-border);
+        margin-bottom: 4mm;
+    }
 
-  .progress-circle::before {
-    width: 88px;
-    height: 88px;
-  }
+    .work-item-title {
+        color: var(--color-primary);
+        font-weight: var(--font-weight-bold);
+        margin-bottom: 3mm;
+    }
 
-  .progress-value {
-    font-size: 1.5rem;
-  }
+    .work-item-description {
+        color: #000;
+        font-size: 9pt;
+    }
 
-  .metric-value-large {
-    font-size: 1.75rem;
-  }
-
-  .health-badge {
-    border: 1px solid #000;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-  }
-
-  .health-badge[data-status="ontrack"] {
-    background-color: #ffffff;
-    color: #000;
-    border: 2px solid #000;
-  }
-
-  .health-badge[data-status="atrisk"] {
-    background-color: #ffffff;
-    color: #000;
-    border: 2px solid #000;
-  }
-
-  .health-badge[data-status="blocked"] {
-    background-color: #ffffff;
-    color: #000;
-    border: 2px solid #000;
-  }
-
-  .metric-label {
-    font-size: 0.75rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .metric-description {
-    font-size: 0.7rem;
-    margin-top: 0.5rem;
-  }
-
-  /* High contrast for printing */
-  .metric-card {
-    color: #000;
-  }
-
-  .progress-circle {
-    box-shadow: inset 0 0 0 2px #000;
-  }
+    .work-item-empty-state {
+        display: none;
+    }
 }
 
-/* Accessibility - Focus States */
-.metric-card:focus-within {
-  outline: 2px solid #0056b3;
-  outline-offset: 2px;
+/* Screenshot/Presentation Optimization (1280x720) */
+@media (min-width: 1280px) and (max-width: 1920px) {
+    .work-item-summary {
+        gap: var(--spacing-lg);
+        padding: var(--spacing-xl);
+    }
+
+    .work-item-column {
+        padding: var(--spacing-lg);
+        min-height: 300px;
+    }
+
+    .work-item-list {
+        max-height: 350px;
+    }
+
+    .work-item-card {
+        padding: var(--spacing-md);
+    }
 }
 
-/* Dark Mode Support (Optional) */
+/* High Contrast Mode for Accessibility */
+@media (prefers-contrast: more) {
+    .work-item-column {
+        border-width: 2px;
+        border-color: var(--color-primary);
+    }
+
+    .work-item-card {
+        border-width: 1px;
+        border-color: #000;
+    }
+
+    .work-item-title {
+        color: var(--color-primary);
+        font-weight: var(--font-weight-bold);
+    }
+
+    .work-item-column-header {
+        border-bottom-width: 3px;
+    }
+}
+
+/* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
-  .metrics-container {
-    background-color: #1e1e1e;
-    border-color: #333;
-  }
+    :root {
+        --color-light: #374151;
+        --color-lighter: #1f2937;
+        --color-border: #4b5563;
+    }
 
-  .metric-card {
-    background-color: #2d2d2d;
-    border-color: #444;
-  }
+    body {
+        background-color: var(--color-lighter);
+        color: #e5e7eb;
+    }
 
-  .metric-label {
-    color: #b0b0b0;
-  }
+    .work-item-column {
+        background-color: var(--color-light);
+    }
 
-  .metric-description {
-    color: #999;
-  }
+    .work-item-card {
+        background-color: #2d3748;
+        border-color: var(--color-border);
+    }
 
-  .progress-circle {
-    box-shadow: inset 0 0 0 4px #2d2d2d;
-  }
+    .work-item-title {
+        color: #60a5fa;
+    }
 
-  .progress-circle::before {
-    background-color: #2d2d2d;
-  }
+    .work-item-description {
+        color: #9ca3af;
+    }
 
-  .progress-value {
-    color: #e0e0e0;
-  }
-
-  .metric-value-large {
-    color: #e0e0e0;
-  }
-
-  .milestone-total {
-    color: #999;
-  }
+    .work-item-empty-state {
+        background-color: var(--color-lighter);
+        color: #9ca3af;
+        border-color: var(--color-border);
+    }
 }
 
-/* Reduce Motion Support */
-@media (prefers-reduced-motion: reduce) {
-  .metric-card {
-    transition: none;
-  }
+/* Scrollbar Styling (Chrome/Edge) */
+.work-item-list::-webkit-scrollbar {
+    width: 6px;
+}
 
-  .health-badge {
-    transition: none;
-  }
+.work-item-list::-webkit-scrollbar-track {
+    background: var(--color-light);
+    border-radius: var(--border-radius);
+}
+
+.work-item-list::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: var(--border-radius);
+}
+
+.work-item-list::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary-light);
 }
