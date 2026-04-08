@@ -1,42 +1,43 @@
-namespace AgentSquad.Runner.Models;
-
-/// <summary>
-/// Represents the complete project data model including metadata and task list.
-/// </summary>
-public class ProjectData
+namespace AgentSquad.Runner.Models
 {
-    /// <summary>
-    /// Project name or title.
-    /// </summary>
-    public string ProjectName { get; set; } = string.Empty;
+    public class ProjectData
+    {
+        public string ProjectName { get; set; }
+        public DateTime ProjectStartDate { get; set; }
+        public DateTime ProjectEndDate { get; set; }
+        public int CompletionPercentage { get; set; }
+        public List<Milestone> Milestones { get; set; } = new List<Milestone>();
+        public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
+    }
 
-    /// <summary>
-    /// Detailed project description.
-    /// </summary>
-    public string ProjectDescription { get; set; } = string.Empty;
+    public class Milestone
+    {
+        public string Name { get; set; }
+        public DateTime TargetDate { get; set; }
+        public MilestoneStatus Status { get; set; }
+        public int CompletionPercentage { get; set; }
+    }
 
-    /// <summary>
-    /// Project start date.
-    /// </summary>
-    public DateTime StartDate { get; set; }
+    public class ProjectTask
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public TaskStatus Status { get; set; }
+        public string AssignedTo { get; set; }
+        public DateTime DueDate { get; set; }
+    }
 
-    /// <summary>
-    /// Project end date or planned completion date.
-    /// </summary>
-    public DateTime EndDate { get; set; }
+    public enum MilestoneStatus
+    {
+        Pending,
+        InProgress,
+        Completed
+    }
 
-    /// <summary>
-    /// Overall project completion percentage (0-100).
-    /// </summary>
-    public int CompletionPercentage { get; set; }
-
-    /// <summary>
-    /// List of all project tasks.
-    /// </summary>
-    public List<TaskItem> Tasks { get; set; } = new();
-
-    /// <summary>
-    /// List of project milestones.
-    /// </summary>
-    public List<Milestone> Milestones { get; set; } = new();
+    public enum TaskStatus
+    {
+        Shipped,
+        InProgress,
+        CarriedOver
+    }
 }
