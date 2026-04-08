@@ -12,7 +12,7 @@
             @if (HasMilestones)
             {
                 <div class="milestone-timeline-container">
-                    <div class="timeline-row">
+                    <div class="timeline-row d-flex flex-wrap">
                         @foreach (var milestone in Milestones)
                         {
                             <div class="timeline-card-wrapper">
@@ -31,6 +31,18 @@
                                             <div class="status-indicator @GetStatusIndicatorClass(milestone.Status)">
                                                 @RenderStatusIcon(milestone.Status)
                                                 <span class="status-text">@milestone.Status</span>
+                                            </div>
+                                        </div>
+                                        <div class="milestone-completion-section">
+                                            <div class="completion-header">
+                                                <p class="info-label">Progress:</p>
+                                                <p class="completion-percentage">@milestone.CompletionPercentage%</p>
+                                            </div>
+                                            <div class="progress-bar-container">
+                                                <div class="progress-bar-background">
+                                                    <div class="progress-bar-fill @GetProgressBarClass(milestone.Status)" style="width: @milestone.CompletionPercentage%;">
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -122,6 +134,17 @@
         };
     }
 
+    private string GetProgressBarClass(MilestoneStatus status)
+    {
+        return status switch
+        {
+            MilestoneStatus.Completed => "progress-completed",
+            MilestoneStatus.InProgress => "progress-in-progress",
+            MilestoneStatus.Pending => "progress-pending",
+            _ => "progress-pending"
+        };
+    }
+
     private MarkupString RenderStatusIcon(MilestoneStatus status)
     {
         return status switch
@@ -165,7 +188,7 @@
     }
 
     .timeline-card-wrapper {
-        flex: 0 1 calc(25% - 0.75rem);
+        flex: 1 1 calc(25% - 0.75rem);
         min-width: 250px;
     }
 
@@ -180,7 +203,7 @@
         justify-content: space-between;
         position: relative;
         border-left: 4px solid #ccc;
-        transition: none;
+        cursor: pointer;
     }
 
     .status-color-stripe {
@@ -300,6 +323,62 @@
         line-height: 1;
     }
 
+    .milestone-completion-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .completion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .completion-header .info-label {
+        margin: 0;
+    }
+
+    .completion-percentage {
+        font-size: 12pt;
+        font-weight: 700;
+        margin: 0;
+        color: #212529;
+    }
+
+    .progress-bar-container {
+        width: 100%;
+    }
+
+    .progress-bar-background {
+        width: 100%;
+        height: 2px;
+        background-color: #e9ecef;
+        border-radius: 1px;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 1px;
+        transition: none;
+    }
+
+    .progress-completed {
+        background-color: #28a745;
+    }
+
+    .progress-in-progress {
+        background-color: #007bff;
+    }
+
+    .progress-pending {
+        background-color: #6c757d;
+    }
+
     .alert {
         font-size: 12pt;
         margin: 0;
@@ -316,19 +395,30 @@
         margin: 0;
     }
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1199px) {
         .timeline-card-wrapper {
-            flex: 0 1 calc(50% - 0.5rem);
+            flex: 1 1 calc(50% - 0.5rem);
         }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 767px) {
         .timeline-card-wrapper {
-            flex: 0 1 100%;
+            flex: 1 1 100%;
         }
 
         .milestone-timeline-section {
             padding: 1.5rem 0;
+        }
+
+        .timeline-row {
+            flex-direction: column;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .timeline-row {
+            display: flex;
+            flex-direction: row;
         }
     }
 </style>
