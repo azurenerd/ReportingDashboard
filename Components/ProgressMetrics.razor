@@ -1,79 +1,8 @@
 @using AgentSquad.Runner.Data
 
 <div class="progress-section">
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="progress-display">
-                <h6 class="text-muted mb-3">Overall Completion</h6>
-                <div class="progress" style="height: 30px;">
-                    <div class="progress-bar bg-success no-animations" 
-                         role="progressbar" 
-                         style="width: @(CompletionPercentage)%;"
-                         aria-valuenow="@CompletionPercentage" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                        @CompletionPercentage%
-                    </div>
-                </div>
-                <p class="text-center mt-3 mb-0">
-                    <span class="display-5 fw-bold">@CompletionPercentage%</span>
-                </p>
-            </div>
-        </div>
-        
-        <div class="col-md-6 mb-4">
-            <div class="metrics-summary">
-                <h6 class="text-muted mb-3">Task Summary</h6>
-                <div class="row g-3">
-                    <div class="col-6">
-                        <div class="metric-box">
-                            <p class="metric-label">Completed</p>
-                            <p class="metric-value text-success">@CompletedTasks</p>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="metric-box">
-                            <p class="metric-label">Total</p>
-                            <p class="metric-value text-primary">@TotalTasks</p>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="metric-box">
-                            <p class="metric-label">Burn Rate</p>
-                            <p class="metric-value text-info">@BurndownRate.ToString("F1")</p>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="metric-box">
-                            <p class="metric-label">Tasks/Day</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <p class="text-muted">Progress metrics component placeholder - completion tracking and charts coming in future steps</p>
 </div>
-
-<style>
-    .metric-box {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        border-left: 4px solid #0071c3;
-    }
-    
-    .metric-label {
-        font-size: 0.875rem;
-        color: #6c757d;
-        margin-bottom: 0.5rem;
-    }
-    
-    .metric-value {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin: 0;
-    }
-</style>
 
 @code {
     [Parameter]

@@ -1,48 +1,11 @@
 @using AgentSquad.Runner.Data
 
-<div class="card h-100">
+<div class="card">
     <div class="card-header">
         <h5 class="mb-0">@StatusCategory</h5>
     </div>
     <div class="card-body">
-        <div class="d-flex align-items-center mb-3">
-            <div class="display-4 fw-bold me-2">@TaskCount</div>
-            <span class="text-muted">@(TaskCount == 1 ? "task" : "tasks")</span>
-        </div>
-        
-        @if (Tasks != null && Tasks.Count > 0)
-        {
-            <div class="task-list">
-                <button class="btn btn-sm btn-outline-secondary w-100 mb-2" 
-                        type="button" 
-                        data-bs-toggle="collapse" 
-                        data-bs-target="#taskList_@StatusCategory.Replace(" ", "_")"
-                        aria-expanded="false">
-                    View Details
-                </button>
-                
-                <div class="collapse" id="taskList_@StatusCategory.Replace(" ", "_")">
-                    <ul class="list-unstyled">
-                        @foreach (var task in Tasks)
-                        {
-                            <li class="mb-2 pb-2 border-bottom">
-                                <div class="d-flex align-items-start">
-                                    <i class="bi bi-check-circle-fill me-2 mt-1"></i>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-1 fw-500">@task.Name</p>
-                                        <small class="text-muted">@task.AssignedTo</small>
-                                    </div>
-                                </div>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        }
-        else
-        {
-            <p class="text-muted text-center mb-0">No tasks</p>
-        }
+        <p class="text-muted">Status card placeholder - task counts and details coming in future steps</p>
     </div>
 </div>
 
