@@ -1,5 +1,5 @@
-# Executive Project Dashboard - Static Assets
+# wwwroot - Executive Dashboard Static Assets
 
-Complete static asset directory for the executive project reporting dashboard, optimized for screenshot capture and PowerPoint integration.
+This directory contains all static assets for the Executive Project Reporting Dashboard, including HTML entry points, stylesheets, JavaScript utilities, and data configuration files.
 
 ## Directory Structure
