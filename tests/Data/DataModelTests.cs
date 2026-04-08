@@ -14,11 +14,18 @@ namespace AgentSquad.Tests.Data
         }
 
         [Fact]
-        public void Milestone_CanBeInstantiated()
+        public void Milestone_CanBeInstantiatedWithStringId()
         {
-            var milestone = new Milestone { Id = 1, Name = "Phase 1", DueDate = DateTime.Now };
-            Assert.Equal(1, milestone.Id);
+            var milestone = new Milestone { Id = "m1", Name = "Phase 1", DueDate = DateTime.Now };
+            Assert.Equal("m1", milestone.Id);
             Assert.Equal("Phase 1", milestone.Name);
+        }
+
+        [Fact]
+        public void Milestone_IdCanBeNull()
+        {
+            var milestone = new Milestone { Id = null, Name = "Phase 1", DueDate = DateTime.Now };
+            Assert.Null(milestone.Id);
         }
 
         [Fact]
@@ -27,6 +34,14 @@ namespace AgentSquad.Tests.Data
             var data = new ProjectData { Project = new ProjectInfo { Name = "Test" } };
             Assert.NotNull(data.Project);
             Assert.Equal("Test", data.Project.Name);
+        }
+
+        [Fact]
+        public void Task_CanBeInstantiatedWithStringId()
+        {
+            var task = new Task { Id = "t1", Title = "Test Task" };
+            Assert.Equal("t1", task.Id);
+            Assert.Equal("Test Task", task.Title);
         }
     }
 }

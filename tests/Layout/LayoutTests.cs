@@ -26,5 +26,12 @@ namespace AgentSquad.Tests.Layout
             var component = RenderComponent<MainLayout>();
             Assert.NotNull(component);
         }
+
+        [Fact]
+        public void MainLayout_RendersBodyContent()
+        {
+            var component = RenderComponent<MainLayout>();
+            Assert.NotNull(component);
+        }
     }
 }

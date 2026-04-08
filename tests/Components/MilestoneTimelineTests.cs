@@ -12,8 +12,8 @@ namespace AgentSquad.Tests.Components
         {
             var milestones = new List<Milestone>
             {
-                new Milestone { Id = 1, Name = "Q1", DueDate = DateTime.Now.AddMonths(1) },
-                new Milestone { Id = 2, Name = "Q2", DueDate = DateTime.Now.AddMonths(4) }
+                new Milestone { Id = "m1", Name = "Q1", DueDate = DateTime.Now.AddMonths(1) },
+                new Milestone { Id = "m2", Name = "Q2", DueDate = DateTime.Now.AddMonths(4) }
             };
 
             var component = RenderComponent<MilestoneTimeline>(parameters => 
@@ -40,6 +40,22 @@ namespace AgentSquad.Tests.Components
                 parameters.Add(p => p.Milestones, (List<Milestone>)null!));
 
             Assert.NotNull(component);
+        }
+
+        [Fact]
+        public void MilestoneTimeline_WithMultipleMilestones_DisplaysAllDates()
+        {
+            var milestones = new List<Milestone>
+            {
+                new Milestone { Id = "m1", Name = "Phase 1", DueDate = DateTime.Now },
+                new Milestone { Id = "m2", Name = "Phase 2", DueDate = DateTime.Now.AddMonths(3) }
+            };
+
+            var component = RenderComponent<MilestoneTimeline>(parameters =>
+                parameters.Add(p => p.Milestones, milestones));
+
+            Assert.Contains("Phase 1", component.Markup);
+            Assert.Contains("Phase 2", component.Markup);
         }
     }
 }

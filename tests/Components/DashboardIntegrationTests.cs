@@ -1,6 +1,9 @@
 using Xunit;
 using Bunit;
+using Moq;
+using Microsoft.AspNetCore.Hosting;
 using AgentSquad.Components;
+using AgentSquad.Services;
 using AgentSquad.Data;
 
 namespace AgentSquad.Tests.Components
@@ -8,26 +11,43 @@ namespace AgentSquad.Tests.Components
     public class DashboardIntegrationTests : TestContext
     {
         [Fact]
-        public void Dashboard_RendersAllComponents()
+        public void Dashboard_LoadsDataViaServiceInjection()
         {
-            var projectData = new ProjectData
-            {
-                Project = new ProjectInfo { Name = "TestProject" },
-                Milestones = new List<Milestone>()
-            };
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+            mockEnvironment.Setup(e => e.WebRootPath).Returns(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
+            
+            var service = new ProjectDataService(mockEnvironment.Object);
+            Services.AddScoped<IProjectDataService>(_ => service);
 
-            var component = RenderComponent<Dashboard>(parameters =>
-                parameters.Add(p => p.ProjectData, projectData));
-
+            var component = RenderComponent<Dashboard>();
             Assert.NotNull(component);
         }
 
         [Fact]
-        public void Dashboard_WithNullData_RendersWithoutCrash()
+        public void Dashboard_InitializesAndLoadsProjectData()
         {
-            var component = RenderComponent<Dashboard>(parameters =>
-                parameters.Add(p => p.ProjectData, new ProjectData()));
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+            mockEnvironment.Setup(e => e.WebRootPath).Returns(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
+            
+            var service = new ProjectDataService(mockEnvironment.Object);
+            Services.AddScoped<IProjectDataService>(_ => service);
 
+            var component = RenderComponent<Dashboard>();
+            component.WaitForAsyncOperation();
+            
+            Assert.NotNull(component);
+        }
+
+        [Fact]
+        public void Dashboard_HandlesMissingDataGracefully()
+        {
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+            mockEnvironment.Setup(e => e.WebRootPath).Returns(Path.Combine(Directory.GetCurrentDirectory(), "nonexistent"));
+            
+            var service = new ProjectDataService(mockEnvironment.Object);
+            Services.AddScoped<IProjectDataService>(_ => service);
+
+            var component = RenderComponent<Dashboard>();
             Assert.NotNull(component);
         }
     }

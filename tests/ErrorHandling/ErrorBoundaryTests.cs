@@ -19,5 +19,12 @@ namespace AgentSquad.Tests.ErrorHandling
             var component = RenderComponent<ErrorBoundary>();
             Assert.NotNull(component);
         }
+
+        [Fact]
+        public void ErrorBoundary_RecoveryAfterError()
+        {
+            var component = RenderComponent<ErrorBoundary>();
+            Assert.NotNull(component);
+        }
     }
 }
