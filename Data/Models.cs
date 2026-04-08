@@ -1,233 +1,543 @@
-namespace AgentSquad.Runner.Data
+namespace AgentSquad.Runner.Data;
+
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+
+/// <summary>
+/// Task status enumeration for project tasks.
+/// </summary>
+public enum TaskStatus
+{
+    /// <summary>Completed and delivered task.</summary>
+    Shipped = 0,
+
+    /// <summary>Task currently in progress.</summary>
+    InProgress = 1,
+
+    /// <summary>Task carried over from previous iteration or delayed.</summary>
+    CarriedOver = 2
+}
+
+/// <summary>
+/// Milestone status enumeration for project milestones.
+/// </summary>
+public enum MilestoneStatus
+{
+    /// <summary>Milestone has been completed.</summary>
+    Completed = 0,
+
+    /// <summary>Milestone is currently in progress.</summary>
+    InProgress = 1,
+
+    /// <summary>Milestone is pending and not yet started.</summary>
+    Pending = 2
+}
+
+/// <summary>
+/// Project information containing metadata and high-level details.
+/// </summary>
+public class ProjectInfo
 {
     /// <summary>
-    /// Root entity containing all project data, milestones, tasks, and metrics.
-    /// Deserialized directly from data.json.
+    /// Gets or sets the project name.
+    /// Example: "Q2 Mobile App Release"
     /// </summary>
-    public class ProjectData
+    [Required(ErrorMessage = "Project name is required")]
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the project description.
+    /// Example: "iOS and Android mobile app version 2.0 with new payment integration"
+    /// </summary>
+    [Required(ErrorMessage = "Project description is required")]
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the project start date.
+    /// </summary>
+    [Required(ErrorMessage = "Project start date is required")]
+    [JsonPropertyName("startDate")]
+    public DateTime StartDate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the project end date (target completion).
+    /// </summary>
+    [Required(ErrorMessage = "Project end date is required")]
+    [JsonPropertyName("endDate")]
+    public DateTime EndDate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the project status.
+    /// Example: "OnTrack", "AtRisk", "Delayed"
+    /// </summary>
+    [Required(ErrorMessage = "Project status is required")]
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the executive sponsor name.
+    /// </summary>
+    [Required(ErrorMessage = "Project sponsor is required")]
+    [JsonPropertyName("sponsor")]
+    public string Sponsor { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the project manager name.
+    /// </summary>
+    [Required(ErrorMessage = "Project manager is required")]
+    [JsonPropertyName("projectManager")]
+    public string ProjectManager { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProjectInfo"/> class.
+    /// </summary>
+    public ProjectInfo()
     {
-        /// <summary>
-        /// Project metadata: name, description, status, dates, and personnel.
-        /// </summary>
-        public ProjectInfo? Project { get; set; }
+    }
+}
 
-        /// <summary>
-        /// List of project milestones with target dates and completion status.
-        /// </summary>
-        public List<Milestone> Milestones { get; set; } = new();
+/// <summary>
+/// Milestone representing a significant project achievement or deliverable.
+/// </summary>
+public class Milestone
+{
+    /// <summary>
+    /// Gets or sets the unique milestone identifier.
+    /// Example: "m1"
+    /// </summary>
+    [Required(ErrorMessage = "Milestone ID is required")]
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
 
-        /// <summary>
-        /// List of tasks organized by status (shipped, in-progress, carried-over).
-        /// </summary>
-        public List<Task> Tasks { get; set; } = new();
+    /// <summary>
+    /// Gets or sets the milestone name.
+    /// Example: "Design Review Complete"
+    /// </summary>
+    [Required(ErrorMessage = "Milestone name is required")]
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Aggregated project metrics: completion %, task counts, burn-down rate.
-        /// </summary>
-        public ProjectMetrics? Metrics { get; set; }
+    /// <summary>
+    /// Gets or sets the target completion date.
+    /// </summary>
+    [Required(ErrorMessage = "Target date is required")]
+    [JsonPropertyName("targetDate")]
+    public DateTime TargetDate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the actual completion date, or null if not yet completed.
+    /// </summary>
+    [JsonPropertyName("actualDate")]
+    public DateTime? ActualDate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the milestone status.
+    /// </summary>
+    [Required(ErrorMessage = "Milestone status is required")]
+    [JsonPropertyName("status")]
+    public MilestoneStatus Status { get; set; }
+
+    /// <summary>
+    /// Gets or sets the completion percentage (0-100).
+    /// </summary>
+    [Required(ErrorMessage = "Completion percentage is required")]
+    [Range(0, 100, ErrorMessage = "Completion percentage must be between 0 and 100")]
+    [JsonPropertyName("completionPercentage")]
+    public int CompletionPercentage { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Milestone"/> class.
+    /// </summary>
+    public Milestone()
+    {
+    }
+}
+
+/// <summary>
+/// Project task representing a unit of work with status and ownership.
+/// </summary>
+public class Task
+{
+    /// <summary>
+    /// Gets or sets the unique task identifier.
+    /// Example: "t1"
+    /// </summary>
+    [Required(ErrorMessage = "Task ID is required")]
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the task name.
+    /// Example: "API Authentication Module"
+    /// </summary>
+    [Required(ErrorMessage = "Task name is required")]
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the task status.
+    /// </summary>
+    [Required(ErrorMessage = "Task status is required")]
+    [JsonPropertyName("status")]
+    public TaskStatus Status { get; set; }
+
+    /// <summary>
+    /// Gets or sets the name of the person assigned to this task.
+    /// </summary>
+    [Required(ErrorMessage = "Assigned owner is required")]
+    [JsonPropertyName("assignedTo")]
+    public string AssignedTo { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the task due date.
+    /// </summary>
+    [Required(ErrorMessage = "Task due date is required")]
+    [JsonPropertyName("dueDate")]
+    public DateTime DueDate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the estimated number of days to complete.
+    /// </summary>
+    [Required(ErrorMessage = "Estimated days is required")]
+    [Range(1, int.MaxValue, ErrorMessage = "Estimated days must be greater than 0")]
+    [JsonPropertyName("estimatedDays")]
+    public int EstimatedDays { get; set; }
+
+    /// <summary>
+    /// Gets or sets the related milestone ID.
+    /// </summary>
+    [JsonPropertyName("relatedMilestone")]
+    public string? RelatedMilestone { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Task"/> class.
+    /// </summary>
+    public Task()
+    {
+    }
+}
+
+/// <summary>
+/// Project metrics containing aggregated progress and completion data.
+/// </summary>
+public class ProjectMetrics
+{
+    /// <summary>
+    /// Gets or sets the total number of tasks in the project.
+    /// </summary>
+    [Required(ErrorMessage = "Total tasks is required")]
+    [Range(0, int.MaxValue, ErrorMessage = "Total tasks must be non-negative")]
+    [JsonPropertyName("totalTasks")]
+    public int TotalTasks { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number of completed tasks.
+    /// </summary>
+    [Required(ErrorMessage = "Completed tasks is required")]
+    [Range(0, int.MaxValue, ErrorMessage = "Completed tasks must be non-negative")]
+    [JsonPropertyName("completedTasks")]
+    public int CompletedTasks { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number of tasks currently in progress.
+    /// </summary>
+    [Required(ErrorMessage = "In-progress tasks is required")]
+    [Range(0, int.MaxValue, ErrorMessage = "In-progress tasks must be non-negative")]
+    [JsonPropertyName("inProgressTasks")]
+    public int InProgressTasks { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number of tasks carried over from previous iterations.
+    /// </summary>
+    [Required(ErrorMessage = "Carried-over tasks is required")]
+    [Range(0, int.MaxValue, ErrorMessage = "Carried-over tasks must be non-negative")]
+    [JsonPropertyName("carriedOverTasks")]
+    public int CarriedOverTasks { get; set; }
+
+    /// <summary>
+    /// Gets or sets the estimated burn-down rate in tasks per day.
+    /// </summary>
+    [Required(ErrorMessage = "Estimated burn-down rate is required")]
+    [Range(0.0, double.MaxValue, ErrorMessage = "Burn-down rate must be non-negative")]
+    [JsonPropertyName("estimatedBurndownRate")]
+    public double EstimatedBurndownRate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the project start date.
+    /// </summary>
+    [Required(ErrorMessage = "Project start date is required")]
+    [JsonPropertyName("projectStartDate")]
+    public DateTime ProjectStartDate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the project end date (target completion).
+    /// </summary>
+    [Required(ErrorMessage = "Project end date is required")]
+    [JsonPropertyName("projectEndDate")]
+    public DateTime ProjectEndDate { get; set; }
+
+    /// <summary>
+    /// Gets the calculated completion percentage (0-100).
+    /// Returns 0 if total tasks is 0 to avoid division by zero.
+    /// </summary>
+    [JsonIgnore]
+    public int CompletionPercentage
+    {
+        get
+        {
+            if (TotalTasks == 0)
+            {
+                return 0;
+            }
+
+            return (int)((CompletedTasks / (double)TotalTasks) * 100);
+        }
     }
 
     /// <summary>
-    /// Project information: high-level metadata about the project.
+    /// Gets the calculated number of days remaining until project end date.
+    /// Returns negative value if end date is in the past.
     /// </summary>
-    public class ProjectInfo
+    [JsonIgnore]
+    public int DaysRemaining
     {
-        /// <summary>
-        /// Project name, e.g., "Q2 Mobile App Release"
-        /// </summary>
-        public string Name { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Brief project description, e.g., "iOS and Android mobile app v2.0"
-        /// </summary>
-        public string Description { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Project start date (kickoff).
-        /// </summary>
-        public DateTime StartDate { get; set; }
-
-        /// <summary>
-        /// Project target end date (completion deadline).
-        /// </summary>
-        public DateTime EndDate { get; set; }
-
-        /// <summary>
-        /// Current project status: "OnTrack", "AtRisk", or "Delayed"
-        /// </summary>
-        public string Status { get; set; } = "OnTrack";
-
-        /// <summary>
-        /// Executive sponsor name or title.
-        /// </summary>
-        public string Sponsor { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Project manager name.
-        /// </summary>
-        public string ProjectManager { get; set; } = string.Empty;
+        get
+        {
+            return (int)(ProjectEndDate - DateTime.Now).TotalDays;
+        }
     }
 
     /// <summary>
-    /// Milestone representing a significant project deliverable or phase gate.
+    /// Initializes a new instance of the <see cref="ProjectMetrics"/> class.
     /// </summary>
-    public class Milestone
+    public ProjectMetrics()
     {
-        /// <summary>
-        /// Unique identifier for the milestone, e.g., "m1", "m2".
-        /// </summary>
-        public string Id { get; set; } = string.Empty;
+    }
+}
 
-        /// <summary>
-        /// Milestone name, e.g., "Design Review Complete"
-        /// </summary>
-        public string Name { get; set; } = string.Empty;
+/// <summary>
+/// Root project data container aggregating all project information, milestones, tasks, and metrics.
+/// This is the top-level object for JSON deserialization from data.json.
+/// </summary>
+public class ProjectData
+{
+    /// <summary>
+    /// Gets or sets the project information metadata.
+    /// </summary>
+    [Required(ErrorMessage = "Project information is required")]
+    [JsonPropertyName("project")]
+    public ProjectInfo? Project { get; set; }
 
-        /// <summary>
-        /// Target date for milestone completion.
-        /// </summary>
-        public DateTime TargetDate { get; set; }
+    /// <summary>
+    /// Gets or sets the collection of project milestones.
+    /// </summary>
+    [Required(ErrorMessage = "Milestones collection is required")]
+    [JsonPropertyName("milestones")]
+    public List<Milestone> Milestones { get; set; } = new();
 
-        /// <summary>
-        /// Actual completion date. Null if not yet completed.
-        /// </summary>
-        public DateTime? ActualDate { get; set; }
+    /// <summary>
+    /// Gets or sets the collection of project tasks.
+    /// </summary>
+    [Required(ErrorMessage = "Tasks collection is required")]
+    [JsonPropertyName("tasks")]
+    public List<Task> Tasks { get; set; } = new();
 
-        /// <summary>
-        /// Current milestone status: Completed, InProgress, or Pending.
-        /// </summary>
-        public MilestoneStatus Status { get; set; }
+    /// <summary>
+    /// Gets or sets the aggregated project metrics.
+    /// </summary>
+    [Required(ErrorMessage = "Project metrics is required")]
+    [JsonPropertyName("metrics")]
+    public ProjectMetrics? Metrics { get; set; }
 
-        /// <summary>
-        /// Completion percentage (0-100). Used for in-progress milestones.
-        /// </summary>
-        public int CompletionPercentage { get; set; }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProjectData"/> class.
+    /// </summary>
+    public ProjectData()
+    {
     }
 
     /// <summary>
-    /// Enumeration for milestone status values.
+    /// Validates the project data for logical consistency and required relationships.
+    /// Throws an exception if validation fails.
     /// </summary>
-    public enum MilestoneStatus
+    /// <exception cref="InvalidOperationException">Thrown when validation fails with descriptive message.</exception>
+    public void Validate()
     {
-        /// <summary>Milestone has been completed and verified.</summary>
-        Completed = 0,
-
-        /// <summary>Milestone is currently in progress.</summary>
-        InProgress = 1,
-
-        /// <summary>Milestone has not yet started or been scheduled.</summary>
-        Pending = 2
+        if (!IsValid(out var errors))
+        {
+            throw new InvalidOperationException($"Project data validation failed: {string.Join("; ", errors)}");
+        }
     }
 
     /// <summary>
-    /// Task representing work items with status, owner, and due date.
+    /// Determines whether the project data is valid.
     /// </summary>
-    public class Task
+    /// <param name="errors">List of validation error messages if validation fails; empty list if valid.</param>
+    /// <returns>True if project data is valid; otherwise false.</returns>
+    public bool IsValid(out List<string> errors)
     {
-        /// <summary>
-        /// Unique identifier for the task, e.g., "t1", "t2".
-        /// </summary>
-        public string Id { get; set; } = string.Empty;
+        errors = new List<string>();
 
-        /// <summary>
-        /// Task name or description, e.g., "API Authentication Module"
-        /// </summary>
-        public string Name { get; set; } = string.Empty;
+        if (Project == null)
+        {
+            errors.Add("Project information is required");
+        }
+        else
+        {
+            ValidateProjectInfo(Project, errors);
+        }
 
-        /// <summary>
-        /// Current task status: Shipped, InProgress, or CarriedOver.
-        /// </summary>
-        public TaskStatus Status { get; set; }
+        if (Milestones == null)
+        {
+            errors.Add("Milestones collection is required");
+        }
+        else
+        {
+            ValidateMilestones(errors);
+        }
 
-        /// <summary>
-        /// Name of the team member or group assigned to this task.
-        /// </summary>
-        public string AssignedTo { get; set; } = string.Empty;
+        if (Tasks == null)
+        {
+            errors.Add("Tasks collection is required");
+        }
+        else
+        {
+            ValidateTasks(errors);
+        }
 
-        /// <summary>
-        /// Task due date or deadline.
-        /// </summary>
-        public DateTime DueDate { get; set; }
+        if (Metrics == null)
+        {
+            errors.Add("Project metrics is required");
+        }
+        else
+        {
+            ValidateMetrics(Metrics, errors);
+        }
 
-        /// <summary>
-        /// Estimated number of days to complete the task.
-        /// Used for burn-down calculations.
-        /// </summary>
-        public int EstimatedDays { get; set; }
+        ValidateMilestoneReferences(errors);
 
-        /// <summary>
-        /// Reference to the related milestone ID (e.g., "m1").
-        /// Links tasks to milestones for organizational purposes.
-        /// </summary>
-        public string RelatedMilestone { get; set; } = string.Empty;
+        return errors.Count == 0;
     }
 
     /// <summary>
-    /// Enumeration for task status values.
+    /// Determines whether the project data is valid (simplified version without error details).
     /// </summary>
-    public enum TaskStatus
+    /// <returns>True if project data is valid; otherwise false.</returns>
+    public bool IsValid()
     {
-        /// <summary>Task has been completed and delivered.</summary>
-        Shipped = 0,
-
-        /// <summary>Task is actively being worked on.</summary>
-        InProgress = 1,
-
-        /// <summary>Task was not completed in the planned sprint/phase and carried over.</summary>
-        CarriedOver = 2
+        return IsValid(out _);
     }
 
     /// <summary>
-    /// Aggregated metrics representing overall project health and progress.
+    /// Validates project information for date range consistency.
     /// </summary>
-    public class ProjectMetrics
+    private static void ValidateProjectInfo(ProjectInfo project, List<string> errors)
     {
-        /// <summary>
-        /// Total number of tasks in the project.
-        /// </summary>
-        public int TotalTasks { get; set; }
+        if (project.StartDate >= project.EndDate)
+        {
+            errors.Add($"Project start date ({project.StartDate:yyyy-MM-dd}) must be before end date ({project.EndDate:yyyy-MM-dd})");
+        }
+    }
 
-        /// <summary>
-        /// Number of tasks that have been completed and shipped.
-        /// </summary>
-        public int CompletedTasks { get; set; }
+    /// <summary>
+    /// Validates milestones collection for valid statuses and date ranges.
+    /// </summary>
+    private void ValidateMilestones(List<string> errors)
+    {
+        foreach (var milestone in Milestones)
+        {
+            if (string.IsNullOrWhiteSpace(milestone.Id))
+            {
+                errors.Add("Milestone ID cannot be empty");
+            }
 
-        /// <summary>
-        /// Number of tasks currently in progress.
-        /// </summary>
-        public int InProgressTasks { get; set; }
+            if (!Enum.IsDefined(typeof(MilestoneStatus), milestone.Status))
+            {
+                errors.Add($"Milestone '{milestone.Name}' has invalid status value: {milestone.Status}");
+            }
 
-        /// <summary>
-        /// Number of tasks that were carried over from a previous iteration.
-        /// </summary>
-        public int CarriedOverTasks { get; set; }
+            if (milestone.CompletionPercentage < 0 || milestone.CompletionPercentage > 100)
+            {
+                errors.Add($"Milestone '{milestone.Name}' completion percentage must be between 0 and 100, got {milestone.CompletionPercentage}");
+            }
 
-        /// <summary>
-        /// Project completion percentage (0-100).
-        /// Calculated as (CompletedTasks / TotalTasks) * 100.
-        /// </summary>
-        public int CompletionPercentage { get; set; }
+            if (milestone.ActualDate.HasValue && milestone.TargetDate > milestone.ActualDate.Value)
+            {
+                errors.Add($"Milestone '{milestone.Name}' actual date ({milestone.ActualDate:yyyy-MM-dd}) cannot be before target date ({milestone.TargetDate:yyyy-MM-dd})");
+            }
+        }
+    }
 
-        /// <summary>
-        /// Estimated burn-down rate in tasks per day.
-        /// Used for projecting completion dates.
-        /// </summary>
-        public double EstimatedBurndownRate { get; set; }
+    /// <summary>
+    /// Validates tasks collection for valid statuses and assigned milestones.
+    /// </summary>
+    private void ValidateTasks(List<string> errors)
+    {
+        foreach (var task in Tasks)
+        {
+            if (string.IsNullOrWhiteSpace(task.Id))
+            {
+                errors.Add("Task ID cannot be empty");
+            }
 
-        /// <summary>
-        /// Project start date.
-        /// </summary>
-        public DateTime ProjectStartDate { get; set; }
+            if (!Enum.IsDefined(typeof(TaskStatus), task.Status))
+            {
+                errors.Add($"Task '{task.Name}' has invalid status value: {task.Status}");
+            }
 
-        /// <summary>
-        /// Project target end date.
-        /// </summary>
-        public DateTime ProjectEndDate { get; set; }
+            if (task.EstimatedDays <= 0)
+            {
+                errors.Add($"Task '{task.Name}' estimated days must be positive, got {task.EstimatedDays}");
+            }
+        }
+    }
 
-        /// <summary>
-        /// Number of calendar days remaining until the project end date.
-        /// Calculated as (ProjectEndDate - Now).Days
-        /// </summary>
-        public int DaysRemaining { get; set; }
+    /// <summary>
+    /// Validates project metrics for logical consistency.
+    /// </summary>
+    private static void ValidateMetrics(ProjectMetrics metrics, List<string> errors)
+    {
+        if (metrics.ProjectStartDate >= metrics.ProjectEndDate)
+        {
+            errors.Add($"Metrics start date ({metrics.ProjectStartDate:yyyy-MM-dd}) must be before end date ({metrics.ProjectEndDate:yyyy-MM-dd})");
+        }
+
+        int totalTasksInMetrics = metrics.CompletedTasks + metrics.InProgressTasks + metrics.CarriedOverTasks;
+        if (totalTasksInMetrics != metrics.TotalTasks)
+        {
+            errors.Add($"Metrics task sum mismatch: completed ({metrics.CompletedTasks}) + in-progress ({metrics.InProgressTasks}) + carried-over ({metrics.CarriedOverTasks}) = {totalTasksInMetrics}, but total is {metrics.TotalTasks}");
+        }
+
+        if (metrics.TotalTasks > 0)
+        {
+            int calculatedCompletion = (int)((metrics.CompletedTasks / (double)metrics.TotalTasks) * 100);
+            if (calculatedCompletion != metrics.CompletionPercentage)
+            {
+                errors.Add($"Metrics completion percentage mismatch: expected {calculatedCompletion}, got {metrics.CompletionPercentage}");
+            }
+        }
+
+        if (metrics.EstimatedBurndownRate < 0)
+        {
+            errors.Add($"Metrics burn-down rate cannot be negative: {metrics.EstimatedBurndownRate}");
+        }
+    }
+
+    /// <summary>
+    /// Validates that task milestone references exist in the milestones collection.
+    /// </summary>
+    private void ValidateMilestoneReferences(List<string> errors)
+    {
+        var milestoneIds = new HashSet<string>(Milestones.Select(m => m.Id));
+
+        foreach (var task in Tasks)
+        {
+            if (!string.IsNullOrWhiteSpace(task.RelatedMilestone) && !milestoneIds.Contains(task.RelatedMilestone))
+            {
+                errors.Add($"Task '{task.Name}' references non-existent milestone: {task.RelatedMilestone}");
+            }
+        }
     }
 }
