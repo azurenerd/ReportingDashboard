@@ -1,203 +1,321 @@
-// ============================================================================
-// DASHBOARD INITIALIZATION AND CLIENT-SIDE UTILITIES
-// ============================================================================
-// Handles dashboard setup, timeline initialization, and data binding for
-// executive dashboard components. Coordinates with Blazor components for
-// real-time data updates and Chart.js visualization.
-// ============================================================================
+/**
+ * Dashboard Initialization and Timeline Rendering
+ * Handles chart.js timeline initialization and responsive dashboard behavior
+ */
 
-(function() {
+(function () {
     'use strict';
 
-    // Dashboard initialization on DOM content loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('[Dashboard] Initializing dashboard on page load');
-        initializeDashboard();
-    });
+    const Dashboard = {
+        // Configuration
+        config: {
+            animationDuration: 500,
+            responsiveDelay: 300,
+            timelineChartId: 'timelineChart',
+            timelineContainerId: 'timelineContainer'
+        },
 
-    // Initialize dashboard components
-    function initializeDashboard() {
-        console.log('[Dashboard] Dashboard initialization started');
-        
-        // Set up event listeners
-        setupEventListeners();
-        
-        // Initialize accessible components
-        setupAccessibility();
-        
-        console.log('[Dashboard] Dashboard initialization complete');
-    }
+        // State
+        state: {
+            timelineChart: null,
+            isInitialized: false,
+            currentViewport: null
+        },
 
-    // Event listener setup
-    function setupEventListeners() {
-        // Window resize handler for responsive adjustments
-        window.addEventListener('resize', debounce(function() {
-            console.log('[Dashboard] Window resized, triggering layout adjustment');
-            adjustLayoutForViewport();
-        }, 250));
-        
-        // Print preparation
-        window.addEventListener('beforeprint', function() {
-            console.log('[Dashboard] Preparing for print');
-            preparePrintView();
-        });
-        
-        window.addEventListener('afterprint', function() {
-            console.log('[Dashboard] Restoring normal view after print');
-            restoreNormalView();
-        });
-    }
+        /**
+         * Initialize dashboard on page load
+         */
+        init: function () {
+            if (this.state.isInitialized) return;
 
-    // Setup accessibility features
-    function setupAccessibility() {
-        // Ensure keyboard navigation support
-        document.querySelectorAll('[data-interactive]').forEach(function(el) {
-            if (!el.hasAttribute('tabindex')) {
-                el.setAttribute('tabindex', '0');
-            }
-            
-            el.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    el.click();
-                }
+            this.attachEventListeners();
+            this.initializeTimeline();
+            this.handleResponsiveResize();
+            this.state.isInitialized = true;
+        },
+
+        /**
+         * Attach event listeners for dashboard interactions
+         */
+        attachEventListeners: function () {
+            window.addEventListener('resize', this.debounce(
+                () => this.handleResponsiveResize(),
+                this.config.responsiveDelay
+            ));
+
+            document.addEventListener('DOMContentLoaded', () => {
+                this.initializeTimeline();
             });
-        });
-    }
+        },
 
-    // Adjust layout for current viewport
-    function adjustLayoutForViewport() {
-        var width = window.innerWidth;
-        var height = window.innerHeight;
-        
-        console.log('[Dashboard] Viewport: ' + width + 'x' + height);
-        
-        if (width < 1024) {
-            document.body.classList.add('compact-layout');
-        } else {
-            document.body.classList.remove('compact-layout');
-        }
-    }
+        /**
+         * Initialize timeline chart using Chart.js
+         */
+        initializeTimeline: function () {
+            const timelineContainer = document.getElementById(this.config.timelineContainerId);
+            if (!timelineContainer) return;
 
-    // Prepare view for printing
-    function preparePrintView() {
-        document.body.style.overflow = 'hidden';
-        document.querySelectorAll('.dashboard-wrapper').forEach(function(el) {
-            el.style.overflow = 'visible';
-        });
-    }
-
-    // Restore normal view after printing
-    function restoreNormalView() {
-        document.body.style.overflow = 'auto';
-        document.querySelectorAll('.dashboard-wrapper').forEach(function(el) {
-            el.style.overflow = 'auto';
-        });
-    }
-
-    // Timeline Chart Configuration
-    window.dashboardCharts = {
-        initializeTimeline: function(canvasId, data) {
-            console.log('[Dashboard] Initializing timeline chart: ' + canvasId);
-            
-            var ctx = document.getElementById(canvasId);
-            if (!ctx) {
-                console.warn('[Dashboard] Canvas element not found: ' + canvasId);
-                return null;
+            const canvas = timelineContainer.querySelector('canvas');
+            if (!canvas) {
+                console.warn('Timeline canvas element not found');
+                return;
             }
-            
-            // Return chart instance for external control
-            return new Chart(ctx, {
-                type: 'bar',
-                data: data,
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.warn('Could not get canvas context');
+                return;
+            }
+
+            // Get milestone data from data attribute or window object
+            const milestoneData = this.getMilestoneData();
+            if (!milestoneData || milestoneData.length === 0) {
+                console.warn('No milestone data available');
+                return;
+            }
+
+            this.renderTimeline(ctx, milestoneData);
+        },
+
+        /**
+         * Render timeline chart
+         */
+        renderTimeline: function (ctx, milestones) {
+            const labels = milestones.map(m => m.name);
+            const datasets = this.buildTimelineDatasets(milestones);
+
+            if (this.state.timelineChart) {
+                this.state.timelineChart.destroy();
+            }
+
+            this.state.timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    indexAxis: 'y',
+                    aspectRatio: 3,
                     plugins: {
                         legend: {
                             display: false
                         },
                         tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 12
+                            },
+                            displayColors: true,
                             callbacks: {
-                                label: function(context) {
-                                    return context.raw + '%';
+                                label: function (context) {
+                                    return context.dataset.label || '';
                                 }
                             }
                         }
                     },
                     scales: {
-                        x: {
+                        y: {
+                            display: true,
                             beginAtZero: true,
                             max: 100,
                             ticks: {
-                                callback: function(value) {
+                                callback: function (value) {
                                     return value + '%';
                                 }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            display: true,
+                            grid: {
+                                display: false
                             }
                         }
                     }
                 }
             });
-        }
-    };
-
-    // Date formatting utility
-    window.dashboardUtils = {
-        formatDate: function(dateString) {
-            var date = new Date(dateString);
-            var options = { year: 'numeric', month: 'short', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
         },
-        
-        formatDateTime: function(dateString) {
-            var date = new Date(dateString);
-            var options = { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric', 
-                hour: '2-digit', 
-                minute: '2-digit'
+
+        /**
+         * Build timeline datasets for Chart.js
+         */
+        buildTimelineDatasets: function (milestones) {
+            const statusColors = {
+                completed: 'rgba(39, 174, 96, 1)',
+                'in-progress': 'rgba(52, 152, 219, 1)',
+                'at-risk': 'rgba(231, 76, 60, 1)',
+                future: 'rgba(149, 165, 166, 1)'
             };
-            return date.toLocaleDateString('en-US', options);
-        },
-        
-        getMonthYear: function(dateString) {
-            var date = new Date(dateString);
-            var options = { year: 'numeric', month: 'long' };
-            return date.toLocaleDateString('en-US', options);
-        },
-        
-        getDaysSinceOrUntil: function(dateString) {
-            var targetDate = new Date(dateString);
-            var today = new Date();
-            today.setHours(0, 0, 0, 0);
-            targetDate.setHours(0, 0, 0, 0);
-            
-            var diffTime = targetDate - today;
-            var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            return diffDays;
-        }
-    };
 
-    // Utility function: debounce
-    function debounce(func, wait) {
-        var timeout;
-        return function executedFunction() {
-            var later = function() {
+            return milestones.map((milestone, index) => {
+                const status = milestone.status || 'future';
+                const color = statusColors[status] || statusColors.future;
+
+                return {
+                    label: milestone.name,
+                    data: Array(index + 1).fill(null).map((_, i) => (i + 1) * (100 / milestones.length)),
+                    borderColor: color,
+                    backgroundColor: color.replace('1)', '0.1)'),
+                    borderWidth: 2,
+                    fill: false,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    tension: 0.3
+                };
+            });
+        },
+
+        /**
+         * Get milestone data from page or API
+         */
+        getMilestoneData: function () {
+            // Try to get from window object (set by Blazor component)
+            if (window.dashboardData && window.dashboardData.milestones) {
+                return window.dashboardData.milestones;
+            }
+
+            // Fallback: try to parse from data attribute
+            const container = document.getElementById(this.config.timelineContainerId);
+            if (container && container.dataset.milestones) {
+                try {
+                    return JSON.parse(container.dataset.milestones);
+                } catch (e) {
+                    console.error('Failed to parse milestone data:', e);
+                }
+            }
+
+            return [];
+        },
+
+        /**
+         * Handle responsive resize events
+         */
+        handleResponsiveResize: function () {
+            const viewport = {
+                width: window.innerWidth,
+                height: window.innerHeight
+            };
+
+            // Check if viewport changed significantly
+            if (this.state.currentViewport &&
+                this.state.currentViewport.width === viewport.width &&
+                this.state.currentViewport.height === viewport.height) {
+                return;
+            }
+
+            this.state.currentViewport = viewport;
+            this.applyResponsiveClasses(viewport);
+
+            if (this.state.timelineChart) {
+                this.state.timelineChart.resize();
+            }
+        },
+
+        /**
+         * Apply responsive CSS classes based on viewport
+         */
+        applyResponsiveClasses: function (viewport) {
+            const root = document.documentElement;
+            root.classList.remove('viewport-tablet', 'viewport-desktop', 'viewport-presentation');
+
+            if (viewport.width >= 1920) {
+                root.classList.add('viewport-presentation');
+            } else if (viewport.width >= 1280) {
+                root.classList.add('viewport-desktop');
+            } else {
+                root.classList.add('viewport-tablet');
+            }
+        },
+
+        /**
+         * Debounce function for resize events
+         */
+        debounce: function (func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
                 clearTimeout(timeout);
-                func();
+                timeout = setTimeout(later, wait);
             };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
+        },
+
+        /**
+         * Update dashboard metrics display
+         */
+        updateMetrics: function (metrics) {
+            const metricCards = document.querySelectorAll('.metric-card');
+            metricCards.forEach((card, index) => {
+                const metric = metrics[index];
+                if (metric) {
+                    const valueElement = card.querySelector('.metric-value');
+                    const subtextElement = card.querySelector('.metric-subtext');
+                    if (valueElement) {
+                        valueElement.textContent = metric.value;
+                    }
+                    if (subtextElement && metric.subtext) {
+                        subtextElement.textContent = metric.subtext;
+                    }
+                }
+            });
+        },
+
+        /**
+         * Update work items display
+         */
+        updateWorkItems: function (items) {
+            const columns = document.querySelectorAll('.work-item-column');
+            columns.forEach((column, index) => {
+                const list = column.querySelector('.work-item-list');
+                if (list) {
+                    list.innerHTML = '';
+                    if (items[index]) {
+                        items[index].forEach(item => {
+                            const li = document.createElement('li');
+                            li.className = 'work-item';
+                            li.innerHTML = `
+                                <h3 class="work-item-title">${this.escapeHtml(item.title)}</h3>
+                                <p class="work-item-description">${this.escapeHtml(item.description || '')}</p>
+                            `;
+                            list.appendChild(li);
+                        });
+                    }
+                }
+            });
+        },
+
+        /**
+         * Escape HTML to prevent XSS
+         */
+        escapeHtml: function (text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    };
+
+    // Initialize on document ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => Dashboard.init());
+    } else {
+        Dashboard.init();
     }
 
-    // Expose init function for manual trigger if needed
-    window.reinitializeDashboard = function() {
-        console.log('[Dashboard] Manual reinitialization triggered');
-        initializeDashboard();
-    };
-
+    // Expose to global scope for Blazor interop
+    window.Dashboard = Dashboard;
 })();
