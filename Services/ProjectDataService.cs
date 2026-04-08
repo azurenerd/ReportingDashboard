@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AgentSquad.Models;
@@ -36,12 +37,42 @@ namespace AgentSquad.Services
                 throw new InvalidOperationException("Failed to deserialize project data from JSON.");
             }
 
-            data.Metrics = new ProjectMetrics
-            {
-                CompletionPercentage = data.Project?.CompletionPercentage ?? 0
-            };
+            CalculateMetrics(data);
 
             return data;
+        }
+
+        private void CalculateMetrics(ProjectData data)
+        {
+            if (data.Project == null || data.Tasks == null)
+            {
+                data.Metrics = new ProjectMetrics();
+                return;
+            }
+
+            int totalTasks = data.Tasks.Count;
+            int completedTasks = data.Tasks.Count(t => t.Status == TaskStatus.Shipped);
+            int inProgressTasks = data.Tasks.Count(t => t.Status == TaskStatus.InProgress);
+            int carriedOverTasks = data.Tasks.Count(t => t.Status == TaskStatus.CarriedOver);
+
+            DateTime today = DateTime.UtcNow;
+            DateTime projectEnd = data.Project.EndDate;
+            int daysRemaining = Math.Max(0, (int)(projectEnd - today).TotalDays);
+
+            double estimatedBurndownRate = totalTasks > 0 ? (completedTasks / (double)totalTasks) * 100 : 0;
+
+            data.Metrics = new ProjectMetrics
+            {
+                CompletionPercentage = data.Project.CompletionPercentage,
+                TotalTasks = totalTasks,
+                CompletedTasks = completedTasks,
+                InProgressTasks = inProgressTasks,
+                CarriedOverTasks = carriedOverTasks,
+                ProjectStartDate = data.Project.StartDate,
+                ProjectEndDate = projectEnd,
+                DaysRemaining = daysRemaining,
+                EstimatedBurndownRate = Math.Round(estimatedBurndownRate, 2)
+            };
         }
     }
 }

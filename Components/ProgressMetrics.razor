@@ -16,6 +16,49 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Task Breakdown</h5>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <p class="mb-1"><strong>@Metrics.CompletedTasks</strong> Completed</p>
+                                <small class="text-muted">of @Metrics.TotalTasks tasks</small>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1"><strong>@Metrics.DaysRemaining</strong> Days</p>
+                                <small class="text-muted">until completion</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted mb-2">In Progress</h6>
+                        <p class="fs-4 fw-bold text-info">@Metrics.InProgressTasks</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted mb-2">Carried Over</h6>
+                        <p class="fs-4 fw-bold text-warning">@Metrics.CarriedOverTasks</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted mb-2">Burndown Rate</h6>
+                        <p class="fs-4 fw-bold text-primary">@Metrics.EstimatedBurndownRate%</p>
+                    </div>
+                </div>
+            </div>
         </div>
     }
 </div>

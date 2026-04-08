@@ -27,6 +27,12 @@
     [Parameter]
     public List<Milestone> Milestones { get; set; } = new();
 
+    [Parameter]
+    public DateTime ProjectStartDate { get; set; }
+
+    [Parameter]
+    public DateTime ProjectEndDate { get; set; }
+
     private string GetStatusClass(MilestoneStatus status) => status switch
     {
         MilestoneStatus.Completed => "completed",

@@ -2,6 +2,9 @@
   "project": {
     "name": "Q2 Mobile App Release",
     "description": "Mobile application development and release for Q2 2026",
+    "status": "InProgress",
+    "sponsor": "Chief Product Officer",
+    "projectManager": "Jennifer Liu",
     "startDate": "2026-04-01",
     "endDate": "2026-06-30",
     "completionPercentage": 65

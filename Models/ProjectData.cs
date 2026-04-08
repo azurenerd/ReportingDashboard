@@ -26,6 +26,15 @@ namespace AgentSquad.Models
         [JsonPropertyName("description")]
         public string Description { get; set; }
 
+        [JsonPropertyName("status")]
+        public string Status { get; set; }
+
+        [JsonPropertyName("sponsor")]
+        public string Sponsor { get; set; }
+
+        [JsonPropertyName("projectManager")]
+        public string ProjectManager { get; set; }
+
         [JsonPropertyName("startDate")]
         public DateTime StartDate { get; set; }
 
@@ -80,6 +89,14 @@ namespace AgentSquad.Models
     public class ProjectMetrics
     {
         public int CompletionPercentage { get; set; }
+        public int TotalTasks { get; set; }
+        public int CompletedTasks { get; set; }
+        public int InProgressTasks { get; set; }
+        public int CarriedOverTasks { get; set; }
+        public DateTime ProjectStartDate { get; set; }
+        public DateTime ProjectEndDate { get; set; }
+        public int DaysRemaining { get; set; }
+        public double EstimatedBurndownRate { get; set; }
     }
 
     public enum MilestoneStatus
