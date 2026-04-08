@@ -63,31 +63,34 @@
         {
             IsLoading = true;
             ErrorMessage = string.Empty;
+            Logger.LogInformation("Starting to load project data");
 
             ProjectData = await DataProvider.LoadProjectDataAsync();
+            
+            Logger.LogInformation("Project data loaded successfully: {ProjectName}", ProjectData?.Name);
             IsLoading = false;
         }
         catch (FileNotFoundException ex)
         {
-            Logger.LogError(ex, "Project data file not found");
+            Logger.LogError(ex, "Project data file not found at expected location");
             ErrorMessage = "Configuration file not found. Please ensure data.json exists in the application directory.";
             IsLoading = false;
         }
         catch (JsonException ex)
         {
-            Logger.LogError(ex, "Failed to parse project data JSON");
+            Logger.LogError(ex, "Failed to parse project data JSON - syntax error in data.json");
             ErrorMessage = "Invalid JSON format in configuration file. Please check data.json for syntax errors.";
             IsLoading = false;
         }
         catch (InvalidOperationException ex)
         {
-            Logger.LogError(ex, "Project data validation failed");
+            Logger.LogError(ex, "Project data validation failed - missing required fields");
             ErrorMessage = $"Configuration validation failed: {ex.Message}";
             IsLoading = false;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Unexpected error loading project data");
+            Logger.LogError(ex, "Unexpected error occurred while loading project data");
             ErrorMessage = "An unexpected error occurred while loading the dashboard. Please try again.";
             IsLoading = false;
         }
