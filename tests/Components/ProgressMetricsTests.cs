@@ -1,76 +1,227 @@
 using Bunit;
+using AgentSquad.Runner.Components;
+using AgentSquad.Runner.Data;
 using Xunit;
-using AgentSquad.Components;
-using System;
 
-namespace AgentSquad.Tests.Components
+namespace AgentSquad.Runner.Tests.Components;
+
+public class ProgressMetricsTests : TestContext
 {
-    public class ProgressMetricsTests : TestContext
+    [Fact]
+    public void ProgressMetrics_WithNullMetrics_DisplaysZeroValues()
     {
-        private ProjectMetrics CreateTestMetrics(int totalTasks, int completedTasks)
+        // Arrange & Act
+        var component = RenderComponent<ProgressMetrics>(parameters => parameters
+            .Add(p => p.Metrics, null)
+            .Add(p => p.TotalTasks, 0));
+
+        // Assert
+        var content = component.Markup;
+        Assert.Contains("0%", content);
+    }
+
+    [Fact]
+    public void ProgressMetrics_DisplaysCompletionPercentage()
+    {
+        // Arrange
+        var metrics = new ProjectMetrics
         {
-            return new ProjectMetrics 
-            { 
-                TotalTasks = totalTasks,
-                CompletedTasks = completedTasks,
-                ProjectStartDate = DateTime.Now.AddDays(-10),
-                ProjectEndDate = DateTime.Now.AddDays(20),
-                EstimatedBurndownRate = 5.0,
-                DaysRemaining = 20
-            };
-        }
+            CompletionPercentage = 75,
+            TasksShipped = 3,
+            TasksInProgress = 1,
+            TasksCarriedOver = 0
+        };
 
-        [Fact]
-        public void ProgressMetrics_RendersSuccessfully()
+        // Act
+        var component = RenderComponent<ProgressMetrics>(parameters => parameters
+            .Add(p => p.Metrics, metrics)
+            .Add(p => p.TotalTasks, 4));
+
+        // Assert
+        var content = component.Markup;
+        Assert.Contains("75%", content);
+    }
+
+    [Fact]
+    public void ProgressMetrics_DisplaysProgressBar()
+    {
+        // Arrange
+        var metrics = new ProjectMetrics
         {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, CreateTestMetrics(100, 75))
-            );
+            CompletionPercentage = 50,
+            TasksShipped = 2,
+            TasksInProgress = 2,
+            TasksCarriedOver = 0
+        };
 
-            Assert.NotNull(component.Instance);
-        }
+        // Act
+        var component = RenderComponent<ProgressMetrics>(parameters => parameters
+            .Add(p => p.Metrics, metrics)
+            .Add(p => p.TotalTasks, 4));
 
-        [Fact]
-        public void ProgressMetrics_DisplaysCompletionStatus()
+        // Assert
+        var progressBar = component.Find(".progress-bar");
+        Assert.NotNull(progressBar);
+        var style = progressBar.GetAttribute("style");
+        Assert.Contains("width: 50%", style);
+    }
+
+    [Fact]
+    public void ProgressMetrics_DisplaysTotalTasks()
+    {
+        // Arrange
+        var metrics = new ProjectMetrics
         {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, CreateTestMetrics(100, 85))
-            );
+            CompletionPercentage = 25,
+            TasksShipped = 1,
+            TasksInProgress = 2,
+            TasksCarriedOver = 1
+        };
 
-            var markup = component.Markup;
-            Assert.Contains("85", markup);
-        }
+        // Act
+        var component = RenderComponent<ProgressMetrics>(parameters => parameters
+            .Add(p => p.Metrics, metrics)
+            .Add(p => p.TotalTasks, 4));
 
-        [Fact]
-        public void ProgressMetrics_RendersBurndownChart()
+        // Assert
+        var content = component.Markup;
+        Assert.Contains("4", content);
+    }
+
+    [Fact]
+    public void ProgressMetrics_DisplaysShippedTaskCount()
+    {
+        // Arrange
+        var metrics = new ProjectMetrics
         {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, CreateTestMetrics(100, 50))
-            );
+            CompletionPercentage = 60,
+            TasksShipped = 6,
+            TasksInProgress = 3,
+            TasksCarriedOver = 1
+        };
 
-            var elements = component.FindAll("[data-burndown]");
-            Assert.NotNull(elements);
-        }
+        // Act
+        var component = RenderComponent<ProgressMetrics>(parameters => parameters
+            .Add(p => p.Metrics, metrics)
+            .Add(p => p.TotalTasks, 10));
 
-        [Fact]
-        public void ProgressMetrics_HandlesNullMetrics()
+        // Assert
+        var content = component.Markup;
+        Assert.Contains("Tasks Shipped", content);
+        Assert.Contains("6", content);
+    }
+
+    [Fact]
+    public void ProgressMetrics_DisplaysInProgressTaskCount()
+    {
+        // Arrange
+        var metrics = new ProjectMetrics
         {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, null as ProjectMetrics)
-            );
+            CompletionPercentage = 40,
+            TasksShipped = 4,
+            TasksInProgress = 4,
+            TasksCarriedOver = 2
+        };
 
-            Assert.NotNull(component.Instance);
-        }
+        // Act
+        var component = RenderComponent<ProgressMetrics>(parameters => parameters
+            .Add(p => p.Metrics, metrics)
+            .Add(p => p.TotalTasks, 10));
 
-        [Fact]
-        public void ProgressMetrics_HandlesZeroCompletion()
+        // Assert
+        var content = component.Markup;
+        Assert.Contains("Tasks In Progress", content);
+        Assert.Contains("4", content);
+    }
+
+    [Fact]
+    public void ProgressMetrics_DisplaysCarriedOverTaskCount()
+    {
+        // Arrange
+        var metrics = new ProjectMetrics
         {
-            var component = RenderComponent<ProgressMetrics>(parameters => parameters
-                .Add(p => p.Metrics, CreateTestMetrics(100, 0))
-            );
+            CompletionPercentage = 30,
+            TasksShipped = 3,
+            TasksInProgress = 2,
+            TasksCarriedOver = 5
+        };
 
-            var markup = component.Markup;
-            Assert.NotEmpty(markup);
-        }
+        // Act
+        var component = RenderComponent<ProgressMetrics>(parameters => parameters
+            .Add(p => p.Metrics, metrics)
+            .Add(p => p.TotalTasks, 10));
+
+        // Assert
+        var content = component.Markup;
+        Assert.Contains("Tasks Carried Over", content);
+        Assert.Contains("5", content);
+    }
+
+    [Fact]
+    public void ProgressMetrics_DisplaysAllMetricCards()
+    {
+        // Arrange
+        var metrics = new ProjectMetrics
+        {
+            CompletionPercentage = 50,
+            TasksShipped = 5,
+            TasksInProgress = 3,
+            TasksCarriedOver = 2
+        };
+
+        // Act
+        var component = RenderComponent<ProgressMetrics>(parameters => parameters
+            .Add(p => p.Metrics, metrics)
+            .Add(p => p.TotalTasks, 10));
+
+        // Assert
+        var cards = component.FindAll(".metric-card");
+        Assert.Equal(5, cards.Count);
+    }
+
+    [Fact]
+    public void ProgressMetrics_WithZeroCompletion_DisplaysEmptyProgressBar()
+    {
+        // Arrange
+        var metrics = new ProjectMetrics
+        {
+            CompletionPercentage = 0,
+            TasksShipped = 0,
+            TasksInProgress = 5,
+            TasksCarriedOver = 0
+        };
+
+        // Act
+        var component = RenderComponent<ProgressMetrics>(parameters => parameters
+            .Add(p => p.Metrics, metrics)
+            .Add(p => p.TotalTasks, 5));
+
+        // Assert
+        var progressBar = component.Find(".progress-bar");
+        var style = progressBar.GetAttribute("style");
+        Assert.Contains("width: 0%", style);
+    }
+
+    [Fact]
+    public void ProgressMetrics_WithFullCompletion_DisplaysFullProgressBar()
+    {
+        // Arrange
+        var metrics = new ProjectMetrics
+        {
+            CompletionPercentage = 100,
+            TasksShipped = 10,
+            TasksInProgress = 0,
+            TasksCarriedOver = 0
+        };
+
+        // Act
+        var component = RenderComponent<ProgressMetrics>(parameters => parameters
+            .Add(p => p.Metrics, metrics)
+            .Add(p => p.TotalTasks, 10));
+
+        // Assert
+        var progressBar = component.Find(".progress-bar");
+        var style = progressBar.GetAttribute("style");
+        Assert.Contains("width: 100%", style);
     }
 }
