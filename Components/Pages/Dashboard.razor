@@ -1,0 +1,125 @@
+@page "/"
+@inject ProjectDataService DataService
+
+<div class="container-fluid py-5">
+    @if (isLoading)
+    {
+        <div class="alert alert-info" role="alert">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Loading dashboard data...
+        </div>
+    }
+    @else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Error Loading Dashboard</h4>
+            <p>@errorMessage</p>
+            <hr>
+            <p class="mb-0">Please verify that data.json exists and is properly formatted.</p>
+        </div>
+    }
+    @else if (projectData != null)
+    {
+        <div class="row mb-5">
+            <div class="col-12">
+                <h1 class="display-5 fw-bold">@projectData.ProjectName</h1>
+                <p class="text-muted">
+                    @projectData.StartDate.ToString("MMMM d, yyyy") - @projectData.EndDate.ToString("MMMM d, yyyy")
+                </p>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Project Timeline</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- MilestoneTimeline component will be rendered here in future step -->
+                        <p class="text-muted">Timeline visualization will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header" style="border-left: 4px solid #28a745;">
+                        <h6 class="mb-0">Shipped</h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- StatusCard component (Shipped) will be rendered here in future step -->
+                        <p class="text-muted">Status card will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header" style="border-left: 4px solid #0d6efd;">
+                        <h6 class="mb-0">In Progress</h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- StatusCard component (In Progress) will be rendered here in future step -->
+                        <p class="text-muted">Status card will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header" style="border-left: 4px solid #fd7e14;">
+                        <h6 class="mb-0">Carried Over</h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- StatusCard component (Carried Over) will be rendered here in future step -->
+                        <p class="text-muted">Status card will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Progress Metrics</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- ProgressMetrics component will be rendered here in future step -->
+                        <p class="text-muted">Progress metrics will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private ProjectData? projectData;
+    private string errorMessage = string.Empty;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            projectData = await DataService.LoadProjectDataAsync();
+
+            if (projectData == null || string.IsNullOrEmpty(projectData.ProjectName))
+            {
+                errorMessage = "Project data is empty or invalid. Please verify that data.json is properly formatted and contains a valid ProjectName field.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred while loading project data: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
