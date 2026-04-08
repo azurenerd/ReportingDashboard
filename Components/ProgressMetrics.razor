@@ -1,0 +1,19 @@
+@using AgentSquad.Runner.Data
+
+<div class="progress-section">
+    <p class="text-muted">Progress metrics component placeholder - completion tracking and charts coming in future steps</p>
+</div>
+
+@code {
+    [Parameter]
+    public int CompletionPercentage { get; set; }
+
+    [Parameter]
+    public int TotalTasks { get; set; }
+
+    [Parameter]
+    public int CompletedTasks { get; set; }
+
+    [Parameter]
+    public double BurndownRate { get; set; }
+}

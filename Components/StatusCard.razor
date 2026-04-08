@@ -1,0 +1,24 @@
+@using AgentSquad.Runner.Data
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">@StatusCategory</h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">Status card placeholder - task counts and details coming in future steps</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string StatusCategory { get; set; } = string.Empty;
+
+    [Parameter]
+    public int TaskCount { get; set; }
+
+    [Parameter]
+    public List<Task>? Tasks { get; set; }
+
+    [Parameter]
+    public string CardColor { get; set; } = string.Empty;
+}

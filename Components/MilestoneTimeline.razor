@@ -1,0 +1,16 @@
+@using AgentSquad.Runner.Data
+
+<div class="milestone-timeline">
+    <p class="text-muted">Milestone timeline component placeholder</p>
+</div>
+
+@code {
+    [Parameter]
+    public List<Milestone>? Milestones { get; set; }
+
+    [Parameter]
+    public DateTime ProjectStartDate { get; set; }
+
+    [Parameter]
+    public DateTime ProjectEndDate { get; set; }
+}

@@ -1,0 +1,20 @@
+@inherits ErrorBoundaryBase
+
+<ErrorBoundary @ref="_errorBoundary">
+    @ChildContent
+    <ErrorContent Context="exception">
+        <div class="container-fluid mt-5">
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error Loading Dashboard</h4>
+                <p class="mb-0">An error occurred while loading the dashboard. Please refresh the page to retry.</p>
+            </div>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    private ErrorBoundary? _errorBoundary;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
