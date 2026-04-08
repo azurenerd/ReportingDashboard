@@ -1,32 +1,46 @@
-using AgentSquad.Runner.Services;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.StaticFiles;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplicationBuilder.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
-
-builder.Services.AddMemoryCache();
-builder.Services.AddScoped<IDataCache, DataCache>();
-builder.Services.AddScoped<IDataValidator, DataValidator>();
-builder.Services.AddScoped<IDataProvider, DataProvider>();
-builder.Services.AddScoped<IErrorHandler, ErrorLogger>();
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles();
+var provider = new FileExtensionContentTypeProvider();
+
+provider.Mappings[".woff"] = "font/woff";
+provider.Mappings[".woff2"] = "font/woff2";
+provider.Mappings[".ttf"] = "font/ttf";
+provider.Mappings[".otf"] = "font/otf";
+provider.Mappings[".eot"] = "application/vnd.ms-fontobject";
+provider.Mappings[".svg"] = "image/svg+xml";
+provider.Mappings[".json"] = "application/json";
+provider.Mappings[".js"] = "application/javascript";
+
+var staticFileOptions = new StaticFileOptions
+{
+    ContentTypeProvider = provider,
+    OnPrepareResponse = context =>
+    {
+        context.Context.Response.Headers.Append("Cache-Control", "public, max-age=86400");
+    }
+};
 
 app.UseRouting();
+app.UseStaticFiles(staticFileOptions);
 
-app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
+app.UseAntiforgery();
+
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
 
 app.Run();
