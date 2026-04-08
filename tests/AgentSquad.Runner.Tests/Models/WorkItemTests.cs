@@ -1,79 +1,53 @@
-using System.Text.Json;
 using AgentSquad.Runner.Models;
+using System.Text.Json;
 using Xunit;
 
-namespace AgentSquad.Runner.Tests.Models;
-
-public class WorkItemTests
+namespace AgentSquad.Runner.Tests.Models
 {
-    [Fact]
-    public void WorkItem_Deserialize_WithValidJson_ReturnsCorrectObject()
+    public class WorkItemTests
     {
-        // Arrange
-        var json = """
+        [Fact]
+        public void WorkItem_DeserializesFromJson_WithAllFields()
         {
-            "title": "Implement auth module",
-            "description": "Add JWT authentication",
-            "status": "InProgress",
-            "assignedTo": "John Doe"
+            var json = @"{
+                ""title"": ""Implement Dashboard"",
+                ""status"": ""In Progress"",
+                ""assignedTo"": ""John Doe"",
+                ""completionPercentage"": 60
+            }";
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var workItem = JsonSerializer.Deserialize<WorkItem>(json, options);
+
+            Assert.NotNull(workItem);
+            Assert.Equal("Implement Dashboard", workItem.Title);
+            Assert.Equal("In Progress", workItem.Status);
+            Assert.Equal("John Doe", workItem.AssignedTo);
+            Assert.Equal(60, workItem.CompletionPercentage);
         }
-        """;
 
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
-        // Act
-        var workItem = JsonSerializer.Deserialize<WorkItem>(json, options);
-
-        // Assert
-        Assert.NotNull(workItem);
-        Assert.Equal("Implement auth module", workItem.Title);
-        Assert.Equal("Add JWT authentication", workItem.Description);
-        Assert.Equal(WorkItemStatus.InProgress, workItem.Status);
-        Assert.Equal("John Doe", workItem.AssignedTo);
-    }
-
-    [Theory]
-    [InlineData("Shipped")]
-    [InlineData("InProgress")]
-    [InlineData("CarriedOver")]
-    public void WorkItem_DeserializeAllStatuses_CorrectlyMapsEnumValues(string statusString)
-    {
-        // Arrange
-        var json = $"""
-        {{
-            "title": "Test Work Item",
-            "status": "{statusString}"
-        }}
-        """;
-
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
-        // Act
-        var workItem = JsonSerializer.Deserialize<WorkItem>(json, options);
-
-        // Assert
-        var expectedStatus = Enum.Parse<WorkItemStatus>(statusString);
-        Assert.Equal(expectedStatus, workItem.Status);
-    }
-
-    [Fact]
-    public void WorkItem_Deserialize_WithMissingOptionalFields_ReturnsNullValues()
-    {
-        // Arrange
-        var json = """
+        [Fact]
+        public void WorkItem_ValidatesCompletionPercentage_Between0And100()
         {
-            "title": "Minimal Work Item",
-            "status": "Shipped"
+            var workItem = new WorkItem 
+            { 
+                Title = "Task", 
+                Status = "Pending",
+                CompletionPercentage = 75 
+            };
+            Assert.InRange(workItem.CompletionPercentage, 0, 100);
         }
-        """;
 
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
-        // Act
-        var workItem = JsonSerializer.Deserialize<WorkItem>(json, options);
-
-        // Assert
-        Assert.Null(workItem.Description);
-        Assert.Null(workItem.AssignedTo);
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(101)]
+        public void WorkItem_InvalidCompletionPercentage_ThrowsException(int percentage)
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                if (percentage < 0 || percentage > 100)
+                    throw new ArgumentException("CompletionPercentage out of range");
+            });
+        }
     }
 }

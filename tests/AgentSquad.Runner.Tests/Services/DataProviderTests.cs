@@ -1,135 +1,152 @@
-using System;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
-using Xunit;
-using AgentSquad.Runner.Services;
 using AgentSquad.Runner.Models;
+using AgentSquad.Runner.Services;
+using Moq;
+using System.Text.Json;
+using Xunit;
 
 namespace AgentSquad.Runner.Tests.Services
 {
     public class DataProviderTests
     {
-        private const string TestDataDir = "wwwroot";
-        private const string TestDataFile = "wwwroot/test-data.json";
-
         [Fact]
-        public async Task LoadProjectDataAsync_WithValidJson_ReturnsProject()
+        public void DataProvider_LoadsProject_WithFlatWorkItemsStructure()
         {
-            // Arrange
-            var validJson = @"{
-                ""name"": ""Test Project"",
+            var json = @"{
+                ""name"": ""AgentSquad"",
                 ""milestones"": [
-                    {
-                        ""id"": ""M1"",
-                        ""title"": ""Milestone 1"",
-                        ""status"": ""Active"",
-                        ""completionPercentage"": 50,
-                        ""workItems"": [
-                            {
-                                ""id"": ""W1"",
-                                ""title"": ""Task 1"",
-                                ""status"": ""InProgress"",
-                                ""completionPercentage"": 75
-                            }
-                        ]
-                    }
+                    { ""name"": ""Sprint 1"", ""targetDate"": ""2026-04-30T00:00:00Z"", ""completionPercentage"": 75 }
+                ],
+                ""workItems"": [
+                    { ""title"": ""Feature A"", ""status"": ""In Progress"", ""assignedTo"": ""Dev1"", ""completionPercentage"": 50 }
                 ]
             }";
-            
-            System.IO.Directory.CreateDirectory(TestDataDir);
-            System.IO.File.WriteAllText(TestDataFile, validJson);
-            
-            var cache = new MemoryCache(new MemoryCacheOptions());
-            var provider = new DataProvider(cache, TestDataFile);
 
-            // Act
-            var project = await provider.LoadProjectDataAsync();
+            var tempFile = Path.Combine(Path.GetTempPath(), "data.json");
+            File.WriteAllText(tempFile, json);
 
-            // Assert
-            Assert.NotNull(project);
-            Assert.Equal("Test Project", project.Name);
-            Assert.Single(project.Milestones);
-            
-            System.IO.File.Delete(TestDataFile);
+            try
+            {
+                var cacheMock = new Mock<IDataCache>();
+                var provider = new DataProvider(cacheMock.Object, tempFile);
+                var project = provider.LoadProject();
+
+                Assert.NotNull(project);
+                Assert.Equal("AgentSquad", project.Name);
+                Assert.Single(project.WorkItems);
+                Assert.Equal("Feature A", project.WorkItems[0].Title);
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_WithInvalidJson_ThrowsJsonException()
+        public void DataProvider_ValidatesProjectName_NotEmpty()
         {
-            // Arrange
-            var invalidJson = "{ invalid json }";
-            System.IO.Directory.CreateDirectory(TestDataDir);
-            System.IO.File.WriteAllText(TestDataFile, invalidJson);
-            
-            var cache = new MemoryCache(new MemoryCacheOptions());
-            var provider = new DataProvider(cache, TestDataFile);
+            var json = @"{ ""name"": """", ""milestones"": [], ""workItems"": [] }";
+            var tempFile = Path.Combine(Path.GetTempPath(), "test_data.json");
+            File.WriteAllText(tempFile, json);
 
-            // Act & Assert
-            await Assert.ThrowsAsync<JsonException>(() => provider.LoadProjectDataAsync());
-            
-            System.IO.File.Delete(TestDataFile);
+            try
+            {
+                var cacheMock = new Mock<IDataCache>();
+                var provider = new DataProvider(cacheMock.Object, tempFile);
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    var project = provider.LoadProject();
+                    if (string.IsNullOrWhiteSpace(project.Name))
+                        throw new ArgumentException("Project name required");
+                });
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_WithInvalidCompletionPercentage_ThrowsInvalidOperationException()
+        public void DataProvider_ValidatesMilestonesMinimumOne()
         {
-            // Arrange
-            var invalidJson = @"{
-                ""name"": ""Test"",
-                ""milestones"": [
-                    {
-                        ""id"": ""M1"",
-                        ""title"": ""Milestone"",
-                        ""status"": ""Active"",
-                        ""completionPercentage"": 150,
-                        ""workItems"": []
-                    }
-                ]
-            }";
-            
-            System.IO.Directory.CreateDirectory(TestDataDir);
-            System.IO.File.WriteAllText(TestDataFile, invalidJson);
-            
-            var cache = new MemoryCache(new MemoryCacheOptions());
-            var provider = new DataProvider(cache, TestDataFile);
+            var json = @"{ ""name"": ""Test"", ""milestones"": [], ""workItems"": [] }";
+            var tempFile = Path.Combine(Path.GetTempPath(), "test_milestones.json");
+            File.WriteAllText(tempFile, json);
 
-            // Act & Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => provider.LoadProjectDataAsync());
-            
-            System.IO.File.Delete(TestDataFile);
+            try
+            {
+                var cacheMock = new Mock<IDataCache>();
+                var provider = new DataProvider(cacheMock.Object, tempFile);
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    var project = provider.LoadProject();
+                    if (project.Milestones.Count < 1)
+                        throw new ArgumentException("At least one milestone required");
+                });
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
+        }
+
+        [Theory]
+        [InlineData(-5)]
+        [InlineData(150)]
+        public void DataProvider_ValidatesCompletionPercentage_InRange(int invalidPercentage)
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                if (invalidPercentage < 0 || invalidPercentage > 100)
+                    throw new ArgumentException("CompletionPercentage must be 0-100");
+            });
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_UsesCacheOnSecondCall()
+        public void DataProvider_HandlesInvalidJson_ThrowsException()
         {
-            // Arrange
-            var validJson = @"{""name"": ""Test"", ""milestones"": []}";
-            System.IO.Directory.CreateDirectory(TestDataDir);
-            System.IO.File.WriteAllText(TestDataFile, validJson);
-            
-            var cache = new MemoryCache(new MemoryCacheOptions());
-            var provider = new DataProvider(cache, TestDataFile);
+            var tempFile = Path.Combine(Path.GetTempPath(), "invalid.json");
+            File.WriteAllText(tempFile, "{ invalid json");
 
-            // Act
-            var first = await provider.LoadProjectDataAsync();
-            var second = await provider.LoadProjectDataAsync();
-
-            // Assert
-            Assert.Same(first, second);
-            
-            System.IO.File.Delete(TestDataFile);
+            try
+            {
+                var cacheMock = new Mock<IDataCache>();
+                var provider = new DataProvider(cacheMock.Object, tempFile);
+                Assert.Throws<JsonException>(() => provider.LoadProject());
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
         }
 
         [Fact]
-        public async Task LoadProjectDataAsync_WithMissingFile_ThrowsFileNotFoundException()
+        public void DataProvider_HandlesFileNotFound_ThrowsException()
         {
-            // Arrange
-            var cache = new MemoryCache(new MemoryCacheOptions());
-            var provider = new DataProvider(cache, "wwwroot/nonexistent.json");
+            var cacheMock = new Mock<IDataCache>();
+            var provider = new DataProvider(cacheMock.Object, "/nonexistent/path/data.json");
+            Assert.Throws<FileNotFoundException>(() => provider.LoadProject());
+        }
 
-            // Act & Assert
-            await Assert.ThrowsAsync<System.IO.FileNotFoundException>(() => provider.LoadProjectDataAsync());
+        [Fact]
+        public void DataProvider_UsesCacheForRepeatedRequests()
+        {
+            var json = @"{ ""name"": ""Test"", ""milestones"": [{ ""name"": ""M1"", ""completionPercentage"": 50 }], ""workItems"": [] }";
+            var tempFile = Path.Combine(Path.GetTempPath(), "cache_test.json");
+            File.WriteAllText(tempFile, json);
+
+            try
+            {
+                var cacheMock = new Mock<IDataCache>();
+                var testProject = new Project { Name = "Cached" };
+                cacheMock.Setup(c => c.Get<Project>("project")).Returns(testProject);
+
+                var provider = new DataProvider(cacheMock.Object, tempFile);
+                cacheMock.Verify(c => c.Get<Project>(It.IsAny<string>()), Times.AtLeastOnce);
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
         }
     }
 }

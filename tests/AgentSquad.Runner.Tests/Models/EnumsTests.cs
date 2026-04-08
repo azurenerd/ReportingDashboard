@@ -1,56 +1,50 @@
 using AgentSquad.Runner.Models;
 using Xunit;
 
-namespace AgentSquad.Runner.Tests.Models;
-
-public class EnumsTests
+namespace AgentSquad.Runner.Tests.Models
 {
-    [Fact]
-    public void MilestoneStatus_HasRequiredValues()
+    public class EnumsTests
     {
-        // Assert
-        Assert.True(Enum.IsDefined(typeof(MilestoneStatus), "Completed"));
-        Assert.True(Enum.IsDefined(typeof(MilestoneStatus), "InProgress"));
-        Assert.True(Enum.IsDefined(typeof(MilestoneStatus), "AtRisk"));
-        Assert.True(Enum.IsDefined(typeof(MilestoneStatus), "Future"));
-    }
+        [Fact]
+        public void MilestoneStatus_HasExpectedOrdinalValues()
+        {
+            Assert.Equal(0, (int)MilestoneStatus.NotStarted);
+            Assert.Equal(1, (int)MilestoneStatus.InProgress);
+            Assert.Equal(2, (int)MilestoneStatus.Completed);
+        }
 
-    [Fact]
-    public void WorkItemStatus_HasRequiredValues()
-    {
-        // Assert
-        Assert.True(Enum.IsDefined(typeof(WorkItemStatus), "Shipped"));
-        Assert.True(Enum.IsDefined(typeof(WorkItemStatus), "InProgress"));
-        Assert.True(Enum.IsDefined(typeof(WorkItemStatus), "CarriedOver"));
-    }
+        [Fact]
+        public void WorkItemStatus_HasExpectedOrdinalValues()
+        {
+            Assert.Equal(0, (int)WorkItemStatus.Pending);
+            Assert.Equal(1, (int)WorkItemStatus.InProgress);
+            Assert.Equal(2, (int)WorkItemStatus.Done);
+        }
 
-    [Fact]
-    public void HealthStatus_HasRequiredValues()
-    {
-        // Assert
-        Assert.True(Enum.IsDefined(typeof(HealthStatus), "OnTrack"));
-        Assert.True(Enum.IsDefined(typeof(HealthStatus), "AtRisk"));
-        Assert.True(Enum.IsDefined(typeof(HealthStatus), "Blocked"));
-    }
+        [Fact]
+        public void HealthStatus_HasExpectedOrdinalValues()
+        {
+            Assert.Equal(0, (int)HealthStatus.Healthy);
+            Assert.Equal(1, (int)HealthStatus.AtRisk);
+            Assert.Equal(2, (int)HealthStatus.Critical);
+        }
 
-    [Theory]
-    [InlineData(0, "Completed")]
-    [InlineData(1, "InProgress")]
-    [InlineData(2, "AtRisk")]
-    [InlineData(3, "Future")]
-    public void MilestoneStatus_HasCorrectOrdinalValues(int value, string name)
-    {
-        // Assert
-        Assert.Equal(name, ((MilestoneStatus)value).ToString());
-    }
+        [Theory]
+        [InlineData(nameof(MilestoneStatus.NotStarted))]
+        [InlineData(nameof(MilestoneStatus.InProgress))]
+        [InlineData(nameof(MilestoneStatus.Completed))]
+        public void MilestoneStatus_AllValuesValid(string status)
+        {
+            Assert.True(Enum.IsDefined(typeof(MilestoneStatus), status));
+        }
 
-    [Theory]
-    [InlineData(0, "Shipped")]
-    [InlineData(1, "InProgress")]
-    [InlineData(2, "CarriedOver")]
-    public void WorkItemStatus_HasCorrectOrdinalValues(int value, string name)
-    {
-        // Assert
-        Assert.Equal(name, ((WorkItemStatus)value).ToString());
+        [Theory]
+        [InlineData(nameof(WorkItemStatus.Pending))]
+        [InlineData(nameof(WorkItemStatus.InProgress))]
+        [InlineData(nameof(WorkItemStatus.Done))]
+        public void WorkItemStatus_AllValuesValid(string status)
+        {
+            Assert.True(Enum.IsDefined(typeof(WorkItemStatus), status));
+        }
     }
 }
