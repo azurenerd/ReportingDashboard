@@ -1,85 +1,117 @@
 {
-  "name": "Executive Project Dashboard Demo",
-  "description": "Sample project for dashboard demonstration",
+  "name": "Executive Dashboard Demo Project",
+  "description": "Sample project demonstrating the AgentSquad executive reporting dashboard with real-time metrics and milestones",
   "startDate": "2024-01-15",
   "targetEndDate": "2024-12-31",
-  "completionPercentage": 62,
+  "completionPercentage": 45,
   "healthStatus": "OnTrack",
-  "velocityThisMonth": 18,
+  "velocityThisMonth": 12,
+  "totalMilestones": 8,
+  "completedMilestones": 3,
   "milestones": [
     {
-      "name": "Phase 1: Foundation",
+      "name": "Phase 1: Core Platform",
       "targetDate": "2024-03-31",
       "status": "Completed",
-      "description": "Core infrastructure and setup"
+      "description": "Foundation development and infrastructure setup"
     },
     {
-      "name": "Phase 2: Core Features",
+      "name": "Phase 2: Dashboard MVP",
       "targetDate": "2024-06-30",
-      "status": "InProgress",
-      "description": "Primary feature development"
+      "status": "Completed",
+      "description": "Executive dashboard with metrics and milestones"
     },
     {
       "name": "Phase 3: Integration",
-      "targetDate": "2024-09-30",
-      "status": "Future",
-      "description": "Third-party integrations"
+      "targetDate": "2024-09-15",
+      "status": "InProgress",
+      "description": "Third-party system integration and data connectors"
     },
     {
-      "name": "Phase 4: Launch",
+      "name": "Phase 4: Advanced Analytics",
+      "targetDate": "2024-11-30",
+      "status": "Future",
+      "description": "Predictive analytics and trend analysis"
+    },
+    {
+      "name": "Q4 Launch Preparation",
       "targetDate": "2024-12-15",
       "status": "Future",
-      "description": "Production release"
+      "description": "Final testing, documentation, and production launch"
+    },
+    {
+      "name": "API Enhancement",
+      "targetDate": "2024-08-31",
+      "status": "Future",
+      "description": "REST API improvements and performance optimization"
+    },
+    {
+      "name": "Security Hardening",
+      "targetDate": "2024-10-15",
+      "status": "Future",
+      "description": "Security audit and compliance verification"
+    },
+    {
+      "name": "Post-Launch Support",
+      "targetDate": "2024-12-31",
+      "status": "Future",
+      "description": "Monitoring, support, and continuous improvement"
     }
   ],
   "workItems": [
     {
-      "title": "API Authentication",
-      "description": "Implement OAuth2 authentication layer",
+      "title": "User Authentication System",
+      "description": "Implement OAuth2 authentication and session management",
+      "status": "Shipped",
+      "assignedTo": "Engineering Team A"
+    },
+    {
+      "title": "Database Optimization",
+      "description": "Optimize query performance and add indexing",
+      "status": "Shipped",
+      "assignedTo": "Database Team"
+    },
+    {
+      "title": "API Rate Limiting",
+      "description": "Implement rate limiting and throttling mechanisms",
       "status": "Shipped",
       "assignedTo": "Backend Team"
     },
     {
-      "title": "Dashboard UI",
-      "description": "Build responsive executive dashboard",
-      "status": "Shipped",
+      "title": "Dashboard Redesign",
+      "description": "Redesign executive dashboard with new metrics visualization",
+      "status": "InProgress",
       "assignedTo": "Frontend Team"
     },
     {
-      "title": "Reporting Engine",
-      "description": "Create real-time reporting system",
-      "status": "Shipped",
-      "assignedTo": "Data Team"
-    },
-    {
-      "title": "Data Migration",
-      "description": "Migrate historical data to new platform",
+      "title": "Real-time Data Sync",
+      "description": "Implement WebSocket support for real-time updates",
       "status": "InProgress",
       "assignedTo": "Infrastructure Team"
     },
     {
-      "title": "Performance Optimization",
-      "description": "Optimize query performance and caching",
+      "title": "Mobile App Development",
+      "description": "Build React Native mobile application for iOS and Android",
       "status": "InProgress",
-      "assignedTo": "Platform Team"
-    },
-    {
-      "title": "Security Audit",
-      "description": "Third-party security assessment",
-      "status": "InProgress",
-      "assignedTo": "Security Team"
-    },
-    {
-      "title": "Documentation",
-      "description": "Complete API and user documentation",
-      "status": "CarriedOver",
-      "assignedTo": "Technical Writer"
-    },
-    {
-      "title": "Mobile App",
-      "description": "Native mobile application development",
-      "status": "CarriedOver",
       "assignedTo": "Mobile Team"
+    },
+    {
+      "title": "Performance Testing",
+      "description": "Load testing and performance benchmarking",
+      "status": "CarriedOver",
+      "assignedTo": "QA Team"
+    },
+    {
+      "title": "Documentation Updates",
+      "description": "Update API documentation and deployment guides",
+      "status": "CarriedOver",
+      "assignedTo": "Technical Writing"
+    },
+    {
+      "title": "Security Compliance Review",
+      "description": "SOC 2 Type II compliance audit and remediation",
+      "status": "CarriedOver",
+      "assignedTo": "Security Team"
     }
   ]
 }

@@ -1,20 +1,27 @@
-# Executive Project Dashboard
+# AgentSquad Executive Dashboard
 
-A lightweight, single-page Blazor Server executive reporting dashboard that reads project milestones, work item status, and metrics from a JSON configuration file. Zero authentication, optimized for PowerPoint screenshots.
+A lightweight, single-page executive reporting dashboard built with Blazor Server (.NET 8) that visualizes project milestones, work item status, and project health metrics from a JSON configuration file.
 
 ## Features
 
-- **Real-time Dashboard**: Single-page view of project status without authentication
-- **Milestone Timeline**: Horizontal visualization of project phases and deliverables
-- **Work Item Tracking**: View items organized by status (Shipped, InProgress, CarriedOver)
-- **Project Metrics**: Key performance indicators including completion percentage and health status
-- **Screenshot-Optimized**: Print-ready CSS designed for 1024x768 and 1920x1080 resolutions
-- **Zero Dependencies**: Built with .NET 8 and Blazor Server only
+- **Executive Metrics Dashboard**: Real-time KPI display showing project completion, health status, velocity, and milestone progress
+- **Milestone Timeline**: Visual timeline of project phases with status indicators (completed, in-progress, at-risk, future)
+- **Work Item Tracking**: Group and display work items by status (shipped, in-progress, carried over)
+- **Screenshot-Optimized**: Print and screenshot-ready design optimized for PowerPoint presentations at 1024x768 and 1920x1080 resolutions
+- **Zero Authentication**: Local single-user application with no login requirements
+- **Self-Contained Deployment**: Run as a standalone .exe executable with no external dependencies
 
-## Getting Started
+## System Requirements
 
-### Prerequisites
-- .NET 8 SDK or later
-- Windows (for executable deployment) or any OS (for development)
+- **.NET 8 Runtime** or .NET 8 SDK (for development)
+- **Chrome or Edge** browser (latest 2 versions)
+- **Windows 7+**, macOS 10.15+, or Linux (x64)
+- **Minimum 1024x768 display resolution** (optimized for 1920x1080)
+- **50MB+ disk space** for self-contained executable
 
-### Running Locally
+## Installation
+
+### Development Environment
+
+1. Install .NET 8 SDK from [microsoft.com/net](https://dotnet.microsoft.com/download)
+2. Clone the repository:
