@@ -1,8 +1,9 @@
-namespace AgentSquad.Runner.Services;
-
-public interface IDataCache
+namespace AgentSquad.Runner.Services
 {
-    T GetOrCreate<T>(string key, Func<T> factory, TimeSpan? ttl = null);
-    void Remove(string key);
-    bool TryGetValue<T>(string key, out T value);
+    public interface IDataCache
+    {
+        Task<T> GetAsync<T>(string key) where T : class;
+        Task SetAsync<T>(string key, T value) where T : class;
+        Task RemoveAsync(string key);
+    }
 }

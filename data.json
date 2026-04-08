@@ -1,125 +1,141 @@
 {
-  "name": "Executive Dashboard Initiative Q2 2026",
-  "description": "Strategic project to deliver executive reporting dashboard with real-time project visibility and milestone tracking for enterprise stakeholders.",
+  "projectName": "Executive Dashboard",
+  "description": "Real-time project reporting and milestone tracking dashboard",
   "milestones": [
     {
-      "name": "Architecture & Design Review",
-      "targetDate": "2026-03-31T00:00:00Z",
+      "name": "Project Kickoff",
+      "targetDate": "2026-01-15",
       "status": "Completed",
-      "description": "Complete system architecture design, component specifications, and data model definition"
+      "description": "Initial project setup and team alignment"
     },
     {
-      "name": "Core UI Components",
-      "targetDate": "2026-04-15T00:00:00Z",
+      "name": "Core Dashboard Build",
+      "targetDate": "2026-02-28",
       "status": "Completed",
-      "description": "Build foundational Blazor components: dashboard layout, timeline, metrics display, work item tracking"
+      "description": "Build foundational UI and data integration"
     },
     {
-      "name": "Data Integration & Validation",
-      "targetDate": "2026-05-10T00:00:00Z",
+      "name": "Milestone Timeline Component",
+      "targetDate": "2026-03-15",
       "status": "InProgress",
-      "description": "Implement data.json loading, validation service, and caching layer"
+      "description": "Implement horizontal timeline visualization"
+    },
+    {
+      "name": "Metrics Integration",
+      "targetDate": "2026-03-31",
+      "status": "InProgress",
+      "description": "Connect KPI and health status indicators"
     },
     {
       "name": "Performance Optimization",
-      "targetDate": "2026-05-31T00:00:00Z",
-      "status": "AtRisk",
-      "description": "Optimize rendering for sub-1-second page loads and PowerPoint screenshot quality"
+      "targetDate": "2026-04-15",
+      "status": "Future",
+      "description": "Optimize rendering and load times under 1 second"
     },
     {
-      "name": "Executive Testing & Feedback",
-      "targetDate": "2026-06-15T00:00:00Z",
+      "name": "General Availability",
+      "targetDate": "2026-05-01",
       "status": "Future",
-      "description": "Stakeholder acceptance testing and design refinement based on executive feedback"
-    },
-    {
-      "name": "Production Deployment",
-      "targetDate": "2026-07-01T00:00:00Z",
-      "status": "Future",
-      "description": "Final deployment to production, documentation, and training materials"
+      "description": "Release to production and executive rollout"
     }
   ],
   "workItems": [
     {
-      "title": "Dashboard layout CSS grid implementation",
+      "title": "Design dashboard layout mockups",
       "status": "ShippedThisMonth",
-      "description": "Responsive CSS grid layout for header, timeline, metrics, and work items sections"
+      "description": "Create high-fidelity Figma prototypes",
+      "assignedTo": "Alice Johnson"
     },
     {
-      "title": "Milestone timeline SVG rendering",
+      "title": "Implement Blazor Server host",
       "status": "ShippedThisMonth",
-      "description": "Horizontal timeline visualization with status color coding"
+      "description": "Set up ASP.NET Core 8 Blazor Server project",
+      "assignedTo": "Bob Chen"
     },
     {
-      "title": "Project metrics KPI cards",
+      "title": "Create data models",
       "status": "ShippedThisMonth",
-      "description": "Display completion percentage, health status, velocity, and milestone counts"
+      "description": "Define Project, Milestone, WorkItem, ProjectMetrics classes",
+      "assignedTo": "Charlie Davis"
     },
     {
-      "title": "Work item status columns",
-      "status": "ShippedThisMonth",
-      "description": "Three-column layout for Shipped, In Progress, and Carried Over categories"
-    },
-    {
-      "title": "Print-to-PDF optimization",
-      "status": "ShippedThisMonth",
-      "description": "CSS adjustments for clean PowerPoint screenshot output at multiple resolutions"
-    },
-    {
-      "title": "Data.json schema documentation",
+      "title": "Build MilestoneTimeline component",
       "status": "InProgress",
-      "description": "Complete JSON Schema v7 specification with field constraints and validation rules"
+      "description": "Implement SVG timeline with status indicators",
+      "assignedTo": "Diana Lopez"
     },
     {
-      "title": "DataValidator service implementation",
+      "title": "Build ProjectMetrics component",
       "status": "InProgress",
-      "description": "Implement validation service with error logging and startup checks"
+      "description": "Create KPI cards and health status display",
+      "assignedTo": "Eve Martinez"
     },
     {
-      "title": "DI container registration",
+      "title": "Build WorkItemSummary component",
       "status": "InProgress",
-      "description": "Register DataProvider and IDataCache services in Program.cs"
+      "description": "Implement three-column work item status view",
+      "assignedTo": "Frank Wilson"
     },
     {
-      "title": "Error handling overlay UI",
+      "title": "Create data.json schema",
       "status": "InProgress",
-      "description": "Display user-friendly error messages for missing or invalid data.json"
+      "description": "Document JSON structure and validation rules",
+      "assignedTo": "Grace Thompson"
     },
     {
-      "title": "Performance profiling and benchmarking",
+      "title": "Integrate DataProvider service",
       "status": "InProgress",
-      "description": "Measure page load times and identify optimization opportunities"
+      "description": "Load and cache data.json on startup",
+      "assignedTo": "Henry Kim"
     },
     {
-      "title": "Chart.js library integration",
+      "title": "Write unit tests for models",
       "status": "CarriedOver",
-      "description": "Add Chart.js CDN reference for advanced timeline and metrics visualization"
+      "description": "Add validation tests for all data models",
+      "assignedTo": "Ivy Zhang"
     },
     {
-      "title": "Real-time data refresh mechanism",
+      "title": "Write integration tests",
       "status": "CarriedOver",
-      "description": "Implement polling or event-based updates for live dashboard data"
+      "description": "Test data loading and component integration",
+      "assignedTo": "Jack Anderson"
     },
     {
-      "title": "Accessibility compliance audit",
+      "title": "CSS print optimization",
       "status": "CarriedOver",
-      "description": "WCAG 2.1 AA compliance review and remediation"
+      "description": "Ensure clean output for 1280x720 and 1920x1080 screenshots",
+      "assignedTo": "Karen White"
     },
     {
-      "title": "Multi-language localization support",
+      "title": "Cross-browser testing",
       "status": "CarriedOver",
-      "description": "Resource files and localization infrastructure for international deployment"
+      "description": "Verify Chrome and Edge compatibility",
+      "assignedTo": "Leo Brown"
     },
     {
-      "title": "Integration testing suite",
+      "title": "Performance profiling",
       "status": "CarriedOver",
-      "description": "End-to-end tests for dashboard data loading and component rendering"
+      "description": "Optimize page load to sub-1-second target",
+      "assignedTo": "Maria Garcia"
+    },
+    {
+      "title": "Documentation and README",
+      "status": "CarriedOver",
+      "description": "Create deployment and usage documentation",
+      "assignedTo": "Noah Rodriguez"
+    },
+    {
+      "title": "Executive review session",
+      "status": "CarriedOver",
+      "description": "Present dashboard to stakeholders for feedback",
+      "assignedTo": "Olivia Taylor"
     }
   ],
   "metrics": {
     "completionPercentage": 65,
     "healthStatus": "OnTrack",
     "velocityCount": 8,
-    "totalMilestones": 6
+    "totalMilestones": 6,
+    "completedMilestones": 2
   }
 }
