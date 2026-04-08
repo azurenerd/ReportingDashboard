@@ -1,78 +1,82 @@
-using System;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
-using AgentSquad.Models;
+using AgentSquad.Services.Models;
 
-namespace AgentSquad.Services
+namespace AgentSquad.Services;
+
+public class ProjectDataService
 {
-    public class ProjectDataService
+    public async Task<ProjectData> LoadProjectDataAsync(string jsonFilePath)
     {
-        private readonly string _dataFilePath;
-
-        public ProjectDataService()
+        try
         {
-            _dataFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "data.json");
-        }
-
-        public async Task<ProjectData> LoadProjectDataAsync()
-        {
-            if (!File.Exists(_dataFilePath))
+            if (!File.Exists(jsonFilePath))
             {
-                throw new FileNotFoundException($"Data file not found at {_dataFilePath}");
+                return GetDefaultProjectData();
             }
 
-            string jsonContent = await File.ReadAllTextAsync(_dataFilePath);
-
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
+            var json = await File.ReadAllTextAsync(jsonFilePath);
+            var options = new JsonSerializerOptions 
+            { 
+                PropertyNameCaseInsensitive = true,
+                Converters = { new JsonStringEnumConverter() }
             };
-
-            ProjectData data = JsonSerializer.Deserialize<ProjectData>(jsonContent, options);
-
-            if (data == null)
-            {
-                throw new InvalidOperationException("Failed to deserialize project data from JSON.");
-            }
-
-            CalculateMetrics(data);
-
-            return data;
+            var projectData = JsonSerializer.Deserialize<ProjectData>(json, options);
+            return projectData ?? GetDefaultProjectData();
         }
-
-        private void CalculateMetrics(ProjectData data)
+        catch (Exception)
         {
-            if (data.Project == null || data.Tasks == null)
-            {
-                data.Metrics = new ProjectMetrics();
-                return;
-            }
-
-            int totalTasks = data.Tasks.Count;
-            int completedTasks = data.Tasks.Count(t => t.Status == TaskStatus.Shipped);
-            int inProgressTasks = data.Tasks.Count(t => t.Status == TaskStatus.InProgress);
-            int carriedOverTasks = data.Tasks.Count(t => t.Status == TaskStatus.CarriedOver);
-
-            DateTime today = DateTime.UtcNow;
-            DateTime projectEnd = data.Project.EndDate;
-            int daysRemaining = Math.Max(0, (int)(projectEnd - today).TotalDays);
-
-            double estimatedBurndownRate = totalTasks > 0 ? (completedTasks / (double)totalTasks) * 100 : 0;
-
-            data.Metrics = new ProjectMetrics
-            {
-                CompletionPercentage = data.Project.CompletionPercentage,
-                TotalTasks = totalTasks,
-                CompletedTasks = completedTasks,
-                InProgressTasks = inProgressTasks,
-                CarriedOverTasks = carriedOverTasks,
-                ProjectStartDate = data.Project.StartDate,
-                ProjectEndDate = projectEnd,
-                DaysRemaining = daysRemaining,
-                EstimatedBurndownRate = Math.Round(estimatedBurndownRate, 2)
-            };
+            return GetDefaultProjectData();
         }
+    }
+
+    public ProjectData GetDefaultProjectData()
+    {
+        var today = DateTime.Now;
+        return new ProjectData
+        {
+            ProjectName = "Executive Dashboard Project",
+            Description = "Real-time project status reporting dashboard",
+            StartDate = today.AddDays(-60),
+            EndDate = today.AddDays(120),
+            TotalTasks = 24,
+            CompletedTasks = 8,
+            Milestones = new List<Milestone>
+            {
+                new Milestone
+                {
+                    Id = "m1",
+                    Name = "Project Kickoff",
+                    TargetDate = today.AddDays(-30),
+                    ActualDate = today.AddDays(-30),
+                    Status = MilestoneStatus.Completed,
+                    CompletionPercentage = 100
+                },
+                new Milestone
+                {
+                    Id = "m2",
+                    Name = "Phase 1 Design Review",
+                    TargetDate = today.AddDays(-10),
+                    ActualDate = today.AddDays(-10),
+                    Status = MilestoneStatus.Completed,
+                    CompletionPercentage = 100
+                },
+                new Milestone
+                {
+                    Id = "m3",
+                    Name = "Development Sprint 1",
+                    TargetDate = today.AddDays(15),
+                    Status = MilestoneStatus.InProgress,
+                    CompletionPercentage = 65
+                },
+                new Milestone
+                {
+                    Id = "m4",
+                    Name = "Quality Assurance & Testing",
+                    TargetDate = today.AddDays(45),
+                    Status = MilestoneStatus.Pending,
+                    CompletionPercentage = 0
+                }
+            }
+        };
     }
 }
