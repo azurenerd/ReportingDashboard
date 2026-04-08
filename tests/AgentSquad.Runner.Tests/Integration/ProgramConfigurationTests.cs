@@ -1,101 +1,62 @@
-using AgentSquad.Runner.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Microsoft.Extensions.DependencyInjection;
+using AgentSquad.Runner.Services;
+using System.Threading.Tasks;
 
 namespace AgentSquad.Runner.Tests.Integration
 {
     public class ProgramConfigurationTests
     {
         [Fact]
-        public void ProgramConfiguration_RegistersDataCacheAsScoped()
+        public void ServiceCollection_RegistersDataProviderAsScoped()
+        {
+            var services = new ServiceCollection();
+            services.AddScoped<IDataProvider, DataProvider>();
+            var provider = services.BuildServiceProvider();
+
+            var service1 = provider.GetRequiredService<IDataProvider>();
+            var service2 = provider.GetRequiredService<IDataProvider>();
+
+            Assert.NotSame(service1, service2);
+        }
+
+        [Fact]
+        public void ServiceCollection_RegistersMemoryCacheAsScoped()
         {
             var services = new ServiceCollection();
             services.AddScoped<IDataCache, MemoryCacheAdapter>();
+            var provider = services.BuildServiceProvider();
+
+            var cache = provider.GetRequiredService<IDataCache>();
+            Assert.NotNull(cache);
+        }
+
+        [Fact]
+        public async Task ProgramConfiguration_DataProviderUsesAsyncMethods()
+        {
+            var services = new ServiceCollection();
+            services.AddScoped<IDataCache, MemoryCacheAdapter>();
+            var provider = services.BuildServiceProvider();
+
+            var cache = provider.GetRequiredService<IDataCache>();
+            await cache.SetAsync("test", "value", TimeSpan.FromMinutes(5));
+            var result = await cache.GetAsync<string>("test");
+
+            Assert.Equal("value", result);
+        }
+
+        [Fact]
+        public void ServiceCollection_CanResolveAllDependencies()
+        {
+            var services = new ServiceCollection();
+            services.AddScoped<IDataCache, MemoryCacheAdapter>();
+            services.AddScoped<IDataProvider>(sp =>
+                new DataProvider("data.json", sp.GetRequiredService<IDataCache>()));
 
             var provider = services.BuildServiceProvider();
-            var cache1 = provider.GetRequiredService<IDataCache>();
-            var cache2 = provider.GetRequiredService<IDataCache>();
+            var dataProvider = provider.GetRequiredService<IDataProvider>();
 
-            Assert.NotNull(cache1);
-            Assert.NotSame(cache1, cache2);
-        }
-
-        [Fact]
-        public void ProgramConfiguration_RegistersDataProvider_WithConstructorParameters()
-        {
-            var services = new ServiceCollection();
-            services.AddScoped<IDataCache, MemoryCacheAdapter>();
-            
-            var dataPath = Path.Combine(Path.GetTempPath(), "data.json");
-            var testJson = @"{ ""name"": ""Test"", ""milestones"": [{ ""name"": ""M1"", ""completionPercentage"": 50 }], ""workItems"": [] }";
-            File.WriteAllText(dataPath, testJson);
-
-            try
-            {
-                services.AddScoped<DataProvider>(sp =>
-                    new DataProvider(sp.GetRequiredService<IDataCache>(), dataPath)
-                );
-
-                var provider = services.BuildServiceProvider();
-                var dataProvider = provider.GetRequiredService<DataProvider>();
-
-                Assert.NotNull(dataProvider);
-                var project = dataProvider.LoadProject();
-                Assert.Equal("Test", project.Name);
-            }
-            finally
-            {
-                if (File.Exists(dataPath)) File.Delete(dataPath);
-            }
-        }
-
-        [Fact]
-        public void ProgramConfiguration_DataProvider_InjectsIDataCache()
-        {
-            var services = new ServiceCollection();
-            var mockCache = new MemoryCacheAdapter();
-            services.AddScoped<IDataCache>(_ => mockCache);
-
-            var dataPath = Path.Combine(Path.GetTempPath(), "config_test.json");
-            var json = @"{ ""name"": ""Config"", ""milestones"": [{ ""name"": ""M1"", ""completionPercentage"": 50 }], ""workItems"": [] }";
-            File.WriteAllText(dataPath, json);
-
-            try
-            {
-                services.AddScoped<DataProvider>(sp =>
-                    new DataProvider(sp.GetRequiredService<IDataCache>(), dataPath)
-                );
-
-                var provider = services.BuildServiceProvider();
-                var dataProvider = provider.GetRequiredService<DataProvider>();
-
-                Assert.NotNull(dataProvider);
-            }
-            finally
-            {
-                if (File.Exists(dataPath)) File.Delete(dataPath);
-            }
-        }
-
-        [Fact]
-        public void ProgramConfiguration_DataProvider_AcceptsFilePath()
-        {
-            var cache = new MemoryCacheAdapter();
-            var filePath = Path.Combine(Path.GetTempPath(), "filepath_test.json");
-            var json = @"{ ""name"": ""PathTest"", ""milestones"": [{ ""name"": ""M1"", ""completionPercentage"": 50 }], ""workItems"": [] }";
-            File.WriteAllText(filePath, json);
-
-            try
-            {
-                var provider = new DataProvider(cache, filePath);
-                var project = provider.LoadProject();
-
-                Assert.Equal("PathTest", project.Name);
-            }
-            finally
-            {
-                if (File.Exists(filePath)) File.Delete(filePath);
-            }
+            Assert.NotNull(dataProvider);
         }
     }
 }

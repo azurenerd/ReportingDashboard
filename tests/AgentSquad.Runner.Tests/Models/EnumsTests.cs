@@ -1,50 +1,47 @@
-using AgentSquad.Runner.Models;
 using Xunit;
+using AgentSquad.Runner.Models;
+using System.Text.Json;
 
 namespace AgentSquad.Runner.Tests.Models
 {
     public class EnumsTests
     {
         [Fact]
-        public void MilestoneStatus_HasExpectedOrdinalValues()
+        public void MilestoneStatus_HasCorrectValues()
         {
-            Assert.Equal(0, (int)MilestoneStatus.NotStarted);
+            Assert.Equal(0, (int)MilestoneStatus.Completed);
             Assert.Equal(1, (int)MilestoneStatus.InProgress);
-            Assert.Equal(2, (int)MilestoneStatus.Completed);
+            Assert.Equal(2, (int)MilestoneStatus.AtRisk);
+            Assert.Equal(3, (int)MilestoneStatus.Future);
         }
 
         [Fact]
-        public void WorkItemStatus_HasExpectedOrdinalValues()
+        public void WorkItemStatus_HasCorrectValues()
         {
-            Assert.Equal(0, (int)WorkItemStatus.Pending);
+            Assert.Equal(0, (int)WorkItemStatus.Shipped);
             Assert.Equal(1, (int)WorkItemStatus.InProgress);
-            Assert.Equal(2, (int)WorkItemStatus.Done);
+            Assert.Equal(2, (int)WorkItemStatus.CarriedOver);
         }
 
         [Fact]
-        public void HealthStatus_HasExpectedOrdinalValues()
+        public void MilestoneStatus_DeserializesFromJson()
         {
-            Assert.Equal(0, (int)HealthStatus.Healthy);
-            Assert.Equal(1, (int)HealthStatus.AtRisk);
-            Assert.Equal(2, (int)HealthStatus.Critical);
+            var json = @"{ ""status"": ""AtRisk"" }";
+            var options = new JsonSerializerOptions();
+            var doc = JsonDocument.Parse(json);
+            var statusStr = doc.RootElement.GetProperty("status").GetString();
+            Assert.True(System.Enum.TryParse<MilestoneStatus>(statusStr, out var status));
+            Assert.Equal(MilestoneStatus.AtRisk, status);
         }
 
-        [Theory]
-        [InlineData(nameof(MilestoneStatus.NotStarted))]
-        [InlineData(nameof(MilestoneStatus.InProgress))]
-        [InlineData(nameof(MilestoneStatus.Completed))]
-        public void MilestoneStatus_AllValuesValid(string status)
+        [Fact]
+        public void WorkItemStatus_DeserializesFromJson()
         {
-            Assert.True(Enum.IsDefined(typeof(MilestoneStatus), status));
-        }
-
-        [Theory]
-        [InlineData(nameof(WorkItemStatus.Pending))]
-        [InlineData(nameof(WorkItemStatus.InProgress))]
-        [InlineData(nameof(WorkItemStatus.Done))]
-        public void WorkItemStatus_AllValuesValid(string status)
-        {
-            Assert.True(Enum.IsDefined(typeof(WorkItemStatus), status));
+            var json = @"{ ""status"": ""CarriedOver"" }";
+            var doc = JsonDocument.Parse(json);
+            var statusStr = doc.RootElement.GetProperty("status").GetString();
+            Assert.True(System.Enum.TryParse<WorkItemStatus>(statusStr, out var status));
+            Assert.Equal(WorkItemStatus.CarriedOver, status);
         }
     }
 }

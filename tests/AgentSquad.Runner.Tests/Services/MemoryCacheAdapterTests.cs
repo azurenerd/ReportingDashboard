@@ -1,85 +1,58 @@
-using AgentSquad.Runner.Services;
 using Xunit;
+using AgentSquad.Runner.Models;
+using AgentSquad.Runner.Services;
+using System.Threading.Tasks;
 
 namespace AgentSquad.Runner.Tests.Services
 {
     public class MemoryCacheAdapterTests
     {
         [Fact]
-        public void MemoryCacheAdapter_StoresAndRetrievesValue()
+        public async Task SetAsync_StoresValueInCache()
         {
             var cache = new MemoryCacheAdapter();
-            var testValue = new { Name = "Test" };
+            var testData = new Project { Milestones = [] };
 
-            cache.Set("key1", testValue, TimeSpan.FromSeconds(60));
-            var result = cache.Get<dynamic>("key1");
+            await cache.SetAsync("project", testData, TimeSpan.FromMinutes(5));
 
+            var result = await cache.GetAsync<Project>("project");
             Assert.NotNull(result);
+            Assert.Equal(testData.Milestones.Count, result.Milestones.Count);
         }
 
         [Fact]
-        public void MemoryCacheAdapter_ReturnsNullForExpiredValue()
+        public async Task GetAsync_ReturnsNullForMissingKey()
         {
             var cache = new MemoryCacheAdapter();
-            cache.Set("expiring_key", "value", TimeSpan.FromMilliseconds(100));
-
-            Thread.Sleep(150);
-            var result = cache.Get<string>("expiring_key");
-
+            var result = await cache.GetAsync<Project>("nonexistent");
             Assert.Null(result);
         }
 
         [Fact]
-        public void MemoryCacheAdapter_HonorsTimeSpanExpiration()
+        public async Task GetAsync_ReturnsNullAfterExpiration()
         {
             var cache = new MemoryCacheAdapter();
-            var testData = "test_value";
+            var testData = new Project { Milestones = [] };
 
-            cache.Set("timed_key", testData, TimeSpan.FromSeconds(1));
-            var immediate = cache.Get<string>("timed_key");
-            Assert.NotNull(immediate);
+            await cache.SetAsync("project", testData, TimeSpan.FromMilliseconds(50));
+            await Task.Delay(100);
 
-            Thread.Sleep(1100);
-            var expired = cache.Get<string>("timed_key");
-            Assert.Null(expired);
+            var result = await cache.GetAsync<Project>("project");
+            Assert.Null(result);
         }
 
         [Fact]
-        public void MemoryCacheAdapter_HandlesNullKey()
+        public async Task SetAsync_OverwritesPreviousValue()
         {
             var cache = new MemoryCacheAdapter();
-            Assert.Throws<ArgumentNullException>(() =>
-                cache.Set(null, "value", TimeSpan.FromSeconds(60))
-            );
-        }
+            var data1 = new Project { Milestones = [] };
+            var data2 = new Project { Milestones = new() { new Milestone { Name = "Q1" } } };
 
-        [Fact]
-        public void MemoryCacheAdapter_RemovesExpiredEntries()
-        {
-            var cache = new MemoryCacheAdapter();
-            cache.Set("key_to_expire", "data", TimeSpan.FromMilliseconds(50));
+            await cache.SetAsync("project", data1, TimeSpan.FromMinutes(5));
+            await cache.SetAsync("project", data2, TimeSpan.FromMinutes(5));
 
-            Thread.Sleep(100);
-            cache.Set("another_key", "value", TimeSpan.FromSeconds(60));
-
-            var expired = cache.Get<string>("key_to_expire");
-            Assert.Null(expired);
-
-            var valid = cache.Get<string>("another_key");
-            Assert.NotNull(valid);
-        }
-
-        [Fact]
-        public async Task MemoryCacheAdapter_CompletesAsyncOperations()
-        {
-            var cache = new MemoryCacheAdapter();
-            cache.Set("async_key", "async_value", TimeSpan.FromSeconds(60));
-
-            var task = Task.Run(() => cache.Get<string>("async_key"));
-            var result = await task;
-
-            Assert.NotNull(result);
-            Assert.Equal("async_value", result);
+            var result = await cache.GetAsync<Project>("project");
+            Assert.Single(result.Milestones);
         }
     }
 }
