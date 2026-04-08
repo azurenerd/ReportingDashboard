@@ -1,0 +1,85 @@
+{
+  "name": "Project Codename",
+  "description": "Executive reporting dashboard for project milestone tracking and team velocity monitoring",
+  "startDate": "2024-01-15",
+  "targetEndDate": "2024-12-31",
+  "completionPercentage": 48,
+  "healthStatus": "OnTrack",
+  "velocityThisMonth": 14,
+  "milestones": [
+    {
+      "name": "Phase 1: Foundation",
+      "targetDate": "2024-03-15",
+      "status": "Completed",
+      "description": "Core infrastructure and API layer development"
+    },
+    {
+      "name": "Phase 2: MVP Features",
+      "targetDate": "2024-06-30",
+      "status": "InProgress",
+      "description": "Dashboard UI, reporting components, data integration"
+    },
+    {
+      "name": "Phase 3: Performance",
+      "targetDate": "2024-09-15",
+      "status": "Future",
+      "description": "Optimization, caching, and scalability improvements"
+    },
+    {
+      "name": "Phase 4: Polish & Release",
+      "targetDate": "2024-12-15",
+      "status": "Future",
+      "description": "Testing, documentation, and production deployment"
+    }
+  ],
+  "workItems": [
+    {
+      "title": "Dashboard Layout Component",
+      "description": "Create responsive grid-based dashboard layout with header, timeline, metrics, and work items sections",
+      "status": "Shipped",
+      "assignedTo": "Team Frontend"
+    },
+    {
+      "title": "Milestone Timeline Visualization",
+      "description": "Implement horizontal timeline using Chart.js with color-coded milestone status indicators",
+      "status": "Shipped",
+      "assignedTo": "Team Frontend"
+    },
+    {
+      "title": "Project Metrics Component",
+      "description": "Build KPI cards displaying completion percentage, health status, and velocity metrics",
+      "status": "Shipped",
+      "assignedTo": "Team Frontend"
+    },
+    {
+      "title": "Work Item Status Grouping",
+      "description": "Implement three-column layout grouping work items by Shipped, InProgress, and CarriedOver status",
+      "status": "InProgress",
+      "assignedTo": "Team Frontend"
+    },
+    {
+      "title": "DataProvider Service Implementation",
+      "description": "Build JSON loading, parsing, validation, and in-memory caching service layer",
+      "status": "InProgress",
+      "assignedTo": "Team Backend"
+    },
+    {
+      "title": "Print/Screenshot CSS Optimization",
+      "description": "Create print media queries and responsive styles optimized for PowerPoint screenshots at 1280x720 and 1920x1080",
+      "status": "InProgress",
+      "assignedTo": "Team Frontend"
+    },
+    {
+      "title": "Error Handling & Validation",
+      "description": "Add comprehensive error handling for missing data.json, invalid JSON, and schema validation failures",
+      "status": "CarriedOver",
+      "assignedTo": "Team Backend"
+    },
+    {
+      "title": "Unit Test Coverage",
+      "description": "Write xUnit tests for DataProvider, caching, validation logic, and error scenarios with >85% coverage",
+      "status": "CarriedOver",
+      "assignedTo": "Team QA"
+    }
+  ]
+}
