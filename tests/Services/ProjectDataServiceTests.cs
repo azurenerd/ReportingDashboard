@@ -1,218 +1,445 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
-using AgentSquad.Runner.Data;
-using AgentSquad.Runner.Services;
 using Xunit;
+using Moq;
+using Microsoft.Extensions.Logging;
+using AgentSquad.Dashboard.Services;
+using System.Text.Json;
 
-namespace AgentSquad.Runner.Tests.Services
+namespace AgentSquad.Tests.Services;
+
+public class ProjectDataServiceTests
 {
-    public class ProjectDataServiceTests
+    private readonly ProjectDataService _service;
+    private readonly Mock<ILogger<ProjectDataService>> _loggerMock;
+
+    public ProjectDataServiceTests()
     {
-        private readonly ProjectDataService _service;
-        private readonly string _testDataPath;
+        _loggerMock = new Mock<ILogger<ProjectDataService>>();
+        _service = new ProjectDataService(_loggerMock.Object);
+    }
 
-        public ProjectDataServiceTests()
-        {
-            _service = new ProjectDataService();
-            _testDataPath = Path.Combine(Path.GetTempPath(), "test_data.json");
-        }
+    #region Happy Path Tests
 
-        private void CreateTestDataFile(object data)
+    [Fact]
+    public async Task LoadProjectDataAsync_WithValidJsonFile_ReturnsProjectData()
+    {
+        var validJson = """
         {
-            var json = JsonSerializer.Serialize(data);
-            File.WriteAllText(_testDataPath, json);
-        }
-
-        private void Cleanup()
-        {
-            if (File.Exists(_testDataPath))
-                File.Delete(_testDataPath);
-        }
-
-        [Fact]
-        public async Task LoadProjectData_WithValidJson_ReturnsProjectData()
-        {
-            var testData = new
-            {
-                projectName = "Q2 Mobile App Release",
-                projectStartDate = "2024-01-01",
-                projectEndDate = "2024-06-30",
-                milestones = new[]
+            "project": {
+                "name": "Q2 Mobile App Release",
+                "description": "Mobile app redesign and launch",
+                "startDate": "2024-01-01",
+                "endDate": "2024-06-30",
+                "status": "OnTrack",
+                "sponsor": "VP Engineering",
+                "projectManager": "Alice Smith"
+            },
+            "milestones": [
                 {
-                    new { name = "Design Phase", targetDate = "2024-02-15", status = "Completed", completionPercentage = 100 }
-                },
-                tasks = new[]
-                {
-                    new { name = "API Development", status = "Shipped", owner = "Team A" }
+                    "id": "m1",
+                    "name": "Design Complete",
+                    "targetDate": "2024-02-15",
+                    "actualDate": "2024-02-14",
+                    "status": 0,
+                    "completionPercentage": 100
                 }
-            };
+            ],
+            "tasks": [
+                {
+                    "id": "t1",
+                    "name": "API Integration",
+                    "status": 0,
+                    "assignedTo": "Bob Johnson",
+                    "dueDate": "2024-03-01",
+                    "estimatedDays": 5,
+                    "relatedMilestone": "m1"
+                }
+            ],
+            "metrics": {
+                "totalTasks": 10,
+                "completedTasks": 5,
+                "inProgressTasks": 3,
+                "carriedOverTasks": 2,
+                "estimatedBurndownRate": 1.5
+            }
+        }
+        """;
 
-            CreateTestDataFile(testData);
+        var tempFile = Path.Combine(Path.GetTempPath(), "valid_data.json");
+        await File.WriteAllTextAsync(tempFile, validJson);
 
-            var result = await _service.LoadProjectDataAsync(_testDataPath);
+        try
+        {
+            var result = await _service.LoadProjectDataAsync(tempFile);
 
             Assert.NotNull(result);
-            Assert.Equal("Q2 Mobile App Release", result.ProjectName);
-            Assert.Equal(1, result.Milestones.Count);
-            Cleanup();
+            Assert.NotNull(result.Project);
+            Assert.Equal("Q2 Mobile App Release", result.Project.Name);
+            Assert.Single(result.Milestones);
+            Assert.Single(result.Tasks);
+            Assert.NotNull(result.Metrics);
+            Assert.Equal(10, result.Metrics.TotalTasks);
         }
-
-        [Fact]
-        public async Task LoadProjectData_WithMalformedJson_ThrowsJsonException()
+        finally
         {
-            File.WriteAllText(_testDataPath, "{ invalid json }");
-
-            await Assert.ThrowsAsync<JsonException>(() => _service.LoadProjectDataAsync(_testDataPath));
-
-            Cleanup();
-        }
-
-        [Fact]
-        public async Task LoadProjectData_WithMissingFile_ThrowsFileNotFoundException()
-        {
-            var missingPath = Path.Combine(Path.GetTempPath(), "missing_file.json");
-
-            await Assert.ThrowsAsync<FileNotFoundException>(() => _service.LoadProjectDataAsync(missingPath));
-        }
-
-        [Fact]
-        public async Task LoadProjectData_WithEmptyJson_ThrowsJsonException()
-        {
-            File.WriteAllText(_testDataPath, "");
-
-            await Assert.ThrowsAsync<JsonException>(() => _service.LoadProjectDataAsync(_testDataPath));
-
-            Cleanup();
-        }
-
-        [Fact]
-        public async Task LoadProjectData_WithValidData_ParsesMilestonesCorrectly()
-        {
-            var testData = new
-            {
-                projectName = "Test Project",
-                projectStartDate = "2024-01-01",
-                projectEndDate = "2024-12-31",
-                milestones = new[]
-                {
-                    new { name = "Phase 1", targetDate = "2024-03-01", status = "Completed", completionPercentage = 100 },
-                    new { name = "Phase 2", targetDate = "2024-06-01", status = "InProgress", completionPercentage = 50 },
-                    new { name = "Phase 3", targetDate = "2024-09-01", status = "Pending", completionPercentage = 0 }
-                },
-                tasks = new Task[] { }
-            };
-
-            CreateTestDataFile(testData);
-
-            var result = await _service.LoadProjectDataAsync(_testDataPath);
-
-            Assert.Equal(3, result.Milestones.Count);
-            Assert.Equal("Completed", result.Milestones[0].Status);
-            Assert.Equal("InProgress", result.Milestones[1].Status);
-            Assert.Equal("Pending", result.Milestones[2].Status);
-            Cleanup();
-        }
-
-        [Fact]
-        public async Task LoadProjectData_WithValidData_ParsesTasksCorrectly()
-        {
-            var testData = new
-            {
-                projectName = "Test Project",
-                projectStartDate = "2024-01-01",
-                projectEndDate = "2024-12-31",
-                milestones = new object[] { },
-                tasks = new[]
-                {
-                    new { name = "Task 1", status = "Shipped", owner = "Alice" },
-                    new { name = "Task 2", status = "InProgress", owner = "Bob" },
-                    new { name = "Task 3", status = "CarriedOver", owner = "Charlie" }
-                }
-            };
-
-            CreateTestDataFile(testData);
-
-            var result = await _service.LoadProjectDataAsync(_testDataPath);
-
-            Assert.Equal(3, result.Tasks.Count);
-            Assert.Equal("Shipped", result.Tasks[0].Status);
-            Assert.Equal("InProgress", result.Tasks[1].Status);
-            Assert.Equal("CarriedOver", result.Tasks[2].Status);
-            Cleanup();
-        }
-
-        [Fact]
-        public async Task GetTaskStatusSummary_WithMixedTasks_ReturnsCounts()
-        {
-            var tasks = new List<ProjectTask>
-            {
-                new ProjectTask { Name = "Task 1", Status = "Shipped", Owner = "Alice" },
-                new ProjectTask { Name = "Task 2", Status = "Shipped", Owner = "Bob" },
-                new ProjectTask { Name = "Task 3", Status = "InProgress", Owner = "Charlie" },
-                new ProjectTask { Name = "Task 4", Status = "CarriedOver", Owner = "David" }
-            };
-
-            var summary = _service.GetTaskStatusSummary(tasks);
-
-            Assert.Equal(2, summary.ShippedCount);
-            Assert.Equal(1, summary.InProgressCount);
-            Assert.Equal(1, summary.CarriedOverCount);
-        }
-
-        [Fact]
-        public async Task GetTaskStatusSummary_WithNoTasks_ReturnsZeroCounts()
-        {
-            var tasks = new List<ProjectTask>();
-
-            var summary = _service.GetTaskStatusSummary(tasks);
-
-            Assert.Equal(0, summary.ShippedCount);
-            Assert.Equal(0, summary.InProgressCount);
-            Assert.Equal(0, summary.CarriedOverCount);
-        }
-
-        [Fact]
-        public void CalculateCompletionPercentage_WithAllTasksShipped_Returns100()
-        {
-            var tasks = new List<ProjectTask>
-            {
-                new ProjectTask { Status = "Shipped" },
-                new ProjectTask { Status = "Shipped" },
-                new ProjectTask { Status = "Shipped" }
-            };
-
-            var percentage = _service.CalculateCompletionPercentage(tasks);
-
-            Assert.Equal(100, percentage);
-        }
-
-        [Fact]
-        public void CalculateCompletionPercentage_WithMixedTasks_CalculatesCorrectly()
-        {
-            var tasks = new List<ProjectTask>
-            {
-                new ProjectTask { Status = "Shipped" },
-                new ProjectTask { Status = "Shipped" },
-                new ProjectTask { Status = "InProgress" },
-                new ProjectTask { Status = "CarriedOver" }
-            };
-
-            var percentage = _service.CalculateCompletionPercentage(tasks);
-
-            Assert.Equal(50, percentage);
-        }
-
-        [Fact]
-        public void CalculateCompletionPercentage_WithNoTasks_ReturnsZero()
-        {
-            var tasks = new List<ProjectTask>();
-
-            var percentage = _service.CalculateCompletionPercentage(tasks);
-
-            Assert.Equal(0, percentage);
+            File.Delete(tempFile);
         }
     }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithValidData_CachesData()
+    {
+        var validJson = """
+        {
+            "project": { "name": "Test Project", "description": "", "startDate": "2024-01-01", "endDate": "2024-12-31", "status": "OnTrack", "sponsor": "", "projectManager": "" },
+            "milestones": [],
+            "tasks": [],
+            "metrics": { "totalTasks": 0, "completedTasks": 0, "inProgressTasks": 0, "carriedOverTasks": 0, "estimatedBurndownRate": 0 }
+        }
+        """;
+
+        var tempFile = Path.Combine(Path.GetTempPath(), "cache_test.json");
+        await File.WriteAllTextAsync(tempFile, validJson);
+
+        try
+        {
+            await _service.LoadProjectDataAsync(tempFile);
+            var cached = _service.GetCachedData();
+
+            Assert.NotNull(cached);
+            Assert.Equal("Test Project", cached.Project?.Name);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task GetCachedData_AfterLoad_ReturnsProjectData()
+    {
+        var validJson = """
+        {
+            "project": { "name": "Cached Project", "description": "", "startDate": "2024-01-01", "endDate": "2024-12-31", "status": "OnTrack", "sponsor": "", "projectManager": "" },
+            "milestones": [],
+            "tasks": [],
+            "metrics": { "totalTasks": 5, "completedTasks": 2, "inProgressTasks": 2, "carriedOverTasks": 1, "estimatedBurndownRate": 1.0 }
+        }
+        """;
+
+        var tempFile = Path.Combine(Path.GetTempPath(), "get_cached.json");
+        await File.WriteAllTextAsync(tempFile, validJson);
+
+        try
+        {
+            await _service.LoadProjectDataAsync(tempFile);
+            var cached = _service.GetCachedData();
+
+            Assert.Equal("Cached Project", cached.Project?.Name);
+            Assert.Equal(5, cached.Metrics?.TotalTasks);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    #endregion
+
+    #region Error Handling Tests
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithNonExistentFile_ThrowsDataLoadException()
+    {
+        var nonExistentPath = Path.Combine(Path.GetTempPath(), "does_not_exist_" + Guid.NewGuid() + ".json");
+
+        var exception = await Assert.ThrowsAsync<DataLoadException>(
+            () => _service.LoadProjectDataAsync(nonExistentPath));
+
+        Assert.Contains("data.json not found", exception.Message);
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithMalformedJson_ThrowsDataLoadException()
+    {
+        var malformedJson = "{ invalid json }";
+        var tempFile = Path.Combine(Path.GetTempPath(), "malformed.json");
+        await File.WriteAllTextAsync(tempFile, malformedJson);
+
+        try
+        {
+            var exception = await Assert.ThrowsAsync<DataLoadException>(
+                () => _service.LoadProjectDataAsync(tempFile));
+
+            Assert.Contains("Invalid JSON format", exception.Message);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithMissingProjectField_ThrowsDataLoadException()
+    {
+        var jsonMissingProject = """
+        {
+            "milestones": [],
+            "tasks": [],
+            "metrics": { "totalTasks": 0, "completedTasks": 0, "inProgressTasks": 0, "carriedOverTasks": 0, "estimatedBurndownRate": 0 }
+        }
+        """;
+
+        var tempFile = Path.Combine(Path.GetTempPath(), "missing_project.json");
+        await File.WriteAllTextAsync(tempFile, jsonMissingProject);
+
+        try
+        {
+            var exception = await Assert.ThrowsAsync<DataLoadException>(
+                () => _service.LoadProjectDataAsync(tempFile));
+
+            Assert.Contains("Missing 'project' field", exception.Message);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithEmptyProjectName_ThrowsDataLoadException()
+    {
+        var jsonEmptyName = """
+        {
+            "project": { "name": "", "description": "", "startDate": "2024-01-01", "endDate": "2024-12-31", "status": "OnTrack", "sponsor": "", "projectManager": "" },
+            "milestones": [],
+            "tasks": [],
+            "metrics": { "totalTasks": 0, "completedTasks": 0, "inProgressTasks": 0, "carriedOverTasks": 0, "estimatedBurndownRate": 0 }
+        }
+        """;
+
+        var tempFile = Path.Combine(Path.GetTempPath(), "empty_name.json");
+        await File.WriteAllTextAsync(tempFile, jsonEmptyName);
+
+        try
+        {
+            var exception = await Assert.ThrowsAsync<DataLoadException>(
+                () => _service.LoadProjectDataAsync(tempFile));
+
+            Assert.Contains("Project name is required", exception.Message);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithMissingMilestonesArray_ThrowsDataLoadException()
+    {
+        var jsonMissingMilestones = """
+        {
+            "project": { "name": "Test", "description": "", "startDate": "2024-01-01", "endDate": "2024-12-31", "status": "OnTrack", "sponsor": "", "projectManager": "" },
+            "tasks": [],
+            "metrics": { "totalTasks": 0, "completedTasks": 0, "inProgressTasks": 0, "carriedOverTasks": 0, "estimatedBurndownRate": 0 }
+        }
+        """;
+
+        var tempFile = Path.Combine(Path.GetTempPath(), "missing_milestones.json");
+        await File.WriteAllTextAsync(tempFile, jsonMissingMilestones);
+
+        try
+        {
+            var exception = await Assert.ThrowsAsync<DataLoadException>(
+                () => _service.LoadProjectDataAsync(tempFile));
+
+            Assert.Contains("Missing 'milestones' array", exception.Message);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithMissingTasksArray_ThrowsDataLoadException()
+    {
+        var jsonMissingTasks = """
+        {
+            "project": { "name": "Test", "description": "", "startDate": "2024-01-01", "endDate": "2024-12-31", "status": "OnTrack", "sponsor": "", "projectManager": "" },
+            "milestones": [],
+            "metrics": { "totalTasks": 0, "completedTasks": 0, "inProgressTasks": 0, "carriedOverTasks": 0, "estimatedBurndownRate": 0 }
+        }
+        """;
+
+        var tempFile = Path.Combine(Path.GetTempPath(), "missing_tasks.json");
+        await File.WriteAllTextAsync(tempFile, jsonMissingTasks);
+
+        try
+        {
+            var exception = await Assert.ThrowsAsync<DataLoadException>(
+                () => _service.LoadProjectDataAsync(tempFile));
+
+            Assert.Contains("Missing 'tasks' array", exception.Message);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithMissingMetricsObject_ThrowsDataLoadException()
+    {
+        var jsonMissingMetrics = """
+        {
+            "project": { "name": "Test", "description": "", "startDate": "2024-01-01", "endDate": "2024-12-31", "status": "OnTrack", "sponsor": "", "projectManager": "" },
+            "milestones": [],
+            "tasks": []
+        }
+        """;
+
+        var tempFile = Path.Combine(Path.GetTempPath(), "missing_metrics.json");
+        await File.WriteAllTextAsync(tempFile, jsonMissingMetrics);
+
+        try
+        {
+            var exception = await Assert.ThrowsAsync<DataLoadException>(
+                () => _service.LoadProjectDataAsync(tempFile));
+
+            Assert.Contains("Missing 'metrics' object", exception.Message);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public void GetCachedData_WithoutPriorLoad_ThrowsInvalidOperationException()
+    {
+        var newService = new ProjectDataService(_loggerMock.Object);
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => newService.GetCachedData());
+
+        Assert.Contains("No cached data available", exception.Message);
+    }
+
+    #endregion
+
+    #region Edge Cases
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithCaseInsensitiveJson_DeserializesCorrectly()
+    {
+        var lowerCaseJson = """
+        {
+            "project": { "name": "CaseTest", "description": "", "startdate": "2024-01-01", "enddate": "2024-12-31", "status": "OnTrack", "sponsor": "", "projectmanager": "" },
+            "milestones": [],
+            "tasks": [],
+            "metrics": { "totaltasks": 0, "completedtasks": 0, "inprogresstasks": 0, "carriedovertasks": 0, "estimatedburndownrate": 0 }
+        }
+        """;
+
+        var tempFile = Path.Combine(Path.GetTempPath(), "case_insensitive.json");
+        await File.WriteAllTextAsync(tempFile, lowerCaseJson);
+
+        try
+        {
+            var result = await _service.LoadProjectDataAsync(tempFile);
+
+            Assert.NotNull(result);
+            Assert.Equal("CaseTest", result.Project?.Name);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithEmptyMilestonesAndTasks_ReturnsValidData()
+    {
+        var emptyJson = """
+        {
+            "project": { "name": "Empty Project", "description": "", "startDate": "2024-01-01", "endDate": "2024-12-31", "status": "OnTrack", "sponsor": "", "projectManager": "" },
+            "milestones": [],
+            "tasks": [],
+            "metrics": { "totalTasks": 0, "completedTasks": 0, "inProgressTasks": 0, "carriedOverTasks": 0, "estimatedBurndownRate": 0 }
+        }
+        """;
+
+        var tempFile = Path.Combine(Path.GetTempPath(), "empty_data.json");
+        await File.WriteAllTextAsync(tempFile, emptyJson);
+
+        try
+        {
+            var result = await _service.LoadProjectDataAsync(tempFile);
+
+            Assert.NotNull(result);
+            Assert.Empty(result.Milestones);
+            Assert.Empty(result.Tasks);
+            Assert.Equal(0, result.Metrics?.TotalTasks);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task LoadProjectDataAsync_WithLargeDataSet_LoadsSuccessfully()
+    {
+        var milestones = string.Join(",", Enumerable.Range(1, 50)
+            .Select(i => $"""
+            {{
+                "id": "m{i}",
+                "name": "Milestone {i}",
+                "targetDate": "2024-{(i % 12) + 1:D2}-15",
+                "actualDate": null,
+                "status": 1,
+                "completionPercentage": {i * 2}
+            }}
+            """));
+
+        var tasks = string.Join(",", Enumerable.Range(1, 100)
+            .Select(i => $"""
+            {{
+                "id": "t{i}",
+                "name": "Task {i}",
+                "status": {i % 3},
+                "assignedTo": "Team Member",
+                "dueDate": "2024-06-30",
+                "estimatedDays": 5,
+                "relatedMilestone": "m1"
+            }}
+            """));
+
+        var largeJson = $"""
+        {{
+            "project": {{ "name": "Large Project", "description": "", "startDate": "2024-01-01", "endDate": "2024-12-31", "status": "OnTrack", "sponsor": "", "projectManager": "" }},
+            "milestones": [{milestones}],
+            "tasks": [{tasks}],
+            "metrics": {{ "totalTasks": 100, "completedTasks": 33, "inProgressTasks": 33, "carriedOverTasks": 34, "estimatedBurndownRate": 2.0 }}
+        }}
+        """;
+
+        var tempFile = Path.Combine(Path.GetTempPath(), "large_data.json");
+        await File.WriteAllTextAsync(tempFile, largeJson);
+
+        try
+        {
+            var result = await _service.LoadProjectDataAsync(tempFile);
+
+            Assert.NotNull(result);
+            Assert.Equal(50, result.Milestones.Count);
+            Assert.Equal(100, result.Tasks.Count);
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    #endregion
 }
