@@ -5,82 +5,19 @@
 <div class="work-item-summary">
     @if (WorkItems == null || WorkItems.Count == 0)
     {
-        <p>No work items available.</p>
+        <p class="empty-state">No work items available.</p>
     }
     else
     {
         <div class="work-items-grid">
             <!-- Shipped This Month Column -->
-            <div class="work-item-column">
-                <div class="column-header">
-                    <h3>Shipped This Month</h3>
-                    <span class="item-count-badge">@GetItemCountForStatus(WorkItemStatus.Shipped)</span>
-                </div>
-                <div class="column-items">
-                    @foreach (var item in WorkItems.Where(w => w.Status == WorkItemStatus.Shipped))
-                    {
-                        <div class="work-item">
-                            <div class="item-title">@item.Title</div>
-                            @if (!string.IsNullOrWhiteSpace(item.Description))
-                            {
-                                <div class="item-description">@item.Description</div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(item.AssignedTo))
-                            {
-                                <div class="item-assigned">@item.AssignedTo</div>
-                            }
-                        </div>
-                    }
-                </div>
-            </div>
+            @RenderColumn(WorkItemStatus.Shipped, "Shipped This Month")
 
             <!-- In Progress Column -->
-            <div class="work-item-column">
-                <div class="column-header">
-                    <h3>In Progress</h3>
-                    <span class="item-count-badge">@GetItemCountForStatus(WorkItemStatus.InProgress)</span>
-                </div>
-                <div class="column-items">
-                    @foreach (var item in WorkItems.Where(w => w.Status == WorkItemStatus.InProgress))
-                    {
-                        <div class="work-item">
-                            <div class="item-title">@item.Title</div>
-                            @if (!string.IsNullOrWhiteSpace(item.Description))
-                            {
-                                <div class="item-description">@item.Description</div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(item.AssignedTo))
-                            {
-                                <div class="item-assigned">@item.AssignedTo</div>
-                            }
-                        </div>
-                    }
-                </div>
-            </div>
+            @RenderColumn(WorkItemStatus.InProgress, "In Progress")
 
             <!-- Carried Over Column -->
-            <div class="work-item-column">
-                <div class="column-header">
-                    <h3>Carried Over</h3>
-                    <span class="item-count-badge">@GetItemCountForStatus(WorkItemStatus.CarriedOver)</span>
-                </div>
-                <div class="column-items">
-                    @foreach (var item in WorkItems.Where(w => w.Status == WorkItemStatus.CarriedOver))
-                    {
-                        <div class="work-item">
-                            <div class="item-title">@item.Title</div>
-                            @if (!string.IsNullOrWhiteSpace(item.Description))
-                            {
-                                <div class="item-description">@item.Description</div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(item.AssignedTo))
-                            {
-                                <div class="item-assigned">@item.AssignedTo</div>
-                            }
-                        </div>
-                    }
-                </div>
-            </div>
+            @RenderColumn(WorkItemStatus.CarriedOver, "Carried Over")
         </div>
     }
 </div>
@@ -91,6 +28,94 @@
 
     private int GetItemCountForStatus(WorkItemStatus status)
     {
-        return WorkItems?.Count(w => w.Status == status) ?? 0;
+        return WorkItems?.Count(w => w?.Status == status) ?? 0;
     }
+
+    private string GetEmptyColumnClass(WorkItemStatus status)
+    {
+        var itemCount = GetItemCountForStatus(status);
+        return itemCount == 0 ? "empty" : string.Empty;
+    }
+
+    private string TruncateDescription(string description, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            return string.Empty;
+        }
+
+        description = description.Trim();
+        if (description.Length <= maxLength)
+        {
+            return description;
+        }
+
+        return description.Substring(0, maxLength).TrimEnd() + "...";
+    }
+
+    private RenderFragment RenderColumn(WorkItemStatus status, string columnHeader) => builder =>
+    {
+        var items = WorkItems?.Where(w => w?.Status == status)?.ToList() ?? new List<WorkItem>();
+        var isEmpty = items.Count == 0;
+
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", $"work-item-column {(isEmpty ? "empty" : "")}");
+
+        builder.OpenElement(2, "div");
+        builder.AddAttribute(3, "class", "column-header");
+
+        builder.OpenElement(4, "h3");
+        builder.AddContent(5, columnHeader);
+        builder.CloseElement();
+
+        builder.OpenElement(6, "span");
+        builder.AddAttribute(7, "class", "item-count-badge");
+        builder.AddContent(8, items.Count);
+        builder.CloseElement();
+
+        builder.CloseElement();
+
+        builder.OpenElement(9, "div");
+        builder.AddAttribute(10, "class", "column-items");
+
+        foreach (var item in items)
+        {
+            if (item == null)
+                continue;
+
+            builder.OpenElement(11, "div");
+            builder.AddAttribute(12, "class", "work-item");
+
+            if (!string.IsNullOrWhiteSpace(item.Title))
+            {
+                builder.OpenElement(13, "div");
+                builder.AddAttribute(14, "class", "item-title");
+                builder.AddContent(15, item.Title);
+                builder.CloseElement();
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.Description))
+            {
+                builder.OpenElement(16, "div");
+                builder.AddAttribute(17, "class", "item-description");
+                builder.AddAttribute(18, "title", item.Description?.Trim() ?? string.Empty);
+                var truncated = TruncateDescription(item.Description, 150);
+                builder.AddContent(19, truncated);
+                builder.CloseElement();
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.AssignedTo))
+            {
+                builder.OpenElement(20, "div");
+                builder.AddAttribute(21, "class", "item-assigned");
+                builder.AddContent(22, item.AssignedTo);
+                builder.CloseElement();
+            }
+
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+        builder.CloseElement();
+    };
 }
