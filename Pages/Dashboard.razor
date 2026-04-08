@@ -1,6 +1,7 @@
 @page "/dashboard"
 @using AgentSquad.Dashboard.Models
 @using AgentSquad.Dashboard.Services
+@using System.Text.Json
 @implements IAsyncDisposable
 
 <ErrorBoundary>
@@ -47,21 +48,31 @@
         {
             projectData = await ProjectDataService.LoadProjectDataAsync();
             errorMessage = null;
+            StateHasChanged();
         }
         catch (JsonException jex)
         {
-            errorMessage = $"Invalid project data format: {jex.Message}";
+            errorMessage = $"Invalid project data format: {jex.Message}. Please check the data.json file for syntax errors.";
             projectData = null;
+            StateHasChanged();
         }
         catch (FileNotFoundException fnex)
         {
-            errorMessage = $"Project data file not found: {fnex.Message}";
+            errorMessage = $"Project data file not found: {fnex.Message}. Ensure data.json exists in the configured location.";
             projectData = null;
+            StateHasChanged();
+        }
+        catch (ArgumentException aex)
+        {
+            errorMessage = $"Invalid project data: {aex.Message}. Please verify the data structure matches the expected schema.";
+            projectData = null;
+            StateHasChanged();
         }
         catch (Exception ex)
         {
-            errorMessage = $"Failed to load project data: {ex.Message}";
+            errorMessage = $"Failed to load project data: {ex.GetType().Name} - {ex.Message}";
             projectData = null;
+            StateHasChanged();
         }
     }
 

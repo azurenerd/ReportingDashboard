@@ -1,82 +1,74 @@
+using System;
+using System.IO;
 using System.Text.Json;
-using AgentSquad.Services.Models;
+using System.Threading.Tasks;
+using AgentSquad.Dashboard.Models;
 
-namespace AgentSquad.Services;
-
-public class ProjectDataService
+namespace AgentSquad.Dashboard.Services
 {
-    public async Task<ProjectData> LoadProjectDataAsync(string jsonFilePath)
+    public class ProjectDataService
     {
-        try
+        private readonly string _dataPath;
+
+        public ProjectDataService(IConfiguration configuration)
         {
-            if (!File.Exists(jsonFilePath))
+            _dataPath = configuration["DataFilePath"] ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data.json");
+        }
+
+        public async Task<ProjectData> LoadProjectDataAsync()
+        {
+            if (!File.Exists(_dataPath))
             {
-                return GetDefaultProjectData();
+                throw new FileNotFoundException($"Data file not found at: {_dataPath}");
             }
 
-            var json = await File.ReadAllTextAsync(jsonFilePath);
-            var options = new JsonSerializerOptions 
-            { 
+            var jsonContent = await File.ReadAllTextAsync(_dataPath);
+
+            var options = new JsonSerializerOptions
+            {
                 PropertyNameCaseInsensitive = true,
-                Converters = { new JsonStringEnumConverter() }
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
-            var projectData = JsonSerializer.Deserialize<ProjectData>(json, options);
-            return projectData ?? GetDefaultProjectData();
-        }
-        catch (Exception)
-        {
-            return GetDefaultProjectData();
-        }
-    }
 
-    public ProjectData GetDefaultProjectData()
-    {
-        var today = DateTime.Now;
-        return new ProjectData
-        {
-            ProjectName = "Executive Dashboard Project",
-            Description = "Real-time project status reporting dashboard",
-            StartDate = today.AddDays(-60),
-            EndDate = today.AddDays(120),
-            TotalTasks = 24,
-            CompletedTasks = 8,
-            Milestones = new List<Milestone>
+            try
             {
-                new Milestone
+                var projectData = JsonSerializer.Deserialize<ProjectData>(jsonContent, options);
+                
+                if (projectData == null)
                 {
-                    Id = "m1",
-                    Name = "Project Kickoff",
-                    TargetDate = today.AddDays(-30),
-                    ActualDate = today.AddDays(-30),
-                    Status = MilestoneStatus.Completed,
-                    CompletionPercentage = 100
-                },
-                new Milestone
-                {
-                    Id = "m2",
-                    Name = "Phase 1 Design Review",
-                    TargetDate = today.AddDays(-10),
-                    ActualDate = today.AddDays(-10),
-                    Status = MilestoneStatus.Completed,
-                    CompletionPercentage = 100
-                },
-                new Milestone
-                {
-                    Id = "m3",
-                    Name = "Development Sprint 1",
-                    TargetDate = today.AddDays(15),
-                    Status = MilestoneStatus.InProgress,
-                    CompletionPercentage = 65
-                },
-                new Milestone
-                {
-                    Id = "m4",
-                    Name = "Quality Assurance & Testing",
-                    TargetDate = today.AddDays(45),
-                    Status = MilestoneStatus.Pending,
-                    CompletionPercentage = 0
+                    throw new ArgumentException("Deserialized project data is null. Check data.json structure.");
                 }
+
+                ValidateProjectData(projectData);
+                return projectData;
             }
-        };
+            catch (JsonException ex)
+            {
+                throw new JsonException($"Failed to parse JSON: {ex.Message}", ex);
+            }
+        }
+
+        private void ValidateProjectData(ProjectData data)
+        {
+            if (string.IsNullOrWhiteSpace(data.ProjectName))
+            {
+                throw new ArgumentException("Project name is required.");
+            }
+
+            if (data.Milestones == null)
+            {
+                throw new ArgumentException("Milestones list is required.");
+            }
+
+            if (data.Tasks == null)
+            {
+                throw new ArgumentException("Tasks list is required.");
+            }
+
+            if (data.Metrics == null)
+            {
+                throw new ArgumentException("Metrics object is required.");
+            }
+        }
     }
 }
