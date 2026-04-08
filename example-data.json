@@ -1,6 +1,6 @@
 {
   "name": "Project Codename",
-  "description": "Executive reporting dashboard for project milestone tracking and team velocity monitoring",
+  "description": "Executive reporting dashboard for project visibility and milestone tracking",
   "startDate": "2024-01-15",
   "targetEndDate": "2024-12-31",
   "completionPercentage": 48,
@@ -8,78 +8,78 @@
   "velocityThisMonth": 14,
   "milestones": [
     {
-      "name": "Phase 1: Foundation",
-      "targetDate": "2024-03-15",
+      "name": "Foundation & Architecture",
+      "targetDate": "2024-02-28",
       "status": "Completed",
-      "description": "Core infrastructure and API layer development"
+      "description": "Core infrastructure, data models, and service layer established"
     },
     {
-      "name": "Phase 2: MVP Features",
-      "targetDate": "2024-06-30",
+      "name": "Dashboard UI & Components",
+      "targetDate": "2024-04-30",
       "status": "InProgress",
-      "description": "Dashboard UI, reporting components, data integration"
+      "description": "Blazor components, styling, and executive dashboard layout"
     },
     {
-      "name": "Phase 3: Performance",
-      "targetDate": "2024-09-15",
+      "name": "Integration & Testing",
+      "targetDate": "2024-06-30",
       "status": "Future",
-      "description": "Optimization, caching, and scalability improvements"
+      "description": "End-to-end testing, performance optimization, and deployment hardening"
     },
     {
-      "name": "Phase 4: Polish & Release",
-      "targetDate": "2024-12-15",
+      "name": "Production Release",
+      "targetDate": "2024-07-31",
       "status": "Future",
-      "description": "Testing, documentation, and production deployment"
+      "description": "Final validation, documentation, and production deployment"
     }
   ],
   "workItems": [
     {
-      "title": "Dashboard Layout Component",
-      "description": "Create responsive grid-based dashboard layout with header, timeline, metrics, and work items sections",
+      "title": "DataProvider service implementation",
+      "description": "Read, parse, validate, and cache project data from data.json with error handling",
       "status": "Shipped",
-      "assignedTo": "Team Frontend"
+      "assignedTo": "Backend Team"
     },
     {
-      "title": "Milestone Timeline Visualization",
-      "description": "Implement horizontal timeline using Chart.js with color-coded milestone status indicators",
+      "title": "DashboardLayout component",
+      "description": "Main layout component hosting all dashboard sections with responsive grid",
       "status": "Shipped",
-      "assignedTo": "Team Frontend"
+      "assignedTo": "UI Team"
     },
     {
-      "title": "Project Metrics Component",
-      "description": "Build KPI cards displaying completion percentage, health status, and velocity metrics",
-      "status": "Shipped",
-      "assignedTo": "Team Frontend"
-    },
-    {
-      "title": "Work Item Status Grouping",
-      "description": "Implement three-column layout grouping work items by Shipped, InProgress, and CarriedOver status",
+      "title": "MilestoneTimeline visualization",
+      "description": "Horizontal timeline component displaying milestone status with color coding",
       "status": "InProgress",
-      "assignedTo": "Team Frontend"
+      "assignedTo": "UI Team"
     },
     {
-      "title": "DataProvider Service Implementation",
-      "description": "Build JSON loading, parsing, validation, and in-memory caching service layer",
+      "title": "ProjectMetrics KPI display",
+      "description": "Health indicators, completion percentage, and velocity metrics component",
       "status": "InProgress",
-      "assignedTo": "Team Backend"
+      "assignedTo": "UI Team"
     },
     {
-      "title": "Print/Screenshot CSS Optimization",
-      "description": "Create print media queries and responsive styles optimized for PowerPoint screenshots at 1280x720 and 1920x1080",
+      "title": "WorkItemSummary component",
+      "description": "Three-column layout for work items grouped by status (Shipped, In Progress, Carried Over)",
       "status": "InProgress",
-      "assignedTo": "Team Frontend"
+      "assignedTo": "UI Team"
     },
     {
-      "title": "Error Handling & Validation",
-      "description": "Add comprehensive error handling for missing data.json, invalid JSON, and schema validation failures",
+      "title": "CSS styling and screenshot optimization",
+      "description": "Print/screenshot-optimized CSS with Pico framework for executive dashboard appearance",
       "status": "CarriedOver",
-      "assignedTo": "Team Backend"
+      "assignedTo": "Design Team"
     },
     {
-      "title": "Unit Test Coverage",
-      "description": "Write xUnit tests for DataProvider, caching, validation logic, and error scenarios with >85% coverage",
+      "title": "Unit test coverage for services",
+      "description": "Comprehensive xUnit tests for DataProvider and caching logic with >85% coverage",
       "status": "CarriedOver",
-      "assignedTo": "Team QA"
+      "assignedTo": "QA Team"
+    },
+    {
+      "title": "Integration testing and deployment",
+      "description": "End-to-end testing, self-contained executable build, and deployment documentation",
+      "status": "Future",
+      "assignedTo": "DevOps Team"
     }
   ]
 }
