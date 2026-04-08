@@ -1,101 +1,90 @@
 {
-  "project": {
-    "name": "AgentSquad Initiative",
-    "description": "Building an intelligent agent coordination system",
-    "startDate": "2024-01-15",
-    "endDate": "2024-12-31"
-  },
+  "projectName": "Q2 Executive Platform Redesign",
+  "sponsor": "Chief Technology Officer",
+  "projectManager": "Sarah Johnson",
+  "projectStartDate": "2026-01-15",
+  "projectEndDate": "2026-06-30",
+  "status": "On-Track",
   "milestones": [
     {
-      "id": "m1",
-      "name": "Architecture & Design",
-      "targetDate": "2024-03-15",
+      "name": "Requirements & Design Review",
+      "targetDate": "2026-02-28",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
-      "id": "m2",
-      "name": "Core Development",
-      "targetDate": "2024-06-30",
+      "name": "Frontend Component Development",
+      "targetDate": "2026-04-15",
       "status": "InProgress",
-      "completionPercentage": 65
+      "completionPercentage": 75
     },
     {
-      "id": "m3",
-      "name": "Integration & Testing",
-      "targetDate": "2024-09-15",
-      "status": "Pending",
-      "completionPercentage": 0
+      "name": "Backend API Integration",
+      "targetDate": "2026-05-15",
+      "status": "InProgress",
+      "completionPercentage": 60
     },
     {
-      "id": "m4",
-      "name": "Deployment & Training",
-      "targetDate": "2024-12-31",
+      "name": "QA & Launch Readiness",
+      "targetDate": "2026-06-30",
       "status": "Pending",
       "completionPercentage": 0
     }
   ],
   "tasks": [
     {
-      "id": "t1",
-      "name": "Requirements gathering",
-      "owner": "Alice Chen",
+      "id": 1,
+      "name": "Design system component library",
       "status": "Shipped",
-      "dueDate": "2024-02-01"
+      "owner": "Design Team"
     },
     {
-      "id": "t2",
-      "name": "UI/UX design",
-      "owner": "Bob Martinez",
+      "id": 2,
+      "name": "Authentication module implementation",
       "status": "Shipped",
-      "dueDate": "2024-03-01"
+      "owner": "Backend Team"
     },
     {
-      "id": "t3",
-      "name": "Database schema",
-      "owner": "Carol Singh",
-      "status": "Shipped",
-      "dueDate": "2024-03-15"
-    },
-    {
-      "id": "t4",
-      "name": "API implementation",
-      "owner": "David Lee",
+      "id": 3,
+      "name": "Dashboard UI implementation",
       "status": "InProgress",
-      "dueDate": "2024-05-15"
+      "owner": "Frontend Team"
     },
     {
-      "id": "t5",
-      "name": "Frontend components",
-      "owner": "Emma Johnson",
+      "id": 4,
+      "name": "API endpoint development",
       "status": "InProgress",
-      "dueDate": "2024-05-30"
+      "owner": "Backend Team"
     },
     {
-      "id": "t6",
-      "name": "Backend services",
-      "owner": "Frank Williams",
+      "id": 5,
+      "name": "Real-time notification system",
       "status": "InProgress",
-      "dueDate": "2024-06-15"
+      "owner": "Platform Team"
     },
     {
-      "id": "t7",
-      "name": "Integration testing",
-      "owner": "Grace Park",
-      "status": "CarriedOver",
-      "dueDate": "2024-08-01"
-    },
-    {
-      "id": "t8",
+      "id": 6,
       "name": "Performance optimization",
-      "owner": "Henry Brown",
       "status": "CarriedOver",
-      "dueDate": "2024-08-15"
+      "owner": "DevOps Team"
+    },
+    {
+      "id": 7,
+      "name": "Mobile responsive testing",
+      "status": "CarriedOver",
+      "owner": "QA Team"
+    },
+    {
+      "id": 8,
+      "name": "Documentation updates",
+      "status": "Pending",
+      "owner": "Tech Writing"
     }
   ],
-  "summary": {
-    "completionPercentage": 42,
-    "tasksShipped": 3,
+  "metrics": {
+    "completionPercentage": 62,
+    "totalTasks": 8,
+    "tasksCompleted": 2,
     "tasksInProgress": 3,
     "tasksCarriedOver": 2
   }
