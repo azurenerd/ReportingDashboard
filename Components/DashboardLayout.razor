@@ -23,19 +23,19 @@
                 <div class="header-content">
                     <h1 class="project-title">@ProjectData.Name</h1>
                     <p class="project-description">@ProjectData.Description</p>
-                    <p class="last-updated">Last updated: @ProjectData.LastUpdated.ToString("g")</p>
+                    <p class="last-updated">Updated: @ProjectData.LastUpdated.ToString("g")</p>
                 </div>
             </header>
 
             <section class="timeline-section">
-                <h2 class="section-title">Project Timeline</h2>
+                <h2 class="section-title">Timeline</h2>
                 <div class="timeline-content">
                     <MilestoneTimeline Milestones="ProjectData?.Milestones ?? new()" />
                 </div>
             </section>
 
             <section class="metrics-section">
-                <h2 class="section-title">Project Metrics</h2>
+                <h2 class="section-title">Metrics</h2>
                 <div class="metrics-content">
                     <ProjectMetrics Metrics="ProjectData?.Metrics" />
                 </div>
