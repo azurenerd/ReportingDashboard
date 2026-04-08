@@ -1,116 +1,40 @@
 {
-  "project": {
-    "name": "Q2 Mobile App Release",
-    "description": "Mobile application development and release for Q2 2026",
-    "status": "InProgress",
-    "sponsor": "Chief Product Officer",
-    "projectManager": "Jennifer Liu",
-    "startDate": "2026-04-01",
-    "endDate": "2026-06-30",
-    "completionPercentage": 65
-  },
+  "projectName": "Executive Dashboard Project",
+  "description": "Real-time project status reporting dashboard",
+  "startDate": "2026-02-07T00:00:00Z",
+  "endDate": "2026-06-07T00:00:00Z",
+  "totalTasks": 24,
+  "completedTasks": 8,
   "milestones": [
     {
-      "id": 1,
-      "name": "API Backend Complete",
-      "targetDate": "2026-04-30",
+      "id": "m1",
+      "name": "Project Kickoff",
+      "targetDate": "2026-03-09T00:00:00Z",
+      "actualDate": "2026-03-09T00:00:00Z",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
-      "id": 2,
-      "name": "iOS Build 1.0",
-      "targetDate": "2026-05-31",
-      "status": "InProgress",
-      "completionPercentage": 75
+      "id": "m2",
+      "name": "Phase 1 Design Review",
+      "targetDate": "2026-03-29T00:00:00Z",
+      "actualDate": "2026-03-29T00:00:00Z",
+      "status": "Completed",
+      "completionPercentage": 100
     },
     {
-      "id": 3,
-      "name": "Android Build 1.0",
-      "targetDate": "2026-05-31",
+      "id": "m3",
+      "name": "Development Sprint 1",
+      "targetDate": "2026-04-23T00:00:00Z",
       "status": "InProgress",
-      "completionPercentage": 60
+      "completionPercentage": 65
     },
     {
-      "id": 4,
-      "name": "Release Ready",
-      "targetDate": "2026-06-30",
+      "id": "m4",
+      "name": "Quality Assurance & Testing",
+      "targetDate": "2026-05-23T00:00:00Z",
       "status": "Pending",
       "completionPercentage": 0
-    }
-  ],
-  "tasks": [
-    {
-      "id": 1,
-      "name": "Design System Components",
-      "description": "Create reusable UI component library and design tokens for mobile platforms with consistent styling across iOS and Android implementations",
-      "assignedTo": "Sarah Chen",
-      "status": "Shipped",
-      "estimatedDays": 8
-    },
-    {
-      "id": 2,
-      "name": "Backend Authentication API",
-      "description": "Implement OAuth 2.0 authentication service with token refresh mechanisms, session management, and secure credential handling for mobile clients",
-      "assignedTo": "Michael Rodriguez",
-      "status": "Shipped",
-      "estimatedDays": 12
-    },
-    {
-      "id": 3,
-      "name": "Database Schema Implementation",
-      "description": "Design and deploy PostgreSQL database schema including user profiles, projects, activity logs, and supporting indexes for optimal query performance",
-      "assignedTo": "James Park",
-      "status": "Shipped",
-      "estimatedDays": 6
-    },
-    {
-      "id": 4,
-      "name": "API Documentation",
-      "description": "Complete OpenAPI/Swagger documentation for all REST endpoints including request/response schemas, error responses, and authentication requirements",
-      "assignedTo": "Emma Watson",
-      "status": "Shipped",
-      "estimatedDays": 5
-    },
-    {
-      "id": 5,
-      "name": "iOS UI Implementation",
-      "description": "Build SwiftUI screens for onboarding, dashboard, task management, and settings modules with full navigation and state management integration",
-      "assignedTo": "David Kim",
-      "status": "InProgress",
-      "estimatedDays": 15
-    },
-    {
-      "id": 6,
-      "name": "Android UI Implementation",
-      "description": "Develop Jetpack Compose interfaces for onboarding, dashboard, task management, and settings modules with proper lifecycle handling and data binding",
-      "assignedTo": "Priya Sharma",
-      "status": "InProgress",
-      "estimatedDays": 15
-    },
-    {
-      "id": 7,
-      "name": "Integration Testing",
-      "description": "Execute comprehensive end-to-end testing across iOS and Android platforms verifying backend service integration, error handling, and data synchronization",
-      "assignedTo": "Marcus Johnson",
-      "status": "InProgress",
-      "estimatedDays": 10
-    },
-    {
-      "id": 8,
-      "name": "Performance Optimization",
-      "description": "Optimize application startup time, memory usage patterns, network request efficiency, and rendering performance across target devices",
-      "assignedTo": "Lisa Zhang",
-      "status": "CarriedOver",
-      "estimatedDays": 12
-    },
-    {
-      "id": 9,
-      "name": "Security Audit",
-      "description": "Conduct third-party security assessment covering authentication mechanisms, data encryption, API security, and mobile-specific vulnerabilities",
-      "assignedTo": "Alex Thompson",
-      "status": "CarriedOver",
-      "estimatedDays": 8
     }
   ]
 }
