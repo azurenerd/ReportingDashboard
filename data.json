@@ -1,0 +1,104 @@
+{
+  "name": "Executive Dashboard Project",
+  "description": "Blazor Server executive reporting dashboard with milestone tracking and work item management",
+  "startDate": "2024-01-15",
+  "milestones": [
+    {
+      "name": "Phase 1: Architecture & Setup",
+      "targetDate": "2024-02-15",
+      "status": "Completed",
+      "description": "Define system design, project structure, and component architecture"
+    },
+    {
+      "name": "Phase 2: Core Components",
+      "targetDate": "2024-03-15",
+      "status": "Completed",
+      "description": "Implement dashboard layout, timeline, and metrics components"
+    },
+    {
+      "name": "Phase 3: Data Integration",
+      "targetDate": "2024-04-15",
+      "status": "InProgress",
+      "description": "Integrate DataProvider service and finalize JSON deserialization"
+    },
+    {
+      "name": "Phase 4: Polish & Optimization",
+      "targetDate": "2024-05-15",
+      "status": "AtRisk",
+      "description": "Performance optimization, CSS refinement, and screenshot validation"
+    },
+    {
+      "name": "Phase 5: Launch",
+      "targetDate": "2024-06-15",
+      "status": "Future",
+      "description": "Final deployment and production release"
+    }
+  ],
+  "workItems": [
+    {
+      "title": "Implement MilestoneTimeline component",
+      "description": "Create horizontal timeline with status indicators and color coding",
+      "status": "Shipped",
+      "category": "Frontend"
+    },
+    {
+      "title": "Build ProjectMetrics display",
+      "description": "Design KPI cards for completion %, health status, and velocity",
+      "status": "Shipped",
+      "category": "Frontend"
+    },
+    {
+      "title": "Create WorkItemSummary component",
+      "description": "Render work items in three-column layout by status category",
+      "status": "Shipped",
+      "category": "Frontend"
+    },
+    {
+      "title": "Design dashboard CSS grid",
+      "description": "Responsive layout optimized for 1024x768 and 1920x1080 resolutions",
+      "status": "Shipped",
+      "category": "Styling"
+    },
+    {
+      "title": "Implement DataProvider service",
+      "description": "Load and cache data.json with error handling and logging",
+      "status": "InProgress",
+      "category": "Backend"
+    },
+    {
+      "title": "Add JSON deserialization",
+      "description": "Map JSON to Project, Milestone, WorkItem, and ProjectMetrics models",
+      "status": "InProgress",
+      "category": "Backend"
+    },
+    {
+      "title": "Optimize page load performance",
+      "description": "Ensure sub-1-second load time with caching and compression",
+      "status": "InProgress",
+      "category": "Performance"
+    },
+    {
+      "title": "Validate screenshot quality",
+      "description": "Test rendering at multiple resolutions for PowerPoint compatibility",
+      "status": "CarriedOver",
+      "category": "QA"
+    },
+    {
+      "title": "Create deployment documentation",
+      "description": "Document setup, configuration, and Windows executable generation",
+      "status": "CarriedOver",
+      "category": "Documentation"
+    },
+    {
+      "title": "Test cross-browser compatibility",
+      "description": "Verify rendering consistency in Chrome and Edge",
+      "status": "CarriedOver",
+      "category": "QA"
+    }
+  ],
+  "metrics": {
+    "completionPercentage": 70,
+    "healthStatus": "OnTrack",
+    "velocityCount": 12
+  }
+}
