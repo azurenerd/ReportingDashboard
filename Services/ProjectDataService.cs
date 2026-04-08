@@ -145,19 +145,33 @@ public class ProjectDataService
 
     /// <summary>
     /// Retrieves the last-loaded project data from the in-memory cache.
+    /// Returns null if no data has been loaded yet or if the cache has been cleared.
     /// </summary>
-    /// <returns>Cached ProjectData object, or null if no data has been loaded yet.</returns>
+    /// <returns>Cached ProjectData object, or null if cache is empty.</returns>
     public ProjectData GetCachedData()
     {
-        throw new NotImplementedException();
+        if (_cachedData != null)
+        {
+            _logger.LogInformation("Retrieving cached project data loaded at {LoadTime}", _lastLoadTime);
+        }
+        else
+        {
+            _logger.LogInformation("No cached project data available");
+        }
+
+        return _cachedData;
     }
 
     /// <summary>
-    /// Clears the in-memory cache and resets the load timestamp.
-    /// Prepares the service for a fresh data load on the next LoadProjectDataAsync call.
+    /// Clears the in-memory cache and resets the load timestamp to its minimum value.
+    /// After calling this method, GetCachedData() will return null until new data is loaded
+    /// via LoadProjectDataAsync().
     /// </summary>
     public void RefreshData()
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Refreshing project data cache");
+        _cachedData = null;
+        _lastLoadTime = DateTime.MinValue;
+        _logger.LogInformation("Project data cache cleared");
     }
 }
