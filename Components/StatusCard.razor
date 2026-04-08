@@ -1,24 +1,66 @@
-@using AgentSquad.Runner.Data
+@namespace AgentSquad.Components
+@inherits ComponentBase
 
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">@StatusCategory</h5>
+<div class="status-card border-start h-100" style="@GetBorderColorStyle()">
+    <div class="card-header bg-white p-3">
+        <h5 class="mb-0 fw-bold">
+            @StatusCategory <span class="badge bg-secondary ms-2">@TaskCount</span>
+        </h5>
     </div>
-    <div class="card-body">
-        <p class="text-muted">Status card placeholder - task counts and details coming in future steps</p>
+    <div class="card-body p-3">
+        @if (Tasks == null || Tasks.Count == 0)
+        {
+            <p class="text-muted mb-0">No tasks</p>
+        }
+        else
+        {
+            <button class="btn btn-sm btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@StatusCategory" aria-expanded="true">
+                View Tasks
+            </button>
+            <div class="collapse mt-3 show" id="collapse-@StatusCategory">
+                <div class="list-group">
+                    @foreach (var task in Tasks)
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle me-2 mt-1"></i>
+                                <div class="flex-grow-1">
+                                    <p class="mb-1">@task.Name</p>
+                                    @if (!string.IsNullOrEmpty(task.AssignedOwner))
+                                    {
+                                        <small class="text-muted">@task.AssignedOwner</small>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
     </div>
 </div>
 
 @code {
     [Parameter]
-    public string StatusCategory { get; set; } = string.Empty;
+    public string StatusCategory { get; set; }
 
     [Parameter]
     public int TaskCount { get; set; }
 
     [Parameter]
-    public List<Task>? Tasks { get; set; }
+    public List<Task> Tasks { get; set; } = new();
 
     [Parameter]
-    public string CardColor { get; set; } = string.Empty;
+    public string CardColor { get; set; }
+
+    private string GetBorderColorStyle()
+    {
+        return CardColor switch
+        {
+            "green" => "border-start-color: #28a745;",
+            "blue" => "border-start-color: #007bff;",
+            "orange" => "border-start-color: #fd7e14;",
+            _ => "border-start-color: #6c757d;"
+        };
+    }
 }
