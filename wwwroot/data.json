@@ -1,85 +1,97 @@
 {
-  "name": "Executive Project Dashboard Demo",
-  "description": "Sample project for dashboard demonstration",
-  "startDate": "2024-01-15",
+  "name": "Project Horizon - Q1 2024 Initiative",
+  "description": "Executive dashboard for real-time project tracking and status visualization",
+  "startDate": "2024-01-01",
   "targetEndDate": "2024-12-31",
   "completionPercentage": 62,
   "healthStatus": "OnTrack",
   "velocityThisMonth": 18,
   "milestones": [
     {
-      "name": "Phase 1: Foundation",
-      "targetDate": "2024-03-31",
+      "name": "Phase 1 Launch",
+      "targetDate": "2024-03-15",
       "status": "Completed",
-      "description": "Core infrastructure and setup"
+      "description": "Core infrastructure and authentication framework deployment"
     },
     {
-      "name": "Phase 2: Core Features",
-      "targetDate": "2024-06-30",
+      "name": "Phase 2 - Feature Set A",
+      "targetDate": "2024-06-01",
       "status": "InProgress",
-      "description": "Primary feature development"
+      "description": "Dashboard UI and data visualization components"
     },
     {
-      "name": "Phase 3: Integration",
-      "targetDate": "2024-09-30",
-      "status": "Future",
-      "description": "Third-party integrations"
+      "name": "Phase 3 - Integration",
+      "targetDate": "2024-08-30",
+      "status": "InProgress",
+      "description": "Third-party integrations and API connectivity"
     },
     {
-      "name": "Phase 4: Launch",
-      "targetDate": "2024-12-15",
+      "name": "Performance Optimization",
+      "targetDate": "2024-10-15",
       "status": "Future",
-      "description": "Production release"
+      "description": "System optimization and load testing"
+    },
+    {
+      "name": "Production Release",
+      "targetDate": "2024-12-01",
+      "status": "Future",
+      "description": "Final release and production deployment"
     }
   ],
   "workItems": [
     {
-      "title": "API Authentication",
-      "description": "Implement OAuth2 authentication layer",
+      "title": "Dashboard API Endpoint",
+      "description": "Implement RESTful API for dashboard data retrieval with caching layer for performance optimization",
       "status": "Shipped",
-      "assignedTo": "Backend Team"
+      "assignedTo": "Team A - Backend"
     },
     {
-      "title": "Dashboard UI",
-      "description": "Build responsive executive dashboard",
+      "title": "Work Item Timeline Component",
+      "description": "Create responsive timeline visualization component for milestone tracking and status display",
       "status": "Shipped",
-      "assignedTo": "Frontend Team"
+      "assignedTo": "Team B - Frontend"
     },
     {
-      "title": "Reporting Engine",
-      "description": "Create real-time reporting system",
+      "title": "Data Export Functionality",
+      "description": "Build screenshot and PDF export capabilities for executive presentation integration",
       "status": "Shipped",
-      "assignedTo": "Data Team"
+      "assignedTo": "Team A - Backend"
     },
     {
-      "title": "Data Migration",
-      "description": "Migrate historical data to new platform",
+      "title": "Authentication & Authorization Module",
+      "description": "Implement role-based access control system with multi-tenant support for enterprise deployment",
       "status": "InProgress",
-      "assignedTo": "Infrastructure Team"
+      "assignedTo": "Team C - Security"
     },
     {
-      "title": "Performance Optimization",
-      "description": "Optimize query performance and caching",
+      "title": "Real-time Dashboard Updates",
+      "description": "Develop WebSocket-based live update mechanism for dashboard data synchronization across connected clients",
       "status": "InProgress",
-      "assignedTo": "Platform Team"
+      "assignedTo": "Team B - Frontend"
     },
     {
-      "title": "Security Audit",
-      "description": "Third-party security assessment",
+      "title": "Performance Monitoring Dashboard",
+      "description": "Build system metrics and performance monitoring interface for infrastructure health tracking",
       "status": "InProgress",
-      "assignedTo": "Security Team"
+      "assignedTo": "Team D - DevOps"
     },
     {
-      "title": "Documentation",
-      "description": "Complete API and user documentation",
+      "title": "Legacy System Migration",
+      "description": "Migrate data from legacy project management system with data validation and integrity checks",
       "status": "CarriedOver",
-      "assignedTo": "Technical Writer"
+      "assignedTo": "Team A - Backend"
     },
     {
-      "title": "Mobile App",
-      "description": "Native mobile application development",
+      "title": "Mobile Responsive Redesign",
+      "description": "Refactor dashboard components for tablet and mobile device compatibility and accessibility standards",
       "status": "CarriedOver",
-      "assignedTo": "Mobile Team"
+      "assignedTo": "Team B - Frontend"
+    },
+    {
+      "title": "Database Query Optimization",
+      "description": "Review and optimize database queries to reduce dashboard load time below 500ms threshold",
+      "status": "CarriedOver",
+      "assignedTo": "Team A - Backend"
     }
   ]
 }
