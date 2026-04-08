@@ -40,6 +40,8 @@ public class DataProvider : IDataProvider
                 throw new InvalidOperationException("Failed to deserialize project data from JSON");
             }
 
+            ValidateProjectData(project);
+
             await _cache.SetAsync(CACHE_KEY, project, DEFAULT_CACHE_TTL);
             _logger.LogInformation("Project data loaded successfully and cached");
 
@@ -55,11 +57,103 @@ public class DataProvider : IDataProvider
             _logger.LogError(ex, "Failed to parse JSON from data file");
             throw new InvalidOperationException("Invalid JSON format in data file", ex);
         }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Validation"))
+        {
+            _logger.LogError(ex, "Project data validation failed");
+            throw;
+        }
     }
 
     public void InvalidateCache()
     {
         _cache.Remove(CACHE_KEY);
         _logger.LogInformation("Project data cache invalidated");
+    }
+
+    private void ValidateProjectData(Project project)
+    {
+        if (project == null)
+        {
+            throw new InvalidOperationException("Validation: Project data is null");
+        }
+
+        if (string.IsNullOrWhiteSpace(project.Name))
+        {
+            throw new InvalidOperationException("Validation: Project name is required and cannot be empty");
+        }
+
+        if (project.Milestones == null || project.Milestones.Count == 0)
+        {
+            throw new InvalidOperationException("Validation: At least one milestone is required");
+        }
+
+        if (project.CompletionPercentage < 0 || project.CompletionPercentage > 100)
+        {
+            throw new InvalidOperationException($"Validation: CompletionPercentage must be between 0 and 100, got {project.CompletionPercentage}");
+        }
+
+        if (!Enum.IsDefined(typeof(HealthStatus), project.HealthStatus))
+        {
+            throw new InvalidOperationException($"Validation: Invalid HealthStatus value '{project.HealthStatus}'");
+        }
+
+        ValidateMilestones(project.Milestones);
+        ValidateWorkItems(project.WorkItems);
+    }
+
+    private void ValidateMilestones(List<Milestone> milestones)
+    {
+        if (milestones == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < milestones.Count; i++)
+        {
+            var milestone = milestones[i];
+
+            if (milestone == null)
+            {
+                throw new InvalidOperationException($"Validation: Milestone at index {i} is null");
+            }
+
+            if (string.IsNullOrWhiteSpace(milestone.Name))
+            {
+                throw new InvalidOperationException($"Validation: Milestone at index {i} has an empty name");
+            }
+
+            if (!Enum.IsDefined(typeof(MilestoneStatus), milestone.Status))
+            {
+                throw new InvalidOperationException($"Validation: Milestone '{milestone.Name}' has invalid status '{milestone.Status}'");
+            }
+        }
+    }
+
+    private void ValidateWorkItems(List<WorkItem> workItems)
+    {
+        if (workItems == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < workItems.Count; i++)
+        {
+            var item = workItems[i];
+
+            if (item == null)
+            {
+                throw new InvalidOperationException($"Validation: WorkItem at index {i} is null");
+            }
+
+            if (string.IsNullOrWhiteSpace(item.Title))
+            {
+                throw new InvalidOperationException($"Validation: WorkItem at index {i} has an empty title");
+            }
+
+            if (!Enum.IsDefined(typeof(WorkItemStatus), item.Status))
+            {
+                throw new InvalidOperationException($"Validation: WorkItem '{item.Title}' has invalid status '{item.Status}'");
+            }
+        }
     }
 }
