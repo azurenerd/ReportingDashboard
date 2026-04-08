@@ -1,110 +1,116 @@
 @using AgentSquad.Runner.Models
 
-<div class="work-item-summary">
-    <div class="work-item-column">
-        <h3 class="column-header">
-            Shipped This Month
-            <span class="item-count">(@ShippedItems.Count)</span>
-        </h3>
-        @if (ShippedItems.Any())
+@if (GroupedWorkItems != null)
+{
+    <div class="work-item-summary">
+        @foreach (var statusGroup in GetStatusGroups())
         {
-            <div class="item-list">
-                @foreach (var item in ShippedItems)
-                {
-                    <div class="work-item">
-                        <div class="item-title" title="@item.Title">@item.Title</div>
-                        @if (!string.IsNullOrEmpty(item.Description))
-                        {
-                            <div class="item-description" title="@item.Description">@TruncateDescription(item.Description)</div>
-                        }
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <div class="no-items">No items in this category</div>
-        }
-    </div>
+            <div class="work-item-column">
+                <div class="column-header">
+                    <span>@GetStatusLabel(statusGroup.Status)</span>
+                    <span class="item-count">@statusGroup.Items.Count</span>
+                </div>
 
-    <div class="work-item-column">
-        <h3 class="column-header">
-            In Progress
-            <span class="item-count">(@InProgressItems.Count)</span>
-        </h3>
-        @if (InProgressItems.Any())
-        {
-            <div class="item-list">
-                @foreach (var item in InProgressItems)
+                @if (statusGroup.Items.Count > 0)
                 {
-                    <div class="work-item">
-                        <div class="item-title" title="@item.Title">@item.Title</div>
-                        @if (!string.IsNullOrEmpty(item.Description))
+                    <div class="item-list">
+                        @foreach (var item in statusGroup.Items)
                         {
-                            <div class="item-description" title="@item.Description">@TruncateDescription(item.Description)</div>
+                            <div class="work-item">
+                                <div class="item-title">@item.Title</div>
+                                @if (!string.IsNullOrEmpty(item.Description))
+                                {
+                                    <div class="item-description">@TruncateDescription(item.Description)</div>
+                                }
+                            </div>
                         }
                     </div>
                 }
-            </div>
-        }
-        else
-        {
-            <div class="no-items">No items in this category</div>
-        }
-    </div>
-
-    <div class="work-item-column">
-        <h3 class="column-header">
-            Carried Over
-            <span class="item-count">(@CarriedOverItems.Count)</span>
-        </h3>
-        @if (CarriedOverItems.Any())
-        {
-            <div class="item-list">
-                @foreach (var item in CarriedOverItems)
+                else
                 {
-                    <div class="work-item">
-                        <div class="item-title" title="@item.Title">@item.Title</div>
-                        @if (!string.IsNullOrEmpty(item.Description))
-                        {
-                            <div class="item-description" title="@item.Description">@TruncateDescription(item.Description)</div>
-                        }
-                    </div>
+                    <div class="no-items">No items in this category</div>
                 }
             </div>
         }
-        else
-        {
-            <div class="no-items">No items in this category</div>
-        }
     </div>
-</div>
+}
 
 @code {
+    /// <summary>
+    /// Collection of work items to display and group by status.
+    /// </summary>
     [Parameter]
     public List<WorkItem> WorkItems { get; set; } = new();
 
-    private List<WorkItem> ShippedItems = new();
-    private List<WorkItem> InProgressItems = new();
-    private List<WorkItem> CarriedOverItems = new();
+    private Dictionary<WorkItemStatus, List<WorkItem>> GroupedWorkItems { get; set; } = new();
 
-    protected override void OnInitialized()
+    /// <summary>
+    /// Groups work items by status whenever parameters change (initialization or update).
+    /// </summary>
+    protected override void OnParametersSet()
     {
         GroupWorkItems();
     }
 
+    /// <summary>
+    /// Groups work items by their status for display.
+    /// Initializes all three status categories even if empty.
+    /// </summary>
     private void GroupWorkItems()
     {
-        ShippedItems = WorkItems?.Where(w => w.Status == WorkItemStatus.Shipped).ToList() ?? new();
-        InProgressItems = WorkItems?.Where(w => w.Status == WorkItemStatus.InProgress).ToList() ?? new();
-        CarriedOverItems = WorkItems?.Where(w => w.Status == WorkItemStatus.CarriedOver).ToList() ?? new();
+        GroupedWorkItems = new Dictionary<WorkItemStatus, List<WorkItem>>
+        {
+            { WorkItemStatus.Shipped, new List<WorkItem>() },
+            { WorkItemStatus.InProgress, new List<WorkItem>() },
+            { WorkItemStatus.CarriedOver, new List<WorkItem>() }
+        };
+
+        if (WorkItems?.Count > 0)
+        {
+            foreach (var item in WorkItems)
+            {
+                if (GroupedWorkItems.ContainsKey(item.Status))
+                {
+                    GroupedWorkItems[item.Status].Add(item);
+                }
+            }
+        }
     }
 
+    /// <summary>
+    /// Returns status groups in display order for rendering.
+    /// </summary>
+    private List<(WorkItemStatus Status, List<WorkItem> Items)> GetStatusGroups()
+    {
+        return new List<(WorkItemStatus, List<WorkItem>)>
+        {
+            (WorkItemStatus.Shipped, GroupedWorkItems[WorkItemStatus.Shipped]),
+            (WorkItemStatus.InProgress, GroupedWorkItems[WorkItemStatus.InProgress]),
+            (WorkItemStatus.CarriedOver, GroupedWorkItems[WorkItemStatus.CarriedOver])
+        };
+    }
+
+    /// <summary>
+    /// Gets user-friendly label for work item status.
+    /// </summary>
+    private string GetStatusLabel(WorkItemStatus status) => status switch
+    {
+        WorkItemStatus.Shipped => "Shipped This Month",
+        WorkItemStatus.InProgress => "In Progress",
+        WorkItemStatus.CarriedOver => "Carried Over",
+        _ => "Unknown"
+    };
+
+    /// <summary>
+    /// Truncates description to 100 characters with ellipsis if needed.
+    /// </summary>
     private string TruncateDescription(string description)
     {
         if (string.IsNullOrEmpty(description))
             return string.Empty;
 
-        return description.Length > 100 ? description[..100] + "…" : description;
+        return description.Length > 100
+            ? description.Substring(0, 100) + "..."
+            : description;
     }
 }
