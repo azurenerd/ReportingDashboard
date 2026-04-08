@@ -1,55 +1,61 @@
 {
-  "name": "Executive Dashboard Project",
-  "description": "Q1 2024 Executive Reporting Dashboard Initiative",
-  "startDate": "2024-01-01",
+  "name": "Project Codename: Executive Dashboard",
+  "description": "Executive reporting dashboard for real-time project visibility and status tracking",
+  "startDate": "2024-01-15",
   "targetEndDate": "2024-12-31",
   "completionPercentage": 45,
   "healthStatus": "OnTrack",
   "velocityThisMonth": 12,
   "milestones": [
     {
-      "name": "Phase 1 - Foundation",
+      "name": "Phase 1 Launch",
       "targetDate": "2024-03-31",
       "status": "Completed",
-      "description": "Core infrastructure and data model setup"
+      "description": "Core feature rollout and infrastructure setup"
     },
     {
-      "name": "Phase 2 - UI Components",
+      "name": "Phase 2 Integration",
       "targetDate": "2024-06-30",
       "status": "InProgress",
-      "description": "Build Blazor components for dashboard visualization"
+      "description": "API integration and data pipeline development"
     },
     {
-      "name": "Phase 3 - Launch",
+      "name": "Phase 3 Optimization",
       "targetDate": "2024-09-30",
+      "status": "AtRisk",
+      "description": "Performance optimization and scale testing"
+    },
+    {
+      "name": "Production Release",
+      "targetDate": "2024-12-31",
       "status": "Future",
-      "description": "Production deployment and optimization"
+      "description": "Final release and go-live preparation"
     }
   ],
   "workItems": [
     {
-      "title": "DataProvider Service Implementation",
-      "description": "Implement JSON reading and caching service layer",
+      "title": "Dashboard Layout Implementation",
+      "description": "Implement responsive grid layout for executive dashboard sections",
       "status": "Shipped",
-      "assignedTo": "Engineering Team"
+      "assignedTo": "Team A"
     },
     {
-      "title": "Dashboard Layout Component",
-      "description": "Create main dashboard Blazor component with grid layout",
+      "title": "Data Model Development",
+      "description": "Create strongly-typed models for project, milestone, and work item data",
+      "status": "Shipped",
+      "assignedTo": "Team B"
+    },
+    {
+      "title": "JSON Data Provider Service",
+      "description": "Implement DataProvider service for reading and validating project configuration",
       "status": "InProgress",
-      "assignedTo": "UI Team"
+      "assignedTo": "Team C"
     },
     {
       "title": "Milestone Timeline Visualization",
-      "description": "Implement milestone timeline with Chart.js",
+      "description": "Build interactive timeline component using Chart.js for milestone tracking",
       "status": "InProgress",
-      "assignedTo": "Frontend Team"
-    },
-    {
-      "title": "Project Metrics Display",
-      "description": "Create KPI cards for project health indicators",
-      "status": "CarriedOver",
-      "assignedTo": "Design Team"
+      "assignedTo": "Team A"
     }
   ]
 }

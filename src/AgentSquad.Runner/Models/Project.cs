@@ -1,63 +1,89 @@
 using System.Text.Json.Serialization;
 
-namespace AgentSquad.Runner.Models;
-
-/// <summary>
-/// Represents a project with milestones, work items, and health metrics.
-/// </summary>
-public class Project
+namespace AgentSquad.Runner.Models
 {
-    /// <summary>
-    /// Gets or sets the project name.
-    /// </summary>
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
+    public class Project
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
 
-    /// <summary>
-    /// Gets or sets the project description.
-    /// </summary>
-    [JsonPropertyName("description")]
-    public string? Description { get; set; }
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
 
-    /// <summary>
-    /// Gets or sets the project start date.
-    /// </summary>
-    [JsonPropertyName("startDate")]
-    public DateTime StartDate { get; set; }
+        [JsonPropertyName("startDate")]
+        public DateTime StartDate { get; set; }
 
-    /// <summary>
-    /// Gets or sets the project target end date.
-    /// </summary>
-    [JsonPropertyName("targetEndDate")]
-    public DateTime TargetEndDate { get; set; }
+        [JsonPropertyName("targetEndDate")]
+        public DateTime TargetEndDate { get; set; }
 
-    /// <summary>
-    /// Gets or sets the overall completion percentage (0-100).
-    /// </summary>
-    [JsonPropertyName("completionPercentage")]
-    public int CompletionPercentage { get; set; }
+        [JsonPropertyName("completionPercentage")]
+        public int CompletionPercentage { get; set; }
 
-    /// <summary>
-    /// Gets or sets the project health status.
-    /// </summary>
-    [JsonPropertyName("healthStatus")]
-    public HealthStatus HealthStatus { get; set; }
+        [JsonPropertyName("healthStatus")]
+        public HealthStatus HealthStatus { get; set; }
 
-    /// <summary>
-    /// Gets or sets the velocity this month (items completed).
-    /// </summary>
-    [JsonPropertyName("velocityThisMonth")]
-    public int VelocityThisMonth { get; set; }
+        [JsonPropertyName("velocityThisMonth")]
+        public int VelocityThisMonth { get; set; }
 
-    /// <summary>
-    /// Gets or sets the list of project milestones.
-    /// </summary>
-    [JsonPropertyName("milestones")]
-    public List<Milestone> Milestones { get; set; } = [];
+        [JsonPropertyName("milestones")]
+        public List<Milestone> Milestones { get; set; } = new();
 
-    /// <summary>
-    /// Gets or sets the list of project work items.
-    /// </summary>
-    [JsonPropertyName("workItems")]
-    public List<WorkItem> WorkItems { get; set; } = [];
+        [JsonPropertyName("workItems")]
+        public List<WorkItem> WorkItems { get; set; } = new();
+    }
+
+    public class Milestone
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("targetDate")]
+        public DateTime TargetDate { get; set; }
+
+        [JsonPropertyName("status")]
+        public MilestoneStatus Status { get; set; }
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+    }
+
+    public class WorkItem
+    {
+        [JsonPropertyName("title")]
+        public string Title { get; set; }
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+
+        [JsonPropertyName("status")]
+        public WorkItemStatus Status { get; set; }
+
+        [JsonPropertyName("assignedTo")]
+        public string AssignedTo { get; set; }
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum MilestoneStatus
+    {
+        Completed,
+        InProgress,
+        AtRisk,
+        Future
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum WorkItemStatus
+    {
+        Shipped,
+        InProgress,
+        CarriedOver
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum HealthStatus
+    {
+        OnTrack,
+        AtRisk,
+        Blocked
+    }
 }
