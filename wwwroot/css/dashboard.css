@@ -153,7 +153,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-width: 120px;
+    min-width: 110px;
     padding: 1rem;
     background-color: var(--color-bg-secondary);
     border: 2px solid var(--color-border-light);
@@ -377,7 +377,7 @@
     margin: 0;
     list-style: none;
     overflow-y: auto;
-    height: 100%;
+    max-height: 200px;
     flex: 1;
 }
 
@@ -539,7 +539,7 @@
     }
 
     .timeline-milestone {
-        min-width: 100px;
+        min-width: 95px;
         padding: 0.75rem;
     }
 
@@ -552,7 +552,7 @@
     }
 
     .metrics-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
     }
 
@@ -569,7 +569,7 @@
     }
 
     .dashboard-work-items {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1fr;
         gap: 0.75rem;
     }
 
@@ -585,12 +585,42 @@
         padding: 0.75rem 1rem;
     }
 
+    .work-item-list {
+        max-height: 150px;
+    }
+
     .work-item-title {
         font-size: 0.9rem;
     }
 
     .work-item-description {
         font-size: 0.8rem;
+    }
+}
+
+/* ===== RESPONSIVE: 1280-1439px (Tablet) ===== */
+@media (min-width: 1280px) and (max-width: 1439px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .dashboard-work-items {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+}
+
+/* ===== RESPONSIVE: 1440-1919px (Desktop) ===== */
+@media (min-width: 1440px) and (max-width: 1919px) {
+    .metrics-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    .dashboard-work-items {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
     }
 }
 
@@ -632,6 +662,10 @@
 
     .dashboard-work-items {
         gap: 0.5rem;
+    }
+
+    .work-item-list {
+        max-height: 100px;
     }
 
     .work-item-header {
@@ -700,6 +734,10 @@
 
     .dashboard-work-items {
         gap: 1.5rem;
+    }
+
+    .work-item-list {
+        max-height: 300px;
     }
 
     .work-item-header {
