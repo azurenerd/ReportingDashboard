@@ -41,26 +41,41 @@
 </div>
 
 @code {
+    /// <summary>
+    /// The status category name to display in the card header.
+    /// Examples: "Shipped", "In-Progress", "Carried-Over"
+    /// </summary>
     [Parameter]
-    public string StatusCategory { get; set; }
+    public string StatusCategory { get; set; } = string.Empty;
 
+    /// <summary>
+    /// The count of tasks in this status category. Displayed in badge next to status name.
+    /// </summary>
     [Parameter]
-    public int TaskCount { get; set; }
+    public int TaskCount { get; set; } = 0;
 
+    /// <summary>
+    /// The list of tasks to display in the collapsible task list.
+    /// Null or empty lists display a "No tasks" message.
+    /// </summary>
     [Parameter]
     public List<Task> Tasks { get; set; } = new();
 
+    /// <summary>
+    /// The color code for the left border stripe. Valid values: "green", "blue", "orange".
+    /// Colors map to status: green=Shipped, blue=In-Progress, orange=Carried-Over.
+    /// </summary>
     [Parameter]
-    public string CardColor { get; set; }
+    public string CardColor { get; set; } = "gray";
 
     private string GetBorderColorStyle()
     {
-        return CardColor switch
+        return CardColor?.ToLower() switch
         {
-            "green" => "border-start-color: #28a745;",
-            "blue" => "border-start-color: #007bff;",
-            "orange" => "border-start-color: #fd7e14;",
-            _ => "border-start-color: #6c757d;"
+            "green" => "border-start-color: #28a745; border-start-width: 4px;",
+            "blue" => "border-start-color: #007bff; border-start-width: 4px;",
+            "orange" => "border-start-color: #fd7e14; border-start-width: 4px;",
+            _ => "border-start-color: #6c757d; border-start-width: 4px;"
         };
     }
 }
