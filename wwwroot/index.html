@@ -3,69 +3,29 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Executive Project Reporting Dashboard" />
-    <meta name="theme-color" content="#0a3d62" />
-    <title>Executive Project Dashboard</title>
     <base href="/" />
-
-    <!-- Pico CSS Framework - Minimal and Professional -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
-
-    <!-- Custom Dashboard Styles - Print and Screenshot Optimized -->
-    <link rel="stylesheet" href="css/dashboard.css" />
-
-    <!-- Blazor Framework Styles -->
-    <link href="_framework/bootstrap.webassembly.css" rel="stylesheet" />
-    <link href="app.css" rel="stylesheet" />
-    <link href="AgentSquad.Runner.styles.css" rel="stylesheet" />
-
-    <!-- Favicon (Optional) -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%230a3d62'>📊</text></svg>" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <title>Executive Project Dashboard</title>
+    
+    <!-- Pico CSS - Minimal, elegant CSS framework (~10KB minified) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    
+    <!-- Chart.js for Timeline Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Custom Dashboard CSS -->
+    <link href="css/site.css" rel="stylesheet" />
 </head>
 <body>
-    <div id="app">
-        <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
-            <div style="text-align: center;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
-                <p style="color: #2c3e50; font-size: 1.125rem; margin: 0;">Loading Executive Dashboard...</p>
-            </div>
-        </div>
-    </div>
+    <div id="app">Loading dashboard...</div>
 
-    <!-- SVG Icons Library (Optional) -->
-    <svg style="display: none;">
-        <defs>
-            <symbol id="loading" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="80" stroke-dashoffset="0">
-                    <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite" />
-                </circle>
-            </symbol>
-        </defs>
-    </svg>
-
-    <!-- Blazor Error UI -->
     <div id="blazor-error-ui">
-        <environment include="Staging,Production">
-            An error has occurred. This application may no longer respond until reloaded.
-        </environment>
-        <environment include="Development">
-            An unhandled exception has occurred. See browser console for details.
-        </environment>
+        An unhandled error has occurred.
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
 
-    <!-- Blazor Runtime -->
-    <script src="_framework/blazor.web.js"></script>
-
-    <!-- Chart.js Library for Timeline Visualization (CDN with local fallback) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-    <!-- Inline script to handle Chart.js CDN failure gracefully -->
-    <script>
-        if (typeof Chart === 'undefined') {
-            console.warn('Chart.js CDN failed to load. Timeline may display in fallback mode.');
-        }
-    </script>
+    <!-- Blazor Server Framework -->
+    <script src="_framework/blazor.server.js"></script>
 </body>
 </html>

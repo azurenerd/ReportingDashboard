@@ -1,0 +1,353 @@
+/* Dashboard customizations for executive reporting. Pico CSS provides semantic HTML styling. */
+
+:root {
+    --color-completed: #4CAF50;
+    --color-inprogress: #2196F3;
+    --color-atrisk: #F44336;
+    --color-future: #9E9E9E;
+}
+
+.dashboard-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.dashboard-header {
+    border-bottom: 3px solid var(--color-inprogress);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+    margin-bottom: 0.5rem;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.metric-card {
+    border-left: 5px solid var(--color-inprogress);
+    padding: 1.5rem;
+    background-color: var(--form-element-background-color);
+    border-radius: 0.375rem;
+    page-break-inside: avoid;
+}
+
+.metric-card h3 {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    color: var(--muted-color);
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-inprogress);
+}
+
+.metric-card.status-ontrack {
+    border-left-color: var(--color-completed);
+}
+
+.metric-card.status-ontrack .metric-value {
+    color: var(--color-completed);
+}
+
+.metric-card.status-atrisk {
+    border-left-color: var(--color-atrisk);
+}
+
+.metric-card.status-atrisk .metric-value {
+    color: var(--color-atrisk);
+}
+
+.timeline-container {
+    border: 1px solid var(--muted-border-color);
+    border-radius: 0.375rem;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    background-color: var(--card-background-color);
+    page-break-inside: avoid;
+}
+
+.timeline-container h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-wrapper {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.milestone-item {
+    flex: 0 0 auto;
+    min-width: 140px;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    text-align: center;
+    font-size: 0.875rem;
+    border: 2px solid var(--muted-border-color);
+}
+
+.milestone-item.status-completed {
+    background-color: #e8f5e9;
+    border-color: var(--color-completed);
+    color: #2e7d32;
+}
+
+.milestone-item.status-inprogress {
+    background-color: #e3f2fd;
+    border-color: var(--color-inprogress);
+    color: #1565c0;
+}
+
+.milestone-item.status-atrisk {
+    background-color: #ffebee;
+    border-color: var(--color-atrisk);
+    color: #c62828;
+}
+
+.milestone-item.status-future {
+    background-color: var(--form-element-background-color);
+    border-color: var(--color-future);
+    color: var(--muted-color);
+}
+
+.milestone-name {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.milestone-date {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.work-items-section {
+    margin-bottom: 2rem;
+}
+
+.work-items-section h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+.work-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.work-item-column {
+    border: 1px solid var(--muted-border-color);
+    border-radius: 0.375rem;
+    padding: 1.5rem;
+    background-color: var(--card-background-color);
+}
+
+.work-item-column h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--muted-border-color);
+}
+
+.item-count {
+    display: inline-block;
+    background-color: var(--form-element-background-color);
+    color: var(--form-element-color);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+}
+
+.work-item {
+    background-color: var(--card-background-color);
+    border-left: 4px solid var(--color-inprogress);
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    page-break-inside: avoid;
+}
+
+.work-item.status-shipped {
+    border-left-color: var(--color-completed);
+}
+
+.work-item.status-inprogress {
+    border-left-color: var(--color-inprogress);
+}
+
+.work-item.status-carriedover {
+    border-left-color: var(--color-atrisk);
+}
+
+.work-item-title {
+    font-weight: 600;
+    color: var(--color);
+    margin-bottom: 0.25rem;
+}
+
+.work-item-description {
+    font-size: 0.8rem;
+    color: var(--muted-color);
+}
+
+@media (max-width: 1280px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .timeline-container {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .metric-card {
+        padding: 1rem;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+    }
+
+    .timeline-container {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .timeline-container h2 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .milestone-item {
+        min-width: 120px;
+        padding: 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .work-items-section h2 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .work-items-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .work-item-column {
+        padding: 1rem;
+    }
+}
+
+@media print {
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+    }
+
+    body {
+        background-color: #ffffff;
+    }
+
+    .dashboard-container {
+        max-width: 1280px;
+        width: 1280px;
+        margin: 0;
+        padding: 1.5rem;
+        page-break-after: avoid;
+    }
+
+    .dashboard-header {
+        page-break-after: avoid;
+        margin-bottom: 1.5rem;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        page-break-inside: avoid;
+    }
+
+    .metric-card {
+        padding: 1rem;
+        page-break-inside: avoid;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+    }
+
+    .timeline-container {
+        page-break-inside: avoid;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+    }
+
+    .work-items-section {
+        page-break-inside: avoid;
+    }
+
+    .work-items-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        page-break-inside: avoid;
+    }
+
+    .work-item-column {
+        page-break-inside: avoid;
+        max-height: 350px;
+        overflow: hidden;
+    }
+
+    .work-item {
+        page-break-inside: avoid;
+    }
+
+    .timeline-wrapper {
+        overflow-x: visible;
+    }
+}
