@@ -1,30 +1,36 @@
 {
-  "projectName": "Q2 Mobile App Release",
-  "projectDescription": "Cross-platform mobile application for iOS and Android targeting Q2 launch",
-  "startDate": "2026-01-15",
-  "endDate": "2026-06-30",
-  "completionPercentage": 62,
+  "project": {
+    "name": "Q2 Mobile App Release",
+    "description": "Mobile application development and release for Q2 2026",
+    "startDate": "2026-04-01",
+    "endDate": "2026-06-30",
+    "completionPercentage": 0
+  },
   "milestones": [
     {
-      "name": "Core Architecture & Setup",
-      "targetDate": "2026-02-28",
+      "id": 1,
+      "name": "API Backend Complete",
+      "targetDate": "2026-04-30",
       "status": "Completed",
       "completionPercentage": 100
     },
     {
-      "name": "UI/UX Design & Component Library",
-      "targetDate": "2026-03-31",
-      "status": "Completed",
-      "completionPercentage": 100
-    },
-    {
-      "name": "Feature Development & Integration",
-      "targetDate": "2026-05-15",
+      "id": 2,
+      "name": "iOS Build 1.0",
+      "targetDate": "2026-05-31",
       "status": "InProgress",
       "completionPercentage": 75
     },
     {
-      "name": "Testing, QA & Launch Prep",
+      "id": 3,
+      "name": "Android Build 1.0",
+      "targetDate": "2026-05-31",
+      "status": "InProgress",
+      "completionPercentage": 60
+    },
+    {
+      "id": 4,
+      "name": "Release Ready",
       "targetDate": "2026-06-30",
       "status": "Pending",
       "completionPercentage": 0
@@ -32,58 +38,76 @@
   ],
   "tasks": [
     {
-      "name": "Project kickoff and team onboarding",
+      "id": 1,
+      "name": "Shipped Task 1",
+      "description": "Task description",
+      "owner": "Owner Name",
       "status": "Shipped",
-      "owner": "Sarah Chen",
-      "description": "Completed initial team setup, established development environment and deployment pipeline"
+      "estimatedDays": 5
     },
     {
-      "name": "Design system component library",
+      "id": 2,
+      "name": "Shipped Task 2",
+      "description": "Task description",
+      "owner": "Owner Name",
       "status": "Shipped",
-      "owner": "Marcus Johnson",
-      "description": "Delivered reusable button, input, card, and navigation components for app"
+      "estimatedDays": 5
     },
     {
-      "name": "iOS native implementation",
+      "id": 3,
+      "name": "Shipped Task 3",
+      "description": "Task description",
+      "owner": "Owner Name",
       "status": "Shipped",
-      "owner": "Elena Rodriguez",
-      "description": "Completed iOS app scaffolding, core navigation flows and API integration layer"
+      "estimatedDays": 5
     },
     {
-      "name": "Payment gateway integration",
+      "id": 4,
+      "name": "In-Progress Task 1",
+      "description": "Task description",
+      "owner": "Owner Name",
       "status": "InProgress",
-      "owner": "David Park",
-      "description": "Integrating Stripe API for payment processing; currently at 70% completion"
+      "estimatedDays": 5
     },
     {
-      "name": "User authentication module",
+      "id": 5,
+      "name": "In-Progress Task 2",
+      "description": "Task description",
+      "owner": "Owner Name",
       "status": "InProgress",
-      "owner": "Alex Thompson",
-      "description": "Implementing OAuth2 and biometric authentication; testing phase starting next week"
+      "estimatedDays": 5
     },
     {
-      "name": "Push notifications setup",
+      "id": 6,
+      "name": "In-Progress Task 3",
+      "description": "Task description",
+      "owner": "Owner Name",
       "status": "InProgress",
-      "owner": "Priya Patel",
-      "description": "Configuring Firebase Cloud Messaging and notification scheduling logic"
+      "estimatedDays": 5
     },
     {
-      "name": "Backend API deployment",
+      "id": 7,
+      "name": "Carried-Over Task 1",
+      "description": "Task description",
+      "owner": "Owner Name",
       "status": "CarriedOver",
-      "owner": "James Wilson",
-      "description": "Deferred to next sprint; waiting for payment gateway finalization"
+      "estimatedDays": 5
     },
     {
-      "name": "Analytics dashboard implementation",
+      "id": 8,
+      "name": "Carried-Over Task 2",
+      "description": "Task description",
+      "owner": "Owner Name",
       "status": "CarriedOver",
-      "owner": "Nicole Foster",
-      "description": "Pushed to post-launch phase; low priority for MVP release"
+      "estimatedDays": 5
     },
     {
-      "name": "Android performance optimization",
+      "id": 9,
+      "name": "Carried-Over Task 3",
+      "description": "Task description",
+      "owner": "Owner Name",
       "status": "CarriedOver",
-      "owner": "Marcus Johnson",
-      "description": "Battery and memory optimization; scheduled for final hardening sprint"
+      "estimatedDays": 5
     }
   ]
 }
