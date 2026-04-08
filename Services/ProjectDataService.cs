@@ -45,6 +45,7 @@ namespace AgentSquad.Runner.Services
 
                     if (data == null)
                     {
+                        _logger.LogError("JSON deserialization resulted in null for file: {FilePath}", jsonFilePath);
                         throw new DataLoadException("JSON deserialization resulted in null");
                     }
 
