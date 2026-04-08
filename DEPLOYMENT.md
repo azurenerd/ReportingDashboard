@@ -1,17 +1,24 @@
 # Deployment Guide
 
-Complete guide for building, configuring, and deploying AgentSquad Executive Dashboard for development and production environments.
+This document provides step-by-step instructions for deploying AgentSquad dashboard in development and production environments on Windows and Linux.
+
+## Table of Contents
+
+1. [Development Setup](#development-setup)
+2. [Production Build for Windows](#production-build-for-windows)
+3. [Production Build for Linux](#production-build-for-linux)
+4. [Windows Firewall Configuration](#windows-firewall-configuration)
+5. [Performance Tuning](#performance-tuning)
+
+---
 
 ## Development Setup
 
 ### Prerequisites
 
-- .NET 8 SDK ([download](https://dotnet.microsoft.com/download))
-- Git
-- Code editor (VS Code, Visual Studio, or similar)
-- 512 MB RAM minimum (2 GB recommended)
-- ~200 MB free disk space
+- **Operating System:** Windows 10/11 or Linux (Ubuntu 20.04+)
+- **.NET 8 SDK:** Download from https://dotnet.microsoft.com/download/dotnet/8.0
+- **Git:** https://git-scm.com/download
+- **Code Editor:** Visual Studio Code, Visual Studio 2022, or Rider (optional)
 
-### Quick Start
-
-1. **Clone Repository**
+### Step 1: Clone Repository
