@@ -151,15 +151,15 @@
          */
         buildTimelineDatasets: function (milestones) {
             const statusColors = {
-                completed: 'rgba(39, 174, 96, 1)',
-                'in-progress': 'rgba(52, 152, 219, 1)',
-                'at-risk': 'rgba(231, 76, 60, 1)',
-                future: 'rgba(149, 165, 166, 1)'
+                'Completed': 'rgba(39, 174, 96, 1)',
+                'InProgress': 'rgba(52, 152, 219, 1)',
+                'AtRisk': 'rgba(231, 76, 60, 1)',
+                'Future': 'rgba(149, 165, 166, 1)'
             };
 
             return milestones.map((milestone, index) => {
-                const status = milestone.status || 'future';
-                const color = statusColors[status] || statusColors.future;
+                const status = milestone.status || 'Future';
+                const color = statusColors[status] || statusColors['Future'];
 
                 return {
                     label: milestone.name,

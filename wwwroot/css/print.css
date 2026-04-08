@@ -74,9 +74,6 @@
         display: block;
         padding: 0;
         overflow: visible;
-        gap: 0;
-        grid-template-columns: none;
-        grid-template-rows: none;
     }
 
     .dashboard-header {
