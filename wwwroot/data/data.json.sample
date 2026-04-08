@@ -1,7 +1,7 @@
 {
   "project": {
     "name": "Q2 Mobile App Release",
-    "description": "iOS and Android mobile app version 2.0 with new payment integration",
+    "description": "iOS and Android mobile app version 2.0 with new payment integration and improved user interface",
     "startDate": "2026-04-01",
     "endDate": "2026-06-30",
     "status": "OnTrack",
@@ -29,6 +29,14 @@
       "id": "m3",
       "name": "QA Testing Complete",
       "targetDate": "2026-06-01",
+      "actualDate": null,
+      "status": "Pending",
+      "completionPercentage": 0
+    },
+    {
+      "id": "m4",
+      "name": "Launch Ready",
+      "targetDate": "2026-06-30",
       "actualDate": null,
       "status": "Pending",
       "completionPercentage": 0
@@ -64,73 +72,73 @@
     },
     {
       "id": "t4",
-      "name": "UI Wireframes and Mockups",
-      "status": "Shipped",
-      "assignedTo": "Sarah Chen",
-      "dueDate": "2026-04-10",
-      "estimatedDays": 4,
-      "relatedMilestone": "m1"
+      "name": "Android Notification Service",
+      "status": "InProgress",
+      "assignedTo": "Carol Davis",
+      "dueDate": "2026-05-18",
+      "estimatedDays": 5,
+      "relatedMilestone": "m2"
     },
     {
       "id": "t5",
-      "name": "Database Schema Design",
+      "name": "User Interface Refresh",
       "status": "Shipped",
-      "assignedTo": "Michael Rodriguez",
-      "dueDate": "2026-04-18",
-      "estimatedDays": 3,
+      "assignedTo": "John Doe",
+      "dueDate": "2026-04-28",
+      "estimatedDays": 7,
       "relatedMilestone": "m1"
     },
     {
       "id": "t6",
-      "name": "Android Implementation",
-      "status": "InProgress",
-      "assignedTo": "Emma Thompson",
-      "dueDate": "2026-05-20",
-      "estimatedDays": 10,
-      "relatedMilestone": "m2"
-    },
-    {
-      "id": "t7",
-      "name": "iOS Implementation",
-      "status": "InProgress",
-      "assignedTo": "David Kumar",
-      "dueDate": "2026-05-20",
-      "estimatedDays": 10,
-      "relatedMilestone": "m2"
-    },
-    {
-      "id": "t8",
-      "name": "Unit Testing Framework Setup",
+      "name": "Database Schema Migration",
       "status": "Shipped",
-      "assignedTo": "Lisa Wang",
+      "assignedTo": "Alice Brown",
       "dueDate": "2026-04-25",
-      "estimatedDays": 2,
+      "estimatedDays": 4,
       "relatedMilestone": "m1"
     },
     {
-      "id": "t9",
-      "name": "Integration Testing Suite",
-      "status": "CarriedOver",
-      "assignedTo": "James Mitchell",
+      "id": "t7",
+      "name": "End-to-End Testing",
+      "status": "InProgress",
+      "assignedTo": "Carol Davis",
       "dueDate": "2026-05-25",
-      "estimatedDays": 7,
+      "estimatedDays": 10,
       "relatedMilestone": "m3"
     },
     {
-      "id": "t10",
-      "name": "Performance Optimization",
+      "id": "t8",
+      "name": "Security Penetration Test",
       "status": "CarriedOver",
-      "assignedTo": "Patricia Davis",
-      "dueDate": "2026-06-10",
-      "estimatedDays": 5,
+      "assignedTo": "Bob Wilson",
+      "dueDate": "2026-06-05",
+      "estimatedDays": 3,
       "relatedMilestone": "m3"
+    },
+    {
+      "id": "t9",
+      "name": "Release Notes Documentation",
+      "status": "InProgress",
+      "assignedTo": "Jane Smith",
+      "dueDate": "2026-06-15",
+      "estimatedDays": 2,
+      "relatedMilestone": "m4"
+    },
+    {
+      "id": "t10",
+      "name": "App Store Submission",
+      "status": "Pending",
+      "assignedTo": "Jane Smith",
+      "dueDate": "2026-06-28",
+      "estimatedDays": 1,
+      "relatedMilestone": "m4"
     }
   ],
   "metrics": {
     "totalTasks": 10,
-    "completedTasks": 4,
-    "inProgressTasks": 3,
-    "carriedOverTasks": 3,
+    "completedTasks": 3,
+    "inProgressTasks": 5,
+    "carriedOverTasks": 2,
     "estimatedBurndownRate": 1.2
   }
 }

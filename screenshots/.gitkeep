@@ -1,0 +1,10 @@
+# Screenshots folder for E2E testing evidence
+
+This folder stores test screenshots captured during cross-browser and responsive design testing:
+- 1024px width renders (Chrome, Edge, Safari)
+- 1920px width renders (Chrome, Edge, Safari)
+- Error state screenshots
+- PowerPoint integration validation screenshots
+
+Naming convention: `{user_story}_{browser}_{width}_{state}.png`
+Example: `US1_Chrome_1920px_valid.png`

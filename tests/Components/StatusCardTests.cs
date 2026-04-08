@@ -1,46 +1,152 @@
+using System.Collections.Generic;
+using AgentSquad.Runner.Components;
+using AgentSquad.Runner.Data;
 using Bunit;
 using Xunit;
-using AgentSquad.Components;
-using AgentSquad.Models;
-using System.Collections.Generic;
 
-namespace AgentSquad.Tests.Components
+namespace AgentSquad.Runner.Tests.Components
 {
     public class StatusCardTests : TestContext
     {
         [Fact]
-        public void StatusCard_RendersTasks()
+        public void StatusCard_DisplaysStatusCategory()
         {
-            var tasks = new List<ProjectTask>
-            {
-                new ProjectTask { Id = "t1", Name = "Task 1", Status = "InProgress", Owner = "John" },
-                new ProjectTask { Id = "t2", Name = "Task 2", Status = "Shipped", Owner = "Jane" }
-            };
+            var tasks = new List<ProjectTask>();
 
-            var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.Tasks, tasks)
-            );
+            var component = RenderComponent<StatusCard>(parameters => parameters
+                .Add(p => p.StatusCategory, "Shipped")
+                .Add(p => p.TaskCount, 5)
+                .Add(p => p.Tasks, tasks)
+                .Add(p => p.CardColor, "bg-success"));
 
-            var html = component.Markup;
-            Assert.Contains("Task 1", html);
-            Assert.Contains("Task 2", html);
-            Assert.Contains("John", html);
-            Assert.Contains("Jane", html);
+            Assert.Contains("Shipped", component.Markup);
         }
 
         [Fact]
-        public void StatusCard_DisplaysTaskStatus()
+        public void StatusCard_DisplaysTaskCount()
         {
             var tasks = new List<ProjectTask>
             {
-                new ProjectTask { Id = "t1", Name = "Test", Status = "InProgress", Owner = "User" }
+                new ProjectTask { Name = "Task 1", Status = "Shipped", Owner = "Alice" },
+                new ProjectTask { Name = "Task 2", Status = "Shipped", Owner = "Bob" },
+                new ProjectTask { Name = "Task 3", Status = "Shipped", Owner = "Charlie" }
             };
 
-            var component = RenderComponent<StatusCard>(parameters =>
-                parameters.Add(p => p.Tasks, tasks)
-            );
+            var component = RenderComponent<StatusCard>(parameters => parameters
+                .Add(p => p.StatusCategory, "Shipped")
+                .Add(p => p.TaskCount, 3)
+                .Add(p => p.Tasks, tasks)
+                .Add(p => p.CardColor, "bg-success"));
 
-            Assert.Contains("InProgress", component.Markup);
+            Assert.Contains("3", component.Markup);
+        }
+
+        [Fact]
+        public void StatusCard_ShippedUsesGreenColor()
+        {
+            var tasks = new List<ProjectTask>();
+
+            var component = RenderComponent<StatusCard>(parameters => parameters
+                .Add(p => p.StatusCategory, "Shipped")
+                .Add(p => p.TaskCount, 0)
+                .Add(p => p.Tasks, tasks)
+                .Add(p => p.CardColor, "bg-success"));
+
+            Assert.Contains("bg-success", component.Markup);
+        }
+
+        [Fact]
+        public void StatusCard_InProgressUsesBlueColor()
+        {
+            var tasks = new List<ProjectTask>();
+
+            var component = RenderComponent<StatusCard>(parameters => parameters
+                .Add(p => p.StatusCategory, "In Progress")
+                .Add(p => p.TaskCount, 0)
+                .Add(p => p.Tasks, tasks)
+                .Add(p => p.CardColor, "bg-info"));
+
+            Assert.Contains("bg-info", component.Markup);
+        }
+
+        [Fact]
+        public void StatusCard_CarriedOverUsesOrangeColor()
+        {
+            var tasks = new List<ProjectTask>();
+
+            var component = RenderComponent<StatusCard>(parameters => parameters
+                .Add(p => p.StatusCategory, "Carried Over")
+                .Add(p => p.TaskCount, 0)
+                .Add(p => p.Tasks, tasks)
+                .Add(p => p.CardColor, "bg-warning"));
+
+            Assert.Contains("bg-warning", component.Markup);
+        }
+
+        [Fact]
+        public void StatusCard_ListsAllTasks()
+        {
+            var tasks = new List<ProjectTask>
+            {
+                new ProjectTask { Name = "API Development", Status = "Shipped", Owner = "Alice" },
+                new ProjectTask { Name = "UI Design", Status = "Shipped", Owner = "Bob" },
+                new ProjectTask { Name = "Testing", Status = "Shipped", Owner = "Charlie" }
+            };
+
+            var component = RenderComponent<StatusCard>(parameters => parameters
+                .Add(p => p.StatusCategory, "Shipped")
+                .Add(p => p.TaskCount, 3)
+                .Add(p => p.Tasks, tasks)
+                .Add(p => p.CardColor, "bg-success"));
+
+            Assert.Contains("API Development", component.Markup);
+            Assert.Contains("UI Design", component.Markup);
+            Assert.Contains("Testing", component.Markup);
+        }
+
+        [Fact]
+        public void StatusCard_DisplaysTaskOwners()
+        {
+            var tasks = new List<ProjectTask>
+            {
+                new ProjectTask { Name = "Task 1", Status = "Shipped", Owner = "Alice" }
+            };
+
+            var component = RenderComponent<StatusCard>(parameters => parameters
+                .Add(p => p.StatusCategory, "Shipped")
+                .Add(p => p.TaskCount, 1)
+                .Add(p => p.Tasks, tasks)
+                .Add(p => p.CardColor, "bg-success"));
+
+            Assert.Contains("Alice", component.Markup);
+        }
+
+        [Fact]
+        public void StatusCard_WithEmptyTaskList_RendersSafely()
+        {
+            var tasks = new List<ProjectTask>();
+
+            var component = RenderComponent<StatusCard>(parameters => parameters
+                .Add(p => p.StatusCategory, "Shipped")
+                .Add(p => p.TaskCount, 0)
+                .Add(p => p.Tasks, tasks)
+                .Add(p => p.CardColor, "bg-success"));
+
+            Assert.NotNull(component.Markup);
+        }
+
+        [Fact]
+        public void StatusCard_UsesResponsiveGrid()
+        {
+            var tasks = new List<ProjectTask>();
+
+            var component = RenderComponent<StatusCard>(parameters => parameters
+                .Add(p => p.StatusCategory, "Shipped")
+                .Add(p => p.TaskCount, 0)
+                .Add(p => p.Tasks, tasks)
+                .Add(p => p.CardColor, "bg-success"));
+
+            Assert.Contains("col", component.Markup);
         }
     }
 }
