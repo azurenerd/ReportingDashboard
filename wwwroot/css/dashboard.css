@@ -180,6 +180,10 @@ html, body {
     border: 1px solid #ddd;
     border-radius: 4px;
     text-align: center;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .metric-card h3 {
@@ -467,7 +471,7 @@ html, body {
     }
 }
 
-/* Print Media Query */
+/* Print & Screenshot Optimization Media Query */
 @media print {
     @page {
         size: auto;
@@ -476,42 +480,306 @@ html, body {
     
     body, html {
         height: auto;
+        background-color: var(--color-white);
+        color: var(--color-dark-gray);
     }
     
     .dashboard-container {
         padding: 0;
         gap: 12px;
         min-height: auto;
+        display: block;
     }
     
     .no-print {
         display: none !important;
     }
     
+    /* Section Breaking & Orphan Control */
     .dashboard-header,
     .timeline-section,
     .metrics-section,
     .work-items-section {
         page-break-inside: avoid;
         break-inside: avoid;
+        orphans: 3;
+        widows: 3;
+        margin-bottom: 12px;
+    }
+    
+    /* Header Optimization */
+    .dashboard-header {
+        background-color: var(--color-navy);
+        color: var(--color-white);
+        padding: 12px 16px;
+        border-radius: 0;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 24px;
+        margin-bottom: 4px;
+    }
+    
+    .dashboard-header p {
+        font-size: 12px;
+        margin: 0;
+    }
+    
+    .dashboard-header {
+        grid-template-columns: 1fr auto;
+    }
+    
+    /* Timeline Optimization */
+    .timeline-section {
+        background-color: var(--color-white);
+        padding: 12px 16px;
+        border-radius: 0;
+        border: 1px solid #ddd;
+    }
+    
+    .timeline-section h2 {
+        font-size: 16px;
+        margin: 0 0 12px 0;
+        color: var(--color-navy);
     }
     
     .timeline-container {
         overflow: visible;
         flex-wrap: nowrap;
+        height: auto;
+        align-items: flex-start;
+        gap: 8px;
     }
     
-    .metrics-grid,
-    .work-items-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-    
-    .metric-card,
-    .work-item-column {
+    .timeline-item {
+        min-width: 100px;
+        padding: 10px;
+        font-size: 11px;
+        page-break-inside: avoid;
         break-inside: avoid;
     }
     
+    .timeline-item-name {
+        font-size: 11px;
+        margin-bottom: 2px;
+    }
+    
+    .timeline-item-date {
+        font-size: 10px;
+    }
+    
+    /* Metrics Optimization */
+    .metrics-section {
+        background-color: var(--color-white);
+        padding: 12px 16px;
+    }
+    
+    .metrics-section h2 {
+        font-size: 16px;
+        margin: 0 0 12px 0;
+        color: var(--color-navy);
+    }
+    
+    .metrics-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+    
+    .metric-card {
+        padding: 12px;
+        background-color: var(--color-white);
+        border: 1px solid #999;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        aspect-ratio: 1 / 1;
+        font-size: 11px;
+    }
+    
+    .metric-card h3 {
+        margin: 0 0 6px 0;
+        font-size: 10px;
+        color: var(--color-gray);
+    }
+    
+    .metric-value {
+        font-size: 28px;
+        margin-bottom: 2px;
+        color: var(--color-navy);
+    }
+    
+    .metric-label {
+        font-size: 10px;
+        color: var(--color-gray);
+    }
+    
+    .metric-card.completion {
+        border-top: 3px solid var(--color-blue);
+        background-color: #f8fbff;
+    }
+    
+    .metric-card.health {
+        border-top: 3px solid var(--color-green);
+        background-color: #f8fff8;
+    }
+    
+    .metric-card.velocity {
+        border-top: 3px solid var(--color-blue);
+        background-color: #f8fbff;
+    }
+    
+    .metric-card.milestones {
+        border-top: 3px solid var(--color-navy);
+        background-color: #f0f5fa;
+    }
+    
+    /* Work Items Optimization */
+    .work-items-section {
+        background-color: var(--color-white);
+        padding: 12px 16px;
+    }
+    
+    .work-items-section h2 {
+        font-size: 16px;
+        margin: 0 0 12px 0;
+        color: var(--color-navy);
+    }
+    
+    .work-items-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+    
+    .work-item-column {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    .work-item-header {
+        padding: 8px 12px;
+        background-color: var(--color-navy);
+        color: var(--color-white);
+        font-size: 12px;
+        border-radius: 0;
+    }
+    
+    .work-item-count {
+        font-size: 10px;
+        padding: 1px 6px;
+    }
+    
+    .work-item-list {
+        background-color: var(--color-white);
+        border-radius: 0;
+        border: 1px solid #ddd;
+        border-top: none;
+        min-height: auto;
+    }
+    
+    .work-item {
+        padding: 8px 12px;
+        border-bottom: 1px solid #eee;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    .work-item:last-child {
+        border-bottom: none;
+    }
+    
+    .work-item:hover {
+        background-color: var(--color-white);
+    }
+    
+    .work-item-title {
+        font-size: 11px;
+        margin: 0 0 3px 0;
+        color: var(--color-navy);
+        font-weight: 600;
+    }
+    
+    .work-item-description {
+        font-size: 10px;
+        color: var(--color-gray);
+        margin: 0;
+        -webkit-line-clamp: 1;
+    }
+    
+    .work-item-assigned {
+        font-size: 9px;
+        color: #999;
+        margin-top: 2px;
+    }
+    
+    /* Text & Line Height Optimization */
     h1, h2, h3 {
         page-break-after: avoid;
+        widows: 3;
+        orphans: 3;
+    }
+    
+    /* Fixed Font Sizes for Consistency */
+    body {
+        font-size: 11pt;
+        line-height: 1.6;
+    }
+    
+    /* Link & Element Styles for Print */
+    a {
+        text-decoration: none;
+        color: var(--color-navy);
+    }
+    
+    /* Loading & Error States Hidden in Print */
+    .loading-spinner {
+        display: none !important;
+    }
+    
+    .error-overlay {
+        display: none !important;
+    }
+    
+    /* Margin & Padding Optimization */
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Color Preservation for Print */
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    
+    /* Screenshot Safe at 1280x720 (5.12" x 2.88") */
+    @media print and (width: 5.12in) and (height: 2.88in) {
+        .dashboard-container {
+            padding: 0.25in;
+            gap: 8px;
+        }
+        
+        .metrics-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .work-items-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    /* Screenshot Safe at 1920x1080 (7.68" x 4.32") */
+    @media print and (width: 7.68in) and (height: 4.32in) {
+        .dashboard-container {
+            padding: 0.375in;
+            gap: 12px;
+        }
+        
+        .metrics-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .work-items-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
     }
 }
