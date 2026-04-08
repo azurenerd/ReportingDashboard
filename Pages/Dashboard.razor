@@ -1,224 +1,72 @@
-@page "/"
-@using System
-@using System.Collections.Generic
-@using AgentSquad.Runner.Data
-@using AgentSquad.Runner.Services
-@inject ProjectDataService DataService
-@inject ILogger<Dashboard> Logger
+@page "/dashboard"
+@using AgentSquad.Dashboard.Models
+@using AgentSquad.Dashboard.Services
+@implements IAsyncDisposable
 
-<div class="dashboard-container">
-    <div class="container-fluid">
-        @if (IsLoading)
+<ErrorBoundary>
+    <ChildContent>
+        @if (!string.IsNullOrEmpty(errorMessage))
         {
-            <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading dashboard...</span>
+            <div class="alert alert-danger" role="alert">
+                <strong>Error Loading Dashboard:</strong> @errorMessage
+            </div>
+        }
+        else if (projectData == null)
+        {
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
         }
-        else if (ErrorMessage != null)
+        else
         {
-            <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
-                <h4 class="alert-heading">Error Loading Dashboard</h4>
-                <p>@ErrorMessage</p>
-                <hr />
-                <button type="button" class="btn btn-primary" @onclick="RefreshData">
-                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    Retry
-                </button>
-                <p class="small text-muted mt-3 mb-0">
-                    Ensure data.json exists in wwwroot/data/ directory and contains valid project configuration.
-                </p>
+            <!-- Dashboard sections will be rendered here in subsequent steps -->
+            <div class="container-fluid">
+                <p>Dashboard content loading...</p>
             </div>
         }
-        else if (ProjectData != null)
-        {
-            <div class="dashboard-header mb-4 mt-4">
-                <div class="row">
-                    <div class="col-12">
-                        <h1 class="display-5 fw-bold">@ProjectData.Project?.Name</h1>
-                        <p class="lead text-muted">@ProjectData.Project?.Description</p>
-                        <hr />
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-section mb-5">
-                <div class="row">
-                    <div class="col-12">
-                        <h2 class="h4 mb-3">Project Metrics</h2>
-                        <ProgressMetrics Metrics="ProjectData.Metrics" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-footer mt-5 pt-4 border-top">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                Project Status: <strong>@ProjectData.Project?.Status</strong> | 
-                                Manager: <strong>@ProjectData.Project?.ProjectManager</strong>
-                            </small>
-                            <small class="text-muted">
-                                Last refreshed: @LastRefreshTime.ToString("g")
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-</div>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        <div class="alert alert-danger" role="alert">
+            <strong>Unexpected Error:</strong> @ex.Message
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
 
 @code {
-    private ProjectData ProjectData { get; set; }
-    private bool IsLoading { get; set; } = true;
-    private string ErrorMessage { get; set; }
-    private DateTime LastRefreshTime { get; set; }
+    private ProjectData projectData;
+    private string errorMessage;
+
+    [Inject]
+    private ProjectDataService ProjectDataService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            Logger.LogInformation("Dashboard component initializing");
-            IsLoading = true;
-            ErrorMessage = null;
-
-            await RefreshData();
-
-            Logger.LogInformation("Dashboard component initialized successfully");
+            projectData = await ProjectDataService.LoadProjectDataAsync();
+            errorMessage = null;
+        }
+        catch (JsonException jex)
+        {
+            errorMessage = $"Invalid project data format: {jex.Message}";
+            projectData = null;
+        }
+        catch (FileNotFoundException fnex)
+        {
+            errorMessage = $"Project data file not found: {fnex.Message}";
+            projectData = null;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Unexpected error initializing dashboard");
-            ErrorMessage = "An unexpected error occurred while loading the dashboard.";
-            IsLoading = false;
+            errorMessage = $"Failed to load project data: {ex.Message}";
+            projectData = null;
         }
     }
 
-    private async Task RefreshData()
+    async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        try
-        {
-            IsLoading = true;
-            ErrorMessage = null;
-            StateHasChanged();
-
-            ProjectData = await DataService.LoadProjectDataAsync("wwwroot/data/data.json");
-            LastRefreshTime = DateTime.Now;
-
-            Logger.LogInformation("Dashboard data refreshed successfully at {Time}", LastRefreshTime);
-        }
-        catch (DataLoadException ex)
-        {
-            ErrorMessage = ex.Message;
-            Logger.LogError("Data loading error: {Message}", ex.Message);
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = "Failed to load project data. Please check the data.json file and try again.";
-            Logger.LogError(ex, "Unexpected error loading dashboard data");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        await Task.CompletedTask;
     }
 }
-
-<style>
-    .dashboard-container {
-        background-color: #ffffff;
-        min-height: 100vh;
-        padding-bottom: 40px;
-    }
-
-    .dashboard-header {
-        background-color: #f8f9fa;
-        padding: 30px 0;
-        margin-left: -15px;
-        margin-right: -15px;
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-
-    .dashboard-section {
-        padding: 20px 0;
-    }
-
-    .dashboard-footer {
-        background-color: #f8f9fa;
-        padding: 20px 0;
-        margin-left: -15px;
-        margin-right: -15px;
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-
-    @media (max-width: 1023px)
-    {
-        .dashboard-container {
-            padding: 10px;
-        }
-
-        .dashboard-header {
-            margin-left: -10px;
-            margin-right: -10px;
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-
-        .dashboard-footer {
-            margin-left: -10px;
-            margin-right: -10px;
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-
-        h1 {
-            font-size: 1.75rem !important;
-        }
-
-        .lead {
-            font-size: 1rem !important;
-        }
-    }
-
-    @media (min-width: 1024px)
-    {
-        .dashboard-container {
-            padding: 20px 0;
-        }
-
-        h1 {
-            font-size: 2.5rem !important;
-        }
-
-        .lead {
-            font-size: 1.25rem !important;
-        }
-    }
-
-    @media (min-width: 1366px)
-    {
-        .dashboard-container {
-            padding: 30px 0;
-        }
-
-        h1 {
-            font-size: 2.5rem !important;
-        }
-    }
-
-    @media (min-width: 1920px)
-    {
-        .dashboard-container {
-            padding: 40px 0;
-        }
-
-        h1 {
-            font-size: 3rem !important;
-        }
-    }
-</style>
