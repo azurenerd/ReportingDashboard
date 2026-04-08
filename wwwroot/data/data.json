@@ -1,118 +1,21 @@
 {
-  "project": {
-    "name": "Q2 Mobile App Release",
-    "description": "iOS and Android mobile app version 2.0 with new payment integration",
-    "startDate": "2026-04-01",
-    "endDate": "2026-06-30",
-    "status": "OnTrack",
-    "sponsor": "VP of Product",
-    "projectManager": "Jane Smith"
-  },
+  "projectName": "Q2 Mobile App Release",
+  "projectStartDate": "2026-04-01",
+  "projectEndDate": "2026-06-30",
   "milestones": [
     {
-      "id": "m1",
-      "name": "Design Review Complete",
-      "targetDate": "2026-04-15",
-      "actualDate": "2026-04-12",
-      "status": "Completed",
-      "completionPercentage": 100
-    },
-    {
-      "id": "m2",
-      "name": "Development Sprint 1 Done",
-      "targetDate": "2026-05-01",
-      "actualDate": null,
-      "status": "InProgress",
-      "completionPercentage": 65
-    },
-    {
-      "id": "m3",
-      "name": "QA Testing Complete",
-      "targetDate": "2026-06-01",
-      "actualDate": null,
+      "name": "",
+      "targetDate": "",
       "status": "Pending",
       "completionPercentage": 0
     }
   ],
   "tasks": [
     {
-      "id": "t1",
-      "name": "API Authentication Module",
+      "name": "",
       "status": "Shipped",
-      "assignedTo": "John Doe",
-      "dueDate": "2026-04-20",
-      "estimatedDays": 5,
-      "relatedMilestone": "m1"
-    },
-    {
-      "id": "t2",
-      "name": "Payment Integration",
-      "status": "InProgress",
-      "assignedTo": "Alice Brown",
-      "dueDate": "2026-05-10",
-      "estimatedDays": 8,
-      "relatedMilestone": "m2"
-    },
-    {
-      "id": "t3",
-      "name": "iOS Push Notifications",
-      "status": "CarriedOver",
-      "assignedTo": "Bob Wilson",
-      "dueDate": "2026-05-15",
-      "estimatedDays": 6,
-      "relatedMilestone": "m2"
-    },
-    {
-      "id": "t4",
-      "name": "Android UI Polish",
-      "status": "Shipped",
-      "assignedTo": "Sarah Johnson",
-      "dueDate": "2026-04-25",
-      "estimatedDays": 4,
-      "relatedMilestone": "m1"
-    },
-    {
-      "id": "t5",
-      "name": "Database Migration",
-      "status": "Shipped",
-      "assignedTo": "Mike Chen",
-      "dueDate": "2026-04-18",
-      "estimatedDays": 3,
-      "relatedMilestone": "m1"
-    },
-    {
-      "id": "t6",
-      "name": "Security Audit",
-      "status": "InProgress",
-      "assignedTo": "Emily Davis",
-      "dueDate": "2026-05-05",
-      "estimatedDays": 5,
-      "relatedMilestone": "m2"
-    },
-    {
-      "id": "t7",
-      "name": "Performance Testing",
-      "status": "InProgress",
-      "assignedTo": "David Martinez",
-      "dueDate": "2026-05-20",
-      "estimatedDays": 7,
-      "relatedMilestone": "m3"
-    },
-    {
-      "id": "t8",
-      "name": "Release Notes Documentation",
-      "status": "CarriedOver",
-      "assignedTo": "Lisa Anderson",
-      "dueDate": "2026-06-15",
-      "estimatedDays": 2,
-      "relatedMilestone": "m3"
+      "owner": "",
+      "description": ""
     }
-  ],
-  "metrics": {
-    "totalTasks": 8,
-    "completedTasks": 3,
-    "inProgressTasks": 3,
-    "carriedOverTasks": 2,
-    "estimatedBurndownRate": 1.2
-  }
+  ]
 }
