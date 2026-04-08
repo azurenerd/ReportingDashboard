@@ -1,24 +1,64 @@
-@using AgentSquad.Runner.Data
+@* StatusCard.razor - Reusable component for displaying task status breakdown *@
 
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">@StatusCategory</h5>
+@if (Tasks != null && Tasks.Any())
+{
+    <div class="card h-100 shadow-sm">
+        <div class="card-header @($"bg-{CardColor}") text-white">
+            <h5 class="mb-0">
+                <strong>@StatusCategory</strong>
+                <span class="badge bg-light text-dark ms-2">@TaskCount</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <button class="btn btn-link p-0 w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="@($"#collapse-{StatusCategory}")" aria-expanded="false" aria-controls="@($"collapse-{StatusCategory}")">
+                <span class="text-muted">@(Tasks.Count > 0 ? "Show tasks" : "No tasks")</span>
+                <i class="bi bi-chevron-down ms-2"></i>
+            </button>
+            <div class="collapse" id="@($"collapse-{StatusCategory}")">
+                <div class="mt-3">
+                    @foreach (var task in Tasks)
+                    {
+                        <div class="d-flex align-items-center mb-2">
+                            <input type="checkbox" class="form-check-input me-2" disabled />
+                            <div class="flex-grow-1">
+                                <span class="task-name">@task.Name</span>
+                                @if (!string.IsNullOrWhiteSpace(task.Owner))
+                                {
+                                    <small class="text-muted d-block">@task.Owner</small>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        <p class="text-muted">Status card placeholder - task counts and details coming in future steps</p>
+}
+else
+{
+    <div class="card h-100 shadow-sm">
+        <div class="card-header @($"bg-{CardColor}") text-white">
+            <h5 class="mb-0">
+                <strong>@StatusCategory</strong>
+                <span class="badge bg-light text-dark ms-2">0</span>
+            </h5>
+        </div>
+        <div class="card-body text-muted text-center">
+            No tasks
+        </div>
     </div>
-</div>
+}
 
 @code {
     [Parameter]
     public string StatusCategory { get; set; } = string.Empty;
 
     [Parameter]
-    public int TaskCount { get; set; }
+    public int TaskCount { get; set; } = 0;
 
     [Parameter]
-    public List<Task>? Tasks { get; set; }
+    public List<TaskItem> Tasks { get; set; } = new();
 
     [Parameter]
-    public string CardColor { get; set; } = string.Empty;
+    public string CardColor { get; set; } = "secondary";
 }
