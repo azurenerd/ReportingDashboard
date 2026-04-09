@@ -29,6 +29,7 @@ namespace AgentSquad.Runner.Services
         /// <summary>
         /// Loads and deserializes the data.json file into a ProjectReport object.
         /// Resolves the data file path in precedence order: parameter > configured path > default "./data.json".
+        /// Reads file asynchronously and deserializes JSON with PropertyNameCaseInsensitive option.
         /// </summary>
         /// <param name="dataPath">Optional file path; if not provided, uses configured path or default "./data.json".</param>
         /// <returns>Deserialized ProjectReport object.</returns>
@@ -53,8 +54,30 @@ namespace AgentSquad.Runner.Services
                 throw new FileNotFoundException($"Data file not found at {dataPath}");
             }
 
-            // Implementation continues in next step
-            throw new NotImplementedException();
+            try
+            {
+                // Read file content asynchronously
+                var json = await File.ReadAllTextAsync(dataPath);
+                _logger.LogInformation($"File read successfully, {json.Length} bytes");
+
+                // Deserialize JSON with PropertyNameCaseInsensitive to handle camelCase JSON properties
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var projectReport = await Task.Run(() =>
+                    JsonSerializer.Deserialize<ProjectReport>(json, options)
+                );
+
+                return projectReport;
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError($"JSON deserialization failed: {ex.Message}");
+                throw;
+            }
+            catch (IOException ex)
+            {
+                _logger.LogError($"File access error: {ex.Message}");
+                throw;
+            }
         }
 
         /// <summary>
