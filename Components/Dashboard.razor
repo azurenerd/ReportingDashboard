@@ -5,17 +5,27 @@
 @inject ProjectDataService DataService
 @inject ILogger<Dashboard> Logger
 
-<div class="container-fluid mt-5">
+<style>
+    :root {
+        --base-font-size: 12pt;
+    }
+    
+    body, html {
+        font-size: 12pt;
+    }
+</style>
+
+<div class="container-fluid mt-5" style="font-size: 12pt;">
     @if (loading)
     {
         <div class="text-center">
-            <p>Loading project data...</p>
+            <p style="font-size: 12pt;">Loading project data...</p>
         </div>
     }
     else if (errorMessage != null)
     {
         <div class="alert alert-danger" role="alert">
-            <strong>Error loading project data:</strong> @errorMessage
+            <strong style="font-size: 12pt;">Error loading project data:</strong> <span style="font-size: 12pt;">@errorMessage</span>
             <button class="btn btn-sm btn-primary mt-2" @onclick="RetryLoad">Refresh</button>
         </div>
     }
@@ -23,8 +33,8 @@
     {
         <div class="row mb-4">
             <div class="col-12">
-                <h1>@projectData.Project.Name</h1>
-                <p class="text-muted">@projectData.Project.Description</p>
+                <h1 style="font-size: 24pt;">@projectData.Project.Name</h1>
+                <p class="text-muted" style="font-size: 12pt;">@projectData.Project.Description</p>
             </div>
         </div>
 

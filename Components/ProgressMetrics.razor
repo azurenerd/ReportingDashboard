@@ -2,27 +2,27 @@
 
 <div class="card">
     <div class="card-header bg-success text-white">
-        <h5 class="mb-0">Project Progress</h5>
+        <h5 class="mb-0" style="font-size: 14pt;">Project Progress</h5>
     </div>
     <div class="card-body">
         <div class="row">
             <div class="col-md-6">
-                <h6>Completion Percentage</h6>
+                <h6 style="font-size: 13pt;">Completion Percentage</h6>
                 <div class="progress mb-3" style="height: 30px;">
                     <div class="progress-bar bg-success" role="progressbar" 
                          style="width: @(CompletionPercentage)%;" 
                          aria-valuenow="@CompletionPercentage" 
                          aria-valuemin="0" aria-valuemax="100">
-                        <span style="font-size: 18px; font-weight: bold;">@CompletionPercentage%</span>
+                        <span style="font-size: 18pt; font-weight: bold;">@CompletionPercentage%</span>
                     </div>
                 </div>
-                <p class="text-muted small">@CompletedTasks of @TotalTasks tasks completed</p>
+                <p class="text-muted small" style="font-size: 12pt;">@CompletedTasks of @TotalTasks tasks completed</p>
             </div>
             <div class="col-md-6">
-                <h6>Burn-Down Rate</h6>
+                <h6 style="font-size: 13pt;">Burn-Down Rate</h6>
                 <div class="card bg-light">
                     <div class="card-body text-center">
-                        <h3 class="mb-0">@BurndownRate.ToString("F1") tasks/day</h3>
+                        <h3 class="mb-0" style="font-size: 16pt;">@BurndownRate.ToString("F1") tasks/day</h3>
                     </div>
                 </div>
             </div>

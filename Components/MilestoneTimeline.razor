@@ -2,12 +2,12 @@
 
 <div class="card mb-4">
     <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Project Milestone Timeline</h5>
+        <h5 class="mb-0" style="font-size: 14pt;">Project Milestone Timeline</h5>
     </div>
     <div class="card-body">
         @if (Milestones == null || Milestones.Count == 0)
         {
-            <p class="text-muted">No milestones defined.</p>
+            <p class="text-muted" style="font-size: 12pt;">No milestones defined.</p>
         }
         else
         {
@@ -30,18 +30,18 @@
 
                     <div class="milestone-item row mb-3 pb-3 border-bottom">
                         <div class="col-md-3">
-                            <strong>@milestone.Name</strong>
+                            <strong style="font-size: 12pt;">@milestone.Name</strong>
                         </div>
                         <div class="col-md-3">
-                            <span class="text-muted">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</span>
+                            <span class="text-muted" style="font-size: 12pt;">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</span>
                         </div>
                         <div class="col-md-3">
-                            <span class="badge @statusClass">@statusText</span>
+                            <span class="badge @statusClass" style="font-size: 11pt;">@statusText</span>
                         </div>
                         <div class="col-md-3">
                             <div class="progress" style="height: 20px;">
                                 <div class="progress-bar" role="progressbar" 
-                                     style="width: @(milestone.CompletionPercentage)%;" 
+                                     style="width: @(milestone.CompletionPercentage)%; font-size: 11pt;" 
                                      aria-valuenow="@milestone.CompletionPercentage" 
                                      aria-valuemin="0" aria-valuemax="100">
                                     @milestone.CompletionPercentage%
