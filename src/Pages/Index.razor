@@ -1,0 +1,348 @@
+@page "/"
+@using System.Text.Json
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Components
+@using AgentSquad.Runner.Services
+@inject DataWatcherService DataWatcherService
+@inject DataLoaderService DataLoaderService
+@inject DataValidator DataValidator
+@inject ILogger<Index> Logger
+
+<div class="container-fluid dashboard-container">
+    @if (isLoading)
+    {
+        <div class="text-center mt-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading dashboard data...</p>
+        </div>
+    }
+    else if (validationResult != null && !validationResult.IsValid)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading">Data Validation Error</h4>
+            <p>Unable to load dashboard. Please fix the errors below and save your data.json file.</p>
+            <hr>
+            @foreach (var error in validationResult.Errors)
+            {
+                <div class="mb-2">
+                    <strong>@error.Field:</strong> @error.Message
+                </div>
+            }
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    else if (currentReport != null)
+    {
+        <CascadingValue Value="currentReport.ProjectName">
+            <CascadingValue Value="currentReport.ReportingPeriod">
+                <CascadingValue Value="currentReport.Kpis">
+                    <ProjectMetadata ProjectName="@currentReport.ProjectName" 
+                                     ReportingPeriod="@currentReport.ReportingPeriod" 
+                                     Kpis="@currentReport.Kpis" />
+                </CascadingValue>
+            </CascadingValue>
+        </CascadingValue>
+
+        <div class="refresh-indicator text-end text-muted small mt-2 mb-4">
+            @if (lastRefreshTime != DateTime.MinValue)
+            {
+                <span>Data refreshed at @lastRefreshTime.ToString("HH:mm:ss")</span>
+            }
+        </div>
+
+        @if (currentReport.Milestones != null && currentReport.Milestones.Length > 0)
+        {
+            <section class="milestones-section mb-5">
+                <h2 class="section-title">Project Milestones</h2>
+                <div class="milestones-timeline">
+                    @foreach (var milestone in currentReport.Milestones)
+                    {
+                        <div class="milestone-item mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="mb-0">@milestone.Name</h5>
+                                <span class="badge @GetStatusBadgeClass(milestone.Status)">@milestone.Status</span>
+                            </div>
+                            <p class="text-muted mb-2">Target: @milestone.TargetDate</p>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: @(milestone.Progress)%;" 
+                                     aria-valuenow="@milestone.Progress" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    @milestone.Progress%
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(milestone.Description))
+                            {
+                                <p class="small text-secondary mb-0">@milestone.Description</p>
+                            }
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+
+        @if (currentReport.StatusSnapshot != null)
+        {
+            <section class="status-snapshot-section">
+                <h2 class="section-title">Status Snapshot</h2>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <h5 class="card-title">Shipped</h5>
+                        <div class="list-group">
+                            @if (currentReport.StatusSnapshot.Shipped != null && currentReport.StatusSnapshot.Shipped.Length > 0)
+                            {
+                                @foreach (var item in currentReport.StatusSnapshot.Shipped)
+                                {
+                                    <div class="list-group-item">@item</div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="list-group-item text-muted">No items</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-4">
+                        <h5 class="card-title">In Progress</h5>
+                        <div class="list-group">
+                            @if (currentReport.StatusSnapshot.InProgress != null && currentReport.StatusSnapshot.InProgress.Length > 0)
+                            {
+                                @foreach (var item in currentReport.StatusSnapshot.InProgress)
+                                {
+                                    <div class="list-group-item">@item</div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="list-group-item text-muted">No items</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-4">
+                        <h5 class="card-title">Carried Over</h5>
+                        <div class="list-group">
+                            @if (currentReport.StatusSnapshot.CarriedOver != null && currentReport.StatusSnapshot.CarriedOver.Length > 0)
+                            {
+                                @foreach (var item in currentReport.StatusSnapshot.CarriedOver)
+                                {
+                                    <div class="list-group-item">@item</div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="list-group-item text-muted">No items</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </section>
+        }
+    }
+</div>
+
+@code {
+    private ProjectReport currentReport;
+    private ValidationResult validationResult;
+    private DateTime lastRefreshTime = DateTime.MinValue;
+    private bool isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Logger.LogInformation("Index.razor initializing");
+            
+            // Subscribe to file watcher events
+            DataWatcherService.OnDataChanged += OnDataChanged;
+            
+            // Load initial data
+            await LoadDataAsync();
+            
+            // Start watching file
+            DataWatcherService.Start();
+            
+            Logger.LogInformation("Index.razor initialization complete");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error during Index.razor initialization");
+            validationResult = new ValidationResult 
+            { 
+                IsValid = false,
+                Errors = new List<ValidationError> 
+                { 
+                    new ValidationError 
+                    { 
+                        Field = "initialization",
+                        Message = $"Failed to initialize dashboard: {ex.Message}"
+                    }
+                }
+            };
+        }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+            
+            // Load JSON from file
+            currentReport = await DataLoaderService.LoadAsync();
+            
+            // Validate schema
+            validationResult = DataValidator.Validate(currentReport);
+            
+            // Update refresh timestamp
+            lastRefreshTime = DataWatcherService.LastRefreshTime;
+            
+            Logger.LogInformation($"Data loaded successfully with {currentReport.Milestones.Length} milestones");
+        }
+        catch (FileNotFoundException ex)
+        {
+            Logger.LogError(ex, "Data file not found");
+            validationResult = new ValidationResult 
+            { 
+                IsValid = false,
+                Errors = new List<ValidationError> 
+                { 
+                    new ValidationError 
+                    { 
+                        Field = "dataPath",
+                        Message = $"Data file not found. Ensure data.json exists in the application directory."
+                    }
+                }
+            };
+        }
+        catch (JsonException ex)
+        {
+            Logger.LogError(ex, "JSON deserialization error");
+            validationResult = new ValidationResult 
+            { 
+                IsValid = false,
+                Errors = new List<ValidationError> 
+                { 
+                    new ValidationError 
+                    { 
+                        Field = "json",
+                        Message = $"Invalid JSON format: {ex.Message}. Please check your data.json file syntax."
+                    }
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error loading data");
+            validationResult = new ValidationResult 
+            { 
+                IsValid = false,
+                Errors = new List<ValidationError> 
+                { 
+                    new ValidationError 
+                    { 
+                        Field = "general",
+                        Message = $"Unexpected error: {ex.Message}"
+                    }
+                }
+            };
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnDataChanged()
+    {
+        Logger.LogInformation("Data changed event received");
+        await LoadDataAsync();
+        StateHasChanged();
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "on-track" => "bg-success",
+            "at-risk" => "bg-warning text-dark",
+            "delayed" => "bg-danger",
+            "completed" => "bg-secondary",
+            _ => "bg-light text-dark"
+        };
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        DataWatcherService.OnDataChanged -= OnDataChanged;
+        DataWatcherService.Stop();
+        await ValueTask.CompletedTask;
+    }
+}
+
+<style>
+    .dashboard-container {
+        padding: 2rem 1rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: #1a202c;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 0.75rem;
+    }
+
+    .milestone-item {
+        background-color: #ffffff;
+        border-color: #e9ecef !important;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .milestone-item:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .milestone-item h5 {
+        color: #1a202c;
+        font-weight: 600;
+    }
+
+    .list-group-item {
+        padding: 0.875rem 1rem;
+        border: 1px solid #e9ecef;
+        background-color: #ffffff;
+    }
+
+    .list-group-item:first-child {
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+
+    .list-group-item:last-child {
+        border-radius: 0 0 0.375rem 0.375rem;
+    }
+
+    .refresh-indicator {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    @media print {
+        .refresh-indicator {
+            display: none;
+        }
+
+        .milestone-item,
+        .list-group-item {
+            page-break-inside: avoid;
+        }
+    }
+</style>

@@ -1,64 +1,72 @@
 {
-  "projectName": "Horizon Platform Delivery",
-  "reportingPeriod": "Q2 2026 (Apr - Jun)",
+  "projectName": "Project Horizon",
+  "reportingPeriod": "Q2 2026 (April - June)",
   "milestones": [
     {
       "id": "m1",
-      "name": "Phase 1: Core Infrastructure",
-      "targetDate": "2026-05-15",
+      "name": "Platform Foundation & Infrastructure",
+      "targetDate": "2026-04-30",
       "status": "on-track",
       "progress": 85,
-      "description": "Database schema, API foundation, authentication layer"
+      "description": "Core backend services, database schema, and API framework deployment"
     },
     {
       "id": "m2",
-      "name": "Phase 2: Feature Development",
-      "targetDate": "2026-06-30",
-      "status": "at-risk",
-      "progress": 45,
-      "description": "User-facing features, dashboard UI, reporting modules"
+      "name": "User Authentication & Security",
+      "targetDate": "2026-05-15",
+      "status": "on-track",
+      "progress": 72,
+      "description": "Login, session management, role-based access control, and audit logging"
     },
     {
       "id": "m3",
-      "name": "Phase 3: Testing & Hardening",
-      "targetDate": "2026-08-15",
-      "status": "on-track",
-      "progress": 20,
-      "description": "QA testing, performance optimization, security hardening"
+      "name": "Data Import & Integration",
+      "targetDate": "2026-05-31",
+      "status": "at-risk",
+      "progress": 45,
+      "description": "ETL pipeline, third-party API integrations, and data validation rules"
     },
     {
       "id": "m4",
-      "name": "Phase 4: Deployment & Launch",
-      "targetDate": "2026-09-30",
+      "name": "Reporting Dashboard MVP",
+      "targetDate": "2026-06-15",
+      "status": "at-risk",
+      "progress": 38,
+      "description": "Executive dashboards, KPI metrics, chart.js visualizations, and export functionality"
+    },
+    {
+      "id": "m5",
+      "name": "Quality Assurance & Testing",
+      "targetDate": "2026-06-28",
       "status": "delayed",
-      "progress": 0,
-      "description": "Production deployment, executive training, go-live"
+      "progress": 15,
+      "description": "Comprehensive test coverage, performance optimization, and bug fixes"
     }
   ],
   "statusSnapshot": {
     "shipped": [
-      "Authentication module (OAuth 2.0, JWT tokens)",
-      "Core API endpoints (REST, pagination, filtering)",
-      "Reporting data models and schema",
-      "Initial documentation and setup guides"
+      "User account creation and profile management",
+      "Basic dashboard layout and navigation",
+      "Data export to CSV functionality"
     ],
     "inProgress": [
-      "Executive dashboard UI (Blazor components)",
-      "Real-time data refresh via FileSystemWatcher",
-      "Print-friendly CSS and screenshot optimization",
-      "File-based data persistence (JSON schema)"
+      "Advanced filtering and search capabilities",
+      "Real-time notification system",
+      "Performance optimization for large datasets",
+      "API rate limiting and throttling"
     ],
     "carriedOver": [
-      "Mobile app (deferred to Phase 5)",
-      "Offline-first synchronization (Phase 5)",
-      "Advanced filtering and search (Phase 5)",
-      "Email notification system (Phase 6)"
+      "Mobile app responsive design",
+      "Dark mode theme support",
+      "Multi-language localization",
+      "Integration with Azure DevOps for issue tracking"
     ]
   },
   "kpis": {
-    "onTimeDelivery": 85,
-    "teamCapacity": 92,
-    "codeQuality": 88,
-    "testCoverage": 78
+    "On-Time Delivery": 85,
+    "Team Capacity": 92,
+    "Quality Score": 78,
+    "Customer Satisfaction": 88,
+    "Sprint Velocity": 82
   }
 }
