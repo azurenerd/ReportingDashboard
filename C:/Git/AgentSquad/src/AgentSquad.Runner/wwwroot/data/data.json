@@ -32,6 +32,14 @@
       "actualDate": null,
       "status": "Pending",
       "completionPercentage": 0
+    },
+    {
+      "id": "m4",
+      "name": "Production Deployment",
+      "targetDate": "2026-06-30",
+      "actualDate": null,
+      "status": "Pending",
+      "completionPercentage": 0
     }
   ],
   "tasks": [
@@ -61,12 +69,75 @@
       "dueDate": "2026-05-15",
       "estimatedDays": 6,
       "relatedMilestone": "m2"
+    },
+    {
+      "id": "t4",
+      "name": "Android UI Refactor",
+      "status": "InProgress",
+      "assignedTo": "Carol Davis",
+      "dueDate": "2026-05-08",
+      "estimatedDays": 4,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t5",
+      "name": "Database Schema Migration",
+      "status": "Shipped",
+      "assignedTo": "David Johnson",
+      "dueDate": "2026-04-25",
+      "estimatedDays": 3,
+      "relatedMilestone": "m1"
+    },
+    {
+      "id": "t6",
+      "name": "Security Audit",
+      "status": "InProgress",
+      "assignedTo": "Emma Wilson",
+      "dueDate": "2026-05-20",
+      "estimatedDays": 7,
+      "relatedMilestone": "m3"
+    },
+    {
+      "id": "t7",
+      "name": "Beta User Testing",
+      "status": "Pending",
+      "assignedTo": "Frank Martinez",
+      "dueDate": "2026-05-25",
+      "estimatedDays": 5,
+      "relatedMilestone": "m3"
+    },
+    {
+      "id": "t8",
+      "name": "Release Notes Documentation",
+      "status": "CarriedOver",
+      "assignedTo": "Grace Lee",
+      "dueDate": "2026-05-30",
+      "estimatedDays": 2,
+      "relatedMilestone": "m4"
+    },
+    {
+      "id": "t9",
+      "name": "Monitoring & Alerting Setup",
+      "status": "Pending",
+      "assignedTo": "Henry Brown",
+      "dueDate": "2026-06-10",
+      "estimatedDays": 3,
+      "relatedMilestone": "m4"
+    },
+    {
+      "id": "t10",
+      "name": "Post-Launch Analytics",
+      "status": "Pending",
+      "assignedTo": "Iris Chen",
+      "dueDate": "2026-07-05",
+      "estimatedDays": 4,
+      "relatedMilestone": "m4"
     }
   ],
   "metrics": {
     "totalTasks": 10,
-    "completedTasks": 3,
-    "inProgressTasks": 5,
+    "completedTasks": 2,
+    "inProgressTasks": 4,
     "carriedOverTasks": 2,
     "estimatedBurndownRate": 1.2
   }
