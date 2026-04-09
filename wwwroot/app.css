@@ -1,129 +1,114 @@
-/* Global styles */
-html, body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #333;
-    background-color: #f8f9fa;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-}
-
-/* Dashboard container */
+/* Dashboard container and layout */
 .dashboard-container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Dashboard header */
+/* Dashboard header with project metadata */
 .dashboard-header {
     margin-bottom: 30px;
-    padding-bottom: 20px;
     border-bottom: 2px solid #e9ecef;
+    padding-bottom: 20px;
 }
 
 .dashboard-header h1 {
-    margin: 0 0 5px 0;
-    font-size: 28px;
-    font-weight: 600;
+    margin: 0 0 10px 0;
     color: #212529;
+    font-size: 2.5rem;
+    font-weight: 600;
 }
 
-.dashboard-header p {
+.dashboard-header .text-muted {
     margin: 0;
-    font-size: 14px;
     color: #6c757d;
+    font-size: 1.1rem;
 }
 
-/* Timeline container */
-.timeline-container {
-    page-break-inside: avoid;
-    margin-bottom: 30px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.timeline-container h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 18px;
-    font-weight: 600;
-    color: #212529;
-}
-
-/* Milestone chart */
-#milestoneChart {
-    print-color-adjust: exact;
-    max-height: 400px;
-    width: 100%;
-}
-
-/* KPI grid */
+/* KPI grid for project metrics */
 .kpi-grid {
-    margin-bottom: 30px;
-    gap: 15px;
+    margin-bottom: 40px;
+    gap: 20px;
 }
 
 .kpi-card {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
     padding: 20px;
-    background-color: white;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     text-align: center;
-    page-break-inside: avoid;
+    transition: all 0.3s ease;
+}
+
+.kpi-card:hover {
+    background-color: #e9ecef;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .kpi-card strong {
     display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: #6c757d;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: #495057;
+    font-size: 0.95rem;
     margin-bottom: 10px;
+    font-weight: 500;
 }
 
 .kpi-value {
     margin: 0;
-    font-size: 32px;
-    font-weight: 700;
     color: #212529;
+    font-size: 2rem;
+    font-weight: 700;
 }
 
-/* Status snapshot */
-.status-snapshot {
-    page-break-inside: avoid;
+/* Timeline container for milestones */
+.timeline-container {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 20px;
     margin-bottom: 30px;
+    page-break-inside: avoid;
 }
 
-.status-snapshot h2 {
+.timeline-container h3 {
     margin-top: 0;
     margin-bottom: 20px;
-    font-size: 18px;
-    font-weight: 600;
     color: #212529;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Milestone chart canvas */
+#milestoneChart {
+    max-height: 400px;
+    width: 100%;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+}
+
+/* Status snapshot sections */
+.status-snapshot {
+    margin-bottom: 30px;
+    page-break-inside: avoid;
 }
 
 .status-column {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
     padding: 20px;
-    background-color: white;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     page-break-inside: avoid;
 }
 
 .status-column h5 {
     margin-top: 0;
     margin-bottom: 15px;
-    font-size: 16px;
-    font-weight: 600;
     color: #212529;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
 }
 
 .list-group {
@@ -133,48 +118,85 @@ body {
 }
 
 .list-group-item {
-    padding: 10px 0;
-    border-bottom: 1px solid #e9ecef;
-    font-size: 14px;
-    color: #333;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    color: #495057;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
 }
 
 .list-group-item:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
 }
 
-/* Refresh timestamp */
-.refresh-timestamp {
-    margin-top: 20px;
-    font-size: 12px;
-    color: #6c757d;
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+/* Refresh timestamp indicator */
+.refresh-indicator {
     text-align: right;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+    color: #6c757d;
+    font-size: 0.9rem;
 }
 
-/* Error banner */
+.refresh-indicator .badge {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Error banner for validation failures */
 .error-banner {
-    margin-bottom: 20px;
-    padding: 15px 20px;
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
     border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
     color: #721c24;
-    font-size: 14px;
 }
 
-.error-banner strong {
-    display: block;
-    margin-bottom: 5px;
+.error-banner h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
     font-weight: 600;
 }
 
+.error-banner ul {
+    margin: 10px 0 0 0;
+    padding-left: 20px;
+}
+
+.error-banner li {
+    margin-bottom: 5px;
+    font-size: 0.95rem;
+}
+
 /* Loading spinner */
+.loading-spinner {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
 .spinner {
     display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #007bff;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #28a745;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -184,18 +206,14 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* Responsive layout */
-@media (max-width: 768px) {
+/* Responsive adjustments */
+@media (max-width: 1200px) {
     .dashboard-container {
-        padding: 10px;
+        padding: 15px;
     }
 
     .dashboard-header h1 {
-        font-size: 24px;
-    }
-
-    .kpi-grid {
-        gap: 10px;
+        font-size: 2rem;
     }
 
     .kpi-card {
@@ -203,70 +221,60 @@ body {
     }
 
     .kpi-value {
-        font-size: 24px;
-    }
-
-    #milestoneChart {
-        max-height: 300px;
+        font-size: 1.75rem;
     }
 }
 
-/* Print styles */
-@media print {
-    body {
-        background-color: white;
-    }
-
+@media (max-width: 768px) {
     .dashboard-container {
-        max-width: 100%;
-        margin: 0;
-        padding: 0.5in;
+        padding: 10px;
     }
 
-    .dashboard-header {
-        page-break-after: avoid;
-        margin-bottom: 0.3in;
-        padding-bottom: 0.2in;
-    }
-
-    .timeline-container {
-        page-break-inside: avoid;
-        margin-bottom: 0.3in;
-        padding: 0.2in;
-        box-shadow: none;
-        border: 1px solid #ddd;
-    }
-
-    .status-snapshot {
-        page-break-inside: avoid;
+    .dashboard-header h1 {
+        font-size: 1.5rem;
     }
 
     .status-column {
-        page-break-inside: avoid;
-        margin-bottom: 0.2in;
-        box-shadow: none;
-        border: 1px solid #ddd;
+        margin-bottom: 15px;
     }
 
     .kpi-card {
-        page-break-inside: avoid;
-        margin-bottom: 0.2in;
-        box-shadow: none;
-        border: 1px solid #ddd;
+        padding: 12px;
     }
 
-    #milestoneChart {
-        print-color-adjust: exact;
-        -webkit-print-color-adjust: exact;
-        max-height: 5in;
-        page-break-inside: avoid;
+    .kpi-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .kpi-card,
+    .list-group-item {
+        transition: none;
     }
 
-    .refresh-timestamp {
-        display: none;
+    .spinner {
+        animation: none;
+    }
+}
+
+/* Focus states for keyboard navigation */
+button:focus,
+a:focus {
+    outline: 2px solid #28a745;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+    .kpi-card,
+    .status-column,
+    .timeline-container {
+        border-width: 2px;
     }
 
-    .error-banner {
-        display: none;
+    .list-group-item {
+        border-width: 2px;
     }
 }
