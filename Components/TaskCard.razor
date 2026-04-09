@@ -1,8 +1,8 @@
 @inherits ComponentBase
 @using AgentSquad.Runner.Models
 
-<div class="mb-3">
-    <!-- Placeholder for TaskCard implementation (Step T6) -->
+<div class="rounded border-l-4 border-solid p-3 bg-gray-50">
+    <p class="text-sm text-gray-700">@(Task?.Name ?? "Untitled Task")</p>
 </div>
 
 @code {
