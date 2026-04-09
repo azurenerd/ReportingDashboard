@@ -1,0 +1,54 @@
+@using AgentSquad.Dashboard.Models
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">
+                @ColumnTitle
+                <MudChip Label="true" Class="ms-2">@Items.Count</MudChip>
+            </MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        @if (Items.Count == 0)
+        {
+            <MudText Typo="Typo.body2" Color="Color.TextSecondary">No items</MudText>
+        }
+        else
+        {
+            <MudList>
+                @foreach (var item in Items)
+                {
+                    <MudListItem>
+                        <div class="progress-item">
+                            <div>
+                                <MudText Typo="Typo.subtitle2">@item.Title</MudText>
+                                @if (!string.IsNullOrEmpty(item.Assignee))
+                                {
+                                    <MudText Typo="Typo.caption">@item.Assignee</MudText>
+                                }
+                                @if (!string.IsNullOrEmpty(item.Reason))
+                                {
+                                    <MudAlert Severity="Severity.Warning" Dense="true" Class="mt-2">
+                                        @item.Reason
+                                    </MudAlert>
+                                }
+                            </div>
+                        </div>
+                    </MudListItem>
+                }
+            </MudList>
+        }
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public string ColumnTitle { get; set; } = "";
+
+    [Parameter]
+    public List<ProgressItem> Items { get; set; } = new();
+
+    [Parameter]
+    public string StatusColor { get; set; } = "default";
+}

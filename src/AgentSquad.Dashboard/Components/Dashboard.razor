@@ -1,0 +1,62 @@
+@page "/"
+@implements IAsyncDisposable
+@inject ProjectDashboardState DashboardState
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<div class="dashboard-container">
+    @if (!DashboardState.IsLoaded && DashboardState.LoadError == null)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        <p>Loading dashboard...</p>
+    }
+    else if (DashboardState.LoadError != null)
+    {
+        <MudAlert Severity="Severity.Error" Style="margin-bottom: 20px;">
+            <strong>Dashboard Error:</strong><br />
+            @DashboardState.LoadError
+        </MudAlert>
+    }
+    else if (DashboardState.CurrentProject != null)
+    {
+        <div class="dashboard-header">
+            <h1>@DashboardState.CurrentProject.Project.Name</h1>
+            <div class="header-info">
+                <span>Owner: @DashboardState.CurrentProject.Project.Owner</span>
+                <span class="status-badge" style="@GetStatusStyle(DashboardState.CurrentProject.Project.Status)">
+                    @DashboardState.CurrentProject.Project.Status
+                </span>
+                <span>Last Updated: @DashboardState.CurrentProject.Project.LastUpdated:g</span>
+            </div>
+        </div>
+
+        <MilestoneTimeline Data="DashboardState.CurrentProject" />
+        <ProgressBoard Data="DashboardState.CurrentProject" />
+        <MetricsPanel Data="DashboardState.CurrentProject" />
+    }
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await DashboardState.InitializeAsync();
+        DashboardState.OnStateChanged += StateHasChanged;
+        DashboardState.SetRefreshInterval(TimeSpan.FromMinutes(5));
+    }
+
+    private string GetStatusStyle(string status) => status switch
+    {
+        "On Track" => "background-color: #4caf50; color: white;",
+        "At Risk" => "background-color: #ff9800; color: white;",
+        "Blocked" => "background-color: #f44336; color: white;",
+        _ => "background-color: #9e9e9e; color: white;"
+    };
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        DashboardState.OnStateChanged -= StateHasChanged;
+        await DashboardState.DisposeAsync();
+    }
+}

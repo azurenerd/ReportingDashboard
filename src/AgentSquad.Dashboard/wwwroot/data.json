@@ -1,0 +1,71 @@
+{
+  "project": {
+    "name": "Project Phoenix",
+    "owner": "John Smith",
+    "status": "On Track",
+    "lastUpdated": "2026-04-09T18:00:00Z",
+    "description": "Executive dashboard for Q2 2026 roadmap"
+  },
+  "milestones": [
+    {
+      "id": "m1",
+      "name": "Phase 1: Infrastructure Setup",
+      "targetDate": "2026-05-15",
+      "status": "Completed",
+      "percentComplete": 100
+    },
+    {
+      "id": "m2",
+      "name": "Phase 2: Core Features",
+      "targetDate": "2026-06-30",
+      "status": "In Progress",
+      "percentComplete": 65
+    },
+    {
+      "id": "m3",
+      "name": "Phase 3: QA & Launch",
+      "targetDate": "2026-07-31",
+      "status": "Not Started",
+      "percentComplete": 0
+    },
+    {
+      "id": "m4",
+      "name": "Phase 4: Post-Launch Support",
+      "targetDate": "2026-08-31",
+      "status": "Not Started",
+      "percentComplete": 0
+    },
+    {
+      "id": "m5",
+      "name": "Phase 5: Optimization",
+      "targetDate": "2026-09-30",
+      "status": "Not Started",
+      "percentComplete": 0
+    }
+  ],
+  "progress": {
+    "shipped": [
+      { "id": "i1", "title": "User authentication", "assignee": "Alice Johnson" },
+      { "id": "i2", "title": "Dashboard layout", "assignee": "Bob Smith" },
+      { "id": "i3", "title": "Database schema", "assignee": "Charlie Brown" },
+      { "id": "i4", "title": "API layer", "assignee": "Diana Prince" },
+      { "id": "i5", "title": "Logging framework", "assignee": "Eve Wilson" }
+    ],
+    "inProgress": [
+      { "id": "i6", "title": "ProgressBoard implementation", "assignee": "Frank Miller" },
+      { "id": "i7", "title": "Metrics calculation", "assignee": "Grace Lee" },
+      { "id": "i8", "title": "Unit tests", "assignee": "Henry Ford" },
+      { "id": "i9", "title": "Integration tests", "assignee": "Iris Chen" }
+    ],
+    "carriedOver": [
+      { "id": "i10", "title": "Mobile responsiveness", "reason": "Blocked on design review" },
+      { "id": "i11", "title": "Performance optimization", "reason": "Waiting for infrastructure upgrade" }
+    ]
+  },
+  "metrics": {
+    "totalItems": 20,
+    "shippedCount": 5,
+    "inProgressCount": 4,
+    "carriedOverCount": 2
+  }
+}

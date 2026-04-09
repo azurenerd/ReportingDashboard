@@ -1,0 +1,26 @@
+<MudCard>
+    <MudCardContent>
+        <MudText Typo="Typo.subtitle2" Color="Color.TextSecondary">@Title</MudText>
+        <MudText Typo="Typo.h4" Style="margin-top: 10px; font-weight: bold;">
+            @Value
+        </MudText>
+        @if (!string.IsNullOrEmpty(Subtitle))
+        {
+            <MudText Typo="Typo.caption" Color="Color.TextSecondary">@Subtitle</MudText>
+        }
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "";
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public string? Subtitle { get; set; }
+
+    [Parameter]
+    public Color Color { get; set; } = Color.Default;
+}

@@ -1,0 +1,30 @@
+@using AgentSquad.Dashboard.Models
+
+<div class="progress-board-section">
+    <h2>Work Status</h2>
+    <MudGrid>
+        <MudItem xs="12" sm="4">
+            <ProgressColumn 
+                ColumnTitle="Shipped" 
+                Items="Data?.Progress.Shipped ?? new List<ProgressItem>()" 
+                StatusColor="success" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <ProgressColumn 
+                ColumnTitle="In Progress" 
+                Items="Data?.Progress.InProgress ?? new List<ProgressItem>()" 
+                StatusColor="warning" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <ProgressColumn 
+                ColumnTitle="Carried Over" 
+                Items="Data?.Progress.CarriedOver ?? new List<ProgressItem>()" 
+                StatusColor="error" />
+        </MudItem>
+    </MudGrid>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ProjectData? Data { get; set; }
+}

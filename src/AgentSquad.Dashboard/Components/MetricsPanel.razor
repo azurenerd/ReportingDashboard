@@ -1,0 +1,39 @@
+@using AgentSquad.Dashboard.Models
+
+<div class="metrics-section">
+    <h2>Project Metrics</h2>
+    <MudGrid>
+        <MudItem xs="12" sm="3">
+            <MetricCard 
+                Title="Total Items" 
+                Value="@Data?.Metrics.TotalItems.ToString()" 
+                Color="Color.Default" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MetricCard 
+                Title="Shipped" 
+                Value="@Data?.Metrics.ShippedPercentage.ToString("F1") + \"%\"" 
+                Subtitle="@(Data?.Metrics.ShippedCount + \" items\")" 
+                Color="Color.Success" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MetricCard 
+                Title="In Progress" 
+                Value="@Data?.Metrics.InProgressPercentage.ToString("F1") + \"%\"" 
+                Subtitle="@(Data?.Metrics.InProgressCount + \" items\")" 
+                Color="Color.Warning" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MetricCard 
+                Title="Carried Over" 
+                Value="@Data?.Metrics.CarriedOverPercentage.ToString("F1") + \"%\"" 
+                Subtitle="@(Data?.Metrics.CarriedOverCount + \" items\")" 
+                Color="Color.Error" />
+        </MudItem>
+    </MudGrid>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ProjectData? Data { get; set; }
+}
