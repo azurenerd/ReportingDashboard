@@ -1,24 +1,48 @@
+@using AgentSquad.Runner.Models
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
+@inject ILogger<MilestoneTimeline> Logger
 
 <div class="timeline-container">
     <canvas id="milestoneChart" style="max-height: 400px;"></canvas>
 </div>
 
 @code {
+    [CascadingParameter]
+    public Milestone[] Milestones { get; set; }
+
+    [CascadingParameter(Name = "LastRefreshTime")]
+    public DateTime LastRefreshTime { get; set; }
+
+    private int _lastRenderCount = 0;
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
     }
 
+    protected override Task OnParametersSetAsync()
+    {
+        if (Milestones != null)
+        {
+            int currentCount = Milestones.Length;
+            if (currentCount != _lastRenderCount)
+            {
+                Logger.LogInformation($"Milestone array changed: previous count={_lastRenderCount}, current count={currentCount}");
+                _lastRenderCount = currentCount;
+            }
+        }
+        else
+        {
+            Logger.LogInformation("Milestone array is null");
+        }
+
+        return base.OnParametersSetAsync();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-    }
-
-    protected override Task OnParametersSetAsync()
-    {
-        return base.OnParametersSetAsync();
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
