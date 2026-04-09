@@ -1,7 +1,26 @@
 @using AgentSquad.Runner.Models
 
 <div class="project-metadata">
-    <!-- Placeholder for header section - Step 2 -->
+    <header class="dashboard-header">
+        @if (string.IsNullOrEmpty(ProjectName))
+        {
+            <h1>Project Dashboard</h1>
+        }
+        else
+        {
+            <h1>@ProjectName</h1>
+        }
+
+        @if (string.IsNullOrEmpty(ReportingPeriod))
+        {
+            <p class="text-muted">Reporting Period</p>
+        }
+        else
+        {
+            <p class="text-muted">@ReportingPeriod</p>
+        }
+    </header>
+
     <!-- Placeholder for KPI grid - Step 3 -->
 </div>
 
