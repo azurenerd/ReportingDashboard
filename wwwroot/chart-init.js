@@ -1,70 +1,125 @@
-/**
- * Executive Reporting Dashboard - Chart.js Initialization
- * 
- * This module provides Chart.js initialization for milestone timeline visualization.
- * Called from Blazor components via JavaScript interop (IJSRuntime.InvokeAsync).
- */
-
-/**
- * Initialize Chart.js horizontal bar chart for milestone timeline.
- * 
- * @param {Object} config - Configuration object
- * @param {Array} config.milestones - Array of milestone objects
- *   - Each milestone: { id, name, targetDate, status, progress, description }
- * @param {string} config.containerId - HTML element ID for canvas (default: "milestoneChart")
- * @param {Object} config.colorScheme - Status color mapping
- *   - onTrack: string (hex color, default: "#28a745" green)
- *   - atRisk: string (hex color, default: "#ffc107" yellow)
- *   - delayed: string (hex color, default: "#dc3545" red)
- *   - completed: string (hex color, default: "#6c757d" gray)
- * 
- * @example
- * window.initMilestoneChart({
- *   milestones: [
- *     { id: "m1", name: "Phase 1", targetDate: "2026-05-15", status: "on-track", progress: 85 },
- *     { id: "m2", name: "Phase 2", targetDate: "2026-06-30", status: "at-risk", progress: 45 }
- *   ],
- *   containerId: "milestoneChart",
- *   colorScheme: {
- *     onTrack: "#28a745",
- *     atRisk: "#ffc107",
- *     delayed: "#dc3545",
- *     completed: "#6c757d"
- *   }
- * });
- */
 window.initMilestoneChart = function(config) {
-    // TODO: Implement Chart.js horizontal bar chart initialization
-    // 
-    // Implementation steps:
-    // 1. Validate config object and required properties
-    // 2. Get canvas element by containerId (throw error if not found)
-    // 3. Build chart data structure:
-    //    - labels: milestone names (config.milestones.map(m => m.name))
-    //    - datasets: [
-    //        {
-    //          label: 'Progress (%)',
-    //          data: progress values (0-100),
-    //          backgroundColor: color per status,
-    //          borderColor: darker shade,
-    //          borderWidth: 1
-    //        }
-    //      ]
-    // 4. Configure Chart.js options:
-    //    - type: 'bar'
-    //    - indexAxis: 'y' (horizontal bars)
-    //    - responsive: true
-    //    - maintainAspectRatio: false
-    //    - plugins: { legend: { display: false } }
-    //    - scales: { x: { max: 100 } }
-    // 5. Create Chart instance: new Chart(ctx, config)
-    // 6. Return chart instance for later reference (optional)
-    //
-    // Error handling:
-    // - Throw Error if config.milestones is not array
-    // - Throw Error if canvas element not found
-    // - Throw Error if Chart.js not loaded
-    // - Log warning if status color not recognized (use default)
+    if (!config || !config.milestones || config.milestones.length === 0) {
+        console.warn('initMilestoneChart: No milestones provided in config');
+        return;
+    }
 
-    console.log("TODO: Initialize Chart.js milestone chart", config);
+    if (!config.containerId) {
+        console.error('initMilestoneChart: containerId not provided in config');
+        return;
+    }
+
+    // Destroy existing chart instance to prevent memory leaks
+    if (window.chartInstance && typeof window.chartInstance.destroy === 'function') {
+        window.chartInstance.destroy();
+        window.chartInstance = null;
+    }
+
+    // Map milestone status to color
+    const getStatusColor = (status) => {
+        const colorMap = {
+            'on-track': config.colorScheme?.onTrack || '#28a745',
+            'at-risk': config.colorScheme?.atRisk || '#ffc107',
+            'delayed': config.colorScheme?.delayed || '#dc3545',
+            'completed': config.colorScheme?.completed || '#6c757d'
+        };
+        return colorMap[status] || '#6c757d';
+    };
+
+    // Extract and map milestone data to Chart.js datasets
+    const datasets = [{
+        label: 'Progress (%)',
+        data: config.milestones.map(m => m.progress || 0),
+        backgroundColor: config.milestones.map(m => getStatusColor(m.status)),
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+        borderWidth: 1,
+        borderRadius: 4
+    }];
+
+    // Create chart data object
+    const chartData = {
+        labels: config.milestones.map(m => m.name || 'Untitled'),
+        datasets: datasets
+    };
+
+    // Chart.js configuration for horizontal bar chart
+    const chartConfig = {
+        type: 'bar',
+        data: chartData,
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 8,
+                    titleFont: {
+                        size: 12
+                    },
+                    bodyFont: {
+                        size: 11
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            const milestone = config.milestones[context.dataIndex];
+                            const status = milestone.status || 'unknown';
+                            const targetDate = milestone.targetDate || 'N/A';
+                            return [
+                                `Progress: ${context.parsed.x}%`,
+                                `Status: ${status}`,
+                                `Target: ${targetDate}`
+                            ];
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    },
+                    grid: {
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    };
+
+    try {
+        // Get canvas context and initialize Chart.js
+        const canvas = document.getElementById(config.containerId);
+        if (!canvas) {
+            console.error(`initMilestoneChart: Canvas element with id "${config.containerId}" not found`);
+            return;
+        }
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            console.error('initMilestoneChart: Failed to get canvas 2D context');
+            return;
+        }
+
+        // Create and store chart instance globally to prevent memory leaks
+        window.chartInstance = new Chart(ctx, chartConfig);
+        console.info(`Chart initialized successfully with ${config.milestones.length} milestones`);
+    } catch (error) {
+        console.error(`initMilestoneChart: Failed to initialize Chart.js: ${error.message}`);
+    }
 };
