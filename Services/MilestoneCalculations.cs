@@ -4,9 +4,15 @@ namespace AgentSquad.Runner.Services
 {
     /// <summary>
     /// Utility class for calculating milestone view model properties.
+    /// Handles date calculations, status determination, and CSS class assignment.
     /// </summary>
     public static class MilestoneCalculations
     {
+        /// <summary>
+        /// Threshold in days for marking a milestone as "At Risk" when overdue.
+        /// </summary>
+        private const int OverdueThresholdDays = 3;
+
         /// <summary>
         /// Calculates milestone view model with derived properties from a milestone entity.
         /// </summary>
@@ -18,6 +24,9 @@ namespace AgentSquad.Runner.Services
         {
             if (milestone == null)
                 throw new ArgumentNullException(nameof(milestone), "Milestone cannot be null.");
+
+            if (milestone.Date == default(DateTime))
+                throw new ArgumentException("Milestone date cannot be empty or default.", nameof(milestone));
 
             var now = DateTime.UtcNow;
             var daysRemaining = (milestone.Date - now).TotalDays;
@@ -45,12 +54,13 @@ namespace AgentSquad.Runner.Services
         /// Milestones >= 3 days overdue are labeled "At Risk" regardless of Status enum.
         /// </summary>
         /// <param name="status">Milestone status enum value.</param>
-        /// <param name="isOverdue">Whether the milestone is overdue.</param>
+        /// <param name="isOverdue">Whether the milestone is overdue (Date < now).</param>
         /// <param name="daysRemaining">Days remaining (negative if overdue).</param>
-        /// <returns>Display label string.</returns>
+        /// <returns>Display label string: "Completed", "In Progress", "Planned", or "At Risk".</returns>
         private static string DetermineStatusLabel(MilestoneStatus status, bool isOverdue, double daysRemaining)
         {
-            if (isOverdue && daysRemaining <= -3)
+            // Milestones >= 3 days overdue are "At Risk" regardless of actual status
+            if (isOverdue && daysRemaining <= -OverdueThresholdDays)
                 return "At Risk";
 
             return status switch
@@ -68,14 +78,16 @@ namespace AgentSquad.Runner.Services
         /// Green (badge-success) = Completed
         /// Yellow (badge-warning) = In Progress
         /// Red (badge-danger) = At Risk or >= 3 days overdue
+        /// Gray (badge-secondary) = Planned
         /// </summary>
         /// <param name="status">Milestone status enum value.</param>
-        /// <param name="isOverdue">Whether the milestone is overdue.</param>
+        /// <param name="isOverdue">Whether the milestone is overdue (Date < now).</param>
         /// <param name="daysRemaining">Days remaining (negative if overdue).</param>
         /// <returns>CSS class string for badge styling.</returns>
         private static string DetermineCssClasses(MilestoneStatus status, bool isOverdue, double daysRemaining)
         {
-            if (isOverdue && daysRemaining <= -3)
+            // Milestones >= 3 days overdue render as danger (red) regardless of actual status
+            if (isOverdue && daysRemaining <= -OverdueThresholdDays)
                 return "badge badge-danger";
 
             return status switch
