@@ -28,6 +28,7 @@ namespace AgentSquad.Runner.Services
 
         /// <summary>
         /// Loads and deserializes the data.json file into a ProjectReport object.
+        /// Resolves the data file path in precedence order: parameter > configured path > default "./data.json".
         /// </summary>
         /// <param name="dataPath">Optional file path; if not provided, uses configured path or default "./data.json".</param>
         /// <returns>Deserialized ProjectReport object.</returns>
@@ -36,6 +37,23 @@ namespace AgentSquad.Runner.Services
         /// <exception cref="IOException">Thrown if the file cannot be read due to access denied or file lock.</exception>
         public async Task<ProjectReport> LoadAsync(string dataPath = null)
         {
+            // Resolve dataPath precedence: parameter > config > default
+            if (string.IsNullOrEmpty(dataPath))
+            {
+                dataPath = GetConfiguredDataPath();
+            }
+
+            // Log the data path being loaded
+            _logger.LogInformation($"Loading data from: {dataPath}");
+
+            // Validate file exists
+            if (!File.Exists(dataPath))
+            {
+                _logger.LogError($"Data file not found: {dataPath}");
+                throw new FileNotFoundException($"Data file not found at {dataPath}");
+            }
+
+            // Implementation continues in next step
             throw new NotImplementedException();
         }
 
