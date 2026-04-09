@@ -1,0 +1,239 @@
+@page "/"
+@using AgentSquad.Runner.Interfaces
+@using AgentSquad.Runner.Models
+@using Microsoft.Extensions.Logging
+
+@inject IDataLoaderService DataLoaderService
+@inject IDataWatcherService DataWatcherService
+@inject IDataValidator DataValidator
+@inject ILogger<Index> Logger
+
+<div class="dashboard-container">
+    @if (isLoading)
+    {
+        <div class="loading-spinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading dashboard data...</span>
+            </div>
+        </div>
+    }
+    else if (validationResult?.IsValid == false && validationResult.Errors?.Count > 0)
+    {
+        <div class="error-banner">
+            <h4>⚠️ Data Validation Error</h4>
+            <p>The dashboard could not load due to the following errors:</p>
+            <ul>
+                @foreach (var error in validationResult.Errors)
+                {
+                    <li><strong>@error.Field:</strong> @error.Message</li>
+                }
+            </ul>
+            <p style="margin-top: 1rem; font-size: 0.875rem;">
+                Please fix the errors in <code>data.json</code> and save the file. The dashboard will refresh automatically.
+            </p>
+        </div>
+    }
+    else if (currentReport != null)
+    {
+        <ProjectMetadata 
+            ProjectName="@currentReport.ProjectName" 
+            ReportingPeriod="@currentReport.ReportingPeriod" 
+            Kpis="@currentReport.Kpis" />
+
+        <div class="timeline-section">
+            <h5>Project Timeline</h5>
+            <MilestoneTimeline 
+                Milestones="@currentReport.Milestones" />
+        </div>
+
+        <div class="status-section">
+            <h5>Delivery Status</h5>
+            <StatusSnapshot 
+                CurrentStatus="@currentReport.StatusSnapshot" />
+        </div>
+
+        <div class="refresh-indicator">
+            @if (!string.IsNullOrEmpty(dataWatcherService?.LastRefreshTimeFormatted))
+            {
+                <small>Last updated: <span class="refresh-timestamp">@dataWatcherService.LastRefreshTimeFormatted</span></small>
+            }
+            else
+            {
+                <small class="text-muted">Data loaded at startup</small>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <h4>Dashboard Initializing</h4>
+            <p>Please wait while the dashboard loads data...</p>
+        </div>
+    }
+</div>
+
+@code {
+    private ProjectReport currentReport;
+    private ValidationResult validationResult = new();
+    private bool isLoading = true;
+    private IDataWatcherService dataWatcherService;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            dataWatcherService = DataWatcherService;
+
+            // TODO: Implement data loading and watcher subscription:
+            // 1. Load initial project data from data.json via DataLoaderService.LoadAsync()
+            // 2. Validate loaded data via DataValidator.Validate()
+            // 3. Subscribe to DataWatcherService.OnDataChanged event
+            // 4. Start file monitoring via DataWatcherService.Start()
+            // 5. Handle refresh events by reloading and re-validating data
+            // 6. Update component state variables (currentReport, validationResult, isLoading)
+            // 7. Call StateHasChanged() to trigger re-render
+            //
+            // For now, this scaffold displays placeholder UI only.
+            // Implementation in next phase will:
+            // - Catch FileNotFoundException if data.json not found
+            // - Catch JsonException if JSON is malformed
+            // - Display error banner with user-friendly guidance
+            // - Keep last-known-good data in memory during file access errors
+            // - Log all operations to browser console at INFO level
+
+            Logger.LogInformation("Index.razor component initialized (scaffold phase)");
+            
+            // Placeholder: Set isLoading to false to show placeholder UI
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Failed to initialize dashboard: {ex.Message}");
+            isLoading = false;
+            validationResult = new ValidationResult
+            {
+                IsValid = false,
+                Errors = new()
+                {
+                    new ValidationError
+                    {
+                        Field = "initialization",
+                        Message = $"Failed to load dashboard: {ex.Message}"
+                    }
+                }
+            };
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // TODO: Implement chart initialization on first render
+        // When MilestoneTimeline child component renders, it will:
+        // - Call IJSRuntime.InvokeAsync("initMilestoneChart", config)
+        // - JavaScript will initialize Chart.js with milestone data
+        // - Color-code by status (green/yellow/red/gray)
+        // - Ensure responsive layout for 1080p and 1440p
+        
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task HandleDataChanged()
+    {
+        // TODO: Implement file watcher event handler
+        // Called when DataWatcherService detects data.json change after debounce period
+        // Steps:
+        // 1. Set isLoading = true to show spinner
+        // 2. Reload JSON via DataLoaderService.LoadAsync()
+        // 3. Validate via DataValidator.Validate()
+        // 4. Update currentReport and validationResult state
+        // 5. Update lastRefreshTime from DataWatcherService.LastRefreshTime
+        // 6. Call StateHasChanged() to trigger re-render
+        // 7. Set isLoading = false
+        
+        Logger.LogInformation("Data changed event triggered (placeholder)");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // TODO: Implement cleanup on component destroy
+        // - Unsubscribe from DataWatcherService.OnDataChanged event
+        // - Call DataWatcherService.Stop() to halt file monitoring
+        // - Dispose of FileSystemWatcher resources
+        
+        try
+        {
+            if (dataWatcherService != null)
+            {
+                dataWatcherService.Stop();
+                if (dataWatcherService is IAsyncDisposable asyncDisposable)
+                {
+                    await asyncDisposable.DisposeAsync();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning($"Error during watcher cleanup: {ex.Message}");
+        }
+    }
+}
+
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .timeline-section,
+    .status-section {
+        margin-top: 2rem;
+        page-break-inside: avoid;
+    }
+
+    .timeline-section h5,
+    .status-section h5 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1.5rem;
+    }
+
+    .refresh-indicator {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #dee2e6;
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 6px;
+        margin: 2rem 0;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #664d03;
+    }
+
+    .alert h4 {
+        margin: 0 0 0.5rem 0;
+        color: #664d03;
+    }
+
+    .alert p {
+        margin: 0;
+    }
+</style>
