@@ -1,150 +1,60 @@
-:root {
-    --primary-color: #0d6efd;
-    --success-color: #198754;
-    --info-color: #0dcaf0;
-    --warning-color: #ffc107;
-    --danger-color: #dc3545;
-}
-
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 14pt;
-    line-height: 1.5;
-    background-color: #f8f9fa;
-}
-
-.dashboard {
-    background-color: white;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.section-milestone,
-.section-status,
-.section-metrics {
-    margin-bottom: 2rem;
-}
-
-h1, h2 {
-    color: #333;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-}
-
-h5 {
-    color: #555;
-    font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 12pt;
 }
 
 .timeline-container {
-    overflow-x: auto;
-}
-
-.timeline {
     display: flex;
-    gap: 2rem;
-    padding: 1rem 0;
+    flex-direction: row;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 20px 0;
 }
 
 .timeline-item {
-    flex: 1;
+    display: flex;
+    gap: 15px;
     min-width: 250px;
-    padding: 1.5rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-}
-
-.timeline-item[data-status="Completed"] {
-    background-color: #e8f5e9;
-    border-color: #4caf50;
-}
-
-.timeline-item[data-status="InProgress"] {
-    background-color: #e3f2fd;
-    border-color: #2196f3;
-}
-
-.timeline-item[data-status="Pending"] {
-    background-color: #f5f5f5;
-    border-color: #999;
 }
 
 .timeline-marker {
-    margin-bottom: 1rem;
-}
-
-.timeline-content h5 {
-    margin-top: 0;
-}
-
-.status-card {
-    margin-bottom: 1rem;
-}
-
-.status-card .card-header {
-    padding: 1rem;
-}
-
-.task-count {
-    font-size: 24pt;
-    font-weight: bold;
-    color: white;
-    margin-top: 0.5rem;
-}
-
-.status-card .list-group-item {
-    padding: 1rem;
-}
-
-.metrics-container {
-    padding: 2rem;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-}
-
-.completion-percentage {
-    font-size: 48pt;
-    font-weight: bold;
-    color: var(--success-color);
-}
-
-.large-percentage {
-    display: block;
-    line-height: 1;
-}
-
-.progress {
-    background-color: #e9ecef;
-}
-
-.progress-bar {
-    font-weight: 600;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
+    font-weight: bold;
+    font-size: 24px;
+    flex-shrink: 0;
 }
 
-.error-boundary {
-    margin: 1rem 0;
+.timeline-marker.completed {
+    background-color: #28a745;
 }
 
-@media (max-width: 768px) {
-    .dashboard {
-        padding: 1rem;
-    }
+.timeline-marker.in-progress {
+    background-color: #0056b3;
+}
 
-    .timeline {
-        flex-direction: column;
-    }
+.timeline-marker.pending {
+    background-color: #6c757d;
+}
 
-    .timeline-item {
-        min-width: 100%;
-    }
+.task-icon {
+    margin-right: 8px;
+    font-weight: bold;
+}
 
-    .completion-percentage {
-        font-size: 32pt;
-    }
+.progress-display {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.metrics-summary {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
 }

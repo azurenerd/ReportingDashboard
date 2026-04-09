@@ -1,21 +1,27 @@
 @using AgentSquad.Dashboard.Models
 
-<div class="metrics-container">
+<div class="progress-section mb-5">
+    <h2 class="mb-4">Project Progress</h2>
     <div class="row">
-        <div class="col-md-8">
-            <h4>Project Completion</h4>
-            <div class="progress" style="height: 30px;">
-                <div class="progress-bar bg-success" role="progressbar" 
-                     style="width: @(CompletionPercentage)%"
-                     aria-valuenow="@CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+        <div class="col-md-6">
+            <div class="progress-display">
+                <div class="completion-percentage display-3 text-center fw-bold mb-3">
                     @CompletionPercentage%
                 </div>
+                <div class="progress" style="height: 30px;">
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: @CompletionPercentage%"
+                         aria-valuenow="@CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                        @CompletedTasks / @TotalTasks Tasks
+                    </div>
+                </div>
             </div>
-            <p class="mt-2 text-muted">@CompletedTasks of @TotalTasks tasks completed</p>
         </div>
-        <div class="col-md-4 text-center">
-            <div class="completion-percentage">
-                <span class="large-percentage">@CompletionPercentage%</span>
+        <div class="col-md-6">
+            <div class="metrics-summary">
+                <p class="fs-5"><strong>Completed:</strong> @CompletedTasks tasks</p>
+                <p class="fs-5"><strong>Total:</strong> @TotalTasks tasks</p>
+                <p class="fs-5"><strong>Burn Rate:</strong> @BurndownRate.ToString("F2") tasks/day</p>
             </div>
         </div>
     </div>
@@ -30,4 +36,7 @@
 
     [Parameter]
     public int CompletedTasks { get; set; }
+
+    [Parameter]
+    public double BurndownRate { get; set; }
 }

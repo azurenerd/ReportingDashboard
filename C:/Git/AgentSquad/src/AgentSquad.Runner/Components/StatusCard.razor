@@ -1,29 +1,27 @@
 @using AgentSquad.Dashboard.Models
 
-<div class="card status-card border-@CardColor">
-    <div class="card-header bg-@CardColor text-white">
-        <h5 class="mb-0">@StatusCategory</h5>
-        <div class="task-count">@TaskCount</div>
-    </div>
+<div class="card @CardColor text-white h-100">
     <div class="card-body">
-        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#tasks-@StatusCategory">
-            View Tasks (@Tasks.Count)
+        <h3 class="card-title mb-2">@StatusCategory</h3>
+        <div class="display-4 fw-bold mb-3">@TaskCount</div>
+        
+        <button class="btn btn-outline-light btn-sm" @onclick="ToggleExpanded">
+            @(isExpanded ? "Hide" : "Show") Tasks
         </button>
-        <div class="collapse mt-3" id="tasks-@StatusCategory">
-            <ul class="list-group list-group-flush">
-                @foreach (var task in Tasks ?? new())
+        
+        @if (isExpanded && Tasks != null)
+        {
+            <ul class="list-unstyled mt-3">
+                @foreach (var task in Tasks)
                 {
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <span>
-                                <i class="bi bi-check-circle"></i> @task.Name
-                            </span>
-                            <small class="text-muted">@task.AssignedTo</small>
-                        </div>
+                    <li class="mb-2">
+                        <span class="task-icon">@(StatusCategory == "Shipped" ? "✓" : "→")</span>
+                        <span>@task.Name</span>
+                        <small class="d-block text-opacity-75">@task.AssignedTo</small>
                     </li>
                 }
             </ul>
-        </div>
+        }
     </div>
 </div>
 
@@ -35,8 +33,15 @@
     public int TaskCount { get; set; }
 
     [Parameter]
-    public List<Task> Tasks { get; set; }
+    public List<AgentSquad.Dashboard.Models.Task> Tasks { get; set; }
 
     [Parameter]
-    public string CardColor { get; set; }
+    public string CardColor { get; set; } = "bg-primary";
+
+    private bool isExpanded = false;
+
+    private void ToggleExpanded()
+    {
+        isExpanded = !isExpanded;
+    }
 }
