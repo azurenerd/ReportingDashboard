@@ -1,0 +1,43 @@
+<div class="progress-metrics">
+    <h2 class="metrics-title">Project Progress</h2>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Completion Status</h5>
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: @CompletionPercentage%;" aria-valuenow="@CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
+                            <span style="font-size: 16px; font-weight: bold;">@CompletionPercentage%</span>
+                        </div>
+                    </div>
+                    <p class="mt-3 text-muted">@CompletedTasks of @TotalTasks tasks completed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Burn-down Rate</h5>
+                    <div class="metric-display">
+                        <span class="metric-value">@BurndownRate.ToString("F1")</span>
+                        <span class="metric-label">tasks/day</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int CompletionPercentage { get; set; }
+
+    [Parameter]
+    public int TotalTasks { get; set; }
+
+    [Parameter]
+    public int CompletedTasks { get; set; }
+
+    [Parameter]
+    public double BurndownRate { get; set; }
+}

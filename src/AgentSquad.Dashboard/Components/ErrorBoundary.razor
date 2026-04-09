@@ -1,0 +1,22 @@
+@using Microsoft.AspNetCore.Components
+
+<ErrorBoundary @ref="errorBoundary">
+    <ChildContent>
+        @ChildContent
+    </ChildContent>
+    <ErrorContent Context="ex">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading">Component Error</h4>
+            <p>An error occurred while rendering the dashboard component.</p>
+            <p class="text-muted small">@ex?.Message</p>
+            <button type="button" class="btn-close" @onclick="() => errorBoundary?.Recover()"></button>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private ErrorBoundary? errorBoundary;
+}
