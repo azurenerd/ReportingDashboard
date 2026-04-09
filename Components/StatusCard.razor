@@ -1,52 +1,53 @@
 @using AgentSquad.Dashboard.Models
 
-<div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px; border-top: 4px solid @CardColor;">
-    <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #333;">@StatusCategory</h3>
-    <div style="font-size: 32px; font-weight: bold; color: @CardColor; margin: 16px 0;">@TaskCount</div>
-    
-    @if (Tasks == null || Tasks.Count == 0)
-    {
-        <div style="min-height: 60px; display: flex; align-items: center; justify-content: center; color: #999; border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
-            <p style="margin: 0; font-size: 12px;">No tasks in this category</p>
+<div class="card border-left-@CardColor mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0" style="font-size: 13pt;">@StatusCategory</h5>
+            <span class="badge badge-@CardColor" style="font-size: 12pt; padding: 8px 12px;">@TaskCount</span>
         </div>
-    }
-    else
-    {
-        <div style="border-top: 1px solid #e0e0e0; padding-top: 12px; margin-top: 12px;">
-            @foreach (var task in Tasks.Take(5))
-            {
-                <div style="padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px;">
-                    <div style="display: flex; align-items: flex-start; gap: 8px;">
-                        <svg style="width: 16px; height: 16px; margin-top: 2px; color: @CardColor; flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                        </svg>
-                        <div style="flex: 1;">
-                            <p style="margin: 0 0 2px 0; color: #333; font-weight: 500;">@task.Name</p>
-                            <p style="margin: 0; color: #999; font-size: 12px;">Owner: @task.Owner</p>
+
+        @if (Tasks == null || Tasks.Count == 0)
+        {
+            <p class="text-muted" style="font-size: 12pt;">No tasks in this category.</p>
+        }
+        else
+        {
+            <div class="task-list">
+                @foreach (var task in Tasks)
+                {
+                    <div class="task-item d-flex align-items-start mb-2">
+                        <i class="bi bi-check-circle-fill text-@CardColor me-2 mt-1"></i>
+                        <div class="flex-grow-1">
+                            <p class="mb-1" style="font-size: 12pt;"><strong>@task.Name</strong></p>
+                            <small class="text-muted" style="font-size: 11pt;">
+                                @if (!string.IsNullOrEmpty(task.AssignedTo))
+                                {
+                                    <span>Assigned to: @task.AssignedTo</span>
+                                }
+                                @if (task.DueDate != default)
+                                {
+                                    <span> | Due: @task.DueDate.ToString("MMM dd, yyyy")</span>
+                                }
+                            </small>
                         </div>
                     </div>
-                </div>
-            }
-            @if (Tasks.Count > 5)
-            {
-                <div style="padding: 8px 0; text-align: center; color: #0066cc; font-size: 12px; font-weight: 500;">
-                    +@(Tasks.Count - 5) more
-                </div>
-            }
-        </div>
-    }
+                }
+            </div>
+        }
+    </div>
 </div>
 
 @code {
     [Parameter]
-    public string StatusCategory { get; set; }
+    public string StatusCategory { get; set; } = string.Empty;
 
     [Parameter]
     public int TaskCount { get; set; }
 
     [Parameter]
-    public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
+    public List<Task>? Tasks { get; set; }
 
     [Parameter]
-    public string CardColor { get; set; } = "#cccccc";
+    public string CardColor { get; set; } = "primary";
 }

@@ -1,93 +1,123 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
-namespace AgentSquad.Dashboard.Models
+namespace AgentSquad.Dashboard.Models;
+
+public class ProjectData
 {
-    public class ProjectData
-    {
-        [Required(ErrorMessage = "Project name is required")]
-        public string ProjectName { get; set; }
+    [JsonPropertyName("project")]
+    public ProjectInfo Project { get; set; } = null!;
 
-        [Required(ErrorMessage = "Sponsor is required")]
-        public string Sponsor { get; set; }
+    [JsonPropertyName("milestones")]
+    public List<Milestone> Milestones { get; set; } = new();
 
-        [Required(ErrorMessage = "Project manager is required")]
-        public string ProjectManager { get; set; }
+    [JsonPropertyName("tasks")]
+    public List<Task> Tasks { get; set; } = new();
 
-        public DateTime ProjectStartDate { get; set; }
-        public DateTime ProjectEndDate { get; set; }
+    [JsonPropertyName("metrics")]
+    public ProjectMetrics Metrics { get; set; } = null!;
+}
 
-        [Required(ErrorMessage = "Project status is required")]
-        public string Status { get; set; }
+public class ProjectInfo
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Milestones list is required")]
-        public List<Milestone> Milestones { get; set; } = new List<Milestone>();
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Tasks list is required")]
-        public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
+    [JsonPropertyName("startDate")]
+    public DateTime StartDate { get; set; }
 
-        [Required(ErrorMessage = "Metrics are required")]
-        public ProjectMetrics Metrics { get; set; }
-    }
+    [JsonPropertyName("endDate")]
+    public DateTime EndDate { get; set; }
 
-    public enum MilestoneStatus
-    {
-        Completed,
-        InProgress,
-        Pending
-    }
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = string.Empty;
 
-    public class Milestone
-    {
-        [Required(ErrorMessage = "Milestone name is required")]
-        public string Name { get; set; }
+    [JsonPropertyName("sponsor")]
+    public string Sponsor { get; set; } = string.Empty;
 
-        public DateTime TargetDate { get; set; }
+    [JsonPropertyName("projectManager")]
+    public string ProjectManager { get; set; } = string.Empty;
+}
 
-        [Required(ErrorMessage = "Milestone status is required")]
-        public MilestoneStatus Status { get; set; }
+public class Milestone
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
 
-        [Range(0, 100, ErrorMessage = "Completion percentage must be between 0 and 100")]
-        public int CompletionPercentage { get; set; }
-    }
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
 
-    public enum TaskStatus
-    {
-        Shipped,
-        InProgress,
-        CarriedOver
-    }
+    [JsonPropertyName("targetDate")]
+    public DateTime TargetDate { get; set; }
 
-    public class ProjectTask
-    {
-        public int Id { get; set; }
+    [JsonPropertyName("actualDate")]
+    public DateTime? ActualDate { get; set; }
 
-        [Required(ErrorMessage = "Task name is required")]
-        public string Name { get; set; }
+    [JsonPropertyName("status")]
+    public MilestoneStatus Status { get; set; }
 
-        [Required(ErrorMessage = "Task status is required")]
-        public TaskStatus Status { get; set; }
+    [JsonPropertyName("completionPercentage")]
+    public int CompletionPercentage { get; set; }
+}
 
-        [Required(ErrorMessage = "Task owner is required")]
-        public string Owner { get; set; }
-    }
+public enum MilestoneStatus
+{
+    Completed = 0,
+    InProgress = 1,
+    Pending = 2
+}
 
-    public class ProjectMetrics
-    {
-        [Range(0, 100, ErrorMessage = "Completion percentage must be between 0 and 100")]
-        public int CompletionPercentage { get; set; }
+public class Task
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
 
-        [Range(0, int.MaxValue, ErrorMessage = "Total tasks must be non-negative")]
-        public int TotalTasks { get; set; }
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
 
-        [Range(0, int.MaxValue, ErrorMessage = "Completed tasks must be non-negative")]
-        public int TasksCompleted { get; set; }
+    [JsonPropertyName("status")]
+    public TaskStatus Status { get; set; }
 
-        [Range(0, int.MaxValue, ErrorMessage = "In-progress tasks must be non-negative")]
-        public int TasksInProgress { get; set; }
+    [JsonPropertyName("assignedTo")]
+    public string AssignedTo { get; set; } = string.Empty;
 
-        [Range(0, int.MaxValue, ErrorMessage = "Carried-over tasks must be non-negative")]
-        public int TasksCarriedOver { get; set; }
-    }
+    [JsonPropertyName("dueDate")]
+    public DateTime DueDate { get; set; }
+
+    [JsonPropertyName("estimatedDays")]
+    public int EstimatedDays { get; set; }
+
+    [JsonPropertyName("relatedMilestone")]
+    public string RelatedMilestone { get; set; } = string.Empty;
+}
+
+public enum TaskStatus
+{
+    Shipped = 0,
+    InProgress = 1,
+    CarriedOver = 2
+}
+
+public class ProjectMetrics
+{
+    [JsonPropertyName("totalTasks")]
+    public int TotalTasks { get; set; }
+
+    [JsonPropertyName("completedTasks")]
+    public int CompletedTasks { get; set; }
+
+    [JsonPropertyName("inProgressTasks")]
+    public int InProgressTasks { get; set; }
+
+    [JsonPropertyName("carriedOverTasks")]
+    public int CarriedOverTasks { get; set; }
+
+    [JsonPropertyName("estimatedBurndownRate")]
+    public double EstimatedBurndownRate { get; set; }
+
+    public int CompletionPercentage => TotalTasks > 0 
+        ? (int)((CompletedTasks / (double)TotalTasks) * 100) 
+        : 0;
 }
