@@ -12,7 +12,7 @@
     }
     else
     {
-        <div class="table-responsive">
+        <div class="table-responsive carryover-table-wrapper">
             <table class="table table-hover carryover-table">
                 <thead class="table-light">
                     <tr>
@@ -67,6 +67,10 @@
 <style>
     .carryover-indicator-container {
         padding: 1rem;
+    }
+
+    .carryover-table-wrapper {
+        max-width: 100%;
     }
 
     .milestone-summary {
@@ -124,12 +128,25 @@
     }
 
     @media (max-width: 768px) {
-        table {
+        .carryover-indicator-container {
+            padding: 0.5rem;
+        }
+
+        .carryover-table {
             font-size: 0.875rem;
+        }
+
+        .carryover-table thead th:nth-child(3) {
+            display: none;
+        }
+
+        .carryover-table tbody td:nth-child(3) {
+            display: none;
         }
 
         .table-responsive {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .ms-2 {
@@ -137,23 +154,59 @@
         }
     }
 
+    @media (min-width: 1920px) {
+        .carryover-table-wrapper {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .carryover-table {
+            table-layout: fixed;
+        }
+
+        .carryover-table td {
+            word-break: break-word;
+        }
+    }
+
     @media print {
         .carryover-indicator-container {
             padding: 0;
+            margin: 0;
         }
 
-        table {
-            font-size: 11pt;
+        .carryover-table-wrapper {
+            max-width: 100%;
+            overflow: visible;
+        }
+
+        .carryover-table {
+            font-size: 11pt !important;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .carryover-table thead {
+            display: table-header-group;
+        }
+
+        .carryover-table tbody tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        .carryover-table tbody tr td {
+            padding: 0.75rem !important;
+            border: 1px solid #333;
         }
 
         .milestone-summary {
-            background-color: #ffffff !important;
-            page-break-inside: avoid;
+            background-color: transparent !important;
+            font-weight: bold;
         }
 
-        .carryover-item-row {
-            page-break-inside: avoid;
-            padding: 0.75rem;
+        .milestone-summary:hover {
+            background-color: transparent !important;
         }
 
         .expand-toggle {
@@ -168,12 +221,29 @@
             background-color: transparent !important;
         }
 
+        .row-even,
+        .row-odd {
+            background-color: transparent !important;
+        }
+
+        .text-truncate {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+        }
+
         .badge-overdue,
         .badge-at-risk,
         .badge-on-track {
             background-color: transparent !important;
             color: black !important;
-            border: 1px solid black;
+            border: 1px solid black !important;
+            padding: 2px 4px !important;
+        }
+
+        h3 {
+            page-break-after: avoid;
+            margin-top: 0;
         }
     }
 </style>
