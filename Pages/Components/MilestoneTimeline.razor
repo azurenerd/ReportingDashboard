@@ -2,26 +2,142 @@
 @using AgentSquad.Runner.Services
 
 <div class="milestone-timeline-container">
-    <!-- Component scaffold for milestone timeline rendering -->
     @if (ProcessedMilestones == null)
     {
-        <div class="alert alert-info">
+        <div class="alert alert-info" role="alert">
             Loading milestones...
         </div>
     }
     else if (!ProcessedMilestones.Any())
     {
-        <div class="alert alert-warning">
+        <div class="alert alert-warning" role="alert">
             No milestones available.
         </div>
     }
     else
     {
         <div class="milestone-list">
-            <!-- Milestone items will be rendered here in Step 3 -->
+            @foreach (var milestone in ProcessedMilestones)
+            {
+                <div class="milestone-card card mb-3 border-start border-4" style="border-color: @GetBorderColor(milestone)">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="card-title mb-2">@milestone.Name</h5>
+                                <p class="card-text text-muted mb-0">
+                                    <small>Target: @milestone.Date.ToString("ddd, MMM d, yyyy")</small>
+                                </p>
+                            </div>
+
+                            <div class="col-md-3 text-center">
+                                <span class="@milestone.CssClasses">@milestone.StatusLabel</span>
+                            </div>
+
+                            <div class="col-md-3 text-end">
+                                <div class="days-remaining-counter">
+                                    @if (milestone.IsOverdue)
+                                    {
+                                        <span class="badge badge-danger fs-6">
+                                            @Math.Abs((int)Math.Floor(milestone.DaysRemaining)) days overdue
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-success fs-6">
+                                            @Math.Floor(milestone.DaysRemaining) days remaining
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     }
 </div>
+
+<style>
+    .milestone-timeline-container {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .milestone-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .milestone-card {
+        background-color: #fff;
+        border-radius: 0.375rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: box-shadow 0.2s ease-in-out;
+    }
+
+    .milestone-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .milestone-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .milestone-card .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .days-remaining-counter {
+        display: inline-flex;
+        white-space: nowrap;
+    }
+
+    .days-remaining-counter .badge {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 768px) {
+        .milestone-card .row {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+
+        .milestone-card .col-md-3,
+        .milestone-card .col-md-6 {
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+
+        .milestone-card .col-md-3.text-end {
+            text-align: left !important;
+        }
+
+        .milestone-card .card-title {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    /* Ensure no horizontal scrolling at 1920px */
+    @media (min-width: 1920px) {
+        .milestone-timeline-container {
+            max-width: 100%;
+        }
+
+        .milestone-card {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .milestone-card .card-title {
+            word-break: break-word;
+        }
+    }
+</style>
 
 @code {
     /// <summary>
@@ -40,15 +156,20 @@
     /// </summary>
     private Dictionary<string, bool> ExpandedStates { get; set; } = new();
 
+    /// <summary>
+    /// Initializes component: sorts milestones chronologically and transforms to view models.
+    /// </summary>
     protected override void OnInitialized()
     {
         if (Milestones != null && Milestones.Any())
         {
+            // Transform milestones to view models and sort chronologically (earliest to latest)
             ProcessedMilestones = Milestones
                 .Select(m => MilestoneCalculations.CalculateMilestoneViewModel(m))
                 .OrderBy(vm => vm.Date)
                 .ToList();
 
+            // Initialize expanded state tracking
             foreach (var milestone in ProcessedMilestones)
             {
                 ExpandedStates[milestone.Id] = false;
@@ -58,6 +179,24 @@
         {
             ProcessedMilestones = new List<MilestoneViewModel>();
         }
+    }
+
+    /// <summary>
+    /// Determines border color for milestone card based on status.
+    /// Green (success) for completed, yellow (warning) for in progress,
+    /// red (danger) for at risk, gray (secondary) for planned.
+    /// </summary>
+    /// <param name="milestone">The milestone view model.</param>
+    /// <returns>Hex color code for the border.</returns>
+    private string GetBorderColor(MilestoneViewModel milestone)
+    {
+        return milestone.CssClasses switch
+        {
+            string css when css.Contains("badge-success") => "#198754",   // Bootstrap success green
+            string css when css.Contains("badge-warning") => "#ffc107",   // Bootstrap warning yellow
+            string css when css.Contains("badge-danger") => "#dc3545",    // Bootstrap danger red
+            _ => "#6c757d"                                                // Bootstrap secondary gray
+        };
     }
 
     /// <summary>
