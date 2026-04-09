@@ -41,11 +41,21 @@ namespace AgentSquad.Runner.Services
 
         /// <summary>
         /// Gets the configured data file path from appsettings.json or returns the default.
+        /// Resolves configuration via IConfiguration["AppSettings:DataPath"] and logs the result.
         /// </summary>
         /// <returns>The data file path (from configuration or default "./data.json").</returns>
         public string GetConfiguredDataPath()
         {
-            throw new NotImplementedException();
+            var configuredPath = _configuration["AppSettings:DataPath"];
+
+            if (string.IsNullOrEmpty(configuredPath))
+            {
+                configuredPath = "./data.json";
+            }
+
+            _logger.LogInformation($"Configured data path: {configuredPath}");
+
+            return configuredPath;
         }
     }
 }
