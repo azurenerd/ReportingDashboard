@@ -8,4 +8,22 @@
 @code {
     [Parameter]
     public Task Task { get; set; } = null!;
+
+    private string GetCardClasses(TaskStatus status) =>
+        status switch
+        {
+            TaskStatus.Shipped => "bg-green-50 border-l-4 border-solid border-green-500 text-green-900",
+            TaskStatus.InProgress => "bg-blue-50 border-l-4 border-solid border-blue-500 text-blue-900 font-semibold",
+            TaskStatus.CarriedOver => "bg-amber-50 border-l-4 border-dashed border-amber-400 text-amber-900",
+            _ => string.Empty
+        };
+
+    private string GetBadge(TaskStatus status) =>
+        status switch
+        {
+            TaskStatus.Shipped => "✓",
+            TaskStatus.InProgress => "?",
+            TaskStatus.CarriedOver => "?",
+            _ => string.Empty
+        };
 }
