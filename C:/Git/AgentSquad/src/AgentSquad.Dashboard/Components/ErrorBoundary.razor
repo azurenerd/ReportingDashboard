@@ -1,15 +1,16 @@
-@implements IAsyncDisposable
-@using Microsoft.AspNetCore.Components
+@namespace AgentSquad.Dashboard.Components
 
 <ErrorBoundary @ref="_errorBoundary">
-    @ChildContent
+    <ChildContent>
+        @ChildContent
+    </ChildContent>
     <ErrorContent>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <h4 class="alert-heading">Error rendering component</h4>
-            <p>An unexpected error occurred while rendering this page.</p>
-            <hr>
-            <button type="button" class="btn btn-sm btn-outline-danger" @onclick="RetryRender">Retry</button>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <strong>An error occurred:</strong>
+            <p class="mb-0">@context.Message</p>
+            <button type="button" class="btn btn-sm btn-outline-danger mt-3" @onclick="Recover">
+                Try Again
+            </button>
         </div>
     </ErrorContent>
 </ErrorBoundary>
@@ -18,18 +19,10 @@
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    private Microsoft.AspNetCore.Components.ErrorBoundary? _errorBoundary;
+    private ErrorBoundary? _errorBoundary;
 
-    private async Task RetryRender()
+    private async Task Recover()
     {
-        _errorBoundary?.Recover();
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        if (_errorBoundary is IAsyncDisposable asyncDisposable)
-        {
-            await asyncDisposable.DisposeAsync();
-        }
+        await _errorBoundary!.RecoverAsync();
     }
 }
