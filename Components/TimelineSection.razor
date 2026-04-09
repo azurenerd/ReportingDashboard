@@ -1,0 +1,33 @@
+@inherits ComponentBase
+@using System.Collections.Generic
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Utils
+
+<div class="flex flex-col gap-6 mb-8 overflow-x-hidden">
+    <h2 class="text-lg font-bold text-gray-900">Milestones</h2>
+    
+    @if (Milestones == null || Milestones.Count == 0)
+    {
+        <p class="text-sm text-gray-600">No milestones to display</p>
+    }
+    else
+    {
+        @foreach (var milestone in Milestones)
+        {
+            <div class="relative max-w-full">
+                <div class="h-3 bg-gradient-to-r from-blue-400 to-blue-600 rounded-sm border border-gray-300" style="width: @(milestone.CompletionPercent > 0 ? $"{milestone.CompletionPercent}%" : "100%")"></div>
+                <p class="font-semibold text-gray-900 mt-1 text-base">@milestone.Title</p>
+                <p class="text-sm text-gray-700 mt-0.5">@DateFormatter.ToMilestoneFormat(milestone.DueDate)</p>
+                @if (milestone.CompletionPercent > 0)
+                {
+                    <span class="text-xs text-gray-600">(@milestone.CompletionPercent%)</span>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<Milestone> Milestones { get; set; } = new();
+}
