@@ -1,60 +1,143 @@
-using System;
-using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
-namespace AgentSquad.Runner.Data;
-
-public class ProjectData
+namespace AgentSquad.Runner.Data
 {
-    public ProjectInfo? Project { get; set; }
-    public List<Milestone> Milestones { get; set; } = new();
-    public List<Task> Tasks { get; set; } = new();
-    public ProjectMetrics? Summary { get; set; }
-}
+    public class ProjectData
+    {
+        [JsonPropertyName("project")]
+        public ProjectInfo Project { get; set; }
 
-public class ProjectInfo
-{
-    public string? Name { get; set; }
-    public string? Description { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-}
+        [JsonPropertyName("milestones")]
+        public List<Milestone> Milestones { get; set; } = new List<Milestone>();
 
-public class Milestone
-{
-    public string? Id { get; set; }
-    public string? Name { get; set; }
-    public DateTime TargetDate { get; set; }
-    public MilestoneStatus Status { get; set; }
-    public int CompletionPercentage { get; set; }
-}
+        [JsonPropertyName("tasks")]
+        public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
 
-public class Task
-{
-    public string? Id { get; set; }
-    public string? Name { get; set; }
-    public string? Owner { get; set; }
-    public TaskStatus Status { get; set; }
-    public DateTime DueDate { get; set; }
-}
+        [JsonPropertyName("metrics")]
+        public ProjectMetrics Metrics { get; set; }
+    }
 
-public class ProjectMetrics
-{
-    public int CompletionPercentage { get; set; }
-    public int TasksShipped { get; set; }
-    public int TasksInProgress { get; set; }
-    public int TasksCarriedOver { get; set; }
-}
+    public class ProjectInfo
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
 
-public enum MilestoneStatus
-{
-    Pending = 0,
-    InProgress = 1,
-    Completed = 2
-}
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
 
-public enum TaskStatus
-{
-    Shipped,
-    InProgress,
-    CarriedOver
+        [JsonPropertyName("startDate")]
+        public DateTime StartDate { get; set; }
+
+        [JsonPropertyName("endDate")]
+        public DateTime EndDate { get; set; }
+
+        [JsonPropertyName("status")]
+        public string Status { get; set; }
+
+        [JsonPropertyName("sponsor")]
+        public string Sponsor { get; set; }
+
+        [JsonPropertyName("projectManager")]
+        public string ProjectManager { get; set; }
+    }
+
+    public class Milestone
+    {
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("targetDate")]
+        public DateTime TargetDate { get; set; }
+
+        [JsonPropertyName("actualDate")]
+        public DateTime? ActualDate { get; set; }
+
+        [JsonPropertyName("status")]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public MilestoneStatus Status { get; set; }
+
+        [JsonPropertyName("completionPercentage")]
+        public int CompletionPercentage { get; set; }
+    }
+
+    public enum MilestoneStatus
+    {
+        Completed = 0,
+        InProgress = 1,
+        Pending = 2
+    }
+
+    public class ProjectTask
+    {
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("status")]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public TaskStatus Status { get; set; }
+
+        [JsonPropertyName("assignedTo")]
+        public string AssignedTo { get; set; }
+
+        [JsonPropertyName("dueDate")]
+        public DateTime DueDate { get; set; }
+
+        [JsonPropertyName("estimatedDays")]
+        public int EstimatedDays { get; set; }
+
+        [JsonPropertyName("relatedMilestone")]
+        public string RelatedMilestone { get; set; }
+    }
+
+    public enum TaskStatus
+    {
+        Shipped = 0,
+        InProgress = 1,
+        CarriedOver = 2
+    }
+
+    public class ProjectMetrics
+    {
+        [JsonPropertyName("totalTasks")]
+        public int TotalTasks { get; set; }
+
+        [JsonPropertyName("completedTasks")]
+        public int CompletedTasks { get; set; }
+
+        [JsonPropertyName("inProgressTasks")]
+        public int InProgressTasks { get; set; }
+
+        [JsonPropertyName("carriedOverTasks")]
+        public int CarriedOverTasks { get; set; }
+
+        [JsonPropertyName("estimatedBurndownRate")]
+        public double EstimatedBurndownRate { get; set; }
+
+        public int CompletionPercentage
+        {
+            get
+            {
+                if (TotalTasks == 0) return 0;
+                return (int)((double)CompletedTasks / TotalTasks * 100);
+            }
+        }
+
+        public DateTime ProjectStartDate { get; set; }
+        public DateTime ProjectEndDate { get; set; }
+
+        public int DaysRemaining
+        {
+            get
+            {
+                var remaining = (ProjectEndDate - DateTime.Now).Days;
+                return remaining < 0 ? 0 : remaining;
+            }
+        }
+    }
 }
