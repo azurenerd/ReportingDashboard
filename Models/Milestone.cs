@@ -1,9 +1,0 @@
-namespace AgentSquad.Models;
-
-public class Milestone
-{
-    public string Name { get; set; } = string.Empty;
-    public DateTime TargetDate { get; set; }
-    public MilestoneStatus Status { get; set; } = MilestoneStatus.Pending;
-    public int CompletionPercentage { get; set; } = 0;
-}
