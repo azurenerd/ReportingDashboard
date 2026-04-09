@@ -14,7 +14,7 @@
       "name": "Design Review Complete",
       "targetDate": "2026-04-15",
       "actualDate": "2026-04-12",
-      "status": 0,
+      "status": "Completed",
       "completionPercentage": 100
     },
     {
@@ -22,7 +22,7 @@
       "name": "Development Sprint 1 Done",
       "targetDate": "2026-05-01",
       "actualDate": null,
-      "status": 1,
+      "status": "InProgress",
       "completionPercentage": 65
     },
     {
@@ -30,7 +30,7 @@
       "name": "QA Testing Complete",
       "targetDate": "2026-06-01",
       "actualDate": null,
-      "status": 2,
+      "status": "Pending",
       "completionPercentage": 0
     }
   ],
@@ -38,7 +38,7 @@
     {
       "id": "t1",
       "name": "API Authentication Module",
-      "status": 0,
+      "status": "Shipped",
       "assignedTo": "John Doe",
       "dueDate": "2026-04-20",
       "estimatedDays": 5,
@@ -47,7 +47,7 @@
     {
       "id": "t2",
       "name": "Payment Integration",
-      "status": 1,
+      "status": "InProgress",
       "assignedTo": "Alice Brown",
       "dueDate": "2026-05-10",
       "estimatedDays": 8,
@@ -56,17 +56,62 @@
     {
       "id": "t3",
       "name": "iOS Push Notifications",
-      "status": 2,
+      "status": "CarriedOver",
       "assignedTo": "Bob Wilson",
       "dueDate": "2026-05-15",
       "estimatedDays": 6,
       "relatedMilestone": "m2"
+    },
+    {
+      "id": "t4",
+      "name": "Android Backend Sync",
+      "status": "InProgress",
+      "assignedTo": "Charlie Green",
+      "dueDate": "2026-05-20",
+      "estimatedDays": 7,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t5",
+      "name": "Security Audit",
+      "status": "InProgress",
+      "assignedTo": "Diana Prince",
+      "dueDate": "2026-05-25",
+      "estimatedDays": 4,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t6",
+      "name": "Database Migration",
+      "status": "Shipped",
+      "assignedTo": "Edward Norton",
+      "dueDate": "2026-04-25",
+      "estimatedDays": 3,
+      "relatedMilestone": "m1"
+    },
+    {
+      "id": "t7",
+      "name": "Performance Optimization",
+      "status": "CarriedOver",
+      "assignedTo": "Fiona Apple",
+      "dueDate": "2026-05-30",
+      "estimatedDays": 5,
+      "relatedMilestone": "m2"
+    },
+    {
+      "id": "t8",
+      "name": "Documentation Update",
+      "status": "InProgress",
+      "assignedTo": "George Miller",
+      "dueDate": "2026-06-05",
+      "estimatedDays": 2,
+      "relatedMilestone": "m3"
     }
   ],
   "metrics": {
-    "totalTasks": 10,
-    "completedTasks": 3,
-    "inProgressTasks": 5,
+    "totalTasks": 8,
+    "completedTasks": 2,
+    "inProgressTasks": 4,
     "carriedOverTasks": 2,
     "estimatedBurndownRate": 1.2
   }
