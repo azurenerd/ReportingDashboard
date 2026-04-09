@@ -47,10 +47,10 @@
             Id = milestone.Id,
             Name = milestone.Name,
             Date = milestone.Date,
-            Status = milestone.Status,
+            Status = ResolveStatus(milestone),
             Description = milestone.Description,
-            DaysRemaining = (int)Math.Round((milestone.Date - DateTime.UtcNow).TotalDays),
-            IsOverdue = milestone.Date < DateTime.UtcNow,
+            DaysRemaining = CalculateDaysRemaining(milestone.Date),
+            IsOverdue = IsOverdueDate(milestone.Date),
             StatusLabel = ResolveStatusLabel(milestone),
             StatusCssClass = ResolveCssClass(milestone)
         }).ToList();
@@ -59,17 +59,35 @@
         return viewModels.OrderBy(m => m.Date).ToList();
     }
 
-    private string ResolveStatusLabel(Milestone milestone)
+    private int CalculateDaysRemaining(DateTime targetDate)
     {
-        var daysRemaining = (int)Math.Round((milestone.Date - DateTime.UtcNow).TotalDays);
+        return (int)Math.Round((targetDate - DateTime.UtcNow).TotalDays);
+    }
+
+    private bool IsOverdueDate(DateTime targetDate)
+    {
+        return targetDate < DateTime.UtcNow;
+    }
+
+    private MilestoneStatus ResolveStatus(Milestone milestone)
+    {
+        var daysRemaining = CalculateDaysRemaining(milestone.Date);
         
-        // Check if milestone is 3+ days overdue
+        // If milestone is 3+ days overdue, flag as AtRisk
         if (daysRemaining <= -3)
         {
-            return "At Risk";
+            return MilestoneStatus.AtRisk;
         }
 
-        return milestone.Status switch
+        return milestone.Status;
+    }
+
+    private string ResolveStatusLabel(Milestone milestone)
+    {
+        var daysRemaining = CalculateDaysRemaining(milestone.Date);
+        var resolvedStatus = ResolveStatus(milestone);
+        
+        return resolvedStatus switch
         {
             MilestoneStatus.Completed => "Completed",
             MilestoneStatus.InProgress => "In Progress",
@@ -81,15 +99,9 @@
 
     private string ResolveCssClass(Milestone milestone)
     {
-        var daysRemaining = (int)Math.Round((milestone.Date - DateTime.UtcNow).TotalDays);
+        var resolvedStatus = ResolveStatus(milestone);
         
-        // Check if milestone is 3+ days overdue
-        if (daysRemaining <= -3)
-        {
-            return "status-atrisk";
-        }
-
-        return milestone.Status switch
+        return resolvedStatus switch
         {
             MilestoneStatus.Completed => "status-completed",
             MilestoneStatus.InProgress => "status-inprogress",
