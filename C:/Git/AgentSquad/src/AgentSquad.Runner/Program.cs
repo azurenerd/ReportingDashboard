@@ -80,9 +80,10 @@ builder.Services.AddSingleton<IAgentFactory, AgentFactory>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddSignalR();
-builder.Services.AddSingleton<ProjectDataService>();
 builder.Services.AddSingleton<DashboardDataService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<DashboardDataService>());
+builder.Services.AddSingleton<ConfigurationService>();
+builder.Services.AddScoped<ProjectDataService>();
 
 // Worker service that starts the core agents and kicks off the workflow
 builder.Services.AddHostedService<AgentSquadWorker>();
