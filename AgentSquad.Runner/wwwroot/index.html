@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Executive Reporting Dashboard</title>
+    <base href="/" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa/RxfBI3xzwHDa6hP2sTwCjU0mxJHY3fFfB4i5g2lxR9h" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVJkEZSMUkrQ6usznm+9+nPvgAFZ23JVWWkqW5VozLJYtv2113u8boQlJ8WzQRiQyj/EbF294mixSEZENqvHQkhlhwRgQOtFCvyktqHCpojjv9024fObqDVhEFQ==" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/radzen-blazor@latest/css/standard.min.css">
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+</head>
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser dev tools for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9u94gFlUstIAsAP45urrT7IdnvnQbAxtWoJBvy/16oi2XFlN2cMJX6pF" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/radzen-blazor@latest/Radzen.Blazor.js"></script>
+    <script src="_framework/blazor.server.js"></script>
+</body>
+</html>
