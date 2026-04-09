@@ -1,0 +1,36 @@
+@using AgentSquad.Runner.Models
+@using System.Collections.Generic
+
+<div class="in-progress-items-container">
+    <h3>In Progress Items</h3>
+    
+    @if (Items == null || !Items.Any())
+    {
+        <p class="text-muted">No in-progress items to display.</p>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Milestone</th>
+                    <th>Owner</th>
+                    <th>Due Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Items will be rendered here in Step 3 -->
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    public IEnumerable<WorkItem> Items { get; set; }
+
+    [CascadingParameter]
+    public IEnumerable<Milestone> Milestones { get; set; }
+}
