@@ -5,7 +5,7 @@
 <div class="grid grid-cols-3 gap-4 p-6">
     <!-- Shipped Column -->
     <div>
-        <h3 class="font-bold text-gray-900">Shipped (@ShippedTasks.Count)</h3>
+        <h3 class="font-bold text-gray-900 text-lg mb-4">Shipped (@ShippedTasks.Count)</h3>
         <div class="h-96 overflow-y-auto scroll-smooth rounded border border-gray-200 p-4">
             @foreach (var task in ShippedTasks)
             {
@@ -16,7 +16,7 @@
 
     <!-- In-Progress Column -->
     <div>
-        <h3 class="font-bold text-gray-900">In-Progress (@InProgressTasks.Count)</h3>
+        <h3 class="font-bold text-gray-900 text-lg mb-4">In-Progress (@InProgressTasks.Count)</h3>
         <div class="h-96 overflow-y-auto scroll-smooth rounded border border-gray-200 p-4">
             @foreach (var task in InProgressTasks)
             {
@@ -27,7 +27,7 @@
 
     <!-- Carried-Over Column -->
     <div>
-        <h3 class="font-bold text-gray-900">Carried-Over (@CarriedOverTasks.Count)</h3>
+        <h3 class="font-bold text-gray-900 text-lg mb-4">Carried-Over (@CarriedOverTasks.Count)</h3>
         <div class="h-96 overflow-y-auto scroll-smooth rounded border border-gray-200 p-4">
             @foreach (var task in CarriedOverTasks)
             {
