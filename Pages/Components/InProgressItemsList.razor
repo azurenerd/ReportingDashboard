@@ -1,31 +1,99 @@
 @using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
 @using System.Collections.Generic
+@using System.Linq
 
 <div class="in-progress-items-container">
     <h3>In Progress Items</h3>
     
-    @if (Items == null || !Items.Any())
+    @if (ProcessedItems == null || !ProcessedItems.Any())
     {
         <p class="text-muted">No in-progress items to display.</p>
     }
     else
     {
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Milestone</th>
-                    <th>Owner</th>
-                    <th>Due Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Items will be rendered here in Step 3 -->
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 25%;">Title</th>
+                        <th style="width: 30%;">Description</th>
+                        <th style="width: 15%;">Milestone</th>
+                        <th style="width: 15%;">Owner</th>
+                        <th style="width: 15%;">Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in ProcessedItems)
+                    {
+                        <tr class="@item.RowCssClass">
+                            <td class="align-middle">@item.Title</td>
+                            <td class="align-middle text-truncate" title="@item.Description">@item.Description</td>
+                            <td class="align-middle">@item.MilestoneName</td>
+                            <td class="align-middle">@item.Owner</td>
+                            <td class="align-middle">@GetMilestoneDueDate(item.MilestoneId)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 </div>
+
+<style>
+    .in-progress-items-container {
+        padding: 1rem;
+    }
+
+    .row-even {
+        background-color: #ffffff;
+    }
+
+    .row-odd {
+        background-color: #f8f9fa;
+    }
+
+    table tbody tr:hover {
+        background-color: #e9ecef !important;
+        cursor: pointer;
+    }
+
+    .text-truncate {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    @media (max-width: 768px) {
+        table {
+            font-size: 0.875rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+    }
+
+    @media print {
+        .in-progress-items-container {
+            padding: 0;
+        }
+
+        table {
+            font-size: 11pt;
+        }
+
+        table tbody tr {
+            page-break-inside: avoid;
+            padding: 0.75rem;
+        }
+
+        table tbody tr:hover {
+            background-color: transparent !important;
+        }
+    }
+</style>
 
 @code {
     [CascadingParameter]
@@ -33,4 +101,41 @@
 
     [CascadingParameter]
     public IEnumerable<Milestone> Milestones { get; set; }
+
+    private List<WorkItemViewModel> ProcessedItems = new();
+    private List<Milestone> MilestoneList = new();
+
+    protected override void OnInitialized()
+    {
+        if (Items == null || Milestones == null)
+        {
+            ProcessedItems = new List<WorkItemViewModel>();
+            MilestoneList = new List<Milestone>();
+            return;
+        }
+
+        try
+        {
+            MilestoneList = Milestones.ToList();
+            var allViewModels = WorkItemCalculations.MapWorkItemViewModels(Items, Milestones);
+            
+            ProcessedItems = allViewModels
+                .OrderBy(x => GetMilestoneDueDate(x.MilestoneId) ?? DateTime.MaxValue)
+                .ToList();
+        }
+        catch (ArgumentNullException)
+        {
+            ProcessedItems = new List<WorkItemViewModel>();
+            MilestoneList = new List<Milestone>();
+        }
+    }
+
+    private DateTime? GetMilestoneDueDate(string milestoneId)
+    {
+        if (string.IsNullOrWhiteSpace(milestoneId) || MilestoneList == null)
+            return null;
+
+        var milestone = MilestoneList.FirstOrDefault(m => m?.Id == milestoneId);
+        return milestone?.DueDate;
+    }
 }
