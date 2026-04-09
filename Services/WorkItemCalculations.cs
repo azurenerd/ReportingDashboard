@@ -2,43 +2,34 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AgentSquad.Runner.Models;
+using AgentSquad.Runner.Tests.Integration;
 
 namespace AgentSquad.Runner.Services
 {
     public static class WorkItemCalculations
     {
-        /// <summary>
-        /// Transforms a collection of work items into view models with milestone name resolution,
-        /// alternating CSS classes, and optional sorting by status category.
-        /// </summary>
-        /// <param name="items">The work items to transform.</param>
-        /// <param name="milestones">The milestone reference data for name lookup.</param>
-        /// <returns>A list of work item view models with resolved milestone names and styling.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if items or milestones collection is null.</exception>
         public static List<WorkItemViewModel> MapWorkItemViewModels(
             IEnumerable<WorkItem> items,
-            IEnumerable<Milestone> milestones)
+            IEnumerable<Milestone> milestones,
+            WorkItemType type)
         {
             if (items == null)
-                throw new ArgumentNullException(nameof(items), "Items collection cannot be null.");
-
-            if (milestones == null)
-                throw new ArgumentNullException(nameof(milestones), "Milestones collection cannot be null.");
+                return new List<WorkItemViewModel>();
 
             var itemList = items.ToList();
             if (!itemList.Any())
                 return new List<WorkItemViewModel>();
 
-            var milestoneList = milestones.ToList();
+            var milestoneList = milestones?.ToList() ?? new List<Milestone>();
             var viewModels = new List<WorkItemViewModel>();
 
-            for (int index = 0; index < itemList.Count; index++)
+            int index = 0;
+            foreach (var item in itemList)
             {
-                var item = itemList[index];
-                var milestoneName = ResolveMilestoneName(item.MilestoneId, milestoneList);
-                var rowCssClass = index % 2 == 0 ? "row-even" : "row-odd";
+                var milestone = milestoneList.FirstOrDefault(m => m.Id == item.MilestoneId);
+                var milestoneName = milestone?.Name ?? "Unknown Milestone";
 
-                var viewModel = new WorkItemViewModel
+                var vm = new WorkItemViewModel
                 {
                     Id = item.Id,
                     Title = item.Title,
@@ -47,34 +38,55 @@ namespace AgentSquad.Runner.Services
                     MilestoneName = milestoneName,
                     Owner = item.Owner,
                     CompletionDate = item.CompletionDate,
-                    Status = item.Status,
-                    RowCssClass = rowCssClass,
-                    RiskBadge = string.Empty
+                    Status = type.ToString(),
+                    RowCssClass = index % 2 == 0 ? "row-even" : "row-odd",
+                    RiskBadge = CalculateRiskBadge(milestone)
                 };
 
-                viewModels.Add(viewModel);
+                viewModels.Add(vm);
+                index++;
             }
 
-            return viewModels;
+            return SortByType(viewModels, type, milestoneList);
         }
 
-        /// <summary>
-        /// Resolves the milestone name for a given milestone ID from a collection of milestones.
-        /// Returns "Unknown Milestone" if the milestone is not found or the ID is null/empty.
-        /// </summary>
-        /// <param name="milestoneId">The ID of the milestone to resolve.</param>
-        /// <param name="milestones">The collection of milestones to search.</param>
-        /// <returns>The milestone name if found, otherwise "Unknown Milestone".</returns>
-        private static string ResolveMilestoneName(string milestoneId, IEnumerable<Milestone> milestones)
+        private static List<WorkItemViewModel> SortByType(
+            List<WorkItemViewModel> items,
+            WorkItemType type,
+            List<Milestone> milestones)
         {
-            if (string.IsNullOrWhiteSpace(milestoneId))
-                return "Unknown Milestone";
+            return type switch
+            {
+                WorkItemType.Shipped => items.OrderByDescending(x => x.CompletionDate).ToList(),
+                WorkItemType.InProgress => SortByMilestoneDate(items, milestones),
+                WorkItemType.CarriedOver => SortByMilestoneDate(items, milestones),
+                _ => items
+            };
+        }
 
-            if (milestones == null || !milestones.Any())
-                return "Unknown Milestone";
+        private static List<WorkItemViewModel> SortByMilestoneDate(
+            List<WorkItemViewModel> items,
+            List<Milestone> milestones)
+        {
+            return items.OrderBy(x =>
+            {
+                var milestone = milestones.FirstOrDefault(m => m.Id == x.MilestoneId);
+                return milestone?.DueDate ?? DateTime.MaxValue;
+            }).ToList();
+        }
 
-            var milestone = milestones.FirstOrDefault(m => m?.Id == milestoneId);
-            return milestone?.Name ?? "Unknown Milestone";
+        private static string CalculateRiskBadge(Milestone milestone)
+        {
+            if (milestone == null)
+                return "On Track";
+
+            var daysUntilDue = (milestone.DueDate - DateTime.UtcNow).TotalDays;
+
+            if (daysUntilDue < 0)
+                return "Overdue";
+            if (daysUntilDue <= 7)
+                return "At Risk";
+            return "On Track";
         }
     }
 }
