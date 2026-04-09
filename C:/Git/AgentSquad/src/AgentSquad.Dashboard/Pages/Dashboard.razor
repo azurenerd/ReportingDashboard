@@ -1,0 +1,71 @@
+@page "/"
+@using AgentSquad.Dashboard.Services
+@using AgentSquad.Dashboard.Components
+@inject DashboardDataService DataService
+@inject ILogger<Dashboard> Logger
+
+<PageTitle>Executive Dashboard</PageTitle>
+
+<div class="dashboard-container">
+    @if (isLoading)
+    {
+        <p class="loading">Loading project data...</p>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <ErrorDisplay Message="@errorMessage" ShowRefreshButton="true" OnRefreshClicked="@HandleRefresh" />
+    }
+    else if (projectData != null)
+    {
+        <CascadingValue Value="projectData">
+            <MilestoneTimeline />
+            <StatusSummary />
+        </CascadingValue>
+    }
+</div>
+
+@code {
+    private ProjectData? projectData;
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            projectData = await DataService.LoadProjectDataAsync();
+        }
+        catch (FileNotFoundException ex)
+        {
+            Logger.LogError(ex, "data.json not found");
+            errorMessage = "Data file not found at wwwroot/data/data.json. Please ensure the file exists and is readable.";
+        }
+        catch (JsonException ex)
+        {
+            Logger.LogError(ex, "JSON parsing failed");
+            errorMessage = "Data file contains invalid JSON. Please check syntax at wwwroot/data/data.json.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            Logger.LogError(ex, "Data validation failed");
+            errorMessage = $"Data validation failed: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error loading data");
+            errorMessage = "An unexpected error occurred while loading project data. Please refresh and try again.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleRefresh()
+    {
+        isLoading = true;
+        errorMessage = null;
+        projectData = null;
+        await OnInitializedAsync();
+    }
+}

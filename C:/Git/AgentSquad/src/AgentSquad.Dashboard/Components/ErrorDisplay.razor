@@ -1,0 +1,21 @@
+<div class="error-container">
+    <div class="error-box">
+        <h3>⚠️ Error Loading Dashboard</h3>
+        <p>@Message</p>
+        @if (ShowRefreshButton)
+        {
+            <button class="refresh-btn" @onclick="OnRefreshClicked">Refresh</button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Message { get; set; } = "";
+
+    [Parameter]
+    public bool ShowRefreshButton { get; set; } = true;
+
+    [Parameter]
+    public EventCallback OnRefreshClicked { get; set; }
+}

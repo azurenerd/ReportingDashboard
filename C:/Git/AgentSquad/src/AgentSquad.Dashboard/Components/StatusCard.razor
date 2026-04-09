@@ -1,0 +1,22 @@
+<div class="status-card" style="border-left: 4px solid @Color">
+    <div class="card-label">@Label</div>
+    <div class="card-count">@Count</div>
+    <div class="card-progress">
+        <div class="progress-bar" style="width: @PercentComplete%; background-color: @Color"></div>
+    </div>
+    <div class="card-percent">@PercentComplete.ToString("F1")%</div>
+</div>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = "";
+
+    [Parameter]
+    public int Count { get; set; }
+
+    [Parameter]
+    public double PercentComplete { get; set; }
+
+    [Parameter]
+    public string Color { get; set; } = "#2196F3";
+}

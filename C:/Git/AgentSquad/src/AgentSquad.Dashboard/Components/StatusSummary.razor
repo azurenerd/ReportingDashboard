@@ -1,0 +1,30 @@
+<div class="status-summary">
+    <div class="status-grid">
+        <StatusCard Label="Shipped" Count="@ProjectData?.WorkItems.Shipped ?? 0" 
+                    PercentComplete="@CalculatePercent(ProjectData?.WorkItems.Shipped ?? 0)" 
+                    Color="#4CAF50" />
+        <StatusCard Label="In Progress" Count="@ProjectData?.WorkItems.InProgress ?? 0" 
+                    PercentComplete="@CalculatePercent(ProjectData?.WorkItems.InProgress ?? 0)" 
+                    Color="#2196F3" />
+        <StatusCard Label="Carried Over" Count="@ProjectData?.WorkItems.CarriedOver ?? 0" 
+                    PercentComplete="@CalculatePercent(ProjectData?.WorkItems.CarriedOver ?? 0)" 
+                    Color="#FF9800" />
+        <StatusCard Label="At Risk" Count="@ProjectData?.WorkItems.AtRisk ?? 0" 
+                    PercentComplete="@CalculatePercent(ProjectData?.WorkItems.AtRisk ?? 0)" 
+                    Color="#F44336" />
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ProjectData? ProjectData { get; set; }
+
+    private double CalculatePercent(int count)
+    {
+        int total = (ProjectData?.WorkItems.Shipped ?? 0) +
+                    (ProjectData?.WorkItems.InProgress ?? 0) +
+                    (ProjectData?.WorkItems.CarriedOver ?? 0) +
+                    (ProjectData?.WorkItems.AtRisk ?? 0);
+        return total > 0 ? (double)count / total * 100 : 0;
+    }
+}

@@ -1,0 +1,53 @@
+{
+  "projectName": "Q2 Product Launch",
+  "period": "April - June 2026",
+  "description": "Deliver core product features for Q2 milestone",
+  "startDate": "2026-04-01T00:00:00Z",
+  "endDate": "2026-06-30T23:59:59Z",
+  "version": "1.0",
+  "milestones": [
+    {
+      "id": "milestone-design-001",
+      "name": "Design Complete",
+      "targetDate": "2026-04-30T00:00:00Z",
+      "completionDate": "2026-04-28T00:00:00Z",
+      "status": "completed",
+      "description": "Complete design phase for all features",
+      "owners": ["Design Lead"]
+    },
+    {
+      "id": "milestone-dev-001",
+      "name": "Development Phase 1",
+      "targetDate": "2026-05-31T00:00:00Z",
+      "completionDate": null,
+      "status": "in-progress",
+      "description": "Core backend API development",
+      "owners": ["Engineering Lead", "Backend Team"]
+    },
+    {
+      "id": "milestone-qa-001",
+      "name": "QA & Testing",
+      "targetDate": "2026-06-15T00:00:00Z",
+      "completionDate": null,
+      "status": "upcoming",
+      "description": "Quality assurance and regression testing",
+      "owners": ["QA Lead"]
+    },
+    {
+      "id": "milestone-release-001",
+      "name": "Release to Production",
+      "targetDate": "2026-06-30T00:00:00Z",
+      "completionDate": null,
+      "status": "at-risk",
+      "description": "Production deployment and cutover",
+      "owners": ["Ops Lead"]
+    }
+  ],
+  "workItems": {
+    "shipped": 12,
+    "inProgress": 5,
+    "carriedOver": 3,
+    "atRisk": 2,
+    "totalCapacity": 25
+  }
+}

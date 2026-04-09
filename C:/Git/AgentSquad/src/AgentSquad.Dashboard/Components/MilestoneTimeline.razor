@@ -1,0 +1,31 @@
+@using AgentSquad.Dashboard.Services
+
+<div class="milestone-timeline">
+    <h2>Project Milestones</h2>
+    @if (ProjectData?.Milestones != null && ProjectData.Milestones.Any())
+    {
+        <div class="timeline-container">
+            @foreach (var milestone in ProjectData.Milestones.OrderBy(m => m.TargetDate))
+            {
+                <div class="milestone-item" style="background-color: @GetStatusColor(milestone.Status)">
+                    <div class="milestone-name">@milestone.Name</div>
+                    <div class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</div>
+                    <div class="milestone-status">@milestone.Status</div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    public ProjectData? ProjectData { get; set; }
+
+    private string GetStatusColor(string status) => status.ToLower() switch
+    {
+        "completed" => "#4CAF50",
+        "in-progress" => "#2196F3",
+        "at-risk" => "#FF9800",
+        _ => "#9E9E9E"
+    };
+}
