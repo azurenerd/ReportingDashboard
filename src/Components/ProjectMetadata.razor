@@ -53,85 +53,338 @@
 
 <style>
     .project-metadata {
-        padding: 1.5rem 0;
+        padding: 2rem 0 1.5rem 0;
+        margin: 0;
     }
 
     .dashboard-header {
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
+        padding: 0 0 1.5rem 0;
+        border-bottom: 2px solid #e9ecef;
     }
 
     .dashboard-header h1 {
         font-size: 2.5rem;
-        font-weight: 600;
+        font-weight: 700;
+        letter-spacing: -0.5px;
         margin-bottom: 0.5rem;
-        color: #212529;
+        color: #1a202c;
+        line-height: 1.2;
     }
 
     .dashboard-header p {
         font-size: 1rem;
+        font-weight: 400;
         margin-bottom: 0;
+        color: #6b7280;
+        letter-spacing: 0.3px;
     }
 
     .kpi-grid {
-        margin: 0 -12px;
+        margin-left: -12px;
+        margin-right: -12px;
+        margin-bottom: 1rem;
+    }
+
+    .kpi-grid .col-md-6,
+    .kpi-grid .col-lg-3 {
+        padding-left: 12px;
+        padding-right: 12px;
     }
 
     .kpi-grid .card {
-        border: 1px solid #e9ecef;
-        border-radius: 0.375rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        transition: box-shadow 0.2s ease-in-out;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        background-color: #ffffff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        transition: all 0.2s ease-in-out;
     }
 
     .kpi-grid .card:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-color: #d1d5db;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
     }
 
     .kpi-grid .card-body {
-        padding: 1.5rem;
-        min-height: 120px;
+        padding: 1.75rem 1.5rem;
+        min-height: 140px;
     }
 
     .kpi-grid .card-text {
-        font-size: 0.875rem;
-        font-weight: 500;
+        font-size: 0.8rem;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.8px;
+        color: #9ca3af;
+        margin-bottom: 1rem !important;
     }
 
     .kpi-value {
-        font-size: 2rem;
-        font-weight: 700;
+        font-size: 2.25rem;
+        font-weight: 800;
+        letter-spacing: -1px;
         color: #0d6efd;
+        line-height: 1;
+        margin-bottom: 0 !important;
     }
 
-    @media (max-width: 767px) {
+    /* Responsive breakpoints for desktop (3-4 columns) */
+    @media (min-width: 1200px) {
+        .dashboard-header h1 {
+            font-size: 2.75rem;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+        }
+
+        .kpi-grid .card-body {
+            padding: 2rem 1.75rem;
+            min-height: 150px;
+        }
+    }
+
+    /* Responsive breakpoints for tablets (2 columns) */
+    @media (max-width: 991.98px) {
+        .dashboard-header h1 {
+            font-size: 2rem;
+        }
+
+        .dashboard-header p {
+            font-size: 0.95rem;
+        }
+
+        .kpi-value {
+            font-size: 1.875rem;
+        }
+
+        .kpi-grid .card-body {
+            padding: 1.5rem 1.25rem;
+            min-height: 130px;
+        }
+
+        .kpi-grid .card-text {
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Responsive breakpoints for mobile (2 columns, stacked) */
+    @media (max-width: 767.98px) {
+        .project-metadata {
+            padding: 1.5rem 0 1rem 0;
+        }
+
+        .dashboard-header {
+            margin-bottom: 1.75rem;
+            padding: 0 0 1rem 0;
+        }
+
         .dashboard-header h1 {
             font-size: 1.75rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .dashboard-header p {
+            font-size: 0.9rem;
+        }
+
+        .kpi-grid {
+            margin-left: -8px;
+            margin-right: -8px;
+        }
+
+        .kpi-grid .col-md-6,
+        .kpi-grid .col-lg-3 {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        .kpi-value {
+            font-size: 1.625rem;
+        }
+
+        .kpi-grid .card-body {
+            padding: 1.25rem 1rem;
+            min-height: 120px;
+        }
+
+        .kpi-grid .card-text {
+            font-size: 0.7rem;
+            margin-bottom: 0.75rem !important;
+        }
+
+        .mb-4 {
+            margin-bottom: 0.75rem !important;
+        }
+    }
+
+    /* Small phones (1 column for readability) */
+    @media (max-width: 479.98px) {
+        .dashboard-header h1 {
+            font-size: 1.5rem;
         }
 
         .kpi-value {
             font-size: 1.5rem;
         }
+
+        .kpi-grid .card-body {
+            padding: 1rem 0.875rem;
+            min-height: 110px;
+        }
     }
 
+    /* Print CSS: Ensure clean printing at 96dpi, 150dpi, 300dpi */
     @media print {
         .project-metadata {
             page-break-inside: avoid;
+            padding: 0 0 0.5rem 0;
+            margin: 0;
+        }
+
+        .dashboard-header {
+            page-break-inside: avoid;
+            margin-bottom: 1.5rem;
+            padding: 0 0 0.75rem 0;
+            border-bottom: 1px solid #d1d5db;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+            color: #000;
+        }
+
+        .dashboard-header p {
+            font-size: 0.95rem;
+            color: #4b5563;
         }
 
         .kpi-grid {
             page-break-inside: avoid;
+            margin-left: -12px;
+            margin-right: -12px;
         }
 
         .kpi-grid .card {
             page-break-inside: avoid;
-            border: 1px solid #ccc;
+            border: 1px solid #bcc4d0;
+            box-shadow: none;
+            background-color: #fafbfc;
+        }
+
+        .kpi-grid .card:hover {
             box-shadow: none;
         }
 
+        .kpi-grid .card-body {
+            padding: 1.25rem 1rem;
+            min-height: auto;
+        }
+
+        .kpi-grid .card-text {
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+
         .kpi-value {
+            font-size: 1.75rem;
             color: #000;
         }
+
+        .kpi-grid .col-md-6,
+        .kpi-grid .col-lg-3 {
+            page-break-inside: avoid;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        /* Print: Force 2-column layout for all print resolutions */
+        .kpi-grid .col-md-6 {
+            width: 50%;
+            flex: 0 0 50%;
+        }
+
+        .kpi-grid .col-lg-3 {
+            width: 50%;
+            flex: 0 0 50%;
+        }
+
+        .mb-4 {
+            margin-bottom: 0.75rem !important;
+        }
+
+        /* Ensure text doesn't overflow in print */
+        .card-text,
+        .kpi-value {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+    }
+
+    /* Constraint for max-width on 1440p+ displays */
+    @media (min-width: 1920px) {
+        .project-metadata {
+            max-width: 100%;
+        }
+
+        .dashboard-header h1 {
+            max-width: 90%;
+        }
+
+        .kpi-grid {
+            max-width: 100%;
+        }
+
+        .kpi-grid .card-body {
+            padding: 2.25rem 2rem;
+            min-height: 160px;
+        }
+
+        .kpi-value {
+            font-size: 2.75rem;
+        }
+    }
+
+    /* Ultra-high resolution: 2560px+ (1440p) */
+    @media (min-width: 2560px) {
+        .dashboard-header h1 {
+            font-size: 3.5rem;
+            letter-spacing: -1px;
+        }
+
+        .dashboard-header p {
+            font-size: 1.25rem;
+        }
+
+        .kpi-value {
+            font-size: 3rem;
+        }
+
+        .kpi-grid .card-body {
+            padding: 2.5rem 2.25rem;
+            min-height: 180px;
+        }
+
+        .kpi-grid .card-text {
+            font-size: 0.9rem;
+        }
+    }
+
+    /* Ensure consistent card heights for grid alignment */
+    .kpi-grid .h-100 {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .kpi-grid .card-body.d-flex {
+        flex: 1 1 auto;
+    }
+
+    /* Prevent text selection for cleaner screenshots */
+    .kpi-value,
+    .dashboard-header h1 {
+        -webkit-user-select: none;
+        user-select: none;
     }
 </style>
