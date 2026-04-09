@@ -2,9 +2,11 @@ using AgentSquad.Core.Configuration;
 using AgentSquad.Core.Messaging;
 using AgentSquad.Core.GitHub;
 using AgentSquad.Core.Persistence;
+using AgentSquad.Core.Workspace;
 using AgentSquad.Orchestrator;
 using AgentSquad.Agents;
 using AgentSquad.Dashboard.Components;
+using AgentSquad.Dashboard.Hubs;
 using AgentSquad.Dashboard.Services;
 using AgentSquad.Runner;
 
@@ -15,6 +17,16 @@ builder.Services.Configure<AgentSquadConfig>(
     builder.Configuration.GetSection("AgentSquad"));
 builder.Services.Configure<LimitsConfig>(
     builder.Configuration.GetSection("AgentSquad:Limits"));
+
+// Configure Kestrel to use the dashboard port from config
+var dashboardPort = builder.Configuration.GetValue("AgentSquad:Dashboard:Port", 5050);
+builder.WebHost.UseUrls($"http://localhost:{dashboardPort}");
+
+// Ensure RCL static web assets (Dashboard CSS/JS) are served in all environments
+if (!builder.Environment.IsDevelopment())
+{
+    builder.WebHost.UseStaticWebAssets();
+}
 
 // Core services
 builder.Services.AddInProcessMessageBus();
@@ -39,16 +51,24 @@ builder.Services.AddSingleton<ProjectFileManager>(sp =>
 });
 
 // GitHub workflows
+builder.Services.AddSingleton<ConflictDetector>();
 builder.Services.AddSingleton<PullRequestWorkflow>(sp =>
 {
     var config = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AgentSquadConfig>>().Value;
     return new PullRequestWorkflow(
         sp.GetRequiredService<IGitHubService>(),
         sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<PullRequestWorkflow>>(),
-        config.Project.DefaultBranch);
+        config.Project.DefaultBranch,
+        sp.GetRequiredService<ConflictDetector>());
 });
 builder.Services.AddSingleton<IssueWorkflow>();
 builder.Services.AddSingleton<ConflictResolver>();
+
+// Workspace services (local build + test verification)
+builder.Services.AddSingleton<BuildRunner>();
+builder.Services.AddSingleton<TestRunner>();
+builder.Services.AddSingleton<PlaywrightRunner>();
+builder.Services.AddSingleton<TestStrategyAnalyzer>();
 
 // Orchestrator (registry, health monitor, deadlock detector, spawn manager, workflow)
 builder.Services.AddOrchestrator();
@@ -61,6 +81,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<ProjectDataService>();
+builder.Services.AddSingleton<DashboardDataService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<DashboardDataService>());
 
 // Worker service that starts the core agents and kicks off the workflow
 builder.Services.AddHostedService<AgentSquadWorker>();
@@ -76,6 +98,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+// SignalR hub for real-time dashboard updates
+app.MapHub<AgentHub>("/agenthub");
 
 // Blazor Server components
 app.MapRazorComponents<App>()

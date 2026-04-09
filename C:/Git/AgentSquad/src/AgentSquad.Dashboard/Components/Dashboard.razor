@@ -1,111 +1,118 @@
 @page "/"
-@using AgentSquad.Dashboard.Models
 @using AgentSquad.Dashboard.Services
 @inject ProjectDataService ProjectDataService
 @inject ILogger<Dashboard> Logger
 
-<div class="container-fluid px-4 py-5">
-    @if (LoadingError != null)
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold">@ProjectTitle</h1>
+            <p class="lead text-muted">@ProjectDescription</p>
+        </div>
+    </div>
+
+    @if (_isLoading)
     {
-        <ErrorBoundary>
-            <div class="alert alert-danger" role="alert">
-                <strong>Error loading project data:</strong> @LoadingError
-                <button class="btn btn-sm btn-outline-danger ms-3" @onclick="RetryLoad">Refresh</button>
-            </div>
-        </ErrorBoundary>
+        <div class="alert alert-info" role="alert">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Loading project data...
+        </div>
     }
-    else if (ProjectData == null)
+    @else if (_error != null)
     {
-        <div class="alert alert-info">Loading project data...</div>
+        <div class="alert alert-danger" role="alert">
+            <strong>Error loading project data:</strong> @_error
+            <button class="btn btn-sm btn-outline-danger ms-2" @onclick="RefreshData">
+                Retry
+            </button>
+        </div>
     }
-    else
+    else if (_data != null)
     {
-        <ErrorBoundary>
-            <div class="mb-5">
-                <h1 class="display-5 mb-2">@ProjectData.Project?.Name</h1>
-                <p class="lead text-muted">@ProjectData.Project?.Description</p>
+        <div class="row mb-5">
+            <div class="col-12">
+                <MilestoneTimeline 
+                    Milestones="@_data.Milestones"
+                    ProjectStartDate="@_data.Project.StartDate"
+                    ProjectEndDate="@_data.Project.EndDate" />
             </div>
+        </div>
 
-            <MilestoneTimeline Milestones="ProjectData.Milestones" 
-                               ProjectDurationDays="CalculateProjectDuration()" />
-
-            <div class="row g-4 mt-4">
-                <StatusCard StatusCategory="Shipped" 
-                           TaskCount="ProjectData.Metrics?.CompletedTasks ?? 0"
-                           Tasks="FilterTasks(TaskStatus.Shipped)"
-                           CardColor="bg-success" />
-                <StatusCard StatusCategory="In Progress" 
-                           TaskCount="ProjectData.Metrics?.InProgressTasks ?? 0"
-                           Tasks="FilterTasks(TaskStatus.InProgress)"
-                           CardColor="bg-primary" />
-                <StatusCard StatusCategory="Carried Over" 
-                           TaskCount="ProjectData.Metrics?.CarriedOverTasks ?? 0"
-                           Tasks="FilterTasks(TaskStatus.CarriedOver)"
-                           CardColor="bg-warning" />
+        <div class="row mb-5">
+            <div class="col-12 col-md-4">
+                <StatusCard 
+                    StatusCategory="Shipped"
+                    TaskCount="@GetShippedCount()"
+                    Tasks="@_data.Tasks.Where(t => t.Status == TaskStatus.Shipped).ToList()"
+                    CardColor="success" />
             </div>
-
-            <div class="row mt-5">
-                <div class="col-12">
-                    <ProgressMetrics Metrics="ProjectData.Metrics"
-                                     CompletionPercentage="ProjectData.Metrics?.CompletionPercentage ?? 0"
-                                     TotalTasks="ProjectData.Metrics?.TotalTasks ?? 0"
-                                     CompletedTasks="ProjectData.Metrics?.CompletedTasks ?? 0" />
-                </div>
+            <div class="col-12 col-md-4">
+                <StatusCard 
+                    StatusCategory="In Progress"
+                    TaskCount="@GetInProgressCount()"
+                    Tasks="@_data.Tasks.Where(t => t.Status == TaskStatus.InProgress).ToList()"
+                    CardColor="primary" />
             </div>
-
-            <div class="mt-4 text-muted small">
-                <p>Last loaded: @LastLoadTime.ToString("g")</p>
-                <button class="btn btn-sm btn-outline-secondary" @onclick="RefreshData">Refresh Data</button>
+            <div class="col-12 col-md-4">
+                <StatusCard 
+                    StatusCategory="Carried Over"
+                    TaskCount="@GetCarriedOverCount()"
+                    Tasks="@_data.Tasks.Where(t => t.Status == TaskStatus.CarriedOver).ToList()"
+                    CardColor="warning" />
             </div>
-        </ErrorBoundary>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <ProgressMetrics 
+                    CompletionPercentage="@_data.Metrics.CompletionPercentage"
+                    CompletedTasks="@_data.Metrics.CompletedTasks"
+                    TotalTasks="@_data.Metrics.TotalTasks"
+                    BurndownRate="@_data.Metrics.EstimatedBurndownRate" />
+            </div>
+        </div>
     }
 </div>
 
 @code {
-    private ProjectData? ProjectData;
-    private DateTime LastLoadTime = DateTime.MinValue;
-    private string? LoadingError;
+    private ProjectData? _data;
+    private bool _isLoading = true;
+    private string? _error;
+
+    private string ProjectTitle => _data?.Project.Name ?? "Project Dashboard";
+    private string ProjectDescription => _data?.Project.Description ?? "Loading...";
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadProjectData();
-    }
-
-    private async Task LoadProjectData()
-    {
-        try
-        {
-            LoadingError = null;
-            ProjectData = await ProjectDataService.LoadProjectDataAsync();
-            LastLoadTime = DateTime.Now;
-        }
-        catch (DataLoadException ex)
-        {
-            LoadingError = ex.Message;
-            Logger.LogError(ex, "Failed to load project data");
-            ProjectData = null;
-        }
+        await RefreshData();
     }
 
     private async Task RefreshData()
     {
-        ProjectDataService.RefreshData();
-        await LoadProjectData();
+        _isLoading = true;
+        _error = null;
+        
+        try
+        {
+            _data = await ProjectDataService.LoadProjectDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load project data");
+            _error = ex.Message;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 
-    private async Task RetryLoad()
-    {
-        await LoadProjectData();
-    }
+    private int GetShippedCount() =>
+        _data?.Tasks.Count(t => t.Status == TaskStatus.Shipped) ?? 0;
 
-    private List<ProjectTask> FilterTasks(TaskStatus status)
-    {
-        return ProjectData?.Tasks?.Where(t => t.Status == status).ToList() ?? new();
-    }
+    private int GetInProgressCount() =>
+        _data?.Tasks.Count(t => t.Status == TaskStatus.InProgress) ?? 0;
 
-    private int CalculateProjectDuration()
-    {
-        if (ProjectData?.Project == null) return 0;
-        return (int)(ProjectData.Project.EndDate - ProjectData.Project.StartDate).TotalDays;
-    }
+    private int GetCarriedOverCount() =>
+        _data?.Tasks.Count(t => t.Status == TaskStatus.CarriedOver) ?? 0;
 }
