@@ -1,52 +1,67 @@
 @using AgentSquad.Dashboard.Models
 
-<div style="padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 4px;">
-    <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: bold; color: #333;">Milestone Timeline</h2>
-    
-    @if (Milestones == null || Milestones.Count == 0)
-    {
-        <p style="color: #999; font-size: 16px;">No milestones available.</p>
-    }
-    else
-    {
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-            @foreach (var milestone in Milestones)
-            {
-                <div style="padding: 12px; border-left: 4px solid @GetMilestoneColor(milestone.Status); background-color: #f9f9f9; border-radius: 2px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <p style="margin: 0 0 4px 0; font-size: 16px; font-weight: bold; color: #333;">@milestone.Name</p>
-                            <p style="margin: 0; font-size: 16px; color: #666;">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</p>
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Project Milestone Timeline</h5>
+    </div>
+    <div class="card-body">
+        @if (Milestones == null || Milestones.Count == 0)
+        {
+            <p class="text-muted">No milestones defined.</p>
+        }
+        else
+        {
+            <div class="timeline">
+                @foreach (var milestone in Milestones)
+                {
+                    var statusClass = milestone.Status switch
+                    {
+                        MilestoneStatus.Completed => "badge-success",
+                        MilestoneStatus.InProgress => "badge-info",
+                        _ => "badge-secondary"
+                    };
+
+                    var statusText = milestone.Status switch
+                    {
+                        MilestoneStatus.Completed => "Completed",
+                        MilestoneStatus.InProgress => "In Progress",
+                        _ => "Pending"
+                    };
+
+                    <div class="milestone-item row mb-3 pb-3 border-bottom">
+                        <div class="col-md-3">
+                            <strong>@milestone.Name</strong>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 24px; font-weight: bold; color: @GetMilestoneColor(milestone.Status);">@milestone.CompletionPercentage%</div>
-                            <span style="font-size: 14px; color: #666; text-transform: capitalize;">@milestone.Status</span>
+                        <div class="col-md-3">
+                            <span class="text-muted">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</span>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="badge @statusClass">@statusText</span>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: @(milestone.CompletionPercentage)%;" 
+                                     aria-valuenow="@milestone.CompletionPercentage" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    @milestone.CompletionPercentage%
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
-    }
+                }
+            </div>
+        }
+    </div>
 </div>
 
 @code {
     [Parameter]
-    public List<Milestone> Milestones { get; set; } = new List<Milestone>();
+    public List<Milestone>? Milestones { get; set; }
 
     [Parameter]
     public DateTime ProjectStartDate { get; set; }
 
     [Parameter]
     public DateTime ProjectEndDate { get; set; }
-
-    private string GetMilestoneColor(MilestoneStatus status)
-    {
-        return status switch
-        {
-            MilestoneStatus.Completed => "#28a745",
-            MilestoneStatus.InProgress => "#0066cc",
-            MilestoneStatus.Pending => "#cccccc",
-            _ => "#999999"
-        };
-    }
 }

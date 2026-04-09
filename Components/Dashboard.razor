@@ -1,159 +1,126 @@
-@page "/"
-@using AgentSquad.Services.Models
-@using AgentSquad.Services
-@inject ProjectDataService ProjectDataService
+@page "/dashboard"
+@using System.Text.Json
+@using AgentSquad.Dashboard.Services
+@using AgentSquad.Dashboard.Models
+@inject ProjectDataService DataService
+@inject ILogger<Dashboard> Logger
 
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <h1 class="dashboard-title">Executive Project Dashboard</h1>
-        <p class="dashboard-subtitle">Real-time Project Status & Milestones</p>
-    </div>
+<div class="container-fluid mt-5">
+    @if (loading)
+    {
+        <div class="text-center">
+            <p>Loading project data...</p>
+        </div>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Error loading project data:</strong> @errorMessage
+            <button class="btn btn-sm btn-primary mt-2" @onclick="RetryLoad">Refresh</button>
+        </div>
+    }
+    else if (projectData != null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1>@projectData.Project.Name</h1>
+                <p class="text-muted">@projectData.Project.Description</p>
+            </div>
+        </div>
 
-    <div class="dashboard-content">
-        @if (projectData != null)
-        {
-            <MilestoneTimeline 
-                Milestones="projectData.Milestones" 
-                ProjectDurationDays="(int)(projectData.EndDate - projectData.StartDate).TotalDays"
-                ProjectStartDate="projectData.StartDate"
-                ProjectEndDate="projectData.EndDate" />
-        }
-        else if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="error-message">@errorMessage</div>
-        }
-        else
-        {
-            <div class="loading-message">Loading project data...</div>
-        }
-    </div>
+        <MilestoneTimeline Milestones="projectData.Milestones" 
+                          ProjectStartDate="projectData.Project.StartDate" 
+                          ProjectEndDate="projectData.Project.EndDate" />
+
+        <div class="row mt-5">
+            @foreach (var card in statusCards)
+            {
+                <div class="col-md-4 mb-3">
+                    <StatusCard StatusCategory="card.Category" 
+                               TaskCount="card.Count" 
+                               Tasks="card.Tasks" 
+                               CardColor="card.Color" />
+                </div>
+            }
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12">
+                <ProgressMetrics CompletionPercentage="projectData.Metrics.CompletionPercentage" 
+                                TotalTasks="projectData.Metrics.TotalTasks" 
+                                CompletedTasks="projectData.Metrics.CompletedTasks" 
+                                BurndownRate="projectData.Metrics.EstimatedBurndownRate" />
+            </div>
+        </div>
+    }
 </div>
 
 @code {
-    private ProjectData projectData;
-    private string errorMessage;
+    private ProjectData? projectData;
+    private List<StatusCardModel> statusCards = new();
+    private bool loading = true;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadProjectDataAsync();
+        await LoadProjectData();
     }
 
-    private async Task LoadProjectDataAsync()
+    private async Task LoadProjectData()
     {
+        loading = true;
+        errorMessage = null;
+
         try
         {
-            var dataPath = Path.Combine("wwwroot", "data", "data.json");
-            projectData = await ProjectDataService.LoadProjectDataAsync(dataPath);
+            projectData = await DataService.LoadProjectDataAsync("wwwroot/data/data.json");
+            BuildStatusCards();
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error loading project data: {ex.Message}";
-            projectData = null;
+            errorMessage = ex.Message;
+            Logger.LogError(ex, "Failed to load project data");
         }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void BuildStatusCards()
+    {
+        if (projectData?.Tasks == null) return;
+
+        var shippedTasks = projectData.Tasks
+            .Where(t => t.Status == TaskStatus.Shipped)
+            .ToList();
+
+        var inProgressTasks = projectData.Tasks
+            .Where(t => t.Status == TaskStatus.InProgress)
+            .ToList();
+
+        var carriedOverTasks = projectData.Tasks
+            .Where(t => t.Status == TaskStatus.CarriedOver)
+            .ToList();
+
+        statusCards = new()
+        {
+            new StatusCardModel { Category = "Shipped", Count = shippedTasks.Count, Tasks = shippedTasks, Color = "success" },
+            new StatusCardModel { Category = "In Progress", Count = inProgressTasks.Count, Tasks = inProgressTasks, Color = "info" },
+            new StatusCardModel { Category = "Carried Over", Count = carriedOverTasks.Count, Tasks = carriedOverTasks, Color = "warning" }
+        };
+    }
+
+    private async Task RetryLoad()
+    {
+        await LoadProjectData();
+    }
+
+    private class StatusCardModel
+    {
+        public string Category { get; set; } = string.Empty;
+        public int Count { get; set; }
+        public List<Task>? Tasks { get; set; }
+        public string Color { get; set; } = string.Empty;
     }
 }
-
-<style>
-    .dashboard-container {
-        min-height: 100vh;
-        background-color: #ffffff;
-        padding: 0;
-        margin: 0;
-    }
-
-    .dashboard-header {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-        color: #ffffff;
-        padding: 40px 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-    }
-
-    .dashboard-title {
-        font-size: 28pt;
-        font-weight: 700;
-        margin: 0 0 8px 0;
-        letter-spacing: -1px;
-    }
-
-    .dashboard-subtitle {
-        font-size: 14pt;
-        color: #d0d0d0;
-        margin: 0;
-        font-weight: 400;
-    }
-
-    .dashboard-content {
-        padding: 32px 20px;
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-
-    .loading-message {
-        font-size: 14pt;
-        color: #666666;
-        padding: 32px;
-        text-align: center;
-    }
-
-    .error-message {
-        font-size: 14pt;
-        color: #d32f2f;
-        padding: 16px;
-        background-color: #ffebee;
-        border: 1px solid #ef5350;
-        border-radius: 4px;
-        margin-bottom: 20px;
-    }
-
-    @media (max-width: 1023px) {
-        .dashboard-header {
-            padding: 32px 16px;
-        }
-
-        .dashboard-title {
-            font-size: 22pt;
-        }
-
-        .dashboard-subtitle {
-            font-size: 13pt;
-        }
-
-        .dashboard-content {
-            padding: 24px 16px;
-        }
-    }
-
-    @media (max-width: 767px) {
-        .dashboard-header {
-            padding: 24px 12px;
-        }
-
-        .dashboard-title {
-            font-size: 18pt;
-            margin-bottom: 6px;
-        }
-
-        .dashboard-subtitle {
-            font-size: 12pt;
-        }
-
-        .dashboard-content {
-            padding: 16px 12px;
-        }
-    }
-
-    @media print {
-        .dashboard-container {
-            background-color: #ffffff;
-        }
-
-        .dashboard-header {
-            background-color: #1a1a1a;
-            page-break-after: avoid;
-        }
-
-        .dashboard-content {
-            padding: 16px 0;
-        }
-    }
-</style>
