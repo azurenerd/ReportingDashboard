@@ -1,0 +1,120 @@
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
+@inherits ComponentBase
+@implements IAsyncDisposable
+
+<div class="milestone-timeline">
+    @if (ProcessedMilestones != null && ProcessedMilestones.Count > 0)
+    {
+        <div class="row">
+            @foreach (var milestone in ProcessedMilestones)
+            {
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <!-- Milestone card placeholder for subsequent steps -->
+                </div>
+            }
+        </div>
+    }
+    else if (ProcessedMilestones != null)
+    {
+        <div class="alert alert-info">No milestones to display.</div>
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    public IEnumerable<Milestone> Milestones { get; set; }
+
+    [Inject]
+    private MilestoneCalculations MilestoneCalcs { get; set; }
+
+    private List<MilestoneViewModel> ProcessedMilestones { get; set; } = new();
+
+    protected override void OnParametersSet()
+    {
+        ProcessedMilestones = TransformAndSortMilestones();
+    }
+
+    private List<MilestoneViewModel> TransformAndSortMilestones()
+    {
+        if (Milestones == null || !Milestones.Any())
+        {
+            return new List<MilestoneViewModel>();
+        }
+
+        var viewModels = Milestones.Select(milestone => new MilestoneViewModel
+        {
+            Id = milestone.Id,
+            Name = milestone.Name,
+            Date = milestone.Date,
+            Status = milestone.Status,
+            Description = milestone.Description,
+            DaysRemaining = (int)Math.Round((milestone.Date - DateTime.UtcNow).TotalDays),
+            IsOverdue = milestone.Date < DateTime.UtcNow,
+            StatusLabel = ResolveStatusLabel(milestone),
+            StatusCssClass = ResolveCssClass(milestone)
+        }).ToList();
+
+        // Sort chronologically by date (earliest to latest)
+        return viewModels.OrderBy(m => m.Date).ToList();
+    }
+
+    private string ResolveStatusLabel(Milestone milestone)
+    {
+        var daysRemaining = (int)Math.Round((milestone.Date - DateTime.UtcNow).TotalDays);
+        
+        // Check if milestone is 3+ days overdue
+        if (daysRemaining <= -3)
+        {
+            return "At Risk";
+        }
+
+        return milestone.Status switch
+        {
+            MilestoneStatus.Completed => "Completed",
+            MilestoneStatus.InProgress => "In Progress",
+            MilestoneStatus.Planned => "Planned",
+            MilestoneStatus.AtRisk => "At Risk",
+            _ => "Unknown"
+        };
+    }
+
+    private string ResolveCssClass(Milestone milestone)
+    {
+        var daysRemaining = (int)Math.Round((milestone.Date - DateTime.UtcNow).TotalDays);
+        
+        // Check if milestone is 3+ days overdue
+        if (daysRemaining <= -3)
+        {
+            return "status-atrisk";
+        }
+
+        return milestone.Status switch
+        {
+            MilestoneStatus.Completed => "status-completed",
+            MilestoneStatus.InProgress => "status-inprogress",
+            MilestoneStatus.Planned => "status-planned",
+            MilestoneStatus.AtRisk => "status-atrisk",
+            _ => "status-unknown"
+        };
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        // Cleanup logic will be added in future steps if needed
+        await Task.CompletedTask;
+    }
+
+    private class MilestoneViewModel
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public DateTime Date { get; set; }
+        public MilestoneStatus Status { get; set; }
+        public string Description { get; set; }
+        public int DaysRemaining { get; set; }
+        public bool IsOverdue { get; set; }
+        public string StatusLabel { get; set; }
+        public string StatusCssClass { get; set; }
+    }
+}
