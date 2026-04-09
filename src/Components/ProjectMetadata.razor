@@ -1,0 +1,17 @@
+@using AgentSquad.Runner.Models
+
+<div class="project-metadata">
+    <!-- Placeholder for header section - Step 2 -->
+    <!-- Placeholder for KPI grid - Step 3 -->
+</div>
+
+@code {
+    [CascadingParameter]
+    public string ProjectName { get; set; }
+
+    [CascadingParameter]
+    public string ReportingPeriod { get; set; }
+
+    [CascadingParameter]
+    public Dictionary<string, int> Kpis { get; set; }
+}
