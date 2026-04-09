@@ -1,0 +1,35 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+
+<div class="timeline-container">
+    <canvas id="milestoneChart" style="max-height: 400px;"></canvas>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        return base.OnParametersSetAsync();
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", "if (window.chartInstance) { window.chartInstance.destroy(); window.chartInstance = null; }");
+        }
+        catch
+        {
+            // Gracefully handle cleanup errors
+        }
+    }
+}
