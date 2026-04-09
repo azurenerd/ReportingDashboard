@@ -9,7 +9,9 @@
         <div class="h-96 overflow-y-auto scroll-smooth rounded border border-gray-200 p-4">
             @foreach (var task in ShippedTasks)
             {
-                <TaskCard Task="@task" />
+                <div class="mb-3">
+                    <TaskCard Task="@task" />
+                </div>
             }
         </div>
     </div>
@@ -20,7 +22,9 @@
         <div class="h-96 overflow-y-auto scroll-smooth rounded border border-gray-200 p-4">
             @foreach (var task in InProgressTasks)
             {
-                <TaskCard Task="@task" />
+                <div class="mb-3">
+                    <TaskCard Task="@task" />
+                </div>
             }
         </div>
     </div>
@@ -31,7 +35,9 @@
         <div class="h-96 overflow-y-auto scroll-smooth rounded border border-gray-200 p-4">
             @foreach (var task in CarriedOverTasks)
             {
-                <TaskCard Task="@task" />
+                <div class="mb-3">
+                    <TaskCard Task="@task" />
+                </div>
             }
         </div>
     </div>
