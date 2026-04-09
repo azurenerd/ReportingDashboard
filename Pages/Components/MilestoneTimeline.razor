@@ -1,0 +1,73 @@
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
+
+<div class="milestone-timeline-container">
+    <!-- Component scaffold for milestone timeline rendering -->
+    @if (ProcessedMilestones == null)
+    {
+        <div class="alert alert-info">
+            Loading milestones...
+        </div>
+    }
+    else if (!ProcessedMilestones.Any())
+    {
+        <div class="alert alert-warning">
+            No milestones available.
+        </div>
+    }
+    else
+    {
+        <div class="milestone-list">
+            <!-- Milestone items will be rendered here in Step 3 -->
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Cascading parameter containing milestone data from parent component.
+    /// </summary>
+    [CascadingParameter]
+    public IEnumerable<Milestone> Milestones { get; set; }
+
+    /// <summary>
+    /// Processed milestones with calculated properties, sorted chronologically.
+    /// </summary>
+    private List<MilestoneViewModel> ProcessedMilestones { get; set; }
+
+    /// <summary>
+    /// Tracks expanded/collapsed state per milestone by Id.
+    /// </summary>
+    private Dictionary<string, bool> ExpandedStates { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        if (Milestones != null && Milestones.Any())
+        {
+            ProcessedMilestones = Milestones
+                .Select(m => MilestoneCalculations.CalculateMilestoneViewModel(m))
+                .OrderBy(vm => vm.Date)
+                .ToList();
+
+            foreach (var milestone in ProcessedMilestones)
+            {
+                ExpandedStates[milestone.Id] = false;
+            }
+        }
+        else
+        {
+            ProcessedMilestones = new List<MilestoneViewModel>();
+        }
+    }
+
+    /// <summary>
+    /// Toggles the expanded state of a milestone details section.
+    /// </summary>
+    private void ToggleDetails(string milestoneId)
+    {
+        if (ExpandedStates.ContainsKey(milestoneId))
+        {
+            ExpandedStates[milestoneId] = !ExpandedStates[milestoneId];
+        }
+    }
+}
