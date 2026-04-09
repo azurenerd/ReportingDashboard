@@ -16,6 +16,7 @@ namespace AgentSquad.Runner.Services
         private string _dataPath;
         private int _debounceIntervalMs;
         private bool _isDisposed;
+        private SynchronizationContext _blazorSynchronizationContext;
 
         public event Func<Task> OnDataChanged;
 
@@ -29,6 +30,7 @@ namespace AgentSquad.Runner.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             LastRefreshTime = DateTime.Now;
             _isDisposed = false;
+            _blazorSynchronizationContext = SynchronizationContext.Current;
         }
 
         public void Start(string dataPath = null)
@@ -163,7 +165,7 @@ namespace AgentSquad.Runner.Services
             }
         }
 
-        private async void OnDebounceTimerElapsed(object sender, ElapsedEventArgs e)
+        private void OnDebounceTimerElapsed(object sender, ElapsedEventArgs e)
         {
             lock (_debounceTimer)
             {
@@ -173,15 +175,43 @@ namespace AgentSquad.Runner.Services
             LastRefreshTime = DateTime.Now;
             _logger.LogInformation($"Data refresh triggered at {LastRefreshTimeFormatted}");
 
-            if (OnDataChanged != null)
+            FireDataChangedEvent();
+        }
+
+        private void FireDataChangedEvent()
+        {
+            if (OnDataChanged == null)
+            {
+                return;
+            }
+
+            if (_blazorSynchronizationContext != null)
+            {
+                _blazorSynchronizationContext.Post(async _ =>
+                {
+                    try
+                    {
+                        await OnDataChanged.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error in OnDataChanged event handler: {ex.Message}");
+                    }
+                }, null);
+            }
+            else
             {
                 try
                 {
-                    await OnDataChanged.Invoke();
+                    var task = OnDataChanged.Invoke();
+                    if (task != null)
+                    {
+                        task.GetAwaiter().GetResult();
+                    }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error in OnDataChanged event handler: {ex.Message}");
+                    _logger.LogError($"Error in OnDataChanged event handler (no SynchronizationContext): {ex.Message}");
                 }
             }
         }
