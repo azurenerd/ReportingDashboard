@@ -3,6 +3,18 @@
 
 <div class="@GetCardClasses(Task.Status) p-4 rounded-sm mb-3">
     <span class="text-base font-bold">@GetBadge(Task.Status) <span class="@GetTitleClasses(Task.Status)">@Task.Title</span></span>
+    @if (!string.IsNullOrEmpty(Task.Description))
+    {
+        <p class="text-sm text-gray-600 mt-2">@Task.Description</p>
+    }
+    @if (!string.IsNullOrEmpty(Task.Owner))
+    {
+        <p class="text-xs text-gray-500 mt-1">Owner: @Task.Owner</p>
+    }
+    @if (Task.DueDate.HasValue)
+    {
+        <p class="text-xs text-gray-500 mt-1">Due: @Task.DueDate.Value.ToString("MM-dd")</p>
+    }
 </div>
 
 @code {
