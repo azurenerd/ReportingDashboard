@@ -1,102 +1,89 @@
+using System;
+using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using AgentSquad.Runner.Interfaces;
 using AgentSquad.Runner.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace AgentSquad.Runner.Services;
-
-/// <summary>
-/// Service responsible for loading and deserializing data.json file into ProjectReport POCO.
-/// Uses System.Text.Json with PropertyNameCaseInsensitive for flexible JSON deserialization.
-/// No validation or file watching responsibility - those are handled by DataValidator and DataWatcherService.
-/// </summary>
-public class DataLoaderService : IDataLoaderService
+namespace AgentSquad.Runner.Services
 {
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<DataLoaderService> _logger;
-
-    /// <summary>
-    /// Initialize DataLoaderService with configuration and logging.
-    /// </summary>
-    /// <param name="configuration">Application configuration (read appsettings.json)</param>
-    /// <param name="logger">Logger for INFO/ERROR level events</param>
-    public DataLoaderService(IConfiguration configuration, ILogger<DataLoaderService> logger)
+    public class DataLoaderService : IDataLoaderService
     {
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<DataLoaderService> _logger;
 
-    /// <summary>
-    /// Get configured data file path from appsettings.json or return default.
-    /// Resolution order: AppSettings:DataPath config value, or default "./data.json"
-    /// </summary>
-    /// <returns>Configured data file path (relative or absolute)</returns>
-    public string GetConfiguredDataPath()
-    {
-        var configuredPath = _configuration["AppSettings:DataPath"];
-        
-        if (string.IsNullOrWhiteSpace(configuredPath))
+        public DataLoaderService(IConfiguration configuration, ILogger<DataLoaderService> logger)
         {
-            configuredPath = "data.json";
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        _logger.LogInformation("Configured data path: {DataPath}", configuredPath);
-        return configuredPath;
-    }
-
-    /// <summary>
-    /// Load and deserialize data.json file into ProjectReport POCO.
-    /// </summary>
-    /// <param name="dataPath">Optional file path; if not provided, uses GetConfiguredDataPath()</param>
-    /// <returns>Deserialized ProjectReport object</returns>
-    /// <exception cref="FileNotFoundException">Thrown if data file not found at specified path</exception>
-    /// <exception cref="JsonException">Thrown if JSON is malformed or invalid</exception>
-    /// <exception cref="IOException">Thrown if file cannot be read (access denied, file locked, etc.)</exception>
-    public async Task<ProjectReport> LoadAsync(string dataPath = null)
-    {
-        // Resolve data file path: parameter > config > default
-        if (string.IsNullOrWhiteSpace(dataPath))
+        public string GetConfiguredDataPath()
         {
-            dataPath = GetConfiguredDataPath();
+            string configPath = _configuration.GetValue<string>("AppSettings:DataPath");
+            if (!string.IsNullOrEmpty(configPath))
+            {
+                return Path.GetFullPath(configPath);
+            }
+            return Path.GetFullPath("data.json");
         }
 
-        _logger.LogInformation("Loading data from: {DataPath}", dataPath);
-
-        // Validate file exists
-        if (!File.Exists(dataPath))
+        public async Task<ProjectReport> LoadAsync(string dataPath = null)
         {
-            _logger.LogError("Data file not found: {DataPath}", dataPath);
-            throw new FileNotFoundException($"Data file not found at {dataPath}");
-        }
+            try
+            {
+                string resolvedPath = dataPath;
+                if (string.IsNullOrEmpty(resolvedPath))
+                {
+                    resolvedPath = GetConfiguredDataPath();
+                }
+                else
+                {
+                    resolvedPath = Path.GetFullPath(resolvedPath);
+                }
 
-        try
-        {
-            // Read file asynchronously
-            var json = await File.ReadAllTextAsync(dataPath);
-            _logger.LogInformation("File read successfully, {ByteCount} bytes", json.Length);
+                _logger.LogInformation($"Loading data from: {resolvedPath}");
 
-            // Deserialize JSON to ProjectReport POCO
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var projectReport = await Task.Run(() => 
-                JsonSerializer.Deserialize<ProjectReport>(json, options)
-            );
+                if (!File.Exists(resolvedPath))
+                {
+                    throw new FileNotFoundException($"Data file not found at {resolvedPath}");
+                }
 
-            // Log success
-            _logger.LogInformation("Successfully loaded project: {ProjectName}", projectReport?.ProjectName);
-            _logger.LogInformation("Loaded {MilestoneCount} milestones", projectReport?.Milestones?.Length ?? 0);
+                string jsonContent = await File.ReadAllTextAsync(resolvedPath);
 
-            return projectReport;
-        }
-        catch (JsonException jsonEx)
-        {
-            _logger.LogError("JSON deserialization failed: {ErrorMessage}", jsonEx.Message);
-            throw;
-        }
-        catch (IOException ioEx)
-        {
-            _logger.LogError("File access error: {ErrorMessage}", ioEx.Message);
-            throw;
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                var report = JsonSerializer.Deserialize<ProjectReport>(jsonContent, options);
+
+                _logger.LogInformation($"Successfully loaded project report: {report?.ProjectName ?? "Unknown"} with {report?.Milestones?.Length ?? 0} milestones");
+
+                return report;
+            }
+            catch (FileNotFoundException ex)
+            {
+                _logger.LogError($"File not found: {ex.Message}");
+                throw;
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError($"JSON deserialization failed: {ex.Message}");
+                throw;
+            }
+            catch (IOException ex)
+            {
+                _logger.LogError($"IO error reading data file: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Unexpected error loading data: {ex.Message}");
+                throw;
+            }
         }
     }
 }
