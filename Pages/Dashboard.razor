@@ -1,124 +1,194 @@
-@page "/"
-@using System.Collections.Generic
+@page "/dashboard"
+@using AgentSquad.Runner.Data
+@using AgentSquad.Runner.Services
+@inject ProjectDataService DataService
+@inject ILogger<Dashboard> Logger
+@rendermode InteractiveServer
 
-<div class="container-fluid full-width dashboard-container">
-    <!-- Page Title Section -->
-    <div class="row section-spacing-bottom">
-        <div class="col-12">
-            <h1 class="fs-1 mb-0">Executive Dashboard</h1>
+<div class="container-fluid py-4">
+    @if (IsLoading)
+    {
+        <div class="row justify-content-center mt-5">
+            <div class="col-12 text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading project dashboard...</p>
+            </div>
         </div>
-    </div>
-
-    <!-- Milestone Timeline Section - Full Width Responsive -->
-    <div class="row section-spacing">
-        <div class="col-12">
-            <div class="dashboard-section">
-                <h2 class="dashboard-section-title fs-2 mb-0">Project Milestones</h2>
-                <div class="timeline-container component-gutter">
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-marker completed">✓</div>
-                            <div class="timeline-label">Phase 1</div>
-                            <div class="timeline-date">Jan 15, 2026</div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-marker in-progress">◐</div>
-                            <div class="timeline-label">Phase 2</div>
-                            <div class="timeline-date">Apr 01, 2026</div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-marker pending">◯</div>
-                            <div class="timeline-label">Phase 3</div>
-                            <div class="timeline-date">Jun 30, 2026</div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-marker pending">◯</div>
-                            <div class="timeline-label">Phase 4</div>
-                            <div class="timeline-date">Sep 15, 2026</div>
-                        </div>
-                    </div>
+    }
+    @if (ErrorMessage != null)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <h4 class="alert-heading">Error Loading Dashboard</h4>
+                    <p>@ErrorMessage</p>
+                    <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ReloadData">
+                        <span>🔄 Refresh Data</span>
+                    </button>
+                    <button type="button" class="btn-close" @onclick="DismissError" aria-label="Close"></button>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Status Cards Section - Responsive Grid (1 col mobile, 2 col tablet, 3 col desktop) -->
-    <div class="row section-spacing">
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="status-card shipped">
-                <h4 class="status-card-title fs-4 mb-0">Shipped</h4>
-                <div class="status-card-count">12</div>
-                <ul class="status-card-list component-gutter-y">
-                    <li class="status-card-item">Dashboard UI</li>
-                    <li class="status-card-item">Data Load Service</li>
-                    <li class="status-card-item">Error Handling</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="status-card in-progress">
-                <h4 class="status-card-title fs-4 mb-0">In Progress</h4>
-                <div class="status-card-count">5</div>
-                <ul class="status-card-list component-gutter-y">
-                    <li class="status-card-item">Timeline Component</li>
-                    <li class="status-card-item">Progress Metrics</li>
-                    <li class="status-card-item">Responsive Grid</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="status-card carried-over">
-                <h4 class="status-card-title fs-4 mb-0">Carried Over</h4>
-                <div class="status-card-count">2</div>
-                <ul class="status-card-list component-gutter-y">
-                    <li class="status-card-item">Advanced Analytics</li>
-                    <li class="status-card-item">Multi-Project Support</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Progress Metrics Section - Full Width Responsive -->
-    <div class="row section-spacing">
-        <div class="col-12">
-            <div class="dashboard-section">
-                <h2 class="dashboard-section-title fs-2 mb-0">Progress Metrics</h2>
-                <div class="metrics-row">
-                    <div class="metric-card">
-                        <div class="metric-label">Overall Completion</div>
-                        <div class="metric-value">68%</div>
+    }
+    @if (ProjectData != null)
+    {
+        <!-- Header Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h1 class="display-5 mb-2">@ProjectData.Project.Name</h1>
+                        <p class="lead text-muted">@ProjectData.Project.Description</p>
+                        <div class="row g-3">
+                            <div class="col-auto">
+                                <small class="text-muted">
+                                    <strong>Sponsor:</strong> @ProjectData.Project.Sponsor
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <small class="text-muted">
+                                    <strong>PM:</strong> @ProjectData.Project.ProjectManager
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-@GetStatusBadgeClass(ProjectData.Project.Status)">
+                                    @ProjectData.Project.Status
+                                </span>
+                            </div>
+                            <div class="col-auto">
+                                <small class="text-muted d-block">
+                                    Last updated: @LastLoadTime.ToString("g")
+                                </small>
+                            </div>
+                        </div>
                     </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Tasks Completed</div>
-                        <div class="metric-value">17</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">On-Time Delivery</div>
-                        <div class="metric-value">89%</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Resource Utilization</div>
-                        <div class="metric-value">92%</div>
-                    </div>
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="ReloadData" title="Refresh data from data.json">
+                        <span>🔄 Sync</span>
+                    </button>
                 </div>
+                <hr class="my-4" />
             </div>
         </div>
-    </div>
+
+        <!-- Timeline Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <MilestoneTimeline 
+                    Milestones="ProjectData.Milestones"
+                    ProjectStartDate="ProjectData.Project.StartDate"
+                    ProjectEndDate="ProjectData.Project.EndDate" />
+            </div>
+        </div>
+
+        <!-- Status Cards Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="mb-4">Task Status</h2>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <StatusCard 
+                    StatusCategory="Shipped"
+                    TaskCount="ShippedTaskCount"
+                    Tasks="GetTasksByStatus(TaskStatus.Shipped)"
+                    CardColor="success" />
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <StatusCard 
+                    StatusCategory="In-Progress"
+                    TaskCount="InProgressTaskCount"
+                    Tasks="GetTasksByStatus(TaskStatus.InProgress)"
+                    CardColor="info" />
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <StatusCard 
+                    StatusCategory="Carried-Over"
+                    TaskCount="CarriedOverTaskCount"
+                    Tasks="GetTasksByStatus(TaskStatus.CarriedOver)"
+                    CardColor="warning" />
+            </div>
+        </div>
+
+        <!-- Metrics Section -->
+        <div class="row">
+            <div class="col-12">
+                <ProgressMetrics 
+                    CompletionPercentage="ProjectData.Metrics.CompletionPercentage"
+                    CompletedTasks="ProjectData.Metrics.CompletedTasks"
+                    TotalTasks="ProjectData.Metrics.TotalTasks"
+                    BurndownRate="ProjectData.Metrics.EstimatedBurndownRate" />
+            </div>
+        </div>
+    }
 </div>
 
 @code {
-    protected override void OnInitialized()
+    private ProjectData ProjectData;
+    private string ErrorMessage;
+    private bool IsLoading = true;
+    private DateTime LastLoadTime = DateTime.Now;
+
+    protected override async Task OnInitializedAsync()
     {
-        // Dashboard initialization logic complete
-        // Bootstrap 5 responsive grid styling fully integrated
-        // Typography scale established with 12pt minimum readability
-        // Spacing hierarchy consistently applied
-        // Media queries configured for 768px, 1024px, 1440px, 1920px breakpoints
-        // Status cards collapse/expand: 1 col (mobile) → 2 col (tablet) → 3 col (desktop)
-        // MilestoneTimeline and ProgressMetrics full-width responsive without overflow
-        // No CSS animations/transitions for deterministic screenshot rendering
-        // Page renders without layout shifts during load
+        await LoadProjectData();
+    }
+
+    private async Task LoadProjectData()
+    {
+        try
+        {
+            IsLoading = true;
+            ErrorMessage = null;
+            ProjectData = await DataService.LoadProjectDataAsync("data/data.json");
+            LastLoadTime = DateTime.Now;
+            StateHasChanged();
+        }
+        catch (DataLoadException ex)
+        {
+            Logger.LogError(ex, "Failed to load project data");
+            ErrorMessage = ex.Message;
+            ProjectData = null;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error loading project data");
+            ErrorMessage = "An unexpected error occurred while loading the dashboard. Please try again.";
+            ProjectData = null;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task ReloadData()
+    {
+        await LoadProjectData();
+    }
+
+    private void DismissError()
+    {
+        ErrorMessage = null;
+    }
+
+    private int ShippedTaskCount => ProjectData?.Metrics.CompletedTasks ?? 0;
+    private int InProgressTaskCount => ProjectData?.Metrics.InProgressTasks ?? 0;
+    private int CarriedOverTaskCount => ProjectData?.Metrics.CarriedOverTasks ?? 0;
+
+    private List<ProjectTask> GetTasksByStatus(TaskStatus status)
+    {
+        return ProjectData?.Tasks.Where(t => t.Status == status).ToList() ?? new List<ProjectTask>();
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "OnTrack" => "success",
+            "AtRisk" => "warning",
+            "Delayed" => "danger",
+            _ => "secondary"
+        };
     }
 }

@@ -10,12 +10,4 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <TrimmerRootAssembly Include="Microsoft.AspNetCore.Components.Server" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="wwwroot/data/data.json" CopyToOutputDirectory="Always" />
-  </ItemGroup>
-
 </Project>
