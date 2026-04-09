@@ -61,69 +61,6 @@
       "dueDate": "2026-05-15",
       "estimatedDays": 6,
       "relatedMilestone": "m2"
-    },
-    {
-      "id": "t4",
-      "name": "Android UI Polish",
-      "status": "InProgress",
-      "assignedTo": "Carol White",
-      "dueDate": "2026-05-20",
-      "estimatedDays": 4,
-      "relatedMilestone": "m2"
-    },
-    {
-      "id": "t5",
-      "name": "Backend Database Optimization",
-      "status": "Shipped",
-      "assignedTo": "David Green",
-      "dueDate": "2026-04-25",
-      "estimatedDays": 7,
-      "relatedMilestone": "m1"
-    },
-    {
-      "id": "t6",
-      "name": "Security Audit",
-      "status": "InProgress",
-      "assignedTo": "Eve Martinez",
-      "dueDate": "2026-05-31",
-      "estimatedDays": 5,
-      "relatedMilestone": "m3"
-    },
-    {
-      "id": "t7",
-      "name": "Documentation",
-      "status": "CarriedOver",
-      "assignedTo": "Frank Lee",
-      "dueDate": "2026-06-15",
-      "estimatedDays": 3,
-      "relatedMilestone": "m3"
-    },
-    {
-      "id": "t8",
-      "name": "User Acceptance Testing",
-      "status": "Pending",
-      "assignedTo": "Grace Johnson",
-      "dueDate": "2026-06-10",
-      "estimatedDays": 4,
-      "relatedMilestone": "m3"
-    },
-    {
-      "id": "t9",
-      "name": "Release Notes",
-      "status": "Shipped",
-      "assignedTo": "Henry Brown",
-      "dueDate": "2026-04-30",
-      "estimatedDays": 2,
-      "relatedMilestone": "m1"
-    },
-    {
-      "id": "t10",
-      "name": "Deployment Infrastructure",
-      "status": "InProgress",
-      "assignedTo": "Iris Chen",
-      "dueDate": "2026-05-25",
-      "estimatedDays": 6,
-      "relatedMilestone": "m2"
     }
   ],
   "metrics": {
@@ -131,8 +68,6 @@
     "completedTasks": 3,
     "inProgressTasks": 5,
     "carriedOverTasks": 2,
-    "estimatedBurndownRate": 1.2,
-    "projectStartDate": "2026-04-01",
-    "projectEndDate": "2026-06-30"
+    "estimatedBurndownRate": 1.2
   }
 }
