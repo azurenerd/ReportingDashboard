@@ -1,0 +1,96 @@
+@page "/"
+@using AgentSquad.Dashboard.Services
+@inject ProjectDataService ProjectDataService
+@inject NavigationManager NavigationManager
+
+<div class="dashboard-container">
+    <ErrorBoundary>
+        <ChildContent>
+            @if (projectData != null)
+            {
+                <section class="timeline-section">
+                    <MilestoneTimeline Milestones="projectData.Milestones" 
+                                      ProjectDurationDays="(int)(projectData.Project.EndDate - projectData.Project.StartDate).TotalDays" />
+                </section>
+
+                <section class="status-section">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <StatusCard StatusCategory="Shipped" 
+                                       TaskCount="projectData.Metrics.CompletedTasks"
+                                       Tasks="projectData.Tasks.Where(t => t.Status == TaskStatus.Shipped).ToList()"
+                                       CardColor="success" />
+                        </div>
+                        <div class="col-md-4">
+                            <StatusCard StatusCategory="In-Progress" 
+                                       TaskCount="projectData.Metrics.InProgressTasks"
+                                       Tasks="projectData.Tasks.Where(t => t.Status == TaskStatus.InProgress).ToList()"
+                                       CardColor="primary" />
+                        </div>
+                        <div class="col-md-4">
+                            <StatusCard StatusCategory="Carried-Over" 
+                                       TaskCount="projectData.Metrics.CarriedOverTasks"
+                                       Tasks="projectData.Tasks.Where(t => t.Status == TaskStatus.CarriedOver).ToList()"
+                                       CardColor="warning" />
+                        </div>
+                    </div>
+                </section>
+
+                <section class="metrics-section">
+                    <ProgressMetrics CompletionPercentage="projectData.Metrics.CompletionPercentage"
+                                    TotalTasks="projectData.Metrics.TotalTasks"
+                                    CompletedTasks="projectData.Metrics.CompletedTasks"
+                                    BurndownRate="projectData.Metrics.EstimatedBurndownRate" />
+                </section>
+            }
+            else if (errorMessage != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Error Loading Project Data</h4>
+                    <p>@errorMessage</p>
+                    <button class="btn btn-primary" @onclick="RetryLoadData">Refresh</button>
+                </div>
+            }
+            else
+            {
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            }
+        </ChildContent>
+        <ErrorContent>
+            <div class="alert alert-danger">
+                An unexpected error occurred while rendering the dashboard. Please refresh the page.
+            </div>
+        </ErrorContent>
+    </ErrorBoundary>
+</div>
+
+@code {
+    private ProjectData? projectData;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjectData();
+    }
+
+    private async Task LoadProjectData()
+    {
+        try
+        {
+            errorMessage = null;
+            projectData = await ProjectDataService.LoadProjectDataAsync("wwwroot/data/data.json");
+        }
+        catch (DataLoadException ex)
+        {
+            errorMessage = ex.Message;
+            projectData = null;
+        }
+    }
+
+    private async Task RetryLoadData()
+    {
+        await LoadProjectData();
+    }
+}

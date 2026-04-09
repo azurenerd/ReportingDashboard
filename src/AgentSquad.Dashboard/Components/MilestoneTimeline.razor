@@ -1,0 +1,41 @@
+@using AgentSquad.Dashboard.Services
+
+<div class="milestone-timeline">
+    <h2 class="timeline-title">Project Milestones</h2>
+    <div class="timeline-container">
+        @foreach (var milestone in Milestones)
+        {
+            var statusClass = milestone.Status switch
+            {
+                MilestoneStatus.Completed => "milestone-completed",
+                MilestoneStatus.InProgress => "milestone-in-progress",
+                MilestoneStatus.Pending => "milestone-pending",
+                _ => "milestone-pending"
+            };
+
+            <div class="milestone-item @statusClass">
+                <div class="milestone-marker"></div>
+                <div class="milestone-content">
+                    <h4>@milestone.Name</h4>
+                    <p class="milestone-date">Target: @milestone.TargetDate.ToString("MMM dd, yyyy")</p>
+                    @if (milestone.ActualDate.HasValue)
+                    {
+                        <p class="milestone-actual">Completed: @milestone.ActualDate.Value.ToString("MMM dd, yyyy")</p>
+                    }
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar" role="progressbar" style="width: @milestone.CompletionPercentage%;" aria-valuenow="@milestone.CompletionPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <span class="completion-text">@milestone.CompletionPercentage%</span>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<Milestone>? Milestones { get; set; }
+
+    [Parameter]
+    public int ProjectDurationDays { get; set; }
+}
