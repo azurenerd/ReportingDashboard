@@ -1,0 +1,11 @@
+@inherits ComponentBase
+@using AgentSquad.Runner.Models
+
+<div class="rounded border-l-4 border-solid p-3 bg-gray-50">
+    <p class="text-sm text-gray-700">@(Task?.Name ?? "Untitled Task")</p>
+</div>
+
+@code {
+    [Parameter]
+    public Task Task { get; set; }
+}
