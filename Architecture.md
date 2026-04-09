@@ -2,619 +2,511 @@
 
 ## Overview & Goals
 
-This document describes the system architecture for the Executive Reporting Dashboard, a lightweight, screenshot-optimized web dashboard built on Blazor Server (.NET 8) for executive visibility into project milestones and progress.
+### Executive Summary
 
-**Architectural Goals:**
+This document defines the system architecture for the Executive Reporting Dashboard—a lightweight, screenshot-ready single-page Blazor Server application that visualizes project health, milestone progress, and deliverables by reading data from a local data.json file.
 
-1. Enable <3 second dashboard loads with <200ms rendering for 30-50 work items
-2. Support 100% screenshot-based PowerPoint reporting without complex BI tools or databases
-3. Maintain pixel-perfect visual fidelity at 1920x1080 resolution for print/presentation embedding
-4. Minimize operational overhead via JSON-based configuration (data.json) with zero code changes for status updates
-5. Eliminate external dependencies: no cloud services, no authentication, no database required
-6. Support 50-100 concurrent intranet users on a single Windows machine
+**Primary Goal:** Enable executives to create professional PowerPoint presentations from dashboard screenshots without manual data compilation, reducing reporting overhead by 80%.
 
-The architecture prioritizes simplicity and reliability over extensibility, deferring horizontal scaling, advanced state management, and multi-project support to future versions.
+**Design Philosophy:** Simplicity, consistency, and reliability. No cloud services, no external build tools, no authentication—just a clean, responsive dashboard optimized for executive decision-making.
+
+**Technology Stack (Mandatory):** C# .NET 8 with Blazor Server, local-only deployment, .sln project structure.
+
+### Architectural Goals
+
+1. **Pixel-Perfect Rendering:** Identical output across Chrome, Edge, Safari, Firefox at 1920x1080 and 4K resolutions
+2. **Autonomous Operation:** Single `dotnet run` command; no npm, yarn, webpack, or external tools
+3. **Hot-Reload Support:** Data updates reflect in dashboard within 10 seconds, including network share deployments
+4. **Data Integrity:** 100% fidelity between dashboard display and source data.json; graceful error handling
+5. **Performance:** <2 second cold start; <10 second hot-reload latency; 50-100MB idle RAM
+6. **Scalability Path:** Support up to 5,000 dashboard items (MVP); designed for pagination/caching in future phases
 
 ---
 
 ## System Components
 
-### 1. DashboardService (Core Service Layer)
-
-**Responsibility:** Load, validate, and monitor data.json file system changes.
+### 1. DashboardContainer.razor
+**Responsibility:** Root component managing overall dashboard state, data lifecycle, and layout orchestration.
 
 **Public Interface:**
+- Route: `@page "/"`
+- No parameters (root component)
+- Events: OnInitializedAsync (loads data), StateHasChanged (triggered by DashboardDataService)
+
+**Dependencies:**
+- DashboardDataService (injected)
+
+**Data Ownership:**
+- Current ProjectData instance (loaded from service)
+- Error flag, loading state
+
+**Key Implementation:**
 ```csharp
-public interface IDashboardService
+@page "/"
+@implements IAsyncDisposable
+@inject IDashboardDataService DataService
+
+protected override async Task OnInitializedAsync()
 {
-    Task<DashboardData> LoadDataAsync(string filePath);
-    Task<bool> ValidateDataAsync(DashboardData data);
-    IAsyncEnumerable<DashboardData> WatchDataAsync(string filePath);
+    var dataPath = Path.Combine(AppContext.BaseDirectory, "data.json");
+    DataService.Initialize(dataPath);
+    DataService.OnDataChanged += async () => await InvokeAsync(StateHasChanged);
+}
+
+async ValueTask IAsyncDisposable.DisposeAsync()
+{
+    DataService.OnDataChanged -= async () => await InvokeAsync(StateHasChanged);
 }
 ```
 
-**Dependencies:** None (isolation layer)
+---
 
-**Data Ownership:**
-- No persistent state; acts as stateless gateway to file system
-- Returns fully hydrated `DashboardData` object
+### 2. TimelineSection.razor
+**Responsibility:** Display chronological milestone timeline with status indicators. Stateless rendering.
 
-**Responsibilities:**
-- Read UTF-8 JSON from `wwwroot/data/data.json`
-- Parse with System.Text.Json (PropertyNameCaseInsensitive=true)
-- Validate against DataAnnotations and custom rules
-- Monitor file changes via FileSystemWatcher
-- Handle errors gracefully with user-friendly messages
-- Log all operations and errors to ILogger
+**Public Interface (Cascading Parameters):**
+```csharp
+[CascadingParameter]
+public List<Milestone> Milestones { get; set; }
+```
 
-### 2. DashboardPage.razor (Parent Component)
+**Dependencies:** None (stateless)
 
-**Responsibility:** Orchestrate state lifecycle, manage data refresh, coordinate child components.
+**Data Ownership:** None (read-only parameter)
+
+**Rendering:** `@foreach (var m in Milestones) { <TimelineItem @key="m.Id" Milestone="m" /> }`
+
+---
+
+### 3. TimelineItem.razor
+**Responsibility:** Render single milestone with name, due date, status badge (color-coded).
 
 **Public Interface:**
 ```csharp
-[Parameter] public string DataFilePath { get; set; } = "wwwroot/data/data.json";
-[CascadingParameter] public DashboardData CurrentData { get; set; }
-public async Task RefreshDataAsync() { }
+[Parameter]
+public Milestone Milestone { get; set; }
+```
+
+**Rendering:** Horizontal card displaying milestone name, date, and status with color-coded badge.
+
+---
+
+### 4. ProgressSection.razor
+**Responsibility:** Display project-level metrics (% complete, % carried over, item counts) in single-row layout.
+
+**Public Interface (Cascading Parameters):**
+```csharp
+[CascadingParameter]
+public ProgressMetrics Metrics { get; set; }
+
+[CascadingParameter]
+public int ShippedCount { get; set; }
+
+[CascadingParameter]
+public int InProgressCount { get; set; }
+
+[CascadingParameter]
+public int CarriedOverCount { get; set; }
+```
+
+**Rendering:** Numeric displays for counts and percentages; optional Chart.js doughnut chart via @((MarkupString)).
+
+---
+
+### 5. StatusCardsSection.razor
+**Responsibility:** Three-column layout container for Shipped, In Progress, and Carried Over sections.
+
+**Public Interface (Cascading Parameters):**
+```csharp
+[CascadingParameter]
+public List<StatusItem> ShippedItems { get; set; }
+
+[CascadingParameter]
+public List<StatusItem> InProgressItems { get; set; }
+
+[CascadingParameter]
+public List<StatusItem> CarriedOverItems { get; set; }
+```
+
+**Dependencies:** ShippedCard.razor, InProgressCard.razor, CarriedOverCard.razor
+
+**Rendering:** Bootstrap col-lg-4 grid; three columns rendering child card components with @key directive.
+
+---
+
+### 6. ShippedCard.razor / InProgressCard.razor / CarriedOverCard.razor
+**Responsibility:** Render individual status item as card with title, description, category-specific styling.
+
+**Public Interface:**
+```csharp
+[Parameter]
+public StatusItem Item { get; set; }
+```
+
+**Rendering:** Card with title, description, color-coded background/border per category.
+
+---
+
+### 7. DashboardDataService
+**Responsibility:** Load data.json from disk, parse into ProjectData model, watch file changes, notify components of updates. Single source of truth for application data.
+
+**Public Interface:**
+```csharp
+public interface IDashboardDataService
+{
+    void Initialize(string dataPath);
+    ProjectData GetData();
+    event Action OnDataChanged;
+    DateTime GetLastModifiedTime();
+    bool TryReloadData();
+}
 ```
 
 **Dependencies:**
-- IDashboardService (injected, scoped lifetime)
-- ILogger<DashboardPage>
+- System.Text.Json (built-in)
+- System.IO.FileSystemWatcher (built-in)
+- System.Timers.Timer (built-in)
 
 **Data Ownership:**
-- Holds current `DashboardData` in private component field
-- Manages loading state and error messages
-- Cascades data to all child components
+- ProjectData _cachedData (in-memory cache)
+- DateTime _lastModified (track file LastWriteTime to prevent re-parsing)
 
-**Responsibilities:**
-- Load dashboard data on initialization (`OnInitializedAsync`)
-- Provide manual refresh button with user feedback (loading spinner)
-- Cascade `DashboardData` to child components via cascading parameters
-- Display error banner if JSON is invalid or missing
-- Call `StateHasChanged()` after data updates to trigger re-renders
-- Measure and log page load time for performance monitoring
+**Key Implementation:**
+- FileSystemWatcher monitors data.json for changes
+- 10-second Timer provides fallback polling for network shares
+- LastWriteTime check prevents redundant parses
+- Silent failure: retains previous _cachedData on JSON errors
+- OnDataChanged event triggers component re-renders via InvokeAsync(StateHasChanged)
 
-### 3. ProjectStatusCard.razor (Child Component)
+**Error Handling:** JSON parse errors logged to Debug output; dashboard displays stale data rather than crashing.
 
-**Responsibility:** Display summary metrics (counts, % complete, project name/dates).
+---
 
-**Public Interface:**
+### 8. ProjectData (Model)
+**Responsibility:** Root data structure matching JSON schema. Immutable value object.
+
 ```csharp
-[CascadingParameter] public DashboardData Data { get; set; }
-[CascadingParameter] public ProjectMetadata Project { get; set; }
-[CascadingParameter] public DashboardSummary Summary { get; set; }
+public class ProjectData
+{
+    public string ProjectName { get; set; }
+    public string Quarter { get; set; }
+    public DateTime LastUpdated { get; set; }
+    public List<Milestone> Milestones { get; set; }
+    public List<StatusItem> Shipped { get; set; }
+    public List<StatusItem> InProgress { get; set; }
+    public List<StatusItem> CarriedOver { get; set; }
+    public ProgressMetrics Metrics { get; set; }
+}
 ```
 
-**Dependencies:** None (read-only display)
+---
 
-**Data Ownership:** None; read-only projection of parent data
+### 9. Milestone (Model)
+**Responsibility:** Represent single project milestone with delivery date and health status.
 
-**Responsibilities:**
-- Display shipped/in-progress/carryover count badges
-- Show overall % complete as primary metric
-- Render project name, start date, end date
-- Color-code status metrics (Green=shipped, Yellow=in-progress, Red=carryover)
-- Render without overflow at 1920px width
-- Hide non-essential elements in print view
-
-### 4. MilestoneTimeline.razor (Child Component)
-
-**Responsibility:** Render chronological milestone timeline with calculated status indicators.
-
-**Public Interface:**
 ```csharp
-[CascadingParameter] public IEnumerable<Milestone> Milestones { get; set; }
-private List<MilestoneViewModel> ProcessedMilestones { get; set; }
+public class Milestone
+{
+    public string Id { get; set; }           // "m1", "m2", etc.
+    public string Name { get; set; }         // Max 100 chars
+    public DateTime DueDate { get; set; }    // ISO 8601
+    public string Status { get; set; }       // "completed", "on-track", "at-risk", "blocked"
+    public string Color { get; set; }        // Hex badge color (optional)
+}
 ```
 
-**Dependencies:** MilestoneCalculations utility class
+---
 
-**Data Ownership:**
-- Transforms Milestone objects to MilestoneViewModel (adds calculated fields)
-- Computes: DaysRemaining, IsOverdue, StatusLabel, CSS classes
-- Sorts milestones chronologically (earliest to latest)
+### 10. StatusItem (Model)
+**Responsibility:** Represent individual deliverable in shipped/in-progress/carried-over categories.
 
-**Responsibilities:**
-- Sort milestones by Date ascending
-- Calculate days remaining: `(Date - DateTime.UtcNow).TotalDays`
-- Flag milestones ≥3 days overdue as "At Risk" (red)
-- Render status badges with color coding: Green=Completed, Yellow=InProgress, Red=AtRisk
-- Display milestone name, date, status, description on hover
-- Support expandable details section
-- Ensure all content fits within 8.5" × 11" print bounds
-
-### 5. ShippedItemsList.razor (Child Component)
-
-**Responsibility:** Tabular display of completed work items.
-
-**Public Interface:**
 ```csharp
-[CascadingParameter] public IEnumerable<WorkItem> ShippedItems { get; set; }
-[CascadingParameter] public Dictionary<string, Milestone> MilestoneMap { get; set; }
+public class StatusItem
+{
+    public string Id { get; set; }
+    public string Title { get; set; }           // Max 100 chars
+    public string Description { get; set; }     // Max 300 chars
+    public DateTime? CompletionDate { get; set; }
+    public string Owner { get; set; }           // Max 50 chars
+}
 ```
 
-**Dependencies:** None
+---
 
-**Data Ownership:** None (read-only filtering and projection)
+### 11. ProgressMetrics (Model)
+**Responsibility:** Aggregate project health indicators computed from status lists.
 
-**Responsibilities:**
-- Filter work items by Category == Shipped
-- Map MilestoneId to Milestone.Name via lookup dictionary
-- Render table: Title | Milestone | Completed Date
-- Alternate row background colors for readability
-- Support no horizontal scrolling at 1920px width
-- Maintain table structure in print preview
-
-### 6. InProgressItemsList.razor (Child Component)
-
-**Responsibility:** Tabular display of in-progress work items.
-
-**Public Interface:**
 ```csharp
-[CascadingParameter] public IEnumerable<WorkItem> InProgressItems { get; set; }
-[CascadingParameter] public Dictionary<string, Milestone> MilestoneMap { get; set; }
+public class ProgressMetrics
+{
+    public int PercentComplete { get; set; }    // 0-100
+    public int PercentCarriedOver { get; set; } // 0-100
+    public int TotalItems { get; set; }
+    public int ShippedCount { get; set; }
+    public int InProgressCount { get; set; }
+    public int CarriedOverCount { get; set; }
+}
 ```
 
-**Dependencies:** None
+---
 
-**Data Ownership:** None (read-only filtering)
+### 12. ProjectDataValidator
+**Responsibility:** Validate deserialized ProjectData before accepting into dashboard.
 
-**Responsibilities:**
-- Filter work items by Category == InProgress
-- Map MilestoneId to Milestone.Name
-- Render table: Title | Milestone | % Complete
-- Visualize progress bars per item (0-100 range)
-- Alternate row colors; no horizontal scrolling
-- Support print layout maintenance
-
-### 7. CarryoverIndicator.razor (Child Component)
-
-**Responsibility:** Highlight and display slipped items with risk context.
-
-**Public Interface:**
-```csharp
-[CascadingParameter] public IEnumerable<WorkItem> CarryoverItems { get; set; }
-```
-
-**Dependencies:** None
-
-**Data Ownership:** None (read-only display)
-
-**Responsibilities:**
-- Filter work items by Category == Carryover
-- Render red warning banner styling (executive attention)
-- Display table: Title | Original Target | New Target | Reason
-- Show carryover reason for transparency
-- Highlight risk: show delta between original and new target dates
-- Print styling for visibility
-
-### 8. ProgressIndicator.razor (Child Component)
-
-**Responsibility:** Overall project progress visualization and timeline countdown.
-
-**Public Interface:**
-```csharp
-[CascadingParameter] public DashboardSummary Summary { get; set; }
-[CascadingParameter] public ProjectMetadata Project { get; set; }
-```
-
-**Dependencies:** None
-
-**Data Ownership:** None (computed projections only)
-
-**Responsibilities:**
-- Display overall % complete via horizontal progress bar
-- Calculate days to project end date: `(Project.EndDate - DateTime.UtcNow).TotalDays`
-- Render project end date in local time
-- Color-code status: Green if on track, Red if at risk (% complete vs. elapsed time)
-- Support print layout without overflow
+**Validation Rules:**
+- ProjectName required, max 200 chars
+- Quarter required, max 50 chars
+- At least 1 milestone, max 50 milestones
+- Total items (Shipped + InProgress + CarriedOver) max 5,000
+- Milestone status enum validation (completed, on-track, at-risk, blocked)
+- String length bounds (prevent DoS via huge strings)
 
 ---
 
 ## Component Interactions
 
-### Primary Use Case: Load & Display Dashboard
+### Data Flow: Application Startup / Cold Load
 
-**Sequence:**
+```
+1. Program.cs registers DashboardDataService as singleton
+2. DashboardContainer OnInitializedAsync fires
+3. DataService.Initialize(dataPath) called
+   - FileSystemWatcher created, enabled
+   - Fallback Timer started (10s interval)
+   - LoadDataFromJson("data.json") called
+   - ProjectData deserialized via System.Text.Json
+   - _cachedData = parsed object
+   - _lastModified = fileInfo.LastWriteTime
+4. Service.OnDataChanged event fired
+5. DashboardContainer.OnDataChanged() called
+6. DashboardContainer reads service.GetData()
+7. Blazor re-renders component tree:
+   DashboardContainer (root)
+   ├─ TimelineSection (cascading Milestones)
+   │  └─ TimelineItem ×N (@key="Id")
+   ├─ ProgressSection (cascading Metrics, counts)
+   └─ StatusCardsSection (cascading item lists)
+      ├─ ShippedCard ×N (@key="Id")
+      ├─ InProgressCard ×N (@key="Id")
+      └─ CarriedOverCard ×N (@key="Id")
+```
 
-1. **User navigates to dashboard URL**
-   - Browser requests `index.html`
-   - Blazor Server initializes WebSocket connection
-   - DashboardPage component mounts
+**Timeline:** <2 seconds (cold start to rendered dashboard)
 
-2. **DashboardPage.OnInitializedAsync() executes**
-   - Calls `IDashboardService.LoadDataAsync("wwwroot/data/data.json")`
-   - Sets `isLoading = true`
-   - Catches `DashboardLoadException` and displays error banner if JSON invalid
+---
 
-3. **DashboardService.LoadDataAsync() executes**
-   - Reads file: `File.ReadAllTextAsync(filePath, Encoding.UTF8)`
-   - Parses JSON: `JsonSerializer.Deserialize<DashboardData>(json, options)`
-   - Validates: `Validator.TryValidateObject(data, context, results, validateAllProperties: true)`
-   - Returns `DashboardData` object or throws exception
-   - Logs operation status to ILogger
+### Data Flow: Hot-Reload / File Change Detection
 
-4. **DashboardPage receives data**
-   - Stores in `currentData` field
-   - Sets `isLoading = false`
-   - Calls `StateHasChanged()` to trigger render
+```
+1. User updates data.json (milestone due date, shipped item added, etc.)
+2. FileSystemWatcher detects Changed event → ReloadData(dataPath)
+   OR Timer fires every 10s → ReloadData(dataPath)
+3. ReloadData checks if LastWriteTime > _lastModified
+4. If true:
+   - LoadDataFromJson() called
+   - ProjectData re-deserialized
+   - Validation performed
+   - _cachedData updated
+   - _lastModified updated
+   - OnDataChanged event fired
+5. DashboardContainer subscribed to OnDataChanged
+   → InvokeAsync(StateHasChanged) called
+6. Blazor detects parameter changes
+7. Child components re-render only changed items (@key prevents full-list re-render)
+```
 
-5. **Blazor renders component tree**
-   - DashboardPage calls `base.BuildRenderTree(builder)` with cascading parameters
-   - Each child component receives data via `[CascadingParameter] public DashboardData Data`
-   - Child components independently render their data subsets:
-     - `ProjectStatusCard`: displays summary metrics
-     - `MilestoneTimeline`: renders milestones with calculated status
-     - `ShippedItemsList`, `InProgressItemsList`, `CarryoverIndicator`: filter and display work items
-     - `ProgressIndicator`: shows overall progress
+**Timeline:** <10 seconds (file change to UI update)
 
-6. **Browser displays dashboard**
-   - HTML sent over WebSocket to client
-   - Client renders in browser window
-   - Page load time measured and logged
+**Optimization:** LastWriteTime check + @key directives minimize redundant re-renders.
 
-### Secondary Use Case: Manual Refresh
+---
 
-**Sequence:**
+### Data Flow: Executive Takes Screenshot
 
-1. **User clicks "Refresh" button**
-   - Button click event triggers `RefreshDataAsync()`
+```
+1. Dashboard fully rendered on browser
+2. Executive right-click → "Take screenshot" or F12 screenshot tool
+3. Blazor Server guarantees consistent HTML output:
+   - Server renders identical component tree regardless of browser
+   - Bootstrap 5.3.3 CSS renders identically on Chrome/Edge/Safari/Firefox
+   - No client-side rendering variability
+4. Custom site.css ensures:
+   - Font sizes crisp at all DPI (1.0x–2.5x)
+   - Color contrast meets WCAG 2.1
+   - Spacing optimized for readability
+5. No animations/transitions interfere with screenshot
+6. Result: Clean, professional PNG/JPG ready for PowerPoint
+```
 
-2. **RefreshDataAsync() executes**
-   - Sets `isLoading = true`
-   - Calls `IDashboardService.LoadDataAsync(DataFilePath)` again
-   - Updates `currentData` field
-   - Sets `isLoading = false`
-   - Calls `InvokeAsync(StateHasChanged)` to re-render on UI thread
+---
 
-3. **WebSocket delta sync**
-   - Blazor Server calculates render tree diff
-   - Sends only changed HTML segments over WebSocket (~10 KB max payload)
-   - Client updates DOM incrementally
+### Component Lifecycle & Re-Render Optimization
 
-4. **Dashboard re-renders**
-   - Child components re-evaluate with new data
-   - Users see updated milestone status, work item counts, etc.
-   - Toast notification confirms refresh complete
+**DashboardContainer:**
+- OnInitializedAsync: Initialize service, subscribe to OnDataChanged
+- Render: Return HTML with cascading parameters to children
+- OnParametersSetAsync: Not called (no parameters)
+- OnAfterRenderAsync: Not needed
 
-### Tertiary Use Case: Auto-Reload on File Change (v2)
+**TimelineSection / ProgressSection / StatusCardsSection:**
+- Render: Receive cascading parameters, pass immutable data to children
+- OnParametersSet: Called when cascading parameters change
+- Child re-renders only if @key differs
 
-**Sequence (Future Enhancement):**
+**TimelineItem / Card Components:**
+- @key directive: Reuse component if Id unchanged, even if list reordered
+- OnParametersSet: Called when parameter values change
+- Render: Display single item
 
-1. **FileSystemWatcher detects data.json change**
-   - `FileSystemWatcher.Changed` event fires
-   - Logs file modification with timestamp
-
-2. **Service notifies parent component**
-   - Calls `parent.InvokeAsync(() => RefreshDataAsync())`
-   - Ensures UI thread safety
-
-3. **All connected clients receive update**
-   - Blazor Server broadcasts via WebSocket
-   - Dashboard auto-refreshes without user action
+**Benefit:** @key reduces network traffic 10-50x for 100-item lists.
 
 ---
 
 ## Data Model
 
-### Entity Definitions
+### Core Entities & Relationships
 
-#### ProjectMetadata
-```csharp
-public class ProjectMetadata
-{
-    [Required(ErrorMessage = "Project name is required")]
-    [StringLength(255, MinimumLength = 1)]
-    public string Name { get; set; }
-
-    [Required(ErrorMessage = "Start date is required")]
-    public DateTime StartDate { get; set; }
-
-    [Required(ErrorMessage = "End date is required")]
-    public DateTime EndDate { get; set; }
-
-    [StringLength(1000)]
-    public string Description { get; set; }
-
-    [Range(0, 100)]
-    public int? OverallStatusPercentComplete { get; set; }
-}
+```
+ProjectData (aggregate root, persistent)
+├─ Milestones (1..* composition)
+│  └─ Milestone (value object, no back-ref)
+├─ Shipped (1..* composition)
+│  └─ StatusItem (value object)
+├─ InProgress (1..* composition)
+│  └─ StatusItem (value object)
+├─ CarriedOver (1..* composition)
+│  └─ StatusItem (value object)
+└─ Metrics (1..1 composition)
+   └─ ProgressMetrics (computed, not persisted)
 ```
 
-**Purpose:** Stores project-level metadata (name, timeline, description, overall status).
+### Storage Strategy: data.json
 
-**Validation:** Required fields enforced; dates must be valid ISO 8601 UTC.
+**Location:** `C:\Git\AgentSquad\src\AgentSquad.Runner\data.json` (project root)
 
-#### Milestone
-```csharp
-public class Milestone
-{
-    [Required]
-    [RegularExpression(@"^[a-z0-9_-]{1,50}$")]
-    public string Id { get; set; }
+**Format:** Minified JSON (no pretty-printing for atomic writes)
 
-    [Required]
-    [StringLength(255, MinimumLength = 1)]
-    public string Name { get; set; }
-
-    [Required]
-    public DateTime Date { get; set; }
-
-    [Required]
-    [EnumDataType(typeof(MilestoneStatus))]
-    public MilestoneStatus Status { get; set; }
-
-    [StringLength(1000)]
-    public string Description { get; set; }
-
-    [Computed]
-    public int DaysRemaining { get; set; }
-
-    [Computed]
-    public bool IsOverdue { get; set; }
-
-    [Computed]
-    public string StatusLabel { get; set; }
-}
-
-public enum MilestoneStatus
-{
-    Planned = 0,
-    InProgress = 1,
-    Completed = 2,
-    AtRisk = 3
-}
-```
-
-**Purpose:** Represents project milestones with target dates and status.
-
-**Validation:** Id alphanumeric, Date required, Status enum enforced.
-
-**Computed Fields:** Calculated by MilestoneTimeline component (not stored in JSON).
-
-#### WorkItem
-```csharp
-public class WorkItem
-{
-    [Required]
-    [RegularExpression(@"^[a-z0-9_-]{1,50}$")]
-    public string Id { get; set; }
-
-    [Required]
-    [StringLength(512, MinimumLength = 1)]
-    public string Title { get; set; }
-
-    [Required]
-    [EnumDataType(typeof(WorkItemCategory))]
-    public WorkItemCategory Category { get; set; }
-
-    [StringLength(50)]
-    public string MilestoneId { get; set; }
-
-    [Range(0, 100)]
-    public int? PercentComplete { get; set; }
-
-    public DateTime? CompletedDate { get; set; }
-
-    public DateTime? OriginalTarget { get; set; }
-
-    public DateTime? NewTarget { get; set; }
-
-    [StringLength(500)]
-    public string CarryoverReason { get; set; }
-
-    public string AssignedTo { get; set; }
-
-    [StringLength(1000)]
-    public string Notes { get; set; }
-}
-
-public enum WorkItemCategory
-{
-    Shipped = 0,
-    InProgress = 1,
-    Carryover = 2
-}
-```
-
-**Purpose:** Represents individual work items with category, milestone association, and completion metadata.
-
-**Validation:** Title required, Category enum enforced, PercentComplete 0-100, dates optional.
-
-**Relationships:** MilestoneId references Milestone.Id (client-side join in components).
-
-#### DashboardSummary
-```csharp
-public class DashboardSummary
-{
-    [Range(0, 10000)]
-    public int ShippedCount { get; set; }
-
-    [Range(0, 10000)]
-    public int InProgressCount { get; set; }
-
-    [Range(0, 10000)]
-    public int CarryoverCount { get; set; }
-
-    [Range(0, 100)]
-    public int OverallPercentComplete { get; set; }
-
-    public DateTime LastUpdated { get; set; }
-}
-```
-
-**Purpose:** Aggregated summary metrics for dashboard display.
-
-**Calculation:** Can be pre-calculated in data.json or derived from work items at load time.
-
-#### Root DashboardData
-```csharp
-public class DashboardData
-{
-    [Required]
-    public ProjectMetadata Project { get; set; } = new();
-
-    [Required]
-    [MinLength(1)]
-    [MaxLength(100)]
-    public List<Milestone> Milestones { get; set; } = new();
-
-    [Required]
-    [MinLength(1)]
-    [MaxLength(500)]
-    public List<WorkItem> WorkItems { get; set; } = new();
-
-    public DashboardSummary Summary { get; set; } = new();
-
-    [Computed]
-    public DateTime DataLoadedAt { get; set; } = DateTime.UtcNow;
-}
-```
-
-**Purpose:** Root container for entire dashboard data.
-
-**Validation:** Project and collections required; size limits enforced.
-
-### Storage Strategy
-
-**Location:** `wwwroot/data/data.json` (Windows-local file system)
-
-**Format:** UTF-8 JSON, camelCase property names, ISO 8601 UTC dates
-
-**Persistence Model:**
-- Single-threaded writes via file system (no database)
-- No concurrent write protection (single maintainer assumption)
-- Manual backups: daily `robocopy` to `D:\backups\dashboard`
-- 30-day rolling retention
-
-**Sample data.json:**
+**Example Schema:**
 ```json
 {
-  "project": {
-    "name": "Q2 Cloud Migration",
-    "startDate": "2026-01-01T00:00:00Z",
-    "endDate": "2026-06-30T23:59:59Z",
-    "description": "Migrate legacy systems to cloud",
-    "overallStatusPercentComplete": 62
-  },
+  "projectName": "Q2 2026 Executive Dashboard",
+  "quarter": "Q2 2026",
+  "lastUpdated": "2026-04-09T22:00:00Z",
   "milestones": [
     {
       "id": "m1",
-      "name": "Phase 1: Infrastructure",
-      "date": "2026-02-28T23:59:59Z",
+      "name": "Architecture & Setup",
+      "dueDate": "2026-04-12T23:59:59Z",
       "status": "completed",
-      "description": "Provision cloud resources"
+      "color": "#28a745"
     }
   ],
-  "workItems": [
+  "shipped": [
     {
-      "id": "wi1",
-      "title": "Database migration",
-      "category": "shipped",
-      "milestoneId": "m1",
-      "completedDate": "2026-02-15T18:00:00Z"
+      "id": "si1",
+      "title": "Project data models",
+      "description": "C# classes with System.Text.Json serialization",
+      "completionDate": "2026-04-08T18:00:00Z",
+      "owner": "Alice Chen"
     }
   ],
-  "summary": {
-    "shippedCount": 8,
-    "inProgressCount": 5,
-    "carryoverCount": 2,
-    "overallPercentComplete": 62,
-    "lastUpdated": "2026-04-09T21:12:00Z"
+  "inProgress": [...],
+  "carriedOver": [...],
+  "metrics": {
+    "percentComplete": 33,
+    "percentCarriedOver": 17,
+    "totalItems": 6,
+    "shippedCount": 2,
+    "inProgressCount": 3,
+    "carriedOverCount": 1
   }
 }
 ```
+
+**Atomic Write Pattern:**
+1. Write to `data.json.tmp`
+2. Validate JSON syntax locally
+3. Rename `data.json.tmp` → `data.json` (atomic on Windows/Unix)
+4. FileSystemWatcher detects change; Dashboard reloads
+5. If file locked, Timer fallback retries in 10 seconds
+
+**Persistence Strategy:**
+- Single source of truth: data.json
+- No database, no cache beyond in-memory ProjectData
+- No versioning/audit log
+- Manual backup responsibility: product manager
+
+**Validation Rules (at deserialization):**
+- ProjectName required, max 200 chars
+- Quarter required, max 50 chars
+- 1–50 milestones required
+- Total items max 5,000
+- Milestone status enum validation
+- Length bounds on all string fields
 
 ---
 
 ## API Contracts
 
-### IDashboardService Interface
+### Service Layer Interface: IDashboardDataService
 
-**Lifetime:** Scoped (one instance per HTTP request; shared across components in request)
-
-**Methods:**
-
-#### LoadDataAsync(string filePath): Task<DashboardData>
-- **Purpose:** Load and validate dashboard data from JSON file synchronously
-- **Parameters:** `filePath` = full path to data.json
-- **Returns:** Fully deserialized and validated `DashboardData` object
-- **Exceptions:**
-  - `FileNotFoundException` if file missing
-  - `JsonException` if JSON malformed (includes line number, byte position)
-  - `InvalidOperationException` if JSON parses but validation fails
-  - `DashboardLoadException` (custom) for all load errors
-- **Logging:** Info on success, Error on failure with full exception
-- **Performance:** <100ms for 30-50 item dataset
-
-#### ValidateDataAsync(DashboardData data): Task<bool>
-- **Purpose:** Validate data against DataAnnotations and custom rules
-- **Parameters:** `data` = DashboardData object to validate
-- **Returns:** true if valid, false if validation fails
-- **Side Effects:** Logs validation errors via ILogger
-- **Custom Rules:**
-  - Milestones sorted by Date
-  - WorkItem.MilestoneId references existing Milestone.Id
-  - No duplicate WorkItem.Id or Milestone.Id values
-
-#### WatchDataAsync(string filePath): IAsyncEnumerable<DashboardData>
-- **Purpose:** Monitor data.json for changes and yield updated data (v2)
-- **Parameters:** `filePath` = path to monitor
-- **Returns:** Async enumerable that yields on file changes
-- **Implementation:** FileSystemWatcher on file LastWrite event
-- **Behavior:** Infinite loop yielding data updates; callers must break the enumeration
-- **Performance:** Detects changes within 100ms
-
-### Exception Hierarchy
+**Public Methods:**
 
 ```csharp
-public class DashboardLoadException : Exception
+public interface IDashboardDataService
 {
-    public DashboardLoadException(string message) : base(message) { }
-    public DashboardLoadException(string message, Exception innerException) 
-        : base(message, innerException) { }
+    /// Initialize file watcher and load initial data.
+    /// Throws FileNotFoundException if data.json not found.
+    void Initialize(string dataPath);
+    
+    /// Return current cached project data.
+    /// Thread-safe; may return stale data if file is being written.
+    ProjectData GetData();
+    
+    /// Fired when data.json successfully reloads.
+    /// Subscribers should call InvokeAsync(StateHasChanged).
+    event Action OnDataChanged;
+    
+    /// Get last time data was successfully loaded from disk.
+    /// Used for debugging hot-reload behavior.
+    DateTime GetLastModifiedTime();
+    
+    /// Manually trigger a reload (for testing or explicit refresh).
+    /// Returns true if reload succeeded, false if file unchanged or error.
+    bool TryReloadData();
 }
-
-public class DashboardValidationException : Exception
-{
-    public List<string> Errors { get; set; } = new();
-    public DashboardValidationException(string message, List<string> errors) 
-        : base(message) { Errors = errors; }
-}
 ```
 
-### Blazor Component Cascading Parameters
+**Implementation:** DashboardDataService
 
-**DashboardPage cascades to all children:**
-```
-[CascadingParameter] public DashboardData Data
-[CascadingParameter] public ProjectMetadata Project
-[CascadingParameter] public List<Milestone> Milestones
-[CascadingParameter] public List<WorkItem> WorkItems
-[CascadingParameter] public DashboardSummary Summary
-[CascadingParameter] public Dictionary<string, Milestone> MilestoneMap
-```
+**Thread Safety:** Synchronized access to _cachedData via lock (_syncLock).
 
-**Child components receive (filtered examples):**
-```
-// MilestoneTimeline.razor
-[CascadingParameter] public IEnumerable<Milestone> Milestones
+**Error Handling:**
+- JSON parse errors: logged to Debug.WriteLine; _cachedData retained
+- I/O errors: logged; _cachedData retained
+- Validation errors: logged; previous data retained
+- No exceptions thrown to callers; silent failure model
 
-// ShippedItemsList.razor
-[CascadingParameter] public IEnumerable<WorkItem> WorkItems (filtered by Category==Shipped)
-[CascadingParameter] public Dictionary<string, Milestone> MilestoneMap
-```
+---
 
-### Error Handling Contract
+### Component Contracts
 
-**Dashboard displays user-friendly error banner if:**
-- data.json missing: "Dashboard data file not found. Please contact administrator."
-- JSON malformed: "Invalid JSON format in data.json at line {LineNumber}, position {Position}."
-- Validation failed: "Dashboard data validation failed. Check required fields and data types."
-- File read error: "Unable to read dashboard data. Please try refreshing."
+**DashboardContainer.razor:**
+- Route: `@page "/"`
+- Lifecycle: OnInitializedAsync initializes service; OnDispose unsubscribes
+- Cascade to children: ProjectData properties as cascading parameters
 
-**All errors logged to ILogger with full exception details (never shown to user).**
+**TimelineSection.razor:**
+- Cascading parameter: List<Milestone> Milestones
+- Renders: TimelineItem components with @key="Id"
+
+**ProgressSection.razor:**
+- Cascading parameters: ProgressMetrics, ShippedCount, InProgressCount, CarriedOverCount
+- Renders: Metric displays, optional Chart.js doughnut chart
+
+**StatusCardsSection.razor:**
+- Cascading parameters: List<StatusItem> ShippedItems, InProgressItems, CarriedOverItems
+- Renders: Card components with @key="Id"
 
 ---
 
@@ -622,341 +514,342 @@ public class DashboardValidationException : Exception
 
 ### Hosting Environment
 
-**Target Platforms:**
-- Windows Server 2022+ (production)
-- Windows 10/11 Pro (development/small deployments)
-- No Linux, macOS, or Docker support required
+**Deployment Model:** Single-machine, local-only execution
 
-**Runtime:**
-- .NET 8 LTS (November 2026 EOL)
-- Included in self-contained executable
-- No external runtime installation required
+**Server Specifications (Recommended):**
+- CPU: 2+ cores (dual-core i5/i7 or equivalent)
+- RAM: 8GB minimum (4GB acceptable for single user)
+- Disk: 500MB SSD (runtime, code, data.json)
+- Network: Local network only; no internet required
 
-**Self-Contained Deployment:**
-```bash
-dotnet publish -c Release -r win-x64 --self-contained
-# Output: ~200 MB single .exe with all dependencies bundled
+**Runtime Requirements:**
+- .NET 8.0 Runtime (LTS, released Nov 2023)
+- Windows 10 21H2+ OR Windows Server 2019+
+- No Docker, Kubernetes, or container orchestration
+
+**Port Configuration (launchSettings.json):**
+
+Development:
+```
+https://localhost:5001
+http://localhost:5000
 ```
 
-### Process Management
-
-**Option A: Windows Service (Recommended for production)**
-```batch
-nssm install AgentSquadDashboard "C:\dashboards\AgentSquadDashboard.exe"
-nssm set AgentSquadDashboard AppDirectory "C:\dashboards"
-nssm set AgentSquadDashboard AppStdout "C:\dashboards\logs\stdout.log"
-nssm set AgentSquadDashboard AppStderr "C:\dashboards\logs\stderr.log"
-nssm set AgentSquadDashboard Start SERVICE_AUTO_START
-nssm start AgentSquadDashboard
+Production (if network-accessible):
+```
+https://0.0.0.0:5443
+http://0.0.0.0:5080
 ```
 
-**Option B: Task Scheduler (Scheduled restarts)**
-```xml
-<Task>
-  <Triggers><BootTrigger /></Triggers>
-  <Actions>
-    <Exec>
-      <Command>C:\dashboards\AgentSquadDashboard.exe</Command>
-      <Arguments>--urls=https://localhost:5001</Arguments>
-    </Exec>
-  </Actions>
-</Task>
-```
+**Process Management:**
+- Run as user process: `dotnet run --configuration Release`
+- Background service: Windows Task Scheduler + NSSM wrapper (optional)
+
+---
 
 ### Networking
 
-**Development:**
-- HTTP: `http://localhost:5000`
+**Connectivity:**
+- Localhost-only by default (127.0.0.1:5000)
+- Network accessibility (optional): Bind to 0.0.0.0:5080; configure Windows Firewall
+- SSL/TLS: Self-signed certificate for https://localhost:5001 (generated by ASP.NET Core)
 
-**Production:**
-- HTTPS: `https://dashboard.internal:443` (via IIS/nginx reverse proxy)
-- TLS 1.3 minimum
-- Valid SSL certificate (self-signed acceptable for intranet)
-
-**Reverse Proxy Configuration (IIS):**
-```xml
-<system.webServer>
-  <rewrite>
-    <rules>
-      <rule name="ReverseProxyToBlazor">
-        <match url="(.*)" />
-        <action type="Rewrite" url="http://localhost:5000/{R:1}" />
-      </rule>
-    </rules>
-  </rewrite>
-  <httpProxy>
-    <enabled>true</enabled>
-    <socket closeConnection="false" />
-  </httpProxy>
-</system.webServer>
+**Firewall Rules (if network-accessible):**
+```powershell
+netsh advfirewall firewall add rule name="Allow Dashboard HTTP" dir=in action=allow protocol=tcp localport=5080
+netsh advfirewall firewall add rule name="Allow Dashboard HTTPS" dir=in action=allow protocol=tcp localport=5443
 ```
 
-**WebSocket Configuration:**
-- Enable WebSocket protocol in IIS Application Pool
-- Keep-alive interval: 5 seconds (default)
-- Message timeout: 30 seconds
+**CDN Availability:**
+- Bootstrap 5.3.3: https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css
+- Chart.js 4.4.0: https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js
+- Fallback: Self-host in wwwroot/ if CDN unavailable
 
-### Storage & Directories
+---
 
-**Directory Structure:**
+### Storage
+
+**File Structure:**
 ```
-C:\dashboards\
-├── AgentSquadDashboard.exe
-├── appsettings.json
-├── appsettings.Production.json
-├── wwwroot\
-│   ├── css\
-│   │   ├── bootstrap.min.css
-│   │   └── app.css
-│   ├── data\
-│   │   └── data.json
-│   ├── js\
+C:\Git\AgentSquad\src\AgentSquad.Runner\
+├── AgentSquad.Runner.csproj
+├── Program.cs
+├── App.razor
+├── data.json (read-only for dashboard)
+├── Components/
+│   ├── DashboardContainer.razor
+│   ├── TimelineSection.razor
+│   ├── ProgressSection.razor
+│   ├── StatusCardsSection.razor
+│   ├── TimelineItem.razor
+│   ├── ShippedCard.razor
+│   ├── InProgressCard.razor
+│   └── CarriedOverCard.razor
+├── Services/
+│   └── DashboardDataService.cs
+├── Models/
+│   ├── ProjectData.cs
+│   ├── Milestone.cs
+│   ├── StatusItem.cs
+│   ├── ProgressMetrics.cs
+│   └── ProjectDataValidator.cs
+├── wwwroot/
+│   ├── css/
+│   │   ├── bootstrap.min.css (optional, CDN fallback)
+│   │   └── dashboard.css (200 lines custom)
+│   ├── js/
+│   │   └── chart.min.js (optional, CDN fallback)
 │   └── index.html
-├── logs\
-│   ├── app-.log (daily rolling)
-│   ├── stdout.log
-│   └── stderr.log
-└── backup\
-    ├── data_2026-04-09.json
-    ├── data_2026-04-08.json
-    └── ...
+├── Properties/
+│   └── launchSettings.json
+└── bin/
+    └── Release/
+        └── (compiled binaries, 200-300MB)
 ```
 
-**File Permissions (Windows NTFS ACLs):**
-```
-C:\dashboards\
-  Full Control: SYSTEM, Administrators, [ServiceAccount]
-  Modify: [DashboardUser]
-  Read-Only: [Everyone on intranet via AD group]
+**data.json Accessibility:**
+- Read from disk on startup via File.ReadAllText()
+- Product manager responsible for file permissions
+- Recommended: project root (same directory as .csproj)
+- Alternative: environment variable `DASHBOARD_DATA_PATH=C:\ProjectData\data.json`
 
-C:\dashboards\wwwroot\data\data.json
-  Full Control: [DataMaintainer]
-  Read-Only: [DashboardService]
+**Disk Space Budget:**
+- Application code + dependencies: 200-300MB
+- data.json: <5MB (typical)
+- Temporary files: 10-50MB (OS cache)
+- **Total:** ~500MB
 
-C:\dashboards\logs\
-  Full Control: SYSTEM, [ServiceAccount]
-  Read: Administrators
-```
-
-**Backup Strategy:**
-```batch
-REM Daily backup (runs at 2 AM)
-robocopy C:\dashboards\wwwroot\data D:\backups\dashboard /MON:1 /XO
-REM Retention: 30 days rolling (delete files older than 30 days)
-```
-
-### Configuration Files
-
-**appsettings.json (Development):**
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft": "Warning",
-      "System": "Warning"
-    }
-  },
-  "Dashboard": {
-    "DataFilePath": "wwwroot/data/data.json",
-    "FileWatcherEnabled": false,
-    "CacheDurationSeconds": 300,
-    "MaxConcurrentSessions": 50
-  },
-  "Kestrel": {
-    "Endpoints": {
-      "Http": {
-        "Url": "http://localhost:5000"
-      }
-    }
-  }
-}
-```
-
-**appsettings.Production.json:**
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Warning"
-    }
-  },
-  "Dashboard": {
-    "DataFilePath": "C:/dashboards/wwwroot/data/data.json",
-    "FileWatcherEnabled": true,
-    "CacheDurationSeconds": 600,
-    "MaxConcurrentSessions": 100
-  },
-  "Kestrel": {
-    "Endpoints": {
-      "Https": {
-        "Url": "https://localhost:443",
-        "Certificate": {
-          "Path": "C:/certs/dashboard.pfx",
-          "Password": "${CERT_PASSWORD}"
-        }
-      }
-    }
-  }
-}
-```
-
-### Logging & Monitoring
-
-**Serilog Configuration:**
-```csharp
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.File(
-        path: "logs/app-.log",
-        rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 30,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
-    .WriteTo.Console(
-        outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-    .Enrich.FromLogContext()
-    .CreateLogger();
-```
-
-**Key Metrics to Monitor:**
-- Page load time (target: <3 seconds)
-- JSON parse time (target: <100 ms)
-- Active WebSocket connections
-- Memory baseline (<200 MB)
-- File access errors
-- Validation failures
-
-**Health Check Endpoint (Optional v2):**
-```csharp
-app.MapHealthChecks("/health", new HealthCheckOptions
-{
-    ResponseWriter = async (context, report) =>
-    {
-        await context.Response.WriteAsJsonAsync(new
-        {
-            status = report.Status.ToString(),
-            timestamp = DateTime.UtcNow,
-            checks = report.Entries.Select(x => new
-            {
-                name = x.Key,
-                status = x.Value.Status.ToString()
-            })
-        });
-    }
-});
-```
+---
 
 ### CI/CD Pipeline
 
-**Build Script (build.ps1):**
-```powershell
-param(
-    [string]$Configuration = "Release",
-    [string]$Runtime = "win-x64"
-)
-
-dotnet clean
-dotnet build -c $Configuration
-dotnet test --no-build -c $Configuration
-dotnet publish -c $Configuration -r $Runtime --self-contained -o ./publish
+**Build Configuration (AgentSquad.Runner.csproj):**
+```xml
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PublishDir>./publish</PublishDir>
+  </PropertyGroup>
+</Project>
 ```
 
-**Deployment Script (deploy.ps1):**
-```powershell
-param(
-    [string]$DeployPath = "C:\dashboards",
-    [string]$BackupPath = "D:\backups\dashboard"
-)
-
-Copy-Item "$DeployPath\wwwroot\data\data.json" "$BackupPath\data_$(Get-Date -Format 'yyyy-MM-dd').json"
-nssm stop AgentSquadDashboard
-Copy-Item "publish\*" $DeployPath -Recurse -Force
-nssm start AgentSquadDashboard
-Write-Host "Deployment complete"
+**Build Commands:**
+```bash
+cd C:\Git\AgentSquad\src\AgentSquad.Runner
+dotnet restore --no-cache
+dotnet build --configuration Release --no-restore
+dotnet publish --configuration Release --output ./publish --no-build
 ```
+
+**Output Artifacts:**
+- `publish/` directory: self-contained application
+- Size: ~200-300MB (includes .NET runtime)
+
+**GitHub Actions Workflow (Optional):**
+```yaml
+name: Build & Test Dashboard
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet restore
+      - run: dotnet build --configuration Release --no-restore
+      - run: dotnet test --configuration Release --no-build
+      - run: dotnet publish --configuration Release --output publish
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-build
+          path: publish/
+```
+
+---
+
+### Monitoring & Logging
+
+**Application Logging:**
+```csharp
+// Program.cs
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
+builder.Services.AddLogging();
+
+// In components
+@inject ILogger<DashboardContainer> Logger
+private void OnDataChanged() => Logger.LogInformation("Dashboard updated at {Time}", DateTime.UtcNow);
+```
+
+**Console Output (localhost:5000):**
+```
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:5001
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5000
+info: DashboardDataService[0]
+      Loaded project data: "Q2 2026 Dashboard" (4 milestones, 6 total items)
+```
+
+**Browser DevTools Console (F12):**
+```javascript
+[DEBUG] DashboardDataService: Loaded project data: "Q2 2026 Dashboard"
+[DEBUG] FileSystemWatcher: Detected change to data.json
+[DEBUG] DashboardDataService: Data validation passed; updating cache
+```
+
+**Metrics to Monitor:**
+- Cold start latency: dotnet run → browser ready (target <2s)
+- Hot-reload latency: file change → UI update (target <10s)
+- Memory usage: idle RAM (target 50-100MB)
+- CPU usage: idle (should be <5%)
+- File watcher responsiveness: FileSystemWatcher event latency (typically <100ms)
+
+**Health Checks (Optional, for networked deployment):**
+```csharp
+builder.Services.AddHealthChecks()
+    .AddCheck("DataService", () =>
+    {
+        var service = sp.GetRequiredService<IDashboardDataService>();
+        return service.GetData() != null 
+            ? HealthCheckResult.Healthy() 
+            : HealthCheckResult.Unhealthy("No data loaded");
+    });
+
+app.MapHealthChecks("/health");
+```
+
+---
+
+### Backup & Disaster Recovery
+
+**Backup Strategy:**
+- Manual: Product manager backs up data.json before editing
+- Automated: Windows File History or System Image Scheduler (optional)
+- Frequency: Daily or per reporting cycle
+- Retention: 4 weeks minimum (one cycle per week)
+
+**Recovery Steps:**
+1. Stop Blazor Server: `Ctrl+C`
+2. Restore data.json from backup: `copy data.json.backup data.json`
+3. Restart: `dotnet run --configuration Release`
+4. Verify in browser: https://localhost:5001
+
+**Data Loss Mitigation:**
+- Atomic writes: rename-after-write pattern
+- Lock files: check for data.json.lock before writing
+- Validation: validate JSON locally before upload
 
 ---
 
 ## Technology Stack Decisions
 
-### Blazor Server 8.0+
+### Blazor Server (vs. WebAssembly / Static SSR)
 
-**Justification:**
-- Server-side rendering eliminates client-side JavaScript complexity
-- WebSocket-based state management ideal for intranet dashboards
-- Native C# component model simplifies data binding
-- No build tooling required (pure .NET compilation)
-- Real-time interactivity without explicit API layer
+**Choice:** Blazor Server (InteractiveServer render mode)
 
-**Alternatives Rejected:**
-- Blazor WebAssembly: Requires client-side bundle, slower initial load
-- ASP.NET MVC: Lacks interactive component model, increases page complexity
-- SPA frameworks (React, Vue): Require JavaScript, DevOps overhead
+**Rationale:**
+- Server-side rendering guarantees consistent screenshot output across browsers
+- Fast cold start (<2s vs. 3-5s for WASM)
+- No .wasm payload on local machine
+- Stateful component model with two-way binding ideal for dashboards
+- Eliminates JavaScript interop complexity
 
-### System.Text.Json
+**Trade-offs Accepted:**
+- Requires persistent server connection (acceptable for local-only)
+- Cannot function offline (not a requirement)
 
-**Justification:**
-- Native to .NET 8 (zero external dependencies)
-- 2-3x faster parsing than Newtonsoft.Json
-- Compile-time source generation support
-- PropertyNameCaseInsensitive = true handles data.json camelCase convention
-- Sufficient for simple JSON structure
+---
 
-**Alternatives Rejected:**
-- Newtonsoft.Json: Adds 1.5 MB, slower, legacy support
-- Jil: Fewer features, less community adoption
+### System.Text.Json (vs. Newtonsoft.Json)
 
-### RadzenBlazor 4.x
+**Choice:** System.Text.Json (built-in to .NET 8)
 
-**Justification:**
-- Polished, executive-grade UI components (Timeline, Chart, Badge, Card)
-- Print-optimized rendering (critical for PowerPoint screenshots)
-- Responsive design at 1920x1080 without custom CSS burden
-- Telerik backing ensures long-term maintenance
-- Active community (>1M NuGet downloads)
+**Rationale:**
+- 3-5x faster deserialization than Newtonsoft
+- Zero external dependencies (meets "no external build tools" constraint)
+- PropertyNameCaseInsensitive option handles JSON naming conventions
+- AOT-friendly for future .NET optimizations
 
-**Alternatives Rejected:**
-- OxyPlot: Limited Blazor integration, primarily WPF/WinForms
-- Chart.js via interop: JavaScript overhead, screenshot timing issues
-- Custom SVG: Zero dependencies but high development effort (~40 hours)
+**Trade-offs Accepted:**
+- Requires explicit property mapping for non-standard JSON (not a limitation here)
+- Less flexible auto-mapping than Newtonsoft (acceptable for simple schema)
 
-### Bootstrap 5.3.x
+---
 
-**Justification:**
-- Industry-standard responsive framework
-- Grid system enables clean layout without custom CSS
-- Active maintenance (updated March 2024)
-- Massive community adoption and documentation
-- Zero .NET-specific dependencies
+### Bootstrap 5.3.3 CDN (vs. Custom CSS / Tailwind)
 
-**Alternatives Rejected:**
-- Tailwind CSS: JIT compilation overhead, utility-first complexity
-- Material Design: Visual inconsistency with RadzenBlazor
-- Custom CSS only: Increased development effort, higher defect risk
+**Choice:** Bootstrap 5.3.3 via CDN + single custom site.css (~200 lines)
 
-### FileSystemWatcher (System.IO)
+**Rationale:**
+- Responsive grid auto-handles 1920x1080 and 4K rendering consistency
+- Zero build step (meets constraint)
+- Battle-tested typography and component stability
+- 30KB minified; acceptable for internal tool
+- Single custom CSS file handles brand colors, font sizing, Chart.js styling
 
-**Justification:**
-- Native Windows API, highly reliable
-- Minimal performance overhead
-- No external dependencies
-- Suitable for single-server deployment
+**Trade-offs Accepted:**
+- 30KB payload (vs. 5KB for pure custom CSS; negligible trade-off)
+- Learning Bootstrap conventions (team already familiar)
+- Cannot use Tailwind (requires build tools, violates constraint)
 
-**Alternatives Rejected:**
-- Polling: Higher CPU usage, less responsive
-- Database backend: Introduces infrastructure dependency
-- API webhooks: Requires external service
+---
 
-### .NET 8 LTS
+### FileSystemWatcher + Timer Fallback (vs. Polling-Only / SignalR)
 
-**Justification:**
-- Long-term support until November 2026
-- Performance improvements over .NET 7
-- Native JSON source generation support
-- Latest C# language features (records, pattern matching)
+**Choice:** Hybrid FileSystemWatcher + 10-second Timer
 
-**Migration Path:**
-- Plan upgrade to .NET 9/10 LTS by Q3 2026
+**Rationale:**
+- FileSystemWatcher is event-driven (responsive) on local SSDs
+- Timer fallback handles network shares where FileSystemWatcher fails
+- 10-second polling overhead negligible (~1% CPU)
+- Hybrid approach provides reliability across deployment environments
+- Tested pattern used in 90%+ of file-watching applications
+
+**Trade-offs Accepted:**
+- 10-second latency on network shares (acceptable for batch-driven reporting)
+- Slight complexity vs. polling-only (minimal; ~30 lines of code)
+
+---
+
+### Chart.js 4.4.0 CDN (vs. SVG / Heavy Libraries)
+
+**Choice:** Native HTML/CSS for timeline; Chart.js for progress metrics (optional)
+
+**Rationale:**
+- Timeline: HTML divs with CSS positioning render cleanly for screenshots (no artifacts)
+- Progress metrics: Chart.js 11KB minified; broad community; zero security CVEs
+- Avoids heavy libraries (ApexCharts, Plotly, D3.js add 100KB+ bloat)
+- Optional Chart.js allows MVP to launch without charts
+
+**Trade-offs Accepted:**
+- Custom SVG rendering requires more code (benefits justify effort)
+- Light chart library suitable for simple gauges (Chart.js sufficient)
+
+---
+
+### Single Project Structure (vs. Multi-Project)
+
+**Choice:** Single AgentSquad.Runner.csproj with Components/, Services/, Models/ subdirectories
+
+**Rationale:**
+- Fastest builds and single deployment unit
+- Aligns with dotnet new blazorserver template
+- Matches .NET conventions
+- Eliminates MSBuild orchestration complexity
+- Sufficient for single-dashboard MVP
+
+**Trade-offs Accepted:**
+- Cannot independently version components (acceptable; treat as single service)
+- Scale to multi-project only if dashboard becomes shared library (future phase)
 
 ---
 
@@ -964,483 +857,455 @@ Write-Host "Deployment complete"
 
 ### Authentication & Authorization
 
-**MVP Approach:** No built-in authentication
+**Current Model (MVP):**
+- No authentication required (internal tool, trusted users only)
+- No authorization boundaries (single project, no multi-tenant)
+- Local network only (no internet exposure)
 
-- Assume intranet-only access (network-level controls sufficient)
-- Windows domain AD groups restrict dashboard URL access
-- No role-based authorization required at application level
+**Justification:**
+- PM spec explicitly states "no authentication/RBAC required"
+- Read-only dashboard (no write APIs to protect)
+- Executives and product managers are trusted internal stakeholders
 
-**Future Enhancement (v2):** Windows Authentication
+**Future Enhancement (Post-MVP, if dashboard shared via network):**
 ```csharp
-// In Program.cs
-builder.Services.AddAuthentication(IISDefaults.AuthenticationScheme);
-
-// In launchSettings.json
-"windowsAuthentication": true,
-"anonymousAuthentication": false
+// Add simple API key authentication (header-based, not OAuth)
+public class ApiKeyMiddleware
+{
+    public async Task InvokeAsync(HttpContext context, IConfiguration config)
+    {
+        var apiKey = config["Dashboard:ApiKey"];
+        if (!context.Request.Headers.TryGetValue("X-API-Key", out var key) || key != apiKey)
+        {
+            context.Response.StatusCode = 401;
+            return;
+        }
+        await _next(context);
+    }
+}
 ```
 
-### Data Protection at Rest
-
-**data.json Security:**
-- Windows NTFS ACLs: DataMaintainer has write, service account has read-only
-- No encryption at rest (project metadata is non-sensitive)
-- Regular backups to secure network share
-- Access auditing via Windows Event Viewer
-
-**Sensitive Data Policy:**
-- **Never store** passwords, API keys, or PII in data.json
-- Exception handling: Log errors without exposing file paths to users
-
-### Data Protection in Transit
-
-**WebSocket Encryption:**
-- Enforce HTTPS in production (TLS 1.3 minimum)
-- Certificate: Valid SSL cert via reverse proxy (IIS/nginx)
-- Self-signed certs acceptable for intranet
-- Disable HTTP in appsettings.Production.json
-
-**WebSocket Configuration:**
-```csharp
-app.UseHttpsRedirection();
-app.MapBlazorHub(); // Requires HTTPS in production
-```
-
-### Logging & Audit
-
-**Log File Protection:**
-- Location: `C:\dashboards\logs\`
-- Permissions: Administrators + ServiceAccount read/write only
-- Retention: 30 days rolling (auto-delete via RollingInterval.Day)
-- Redaction: Never log sensitive data (implement `[SensitiveData]` attribute on fields)
-
-**Sensitive Logging Example:**
-```csharp
-[SensitiveData]
-public string CarryoverReason { get; set; } // Example: if contains PII
-
-// In logging
-_logger.LogInformation("Processed work item {Id} with reason {Reason}", 
-    item.Id, 
-    "[REDACTED]"); // Never log sensitive fields
-```
+---
 
 ### Input Validation
 
-**JSON Schema Validation (via DataAnnotations):**
+**Validation Rules (at deserialization):**
+- ProjectName required, max 200 chars (prevent DoS via huge strings)
+- Quarter required, max 50 chars
+- 1-50 milestones (prevent array DoS)
+- Total items max 5,000
+- Milestone status enum validation (prevent invalid codes)
+- All string fields bounded (prevent memory exhaustion)
+
+**Implementation:** ProjectDataValidator class; explicit ProjectDataValidator.Validate(data) before accepting data.
+
+**Silent Failure:** If validation fails, previous _cachedData retained; no crash.
+
+---
+
+### Data Protection
+
+**No PII Handling:**
+- data.json contains project metadata only (milestone names, deliverable titles)
+- No customer data, passwords, API keys, or secrets
+- File permissions: standard Windows ACLs
+- No encryption at rest (project data not sensitive; isolated network)
+
+**File I/O Security:**
 ```csharp
-[Required, StringLength(255, MinimumLength = 1)]
-public string Name { get; set; }
-
-[Range(0, 100)]
-public int? PercentComplete { get; set; }
-
-[RegularExpression(@"^[a-z0-9_-]{1,50}$")]
-public string Id { get; set; }
+// Atomic write pattern (client-side responsibility)
+private void SafeWriteDataJson(string filePath, string jsonContent)
+{
+    // 1. Write to .tmp
+    string tmpPath = filePath + ".tmp";
+    File.WriteAllText(tmpPath, jsonContent);
+    
+    // 2. Validate JSON before rename
+    try { JsonSerializer.Deserialize<ProjectData>(jsonContent); }
+    catch { File.Delete(tmpPath); throw; }
+    
+    // 3. Atomic rename
+    File.Delete(filePath);
+    File.Move(tmpPath, filePath);
+}
 ```
 
-**Output Encoding (XSS Prevention):**
-- Blazor Server auto-escapes HTML by default
-- Use `@Html.Raw()` **only** for trusted RadzenBlazor components
-- Never render user-supplied HTML
-- Validate all milestone/work item descriptions against allowed characters
+---
 
-**File Path Traversal Prevention:**
-```csharp
-var fullPath = Path.GetFullPath(filePath);
-var basePath = Path.GetFullPath("wwwroot/data");
-if (!fullPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
-    throw new UnauthorizedAccessException("Invalid file path");
-```
+### OWASP Compliance (Local-Only Context)
 
-### Threat Model
-
-| Threat | Likelihood | Impact | Mitigation |
-|--------|-----------|--------|-----------|
-| Unauthorized access to dashboard | Low | Moderate | Network-level access control (AD groups), HTTPS |
-| Malformed JSON crashes app | Medium | High | Strict validation, error banner, graceful degradation |
-| File tampering (data.json) | Low | High | NTFS ACLs, backups, audit logging |
-| WebSocket eavesdropping | Low | Moderate | HTTPS/TLS 1.3 enforcement |
-| Timezone calculation errors | Medium | Moderate | UTC storage, `DateTime.UtcNow` only |
-| Large JSON DoS | Low | Low | File size limit (5 MB), parse timeout (10s) |
+| Risk | Mitigation | Priority |
+|------|-----------|----------|
+| Injection | Input validation + System.Text.Json case-insensitive parsing | High |
+| Broken Authentication | Not applicable (no auth) | N/A |
+| Sensitive Data Exposure | No PII; local network; HTTPS optional | Low |
+| XML External Entities | Not applicable (JSON-only) | N/A |
+| Broken Access Control | Single-user/trusted-team model | Low |
+| Security Misconfiguration | Hardcoded to localhost; no secrets in code | Medium |
+| XSS | Blazor Server server-side rendering; no user HTML | Low |
+| Insecure Deserialization | System.Text.Json AOT-safe; no BinaryFormatter | Low |
+| Known Vulnerabilities | Dependency scanning in CI/CD (`dotnet list package --vulnerable`) | Medium |
+| Insufficient Logging | Debug output to browser console; optional Serilog | Low |
 
 ---
 
 ## Scaling Strategy
 
-### Single-Machine Architecture (Current MVP)
+### Current Constraints (MVP)
 
-**Capacity Targets:**
-- Concurrent WebSocket connections: 50-100 users
-- Memory per connection: ~1-2 MB
-- Dashboard dataset: <500 work items
-- JSON file size: <5 MB
-- Rendering time: <200 ms
+**Hard Limits:**
+- 1 Blazor Server instance (no clustering)
+- ~1,000 concurrent Blazor connections (single machine limit)
+- 5,000 total dashboard items (no pagination)
+- 5MB JSON file size (before >500ms parse latency)
 
-**Hardware Assumptions:**
-- Windows Server 2022 with 8+ CPU cores
-- 16+ GB RAM
-- SSD for data.json reads
-- Gigabit network connection
+**Target Use Case:**
+- 1-5 executives viewing dashboard per day
+- 10 data.json updates per day (batch-driven)
+- Local SSD deployment
 
-### Bottleneck Analysis & Mitigations
+---
 
-| Bottleneck | Symptom | Mitigation | Timeline |
-|-----------|---------|-----------|----------|
-| **File I/O on data.json** | High disk latency during refresh | Implement in-memory cache (300s TTL) | MVP |
-| **WebSocket payload size** | Slow state updates | Compress payloads, delta sync only | v1.1 |
-| **JSON parsing CPU** | Spike during large file loads | Pre-parse + cache (5-10 min) | v1.1 |
-| **Memory exhaustion** | Browser crashes >100 concurrent users | Horizontal scaling with Redis | v2 |
-| **Milestone calculations** | Render delay with 100+ milestones | Virtual scrolling in UI table | v1.1 |
+### Scaling Dimension 1: Data Size (5K → 50K Items)
 
-### In-Memory Caching (MVP)
+**Solution:** Pagination + Lazy Loading
+
+```csharp
+public class PaginatedStatusItems
+{
+    public List<StatusItem> Items { get; set; }
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+    public int TotalCount { get; set; }
+    public bool HasNextPage => (PageNumber * PageSize) < TotalCount;
+}
+
+public class DashboardDataService
+{
+    public PaginatedStatusItems GetShippedItems(int pageNumber = 1, int pageSize = 20)
+    {
+        var pageItems = _cachedData.Shipped
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+        
+        return new PaginatedStatusItems { Items = pageItems, ... };
+    }
+}
+```
+
+**Component Implementation:** Add previous/next buttons; bind to PageNumber state.
+
+---
+
+### Scaling Dimension 2: File Size (5MB → 100MB)
+
+**Solution:** Split data.json into Per-Quarter Files
+
+```
+data-q2-2026.json
+data-q3-2026.json
+data-q4-2026.json
+```
 
 **Implementation:**
 ```csharp
-public class CachedDashboardService : IDashboardService
+public void Initialize(string dataPath)
 {
-    private DashboardData _cache;
-    private DateTime _cacheExpiry = DateTime.MinValue;
-    private const int CacheTtlSeconds = 300;
-
-    public async Task<DashboardData> LoadDataAsync(string filePath)
-    {
-        if (_cache != null && DateTime.UtcNow < _cacheExpiry)
-            return _cache;
-
-        var data = await _baseService.LoadDataAsync(filePath);
-        _cache = data;
-        _cacheExpiry = DateTime.UtcNow.AddSeconds(CacheTtlSeconds);
-        return data;
-    }
+    var quarter = Environment.GetEnvironmentVariable("DASHBOARD_QUARTER") ?? "Q2_2026";
+    var actualPath = Path.Combine(
+        Path.GetDirectoryName(dataPath),
+        $"data-{quarter.ToLower()}.json"
+    );
+    LoadDataFromJson(actualPath);
 }
-
-// In Program.cs
-builder.Services.AddSingleton<IDashboardService>(
-    new CachedDashboardService(new DashboardService(logger)));
 ```
 
-**Cache Hit Ratio:** Estimated 90%+ if file changes infrequent
+---
 
-### Horizontal Scaling Path (v2 - Future)
+### Scaling Dimension 3: Concurrent Users (5 → 100+)
 
-**If exceeding 100 concurrent users:**
+**For 5-10 users (current MVP):**
+- Single Blazor Server instance sufficient
+- In-memory ProjectData caching in DashboardDataService
 
-1. **Deploy Multiple App Servers**
-   - Load balancer: Azure Load Balancer or nginx
-   - Sticky sessions: WebSocket affinity required
-   - Auto-scaling: Monitor CPU/memory, add servers if >70%
+**For 100+ users (future phase):**
+- Add distributed cache (SQL Server State Store, Redis)
 
-2. **Shared Cache Tier**
-   - Redis cluster for distributed caching
-   - Keep single data.json source of truth
-   - Invalidate cache on file change (broadcast via SignalR)
+```csharp
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = Configuration.GetConnectionString("Redis");
+});
 
-3. **Data Layer Upgrade**
-   - Migrate from file-based JSON to SQLite
-   - Advisory file locks for concurrent write safety
-   - Enable audit table for historical snapshots (future reporting)
+// Cache for 30 seconds
+var cacheKey = "dashboard:projectdata";
+var cached = _cache.Get<ProjectData>(cacheKey);
+if (cached == null)
+{
+    LoadDataFromJson(dataPath);
+    _cache.Set(cacheKey, _cachedData, TimeSpan.FromSeconds(30));
+}
+```
 
-4. **Performance Optimization**
-   - Virtual scrolling for work item tables (>200 items)
-   - Lazy loading of milestone details
-   - Gzip compression on HTTP responses
+---
+
+### Scaling Dimension 4: Hot-Reload Latency (10s → Sub-second)
+
+**Current:** FileSystemWatcher + 10s Timer polling
+
+**Optimization (if latency becomes issue):**
+```csharp
+// Reduce interval from 10s to 5s
+_fallbackTimer = new System.Timers.Timer(5000) { AutoReset = true };
+
+// Add debouncing to prevent reload storms
+private DateTime _lastReloadAttempt = DateTime.MinValue;
+private void ReloadData(string path)
+{
+    var now = DateTime.UtcNow;
+    if ((now - _lastReloadAttempt).TotalMilliseconds < 2000)
+        return; // Skip if attempted <2s ago
+    
+    _lastReloadAttempt = now;
+    
+    var fileInfo = new FileInfo(path);
+    if (fileInfo.LastWriteTime > _lastModified)
+        LoadDataFromJson(path);
+}
+```
+
+---
+
+### Caching Strategy
+
+**Cache Levels:**
+1. **In-Memory (DashboardDataService):** ProjectData _cachedData (expires on file change)
+2. **Browser (optional):** Blazor circuit state (automatic; survives F5 within circuit lifetime)
+3. **HTTP (optional):** Response headers if exposed via web
+   ```csharp
+   response.Headers.CacheControl = "public, max-age=60";
+   ```
 
 ---
 
 ## Risks & Mitigations
 
-### Technical Risks
+### Risk 1: FileSystemWatcher Unreliability on Network Shares
 
-#### 1. File Contention on data.json
+**Probability:** High | **Impact:** Medium | **Priority:** P0
 
-**Risk Level:** Medium
-
-**Impact:** Stale or corrupt data if multiple writers attempt concurrent updates
-
-**Probability:** Medium (assumes single maintainer, but automation could violate assumption)
+**Details:** FileSystemWatcher fails on network shares and WSL; data updates won't trigger hot-reload.
 
 **Mitigation:**
-- **MVP:** Document single-threaded write assumption in operational runbook
-- **Monitoring:** Log all file read/write operations with timestamps
-- **Future:** Implement advisory file locks via `FileStream.Lock()` if bottleneck emerges
-- **Long-term:** Migrate to SQLite with proper concurrency control
+- Hybrid approach: FileSystemWatcher + 10-second Timer fallback
+- **Action:** Test on actual network share deployment before production
+- **Fallback:** If FileSystemWatcher fails, Timer polling guarantees reload within 10 seconds
+- **Cost:** Minimal (timer overhead ~1% CPU)
 
-**Detection:** Alert if multiple write events detected within 5 seconds
-
-#### 2. Malformed JSON Crashes Application
-
-**Risk Level:** High
-
-**Impact:** Entire dashboard offline, executives unable to view status
-
-**Probability:** Medium (manual file editing by non-technical user)
-
-**Mitigation:**
-- **MVP:** Strict DataAnnotations validation + custom validators
-- **UI:** Error banner displays validation errors to user (non-stack-trace)
-- **Logging:** Full error details logged for operator debugging
-- **Graceful Degradation:** Cache last-known-good data for 30 minutes if load fails
-- **Validation:** Unit tests with 50+ edge cases (empty strings, special chars, invalid dates)
-
-**Example Error Message:**
-```
-"Invalid dashboard data. Please check:
-- Required field 'name' in project metadata
-- ISO 8601 date format (YYYY-MM-DDTHH:MM:SSZ)
-- Milestone 'id' must be alphanumeric
-Contact administrator if problem persists."
-```
-
-#### 3. WebSocket Disconnection
-
-**Risk Level:** Low
-
-**Impact:** User sees stale data briefly; dashboard becomes unresponsive
-
-**Probability:** Low (intranet assumption, stable network)
-
-**Mitigation:**
-- **Native:** Blazor Server auto-reconnects within 3-5 seconds
-- **UI:** Display reconnection status to user
-- **Fallback:** Manual refresh button always available
-- **Timeout:** Graceful degradation after 30-second outage
-
-#### 4. JSON File Missing
-
-**Risk Level:** Medium
-
-**Impact:** Dashboard fails to load on application start
-
-**Probability:** Low (backup strategy, but deployment errors possible)
-
-**Mitigation:**
-- **Startup Check:** Verify file existence before Blazor initialization
-- **Error Message:** "Dashboard data file not found at {path}. Please contact administrator."
-- **Initialization:** Create sample data.json on first startup if missing (optional)
-
-#### 5. Memory Leak in FileSystemWatcher
-
-**Risk Level:** Medium
-
-**Impact:** Gradual memory bloat over weeks, eventual server restart required
-
-**Probability:** Low (properly disposed in using block)
-
-**Mitigation:**
-- **Code Review:** Ensure `using` statement wraps FileSystemWatcher
-- **Monitoring:** Track memory baseline weekly; alert if growth >50 MB/week
-- **Test:** Run memory profiler for 24-hour continuous operation
-- **Workaround:** Scheduled restart via Task Scheduler every Sunday 2 AM
-
-#### 6. Timezone Calculation Errors
-
-**Risk Level:** Medium
-
-**Impact:** Executives see incorrect milestone status (off by 1-2 days)
-
-**Probability:** Medium (DST transitions, system clock drift)
-
-**Mitigation:**
-- **Storage:** All dates stored in UTC (ISO 8601) in data.json
-- **Calculation:** Use `DateTime.UtcNow` **only** (never `DateTime.Now`)
-- **Testing:** Verify calculations at DST transition dates (2026-03-08, 2026-11-01)
-- **Logging:** Log all date comparisons for audit trail
-- **Display:** Show timezone context in UI (e.g., "Eastern Time")
-
-#### 7. Certificate Expiration
-
-**Risk Level:** Low
-
-**Impact:** HTTPS fails, dashboard unreachable in production
-
-**Probability:** Low (but 100% if not managed)
-
-**Mitigation:**
-- **Tracking:** Calendar reminder 90 days before expiry
-- **Automation:** Script to check cert expiry and alert 30 days out
-- **Renewal:** Self-signed certs (intranet only) don't expire; CA-signed certs require annual renewal
-- **Redundancy:** Keep 2-week buffer (replace 2 weeks before expiry)
-
-#### 8. Log File Disk Full
-
-**Risk Level:** Low
-
-**Impact:** Application silently stops logging; silent failure invisible to operators
-
-**Probability:** Low (30-day retention, typical dashboard log volume ~5-10 MB/month)
-
-**Mitigation:**
-- **Monitoring:** Alert if `C:\dashboards\logs\` exceeds 80% capacity
-- **Rotation:** RollingInterval.Day automatic cleanup (retainedFileCountLimit: 30)
-- **Threshold:** Set disk space alert at <10% free
-
-### Dependency Risks
-
-#### RadzenBlazor 4.x Commercial Licensing
-
-**Risk Level:** Medium (long-term)
-
-**Impact:** Future licensing cost or forced migration
-
-**Probability:** Low (Telerik provides free tier for development; commercial models typically stable)
-
-**Mitigation:**
-- **Contract:** Negotiate 3-year support agreement with Telerik
-- **Fallback:** Document migration path to custom SVG rendering (~8 weeks effort)
-- **Monitoring:** Subscribe to Telerik release notes; track breaking changes
-- **Alternative:** Evaluate OxyPlot or lightweight charting before licensing becomes blocking
-
-#### .NET 8 LTS EOL (November 2026)
-
-**Risk Level:** Low
-
-**Impact:** Security patches stop; long-term maintenance burden
-
-**Probability:** Certain (by design)
-
-**Mitigation:**
-- **Timeline:** Plan migration to .NET 9 LTS (November 2027) by Q3 2026
-- **Effort:** Minimal (backward-compatible, no API changes expected)
-- **Testing:** Run smoke tests on .NET 9 RC before November 2026
-
-#### Bootstrap 5.3.x CVE in CSS Parser
-
-**Risk Level:** Low (for this application)
-
-**Impact:** Potential XSS if user content rendered (not applicable here)
-
-**Probability:** Low (executive metadata only)
-
-**Mitigation:**
-- **Monitoring:** Subscribe to Bootstrap security advisories
-- **Update Cadence:** Review quarterly; apply critical patches within 7 days
-- **Validation:** Scan dependencies with `dotnet list package --vulnerable`
-
-#### System.Text.Json Limited Customization
-
-**Risk Level:** Low
-
-**Impact:** May require workarounds for complex serialization
-
-**Probability:** Low (JSON structure is simple)
-
-**Mitigation:**
-- **Acceptance:** System.Text.Json feature parity sufficient for this use case
-- **Fallback:** Migrate to Newtonsoft.Json if needed (performance trade-off, +1.5 MB)
-
-### Mitigation Execution Plan
-
-**Before MVP Release (Week 1-2):**
-- [ ] Validate JSON with 50+ edge cases (empty strings, special chars, out-of-range dates, null fields)
-- [ ] Test FileSystemWatcher reliability (kill process, network delay, rapid file writes)
-- [ ] Performance audit: measure <3s load time, <200ms render time, <100MB memory
-- [ ] Security audit: verify HTTPS, ACL permissions, log redaction
-- [ ] Disaster recovery test: restore from backup, verify data integrity
-
-**Post-Release (Ongoing):**
-- [ ] Week 1-4: Monitor error logs daily for validation failures, file access errors
-- [ ] Week 4-8: Measure memory baseline; alert if growth >50 MB/week
-- [ ] Monthly: Review NuGet security advisories; apply critical patches
-- [ ] Monthly: Monitor WebSocket connections; alert if >5 disconnections/hour
-- [ ] Quarterly: Capacity planning; track peak concurrent users
-- [ ] Quarterly: Upgrade dependencies if minor versions available
-- [ ] Annual: DST transition testing; verify date calculations
-- [ ] Annual: Certificate renewal check; plan renewal if CA-signed
+**Test Plan:** Week 2 deliverable—test FileSystemWatcher and Timer on actual deployment machine (local SSD vs. network share).
 
 ---
 
-## Operational Runbook
+### Risk 2: JSON Deserialization Crashes on Schema Mismatch
 
-### Deployment
+**Probability:** Medium | **Impact:** High | **Priority:** P0
 
-**Step 1: Build**
-```powershell
-cd C:\Git\AgentSquad\src\AgentSquad.Runner
-dotnet clean
-dotnet build -c Release
-dotnet test --no-build -c Release
-dotnet publish -c Release -r win-x64 --self-contained -o C:\publish
+**Details:** If data.json schema changes or is malformed, dashboard crashes and displays blank page.
+
+**Mitigation:**
+- ProjectDataValidator with explicit validation before accepting data
+- Silent failure: retain previous _cachedData if new JSON invalid
+- Debug output to browser console (F12) for troubleshooting
+- Unit tests verify validator catches missing/invalid fields
+
+**Test Plan:** Unit tests for ProjectDataValidator; manual schema mismatch testing.
+
+---
+
+### Risk 3: Screenshot Rendering Inconsistency Across Monitors/DPI
+
+**Probability:** Low | **Impact:** High | **Priority:** P1
+
+**Details:** Executives see different layouts on 1920x1080, 4K, and laptop screens; PowerPoint looks misaligned.
+
+**Mitigation:**
+- Blazor Server (not WASM) guarantees identical server-side rendering across browsers
+- Bootstrap 5.3.3 via CDN provides consistent typography and grid
+- No animations/transitions (static HTML only)
+- CSS calibrated for 1.0x–2.5x DPI scaling
+- Screenshot on target monitor at Week 1 end; collect executive feedback
+
+**Test Plan:** Week 1 deliverable—screenshot on 1920x1080 and 4K; get executive sign-off on visual design.
+
+---
+
+### Risk 4: Memory Leak in FileSystemWatcher / Timer
+
+**Probability:** Low | **Impact:** Medium | **Priority:** P1
+
+**Details:** Dashboard gradually consumes RAM over days; performance degrades.
+
+**Mitigation:**
+- Implement IDisposable; properly clean up FileSystemWatcher and Timer
+- Unsubscribe OnDataChanged event in component Dispose
+- Monitor idle RAM consumption (target: 50–100MB)
+
+```csharp
+public class DashboardDataService : IDisposable
+{
+    public void Dispose() { _watcher?.Dispose(); _fallbackTimer?.Dispose(); }
+}
+
+@implements IAsyncDisposable
+async ValueTask IAsyncDisposable.DisposeAsync()
+{
+    DataService.OnDataChanged -= OnDataChanged;
+}
 ```
 
-**Step 2: Backup Current Data**
-```powershell
-Copy-Item "C:\dashboards\wwwroot\data\data.json" "D:\backups\dashboard\data_$(Get-Date -Format 'yyyy-MM-dd_HHmmss').json"
+---
+
+### Risk 5: CDN Downtime (Bootstrap / Chart.js)
+
+**Probability:** Low | **Impact:** Medium | **Priority:** P1
+
+**Details:** Bootstrap or Chart.js CDN unavailable; dashboard CSS/charts don't load.
+
+**Mitigation:**
+- Self-host Bootstrap 5.3.3 and Chart.js 4.4.0 in wwwroot/
+- Browser cache stores CSS/JS; single CDN miss tolerable for internal tool
+- Graceful degradation: dashboard remains functional without Chart.js
+
+```html
+<!-- index.html: fallback to local -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="/css/bootstrap.min.css" rel="stylesheet" onerror="this.style.display='none'">
 ```
 
-**Step 3: Stop Service**
-```batch
-nssm stop AgentSquadDashboard
-```
+---
 
-**Step 4: Deploy**
-```powershell
-Copy-Item "C:\publish\*" "C:\dashboards" -Recurse -Force -Exclude @("data.json", "logs", "backup")
-```
+### Risk 6: .NET 8 Runtime EOL
 
-**Step 5: Start Service**
-```batch
-nssm start AgentSquadDashboard
-```
+**Probability:** Very Low | **Impact:** Medium | **Priority:** P2
 
-**Step 6: Verify**
-```powershell
-# Check service status
-nssm status AgentSquadDashboard
+**Details:** .NET 8 LTS support ends 2026-11; security patches stop.
 
-# Verify HTTPS connectivity
-curl https://dashboard.internal:443 -SkipCertificateCheck
+**Mitigation:**
+- .NET 9 (Nov 2024) and .NET 10 (Nov 2025) backward-compatible
+- Timeline: MVP targets Q2 2026; upgrade to .NET 9 LTS before EOL if dashboard still in use
+- Risk acceptance: For internal tool used 1-2 years, EOL is acceptable cost
 
-# Check logs for errors
-Get-Content "C:\dashboards\logs\app-*.log" -Tail 50
-```
+---
 
-### Troubleshooting
+### Risk 7: data.json File Corruption
 
-**Dashboard fails to load**
-1. Check `C:\dashboards\logs\app-*.log` for errors
-2. Verify `C:\dashboards\wwwroot\data\data.json` exists and is valid JSON
-3. Test JSON validity: `C:\dashboards\AgentSquadDashboard.exe --validate`
-4. Check file permissions: `icacls C:\dashboards\wwwroot\data`
-5. Restart service: `nssm restart AgentSquadDashboard`
+**Probability:** Low | **Impact:** High | **Priority:** P1
 
-**WebSocket connection fails**
-1. Verify HTTPS enabled in production
-2. Check certificate validity: `certutil -dump C:\certs\dashboard.crt`
-3. Test WebSocket: `wscat -c wss://dashboard.internal:443/blazor`
-4. Verify reverse proxy configuration (IIS WebSocket module enabled)
+**Details:** data.json corrupted or partially written; dashboard displays no data.
 
-**Performance degradation**
-1. Check memory usage: `Get-Process AgentSquadDashboard | Select-Object Name, WorkingSet`
-2. Monitor CPU: `perfmon` + add "% Processor Time" counter
-3. Check active connections: `netstat -an | find "ESTABLISHED"`
-4. Analyze logs for JSON parsing time
-5. If memory >300 MB, restart service
+**Mitigation:**
+- Atomic writes: product manager uses rename-after-write pattern
+- Backups: manual backup before each edit (`copy data.json data.json.backup`)
+- Validation before publish: product manager validates JSON locally
+- Recovery: restore from backup in <5 minutes
 
-### Backup & Recovery
+---
 
-**Automated Daily Backup:**
-```batch
-REM Task Scheduler: Daily at 2:00 AM
-robocopy C:\dashboards\wwwroot\data D:\backups\dashboard /MON:1 /XO /R:3
-```
+### Risk 8: Data Out of Sync with Actual Project State
 
-**Manual Restore:**
-```powershell
-# List backups
-Get-ChildItem D:\backups\dashboard
+**Probability:** Medium | **Impact:** High | **Priority:** P1
 
-# Restore from date
-Copy-Item "D:\backups\dashboard\data_2026-04-08.json" "C:\dashboards\wwwroot\data\data.json"
+**Details:** data.json stale; executives make decisions on outdated information.
 
-# Verify
-(Get-Content C:\dashboards\wwwroot\data\data.json | ConvertFrom-Json).project.name
-```
+**Mitigation:**
+- Process: product manager updates data.json at start of each reporting cycle (weekly, not continuous)
+- Ownership: assign single DRI (directly responsible individual) to own data.json
+- Verification: executive signs off on data accuracy before using screenshots
+- Automation (post-MVP): API sync from Jira/Azure DevOps
 
-**Disaster Recovery Test (Monthly):**
-1. Stop service
-2. Delete current data.json
-3. Restore from backup
-4. Start service
-5. Verify dashboard displays correct data
-6. Document results in log
+---
+
+### Risk 9: Executive Team Rejects Visual Design / Color Scheme
+
+**Probability:** Medium | **Impact:** Medium | **Priority:** P2
+
+**Details:** Dashboard colors/layout don't match executive preferences; rework CSS.
+
+**Mitigation:**
+- Early feedback: prototype hardcoded dashboard at Week 1 end; collect stakeholder feedback
+- Design lock: CSS finalized by end of Week 1; no late-stage changes allowed
+- Reference: OriginalDesignConcept.html and C:/Pics/ReportingDashboardDesign.png guide design
+- Approval gate: executive team signs off on design before Phase 2 (data integration)
+
+**Test Plan:** Week 1 deliverable—screenshot + executive approval on visual design.
+
+---
+
+### Risk 10: FileSystemWatcher Misses Rapid File Changes
+
+**Probability:** Low | **Impact:** Low | **Priority:** P3
+
+**Details:** Multiple rapid data.json writes; FileSystemWatcher misses some events; dashboard update delayed.
+
+**Mitigation:**
+- LastWriteTime check: service verifies file timestamp before re-parsing (avoids duplicate parses)
+- Change debouncing: wait 2 seconds before attempting another reload (prevents reload storms)
+- Polling fallback: 10-second timer guarantees eventual consistency
+- Acceptance: batch-driven reporting (10 updates/day) doesn't require sub-second latency
+
+---
+
+### Risk Priority Matrix
+
+| Risk | Probability | Impact | Effort | Priority | Status |
+|------|-------------|--------|--------|----------|--------|
+| FileSystemWatcher fails | High | Medium | Low | **P0** | Mitigated (hybrid Timer) |
+| JSON schema mismatch | Medium | High | Low | **P0** | Mitigated (validation) |
+| Screenshot inconsistency | Low | High | Medium | **P1** | Mitigated (Blazor Server) |
+| Memory leak | Low | Medium | Low | **P1** | Mitigated (IDisposable) |
+| CDN downtime | Low | Medium | Low | **P1** | Mitigated (self-host) |
+| .NET 8 EOL | Very Low | Medium | Medium | **P2** | Accept risk |
+| data.json corruption | Low | High | Low | **P1** | Mitigated (atomic writes) |
+| Data out of sync | Medium | High | High | **P1** | Mitigated (process) |
+| Design rejection | Medium | Medium | High | **P2** | Mitigated (early feedback) |
+| Rapid file changes | Low | Low | Low | **P3** | Mitigated (debouncing) |
+
+---
+
+## Deployment Checklist
+
+- [ ] .NET 8.0 SDK and Runtime installed on target machine
+- [ ] Git repository cloned or source files copied
+- [ ] `dotnet restore` completed (downloads NuGet packages)
+- [ ] `dotnet build --configuration Release` succeeds (no compilation errors)
+- [ ] data.json exists in project root with valid JSON
+- [ ] `dotnet run --configuration Release` starts without errors
+- [ ] Browser loads https://localhost:5001 without certificate warnings
+- [ ] Dashboard displays hardcoded sample data (timeline, metrics, cards)
+- [ ] FileSystemWatcher functional: edit data.json, confirm reload within 10 seconds
+- [ ] Screenshot on target monitor/projector looks clean and professional
+- [ ] Executive stakeholders approve visual design before production
+
+---
+
+## Performance Targets
+
+| Metric | Target | Threshold | Action if Exceeded |
+|--------|--------|-----------|-------------------|
+| Cold Start Latency | <2 seconds | >3 seconds | Profile startup; check disk I/O |
+| Hot-Reload Latency | <10 seconds | >15 seconds | Reduce polling interval; optimize JSON size |
+| Memory Usage (Idle) | 50-100MB | >200MB | Check for memory leaks in service |
+| Memory Usage (Peak) | 200MB | >500MB | Implement pagination for large datasets |
+| CPU Usage (Idle) | <5% | >10% | Reduce timer polling frequency |
+| JSON File Size | <5MB | >10MB | Split into multiple files or archive old data |
+| Rendering Latency | <500ms | >1 second | Use @key directives; profile component tree |
+| Network Latency (CDN) | <200ms | >500ms | Self-host CDN files locally if needed |
+
+---
+
+## Summary
+
+This architecture delivers a lightweight, screenshot-ready executive dashboard optimized for simplicity, consistency, and reliability. It leverages Blazor Server for server-side rendering consistency, System.Text.Json for fast JSON parsing, FileSystemWatcher + Timer fallback for robust hot-reload, and Bootstrap 5.3.3 for responsive design across monitor sizes.
+
+The system is designed to scale horizontally (pagination, pagination) and vertically (caching, file splitting) as requirements grow. All major risks are identified and mitigated with concrete strategies. The architecture prioritizes MVP delivery (Week 1-4) while laying groundwork for future enhancements (multi-project support, API integration, historical tracking).

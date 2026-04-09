@@ -1,332 +1,157 @@
 # PM Specification: My Project
 
 ## Executive Summary
-
-Create a lightweight, screenshot-optimized web dashboard for executive visibility into project milestones and progress. Built on Blazor Server (.NET 8) with JSON-based configuration, this single-page application enables PowerPoint-ready reporting without enterprise infrastructure, authentication, or database dependencies. Executives will embed dashboard screenshots directly into presentation decks to communicate project status (milestones, shipped/in-progress/carryover items, timeline) with minimal maintenance overhead.
+Build a lightweight, screenshot-ready single-page executive dashboard that visualizes project health, milestone progress, and deliverables by reading data from a local data.json file. Using Blazor Server, Bootstrap 5.3.3, and System.Text.Json, the dashboard enables executives to create professional PowerPoint presentations without manual data compilation, reducing reporting overhead by 80%.
 
 ## Business Goals
-
-1. Enable executives to view project status at a glance—milestones, shipped/in-progress/carryover work items—within 3 seconds of page load
-2. Support 100% screenshot-based reporting workflow; users take browser screenshots and embed them directly in PowerPoint slides
-3. Eliminate dependency on complex BI tools, cloud services, or database infrastructure—single JSON file (data.json) is source of truth
-4. Maintain visual fidelity across browser rendering, print preview, and PowerPoint embedding at target resolution (1920x1080)
-5. Reduce ongoing maintenance burden to simple data.json file updates; no code changes required for status updates
-6. Provide clear, color-coded milestone status indicators (Completed/In Progress/At Risk) and work item categorization for executive clarity
+1. Deliver a simple, no-frills dashboard that executives can screenshot for PowerPoint presentations
+2. Eliminate manual status compilation workflows by automating data visualization from JSON source
+3. Provide real-time project visibility showing what's shipped, in-progress, carried-over, and upcoming milestones
+4. Enable non-technical product managers to update dashboard data via data.json without code changes
+5. Ensure consistent, pixel-perfect rendering across multiple monitors and DPI settings for professional presentation quality
 
 ## User Stories & Acceptance Criteria
 
-### Story 1: View Project Timeline with Milestone Status
+**US-1: View Project Milestone Timeline**
+- As an executive, I want to see a horizontal timeline of major project milestones so I can understand project critical path and delivery dates
+- Acceptance Criteria:
+  - [ ] Timeline displays 5-10 milestones in chronological order at the top of the dashboard
+  - [ ] Each milestone shows: name, due date, and status (completed/on-track/at-risk/blocked) with color coding
+  - [ ] Milestones are visually distinct and easy to scan in <5 seconds
+  - [ ] Timeline renders identically on 1920x1080 and 4K monitors without scaling artifacts
+  - [ ] Screenshot is clean, with no rendering artifacts or blinking content
 
-**As an** executive sponsor  
-**I want to** see all project milestones in chronological order with clear status indicators  
-**So that** I can quickly assess which milestones are on track, delayed, or completed
+**US-2: View Project Progress Metrics**
+- As an executive, I want to see overall project completion percentage, counts of shipped/in-progress/carried-over items so I can quickly assess health
+- Acceptance Criteria:
+  - [ ] Dashboard displays: % complete, % carried over, item counts for each category
+  - [ ] Progress metrics update automatically when data.json changes (hot-reload within 10 seconds)
+  - [ ] Metrics are displayed both numerically and visually (optional: doughnut chart via Chart.js)
+  - [ ] Data accuracy verified: metrics match source data.json 100%
 
-**Acceptance Criteria:**
-- [ ] Milestone timeline displays all milestones from data.json in chronological order (earliest to latest)
-- [ ] Each milestone shows: Name, Target Date, Status (Completed/In Progress/Planned/At Risk)
-- [ ] Status indicators use color coding: Green=Completed, Yellow=In Progress, Red=At Risk
-- [ ] Days remaining/overdue automatically calculated from target date vs. current date
-- [ ] Milestones >= 3 days overdue flagged as "At Risk" in red
-- [ ] Milestone description/details visible on hover or expandable section
-- [ ] Timeline renders correctly in browser print preview (Chrome DevTools, Firefox Print Preview)
+**US-3: View Shipped, In-Progress, and Carried-Over Work**
+- As an executive, I want to see lists of completed items, active work, and carryover items so I can understand team capacity and rollover risks
+- Acceptance Criteria:
+  - [ ] Three-column layout displays "Shipped", "In Progress", and "Carried Over" sections
+  - [ ] Each section shows item title and brief description in card format
+  - [ ] Cards are color-coded by category for visual distinction
+  - [ ] Layout adapts responsively to tablet (col-md-6) and mobile (col-12) views
+  - [ ] Cards render cleanly in screenshots without text overlap or truncation
 
-### Story 2: View Work Item Summary by Category
+**US-4: Load Project Data from JSON File**
+- As a product manager, I want the dashboard to read project data from a local data.json file so I can update milestone/progress data without code changes
+- Acceptance Criteria:
+  - [ ] Dashboard loads data.json on startup automatically
+  - [ ] JSON schema supports: project name, quarter, milestones array (id, name, dueDate, status), shipped/in-progress/carried-over arrays (id, title, description)
+  - [ ] Deserialization handles missing optional fields gracefully (no crashes)
+  - [ ] File parsing errors log to browser console; dashboard retains previous data
+  - [ ] Sample data.json template provided with 2-3 fictional projects for testing
 
-**As an** executive  
-**I want to** see counts and list of work items grouped by status (Shipped, In Progress, Carryover)  
-**So that** I can assess what has been delivered and what remains at risk
+**US-5: Hot-Reload Dashboard on Data Changes**
+- As a product manager, I want the dashboard to automatically reload when data.json is modified so I can iterate without restarting
+- Acceptance Criteria:
+  - [ ] Changes to data.json trigger re-render within 10 seconds
+  - [ ] Hot-reload works on local SSD deployments
+  - [ ] Hot-reload works on network share deployments (via Timer fallback if FileSystemWatcher fails)
+  - [ ] No duplicate renders, flicker, or UI glitches on reload
+  - [ ] Polling continues automatically if file watcher encounters permissions issues
 
-**Acceptance Criteria:**
-- [ ] Dashboard displays summary cards showing: # Shipped, # In Progress, # Carryover
-- [ ] Cards include count badges with consistent color scheme
-- [ ] Summary total counts match data.json workItems array
-- [ ] Overall project % complete calculated and displayed prominently
-- [ ] Summary updates within 5 seconds of data.json file change
-- [ ] Carryover items show original target date and new target date
-- [ ] Carryover reason visible (e.g., "Unexpected downstream dependency discovered")
-- [ ] Cards render without text overflow or layout shift when printed
-
-### Story 3: Export Dashboard as Screenshot for PowerPoint
-
-**As an** executive communicator  
-**I want to** take a browser screenshot of the dashboard and embed it in a PowerPoint slide  
-**So that** I can present status to stakeholders without building custom slides
-
-**Acceptance Criteria:**
-- [ ] Dashboard renders consistently at 1920x1080 resolution (target display size)
-- [ ] Print styles optimize spacing, fonts, and colors for PowerPoint slide embedding
-- [ ] Navigation chrome (header, footer, reload button) hidden in print view
-- [ ] Milestone timeline and work item tables fit within standard PowerPoint slide bounds (8.5" x 11" equivalent)
-- [ ] Text remains readable at typical presentation zoom levels (minimum 11pt font)
-- [ ] All status colors and badges render correctly in print preview
-- [ ] Export via browser Print > Save as PDF produces pixel-perfect fidelity
-- [ ] Screenshot quality tested on Chrome DevTools device emulation (1920x1080)
-
-### Story 4: Load Project Data from JSON Configuration
-
-**As a** dashboard maintainer  
-**I want to** update project status by editing a simple data.json file  
-**So that** I can quickly reflect changes without modifying code or database
-
-**Acceptance Criteria:**
-- [ ] Dashboard loads data from wwwroot/data/data.json on startup
-- [ ] JSON schema matches documented structure (ProjectMetadata, Milestones, WorkItems)
-- [ ] Missing or invalid JSON fields handled gracefully with error message
-- [ ] Dashboard detects data.json changes and reloads within 5 seconds (FileSystemWatcher)
-- [ ] All connected browser sessions receive updated data after file change
-- [ ] Malformed JSON produces user-friendly error (not stack trace)
-- [ ] Data validation ensures required fields present (Name, Date, Status for milestones)
-- [ ] Sample data.json provided with fictional project (5-10 milestones, 10-15 work items)
-
-### Story 5: View Detailed Work Item Information
-
-**As an** executive  
-**I want to** see work item titles, milestone associations, and completion status  
-**So that** I can drill into specific areas of concern or progress
-
-**Acceptance Criteria:**
-- [ ] Shipped items table shows: Title, Associated Milestone, Completion Date
-- [ ] In Progress items table shows: Title, Associated Milestone, % Complete
-- [ ] Carryover items table shows: Title, Original Target Date, New Target Date, Reason
-- [ ] Work item count per milestone visible (e.g., "Milestone: Phase 1 (3 items)")
-- [ ] No horizontal scrolling required on 1920px wide displays
-- [ ] Table rows alternate background color for readability
-- [ ] Print layout maintains table structure and alignment
-
-### Story 6: Manual Data Refresh
-
-**As a** dashboard viewer  
-**I want to** refresh the dashboard without reloading the page  
-**So that** I can see latest data if I know changes were made to data.json
-
-**Acceptance Criteria:**
-- [ ] Refresh button visible on dashboard
-- [ ] Clicking refresh loads latest data.json without full page reload
-- [ ] User feedback (loading spinner or toast notification) during refresh
-- [ ] Refresh completes within 2 seconds
-- [ ] Dashboard remains responsive during refresh (no freezing)
+**US-6: Screenshot Dashboard for PowerPoint**
+- As an executive, I want to take pixel-perfect screenshots of the dashboard for PowerPoint decks so presentations look professional and consistent
+- Acceptance Criteria:
+  - [ ] Dashboard renders identically across Chrome, Edge, Safari, and Firefox
+  - [ ] Text is crisp and legible at all monitor DPI settings (1.0x to 2.5x scaling)
+  - [ ] No animations, blinking, or dynamic content that would interfere with screenshots
+  - [ ] Color scheme and spacing optimized for readability in presentations
+  - [ ] Executive team approves visual design and color scheme before deployment
 
 ## Scope
 
 ### In Scope
-
-- Blazor Server web application running on Windows (.NET 8 LTS)
-- Single-page dashboard displaying milestones and work items from data.json
-- JSON-based data loading and validation (System.Text.Json)
-- Print-optimized CSS for PowerPoint screenshot export (@media print rules)
-- Five reusable sub-components: MilestoneTimeline, ProjectStatusCard, ShippedItemsList, CarryoverIndicator, ProgressIndicator
-- FileSystemWatcher for automatic data.json reload detection
-- Sample data.json with fictional project (8-10 milestones, 10-15 work items)
-- Bootstrap 5.3.x + custom CSS styling
-- Basic date calculations (days remaining, overdue detection, UTC to local conversion)
-- Manual refresh button for on-demand data reload
-- Self-contained Windows .exe deployment (no runtime dependencies)
-- Error handling and user-friendly messages for malformed JSON
-- DashboardService with LoadDataAsync and ValidateDataAsync methods
-- Color-coded status badges and milestone indicators
+- Single-page Blazor Server dashboard (one route, no navigation menus)
+- Local data.json file loading via System.Text.Json deserialization
+- FileSystemWatcher + Timer-based hybrid hot-reload mechanism
+- Bootstrap 5.3.3 responsive grid layout via CDN (no build tools)
+- Custom CSS dashboard styling (200 lines max) for brand colors and spacing
+- Chart.js 4.4.0 via CDN for optional progress bar/gauge visualization
+- Three-tier component hierarchy: DashboardContainer → TimelineSection / ProgressSection / StatusCardsSection
+- Hardcoded sample project data for testing and demo purposes
+- Data models: ProjectData, Milestone, StatusItem, ProgressMetrics (C# classes)
+- DashboardDataService for JSON parsing and file-watching logic
 
 ### Out of Scope
-
-- User authentication, authorization, or role-based access control
-- Multi-project support (single dashboard per instance; no dropdown project selector)
-- Historical data, audit trails, or versioning of work item changes
-- Automated email reports or server-side PDF generation (SelectPdf)
-- Multi-timezone support (single timezone assumed; UTC assumed internally)
-- Database backend (SQLite, SQL Server, or cloud databases)
-- REST API endpoints or external data source integrations
-- Dashboard customization UI or layout builder
-- Advanced charting (burndown charts, velocity, cumulative flow diagrams)
-- Real-time collaboration, commenting, or multi-user editing
-- Mobile-responsive layout optimization
-- Dark mode or theme switching
-- Internationalization or localization (English only)
-- Search, filtering, or sorting of work items
-- Drag-and-drop timeline editing or status updates
-- Push notifications or status change alerts
-- Integration with Azure DevOps, Jira, GitHub, or other work tracking systems
-- Complex dependency tracking or critical path analysis
-- Gantt chart visualization
+- User authentication, login, or role-based access control
+- Multi-user concurrency, permissions, or user profiles
+- Historical data tracking, trend analysis, or Q-over-Q comparisons
+- Real-time notifications (Slack, email, SMS integrations)
+- API integrations with Jira, Azure DevOps, GitHub, or other tools
+- Database backend or server-side persistence
+- Mobile app, native iOS/Android, or offline PWA mode
+- Advanced charting libraries (Plotly, D3.js, ApexCharts)
+- Automated email distribution or scheduled report generation
+- Encrypted data storage, PII handling, or secrets management
+- High-availability deployment (multiple instances, load balancer, failover)
+- Advanced performance optimizations (pagination, lazy loading, server-side caching)
+- Accessibility beyond basic WCAG 2.1 compliance
+- Custom domain setup or HTTPS SSL certificates
 
 ## Non-Functional Requirements
 
-### Performance
-
-- Dashboard renders within 200ms for target dataset (30-50 work items)
-- Initial page load completes in < 3 seconds (including CSS, Bootstrap, and component rendering)
-- JSON parsing via System.Text.Json completes in < 100ms for typical data.json
-- Hot-reload detection and UI update completes within 5 seconds of data.json file change
-- Maximum WebSocket payload per update: 10 KB
-- Memory footprint per connected session: < 250 MB
-- Support for 30+ concurrent user sessions on single Windows Server 2022 machine
-- Dashboard rendering time (80-150ms for Blazor Server with 30 work items)
-- Total HTTP payload: ~120 KB initial load + ~10 KB per refresh
-
-### Reliability
-
-- Dashboard gracefully handles missing or malformed data.json (error banner displayed, no crash)
-- Automatic WebSocket reconnection on network disconnect (Blazor Server native)
-- File read/write errors logged and displayed to user with retry option
-- Graceful degradation; dashboard displays stale data during file unavailability (30-second tolerance)
-- Data validation prevents loading of incomplete milestone/work item records
-- No data loss during concurrent read/write scenarios (single-threaded write assumption honored)
-
-### Scalability
-
-- Single Windows machine deployment (no clustering, load balancing, or cloud scaling)
-- Estimated capacity: 50-100 concurrent users on standard Windows Server 2022 hardware (8+ CPU, 16+ GB RAM)
-- Dataset up to 100 work items without performance degradation
-- No horizontal scalability required per project constraints
-- Not designed for high-traffic or public-facing scenarios
-
-### Security (Minimal - Intranet Only)
-
-- No authentication or authorization required (assumes intranet/trusted network access)
-- HTTPS enforced in production deployment (IIS or nginx reverse proxy with valid SSL certificate)
-- JSON file secured via OS-level ACLs (Windows NTFS permissions); service account read-only access
-- No encryption at rest for data.json (non-sensitive project metadata only)
-- WebSocket communication encrypted via TLS/SSL in production
-- No sensitive data (credentials, API keys, passwords) stored in data.json
-- Assume network-level access controls prevent unauthorized access to dashboard URL
-
-### Availability
-
-- No uptime SLA required (internal reporting tool for intranet use)
-- Graceful degradation during file access errors or missing data.json
-- Manual restart procedure documented (Windows Service via NSSM or Task Scheduler)
-- Acceptable downtime for maintenance: no 24/7 availability requirement
-
-### Compatibility
-
-- Supported browsers: Chrome 90+, Edge 90+, Firefox 88+ (WebSocket requirement)
-- Target display resolution: 1920x1080 (desktop only; no mobile optimization)
-- Print export: Chrome and Edge native print-to-PDF functionality
-- Deployment platform: Windows Server 2022+, Windows 10/11 Pro
-- No cross-platform deployment or Linux/macOS support required
-
-### Data Integrity
-
-- No concurrent writes to data.json (single-threaded file write assumption)
-- Data validation enforced via C# data annotations (Required, format validation)
-- Historical snapshots not preserved (only current state displayed)
-- ISO 8601 UTC dates required in data.json; local rendering applied in UI
-- No automatic carryover detection (manually curated by data maintainer)
+| Requirement | Target | Rationale |
+|---|---|---|
+| **Load Time** | <2 seconds cold start on local SSD | Executives use during live meetings; delays erode trust |
+| **Hot-Reload Latency** | <10 seconds from file change to UI update | Acceptable for batch-driven reporting; not real-time |
+| **Rendering Consistency** | Identical output across Chrome, Edge, Safari, Firefox | Screenshot fidelity critical for PowerPoint distribution |
+| **Availability** | 99% uptime on local deployment | Read-only local app with no external dependencies |
+| **Data Accuracy** | 100% fidelity to source data.json | No calculation errors or data transformation bugs |
+| **Scalability** | Supports up to 5,000 total dashboard items (milestones + cards) | Larger datasets require pagination (future phase) |
+| **Deployment Friction** | Single `dotnet run` command; no npm/yarn/npm build step required | Non-developers should be able to launch dashboard |
+| **Security** | No authentication required; no PII in data.json; deployable on isolated network | Read-only internal tool; no cloud exposure or public internet access |
+| **Resource Footprint** | 50-100MB RAM at idle; 200-300MB disk for runtime + code | Acceptable for developer workstation or internal server |
+| **Responsive Design** | Grid adapts: col-lg-4/col-lg-3 (desktop), col-md-6 (tablet), col-12 (mobile) | Screenshots must be readable on multiple monitor sizes |
 
 ## Success Metrics
 
-### Delivery Metrics
-
-- [ ] All 6 user stories accepted and signed off by stakeholder
-- [ ] Dashboard prototype reviewed against OriginalDesignConcept.html and ReportingDashboardDesign.png design references
-- [ ] Sample data.json with realistic fictional project (Q2 Cloud Migration scenario) created and loading successfully
-- [ ] Dashboard renders without console errors or warnings in Chrome/Edge
-- [ ] Self-contained .exe builds and runs without external dependencies
-
-### Quality Metrics
-
-- [ ] Print preview (Chrome DevTools) matches reference design screenshot
-- [ ] Zero horizontal scrolling at 1920x1080 browser resolution
-- [ ] Milestone timeline and work item tables fit within PowerPoint slide bounds (8.5" x 11" equivalent)
-- [ ] All text remains readable at 96 DPI print resolution; minimum 11pt font size
-- [ ] Page load time measured at < 3 seconds (Lighthouse/DevTools performance audit)
-- [ ] JSON parsing time < 100ms for 30-50 work items
-- [ ] WebSocket payload < 10 KB per update
-- [ ] Memory footprint < 200 MB baseline
-
-### User Acceptance Metrics
-
-- [ ] Dashboard embedded in PowerPoint slide and reviewed by intended executive audience
-- [ ] Executive feedback confirms readability and visual clarity for presentation context
-- [ ] Stakeholders confirm all required status information visible at a glance (no drilling required)
-- [ ] Screenshot quality deemed suitable for executive-level stakeholder distribution
-- [ ] Carryover items, milestone status, and progress percentages accurate and complete
-
-### Technical Metrics
-
-- [ ] DashboardService LoadDataAsync and ValidateDataAsync tested with valid and malformed JSON
-- [ ] FileSystemWatcher detects data.json changes and reloads within 5 seconds
-- [ ] Memory footprint measured < 200 MB baseline during normal operation
-- [ ] Rendering time logged < 200ms for 30-50 work items
-- [ ] All status color codes render correctly in print preview (Chrome DevTools print simulation)
-- [ ] Date calculations (days remaining, overdue detection) verified for edge cases (DST transitions)
-
-### Scope Adherence Metrics
-
-- [ ] No authentication layer implemented
-- [ ] No database or external APIs integrated
-- [ ] No charting beyond RadzenBlazor timeline/status components
-- [ ] Single-project, single-timezone implementation confirmed
-- [ ] Zero custom JavaScript interop required
-- [ ] Bootstrap 5.3 used for base layout; custom CSS < 500 lines
+1. **Executive Adoption:** Executive team uses dashboard screenshots in ≥3 consecutive reporting cycles without requesting manual alternatives
+2. **Time Savings:** Reporting data compilation time reduced from 4 hours to <30 minutes per reporting cycle
+3. **Screenshot Quality:** Zero complaints from executives about rendering inconsistency, readability, or layout issues across monitors
+4. **Data Accuracy:** No discrepancies between dashboard display and source data.json (100% match rate)
+5. **Hot-Reload Reliability:** File change detection and re-render works 100% of the time on target deployment environment (test on actual machine before production)
+6. **Performance:** Cold start latency ≤2 seconds; hot-reload latency ≤10 seconds; zero UI lag or flicker
+7. **Code Quality:** Core DashboardDataService and Models covered by xUnit tests with ≥80% code coverage
+8. **Design Approval:** Executive stakeholders approve visual design, color scheme, and information hierarchy before Week 2 completion
 
 ## Constraints & Assumptions
 
 ### Technical Constraints
+- **Single Blazor Server Instance:** No load balancing, clustering, or high-availability failover (single point of failure acceptable for internal tool)
+- **Local File Storage Only:** No cloud blob storage, databases, or remote APIs; data.json is the single source of truth
+- **No External Build Tools:** Pure .NET 8 CLI tooling only; no npm, yarn, webpack, or Node.js required
+- **FileSystemWatcher Platform Limitations:** Windows FileSystemWatcher fails on network shares and WSL; hybrid Timer-based fallback required
+- **JSON File Atomic Writes:** Requires rename-after-write pattern to prevent partial JSON reads during file updates
 
-- Single Windows machine deployment only (no clustering, load balancing, or multi-region support)
-- No cloud infrastructure dependencies (Azure, AWS, or hosted services)
-- File-based JSON only (no database backend, no API gateways, no message queues)
-- Self-contained .NET 8 executable deployment model (all dependencies bundled; ~200 MB publish output)
-- Single-timezone support (UTC assumed for data storage; local time for rendering)
-- No multi-service or concurrent write support to data.json (single writer assumption)
-- Blazor Server only (no Blazor WebAssembly or hybrid rendering modes)
-- Windows-only deployment (no Linux/macOS/Docker support)
+### Business Constraints
+- **Fixed Timeline:** Delivery by end of Q2 2026 for executive reporting cycle
+- **Single Project Focus:** MVP targets one project only; multi-project support deferred to future phase
+- **No Cloud Resources:** Must run on local workstation or isolated internal server (no AWS, Azure, or GCP accounts)
+- **Limited Customization Budget:** Design and CSS locked after Week 1 approval; avoid late-stage color/layout changes
 
-### Functional Constraints
+### Assumptions
+- **Data.json Location:** Accessible local SSD or network share; executives have read permissions
+- **Update Frequency:** Data.json modified ≤10 times per day (batch-driven reporting, not streaming)
+- **Executive Browser:** Modern Chrome/Edge/Safari with JavaScript enabled; no IE11 or legacy browser support required
+- **Development Environment:** Visual Studio 2022 v17.8+ or VS Code with C# DevKit; .NET 8.0.x SDK pre-installed
+- **Deployment Environment:** Developer workstation or isolated internal server with .NET 8 runtime; no public internet access required
+- **Data Size:** Project data < 5MB (JSON file); < 5,000 total dashboard items
+- **Authentication Model:** Dashboard accessed by trusted internal team only; no auth/RBAC required
+- **CDN Availability:** jsdelivr CDN reachable from deployment network (Bootstrap and Chart.js CDN links accessible)
+- **Component Stability:** Data model and component structure locked after Week 1 design review; minimal schema changes thereafter
+- **Screenshot Target:** 1920x1080 monitor as primary baseline; 4K and laptop displays as secondary targets
+- **Design Reference:** OriginalDesignConcept.html and C:/Pics/ReportingDashboardDesign.png inform initial mockups; all agents review before building
 
-- No multi-project support (one dashboard instance = one project; no project selector dropdown)
-- No user authentication or role-based access (assume intranet network access controls)
-- No historical audit trails or snapshot versioning (current state only)
-- No concurrent writes to data.json (single maintainer assumption)
-- No enterprise security requirements (assume network-level access control)
-- No real-time push notifications or status change alerts
-- No offline-mode or progressive web app (PWA) functionality
-
-### Design Constraints
-
-- Screenshot-optimized only (print fidelity paramount; mobile responsiveness deferred)
-- Simple, clean design inspired by OriginalDesignConcept.html (no heavy animations or custom graphics)
-- Bootstrap 5.3 + minimal custom CSS (no Tailwind, Material Design, or third-party UI frameworks except RadzenBlazor)
-- No custom JavaScript interop or client-side rendering logic
-- No real-time collaboration, commenting, or multi-user conflict resolution
-- Print layout fixed for 8.5" x 11" slide dimensions (no responsive print styles per paper size)
-
-### Business & Organizational Assumptions
-
-- Executives or designated maintainers will manually edit data.json to update project status (no automated data pipeline)
-- Dashboard will be embedded in PowerPoint slides for executive briefings (not used for live monitoring or dashboards)
-- No automated report generation or scheduled email distribution required at MVP stage
-- Project metadata (name, description, start/end dates) remains static after initial configuration
-- Work items are pre-defined in data.json; no UI for creating, editing, or deleting items
-- Carryover reasons and new target dates provided by project manager (no automatic detection or calculation)
-- Overall % complete either calculated from work item completion or manually provided in summary object
-- No performance benchmarking or comparison against Jira, Azure Boards, or other tools required
-
-### Data & Technology Assumptions
-
-- data.json provided by product owner or designated data maintainer before dashboard deployment
-- All milestone dates in data.json are in future or recently completed (no historical validation logic required)
-- Work item category assignments (Shipped/In Progress/Carryover) are manually curated and accurate
-- ISO 8601 UTC date format enforced in data.json (e.g., "2026-04-30T23:59:59Z")
-- Single-threaded file writes to data.json are sufficient (no file locking, advisory locks, or database-like concurrency)
-- DateTimeOffset UTC conversion and local rendering handles all timezone concerns
-- Bootstrap 5.3 CDN or local package available during build and deployment
-- .NET 8 SDK (LTS) available on development machine and build server
-
-### Team & Infrastructure Assumptions
-
-- Development team familiar with C# and .NET (or willing to learn Blazor Server component model)
-- Visual Studio 2022 Community/Professional available for development
-- Windows Server 2022 or Windows 10/11 Pro available for deployment/testing
-- Standard Windows infrastructure (no specialized containers, orchestration, or cloud provisioning required)
-- No cross-platform deployment or CI/CD pipeline complexity required
-- Target viewers use Chrome/Edge browsers (WebSocket support required; no IE11 compatibility needed)
-- Network is secure intranet (no VPN tunneling, external DMZ, or WAF protection required)
-- File system permissions manageable via Windows NTFS ACLs (no complex identity/access management system)
-
----
-
-**Specification Owner:** [PM Name]  
-**Date Created:** 2026-04-09  
-**Version:** 1.0 (Draft)  
-**Status:** Awaiting Stakeholder Review & Sign-Off  
-**Next Step:** Schedule design review with executive sponsor to validate scope, accept user stories, and clarify open questions
+### Dependencies
+- .NET 8.0.x SDK and runtime pre-installed
+- Visual Studio 2022 v17.8+ or VS Code with C# DevKit
+- Git repository access (AgentSquad.Runner project)
+- Bootstrap 5.3.3 CDN and Chart.js 4.4.0 CDN reachable from deployment network
+- Sample data.json template agreed upon by product manager before Phase 2
