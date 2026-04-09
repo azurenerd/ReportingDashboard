@@ -1,7 +1,5 @@
-using AgentSquad.Runner.Interfaces;
 using AgentSquad.Runner.Services;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using AgentSquad.Runner.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,16 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Register singletons (app-lifetime)
-builder.Services.AddSingleton<DataWatcherService>();
-builder.Services.AddSingleton<IDataWatcherService>(sp => sp.GetRequiredService<DataWatcherService>());
-
-// Register scoped services (per HTTP request)
-builder.Services.AddScoped<DataLoaderService>();
-builder.Services.AddScoped<IDataLoaderService>(sp => sp.GetRequiredService<DataLoaderService>());
-
-// Add logging
 builder.Services.AddLogging();
+
+// Register application services
+builder.Services.AddSingleton<IDataValidator, DataValidator>();
+builder.Services.AddScoped<DataLoaderService>();
+builder.Services.AddSingleton<DataWatcherService>();
 
 var app = builder.Build();
 
