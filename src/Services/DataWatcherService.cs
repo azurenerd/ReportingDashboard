@@ -156,13 +156,19 @@ namespace AgentSquad.Runner.Services
 
             _logger.LogInformation($"Data file change detected at {DateTime.Now:HH:mm:ss.fff}");
 
-            _debounceTimer.Stop();
-            _debounceTimer.Start();
+            lock (_debounceTimer)
+            {
+                _debounceTimer.Stop();
+                _debounceTimer.Start();
+            }
         }
 
         private async void OnDebounceTimerElapsed(object sender, ElapsedEventArgs e)
         {
-            _debounceTimer.Stop();
+            lock (_debounceTimer)
+            {
+                _debounceTimer.Stop();
+            }
 
             LastRefreshTime = DateTime.Now;
             _logger.LogInformation($"Data refresh triggered at {LastRefreshTimeFormatted}");
