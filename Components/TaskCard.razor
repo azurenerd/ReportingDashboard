@@ -2,7 +2,7 @@
 @using AgentSquad.Runner.Models
 
 <div class="@GetCardClasses(Task.Status) p-4 rounded-sm mb-3">
-    <span class="text-base font-bold">@GetBadge(Task.Status) @Task.Title</span>
+    <span class="text-base font-bold">@GetBadge(Task.Status) <span class="@GetTitleClasses(Task.Status)">@Task.Title</span></span>
 </div>
 
 @code {
@@ -24,6 +24,13 @@
             TaskStatus.Shipped => "✓",
             TaskStatus.InProgress => "?",
             TaskStatus.CarriedOver => "?",
+            _ => string.Empty
+        };
+
+    private string GetTitleClasses(TaskStatus status) =>
+        status switch
+        {
+            TaskStatus.CarriedOver => "line-through",
             _ => string.Empty
         };
 }
