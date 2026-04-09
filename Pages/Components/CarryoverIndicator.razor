@@ -1,31 +1,182 @@
 @using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
 @using System.Collections.Generic
+@using System.Linq
 
 <div class="carryover-indicator-container">
     <h3>Carryover Items</h3>
     
-    @if (Items == null || !Items.Any())
+    @if (ProcessedItems == null || !ProcessedItems.Any())
     {
         <p class="text-muted">No carryover items to display.</p>
     }
     else
     {
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Milestone</th>
-                    <th>Owner</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Items with risk indicators will be rendered here in Step 4 -->
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-hover carryover-table">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 5%;"></th>
+                        <th style="width: 25%;">Title</th>
+                        <th style="width: 25%;">Description</th>
+                        <th style="width: 15%;">Milestone</th>
+                        <th style="width: 15%;">Owner</th>
+                        <th style="width: 15%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var milestoneGroup in GroupedItems)
+                    {
+                        <tr class="milestone-summary" data-milestone="@milestoneGroup.Key" @onclick="() => ToggleMilestoneExpansion(milestoneGroup.Key)">
+                            <td class="text-center expand-toggle">
+                                <span class="toggle-icon">@(ExpandedMilestones.Contains(milestoneGroup.Key) ? "▼" : "▶")</span>
+                            </td>
+                            <td colspan="5">
+                                <strong>@GetMilestoneName(milestoneGroup.Key)</strong>
+                                <span class="badge ms-2 @GetRiskBadgeClass(milestoneGroup.Key)">@GetRiskBadgeLabel(milestoneGroup.Key)</span>
+                                <small class="ms-2 text-muted">@milestoneGroup.Items.Count item@(milestoneGroup.Items.Count != 1 ? "s" : "")</small>
+                            </td>
+                        </tr>
+
+                        @if (ExpandedMilestones.Contains(milestoneGroup.Key))
+                        {
+                            @foreach (var item in milestoneGroup.Items)
+                            {
+                                <tr class="@item.RowCssClass carryover-item-row">
+                                    <td></td>
+                                    <td class="align-middle">@item.Title</td>
+                                    <td class="align-middle text-truncate" title="@item.Description">@item.Description</td>
+                                    <td class="align-middle">@item.MilestoneName</td>
+                                    <td class="align-middle">@item.Owner</td>
+                                    <td class="align-middle">
+                                        @if (!string.IsNullOrEmpty(item.RiskBadge))
+                                        {
+                                            <span class="badge @item.RiskBadge">@item.RiskBadge</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 </div>
+
+<style>
+    .carryover-indicator-container {
+        padding: 1rem;
+    }
+
+    .milestone-summary {
+        background-color: #e9ecef !important;
+        font-weight: 500;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .milestone-summary:hover {
+        background-color: #dee2e6 !important;
+    }
+
+    .expand-toggle {
+        min-width: 2rem;
+    }
+
+    .toggle-icon {
+        display: inline-block;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .row-even {
+        background-color: #ffffff;
+    }
+
+    .row-odd {
+        background-color: #f8f9fa;
+    }
+
+    .carryover-item-row:hover {
+        background-color: #e9ecef !important;
+    }
+
+    .text-truncate {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .badge-overdue {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .badge-at-risk {
+        background-color: #ffc107;
+        color: #333;
+    }
+
+    .badge-on-track {
+        background-color: #28a745;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        table {
+            font-size: 0.875rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .ms-2 {
+            margin-left: 0.25rem !important;
+        }
+    }
+
+    @media print {
+        .carryover-indicator-container {
+            padding: 0;
+        }
+
+        table {
+            font-size: 11pt;
+        }
+
+        .milestone-summary {
+            background-color: #ffffff !important;
+            page-break-inside: avoid;
+        }
+
+        .carryover-item-row {
+            page-break-inside: avoid;
+            padding: 0.75rem;
+        }
+
+        .expand-toggle {
+            display: none !important;
+        }
+
+        .toggle-icon {
+            display: none !important;
+        }
+
+        .carryover-item-row:hover {
+            background-color: transparent !important;
+        }
+
+        .badge-overdue,
+        .badge-at-risk,
+        .badge-on-track {
+            background-color: transparent !important;
+            color: black !important;
+            border: 1px solid black;
+        }
+    }
+</style>
 
 @code {
     [CascadingParameter]
@@ -33,4 +184,117 @@
 
     [CascadingParameter]
     public IEnumerable<Milestone> Milestones { get; set; }
+
+    private List<WorkItemViewModel> ProcessedItems = new();
+    private List<Milestone> MilestoneList = new();
+    private HashSet<string> ExpandedMilestones = new();
+
+    private class MilestoneGroup
+    {
+        public string Key { get; set; }
+        public List<WorkItemViewModel> Items { get; set; }
+    }
+
+    private List<MilestoneGroup> GroupedItems = new();
+
+    protected override void OnInitialized()
+    {
+        if (Items == null || Milestones == null)
+        {
+            ProcessedItems = new List<WorkItemViewModel>();
+            MilestoneList = new List<Milestone>();
+            GroupedItems = new List<MilestoneGroup>();
+            return;
+        }
+
+        try
+        {
+            MilestoneList = Milestones.ToList();
+            var allViewModels = WorkItemCalculations.MapWorkItemViewModels(Items, Milestones);
+            
+            ProcessedItems = allViewModels.ToList();
+
+            GroupedItems = ProcessedItems
+                .GroupBy(x => x.MilestoneId ?? string.Empty)
+                .OrderBy(g => GetMilestoneDueDate(g.Key) ?? DateTime.MaxValue)
+                .Select(g => new MilestoneGroup
+                {
+                    Key = g.Key,
+                    Items = g.ToList()
+                })
+                .ToList();
+
+            ExpandedMilestones = new HashSet<string>(GroupedItems.Select(g => g.Key));
+        }
+        catch (ArgumentNullException)
+        {
+            ProcessedItems = new List<WorkItemViewModel>();
+            MilestoneList = new List<Milestone>();
+            GroupedItems = new List<MilestoneGroup>();
+        }
+    }
+
+    private void ToggleMilestoneExpansion(string milestoneId)
+    {
+        if (ExpandedMilestones.Contains(milestoneId))
+        {
+            ExpandedMilestones.Remove(milestoneId);
+        }
+        else
+        {
+            ExpandedMilestones.Add(milestoneId);
+        }
+    }
+
+    private string GetMilestoneName(string milestoneId)
+    {
+        if (string.IsNullOrWhiteSpace(milestoneId))
+            return "Unknown Milestone";
+
+        var milestone = MilestoneList.FirstOrDefault(m => m?.Id == milestoneId);
+        return milestone?.Name ?? "Unknown Milestone";
+    }
+
+    private DateTime? GetMilestoneDueDate(string milestoneId)
+    {
+        if (string.IsNullOrWhiteSpace(milestoneId))
+            return null;
+
+        var milestone = MilestoneList.FirstOrDefault(m => m?.Id == milestoneId);
+        return milestone?.DueDate;
+    }
+
+    private string GetRiskBadgeClass(string milestoneId)
+    {
+        var dueDate = GetMilestoneDueDate(milestoneId);
+        if (dueDate == null)
+            return "badge-on-track";
+
+        var now = DateTime.UtcNow;
+        var daysUntilDue = (dueDate.Value - now).TotalDays;
+
+        if (daysUntilDue < 0)
+            return "badge-overdue";
+        else if (daysUntilDue <= 7)
+            return "badge-at-risk";
+        else
+            return "badge-on-track";
+    }
+
+    private string GetRiskBadgeLabel(string milestoneId)
+    {
+        var dueDate = GetMilestoneDueDate(milestoneId);
+        if (dueDate == null)
+            return "On Track";
+
+        var now = DateTime.UtcNow;
+        var daysUntilDue = (dueDate.Value - now).TotalDays;
+
+        if (daysUntilDue < 0)
+            return "Overdue";
+        else if (daysUntilDue <= 7)
+            return "At Risk";
+        else
+            return "On Track";
+    }
 }
