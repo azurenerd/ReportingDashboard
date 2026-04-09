@@ -1,0 +1,151 @@
+@page "/"
+@inject IDashboardService DashboardService
+@inject ILogger<DashboardPage> Logger
+
+<div class="dashboard-container">
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Dashboard Error</strong>
+            <p>@errorMessage</p>
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center" style="height: 400px;">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (currentData != null)
+    {
+        <CascadingValue Value="currentData">
+            <CascadingValue Value="currentData.Project">
+                <CascadingValue Value="currentData.Milestones">
+                    <CascadingValue Value="currentData.WorkItems">
+                        <CascadingValue Value="currentData.Summary">
+                            <CascadingValue Value="milestoneMap">
+                                <div class="dashboard-header">
+                                    <div class="container-fluid p-3">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <h1 class="mb-0">Executive Dashboard</h1>
+                                                <small class="text-muted">Data loaded at @currentData.DataLoadedAt:G</small>
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                <button class="btn btn-primary" @onclick="RefreshDataAsync" disabled="@isLoading">
+                                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: @(isLoading ? "inline-block" : "none");"></span>
+                                                    Refresh
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="dashboard-content container-fluid p-4">
+                                    <!-- Child components will be rendered here -->
+                                    <!-- ProjectStatusCard, MilestoneTimeline, ShippedItemsList, etc. -->
+                                </div>
+                            </CascadingValue>
+                        </CascadingValue>
+                    </CascadingValue>
+                </CascadingValue>
+            </CascadingValue>
+        </CascadingValue>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string DataFilePath { get; set; } = "wwwroot/data/data.json";
+
+    private DashboardData currentData;
+    private Dictionary<string, Milestone> milestoneMap = new();
+    private bool isLoading = false;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            
+            var startTime = DateTime.UtcNow;
+            currentData = await DashboardService.LoadDataAsync(DataFilePath);
+            
+            if (currentData != null)
+            {
+                milestoneMap = currentData.Milestones
+                    .ToDictionary(m => m.Id, m => m);
+                
+                var loadTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
+                Logger.LogInformation("Dashboard data loaded successfully in {LoadTimeMs}ms", loadTime);
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            errorMessage = "Dashboard data file not found. Please contact administrator.";
+            Logger.LogError(ex, "Data file not found at {FilePath}", DataFilePath);
+        }
+        catch (JsonException ex)
+        {
+            errorMessage = $"Invalid JSON format in data file. Please check the file structure.";
+            Logger.LogError(ex, "JSON parse error in data file");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Unable to load dashboard data. Please try refreshing the page.";
+            Logger.LogError(ex, "Unexpected error loading dashboard data");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task RefreshDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            
+            var startTime = DateTime.UtcNow;
+            currentData = await DashboardService.LoadDataAsync(DataFilePath);
+            
+            if (currentData != null)
+            {
+                milestoneMap = currentData.Milestones
+                    .ToDictionary(m => m.Id, m => m);
+                
+                var loadTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
+                Logger.LogInformation("Dashboard data refreshed successfully in {LoadTimeMs}ms", loadTime);
+            }
+            
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (FileNotFoundException ex)
+        {
+            errorMessage = "Dashboard data file not found. Please contact administrator.";
+            Logger.LogError(ex, "Data file not found at {FilePath}", DataFilePath);
+        }
+        catch (JsonException ex)
+        {
+            errorMessage = "Invalid JSON format in data file. Please check the file structure.";
+            Logger.LogError(ex, "JSON parse error in data file");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Unable to refresh dashboard data. Please try again.";
+            Logger.LogError(ex, "Error refreshing dashboard data");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
