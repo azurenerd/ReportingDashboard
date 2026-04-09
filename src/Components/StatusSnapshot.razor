@@ -1,0 +1,10 @@
+@using AgentSquad.Runner.Models
+
+@code {
+    /// <summary>
+    /// Receives the current status snapshot data (Shipped, InProgress, CarriedOver items)
+    /// from the parent Index.razor component via cascading parameter.
+    /// </summary>
+    [CascadingParameter]
+    public StatusSnapshot CurrentStatus { get; set; }
+}
