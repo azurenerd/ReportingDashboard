@@ -1,35 +1,40 @@
-using AgentSquad.Runner.Services;
 using AgentSquad.Runner.Interfaces;
+using AgentSquad.Runner.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplicationBuilder.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddLogging();
-
-// Register application services
+// Register data services
+builder.Services.AddSingleton<IDataWatcherService, DataWatcherService>();
+builder.Services.AddScoped<IDataLoaderService, DataLoaderService>();
 builder.Services.AddSingleton<IDataValidator, DataValidator>();
-builder.Services.AddScoped<DataLoaderService>();
-builder.Services.AddSingleton<DataWatcherService>();
+
+// Add logging
+builder.Services.AddLogging(config =>
+{
+    config.AddConsole();
+    config.SetMinimumLevel(LogLevel.Information);
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
+app.MapRazorComponents<AgentSquad.Runner.App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();

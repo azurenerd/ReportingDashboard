@@ -2,277 +2,206 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using AgentSquad.Runner.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace AgentSquad.Runner.Services;
-
-/// <summary>
-/// Monitors data.json file for changes and emits OnDataChanged event after 500ms debounce.
-/// Fires event on main Blazor Server thread for thread-safe UI updates.
-/// </summary>
-public class DataWatcherService : IDataWatcherService
+namespace AgentSquad.Runner.Services
 {
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<DataWatcherService> _logger;
-    
-    private FileSystemWatcher? _fileSystemWatcher;
-    private Timer? _debounceTimer;
-    private DateTime _lastRefreshTime = DateTime.MinValue;
-    private string _lastWatchedPath = string.Empty;
-    private bool _disposed;
-    
-    public event Func<Task>? OnDataChanged;
-
-    public DataWatcherService(IConfiguration configuration, ILogger<DataWatcherService> logger)
+    public class DataWatcherService : IDataWatcherService
     {
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<DataWatcherService> _logger;
+        private FileSystemWatcher _fileWatcher;
+        private System.Timers.Timer _debounceTimer;
+        private DateTime _lastRefreshTime = DateTime.Now;
+        private bool _disposed = false;
 
-    /// <summary>
-    /// Gets the timestamp of the last successful data refresh.
-    /// </summary>
-    public DateTime LastRefreshTime => _lastRefreshTime;
+        public event Func<Task> OnDataChanged;
 
-    /// <summary>
-    /// Gets the formatted timestamp for UI display (HH:mm:ss).
-    /// Returns "Not loaded" if no refresh has occurred yet.
-    /// </summary>
-    public string LastRefreshTimeFormatted
-    {
-        get
+        public DateTime LastRefreshTime => _lastRefreshTime;
+
+        public string LastRefreshTimeFormatted => _lastRefreshTime.ToString("HH:mm:ss");
+
+        public DataWatcherService(IConfiguration configuration, ILogger<DataWatcherService> logger)
         {
-            if (_lastRefreshTime == DateTime.MinValue)
-                return "Not loaded";
-            return _lastRefreshTime.ToString("HH:mm:ss");
-        }
-    }
-
-    /// <summary>
-    /// Initialize and start file watcher for specified data path.
-    /// Uses configuration value if dataPath is null.
-    /// </summary>
-    /// <param name="dataPath">Optional file path; defaults to AppSettings:DataPath from configuration</param>
-    public void Start(string? dataPath = null)
-    {
-        if (_disposed)
-        {
-            _logger.LogWarning("Cannot start DataWatcherService after it has been disposed");
-            return;
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        try
+        public void Start(string dataPath = null)
         {
-            // Resolve data path: parameter > config > default
-            string resolvedPath = ResolveDataPath(dataPath);
-            
-            if (string.IsNullOrWhiteSpace(resolvedPath))
+            try
             {
-                _logger.LogError("DataPath is empty or null; cannot start file watcher");
-                return;
-            }
-
-            // Validate file exists
-            if (!File.Exists(resolvedPath))
-            {
-                _logger.LogError($"Data file not found at path: {resolvedPath}");
-                return;
-            }
-
-            _lastWatchedPath = resolvedPath;
-            
-            // Initialize FileSystemWatcher
-            string? directoryPath = Path.GetDirectoryName(resolvedPath);
-            string fileName = Path.GetFileName(resolvedPath);
-            
-            if (string.IsNullOrWhiteSpace(directoryPath))
-            {
-                _logger.LogError($"Cannot extract directory from path: {resolvedPath}");
-                return;
-            }
-
-            _fileSystemWatcher = new FileSystemWatcher(directoryPath, fileName)
-            {
-                NotifyFilter = NotifyFilters.LastWrite,
-                EnableRaisingEvents = true
-            };
-
-            _fileSystemWatcher.Changed += OnFileChanged;
-            _fileSystemWatcher.Error += OnFileWatcherError;
-
-            _logger.LogInformation($"DataWatcher started monitoring: {resolvedPath}");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Failed to start DataWatcher: {ex.Message}");
-            // Graceful degradation: log error but don't throw
-        }
-    }
-
-    /// <summary>
-    /// Stop file watcher and clean up resources.
-    /// </summary>
-    public void Stop()
-    {
-        try
-        {
-            if (_fileSystemWatcher != null)
-            {
-                _fileSystemWatcher.EnableRaisingEvents = false;
-                _fileSystemWatcher.Changed -= OnFileChanged;
-                _fileSystemWatcher.Error -= OnFileWatcherError;
-                _fileSystemWatcher.Dispose();
-                _fileSystemWatcher = null;
-            }
-
-            _debounceTimer?.Dispose();
-            _debounceTimer = null;
-
-            _logger.LogInformation("DataWatcher stopped");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning($"Error stopping DataWatcher: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Dispose resources.
-    /// </summary>
-    public void Dispose()
-    {
-        if (_disposed)
-            return;
-
-        Stop();
-        _disposed = true;
-    }
-
-    /// <summary>
-    /// Async dispose.
-    /// </summary>
-    public async ValueTask DisposeAsync()
-    {
-        Dispose();
-        await Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// FileSystemWatcher Changed event handler.
-    /// Implements debounce logic using timer.
-    /// </summary>
-    private void OnFileChanged(object sender, FileSystemEventArgs e)
-    {
-        try
-        {
-            _logger.LogInformation($"File change detected at {DateTime.Now:HH:mm:ss.fff}: {e.Name}");
-
-            // Cancel existing debounce timer if running
-            _debounceTimer?.Dispose();
-
-            // Create new debounce timer (500ms)
-            int debounceMs = GetDebounceInterval();
-            _debounceTimer = new Timer(
-                async _ => await OnDebounceElapsed(),
-                null,
-                debounceMs,
-                Timeout.Infinite
-            );
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning($"Error in file change handler: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Called when debounce timer elapses (500ms without additional file changes).
-    /// Fires OnDataChanged event on main Blazor thread.
-    /// </summary>
-    private async Task OnDebounceElapsed()
-    {
-        try
-        {
-            _logger.LogInformation($"Debounce elapsed, triggering OnDataChanged at {DateTime.Now:HH:mm:ss}");
-
-            // Update refresh timestamp
-            _lastRefreshTime = DateTime.Now;
-
-            // Fire OnDataChanged event if subscribed
-            if (OnDataChanged != null)
-            {
-                // Invoke handlers - each handler is Func<Task>
-                var delegates = OnDataChanged.GetInvocationList();
-                foreach (Func<Task> handler in delegates)
+                if (_fileWatcher != null)
                 {
-                    try
-                    {
-                        await handler.Invoke();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"Error in OnDataChanged handler: {ex.Message}");
-                    }
+                    _logger.LogWarning("DataWatcherService already started; Stop() before calling Start() again");
+                    return;
+                }
+
+                string resolvedPath = ResolvePath(dataPath);
+                if (string.IsNullOrEmpty(resolvedPath))
+                {
+                    _logger.LogWarning("DataWatcherService: data path is null or empty; watcher not started");
+                    return;
+                }
+
+                string directoryPath = Path.GetDirectoryName(resolvedPath);
+                string fileName = Path.GetFileName(resolvedPath);
+
+                if (string.IsNullOrEmpty(directoryPath))
+                {
+                    directoryPath = ".";
+                }
+
+                if (!Directory.Exists(directoryPath))
+                {
+                    _logger.LogWarning($"DataWatcherService: directory does not exist at {directoryPath}; watcher not started");
+                    return;
+                }
+
+                _fileWatcher = new FileSystemWatcher(directoryPath)
+                {
+                    Filter = fileName,
+                    NotifyFilter = NotifyFilters.LastWrite
+                };
+
+                _fileWatcher.Changed += OnFileChanged;
+                _fileWatcher.EnableRaisingEvents = true;
+
+                int debounceMs = _configuration.GetValue("AppSettings:DebounceIntervalMs", 500);
+                _debounceTimer = new System.Timers.Timer(debounceMs)
+                {
+                    AutoReset = false
+                };
+                _debounceTimer.Elapsed += async (s, e) => await FireDataChangedEvent();
+
+                _logger.LogInformation($"DataWatcherService started monitoring: {resolvedPath}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"DataWatcherService failed to start: {ex.Message}");
+                // Graceful degradation: continue without watcher
+            }
+        }
+
+        public void Stop()
+        {
+            try
+            {
+                if (_fileWatcher != null)
+                {
+                    _fileWatcher.EnableRaisingEvents = false;
+                    _fileWatcher.Dispose();
+                    _fileWatcher = null;
+                    _logger.LogInformation("DataWatcherService stopped monitoring");
+                }
+
+                if (_debounceTimer != null)
+                {
+                    _debounceTimer.Stop();
+                    _debounceTimer.Dispose();
+                    _debounceTimer = null;
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error in debounce elapsed handler: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// FileSystemWatcher error event handler.
-    /// Gracefully handles FSW errors without crashing.
-    /// </summary>
-    private void OnFileWatcherError(object sender, ErrorEventArgs e)
-    {
-        Exception? ex = e.GetException();
-        if (ex != null)
-        {
-            _logger.LogWarning($"FileSystemWatcher error: {ex.Message}");
-        }
-        else
-        {
-            _logger.LogWarning("FileSystemWatcher encountered an unknown error");
-        }
-    }
-
-    /// <summary>
-    /// Resolve data path from parameter, config, or default.
-    /// </summary>
-    private string ResolveDataPath(string? parameterPath)
-    {
-        // If parameter provided, use it
-        if (!string.IsNullOrWhiteSpace(parameterPath))
-        {
-            return parameterPath;
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"DataWatcherService error during Stop: {ex.Message}");
+            }
         }
 
-        // Try configuration
-        string? configPath = _configuration["AppSettings:DataPath"];
-        if (!string.IsNullOrWhiteSpace(configPath))
+        private void OnFileChanged(object sender, FileSystemEventArgs e)
         {
-            return configPath;
+            try
+            {
+                if (_debounceTimer == null)
+                {
+                    return;
+                }
+
+                _debounceTimer.Stop();
+                _debounceTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"DataWatcherService error in OnFileChanged: {ex.Message}");
+            }
         }
 
-        // Default fallback
-        return "data.json";
-    }
-
-    /// <summary>
-    /// Get debounce interval from configuration or default to 500ms.
-    /// </summary>
-    private int GetDebounceInterval()
-    {
-        string? debounceStr = _configuration["AppSettings:DebounceIntervalMs"];
-        if (int.TryParse(debounceStr, out int debounceMs) && debounceMs > 0)
+        private async Task FireDataChangedEvent()
         {
-            return debounceMs;
+            try
+            {
+                _lastRefreshTime = DateTime.Now;
+                _logger.LogInformation($"DataWatcherService: triggering OnDataChanged at {LastRefreshTimeFormatted}");
+
+                if (OnDataChanged != null)
+                {
+                    await OnDataChanged.Invoke();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"DataWatcherService error in FireDataChangedEvent: {ex.Message}");
+            }
         }
 
-        return 500; // Default 500ms
+        private string ResolvePath(string dataPath)
+        {
+            if (!string.IsNullOrEmpty(dataPath))
+            {
+                return Path.GetFullPath(dataPath);
+            }
+
+            string configPath = _configuration.GetValue<string>("AppSettings:DataPath");
+            if (!string.IsNullOrEmpty(configPath))
+            {
+                return Path.GetFullPath(configPath);
+            }
+
+            return Path.GetFullPath("data.json");
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                Stop();
+            }
+
+            _disposed = true;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            try
+            {
+                Stop();
+                await Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"DataWatcherService error during DisposeAsync: {ex.Message}");
+            }
+
+            Dispose(false);
+            GC.SuppressFinalize(this);
+        }
+
+        ~DataWatcherService()
+        {
+            Dispose(false);
+        }
     }
 }
