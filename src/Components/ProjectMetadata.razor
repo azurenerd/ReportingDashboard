@@ -21,7 +21,23 @@
         }
     </header>
 
-    <!-- Placeholder for KPI grid - Step 3 -->
+    <div class="kpi-grid row">
+        @foreach (var kpi in Kpis ?? new Dictionary<string, int>())
+        {
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <p class="card-text text-muted mb-2">@kpi.Key</p>
+                        </div>
+                        <div>
+                            <p class="kpi-value mb-0">@kpi.Value%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 @code {
@@ -34,3 +50,88 @@
     [CascadingParameter]
     public Dictionary<string, int> Kpis { get; set; }
 }
+
+<style>
+    .project-metadata {
+        padding: 1.5rem 0;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #212529;
+    }
+
+    .dashboard-header p {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .kpi-grid {
+        margin: 0 -12px;
+    }
+
+    .kpi-grid .card {
+        border: 1px solid #e9ecef;
+        border-radius: 0.375rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: box-shadow 0.2s ease-in-out;
+    }
+
+    .kpi-grid .card:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .kpi-grid .card-body {
+        padding: 1.5rem;
+        min-height: 120px;
+    }
+
+    .kpi-grid .card-text {
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0d6efd;
+    }
+
+    @media (max-width: 767px) {
+        .dashboard-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .kpi-value {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media print {
+        .project-metadata {
+            page-break-inside: avoid;
+        }
+
+        .kpi-grid {
+            page-break-inside: avoid;
+        }
+
+        .kpi-grid .card {
+            page-break-inside: avoid;
+            border: 1px solid #ccc;
+            box-shadow: none;
+        }
+
+        .kpi-value {
+            color: #000;
+        }
+    }
+</style>
