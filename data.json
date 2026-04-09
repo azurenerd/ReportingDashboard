@@ -1,0 +1,64 @@
+{
+  "projectName": "Horizon Platform Delivery",
+  "reportingPeriod": "Q2 2026 (Apr - Jun)",
+  "milestones": [
+    {
+      "id": "m1",
+      "name": "Phase 1: Core Infrastructure",
+      "targetDate": "2026-05-15",
+      "status": "on-track",
+      "progress": 85,
+      "description": "Database schema, API foundation, authentication layer"
+    },
+    {
+      "id": "m2",
+      "name": "Phase 2: Feature Development",
+      "targetDate": "2026-06-30",
+      "status": "at-risk",
+      "progress": 45,
+      "description": "User-facing features, dashboard UI, reporting modules"
+    },
+    {
+      "id": "m3",
+      "name": "Phase 3: Testing & Hardening",
+      "targetDate": "2026-08-15",
+      "status": "on-track",
+      "progress": 20,
+      "description": "QA testing, performance optimization, security hardening"
+    },
+    {
+      "id": "m4",
+      "name": "Phase 4: Deployment & Launch",
+      "targetDate": "2026-09-30",
+      "status": "delayed",
+      "progress": 0,
+      "description": "Production deployment, executive training, go-live"
+    }
+  ],
+  "statusSnapshot": {
+    "shipped": [
+      "Authentication module (OAuth 2.0, JWT tokens)",
+      "Core API endpoints (REST, pagination, filtering)",
+      "Reporting data models and schema",
+      "Initial documentation and setup guides"
+    ],
+    "inProgress": [
+      "Executive dashboard UI (Blazor components)",
+      "Real-time data refresh via FileSystemWatcher",
+      "Print-friendly CSS and screenshot optimization",
+      "File-based data persistence (JSON schema)"
+    ],
+    "carriedOver": [
+      "Mobile app (deferred to Phase 5)",
+      "Offline-first synchronization (Phase 5)",
+      "Advanced filtering and search (Phase 5)",
+      "Email notification system (Phase 6)"
+    ]
+  },
+  "kpis": {
+    "onTimeDelivery": 85,
+    "teamCapacity": 92,
+    "codeQuality": 88,
+    "testCoverage": 78
+  }
+}
