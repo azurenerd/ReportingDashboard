@@ -1,0 +1,308 @@
+/* ==============================================
+   Executive Reporting Dashboard - Print Styles
+   ============================================== */
+
+@media print {
+    /* Reset page defaults */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Page Setup */
+    html, body {
+        width: 8.5in;
+        height: 11in;
+        margin: 0;
+        padding: 0;
+        background: white;
+        color: black;
+    }
+
+    body {
+        font-size: 11pt;
+        line-height: 1.4;
+        padding: 0.5in;
+    }
+
+    /* Preserve Colors Exactly */
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+    }
+
+    /* Hide Navigation & UI Elements */
+    nav,
+    .navbar,
+    .nav,
+    footer,
+    .footer,
+    .refresh-indicator,
+    .refresh-timestamp,
+    .loading-spinner,
+    .error-banner,
+    button,
+    .btn,
+    input,
+    textarea,
+    select {
+        display: none !important;
+    }
+
+    /* Document Container */
+    .dashboard-container {
+        max-width: 7.5in;
+        margin: 0;
+        padding: 0;
+        page-break-before: avoid;
+        page-break-after: auto;
+    }
+
+    /* Header Styles */
+    .dashboard-header {
+        border-bottom: 2pt solid #333;
+        margin-bottom: 0.75in;
+        padding-bottom: 0.5in;
+        page-break-after: avoid;
+    }
+
+    .dashboard-header h1 {
+        font-size: 24pt;
+        font-weight: bold;
+        margin: 0 0 0.2in 0;
+        color: black;
+    }
+
+    .dashboard-header .reporting-period {
+        font-size: 11pt;
+        color: #333;
+        margin: 0;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5in;
+        margin-bottom: 0.75in;
+        page-break-inside: avoid;
+    }
+
+    .kpi-card {
+        background-color: #f5f5f5;
+        border: 1pt solid #999;
+        border-radius: 4pt;
+        padding: 0.75in;
+        text-align: center;
+        page-break-inside: avoid;
+    }
+
+    .kpi-card strong {
+        display: block;
+        font-size: 9pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #666;
+        margin-bottom: 0.3in;
+        letter-spacing: 0.05in;
+    }
+
+    .kpi-value {
+        font-size: 18pt;
+        font-weight: bold;
+        color: black;
+        margin: 0;
+    }
+
+    .kpi-unit {
+        font-size: 9pt;
+        color: #666;
+    }
+
+    /* Timeline Container */
+    .timeline-container {
+        background-color: #f9f9f9;
+        border: 1pt solid #ccc;
+        border-radius: 4pt;
+        padding: 0.75in;
+        margin-bottom: 0.75in;
+        page-break-inside: avoid;
+    }
+
+    .timeline-container h5 {
+        font-size: 12pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: black;
+        margin: 0 0 0.5in 0;
+        letter-spacing: 0.05in;
+    }
+
+    /* Canvas (Chart.js) */
+    .timeline-container canvas {
+        max-width: 100%;
+        height: auto !important;
+        page-break-inside: avoid;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    /* Status Snapshot */
+    .status-snapshot {
+        margin-bottom: 0.75in;
+        page-break-inside: avoid;
+    }
+
+    .status-snapshot h5 {
+        font-size: 12pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: black;
+        margin: 0 0 0.5in 0;
+        letter-spacing: 0.05in;
+    }
+
+    .status-columns {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5in;
+        page-break-inside: avoid;
+    }
+
+    .status-column {
+        background-color: #f9f9f9;
+        border: 1pt solid #ccc;
+        border-radius: 4pt;
+        padding: 0.75in;
+        page-break-inside: avoid;
+    }
+
+    .status-column h6 {
+        font-size: 10pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #333;
+        margin: 0 0 0.4in 0;
+        letter-spacing: 0.05in;
+    }
+
+    .status-column .list-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25in;
+    }
+
+    .status-column .list-group-item {
+        background-color: white;
+        border: 1pt solid #ddd;
+        border-radius: 3pt;
+        padding: 0.35in 0.4in;
+        font-size: 10pt;
+        color: black;
+        page-break-inside: avoid;
+    }
+
+    /* Color-coded Status Borders (Exact Print Colors) */
+    .status-column.shipped .list-group-item {
+        border-left: 3pt solid #6c757d;
+    }
+
+    .status-column.in-progress .list-group-item {
+        border-left: 3pt solid #28a745;
+    }
+
+    .status-column.carried-over .list-group-item {
+        border-left: 3pt solid #ffc107;
+    }
+
+    /* Headings & Typography */
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+        page-break-inside: avoid;
+        color: black;
+        font-weight: bold;
+    }
+
+    h1 { font-size: 24pt; line-height: 1.2; }
+    h2 { font-size: 18pt; line-height: 1.2; }
+    h3 { font-size: 14pt; line-height: 1.2; }
+    h4 { font-size: 12pt; line-height: 1.2; }
+    h5 { font-size: 11pt; line-height: 1.2; }
+    h6 { font-size: 10pt; line-height: 1.2; }
+
+    p, li {
+        font-size: 11pt;
+        line-height: 1.4;
+        color: black;
+        page-break-inside: avoid;
+    }
+
+    /* Links */
+    a {
+        color: black;
+        text-decoration: underline;
+    }
+
+    /* Tables & Data */
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        page-break-inside: avoid;
+        color: black;
+    }
+
+    td, th {
+        border: 1pt solid #999;
+        padding: 0.2in;
+        text-align: left;
+        color: black;
+    }
+
+    th {
+        background-color: #f0f0f0;
+        font-weight: bold;
+    }
+
+    /* Margin & Spacing */
+    body {
+        margin: 0.5in;
+        padding: 0;
+    }
+
+    /* Prevent Orphans & Widows */
+    p {
+        orphans: 3;
+        widows: 3;
+    }
+
+    /* Page Breaks */
+    .dashboard-container {
+        page-break-before: auto;
+        page-break-after: auto;
+    }
+
+    .timeline-container,
+    .status-snapshot,
+    .status-columns {
+        page-break-inside: avoid;
+    }
+
+    /* Remove Background Images */
+    body {
+        background: white;
+        background-image: none !important;
+    }
+
+    /* Link Display */
+    a[href]::after {
+        content: "";
+    }
+
+    /* Control Pagination */
+    @page {
+        margin: 0.5in;
+        size: letter;
+    }
+}
