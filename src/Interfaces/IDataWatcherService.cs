@@ -1,37 +1,40 @@
-using System;
-using System.Threading.Tasks;
+namespace AgentSquad.Runner.Interfaces;
 
-namespace AgentSquad.Runner.Interfaces
+/// <summary>
+/// Interface for monitoring data.json file changes with debounced event emission.
+/// </summary>
+public interface IDataWatcherService : IDisposable, IAsyncDisposable
 {
-    public interface IDataWatcherService : IDisposable, IAsyncDisposable
-    {
-        /// <summary>
-        /// Event fired asynchronously after debounce period when file change detected.
-        /// Handler: Func&lt;Task&gt; (async event)
-        /// Fired on: Main Blazor Server thread (thread-safe)
-        /// </summary>
-        event Func<Task> OnDataChanged;
+    /// <summary>
+    /// Event fired asynchronously after debounce period when file change detected.
+    /// Handler signature: Func&lt;Task&gt; (async event handler).
+    /// Fired on: Main Blazor Server thread (thread-safe for UI updates).
+    /// </summary>
+    event Func<Task>? OnDataChanged;
 
-        /// <summary>
-        /// Initialize file watcher for specified data path.
-        /// </summary>
-        /// <param name="dataPath">Path to monitor (e.g., "./data.json")</param>
-        /// <remarks>Does not throw; logs errors internally. Graceful degradation if FSW fails.</remarks>
-        void Start(string dataPath = null);
+    /// <summary>
+    /// Initialize and start file watcher for specified data path.
+    /// Does not throw exceptions; logs errors internally for graceful degradation.
+    /// </summary>
+    /// <param name="dataPath">Optional path to monitor (e.g., "./data.json").
+    /// Defaults to AppSettings:DataPath from configuration if null.</param>
+    void Start(string? dataPath = null);
 
-        /// <summary>
-        /// Stop file watcher and clean up resources.
-        /// </summary>
-        void Stop();
+    /// <summary>
+    /// Stop file watcher and clean up resources.
+    /// Safe to call multiple times.
+    /// </summary>
+    void Stop();
 
-        /// <summary>
-        /// Get timestamp of last successful refresh.
-        /// </summary>
-        DateTime LastRefreshTime { get; }
+    /// <summary>
+    /// Get timestamp of last successful data refresh.
+    /// Returns DateTime.MinValue if no refresh has occurred.
+    /// </summary>
+    DateTime LastRefreshTime { get; }
 
-        /// <summary>
-        /// Get formatted timestamp for UI display (HH:mm:ss).
-        /// </summary>
-        string LastRefreshTimeFormatted { get; }
-    }
+    /// <summary>
+    /// Get formatted timestamp for UI display in HH:mm:ss format.
+    /// Returns "Not loaded" if no refresh has occurred.
+    /// </summary>
+    string LastRefreshTimeFormatted { get; }
 }
