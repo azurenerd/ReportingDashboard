@@ -1,8 +1,8 @@
 @inherits ComponentBase
 @using AgentSquad.Runner.Models
 
-<div class="p-4 rounded-sm mb-3">
-    <!-- Task card content will be rendered here -->
+<div class="@GetCardClasses(Task.Status) p-4 rounded-sm mb-3">
+    <span class="text-base font-bold">@GetBadge(Task.Status) @Task.Title</span>
 </div>
 
 @code {
