@@ -15,6 +15,7 @@
     public DateTime LastRefreshTime { get; set; }
 
     private int _lastRenderCount = 0;
+    private bool _chartInitialized = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -30,6 +31,7 @@
             {
                 Logger.LogInformation($"Milestone array changed: previous count={_lastRenderCount}, current count={currentCount}");
                 _lastRenderCount = currentCount;
+                _chartInitialized = false;
             }
         }
         else
@@ -42,6 +44,41 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (Milestones == null || Milestones.Length == 0)
+        {
+            Logger.LogInformation("Skipping Chart.js initialization: Milestones array is null or empty");
+            await base.OnAfterRenderAsync(firstRender);
+            return;
+        }
+
+        if (!_chartInitialized || !firstRender)
+        {
+            try
+            {
+                var config = new
+                {
+                    milestones = Milestones,
+                    containerId = "milestoneChart",
+                    colorScheme = new
+                    {
+                        onTrack = "#28a745",
+                        atRisk = "#ffc107",
+                        delayed = "#dc3545",
+                        completed = "#6c757d"
+                    }
+                };
+
+                Logger.LogInformation($"Initializing Chart.js with {Milestones.Length} milestones");
+                await JSRuntime.InvokeAsync<object>("initMilestoneChart", config);
+                _chartInitialized = true;
+                Logger.LogInformation("Chart.js initialization completed successfully");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to initialize Chart.js: {ex.Message}");
+            }
+        }
+
         await base.OnAfterRenderAsync(firstRender);
     }
 
