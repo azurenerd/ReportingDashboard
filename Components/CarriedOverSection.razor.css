@@ -109,3 +109,26 @@
     color: var(--text-primary, #212529);
     margin-left: 4px;
 }
+
+.reason-callout {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #fff8f0;
+    border-left: 3px solid var(--status-carried-over, #fd7e14);
+    border-radius: 0 4px 4px 0;
+    font-size: var(--font-size-body, 13px);
+    line-height: 1.5;
+    color: var(--text-primary, #212529);
+    box-sizing: border-box;
+}
+
+.reason-label {
+    font-weight: 700;
+    color: var(--status-carried-over, #fd7e14);
+    margin-right: 4px;
+}
+
+.reason-text {
+    font-weight: 400;
+    color: var(--text-primary, #212529);
+}

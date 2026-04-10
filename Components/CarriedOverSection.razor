@@ -36,6 +36,13 @@
                             <span class="target-value">@item.OriginalTarget</span>
                         </div>
                     }
+                    @if (!string.IsNullOrWhiteSpace(item.Reason))
+                    {
+                        <div class="reason-callout">
+                            <span class="reason-label">Reason:</span>
+                            <span class="reason-text">@item.Reason</span>
+                        </div>
+                    }
                 </div>
             }
         </div>
