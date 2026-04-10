@@ -2,6 +2,7 @@
 @page "/dashboard"
 @using AgentSquad.Runner.Services
 @using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Components
 @implements IAsyncDisposable
 
 <MudContainer MaxWidth="MaxWidth.Lg" Class="dashboard-container">
@@ -26,6 +27,24 @@
                 <MudText Typo="Typo.body1">@DataService.GetProject().Description</MudText>
             </MudCardContent>
         </MudCard>
+    }
+
+    @if (DataService?.GetMilestones() != null)
+    {
+        <MilestoneTimeline Milestones="DataService.GetMilestones()" />
+    }
+
+    @if (DataService != null)
+    {
+        <StatusChart StatusCounts="DataService.GetStatusCounts()" />
+    }
+
+    @if (DataService != null)
+    {
+        <WorkItemList 
+            Shipped="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"
+            InProgress="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"
+            CarriedOver="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)" />
     }
 </MudContainer>
 
