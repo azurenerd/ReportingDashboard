@@ -1,297 +1,183 @@
 @using AgentSquad.Runner.Models
 
-<div class="kpi-summary-container">
-    @if (IsNoDataState)
-    {
-        <div class="no-data-alert alert alert-info" role="alert">
-            <span class="alert-icon">ℹ️</span>
-            <span class="alert-text">No task data available</span>
-        </div>
-    }
+<div class="status-summary-container">
+    <h2 class="summary-title">Project Status Summary</h2>
     
-    <div class="kpi-grid">
-        <!-- Shipped Card -->
-        <div class="kpi-card card">
-            <div class="card-body">
-                <div class="card-header-wrapper">
-                    <h6 class="card-title">Shipped</h6>
-                </div>
-                <div class="kpi-value-wrapper">
-                    <div class="kpi-value text-secondary">@GetShippedCount()</div>
-                </div>
-                <p class="kpi-unit text-muted">completed tasks</p>
-            </div>
+    <div class="kpi-cards">
+        <div class="kpi-card kpi-completed">
+            <div class="kpi-value">@completedCount</div>
+            <div class="kpi-label">Tasks Completed</div>
+            <div class="kpi-percentage">@completedPercentage%</div>
         </div>
 
-        <!-- In Progress Card -->
-        <div class="kpi-card card">
-            <div class="card-body">
-                <div class="card-header-wrapper">
-                    <h6 class="card-title">In Progress</h6>
-                </div>
-                <div class="kpi-value-wrapper">
-                    <div class="kpi-value text-secondary">@GetInProgressCount()</div>
-                </div>
-                <p class="kpi-unit text-muted">active tasks</p>
-            </div>
+        <div class="kpi-card kpi-inprogress">
+            <div class="kpi-value">@inProgressCount</div>
+            <div class="kpi-label">In Progress</div>
+            <div class="kpi-percentage">@inProgressPercentage%</div>
         </div>
 
-        <!-- On-Time % Card -->
-        <div class="kpi-card card">
-            <div class="card-body">
-                <div class="card-header-wrapper">
-                    <h6 class="card-title">On-Time %</h6>
-                </div>
-                <div class="kpi-value-wrapper">
-                    <div class="kpi-value @GetColorClass(GetOnTimePercentage())">@(GetOnTimePercentage().ToString("F0"))%</div>
-                </div>
-                <p class="kpi-unit text-muted">on schedule</p>
-            </div>
+        <div class="kpi-card kpi-carriedover">
+            <div class="kpi-value">@carriedOverCount</div>
+            <div class="kpi-label">Carried Over</div>
+            <div class="kpi-percentage">@carriedOverPercentage%</div>
         </div>
     </div>
 </div>
 
 @code {
     [Parameter]
-    public List<Task> Tasks { get; set; } = new();
+    public List<Models.Task> Tasks { get; set; } = new();
 
-    private bool IsNoDataState { get; set; } = false;
+    private int completedCount;
+    private int inProgressCount;
+    private int carriedOverCount;
+    private int completedPercentage;
+    private int inProgressPercentage;
+    private int carriedOverPercentage;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
-        await Task.CompletedTask;
-        
-        try
-        {
-            IsNoDataState = Tasks == null || Tasks.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            IsNoDataState = true;
-        }
+        CalculateStatistics();
     }
 
-    private int GetShippedCount()
+    private void CalculateStatistics()
     {
-        try
+        if (Tasks == null || Tasks.Count == 0)
         {
-            if (Tasks == null || Tasks.Count == 0)
-                return 0;
-
-            return Tasks.Count(t => t.Status == TaskStatus.Completed);
+            completedCount = 0;
+            inProgressCount = 0;
+            carriedOverCount = 0;
+            completedPercentage = 0;
+            inProgressPercentage = 0;
+            carriedOverPercentage = 0;
+            return;
         }
-        catch
-        {
-            return 0;
-        }
-    }
 
-    private int GetInProgressCount()
-    {
-        try
-        {
-            if (Tasks == null || Tasks.Count == 0)
-                return 0;
+        completedCount = Tasks.Count(t => t.Status == Models.TaskStatus.Completed);
+        inProgressCount = Tasks.Count(t => t.Status == Models.TaskStatus.InProgress);
+        carriedOverCount = Tasks.Count(t => t.Status == Models.TaskStatus.CarriedOver);
 
-            return Tasks.Count(t => t.Status == TaskStatus.InProgress);
-        }
-        catch
-        {
-            return 0;
-        }
-    }
-
-    private double GetOnTimePercentage()
-    {
-        try
-        {
-            var completedTasks = Tasks?
-                .Where(t => t.Status == TaskStatus.Completed)
-                .ToList() ?? new List<Task>();
-
-            if (completedTasks.Count == 0)
-                return 0;
-
-            int onTimeCount = completedTasks
-                .Count(t => IsTaskOnTime(t));
-
-            double percentage = (double)onTimeCount / completedTasks.Count * 100;
-            return percentage;
-        }
-        catch
-        {
-            return 0;
-        }
-    }
-
-    private bool IsTaskOnTime(Task task)
-    {
-        try
-        {
-            if (task == null)
-                return true;
-
-            var isOnTimeProperty = task.GetType().GetProperty("IsOnTime", 
-                System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public);
-            
-            if (isOnTimeProperty != null && isOnTimeProperty.GetValue(task) is bool isOnTime)
-                return isOnTime;
-
-            return true;
-        }
-        catch
-        {
-            return true;
-        }
-    }
-
-    private string GetColorClass(double percentage)
-    {
-        try
-        {
-            if (double.IsNaN(percentage) || double.IsInfinity(percentage))
-                return "text-secondary";
-
-            if (percentage >= 80)
-                return "text-success bg-light-success";
-            
-            if (percentage >= 50)
-                return "text-warning bg-light-warning";
-            
-            return "text-danger bg-light-danger";
-        }
-        catch
-        {
-            return "text-secondary";
-        }
+        int total = Tasks.Count;
+        completedPercentage = total > 0 ? (completedCount * 100) / total : 0;
+        inProgressPercentage = total > 0 ? (inProgressCount * 100) / total : 0;
+        carriedOverPercentage = total > 0 ? (carriedOverCount * 100) / total : 0;
     }
 }
 
 <style>
-    .kpi-summary-container {
-        margin-bottom: 2rem;
-    }
+.status-summary-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
 
-    .no-data-alert {
-        border: 1px solid #d1ecf1;
-        border-radius: 0.375rem;
-        padding: 0.75rem 1rem;
-        margin-bottom: 1.5rem;
-        background-color: #d1ecf1;
-        color: #0c5460;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
+.summary-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #212529;
+    margin: 0 0 20px 0;
+}
 
-    .alert-icon {
-        font-size: 1.25rem;
-        flex-shrink: 0;
-    }
+.kpi-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
 
-    .alert-text {
-        font-size: 0.95rem;
-        margin: 0;
-    }
+.kpi-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border-left: 5px solid #6c757d;
+}
 
-    .kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-    }
+.kpi-completed {
+    border-left-color: #28a745;
+}
 
-    @media (max-width: 1023px) {
-        .kpi-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
+.kpi-inprogress {
+    border-left-color: #007bff;
+}
 
-    @media (max-width: 767px) {
-        .kpi-grid {
-            grid-template-columns: repeat(1, 1fr);
-        }
+.kpi-carriedover {
+    border-left-color: #ffc107;
+}
+
+.kpi-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #212529;
+    margin: 0 0 10px 0;
+}
+
+.kpi-label {
+    font-size: 0.95rem;
+    color: #6c757d;
+    margin: 0 0 10px 0;
+}
+
+.kpi-percentage {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+@@media (max-width: 1024px) {
+    .kpi-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
     }
 
     .kpi-card {
-        border: 1px solid #e9ecef;
-        border-radius: 0.375rem;
-        transition: box-shadow 0.2s ease-in-out;
-    }
-
-    .kpi-card:hover {
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    }
-
-    .kpi-card .card-body {
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .card-header-wrapper {
-        margin-bottom: 0.75rem;
-    }
-
-    .kpi-card .card-title {
-        font-size: 0.875rem;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        margin: 0;
-        color: #6c757d;
-    }
-
-    .kpi-value-wrapper {
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0.75rem 0;
+        padding: 18px;
     }
 
     .kpi-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        line-height: 1;
-        padding: 1rem;
-        border-radius: 0.25rem;
-        width: 100%;
-        text-align: center;
+        font-size: 2.2rem;
     }
 
-    .kpi-value.text-success {
-        color: #198754;
+    .kpi-label {
+        font-size: 0.9rem;
     }
 
-    .kpi-value.bg-light-success {
-        background-color: #f0f9f6;
+    .kpi-percentage {
+        font-size: 1.1rem;
+    }
+}
+
+@@media (max-width: 768px) {
+    .kpi-cards {
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
 
-    .kpi-value.text-warning {
-        color: #ff9800;
+    .kpi-card {
+        padding: 15px;
     }
 
-    .kpi-value.bg-light-warning {
-        background-color: #fff8f0;
+    .kpi-value {
+        font-size: 1.8rem;
     }
 
-    .kpi-value.text-danger {
-        color: #dc3545;
+    .kpi-label {
+        font-size: 0.85rem;
     }
 
-    .kpi-value.bg-light-danger {
-        background-color: #fef5f5;
+    .kpi-percentage {
+        font-size: 1rem;
     }
 
-    .kpi-value.text-secondary {
-        color: #6c757d;
-        background-color: #f8f9fa;
+    .status-summary-container {
+        padding: 15px;
+        margin-bottom: 25px;
     }
 
-    .kpi-unit {
-        font-size: 0.875rem;
-        margin: 0;
-        color: #6c757d;
-        text-align: center;
+    .summary-title {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
     }
+}
 </style>
