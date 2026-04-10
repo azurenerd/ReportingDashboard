@@ -30,21 +30,21 @@
 
     protected override void OnInitialized()
     {
-        DataService.OnDataChanged += OnDataChanged;
+        DataService.OnDataChanged += HandleDataChanged;
 
         var uri = new Uri(Navigation.Uri);
-        var query = QueryHelpers.ParseQuery(uri.Query);
-        _printMode = query.TryGetValue("print", out var values)
-            && values.ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        _printMode = query.TryGetValue("print", out var printValue)
+                     && string.Equals(printValue, "true", StringComparison.OrdinalIgnoreCase);
     }
 
-    private async void OnDataChanged()
+    private async void HandleDataChanged()
     {
         await InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
-        DataService.OnDataChanged -= OnDataChanged;
+        DataService.OnDataChanged -= HandleDataChanged;
     }
 }
