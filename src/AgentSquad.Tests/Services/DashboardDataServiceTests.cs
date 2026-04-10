@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Moq;
 using Xunit;
 using Microsoft.Extensions.Logging;
@@ -454,6 +455,236 @@ namespace AgentSquad.Tests.Services
             Assert.Equal("Completed", milestones[0].Status);
             Assert.Equal("On Track", milestones[1].Status);
             Assert.Equal("At Risk", milestones[2].Status);
+        }
+
+        #endregion
+
+        #region Step 3: FileSystemWatcher Debounce and Duplicate Detection Tests
+
+        [Fact]
+        public void FileWatchDebounce500ms_RapidFileEvents_OnDataChangedFiredOnlyOnceAfterDebounceWindow()
+        {
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath, 100);
+            var service = CreateMockDataService(options);
+            
+            int eventCount = 0;
+            service.OnDataChanged += () => eventCount++;
+
+            // Act: Simulate rapid file changes by modifying file multiple times
+            for (int i = 0; i < 5; i++)
+            {
+                File.WriteAllText(validJsonPath, CreateValidJson(), Encoding.UTF8);
+                System.Threading.Thread.Sleep(20);
+            }
+
+            // Wait for debounce to complete (100ms debounce + buffer)
+            System.Threading.Thread.Sleep(200);
+
+            // Assert: Event should fire only once despite multiple file modifications
+            Assert.Equal(1, eventCount);
+        }
+
+        [Fact]
+        public void DebounceCoalescesRapidEvents_SequentialWritesWithinDebounceWindow_SingleParseOccurs()
+        {
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath, 100);
+            var service = CreateMockDataService(options);
+            
+            int eventCount = 0;
+            service.OnDataChanged += () => eventCount++;
+
+            // Act: Write file, wait 50ms, write again, wait 50ms, write again
+            // All within the 100ms debounce window plus initial load
+            File.WriteAllText(validJsonPath, CreateValidJson(), Encoding.UTF8);
+            System.Threading.Thread.Sleep(50);
+            File.WriteAllText(validJsonPath, CreateValidJson(), Encoding.UTF8);
+            System.Threading.Thread.Sleep(50);
+            File.WriteAllText(validJsonPath, CreateValidJson(), Encoding.UTF8);
+
+            // Wait for debounce to settle
+            System.Threading.Thread.Sleep(200);
+
+            // Assert: Only one additional event from debounced changes
+            Assert.Equal(1, eventCount);
+        }
+
+        [Fact]
+        public void TimerCancelledOnDispose_PendingDebounceTimer_DisposeCancelsTimer()
+        {
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath, 500);
+            var service = CreateMockDataService(options);
+            
+            int eventCount = 0;
+            service.OnDataChanged += () => eventCount++;
+
+            // Act: Trigger a file change
+            File.WriteAllText(validJsonPath, CreateValidJson(), Encoding.UTF8);
+            
+            // Immediately dispose before timer fires (500ms debounce)
+            System.Threading.Thread.Sleep(100);
+            service.Dispose();
+
+            // Wait longer than debounce to ensure timer was cancelled
+            System.Threading.Thread.Sleep(500);
+
+            // Assert: Event should not fire after dispose
+            Assert.Equal(1, eventCount);
+        }
+
+        [Fact]
+        public void HashCheckPreventsRedundantParse_IdenticalFileContent_OnDataChangedNotFiredForDuplicate()
+        {
+            // Arrange
+            var validJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            
+            var options = CreateMockOptions(validJsonPath, 50);
+            var service = CreateMockDataService(options);
+            
+            int eventCount = 0;
+            service.OnDataChanged += () => eventCount++;
+
+            // Act: Write the same content twice
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(100);
+            
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(100);
+
+            // Assert: No additional events due to hash matching
+            Assert.Equal(1, eventCount);
+        }
+
+        [Fact]
+        public void UnchangedFileHashSkipsReload_FileWatchEventWithUnchangedContent_ReloadSkipped()
+        {
+            // Arrange
+            var validJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            
+            var options = CreateMockOptions(validJsonPath, 50);
+            var service = CreateMockDataService(options);
+            
+            var initialData = service.GetCurrentData();
+            int eventCount = 0;
+            service.OnDataChanged += () => eventCount++;
+
+            // Act: Trigger FileSystemWatcher with unchanged content
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(100);
+
+            // Assert: Data unchanged, event not fired
+            var currentData = service.GetCurrentData();
+            Assert.Equal(initialData.Project.Name, currentData.Project.Name);
+            Assert.Equal(1, eventCount);
+        }
+
+        [Fact]
+        public void HashUpdatedOnSuccessfulLoad_DataParsedSuccessfully_HashUpdatedToMatchFileContent()
+        {
+            // Arrange
+            var validJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            
+            var options = CreateMockOptions(validJsonPath);
+            var service = CreateMockDataService(options);
+
+            // Act: Get initial hash by checking service state
+            Assert.True(service.HasData);
+            
+            // Modify file content
+            var modifiedJson = CreateValidJson();
+            File.WriteAllText(validJsonPath, modifiedJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(100);
+
+            // Assert: Service successfully updated with new data
+            var updatedData = service.GetCurrentData();
+            Assert.NotNull(updatedData);
+            Assert.True(service.HasData);
+            Assert.Null(service.GetLastError());
+        }
+
+        [Fact]
+        public void NoEventOnHashMatch_FileWriteEventWithIdenticalHash_EventNotRaised()
+        {
+            // Arrange
+            var originalJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            File.WriteAllText(validJsonPath, originalJson, Encoding.UTF8);
+            
+            var options = CreateMockOptions(validJsonPath, 50);
+            var service = CreateMockDataService(options);
+            
+            int eventCount = 0;
+            service.OnDataChanged += () => eventCount++;
+
+            // Act: Write same file content again (same hash)
+            File.WriteAllText(validJsonPath, originalJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(100);
+            
+            // Assert: No event fired because hash matches
+            Assert.Equal(1, eventCount);
+        }
+
+        [Fact]
+        public void DebounceTimerResetOnNewEvent_EventFiredBeforeDebounceCompletes_TimerResets()
+        {
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath, 100);
+            var service = CreateMockDataService(options);
+            
+            int eventCount = 0;
+            service.OnDataChanged += () => eventCount++;
+
+            // Act: Write, wait 60ms, write again (before 100ms debounce completes)
+            File.WriteAllText(validJsonPath, CreateValidJson(), Encoding.UTF8);
+            System.Threading.Thread.Sleep(60);
+            
+            File.WriteAllText(validJsonPath, CreateValidJson(), Encoding.UTF8);
+            System.Threading.Thread.Sleep(60);
+
+            // Still within debounce, shouldn't have fired yet
+            Assert.Equal(1, eventCount);
+
+            // Wait for new debounce to complete
+            System.Threading.Thread.Sleep(150);
+
+            // Assert: Single event for coalesced changes
+            Assert.Equal(2, eventCount);
+        }
+
+        [Fact]
+        public void MultipleRapidChanges_TenFileWritesInQuickSuccession_SingleDebounceEvent()
+        {
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath, 75);
+            var service = CreateMockDataService(options);
+            
+            int eventCount = 0;
+            service.OnDataChanged += () => eventCount++;
+
+            // Act: Simulate 10 rapid file writes (like a save operation writing multiple times)
+            for (int i = 0; i < 10; i++)
+            {
+                File.WriteAllText(validJsonPath, CreateValidJson(), Encoding.UTF8);
+                System.Threading.Thread.Sleep(10);
+            }
+
+            // Wait for debounce to settle
+            System.Threading.Thread.Sleep(150);
+
+            // Assert: All changes coalesced into one event
+            Assert.Equal(1, eventCount);
         }
 
         #endregion
