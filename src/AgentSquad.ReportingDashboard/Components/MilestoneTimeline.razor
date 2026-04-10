@@ -1,0 +1,14 @@
+@if (DashboardData?.Milestones.Count > 0)
+{
+	<section class="milestone-timeline">
+		<h3>Milestone Timeline</h3>
+		<div class="timeline-chart-container">
+			<p class="placeholder">Timeline chart will render here</p>
+		</div>
+	</section>
+}
+
+@code {
+	[CascadingParameter]
+	public DashboardData? DashboardData { get; set; }
+}
