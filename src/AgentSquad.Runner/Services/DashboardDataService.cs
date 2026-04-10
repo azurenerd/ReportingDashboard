@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using AgentSquad.Runner.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -33,26 +34,37 @@ public class DashboardDataService : IDashboardDataService, IDisposable
         _lastError = null;
         _lastLoadedHash = null;
         HasData = false;
+
+        LoadFromJson();
     }
 
     public DashboardData GetCurrentData()
     {
-        throw new NotImplementedException();
+        return _cachedData;
     }
 
     public Project GetProject()
     {
-        throw new NotImplementedException();
+        return _cachedData?.Project;
     }
 
     public IReadOnlyList<Milestone> GetMilestones()
     {
-        throw new NotImplementedException();
+        if (_cachedData?.Milestones == null)
+            return new List<Milestone>().AsReadOnly();
+        
+        return _cachedData.Milestones
+            .OrderBy(m => m.Date)
+            .ToList()
+            .AsReadOnly();
     }
 
     public IReadOnlyList<WorkItem> GetWorkItems()
     {
-        throw new NotImplementedException();
+        if (_cachedData?.WorkItems == null)
+            return new List<WorkItem>().AsReadOnly();
+        
+        return _cachedData.WorkItems.AsReadOnly();
     }
 
     public IReadOnlyList<WorkItem> GetWorkItemsByStatus(WorkItemStatus status)
@@ -67,7 +79,151 @@ public class DashboardDataService : IDashboardDataService, IDisposable
 
     public string GetLastError()
     {
-        throw new NotImplementedException();
+        return _lastError;
+    }
+
+    private void LoadFromJson()
+    {
+        try
+        {
+            var dataJsonPath = Path.Combine(
+                AppContext.BaseDirectory,
+                _options.Value?.DataJsonPath ?? "data.json");
+
+            if (!File.Exists(dataJsonPath))
+            {
+                throw new FileNotFoundException($"data.json not found at {dataJsonPath}");
+            }
+
+            var jsonContent = File.ReadAllText(dataJsonPath, System.Text.Encoding.UTF8);
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                AllowTrailingCommas = false,
+                MaxDepth = 64
+            };
+
+            var data = JsonSerializer.Deserialize<DashboardData>(jsonContent, options);
+
+            ValidateData(data);
+
+            _cachedData = data;
+            _lastError = null;
+            HasData = true;
+
+            _logger.LogInformation("DashboardDataService initialized, data.json loaded successfully");
+        }
+        catch (FileNotFoundException ex)
+        {
+            _lastError = $"FileNotFound: {ex.Message}";
+            _logger.LogError(_lastError);
+            HasData = false;
+            _cachedData = new DashboardData();
+        }
+        catch (JsonException ex)
+        {
+            _lastError = $"JSON syntax error in data.json: {ex.Message}";
+            _logger.LogError(_lastError);
+            HasData = false;
+            _cachedData = new DashboardData();
+        }
+        catch (ArgumentException ex)
+        {
+            _lastError = $"Validation error: {ex.Message}";
+            _logger.LogError(_lastError);
+            HasData = false;
+            _cachedData = new DashboardData();
+        }
+        catch (Exception ex)
+        {
+            _lastError = $"Unexpected error loading data.json: {ex.Message}";
+            _logger.LogError(_lastError);
+            HasData = false;
+            _cachedData = new DashboardData();
+        }
+    }
+
+    private void ValidateData(DashboardData data)
+    {
+        if (data == null)
+        {
+            throw new ArgumentException("Deserialized data is null");
+        }
+
+        if (data.Project == null)
+        {
+            throw new ArgumentException("Project is required in data.json");
+        }
+
+        if (string.IsNullOrWhiteSpace(data.Project.Name))
+        {
+            throw new ArgumentException("Project.Name is required and cannot be empty");
+        }
+
+        if (data.Project.Name.Length > 256)
+        {
+            throw new ArgumentException($"Project.Name exceeds maximum length of 256 characters (current: {data.Project.Name.Length})");
+        }
+
+        if (!string.IsNullOrEmpty(data.Project.Description) && data.Project.Description.Length > 1024)
+        {
+            throw new ArgumentException($"Project.Description exceeds maximum length of 1024 characters (current: {data.Project.Description.Length})");
+        }
+
+        if (data.Milestones != null)
+        {
+            foreach (var milestone in data.Milestones)
+            {
+                if (string.IsNullOrWhiteSpace(milestone.Name))
+                {
+                    throw new ArgumentException("Milestone.Name is required and cannot be empty");
+                }
+
+                if (milestone.Name.Length > 256)
+                {
+                    throw new ArgumentException($"Milestone.Name exceeds maximum length of 256 characters (current: {milestone.Name.Length})");
+                }
+
+                if (string.IsNullOrEmpty(milestone.Status))
+                {
+                    throw new ArgumentException("Milestone.Status is required");
+                }
+
+                var validStatuses = new[] { "Completed", "On Track", "At Risk" };
+                if (!validStatuses.Contains(milestone.Status))
+                {
+                    throw new ArgumentException($"Invalid Milestone.Status '{milestone.Status}'. Valid values: {string.Join(", ", validStatuses)}");
+                }
+            }
+        }
+
+        if (data.WorkItems != null)
+        {
+            foreach (var workItem in data.WorkItems)
+            {
+                if (string.IsNullOrWhiteSpace(workItem.Title))
+                {
+                    throw new ArgumentException("WorkItem.Title is required and cannot be empty");
+                }
+
+                if (workItem.Title.Length > 512)
+                {
+                    throw new ArgumentException($"WorkItem.Title exceeds maximum length of 512 characters (current: {workItem.Title.Length})");
+                }
+
+                if (!Enum.IsDefined(typeof(WorkItemStatus), workItem.Status))
+                {
+                    throw new ArgumentException($"Invalid WorkItem.Status '{workItem.Status}'. Valid values: {string.Join(", ", Enum.GetNames(typeof(WorkItemStatus)))}");
+                }
+
+                if (!string.IsNullOrEmpty(workItem.Assignee) && workItem.Assignee.Length > 256)
+                {
+                    throw new ArgumentException($"WorkItem.Assignee exceeds maximum length of 256 characters (current: {workItem.Assignee.Length})");
+                }
+            }
+        }
     }
 
     public void Dispose()

@@ -1,16 +1,8 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace AgentSquad.Runner.Models;
 
 public class WorkItem
 {
-    [Required]
-    [StringLength(512)]
-    public string Title { get; init; } = string.Empty;
-
-    [Required]
-    public WorkItemStatus Status { get; init; }
-
-    [StringLength(256)]
-    public string? Assignee { get; init; }
+    public string Title { get; set; }
+    public WorkItemStatus Status { get; set; }
+    public string Assignee { get; set; }
 }
