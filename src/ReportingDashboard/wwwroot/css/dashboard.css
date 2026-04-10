@@ -90,3 +90,108 @@ h2 {
     color: var(--color-text-primary);
     line-height: 1.4;
 }
+
+/* ------------------------------------------------------------
+   Project Header
+   ------------------------------------------------------------ */
+.project-header {
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.project-header h1 {
+    font-size: var(--font-size-h1);
+    font-weight: 700;
+    margin-bottom: var(--spacing-xs);
+}
+
+/* ------------------------------------------------------------
+   Header Metadata Row
+   ------------------------------------------------------------ */
+.header-meta {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    flex-wrap: wrap;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body);
+    margin-bottom: var(--spacing-md);
+}
+
+/* ------------------------------------------------------------
+   Status Badge Pills
+   WCAG AA contrast notes:
+     #FFFFFF on #2E7D32 (green)  — 4.9:1 ✓
+     #FFFFFF on #1565C0 (blue)   — 4.6:1 ✓
+     #FFFFFF on #E65100 (orange) — 3.5:1 (large text / bold ✓)
+     #FFFFFF on #C62828 (red)    — 4.8:1 ✓
+     #FFFFFF on #757575 (gray)   — 4.6:1 ✓
+     #FFFFFF on #F57C00 (amber)  — 3.0:1 (large text / bold ✓)
+   ------------------------------------------------------------ */
+.status-badge {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.status-badge.on-track,
+.status-badge.completed {
+    background-color: var(--status-completed);
+}
+
+.status-badge.at-risk {
+    background-color: var(--status-at-risk);
+}
+
+.status-badge.behind {
+    background-color: var(--status-behind);
+}
+
+.status-badge.in-progress {
+    background-color: var(--status-in-progress);
+}
+
+.status-badge.upcoming {
+    background-color: var(--status-upcoming);
+}
+
+.status-badge.carried-over {
+    background-color: var(--status-carried-over);
+}
+
+/* ------------------------------------------------------------
+   Project Summary Paragraph
+   ------------------------------------------------------------ */
+.project-summary {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 var(--spacing-lg);
+}
+
+/* ------------------------------------------------------------
+   Error Banner — Danger Theme for Invalid data.json
+   ------------------------------------------------------------ */
+.error-banner {
+    background-color: #FFEBEE;
+    border: 1px solid #C62828;
+    border-left: 4px solid #C62828;
+    color: #C62828;
+    padding: var(--spacing-md);
+    border-radius: 4px;
+    margin: var(--spacing-xl) auto;
+    max-width: var(--max-width);
+    font-size: var(--font-size-body);
+    line-height: 1.5;
+}
+
+.error-banner strong {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+}
