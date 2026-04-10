@@ -5,8 +5,12 @@
         <!-- Shipped Card -->
         <div class="kpi-card card">
             <div class="card-body">
-                <h6 class="card-title text-muted mb-3">Shipped</h6>
-                <div class="kpi-value text-secondary">@GetShippedCount()</div>
+                <div class="card-header-wrapper">
+                    <h6 class="card-title">Shipped</h6>
+                </div>
+                <div class="kpi-value-wrapper">
+                    <div class="kpi-value text-secondary">@GetShippedCount()</div>
+                </div>
                 <p class="kpi-unit text-muted">completed tasks</p>
             </div>
         </div>
@@ -14,8 +18,12 @@
         <!-- In Progress Card -->
         <div class="kpi-card card">
             <div class="card-body">
-                <h6 class="card-title text-muted mb-3">In Progress</h6>
-                <div class="kpi-value text-secondary">@GetInProgressCount()</div>
+                <div class="card-header-wrapper">
+                    <h6 class="card-title">In Progress</h6>
+                </div>
+                <div class="kpi-value-wrapper">
+                    <div class="kpi-value text-secondary">@GetInProgressCount()</div>
+                </div>
                 <p class="kpi-unit text-muted">active tasks</p>
             </div>
         </div>
@@ -23,8 +31,12 @@
         <!-- On-Time % Card -->
         <div class="kpi-card card">
             <div class="card-body">
-                <h6 class="card-title text-muted mb-3">On-Time %</h6>
-                <div class="kpi-value @GetColorClass(GetOnTimePercentage())">@(GetOnTimePercentage().ToString("F0"))%</div>
+                <div class="card-header-wrapper">
+                    <h6 class="card-title">On-Time %</h6>
+                </div>
+                <div class="kpi-value-wrapper">
+                    <div class="kpi-value @GetColorClass(GetOnTimePercentage())">@(GetOnTimePercentage().ToString("F0"))%</div>
+                </div>
                 <p class="kpi-unit text-muted">on schedule</p>
             </div>
         </div>
@@ -172,6 +184,12 @@
 
     .kpi-card .card-body {
         padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-header-wrapper {
+        margin-bottom: 0.75rem;
     }
 
     .kpi-card .card-title {
@@ -179,15 +197,26 @@
         font-weight: 600;
         letter-spacing: 0.5px;
         text-transform: uppercase;
+        margin: 0;
+        color: #6c757d;
+    }
+
+    .kpi-value-wrapper {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0.75rem 0;
     }
 
     .kpi-value {
         font-size: 2.5rem;
         font-weight: 700;
         line-height: 1;
-        margin: 0.5rem 0;
-        padding: 0.5rem 0;
+        padding: 1rem;
         border-radius: 0.25rem;
+        width: 100%;
+        text-align: center;
     }
 
     .kpi-value.text-success {
@@ -216,10 +245,13 @@
 
     .kpi-value.text-secondary {
         color: #6c757d;
+        background-color: #f8f9fa;
     }
 
     .kpi-unit {
         font-size: 0.875rem;
-        margin: 0.5rem 0 0 0;
+        margin: 0;
+        color: #6c757d;
+        text-align: center;
     }
 </style>
