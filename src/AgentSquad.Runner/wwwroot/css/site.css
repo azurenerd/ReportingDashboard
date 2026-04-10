@@ -1,5 +1,6 @@
 /* Executive Dashboard Color Palette & Typography
-   WCAG 2.1 AA Contrast Compliance Verified */
+   WCAG 2.1 AA Contrast Compliance Verified
+   Viewport Optimization: 1920x1080 Primary, 1680px & 2560px Secondary */
 
 :root {
   --bs-primary: #0066cc;
@@ -9,10 +10,23 @@
   --bs-info: #17a2b8;
   --bs-light: #f8f9fa;
   --bs-dark: #212529;
+  
+  /* Viewport & Layout */
+  --dashboard-max-width: 1880px;
+  --dashboard-gutter: 20px;
+  --status-column-max-height: 600px;
+  --timeline-height: 120px;
+  --metrics-footer-height: 180px;
 }
 
-/* Base Typography & Contrast Ratios */
-html, body {
+/* Viewport Fit Baseline */
+html {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -21,22 +35,27 @@ html, body {
   line-height: 1.5;
   color: var(--bs-dark);
   background-color: #ffffff;
-}
-
-/* Body text (#212529 on #ffffff): 8.59:1 ratio (exceeds 4.5:1 WCAG AA normal text) */
-
-body {
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  width: 100vw;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 #app {
   flex: 1;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: var(--dashboard-max-width);
+  margin: 0 auto;
+  padding: 0 var(--dashboard-gutter);
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
-/* Timeline Styling */
+/* Timeline Container - Fixed Height to Prevent CLS */
 .timeline-container {
   display: flex;
   gap: 1rem;
@@ -44,6 +63,9 @@ body {
   padding: 1.5rem 0;
   flex-wrap: wrap;
   justify-content: flex-start;
+  min-height: var(--timeline-height);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .timeline-item {
@@ -52,6 +74,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   min-width: 120px;
+  flex-shrink: 0;
 }
 
 .timeline-marker {
@@ -67,6 +90,7 @@ body {
   outline: 2px solid transparent;
   outline-offset: 2px;
   transition: outline 0.2s ease;
+  flex-shrink: 0;
 }
 
 .timeline-marker:focus {
@@ -77,50 +101,49 @@ body {
   background-color: var(--bs-success);
 }
 
-/* .timeline-marker.completed (#28a745) on white: 4.49:1 ratio (meets 3:1 for 18pt+) */
-
 .timeline-marker.ontrack {
   background-color: var(--bs-primary);
 }
-
-/* .timeline-marker.ontrack (#0066cc) on white: 5.94:1 ratio (exceeds 4.5:1 WCAG AA) */
 
 .timeline-marker.atrisk {
   background-color: var(--bs-warning);
 }
 
-/* .timeline-marker.atrisk (#ffc107) on white: 4.54:1 ratio (exceeds 4.5:1 WCAG AA) */
-
 .timeline-marker.delayed {
   background-color: var(--bs-danger);
 }
-
-/* .timeline-marker.delayed (#dc3545) on white: 4.54:1 ratio (exceeds 3:1 for large text) */
 
 .timeline-label {
   font-size: 0.875rem;
   font-weight: 500;
   text-align: center;
   color: var(--bs-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
 }
-
-/* .timeline-label (#212529 on #ffffff): 8.59:1 ratio (exceeds 4.5:1 WCAG AA) */
 
 .timeline-date {
   font-size: 0.75rem;
   color: #6c757d;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
 }
 
-/* .timeline-date (#6c757d on #ffffff): 4.48:1 ratio (meets 4.5:1 WCAG AA for normal text) */
-
-/* Status Grid & Columns */
+/* Status Grid - Responsive 3-Column Layout */
 .status-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   margin: 1.5rem 0;
   flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 400px;
 }
 
 .status-column {
@@ -130,8 +153,30 @@ body {
   border-radius: 0.5rem;
   padding: 1rem;
   gap: 1rem;
-  max-height: 600px;
+  max-height: var(--status-column-max-height);
   overflow-y: auto;
+  min-height: 300px;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+
+/* Scrollbar Styling for Status Columns */
+.status-column::-webkit-scrollbar {
+  width: 8px;
+}
+
+.status-column::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.status-column::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.status-column::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .status-column-header {
@@ -141,9 +186,9 @@ body {
   font-weight: 600;
   color: var(--bs-dark);
   font-size: 1rem;
+  flex-shrink: 0;
+  min-height: 30px;
 }
-
-/* .status-column-header (#212529 on #ffffff): 8.59:1 ratio (exceeds 4.5:1 WCAG AA) */
 
 .status-badge {
   display: inline-flex;
@@ -158,6 +203,7 @@ body {
   outline: 2px solid transparent;
   outline-offset: 2px;
   transition: outline 0.2s ease;
+  flex-shrink: 0;
 }
 
 .status-badge:focus {
@@ -169,21 +215,15 @@ body {
   color: var(--bs-success);
 }
 
-/* .status-badge.shipped (#28a745 on rgba light): 5.23:1 ratio (exceeds 3:1 WCAG AA) */
-
 .status-badge.in-progress {
   background-color: rgba(0, 102, 204, 0.15);
   color: var(--bs-primary);
 }
 
-/* .status-badge.in-progress (#0066cc on rgba light): 6.89:1 ratio (exceeds 3:1 WCAG AA) */
-
 .status-badge.carried-over {
   background-color: rgba(255, 193, 7, 0.15);
   color: #856404;
 }
-
-/* .status-badge.carried-over (#856404 on rgba light): 5.12:1 ratio (exceeds 3:1 WCAG AA) */
 
 .card {
   background-color: #ffffff;
@@ -193,6 +233,9 @@ body {
   margin-bottom: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: box-shadow 0.2s ease;
+  min-height: 80px;
+  box-sizing: border-box;
+  word-break: break-word;
 }
 
 .card:hover {
@@ -210,26 +253,23 @@ body {
   font-weight: 600;
   color: var(--bs-dark);
   line-height: 1.4;
+  word-break: break-word;
 }
-
-/* .card-title (#212529 on #ffffff): 8.59:1 ratio (exceeds 4.5:1 WCAG AA) */
 
 .card-description {
   margin: 0.5rem 0;
   font-size: 0.85rem;
   color: #6c757d;
   line-height: 1.4;
+  word-break: break-word;
 }
-
-/* .card-description (#6c757d on #ffffff): 4.48:1 ratio (meets 4.5:1 WCAG AA) */
 
 .card-date {
   margin-top: 0.5rem;
   font-size: 0.75rem;
   color: #adb5bd;
+  flex-shrink: 0;
 }
-
-/* .card-date (#adb5bd on #ffffff): 3.29:1 ratio (meets 3:1 WCAG AA for small text) */
 
 .status-column-empty {
   display: flex;
@@ -242,7 +282,7 @@ body {
   padding: 1rem;
 }
 
-/* Metrics Footer */
+/* Metrics Footer - Fixed Height to Prevent CLS */
 .metrics-footer {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -251,6 +291,10 @@ body {
   background-color: var(--bs-light);
   border-top: 1px solid #e9ecef;
   margin-top: auto;
+  min-height: var(--metrics-footer-height);
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .metric-box {
@@ -264,6 +308,7 @@ body {
   outline-offset: 2px;
   transition: outline 0.2s ease;
   padding: 0.5rem;
+  min-height: 100px;
 }
 
 .metric-box:focus-within {
@@ -276,44 +321,36 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #6c757d;
+  flex-shrink: 0;
 }
-
-/* .metric-label (#6c757d on #ffffff): 4.48:1 ratio (meets 4.5:1 WCAG AA) */
 
 .metric-value {
   font-size: 2.5rem;
   font-weight: 700;
   line-height: 1;
   margin: 0;
+  word-break: break-word;
+  flex-shrink: 0;
 }
-
-/* Large text (2.5rem = 40px, exceeds 32px large text threshold) */
 
 .metric-value.healthy {
   color: var(--bs-success);
 }
 
-/* .metric-value.healthy (#28a745 on #ffffff): 4.49:1 ratio (exceeds 3:1 WCAG AA large text) */
-
 .metric-value.warning {
   color: var(--bs-warning);
 }
-
-/* .metric-value.warning (#ffc107 on #ffffff): 4.54:1 ratio (exceeds 3:1 WCAG AA large text) */
 
 .metric-value.critical {
   color: var(--bs-danger);
 }
 
-/* .metric-value.critical (#dc3545 on #ffffff): 4.54:1 ratio (exceeds 3:1 WCAG AA large text) */
-
 .metric-unit {
   font-size: 0.875rem;
   color: #6c757d;
   font-weight: 400;
+  flex-shrink: 0;
 }
-
-/* .metric-unit (#6c757d on #ffffff): 4.48:1 ratio (meets 4.5:1 WCAG AA) */
 
 /* Alert Styles for Error Messages */
 .alert {
@@ -321,6 +358,8 @@ body {
   margin-bottom: 1rem;
   border: 1px solid transparent;
   border-radius: 0.375rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .alert-danger {
@@ -329,8 +368,6 @@ body {
   border-color: #f5c6cb;
 }
 
-/* .alert-danger (#721c24 on #f8d7da): 5.41:1 ratio (exceeds 4.5:1 WCAG AA) */
-
 .alert-heading {
   margin-top: 0;
   margin-bottom: 0.5rem;
@@ -338,9 +375,7 @@ body {
   font-weight: 600;
 }
 
-/* .alert-heading (#721c24 on #f8d7da): 5.41:1 ratio (exceeds 4.5:1 WCAG AA for normal text) */
-
-/* Accessibility & Focus States - Enhanced for WCAG AA */
+/* Accessibility & Focus States */
 a {
   color: var(--bs-primary);
   text-decoration: none;
@@ -357,8 +392,6 @@ a:focus {
   outline: 2px solid var(--bs-primary);
   outline-offset: 2px;
 }
-
-/* a (#0066cc on #ffffff): 5.94:1 ratio (exceeds 4.5:1 WCAG AA) */
 
 button, [role="button"] {
   outline: 2px solid transparent;
@@ -402,14 +435,62 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
-/* Viewport & Responsive Adjustments */
-@media (max-width: 1920px) {
+/* 1680px Viewport (Laptop with taskbar) */
+@media (max-width: 1680px) {
+  :root {
+    --dashboard-max-width: 1650px;
+    --dashboard-gutter: 15px;
+  }
+
   .status-grid {
-    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
   }
 
   .metrics-footer {
-    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+}
+
+/* 1920px Viewport (Standard Desktop) - Primary Target */
+@media (min-width: 1681px) and (max-width: 1920px) {
+  :root {
+    --dashboard-max-width: 1880px;
+    --dashboard-gutter: 20px;
+  }
+
+  body {
+    width: 100%;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 100vw;
+  }
+}
+
+/* 2560px Viewport (Wide Monitor) */
+@media (min-width: 1921px) {
+  :root {
+    --dashboard-max-width: 2500px;
+    --dashboard-gutter: 30px;
+  }
+
+  .status-grid {
+    gap: 2rem;
+  }
+
+  .metrics-footer {
+    gap: 2rem;
+    padding: 2.5rem;
+  }
+
+  .metric-value {
+    font-size: 3rem;
+  }
+
+  .status-column-header {
+    font-size: 1.125rem;
   }
 }
 
@@ -424,13 +505,13 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   line-height: 1.2;
   color: var(--bs-dark);
+  word-break: break-word;
 }
-
-/* h1-h6 (#212529 on #ffffff): 8.59:1 ratio (exceeds 4.5:1 WCAG AA) */
 
 p {
   margin-top: 0;
   margin-bottom: 1rem;
+  word-break: break-word;
 }
 
 /* Loading Spinner (for future use) */
@@ -442,6 +523,7 @@ p {
   border-top-color: var(--bs-primary);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
 }
 
 @keyframes spin {
@@ -456,7 +538,6 @@ p {
   outline-offset: 2px;
 }
 
-/* Enhanced focus for tab navigation */
 :focus {
   outline: 2px solid transparent;
 }
@@ -464,4 +545,31 @@ p {
 :focus-visible {
   outline: 2px solid var(--bs-primary);
   outline-offset: 2px;
+}
+
+/* Cumulative Layout Shift Prevention */
+html, body, #app, .timeline-container, .status-grid, .metrics-footer {
+  position: relative;
+}
+
+/* Ensure no unwanted margins cause overflow */
+body, #app {
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  padding: 0 var(--dashboard-gutter);
+}
+
+/* Prevent horizontal overflow from any element */
+body, html {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ensure images and content don't overflow */
+img, svg {
+  max-width: 100%;
+  height: auto;
 }
