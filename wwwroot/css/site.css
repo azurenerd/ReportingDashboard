@@ -93,6 +93,61 @@
     font-weight: 600;
 }
 
+/* Metrics Container */
+.metrics-container {
+    margin-bottom: 2rem;
+}
+
+.metrics-column {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0.5rem;
+}
+
+.column-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e9ecef;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.column-title.shipped-title {
+    color: #28a745;
+}
+
+.column-title.in-progress-title {
+    color: #ffc107;
+}
+
+.column-title.carryover-title {
+    color: #dc3545;
+}
+
+.metrics-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.empty-state {
+    padding: 2rem 1rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state p {
+    margin: 0;
+}
+
 /* Dashboard Grid Layout */
 .dashboard-grid {
     display: grid;
@@ -100,7 +155,11 @@
     margin-bottom: 2rem;
 }
 
-/* Metric Cards - Category-based Styling */
+/* Metrics Card - Wrapper and Base */
+.metrics-card-wrapper {
+    height: 100%;
+}
+
 .card-shipped {
     border-left: 4px solid #28a745;
 }
@@ -135,11 +194,16 @@
     padding: 1.75rem;
 }
 
+.card-header-section {
+    margin-bottom: 1rem;
+}
+
 .card-title {
     font-size: 1.2rem;
     font-weight: 700;
     color: #212529;
     margin-bottom: 0.75rem;
+    word-break: break-word;
 }
 
 .card-text {
@@ -147,6 +211,42 @@
     color: #495057;
     line-height: 1.6;
     margin: 0;
+}
+
+.category-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.card-footer-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-footer-section small {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.flex-column {
+    flex-direction: column !important;
+}
+
+.flex-grow-1 {
+    flex-grow: 1 !important;
+}
+
+.h-100 {
+    height: 100% !important;
 }
 
 /* Health Indicator Badges */
@@ -173,9 +273,7 @@
 
 /* Placeholder Styling */
 .milestone-timeline-placeholder,
-.metrics-container-placeholder,
-.data-refresh-indicator-placeholder,
-.metrics-card-placeholder {
+.data-refresh-indicator-placeholder {
     padding: 2rem;
     background-color: #f8f9fa;
     border: 2px dashed #dee2e6;
@@ -269,6 +367,25 @@
         border-color: #ddd;
     }
 
+    .metrics-container {
+        margin-bottom: 1rem;
+    }
+
+    .metrics-column {
+        page-break-inside: avoid;
+        padding: 0;
+    }
+
+    .column-title {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .metrics-list {
+        gap: 0.75rem;
+    }
+
     .dashboard-grid {
         page-break-inside: avoid;
         gap: 0.75rem;
@@ -291,6 +408,30 @@
         padding: 0.75rem;
     }
 
+    .card-header-section {
+        margin-bottom: 0.5rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-footer-section {
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+    }
+
+    .category-badge {
+        font-size: 0.65rem;
+        padding: 0.25rem 0.5rem;
+    }
+
     .metric-summary {
         padding: 1rem 0.75rem;
         background-color: transparent;
@@ -303,7 +444,7 @@
     }
 
     .metric-value {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         margin-bottom: 0.25rem;
     }
 
@@ -321,14 +462,8 @@
         page-break-inside: avoid;
     }
 
-    .card-title {
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .card-text {
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
+    .empty-state {
+        display: none;
     }
 }
 
@@ -353,6 +488,14 @@
     .status-summary .card-body {
         padding: 1.5rem;
     }
+
+    .column-title {
+        font-size: 1.05rem;
+    }
+
+    .metrics-list {
+        gap: 0.9rem;
+    }
 }
 
 @media (max-width: 768px) {
@@ -374,6 +517,10 @@
 
     .dashboard-grid {
         gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .metrics-container {
         margin-bottom: 1.5rem;
     }
 
@@ -401,9 +548,7 @@
         --bs-gutter-x: 0.75rem;
     }
 
-    .col-md-4,
-    .col-md-6,
-    .col-md-8 {
+    .col-lg-4 {
         flex: 0 0 100%;
         max-width: 100%;
         padding-left: 0.375rem;
@@ -416,6 +561,15 @@
 
     .text-md-end {
         text-align: left;
+    }
+
+    .g-4 {
+        --bs-gutter-y: 1rem;
+    }
+
+    .column-title {
+        font-size: 1rem;
+        margin-bottom: 1rem;
     }
 }
 
@@ -452,21 +606,30 @@
     margin-top: 0.5rem !important;
 }
 
+.mt-3 {
+    margin-top: 1rem !important;
+}
+
 .my-3 {
     margin-top: 1rem !important;
     margin-bottom: 1rem !important;
+}
+
+.pt-2 {
+    padding-top: 0.5rem !important;
 }
 
 .gx-3 {
     --bs-gutter-x: 1rem;
 }
 
-.d-block {
-    display: block !important;
+.g-4 {
+    --bs-gutter-x: 1.5rem;
+    --bs-gutter-y: 1.5rem;
 }
 
-.d-flex {
-    display: flex !important;
+.d-block {
+    display: block !important;
 }
 
 .gap-3 {
@@ -495,10 +658,6 @@
 
 .text-start {
     text-align: left !important;
-}
-
-.text-end {
-    text-align: right !important;
 }
 
 hr {
