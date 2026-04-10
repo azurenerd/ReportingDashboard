@@ -1,16 +1,20 @@
-<section class="carried-over-items">
-    <!-- Full implementation in T7 -->
-    @if (Items.Count > 0)
-    {
-        <h2>Carried Over <span class="item-count">@Items.Count</span></h2>
-        @foreach (var item in Items)
-        {
-            <div class="work-item-stub">@item.Title</div>
-        }
-    }
-</section>
+@using ReportingDashboard.Models
+
+@if (SafeItems.Count > 0)
+{
+    <section class="dashboard-section carried-over-section">
+        <div class="section-header">
+            <h2>Carried Over</h2>
+            <span class="item-count">@SafeItems.Count</span>
+        </div>
+
+        <!-- Card rendering implemented in Step 2 -->
+    </section>
+}
 
 @code {
     [Parameter]
-    public List<WorkItem> Items { get; set; } = [];
+    public List<WorkItem>? Items { get; set; }
+
+    private List<WorkItem> SafeItems => Items ?? [];
 }

@@ -36,6 +36,7 @@ public record WorkItem
     public string Status { get; init; } = "in-progress";
     public string? Category { get; init; }
     public int? PercentComplete { get; init; }
+    public string? CarryOverReason { get; init; }
 }
 
 public record MonthSummary
