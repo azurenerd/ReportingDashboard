@@ -1,28 +1,21 @@
-<section class="monthly-summary">
-    @if (CurrentMonth is not null)
-    {
-        <div class="metrics-strip">
-            <div class="metric-card">
-                <span class="metric-value">@CurrentMonth.TotalItems</span>
-                <span class="metric-label">Total Items</span>
-            </div>
-            <div class="metric-card">
-                <span class="metric-value">@CurrentMonth.CompletedItems</span>
-                <span class="metric-label">Completed</span>
-            </div>
-            <div class="metric-card">
-                <span class="metric-value">@CurrentMonth.CarriedItems</span>
-                <span class="metric-label">Carried Over</span>
-            </div>
-            <div class="metric-card health-@(CurrentMonth.OverallHealth ?? "unknown")">
-                <span class="metric-value">@(CurrentMonth.OverallHealth ?? "N/A")</span>
-                <span class="metric-label">Overall Health</span>
-            </div>
-        </div>
-    }
-</section>
+@namespace ReportingDashboard.Components.Sections
+@using ReportingDashboard.Models
+
+@if (Summary is not null)
+{
+    <section class="section">
+        @if (!string.IsNullOrWhiteSpace(Summary.Month))
+        {
+            <h2>Monthly Summary — @Summary.Month</h2>
+        }
+        else
+        {
+            <h2>Monthly Summary</h2>
+        }
+    </section>
+}
 
 @code {
     [Parameter]
-    public MonthSummary? CurrentMonth { get; set; }
+    public MonthSummary? Summary { get; set; }
 }
