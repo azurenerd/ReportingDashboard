@@ -24,7 +24,7 @@
             }
             @if (!Tasks.Any(t => t.Status == TaskStatus.Completed))
             {
-                <p class="text-muted">No tasks</p>
+                <div class="alert alert-light text-muted py-3">No tasks</div>
             }
         </div>
 
@@ -50,7 +50,7 @@
             }
             @if (!Tasks.Any(t => t.Status == TaskStatus.InProgress))
             {
-                <p class="text-muted">No tasks</p>
+                <div class="alert alert-light text-muted py-3">No tasks</div>
             }
         </div>
 
@@ -76,7 +76,7 @@
             }
             @if (!Tasks.Any(t => t.Status == TaskStatus.CarriedOver))
             {
-                <p class="text-muted">No tasks</p>
+                <div class="alert alert-light text-muted py-3">No tasks</div>
             }
         </div>
     </div>
@@ -85,6 +85,17 @@
 <style>
     .task-card:hover {
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    @media print {
+        .task-card {
+            box-shadow: none !important;
+            border: 1px solid #dee2e6 !important;
+        }
+
+        .task-card:hover {
+            box-shadow: none !important;
+        }
     }
 </style>
 
