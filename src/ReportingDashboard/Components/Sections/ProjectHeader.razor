@@ -1,0 +1,26 @@
+<section class="project-header">
+    <h1>@(Project?.Name ?? "Loading...")</h1>
+    @if (Project is not null)
+    {
+        <div class="project-meta">
+            @if (Project.Lead is not null)
+            {
+                <span class="meta-item"><strong>Lead:</strong> @Project.Lead</span>
+            }
+            <span class="meta-item status-badge status-@(Project.OverallHealth ?? "unknown")">@Project.Status</span>
+            @if (Project.LastUpdated is not null)
+            {
+                <span class="meta-item"><strong>Updated:</strong> @Project.LastUpdated</span>
+            }
+        </div>
+        @if (Project.Summary is not null)
+        {
+            <p class="project-summary">@Project.Summary</p>
+        }
+    }
+</section>
+
+@code {
+    [Parameter]
+    public ProjectInfo? Project { get; set; }
+}
