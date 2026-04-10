@@ -1,46 +1,55 @@
 /**
  * Chart.js Helper Module - Executive Dashboard
  * 
- * Purpose: Initialize and manage Chart.js instances for status chart visualization.
- * Handles data updates, color coding, and responsive rendering.
+ * Manages Chart.js initialization and updates for the StatusChart component.
+ * Handles bar chart creation, color coding, and data updates without full re-initialization.
  * 
- * Usage: Import via ES6 module in Blazor component
+ * Usage from Blazor:
  *   const chartModule = await JSRuntime.InvokeAsync("import", "./js/chart-helper.js");
- *   await chartModule.InvokeAsync("initializeChart", canvasRef, { shipped, inProgress, carriedOver });
+ *   const chart = await chartModule.InvokeAsync("initializeChart", canvasRef, { shipped, inProgress, carriedOver });
  */
 
+let statusChartInstance = null;
+
 export async function initializeChart(canvasElement, statusCounts) {
-  // Ensure Chart.js is loaded (CDN)
+  // Verify Chart.js is loaded
   if (typeof Chart === 'undefined') {
-    console.error('Chart.js library not loaded. Ensure CDN is included in _Host.cshtml');
+    console.error('Chart.js not loaded. Ensure CDN script is included in _Host.cshtml');
     return null;
   }
 
   const ctx = canvasElement.getContext('2d');
   
-  // Destroy existing chart if present
-  if (window.statusChartInstance) {
-    window.statusChartInstance.destroy();
+  // Destroy previous chart if exists
+  if (statusChartInstance) {
+    statusChartInstance.destroy();
+    statusChartInstance = null;
   }
 
-  // Chart colors matching dashboard theme
+  // Color palette matching dashboard theme
   const colors = {
-    shipped: '#4CAF50',      // Green
-    inProgress: '#2196F3',   // Blue
-    carriedOver: '#FF9800'   // Orange
+    shipped: '#4CAF50',
+    inProgress: '#2196F3',
+    carriedOver: '#FF9800'
+  };
+
+  const hoverColors = {
+    shipped: '#45a049',
+    inProgress: '#1976D2',
+    carriedOver: '#E68900'
   };
 
   // Create bar chart
-  const chart = new Chart(ctx, {
+  statusChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Shipped', 'In Progress', 'Carried Over'],
       datasets: [{
         label: 'Work Items by Status',
         data: [
-          statusCounts.shipped,
-          statusCounts.inProgress,
-          statusCounts.carriedOver
+          statusCounts.shipped || 0,
+          statusCounts.inProgress || 0,
+          statusCounts.carriedOver || 0
         ],
         backgroundColor: [
           colors.shipped,
@@ -55,9 +64,9 @@ export async function initializeChart(canvasElement, statusCounts) {
         borderWidth: 1,
         borderRadius: 4,
         hoverBackgroundColor: [
-          '#45a049',  // Darker green
-          '#1976D2',  // Darker blue
-          '#E68900'   // Darker orange
+          hoverColors.shipped,
+          hoverColors.inProgress,
+          hoverColors.carriedOver
         ]
       }]
     },
@@ -75,7 +84,12 @@ export async function initializeChart(canvasElement, statusCounts) {
           borderColor: '#ccc',
           borderWidth: 1,
           padding: 12,
-          displayColors: false
+          displayColors: false,
+          callbacks: {
+            label: function(context) {
+              return context.parsed.y + ' items';
+            }
+          }
         }
       },
       scales: {
@@ -83,16 +97,26 @@ export async function initializeChart(canvasElement, statusCounts) {
           beginAtZero: true,
           ticks: {
             stepSize: 1,
-            color: '#666'
+            color: '#666',
+            font: {
+              size: 12
+            }
           },
           grid: {
-            color: '#e0e0e0',
-            drawBorder: true
+            color: '#e0e0e0'
+          },
+          title: {
+            display: true,
+            text: 'Count',
+            color: '#333'
           }
         },
         x: {
           ticks: {
-            color: '#333'
+            color: '#333',
+            font: {
+              size: 12
+            }
           },
           grid: {
             display: false
@@ -102,26 +126,23 @@ export async function initializeChart(canvasElement, statusCounts) {
     }
   });
 
-  // Cache instance for future updates
-  window.statusChartInstance = chart;
-  
-  return chart;
+  return statusChartInstance;
 }
 
-export function updateChart(statusCounts) {
-  if (window.statusChartInstance) {
-    window.statusChartInstance.data.datasets[0].data = [
-      statusCounts.shipped,
-      statusCounts.inProgress,
-      statusCounts.carriedOver
+export function updateChartData(statusCounts) {
+  if (statusChartInstance) {
+    statusChartInstance.data.datasets[0].data = [
+      statusCounts.shipped || 0,
+      statusCounts.inProgress || 0,
+      statusCounts.carriedOver || 0
     ];
-    window.statusChartInstance.update();
+    statusChartInstance.update();
   }
 }
 
 export function destroyChart() {
-  if (window.statusChartInstance) {
-    window.statusChartInstance.destroy();
-    window.statusChartInstance = null;
+  if (statusChartInstance) {
+    statusChartInstance.destroy();
+    statusChartInstance = null;
   }
 }

@@ -1,24 +1,27 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using MudBlazor.Services;
 using AgentSquad.Runner.Models;
 using AgentSquad.Runner.Services;
+using MudBlazor.Services;
 
-var builder = WebApplicationBuilder.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
 
+// Register DashboardDataService as singleton
+builder.Services.AddSingleton<DashboardDataService>();
+
+// Configure DashboardOptions from appsettings.json
 builder.Services.Configure<DashboardOptions>(
     builder.Configuration.GetSection("Dashboard"));
 
-builder.Services.AddSingleton<DashboardDataService>();
-builder.Services.AddSingleton<IDashboardDataService>(sp => sp.GetRequiredService<DashboardDataService>());
+// Configure logging
+builder.Logging.AddConsole();
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -27,7 +30,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.MapBlazorHub();
