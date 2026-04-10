@@ -141,6 +141,9 @@ body {
   background-color: var(--color-bg-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* ============================================================================
@@ -727,7 +730,206 @@ hr {
 }
 
 /* ============================================================================
-   24. Print Styles (Optional)
+   24. Layout: Fixed-Width Container (Step 2)
+   
+   Fixed-width 1200px container layout for Executive Dashboard.
+   Ensures consistent appearance at 1920x1080 (PowerPoint-ready).
+   No horizontal scrollbars at any standard desktop resolution.
+   
+   ========================================================================== */
+
+.dashboard-container {
+  max-width: var(--container-max-width);  /* 1200px */
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--container-padding);     /* 20px */
+  background-color: var(--color-bg-primary);
+  box-sizing: border-box;
+}
+
+.dashboard-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dashboard-container::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+.dashboard-container::-webkit-scrollbar-thumb {
+  background: var(--color-border-dark);
+  border-radius: 4px;
+}
+
+.dashboard-container::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   25. Layout: Dashboard Sections
+   ============================================================================ */
+
+.dashboard-section {
+  margin-bottom: var(--space-xl);        /* 24px */
+  background-color: var(--color-bg-secondary);
+  padding: var(--card-padding);          /* 16px */
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+}
+
+.dashboard-section:last-child {
+  margin-bottom: 0;
+}
+
+.dashboard-section h2,
+.dashboard-section h3 {
+  margin-top: 0;
+}
+
+/* ============================================================================
+   26. Layout: Grid System (Flexbox-based)
+   
+   Simple flexbox-based grid system for dashboard layout.
+   Supports responsive rows and columns without media queries.
+   
+   ========================================================================== */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: calc(var(--card-gap) * -1 / 2);
+  margin-left: calc(var(--card-gap) * -1 / 2);
+}
+
+.row > * {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 100%;
+  padding-right: calc(var(--card-gap) / 2);
+  padding-left: calc(var(--card-gap) / 2);
+}
+
+/* Column sizing */
+.col {
+  flex: 1 0 0%;
+}
+
+.col-1 { flex: 0 0 calc(8.333% - var(--card-gap) / 2); }
+.col-2 { flex: 0 0 calc(16.667% - var(--card-gap) / 2); }
+.col-3 { flex: 0 0 calc(25% - var(--card-gap) / 2); }
+.col-4 { flex: 0 0 calc(33.333% - var(--card-gap) / 2); }
+.col-5 { flex: 0 0 calc(41.667% - var(--card-gap) / 2); }
+.col-6 { flex: 0 0 calc(50% - var(--card-gap) / 2); }
+.col-7 { flex: 0 0 calc(58.333% - var(--card-gap) / 2); }
+.col-8 { flex: 0 0 calc(66.667% - var(--card-gap) / 2); }
+.col-9 { flex: 0 0 calc(75% - var(--card-gap) / 2); }
+.col-10 { flex: 0 0 calc(83.333% - var(--card-gap) / 2); }
+.col-11 { flex: 0 0 calc(91.667% - var(--card-gap) / 2); }
+.col-12 { flex: 0 0 calc(100% - var(--card-gap) / 2); }
+
+.col-auto {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+/* ============================================================================
+   27. Layout: Alignment & Distribution
+   ============================================================================ */
+
+.row.align-items-start {
+  align-items: flex-start;
+}
+
+.row.align-items-center {
+  align-items: center;
+}
+
+.row.align-items-end {
+  align-items: flex-end;
+}
+
+.row.justify-content-start {
+  justify-content: flex-start;
+}
+
+.row.justify-content-center {
+  justify-content: center;
+}
+
+.row.justify-content-end {
+  justify-content: flex-end;
+}
+
+.row.justify-content-between {
+  justify-content: space-between;
+}
+
+.row.justify-content-around {
+  justify-content: space-around;
+}
+
+.row.justify-content-evenly {
+  justify-content: space-evenly;
+}
+
+/* Column offset (margin-left push) */
+.col-offset-1 { margin-left: calc(8.333% + var(--card-gap) / 2); }
+.col-offset-2 { margin-left: calc(16.667% + var(--card-gap) / 2); }
+.col-offset-3 { margin-left: calc(25% + var(--card-gap) / 2); }
+.col-offset-4 { margin-left: calc(33.333% + var(--card-gap) / 2); }
+.col-offset-5 { margin-left: calc(41.667% + var(--card-gap) / 2); }
+.col-offset-6 { margin-left: calc(50% + var(--card-gap) / 2); }
+.col-offset-7 { margin-left: calc(58.333% + var(--card-gap) / 2); }
+.col-offset-8 { margin-left: calc(66.667% + var(--card-gap) / 2); }
+.col-offset-9 { margin-left: calc(75% + var(--card-gap) / 2); }
+.col-offset-10 { margin-left: calc(83.333% + var(--card-gap) / 2); }
+.col-offset-11 { margin-left: calc(91.667% + var(--card-gap) / 2); }
+
+/* ============================================================================
+   28. Layout: Overflow Prevention (No Horizontal Scrollbars)
+   
+   Ensures 1920x1080 and 1440x900 viewports fit without horizontal scroll.
+   Total width: 1200px (container) + 40px (padding: 20px each side) = 1240px
+   Safe threshold at 1920px viewport: 1240px < 1920px ✓
+   Safe threshold at 1440px viewport: 1240px < 1440px ✓
+   
+   ========================================================================== */
+
+body, html {
+  overflow-x: hidden;
+}
+
+.dashboard-container,
+.row,
+.col,
+.dashboard-section {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Prevent images and videos from causing overflow */
+img, video, embed, object {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Prevent pre/code blocks from breaking layout */
+pre, code {
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* Prevent long words from breaking layout */
+.text-break {
+  word-break: break-word;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ============================================================================
+   29. Print Styles (Optional)
    ============================================================================ */
 
 @media print {
@@ -743,8 +945,14 @@ hr {
   button, input, select, textarea {
     border: 1px solid #000;
   }
+  
+  .dashboard-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 /* ============================================================================
-   End of Dashboard CSS - Scaffold & Typography Foundation
+   End of Dashboard CSS - Step 2: Fixed-Width Layout & Container Foundation
    ============================================================================ */
