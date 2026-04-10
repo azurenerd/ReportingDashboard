@@ -1,6 +1,18 @@
-<div class="project-header">
-    <!-- ProjectHeader: implemented in T4 -->
-</div>
+@using ReportingDashboard.Models
+
+@if (Project is not null)
+{
+    <header class="project-header">
+        <div class="header-content">
+            <div class="header-left">
+                @* Title, sponsor, dates - Step 2 *@
+            </div>
+            <div class="header-right">
+                @* Status badge - Step 3 *@
+            </div>
+        </div>
+    </header>
+}
 
 @code {
     [Parameter]
