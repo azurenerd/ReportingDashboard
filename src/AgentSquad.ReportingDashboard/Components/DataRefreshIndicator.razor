@@ -1,42 +1,22 @@
-<div class="data-refresh-indicator">
-	@if (IsLoading)
-	{
-		<span class="refresh-status loading">
-			<span class="spinner"></span>
-			Refreshing...
-		</span>
-	}
-	else
-	{
-		<span class="refresh-status ready">
-			✓ Ready
-		</span>
-	}
+@namespace AgentSquad.ReportingDashboard.Components
+
+<div class="refresh-indicator">
+    @if (IsLoading)
+    {
+        <div class="spinner-border spinner-border-sm" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <span>Refreshing...</span>
+    }
+    else
+    {
+        <span>✓ Ready</span>
+    }
 </div>
 
 @code {
-	[Inject]
-	public DataService? DataService { get; set; }
+    [Inject]
+    public DataService DataService { get; set; }
 
-	private bool IsLoading = false;
-
-	protected override async Task OnInitializedAsync()
-	{
-		if (DataService != null)
-		{
-			DataService.OnDataChanged += OnDataChanged;
-		}
-		await Task.CompletedTask;
-	}
-
-	private async Task OnDataChanged()
-	{
-		IsLoading = true;
-		await InvokeAsync(StateHasChanged);
-
-		await Task.Delay(500);
-
-		IsLoading = false;
-		await InvokeAsync(StateHasChanged);
-	}
+    private bool IsLoading = false;
 }

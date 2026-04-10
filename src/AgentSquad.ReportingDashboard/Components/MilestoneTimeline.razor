@@ -1,14 +1,18 @@
-@if (DashboardData?.Milestones.Count > 0)
-{
-	<section class="milestone-timeline">
-		<h3>Milestone Timeline</h3>
-		<div class="timeline-chart-container">
-			<p class="placeholder">Timeline chart will render here</p>
-		</div>
-	</section>
-}
+@namespace AgentSquad.ReportingDashboard.Components
+
+<div class="chart-container">
+    <h3>Project Milestones Timeline</h3>
+    @if (DashboardData?.Milestones?.Count > 0)
+    {
+        <!-- Chart will be rendered here -->
+    }
+    else
+    {
+        <p>No milestones scheduled</p>
+    }
+</div>
 
 @code {
-	[CascadingParameter]
-	public DashboardData? DashboardData { get; set; }
+    [CascadingParameter]
+    public DashboardData DashboardData { get; set; }
 }
