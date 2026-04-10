@@ -4,9 +4,34 @@
 @using AgentSquad.Runner.Models
 @implements IAsyncDisposable
 
-<div class="dashboard-container">
-    <!-- Placeholder for markup -->
-</div>
+<MudContainer MaxWidth="MaxWidth.Lg" Class="dashboard-container">
+    @if (DataService?.GetProject() != null)
+    {
+        <MudCard Class="mb-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h5">@DataService.GetProject().Name</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Typo="Typo.body1">@DataService.GetProject().Description</MudText>
+            </MudCardContent>
+        </MudCard>
+    }
+</MudContainer>
+
+<style>
+    .dashboard-container {
+        max-width: 1200px !important;
+        margin: 0 auto;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    :global(body) {
+        overflow-x: hidden;
+    }
+</style>
 
 @code {
     [Inject]
