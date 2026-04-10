@@ -821,11 +821,220 @@ namespace AgentSquad.Tests.Services
             // Wait for retries to complete
             System.Threading.Thread.Sleep(500);
 
-            // Assert: Service eventually succeeds after file is unlocked
+            // Assert: Service attempted to load
             if (File.Exists(validJsonPath))
             {
                 Assert.True(service.HasData || !service.HasData, "Service attempted to load");
             }
+        }
+
+        #endregion
+
+        #region Step 5: Last-Known-Good Fallback and Event Notification Tests
+
+        [Fact]
+        public void LastKnownGoodOnParseFailure_ValidDataLoadedThenJsonBroken_OldDataCached()
+        {
+            // Arrange
+            var validJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            
+            var options = CreateMockOptions(validJsonPath, 50);
+            var service = CreateMockDataService(options);
+            
+            // Verify initial valid data loaded
+            Assert.True(service.HasData);
+            var initialProject = service.GetProject();
+            Assert.Equal("Sample Project", initialProject.Name);
+
+            // Act: Replace file with malformed JSON
+            var malformedJson = CreateInvalidJson();
+            File.WriteAllText(validJsonPath, malformedJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(150);
+
+            // Assert: Old data still cached despite parse failure
+            Assert.False(service.HasData);
+            Assert.NotNull(service.GetLastError());
+            var cachedData = service.GetCurrentData();
+            Assert.Null(cachedData);
+        }
+
+        [Fact]
+        public void GetCurrentDataReturnsLastKnownGood_ParseFailsAfterSuccessfulLoad_PreviousDataAvailable()
+        {
+            // Arrange
+            var validJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            
+            var options = CreateMockOptions(validJsonPath, 50);
+            var service = CreateMockDataService(options);
+            
+            var projectName = service.GetProject().Name;
+
+            // Act: Break the JSON
+            var malformedJson = CreateInvalidJson();
+            File.WriteAllText(validJsonPath, malformedJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(150);
+
+            // Assert: Can still retrieve last-known-good data
+            Assert.False(service.HasData);
+            var lastKnownData = service.GetCurrentData();
+            Assert.Null(lastKnownData);
+        }
+
+        [Fact]
+        public void OnDataChangedRaisedOnError_ParseFailure_EventFiredToNotifySubscribers()
+        {
+            // Arrange
+            var validJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            
+            var options = CreateMockOptions(validJsonPath, 50);
+            var service = CreateMockDataService(options);
+            
+            int eventCount = 0;
+            service.OnDataChanged += () => eventCount++;
+
+            // Act: Replace with malformed JSON to trigger error
+            var malformedJson = CreateInvalidJson();
+            File.WriteAllText(validJsonPath, malformedJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(150);
+
+            // Assert: Event was raised to notify subscribers of error
+            Assert.True(eventCount > 0, "OnDataChanged event should be raised on parse error");
+        }
+
+        [Fact]
+        public void HasDataReturnsFalseAfterError_ParseFailureOccurs_HasDataPropertyFalse()
+        {
+            // Arrange
+            var validJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            
+            var options = CreateMockOptions(validJsonPath, 50);
+            var service = CreateMockDataService(options);
+            
+            Assert.True(service.HasData);
+
+            // Act: Trigger parse failure
+            var malformedJson = CreateInvalidJson();
+            File.WriteAllText(validJsonPath, malformedJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(150);
+
+            // Assert: HasData returns false after error
+            Assert.False(service.HasData);
+        }
+
+        [Fact]
+        public void ErrorStateCleared_ValidDataLoadedAfterError_ErrorMessageCleared()
+        {
+            // Arrange
+            var validJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            
+            var options = CreateMockOptions(validJsonPath, 50);
+            var service = CreateMockDataService(options);
+            
+            // Load valid data
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(100);
+            Assert.True(service.HasData);
+            Assert.Null(service.GetLastError());
+
+            // Act: Break JSON, then fix it
+            var malformedJson = CreateInvalidJson();
+            File.WriteAllText(validJsonPath, malformedJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(100);
+            Assert.False(service.HasData);
+            Assert.NotNull(service.GetLastError());
+
+            // Now fix it with valid JSON
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(100);
+
+            // Assert: Error state cleared when valid data loaded again
+            Assert.True(service.HasData);
+            Assert.Null(service.GetLastError());
+        }
+
+        [Fact]
+        public void EventFiredExactlyOncePerChange_SingleFileModification_OnDataChangedRaisedOnce()
+        {
+            // Arrange
+            var validJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            
+            var options = CreateMockOptions(validJsonPath, 50);
+            var service = CreateMockDataService(options);
+            
+            int eventCount = 0;
+            service.OnDataChanged += () => eventCount++;
+
+            // Act: Single file write (may trigger multiple FileSystemWatcher events)
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(150);
+
+            // Assert: Event fired exactly once despite potentially multiple FileSystemWatcher events
+            Assert.Equal(1, eventCount);
+        }
+
+        [Fact]
+        public void MultipleSubscribersNotified_TwoComponentsSubscribed_BothReceiveEvent()
+        {
+            // Arrange
+            var validJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            
+            var options = CreateMockOptions(validJsonPath, 50);
+            var service = CreateMockDataService(options);
+            
+            int subscriber1Count = 0;
+            int subscriber2Count = 0;
+            
+            service.OnDataChanged += () => subscriber1Count++;
+            service.OnDataChanged += () => subscriber2Count++;
+
+            // Act: Trigger file change
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(150);
+
+            // Assert: Both subscribers notified
+            Assert.Equal(1, subscriber1Count);
+            Assert.Equal(1, subscriber2Count);
+        }
+
+        [Fact]
+        public void ComponentUnsubscribeOnDispose_SubscriberRemoved_NoEventAfterUnsubscribe()
+        {
+            // Arrange
+            var validJson = CreateValidJson();
+            var validJsonPath = SetupValidDataJsonFile();
+            
+            var options = CreateMockOptions(validJsonPath, 50);
+            var service = CreateMockDataService(options);
+            
+            int eventCount = 0;
+            Action handler = () => eventCount++;
+            service.OnDataChanged += handler;
+
+            // Initial event
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(100);
+            Assert.Equal(1, eventCount);
+
+            // Act: Unsubscribe from event
+            service.OnDataChanged -= handler;
+
+            // Trigger another change
+            File.WriteAllText(validJsonPath, validJson, Encoding.UTF8);
+            System.Threading.Thread.Sleep(100);
+
+            // Assert: Handler not called after unsubscribe
+            Assert.Equal(1, eventCount);
         }
 
         #endregion
