@@ -1,0 +1,14 @@
+@if (DashboardData != null)
+{
+	<header class="dashboard-header">
+		<h1>Executive Project Dashboard</h1>
+		<div class="last-updated">
+			Last Updated: @DashboardData.LastUpdated.ToString("g")
+		</div>
+	</header>
+}
+
+@code {
+	[CascadingParameter]
+	public DashboardData? DashboardData { get; set; }
+}

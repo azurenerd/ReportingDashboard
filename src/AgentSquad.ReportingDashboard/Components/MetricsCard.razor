@@ -1,0 +1,31 @@
+@if (Item != null)
+{
+	<div class="metrics-card @GetCardClass()">
+		<div class="card-header">
+			<span class="card-title">@Item.Title</span>
+			<span class="card-category">@Category</span>
+		</div>
+		<div class="card-body">
+			<p class="card-description">@Item.Description</p>
+		</div>
+	</div>
+}
+
+@code {
+	[Parameter]
+	public MetricItem? Item { get; set; }
+
+	[Parameter]
+	public string? Category { get; set; }
+
+	private string GetCardClass()
+	{
+		return Category switch
+		{
+			"Shipped" => "card-shipped",
+			"InProgress" => "card-in-progress",
+			"Carryover" => "card-carryover",
+			_ => "card-default"
+		};
+	}
+}
