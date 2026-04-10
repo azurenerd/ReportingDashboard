@@ -1,102 +1,54 @@
-@using AgentSquad.Runner.Models
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
 @implements IAsyncDisposable
 
-@inject IJSRuntime JSRuntime
-@inject ILogger<StatusChart> Logger
-
-<div class="status-chart-section">
-    <div class="status-chart-container">
-        <canvas @ref="chartCanvas" id="statusChart"></canvas>
+@if (StatusCounts.Shipped + StatusCounts.InProgress + StatusCounts.CarriedOver == 0)
+{
+    <div class="alert alert-info">No work items to display</div>
+}
+else
+{
+    <div class="chart-container">
+        <h3>Work Item Status Overview</h3>
+        <canvas id="statusChart"></canvas>
     </div>
-    
-    <div class="status-chart-legend">
-        <div class="status-chart-legend-item">
-            <div class="status-chart-legend-color shipped"></div>
-            <MudText Typo="Typo.caption">Shipped: @StatusCounts.Shipped</MudText>
-        </div>
-        <div class="status-chart-legend-item">
-            <div class="status-chart-legend-color in-progress"></div>
-            <MudText Typo="Typo.caption">In Progress: @StatusCounts.InProgress</MudText>
-        </div>
-        <div class="status-chart-legend-item">
-            <div class="status-chart-legend-color carried-over"></div>
-            <MudText Typo="Typo.caption">Carried Over: @StatusCounts.CarriedOver</MudText>
-        </div>
-    </div>
-</div>
+}
 
 @code {
     [Parameter]
     public (int Shipped, int InProgress, int CarriedOver) StatusCounts { get; set; }
 
-    private ElementReference chartCanvas;
-    private IJSObjectReference? chartModule;
-    private object? chartInstance;
+    [Inject]
+    public required IJSRuntime JSRuntime { get; set; }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        try
-        {
-            if (chartCanvas.Id != null)
-            {
-                await InitializeChartAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error in OnParametersSetAsync");
-        }
-    }
+    private IJSObjectReference? module;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (firstRender && StatusCounts.Shipped + StatusCounts.InProgress + StatusCounts.CarriedOver > 0)
         {
-            if (firstRender)
+            try
             {
-                await InitializeChartAsync();
+                module = await JSRuntime.InvokeAsync<IJSObjectReference>(
+                    "import", "./Components/StatusChart.razor.js");
+
+                await module.InvokeVoidAsync("initChart", 
+                    StatusCounts.Shipped, 
+                    StatusCounts.InProgress, 
+                    StatusCounts.CarriedOver);
             }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error in OnAfterRenderAsync");
-        }
-    }
-
-    private async Task InitializeChartAsync()
-    {
-        try
-        {
-            chartModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./js/chart-helper.js");
-
-            chartInstance = await chartModule.InvokeAsync<object>(
-                "initializeChart",
-                chartCanvas,
-                new { 
-                    shipped = StatusCounts.Shipped,
-                    inProgress = StatusCounts.InProgress,
-                    carriedOver = StatusCounts.CarriedOver
-                });
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error initializing chart");
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading chart: {ex.Message}");
+            }
         }
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        try
+        if (module is not null)
         {
-            if (chartModule is not null)
-            {
-                await chartModule.DisposeAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error disposing chart module");
+            await module.DisposeAsync();
         }
     }
 }

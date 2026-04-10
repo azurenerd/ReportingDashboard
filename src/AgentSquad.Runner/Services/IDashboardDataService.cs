@@ -4,7 +4,7 @@ namespace AgentSquad.Runner.Services;
 
 public interface IDashboardDataService
 {
-    event Action OnDataChanged;
+    event Action? OnDataChanged;
 
     DashboardData? GetCurrentData();
     Project? GetProject();

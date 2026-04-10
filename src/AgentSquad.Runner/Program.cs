@@ -1,16 +1,25 @@
-using AgentSquad.Runner.Models;
 using MudBlazor.Services;
+using AgentSquad.Runner.Models;
+using AgentSquad.Runner.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-
 builder.Services.AddMudBlazorSnackbar();
-builder.Services.AddMudBlazorDialog();
 
 builder.Services.Configure<DashboardOptions>(
     builder.Configuration.GetSection("Dashboard"));
+
+builder.Services.AddSingleton<IDashboardDataService, DashboardDataService>();
+
+builder.Services.AddMudBlazorDialog();
+
+builder.Services.AddLogging(config =>
+{
+    config.AddConsole();
+    config.AddDebug();
+});
 
 var app = builder.Build();
 
@@ -21,9 +30,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.MapBlazorHub();
