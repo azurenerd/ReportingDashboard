@@ -63,4 +63,50 @@ public class DataService
             throw new FileReadException(message, ex);
         }
     }
+
+    /// <summary>
+    /// Deserializes JSON content into a ProjectStatus object.
+    /// </summary>
+    /// <param name="json">The JSON string to deserialize.</param>
+    /// <returns>The deserialized ProjectStatus object.</returns>
+    /// <exception cref="JsonParseException">Thrown when JSON is malformed or cannot be deserialized.</exception>
+    private async Task<ProjectStatus> DeserializeProjectStatusAsync(string json)
+    {
+        try
+        {
+            _logger.LogInformation("Deserializing JSON content");
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            var projectStatus = JsonSerializer.Deserialize<ProjectStatus>(json, options);
+
+            if (projectStatus == null)
+            {
+                throw new JsonParseException("Invalid JSON format in data.json: Deserialization resulted in null");
+            }
+
+            _logger.LogInformation("Successfully deserialized JSON content");
+            return projectStatus;
+        }
+        catch (JsonException ex)
+        {
+            var message = $"Invalid JSON format in data.json: {ex.Message}";
+            _logger.LogError(ex, "JSON parsing error: {Message}", message);
+            throw new JsonParseException(message, ex);
+        }
+        catch (JsonParseException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            var message = $"Invalid JSON format in data.json: {ex.Message}";
+            _logger.LogError(ex, "Unexpected error during JSON deserialization: {Message}", message);
+            throw new JsonParseException(message, ex);
+        }
+    }
 }
