@@ -1,5 +1,28 @@
+@using AgentSquad.Runner.Models
+
 <div class="status-column">
-    <!-- Column content placeholder -->
+    <div class="status-column-header">
+        <h5 class="status-column-title">@Title</h5>
+        <span class="badge bg-@BadgeClass">@(Items?.Count ?? 0)</span>
+    </div>
+
+    <div class="status-column-items">
+        @if (Items != null && Items.Count > 0)
+        {
+            @foreach (var item in Items)
+            {
+                <div class="card work-item-card">
+                    <!-- Card content placeholder -->
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <p class="empty-state-message">No items</p>
+            </div>
+        }
+    </div>
 </div>
 
 @code {
