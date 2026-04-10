@@ -59,7 +59,7 @@ public class DashboardDataService : IDisposable
         // Load initial data on startup
         LoadData();
         
-        // Initialize FileSystemWatcher after successful initial load
+        // Step 5: Initialize FileSystemWatcher after successful initial load
         InitializeFileWatch();
         
         _logger.LogInformation("DashboardDataService initialized");
@@ -122,9 +122,9 @@ public class DashboardDataService : IDisposable
     }
     
     /// <summary>
-    /// Initializes FileSystemWatcher for data.json monitoring.
+    /// Step 5: Initializes and configures FileSystemWatcher for data.json monitoring.
     /// Called from constructor after initial data load.
-    /// Step 1 implementation; event handlers wired here, logic in Steps 2-4.
+    /// Wires file change handlers, sets notification filters, and enables raising events.
     /// </summary>
     private void InitializeFileWatch()
     {
@@ -133,22 +133,43 @@ public class DashboardDataService : IDisposable
             string directory = Path.GetDirectoryName(_dataJsonPath);
             string fileName = Path.GetFileName(_dataJsonPath);
             
+            if (string.IsNullOrEmpty(directory))
+            {
+                directory = AppContext.BaseDirectory;
+            }
+            
+            // Step 5: Create FileSystemWatcher for data.json file
             _fileSystemWatcher = new FileSystemWatcher(directory, fileName)
             {
+                // Step 5: Monitor file name changes and last write time
                 NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite,
+                
+                // Step 5: Don't raise events until fully configured
                 EnableRaisingEvents = false
             };
             
-            // Wire up handlers (implementation in Step 2+)
+            // Step 5: Wire up event handlers (OnFileChanged implementation in Step 2)
             _fileSystemWatcher.Changed += OnFileChanged;
             _fileSystemWatcher.Created += OnFileChanged;
             _fileSystemWatcher.Deleted += OnFileChanged;
             _fileSystemWatcher.Error += OnFileWatcherError;
             
-            // Enable raising events after handlers are wired
+            // Step 5: Enable raising events after handlers are wired
             _fileSystemWatcher.EnableRaisingEvents = true;
             
             _logger.LogInformation($"DashboardDataService file watch started on {_dataJsonPath}");
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(ex, "Invalid path for FileSystemWatcher; file auto-update disabled");
+            _fileSystemWatcher?.Dispose();
+            _fileSystemWatcher = null;
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogError(ex, "Permission denied accessing directory for FileSystemWatcher; file auto-update disabled");
+            _fileSystemWatcher?.Dispose();
+            _fileSystemWatcher = null;
         }
         catch (Exception ex)
         {
