@@ -6,7 +6,17 @@
     {
         @foreach (var milestone in SortedMilestones)
         {
-            <!-- Milestone rendering placeholder -->
+            <div class="timeline-item">
+                <div class="timeline-marker" style="background-color: var(--bs-@GetStatusColor(milestone.Status));">
+                </div>
+                <div class="timeline-content">
+                    <h6 class="milestone-name">@milestone.Name</h6>
+                    <p class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</p>
+                    <span class="badge bg-@GetStatusColor(milestone.Status)">
+                        @GetStatusDisplayText(milestone.Status)
+                    </span>
+                </div>
+            </div>
         }
     }
     else
@@ -21,9 +31,26 @@
     private IEnumerable<Milestone> SortedMilestones =>
         Dashboard?.Milestones?.OrderBy(m => m.TargetDate) ?? new List<Milestone>();
     
+    private string GetStatusColor(string status) => status?.ToLower() switch
+    {
+        "completed" => "success",
+        "ontrack" => "primary",
+        "atrisk" => "warning",
+        "delayed" => "danger",
+        _ => "secondary"
+    };
+    
+    private string GetStatusDisplayText(string status) => status?.ToLower() switch
+    {
+        "completed" => "Completed",
+        "ontrack" => "On Track",
+        "atrisk" => "At Risk",
+        "delayed" => "Delayed",
+        _ => "Unknown"
+    };
+    
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        // Placeholder for future cleanup if needed
         await Task.CompletedTask;
     }
 }
