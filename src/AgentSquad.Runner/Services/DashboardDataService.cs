@@ -18,6 +18,7 @@ public class DashboardDataService : IDashboardDataService, IDisposable
     private FileSystemWatcher _watcher;
     private Timer _debounceTimer;
     private bool _disposed;
+    private readonly object _lockObject = new();
 
     public event Action OnDataChanged;
 
@@ -36,6 +37,7 @@ public class DashboardDataService : IDashboardDataService, IDisposable
         HasData = false;
 
         LoadFromJson();
+        InitializeFileWatcher();
     }
 
     public DashboardData GetCurrentData()
@@ -80,6 +82,72 @@ public class DashboardDataService : IDashboardDataService, IDisposable
     public string GetLastError()
     {
         return _lastError;
+    }
+
+    private void InitializeFileWatcher()
+    {
+        try
+        {
+            var dataJsonPath = Path.Combine(
+                AppContext.BaseDirectory,
+                _options.Value?.DataJsonPath ?? "data.json");
+
+            var directoryPath = Path.GetDirectoryName(dataJsonPath);
+            var fileName = Path.GetFileName(dataJsonPath);
+
+            _watcher = new FileSystemWatcher(directoryPath, fileName)
+            {
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                EnableRaisingEvents = false
+            };
+
+            _watcher.Changed += OnDataJsonChanged;
+            _watcher.EnableRaisingEvents = true;
+
+            _logger.LogInformation("FileSystemWatcher initialized for data.json at {path}", dataJsonPath);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Failed to initialize FileSystemWatcher: {error}", ex.Message);
+        }
+    }
+
+    private void OnDataJsonChanged(object sender, FileSystemEventArgs e)
+    {
+        lock (_lockObject)
+        {
+            _debounceTimer?.Dispose();
+            _debounceTimer = new Timer(
+                _ => ReloadDataFromFile(),
+                null,
+                _options.Value?.FileWatchDebounceMs ?? 500,
+                Timeout.Infinite);
+        }
+    }
+
+    private void ReloadDataFromFile()
+    {
+        try
+        {
+            lock (_lockObject)
+            {
+                _logger.LogInformation("data.json change detected, re-parsing...");
+                LoadFromJson();
+                OnDataChanged?.Invoke();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error reloading data from file: {error}", ex.Message);
+        }
+        finally
+        {
+            lock (_lockObject)
+            {
+                _debounceTimer?.Dispose();
+                _debounceTimer = null;
+            }
+        }
     }
 
     private void LoadFromJson()
