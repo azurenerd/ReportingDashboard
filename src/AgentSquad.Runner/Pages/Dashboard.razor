@@ -1,89 +1,160 @@
 @page "/"
+@page "/dashboard"
+@implements IAsyncDisposable
+@inject DashboardDataService DataService
 @using AgentSquad.Runner.Models
-@using AgentSquad.Runner.Services
-@using AgentSquad.Runner.Components
+@using MudBlazor
 
-<PageTitle>Executive Dashboard</PageTitle>
+<PageTitle>Project Dashboard</PageTitle>
+
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 16px;
+        background-color: #f5f5f5;
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .dashboard-header {
+        margin-bottom: 32px;
+    }
+
+    .project-title {
+        font-size: 32px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 8px 0;
+    }
+
+    .project-description {
+        font-size: 16px;
+        color: #666;
+        margin: 0;
+    }
+
+    .dashboard-section {
+        margin-bottom: 32px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 16px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 14px;
+    }
+
+    .error-alert {
+        margin-bottom: 32px;
+    }
+
+    .loading-indicator {
+        text-align: center;
+        padding: 48px 24px;
+        color: #999;
+        font-size: 16px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        color: #999;
+        background: white;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+</style>
 
 <div class="dashboard-container">
-    <h1>Executive Dashboard</h1>
-
-    @if (!string.IsNullOrEmpty(_errorMessage))
+    @if (!DataService.HasData && string.IsNullOrEmpty(DataService.GetLastError()))
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>Error:</strong> @_errorMessage
-            <button type="button" class="btn-close" @onclick="@(() => _errorMessage = null)"></button>
+        <div class="loading-indicator">
+            <p>Loading dashboard...</p>
         </div>
     }
-
-    @if (_isLoading)
+    else if (!DataService.HasData && !string.IsNullOrEmpty(DataService.GetLastError()))
     {
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    }
-    else if (DataService.HasData)
-    {
-        var project = DataService.GetProject();
-        var milestones = DataService.GetMilestones();
-        var statusCounts = DataService.GetStatusCounts();
-
-        @if (project != null)
-        {
-            <div class="project-header">
-                <h2>@project.Name</h2>
-                @if (!string.IsNullOrEmpty(project.Description))
-                {
-                    <p class="description">@project.Description</p>
-                }
-            </div>
-        }
-
-        <div class="status-overview">
-            <StatusChart StatusCounts="statusCounts"></StatusChart>
-        </div>
-
-        <div class="milestones-section">
-            <h3>Milestones</h3>
-            @if (milestones.Count == 0)
-            {
-                <p>No milestones defined</p>
-            }
-            else
-            {
-                <div class="milestones-list">
-                    @foreach (var milestone in milestones)
-                    {
-                        <div class="milestone-card">
-                            <h4>@milestone.Name</h4>
-                            <p><strong>Date:</strong> @milestone.Date.ToString("yyyy-MM-dd")</p>
-                            <p><strong>Status:</strong> @milestone.Status</p>
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-
-        <div class="work-items-section">
-            <h3>Work Items by Status</h3>
-            <div class="row">
-                <div class="col-md-4">
-                    <h4>Shipped (@statusCounts.Shipped)</h4>
-                    <WorkItemList Items="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"></WorkItemList>
-                </div>
-                <div class="col-md-4">
-                    <h4>In Progress (@statusCounts.InProgress)</h4>
-                    <WorkItemList Items="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"></WorkItemList>
-                </div>
-                <div class="col-md-4">
-                    <h4>Carried Over (@statusCounts.CarriedOver)</h4>
-                    <WorkItemList Items="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)"></WorkItemList>
-                </div>
-            </div>
+        <div class="error-alert">
+            <MudAlert Severity="Severity.Error" ContentAlignment="HorizontalAlignment.Left">
+                <strong>Error Loading Dashboard</strong>
+                <p style="margin: 8px 0 0 0; font-size: 14px;">@DataService.GetLastError()</p>
+                <p style="margin: 4px 0 0 0; font-size: 12px; color: #666;">
+                    Please check your data.json file and save it again to recover.
+                </p>
+            </MudAlert>
         </div>
     }
     else
     {
-        <div class="alert alert-warning">No dashboard data available. Please check the data.json file.</div>
+        <!-- Project Summary Header -->
+        <div class="dashboard-header">
+            <h1 class="project-title">@DataService.GetProject()?.Name</h1>
+            @if (!string.IsNullOrWhiteSpace(DataService.GetProject()?.Description))
+            {
+                <p class="project-description">@DataService.GetProject().Description</p>
+            }
+        </div>
+
+        <!-- Milestone Timeline Section -->
+        @if (DataService.GetMilestones().Count > 0)
+        {
+            <div class="dashboard-section">
+                <h2 class="section-title">Milestones</h2>
+                <MilestoneTimeline Milestones="DataService.GetMilestones()" />
+            </div>
+        }
+
+        <!-- Status Chart Section -->
+        <div class="dashboard-section">
+            <h2 class="section-title">Work Item Status</h2>
+            <StatusChart StatusCounts="DataService.GetStatusCounts()" />
+        </div>
+
+        <!-- Work Items by Status Section -->
+        <div class="dashboard-section">
+            <h2 class="section-title">Work Items</h2>
+            <WorkItemList 
+                Shipped="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"
+                InProgress="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"
+                CarriedOver="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)" />
+        </div>
     }
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Step 6: Subscribe to OnDataChanged event in OnInitializedAsync()
+        DataService.OnDataChanged += OnDataChanged;
+        
+        await base.OnInitializedAsync();
+    }
+
+    /// <summary>
+    /// Step 6: Handler called when data.json changes.
+    /// Triggers Blazor re-render by calling StateHasChanged().
+    /// </summary>
+    private void OnDataChanged()
+    {
+        // StateHasChanged() triggers Blazor to re-render this component
+        // This causes all child components to receive updated parameters
+        // and re-render with fresh data from DashboardDataService
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Step 6: Cleanup handler - unsubscribe from OnDataChanged event on dispose.
+    /// Prevents memory leaks and multiple event subscriptions.
+    /// </summary>
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        // Unsubscribe from OnDataChanged event
+        DataService.OnDataChanged -= OnDataChanged;
+        
+        await ValueTask.CompletedTask;
+    }
+}
