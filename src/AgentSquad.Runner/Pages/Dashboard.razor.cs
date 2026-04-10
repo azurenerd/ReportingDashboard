@@ -9,6 +9,8 @@ public partial class Dashboard : ComponentBase, IAsyncDisposable
     [Inject]
     public DashboardDataService DataService { get; set; } = null!;
 
+    private bool _disposed = false;
+
     protected override async Task OnInitializedAsync()
     {
         DataService.OnDataChanged += OnDataChanged;
@@ -22,7 +24,13 @@ public partial class Dashboard : ComponentBase, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         DataService.OnDataChanged -= OnDataChanged;
+        _disposed = true;
         await ValueTask.CompletedTask;
     }
 }
