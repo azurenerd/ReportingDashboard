@@ -1,0 +1,67 @@
+@page "/"
+@using AgentSquad.Dashboard.Services
+@using AgentSquad.Dashboard.Models
+@implements IAsyncDisposable
+@inject IDashboardDataService DataService
+
+<div class="container-fluid p-4">
+    @if (DataService.IsValid == false)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Data Error:</strong> @DataService.LastErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1>@DataService.CurrentData.ProjectName</h1>
+            <p class="text-muted">
+                <strong>Project ID:</strong> @DataService.CurrentData.ProjectId | 
+                <strong>Last Updated:</strong> @DataService.CurrentData.LastUpdated.ToString("MMM dd, yyyy HH:mm:ss")
+            </p>
+        </div>
+    </div>
+
+    @if (DataService.CurrentData.Milestones?.Count > 0)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2>Milestone Timeline</h2>
+                <MilestoneTimeline Milestones="DataService.CurrentData.Milestones" />
+            </div>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Status Summary</h2>
+            <StatusChart Data="DataService.CurrentData" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <StatusCards Data="DataService.CurrentData" />
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        DataService.DataRefreshed += OnDataRefreshed;
+        await base.OnInitializedAsync();
+    }
+
+    private void OnDataRefreshed(object? sender, EventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        DataService.DataRefreshed -= OnDataRefreshed;
+        await ValueTask.CompletedTask;
+    }
+}

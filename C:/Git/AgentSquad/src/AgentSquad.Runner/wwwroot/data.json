@@ -1,0 +1,61 @@
+{
+  "projectName": "My Project",
+  "projectId": "PROJ-001",
+  "lastUpdated": "2026-04-10T07:02:08Z",
+  "milestones": [
+    {
+      "name": "Phase 1: Discovery",
+      "targetDate": "2026-04-15T00:00:00Z",
+      "completed": true,
+      "status": "Completed"
+    },
+    {
+      "name": "Phase 2: Architecture Review",
+      "targetDate": "2026-04-30T00:00:00Z",
+      "completed": false,
+      "status": "On Track"
+    },
+    {
+      "name": "Phase 3: Implementation",
+      "targetDate": "2026-05-31T00:00:00Z",
+      "completed": false,
+      "status": "On Track"
+    }
+  ],
+  "completed": [
+    {
+      "title": "Dashboard UI Layout",
+      "description": "Created responsive Blazor component structure",
+      "addedDate": "2026-04-08T10:30:00Z",
+      "owner": "Alice Johnson"
+    },
+    {
+      "title": "Data Service Implementation",
+      "description": "Built JSON data loading and caching layer",
+      "addedDate": "2026-04-09T14:15:00Z",
+      "owner": "Bob Smith"
+    }
+  ],
+  "inProgress": [
+    {
+      "title": "Status Card Components",
+      "description": "Building status summary cards (60% complete)",
+      "addedDate": "2026-04-07T09:00:00Z",
+      "owner": "Carol Davis"
+    },
+    {
+      "title": "Milestone Timeline Visualization",
+      "description": "Creating SVG Gantt chart (30% complete)",
+      "addedDate": "2026-04-06T08:00:00Z",
+      "owner": "David Lee"
+    }
+  ],
+  "carriedOver": [
+    {
+      "title": "Performance Optimization",
+      "description": "Pending completion - waiting on infrastructure setup",
+      "addedDate": "2026-03-31T00:00:00Z",
+      "owner": "Eve Martinez"
+    }
+  ]
+}
