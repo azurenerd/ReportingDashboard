@@ -1,0 +1,4 @@
+agent: PrincipalEngineer
+task: Auto-Refresh File Watching with Polling Fallback
+complexity: Medium
+status: in-progress
