@@ -1,68 +1,69 @@
 {
   "project": {
     "name": "Project Atlas",
-    "lead": "Jane Smith",
+    "lead": "Sarah Chen",
     "status": "On Track",
     "lastUpdated": "2026-04-10",
     "overallHealth": "on-track",
-    "summary": "Project Atlas is a strategic cloud migration initiative to modernize our core platform infrastructure. The project encompasses migrating legacy on-premises services to a cloud-native architecture, implementing zero-trust security controls, and delivering a new API gateway for partner integrations. We are currently in Phase 3 of 5, with key security and infrastructure milestones completed ahead of schedule."
+    "summary": "Project Atlas is a strategic initiative to modernize the core platform infrastructure, enabling faster feature delivery and improved system reliability. The team has completed the foundational architecture phase and is now executing on the migration of key services. Overall progress remains on track with strong momentum in Q2."
   },
   "milestones": [
     {
-      "title": "Security Audit Complete",
+      "title": "Architecture Approval",
       "date": "2026-01-15",
       "status": "completed",
-      "description": "Third-party penetration testing and security review of cloud architecture finalized with zero critical findings."
+      "description": "Technical design review and architecture sign-off by engineering leadership."
     },
     {
-      "title": "Infrastructure Migration",
-      "date": "2026-02-28",
+      "title": "Core API Migration",
+      "date": "2026-03-01",
       "status": "completed",
-      "description": "Core compute and storage services migrated to cloud environment with full redundancy and disaster recovery."
+      "description": "Migration of all core REST APIs to the new platform framework."
     },
     {
-      "title": "API Gateway Launch",
+      "title": "Data Layer Cutover",
       "date": "2026-04-15",
       "status": "in-progress",
-      "description": "New partner-facing API gateway with rate limiting, authentication, and versioned endpoints goes live."
+      "description": "Transition primary data storage to the new distributed database cluster."
     },
     {
-      "title": "Data Pipeline Modernization",
-      "date": "2026-06-30",
+      "title": "Performance Validation",
+      "date": "2026-05-30",
       "status": "at-risk",
-      "description": "Replacement of legacy ETL processes with real-time streaming data pipelines. Delayed due to schema compatibility challenges."
+      "description": "Load testing and performance benchmarking against SLA targets. Dependency on infra team capacity."
     },
     {
-      "title": "User Migration Phase 1",
-      "date": "2026-07-31",
+      "title": "GA Release",
+      "date": "2026-07-01",
       "status": "upcoming",
-      "description": "First cohort of 10,000 enterprise users migrated to new authentication and authorization platform."
-    },
-    {
-      "title": "Full Platform Cutover",
-      "date": "2026-09-30",
-      "status": "upcoming",
-      "description": "Complete decommissioning of legacy on-premises infrastructure and full production traffic on cloud platform."
+      "description": "General availability release to all production tenants."
     }
   ],
   "shipped": [
     {
-      "title": "Zero-Trust Network Architecture",
-      "description": "Implemented micro-segmentation and identity-based access controls across all cloud services, replacing legacy VPN-based perimeter security.",
-      "status": "completed",
-      "category": "Security",
-      "percentComplete": 100
-    },
-    {
-      "title": "Multi-Region Failover",
-      "description": "Deployed active-active configuration across two cloud regions with automatic failover, achieving 99.99% availability SLA.",
+      "title": "API Gateway v2",
+      "description": "Deployed the new API gateway with improved rate limiting, circuit breaker patterns, and request routing. Achieved 99.97% uptime in the first 30 days.",
       "status": "completed",
       "category": "Infrastructure",
       "percentComplete": 100
     },
     {
-      "title": "CI/CD Pipeline Overhaul",
-      "description": "Migrated build and deployment pipelines to cloud-native tooling with automated security scanning and compliance gates.",
+      "title": "Authentication Service Rewrite",
+      "description": "Replaced legacy OAuth implementation with a modern token-based authentication service supporting SSO and MFA. Reduced auth latency by 60%.",
+      "status": "completed",
+      "category": "Security",
+      "percentComplete": 100
+    },
+    {
+      "title": "Monitoring Dashboard",
+      "description": "Launched a real-time operational dashboard with SLA tracking, alerting, and historical trend analysis for all core services.",
+      "status": "completed",
+      "category": "Observability",
+      "percentComplete": 100
+    },
+    {
+      "title": "CI/CD Pipeline Modernization",
+      "description": "Migrated all build and deployment pipelines to the new orchestration platform, cutting average deployment time from 45 minutes to 8 minutes.",
       "status": "completed",
       "category": "DevOps",
       "percentComplete": 100
@@ -70,46 +71,53 @@
   ],
   "inProgress": [
     {
-      "title": "API Gateway Development",
-      "description": "Building RESTful API gateway with OAuth 2.0, rate limiting, and partner onboarding portal. Core routing and auth modules complete.",
-      "status": "in-progress",
-      "category": "API",
-      "percentComplete": 75
-    },
-    {
-      "title": "Observability Platform",
-      "description": "Implementing distributed tracing, centralized logging, and custom dashboards for cloud service health monitoring.",
-      "status": "in-progress",
-      "category": "Infrastructure",
-      "percentComplete": 50
-    },
-    {
-      "title": "Database Migration Tooling",
-      "description": "Developing automated schema migration and data validation tools for transitioning from on-premises SQL Server to cloud-managed PostgreSQL.",
+      "title": "Database Schema Migration",
+      "description": "Migrating 47 database schemas to the new distributed cluster. Currently processing batch 3 of 5 with zero-downtime rolling updates.",
       "status": "in-progress",
       "category": "Data",
-      "percentComplete": 30
+      "percentComplete": 65
+    },
+    {
+      "title": "Service Mesh Implementation",
+      "description": "Deploying service mesh sidecar proxies across all microservices for improved observability, traffic management, and mTLS.",
+      "status": "in-progress",
+      "category": "Infrastructure",
+      "percentComplete": 40
+    },
+    {
+      "title": "Client SDK Update",
+      "description": "Updating the public client SDK to support the new API contracts. Documentation and code samples in progress.",
+      "status": "in-progress",
+      "category": "Developer Experience",
+      "percentComplete": 25
+    },
+    {
+      "title": "Load Testing Framework",
+      "description": "Building an automated load testing framework to validate performance against target SLAs before GA release.",
+      "status": "at-risk",
+      "category": "Quality",
+      "percentComplete": 15
     }
   ],
   "carriedOver": [
     {
-      "title": "Legacy API Deprecation Plan",
-      "description": "Communication plan and migration guide for partners currently consuming v1 REST APIs. Deferred to align with API Gateway launch timeline and partner readiness assessments.",
+      "title": "Legacy API Deprecation",
+      "description": "Formal deprecation and sunset plan for v1 APIs. Carried over due to partner team dependencies requiring extended migration timelines.",
       "status": "carried-over",
-      "category": "API",
-      "percentComplete": 15
+      "category": "API Management",
+      "percentComplete": 30
     },
     {
-      "title": "Cost Optimization Review",
-      "description": "Comprehensive review of cloud resource utilization and reserved instance planning. Postponed until post-migration steady-state metrics are available.",
+      "title": "Disaster Recovery Runbook",
+      "description": "Comprehensive DR runbook and automated failover testing. Deferred from March due to team capacity constraints during the core migration push.",
       "status": "carried-over",
-      "category": "Finance",
+      "category": "Reliability",
       "percentComplete": 10
     }
   ],
   "currentMonth": {
-    "totalItems": 8,
-    "completedItems": 3,
+    "totalItems": 10,
+    "completedItems": 4,
     "carriedItems": 2,
     "overallHealth": "on-track"
   }

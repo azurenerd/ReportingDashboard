@@ -36,14 +36,10 @@ public record WorkItem
     public string Status { get; init; } = "in-progress";
     public string? Category { get; init; }
     public int? PercentComplete { get; init; }
-    // Added by T-459: supports carried-over item reason display
-    public string? CarryOverReason { get; init; }
 }
 
 public record MonthSummary
 {
-    // Added by T-459: display label for the metrics strip
-    public string? Month { get; init; }
     public int TotalItems { get; init; }
     public int CompletedItems { get; init; }
     public int CarriedItems { get; init; }
