@@ -5,6 +5,15 @@
 @implements IAsyncDisposable
 
 <MudContainer MaxWidth="MaxWidth.Lg" Class="dashboard-container">
+    @if (DataService != null && !DataService.HasData && !string.IsNullOrEmpty(DataService.GetLastError()))
+    {
+        <MudAlert Severity="Severity.Error" Class="mb-4">
+            <strong>Error Loading Dashboard</strong>
+            <p>@DataService.GetLastError()</p>
+            <p style="font-size: 12px; color: #666;">Check data.json format and try again.</p>
+        </MudAlert>
+    }
+
     @if (DataService?.GetProject() != null)
     {
         <MudCard Class="mb-4">
@@ -39,11 +48,24 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (DataService != null)
+        {
+            DataService.OnDataChanged += OnDataChanged;
+        }
         await base.OnInitializedAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        StateHasChanged();
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
+        if (DataService != null)
+        {
+            DataService.OnDataChanged -= OnDataChanged;
+        }
         await Task.CompletedTask;
     }
 }
