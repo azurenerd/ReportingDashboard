@@ -1,21 +1,36 @@
 using AgentSquad.Runner.Models;
-using Microsoft.AspNetCore.Hosting;
-using System.Text.Json;
 
 namespace AgentSquad.Runner.Services;
 
-public class DataService : IDataService
+/// <summary>
+/// Service for loading and deserializing project data from JSON configuration files.
+/// Handles file I/O, JSON parsing, and validation of data model constraints.
+/// </summary>
+public class DataService
 {
-    private readonly IWebHostEnvironment _webHostEnvironment;
+    private const string DATA_FILE_PATH = "wwwroot/data/data.json";
+    private const string MILESTONES_KEY = "milestones";
+    private const string TASKS_KEY = "tasks";
 
-    public DataService(IWebHostEnvironment webHostEnvironment)
+    private readonly ILogger<DataService> _logger;
+
+    public DataService(ILogger<DataService> logger)
     {
-        _webHostEnvironment = webHostEnvironment;
+        _logger = logger;
     }
 
+    /// <summary>
+    /// Reads and deserializes project data from data.json asynchronously.
+    /// Validates data model constraints and returns strongly-typed ProjectStatus object.
+    /// </summary>
+    /// <returns>Validated ProjectStatus object containing milestones and tasks.</returns>
+    /// <exception cref="FileReadException">Thrown when data.json cannot be read from wwwroot/data.</exception>
+    /// <exception cref="JsonParseException">Thrown when JSON is malformed or cannot be deserialized.</exception>
+    /// <exception cref="ValidationException">Thrown when data model constraints are violated.</exception>
+    /// <exception cref="DataLoadException">Thrown for unexpected errors during data loading.</exception>
     public async Task<ProjectStatus> ReadProjectDataAsync()
     {
-        // Skeleton implementation - detailed implementation deferred to T2
-        return null;
+        // Implementation in subsequent steps
+        throw new NotImplementedException();
     }
 }
