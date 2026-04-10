@@ -1,0 +1,10 @@
+@using AgentSquad.Runner.Models
+
+<div class="milestone-timeline">
+    <!-- Rendering logic will be added in subsequent steps -->
+</div>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<Milestone> Milestones { get; set; } = new List<Milestone>();
+}
