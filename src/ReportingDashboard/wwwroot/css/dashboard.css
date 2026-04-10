@@ -1,1 +1,92 @@
-/* Dashboard styles - implemented in T2 */
+/* ============================================================
+   Executive Project Reporting Dashboard - Stylesheet
+   ============================================================
+   Single-file CSS architecture with no external dependencies.
+   All theming is controlled via CSS custom properties in :root.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   CSS Custom Properties
+   ------------------------------------------------------------ */
+:root {
+    /* Status Colors */
+    --status-completed: #2E7D32;
+    --status-in-progress: #1565C0;
+    --status-at-risk: #E65100;
+    --status-carried-over: #F57C00;
+    --status-upcoming: #757575;
+    --status-behind: #C62828;
+    --status-on-track: #2E7D32;
+
+    /* Layout */
+    --max-width: 1200px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+
+    /* Typography */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    --font-size-body: 14px;
+    --font-size-h1: 24px;
+    --font-size-h2: 18px;
+    --font-size-metric: 28px;
+
+    /* Surfaces */
+    --color-background: #FFFFFF;
+    --color-surface: #F8F9FA;
+    --color-border: #E0E0E0;
+    --color-text-primary: #212121;
+    --color-text-secondary: #616161;
+}
+
+/* ------------------------------------------------------------
+   Universal Box-Sizing Reset
+   ------------------------------------------------------------ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* ------------------------------------------------------------
+   Base Body Styles
+   ------------------------------------------------------------ */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);
+    font-size: var(--font-size-body);
+    color: var(--color-text-primary);
+    background-color: var(--color-background);
+    line-height: 1.5;
+}
+
+/* ------------------------------------------------------------
+   Dashboard Container — Fixed 1200px Centered Layout
+   ------------------------------------------------------------ */
+.dashboard {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--spacing-lg) var(--spacing-md);
+}
+
+/* ------------------------------------------------------------
+   Base Heading Styles
+   ------------------------------------------------------------ */
+h1 {
+    font-size: var(--font-size-h1);
+    font-weight: 700;
+    margin: 0 0 var(--spacing-sm);
+    color: var(--color-text-primary);
+    line-height: 1.3;
+}
+
+h2 {
+    font-size: var(--font-size-h2);
+    font-weight: 600;
+    margin: 0 0 var(--spacing-md);
+    color: var(--color-text-primary);
+    line-height: 1.4;
+}
