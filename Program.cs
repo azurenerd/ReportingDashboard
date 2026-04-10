@@ -28,20 +28,27 @@ app.MapRazorComponents<App>()
 app.Run();
 
 /// <summary>
-/// Temporary no-op implementation of IDashboardDataService.
-/// Replaced by DashboardDataService in T2.
+/// Temporary placeholder implementation of IDashboardDataService.
+/// Replaced by the real DashboardDataService in task T2.
 /// </summary>
 internal sealed class PlaceholderDataService : IDashboardDataService
 {
     public DashboardData? Data => null;
-    public string? LoadError => null;
-    public bool IsLoaded => false;
-    public event Action? OnDataChanged;
 
-    public Task LoadAsync() => Task.CompletedTask;
+    public string? LoadError => "Dashboard data not loaded. Place a valid data.json at the configured DashboardDataPath and implement DashboardDataService.";
+
+    public bool IsLoaded => false;
+
+#pragma warning disable CS0067 // Event is never invoked in placeholder
+    public event Action? OnDataChanged;
+#pragma warning restore CS0067
+
+    public Task LoadAsync()
+    {
+        return Task.CompletedTask;
+    }
 
     public void Dispose()
     {
-        _ = OnDataChanged;
     }
 }
