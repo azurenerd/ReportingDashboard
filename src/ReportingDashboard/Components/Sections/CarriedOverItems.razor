@@ -34,8 +34,15 @@
                         <p>@item.Description</p>
                     </div>
                 }
-
-                <!-- Progress bar rendering implemented in Step 4 -->
+                @if (GetPercent(item) > 0)
+                {
+                    <div class="card-footer">
+                        <div class="progress-track">
+                            <div class="progress-fill carried-over" style="width: @(GetPercent(item))%"></div>
+                        </div>
+                        <span class="progress-label">@(GetPercent(item))%</span>
+                    </div>
+                }
             </div>
         }
     </section>
@@ -46,4 +53,6 @@
     public List<WorkItem>? Items { get; set; }
 
     private List<WorkItem> SafeItems => Items ?? [];
+
+    private int GetPercent(WorkItem item) => Math.Clamp(item.PercentComplete ?? 0, 0, 100);
 }
