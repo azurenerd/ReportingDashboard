@@ -1,0 +1,75 @@
+{
+  "_comment": "Executive Project Reporting Dashboard - Data Template. Copy this file to src/ReportingDashboard/wwwroot/data/data.json and fill in your project data. All fields marked (optional) can be omitted or set to null.",
+
+  "project": {
+    "_comment_project": "Top-level project information displayed in the dashboard header.",
+    "name": "Your Project Name",
+    "lead": "Project Lead Name",
+    "status": "On Track",
+    "_comment_status": "Free-text status label displayed in the header badge (e.g., 'On Track', 'At Risk', 'Behind Schedule').",
+    "lastUpdated": "2026-01-01",
+    "_comment_lastUpdated": "Date string shown in the header. Use any readable format (e.g., '2026-01-15', 'January 2026').",
+    "overallHealth": "on-track",
+    "_comment_overallHealth": "Controls the color of the status badge. Valid values: 'on-track' (green), 'at-risk' (orange), 'behind' (red).",
+    "summary": "A brief paragraph describing the project's purpose, current phase, and key highlights for executive stakeholders."
+  },
+
+  "milestones": [
+    {
+      "_comment_milestones": "Array of project milestones displayed on the horizontal timeline. Order them chronologically.",
+      "title": "Milestone Name",
+      "date": "2026-03-15",
+      "_comment_date": "Target or completion date for the milestone.",
+      "status": "upcoming",
+      "_comment_status": "Controls milestone color on timeline. Valid values: 'completed' (green), 'in-progress' (blue), 'upcoming' (gray), 'at-risk' (orange).",
+      "description": "Brief description of what this milestone represents."
+    }
+  ],
+
+  "shipped": [
+    {
+      "_comment_shipped": "Array of work items completed this reporting period. Displayed with green styling and 100% progress.",
+      "title": "Completed Item Title",
+      "description": "What was delivered and its business impact.",
+      "status": "completed",
+      "category": "Category Name",
+      "_comment_category": "(Optional) Short category label (e.g., 'Security', 'Infrastructure', 'API'). Displayed as a tag.",
+      "percentComplete": 100
+    }
+  ],
+
+  "inProgress": [
+    {
+      "_comment_inProgress": "Array of active work items. Displayed with blue styling and a proportional progress bar.",
+      "title": "Active Work Item Title",
+      "description": "Current status and what remains to be done.",
+      "status": "in-progress",
+      "category": "Category Name",
+      "percentComplete": 50,
+      "_comment_percentComplete": "Integer 0-100. Drives the visual progress bar width."
+    }
+  ],
+
+  "carriedOver": [
+    {
+      "_comment_carriedOver": "Array of items deferred from previous period. Displayed with orange styling.",
+      "title": "Deferred Item Title",
+      "description": "Explain why this item was carried over and the plan for completion.",
+      "status": "carried-over",
+      "category": "Category Name",
+      "percentComplete": 10
+    }
+  ],
+
+  "currentMonth": {
+    "_comment_currentMonth": "Summary metrics displayed in the metrics strip at the top of the dashboard.",
+    "totalItems": 0,
+    "_comment_totalItems": "Total number of work items tracked this period.",
+    "completedItems": 0,
+    "_comment_completedItems": "Number of items completed/shipped this period.",
+    "carriedItems": 0,
+    "_comment_carriedItems": "Number of items carried over from the previous period.",
+    "overallHealth": "on-track",
+    "_comment_overallHealth": "Overall project health. Valid values: 'on-track' (green), 'at-risk' (orange), 'behind' (red)."
+  }
+}
