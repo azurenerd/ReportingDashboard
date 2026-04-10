@@ -1,39 +1,37 @@
 @page "/"
 @inject DataService DataService
-@implements IAsyncDisposable
 
-<CascadingValue Value="CurrentData">
-	<Header />
-	<StatusSummary />
-	<div class="dashboard-grid">
-		<MilestoneTimeline />
-		<MetricsContainer />
-	</div>
-	<DataRefreshIndicator />
-</CascadingValue>
+<div class="dashboard-container">
+    <CascadingValue Value="CurrentData">
+        <div class="no-print">
+            <Header />
+        </div>
+        
+        <StatusSummary />
+        
+        <div class="dashboard-grid">
+            <MetricsContainer />
+        </div>
+        
+        <div class="no-print">
+            <DataRefreshIndicator />
+        </div>
+    </CascadingValue>
+</div>
 
 @code {
-	private DashboardData? CurrentData;
-
-	protected override async Task OnInitializedAsync()
-	{
-		await DataService.InitializeAsync();
-		CurrentData = DataService.CurrentData;
-		DataService.OnDataChanged += HandleDataChanged;
-	}
-
-	private async Task HandleDataChanged()
-	{
-		CurrentData = await DataService.ReloadDataAsync();
-		await InvokeAsync(StateHasChanged);
-	}
-
-	async ValueTask IAsyncDisposable.DisposeAsync()
-	{
-		if (DataService != null)
-		{
-			DataService.OnDataChanged -= HandleDataChanged;
-		}
-		await Task.CompletedTask;
-	}
+    private DashboardData CurrentData;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await DataService.InitializeAsync();
+        CurrentData = DataService.CurrentData;
+        DataService.OnDataChanged += HandleDataChanged;
+    }
+    
+    private async Task HandleDataChanged()
+    {
+        CurrentData = await DataService.ReloadDataAsync();
+        await InvokeAsync(StateHasChanged);
+    }
 }
