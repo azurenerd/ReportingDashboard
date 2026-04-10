@@ -233,28 +233,96 @@ public class DashboardDataService : IDisposable
         }
         
         // Call ReloadData() to re-read and re-parse data.json
-        // Step 4 will implement full reload logic with hash checking and event raising
+        // Step 3 implements hash checking; Step 4 implements full reload logic
         ReloadData();
     }
     
     /// <summary>
-    /// Step 4: Reloads data from data.json file.
-    /// Placeholder implementation for Step 2 compilation.
-    /// Steps 3-4 will implement hash checking, retry logic, and event publishing.
+    /// Step 3-4: Reloads data from data.json file.
+    /// Implements hash-based duplicate detection (Step 3) and full reload logic (Step 4).
+    /// Checks file hash before parsing to prevent redundant processing.
     /// </summary>
     private void ReloadData()
     {
         _logger.LogInformation("data.json change detected, reloading...");
         
-        // Step 3-4 will implement:
-        // - File hash checking (skip if unchanged)
-        // - Retry logic for file locks
-        // - JSON parsing and validation
-        // - Error handling and last-known-good fallback
-        // - OnDataChanged event publishing
+        // Step 3: Hash-based duplicate detection
+        // Check if file content has actually changed
+        if (!File.Exists(_dataJsonPath))
+        {
+            _lastError = $"data.json not found at {_dataJsonPath}";
+            _logger.LogError(_lastError);
+            _cachedData = null;
+            OnDataChanged?.Invoke();
+            return;
+        }
         
-        // Placeholder: just raise the event so components re-render
-        OnDataChanged?.Invoke();
+        try
+        {
+            // Compute current file hash
+            string currentHash = ComputeFileHash(_dataJsonPath);
+            
+            // Step 3: Compare with last loaded hash
+            if (currentHash == _lastLoadedHash)
+            {
+                _logger.LogDebug("File unchanged; skipping reload");
+                return;
+            }
+            
+            // Step 4: Hash differs; proceed with reload
+            _logger.LogDebug("File hash differs from last load; proceeding with reload");
+            
+            // Re-read file content
+            string json = File.ReadAllText(_dataJsonPath, Encoding.UTF8);
+            
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                AllowTrailingCommas = false,
+                MaxDepth = 64
+            };
+            
+            // Re-parse JSON
+            var data = JsonSerializer.Deserialize<DashboardData>(json, options);
+            
+            // Re-validate
+            ValidateData(data);
+            
+            // Update cache and hash on success
+            _cachedData = data;
+            _lastLoadedHash = currentHash;
+            _lastError = null;
+            
+            _logger.LogInformation("data.json reloaded successfully");
+            
+            // Notify subscribers
+            OnDataChanged?.Invoke();
+        }
+        catch (JsonException ex)
+        {
+            _lastError = $"Failed to parse data.json: {ex.Message}";
+            _logger.LogError(_lastError);
+            // Keep last-known-good data; don't update cache
+            
+            // Still notify subscribers so UI can show error state
+            OnDataChanged?.Invoke();
+        }
+        catch (IOException ex)
+        {
+            _lastError = $"IOException reading data.json: {ex.Message}";
+            _logger.LogError(_lastError);
+            // Keep last-known-good data
+            
+            OnDataChanged?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            _lastError = $"Unexpected error reloading data.json: {ex.Message}";
+            _logger.LogError(ex, _lastError);
+            // Keep last-known-good data
+            
+            OnDataChanged?.Invoke();
+        }
     }
     
     /// <summary>
