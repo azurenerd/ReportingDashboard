@@ -31,7 +31,7 @@ public class DashboardDataService : IDisposable
     private bool _pendingReload;
     private object _debounceLock = new object();
     
-    // Events
+    // Step 4: OnDataChanged event
     public event Action OnDataChanged;
     
     // Properties
@@ -238,9 +238,9 @@ public class DashboardDataService : IDisposable
     }
     
     /// <summary>
-    /// Step 3-4: Reloads data from data.json file.
-    /// Implements hash-based duplicate detection (Step 3) and full reload logic (Step 4).
-    /// Checks file hash before parsing to prevent redundant processing.
+    /// Step 4: Reloads data from data.json file with retry logic.
+    /// Implements hash-based duplicate detection, file-lock retry, and event publishing.
+    /// Handles all errors gracefully with last-known-good fallback.
     /// </summary>
     private void ReloadData()
     {
@@ -272,8 +272,20 @@ public class DashboardDataService : IDisposable
             // Step 4: Hash differs; proceed with reload
             _logger.LogDebug("File hash differs from last load; proceeding with reload");
             
-            // Re-read file content
-            string json = File.ReadAllText(_dataJsonPath, Encoding.UTF8);
+            // Step 4: Re-read file content with retry logic for file locks
+            string json;
+            try
+            {
+                json = ReadFileWithRetry(_dataJsonPath);
+            }
+            catch (IOException ioEx)
+            {
+                _lastError = $"Failed to read data.json after 3 retries: {ioEx.Message}";
+                _logger.LogError(_lastError);
+                // Keep last-known-good data; don't update cache
+                OnDataChanged?.Invoke();
+                return;
+            }
             
             var options = new JsonSerializerOptions
             {
@@ -295,7 +307,7 @@ public class DashboardDataService : IDisposable
             
             _logger.LogInformation("data.json reloaded successfully");
             
-            // Notify subscribers
+            // Step 4: Notify subscribers of successful reload
             OnDataChanged?.Invoke();
         }
         catch (JsonException ex)
@@ -304,14 +316,14 @@ public class DashboardDataService : IDisposable
             _logger.LogError(_lastError);
             // Keep last-known-good data; don't update cache
             
-            // Still notify subscribers so UI can show error state
+            // Step 4: Still notify subscribers so UI can show error state
             OnDataChanged?.Invoke();
         }
-        catch (IOException ex)
+        catch (InvalidOperationException ex)
         {
-            _lastError = $"IOException reading data.json: {ex.Message}";
+            _lastError = $"Validation error in data.json: {ex.Message}";
             _logger.LogError(_lastError);
-            // Keep last-known-good data
+            // Keep last-known-good data; don't update cache
             
             OnDataChanged?.Invoke();
         }
@@ -323,6 +335,39 @@ public class DashboardDataService : IDisposable
             
             OnDataChanged?.Invoke();
         }
+    }
+    
+    /// <summary>
+    /// Step 4: Reads file with retry logic for handling file locks.
+    /// Attempts File.ReadAllText() up to 3 times with 100ms delay between attempts.
+    /// Used during reload to handle concurrent file writes from external tools.
+    /// </summary>
+    private string ReadFileWithRetry(string filePath, int maxRetries = 3, int delayMs = 100)
+    {
+        IOException lastException = null;
+        
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                return File.ReadAllText(filePath, Encoding.UTF8);
+            }
+            catch (IOException ex)
+            {
+                lastException = ex;
+                
+                // Log retry attempt
+                if (attempt < maxRetries)
+                {
+                    _logger.LogWarning(
+                        $"File locked on attempt {attempt}/{maxRetries}; retrying in {delayMs}ms");
+                    System.Threading.Thread.Sleep(delayMs);
+                }
+            }
+        }
+        
+        // All retries exhausted
+        throw lastException ?? new IOException($"Could not read {filePath} after {maxRetries} retries");
     }
     
     /// <summary>
