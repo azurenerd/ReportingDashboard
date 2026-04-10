@@ -1,39 +1,22 @@
 @using AgentSquad.Runner.Models
-@using AgentSquad.Runner.Services
+@using MudBlazor
 
-@if (Items == null || Items.Count == 0)
-{
-    <div class="alert alert-info">No work items in this category</div>
-}
-else
-{
-    <div class="work-items-container">
-        @foreach (var item in Items)
-        {
-            <div class="work-item-card">
-                <h4>@item.Title</h4>
-                <p><strong>Status:</strong> @GetStatusLabel(item.Status)</p>
-                @if (!string.IsNullOrEmpty(item.Assignee))
-                {
-                    <p><strong>Assignee:</strong> @item.Assignee</p>
-                }
-            </div>
-        }
-    </div>
-}
+<div class="work-item-list">
+    <!-- Work item sections will be implemented in step 4 -->
+</div>
 
 @code {
     [Parameter]
-    public required IReadOnlyList<WorkItem> Items { get; set; }
+    public IReadOnlyList<WorkItem> Shipped { get; set; } = new List<WorkItem>().AsReadOnly();
 
-    private string GetStatusLabel(WorkItemStatus status)
+    [Parameter]
+    public IReadOnlyList<WorkItem> InProgress { get; set; } = new List<WorkItem>().AsReadOnly();
+
+    [Parameter]
+    public IReadOnlyList<WorkItem> CarriedOver { get; set; } = new List<WorkItem>().AsReadOnly();
+
+    protected override void OnParametersSet()
     {
-        return status switch
-        {
-            WorkItemStatus.Shipped => "Shipped",
-            WorkItemStatus.InProgress => "In Progress",
-            WorkItemStatus.CarriedOver => "Carried Over",
-            _ => "Unknown"
-        };
+        // Parameter binding and grouping logic will be implemented in step 4
     }
 }

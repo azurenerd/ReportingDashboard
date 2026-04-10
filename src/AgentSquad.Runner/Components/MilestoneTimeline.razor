@@ -1,55 +1,31 @@
 @using AgentSquad.Runner.Models
-@using System.Globalization
+@using System.Linq
 
-<MudCard Class="dashboard-section">
-    <MudCardHeader>
-        <CardHeaderContent>
-            <MudText Typo="Typo.h5">Milestone Timeline</MudText>
-        </CardHeaderContent>
-    </MudCardHeader>
-    <MudCardContent>
-        @if (Milestones != null && Milestones.Count > 0)
-        {
-            <div class="milestone-timeline">
-                @foreach (var milestone in Milestones.OrderBy(m => m.Date))
-                {
-                    <div class="milestone-card">
-                        <svg width="20" height="20" viewBox="0 0 20 20" class="status-icon @GetStatusClass(milestone.Status)">
-                            <circle cx="10" cy="10" r="9" fill="currentColor" />
-                        </svg>
-                        <div class="milestone-name" title="@milestone.Name">
-                            @milestone.Name
-                        </div>
-                        <div class="milestone-date">
-                            @milestone.Date.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <div class="milestone-timeline-empty">
-                <MudText Typo="Typo.body2" Color="Color.TextSecondary">
-                    No milestones scheduled
-                </MudText>
-            </div>
-        }
-    </MudCardContent>
-</MudCard>
+<div class="milestone-timeline">
+    @if (Milestones == null || Milestones.Count == 0)
+    {
+        <p class="no-data">No milestones scheduled</p>
+    }
+    else
+    {
+        <!-- Timeline rendering will be implemented in step 2 -->
+    }
+</div>
 
 @code {
     [Parameter]
-    public IReadOnlyList<Milestone> Milestones { get; set; } = new List<Milestone>();
+    public IReadOnlyList<Milestone> Milestones { get; set; } = new List<Milestone>().AsReadOnly();
 
-    private string GetStatusClass(string status)
+    private IReadOnlyList<Milestone> SortedMilestones { get; set; }
+
+    protected override void OnParametersSet()
     {
-        return status?.ToLower() switch
+        if (Milestones != null)
         {
-            "completed" => "completed",
-            "on track" => "on-track",
-            "at risk" => "at-risk",
-            _ => "on-track"
-        };
+            SortedMilestones = Milestones
+                .OrderBy(m => m.Date)
+                .ToList()
+                .AsReadOnly();
+        }
     }
 }
