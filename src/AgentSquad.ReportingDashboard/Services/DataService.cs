@@ -1,158 +1,218 @@
+using Microsoft.Extensions.Configuration;
+using AgentSquad.ReportingDashboard.Models;
+using System.Text.Json;
+
 namespace AgentSquad.ReportingDashboard.Services;
 
-using System.Text.Json;
-using AgentSquad.ReportingDashboard.Models;
-
-public class DataService : IDataService, IAsyncDisposable
+public class DataService : IAsyncDisposable
 {
-	private readonly IConfiguration _configuration;
-	private readonly string _dataFilePath;
-	private FileSystemWatcher? _fileSystemWatcher;
-	private CancellationTokenSource? _debounceCts;
-	private readonly object _lockObject = new();
+    private readonly IConfiguration _configuration;
+    private readonly JsonSerializerOptions _jsonOptions;
+    private string _dataFilePath = string.Empty;
+    private FileSystemWatcher? _fileWatcher;
+    private CancellationTokenSource? _debounceCts;
 
-	public DashboardData CurrentData { get; private set; } = new();
+    public DashboardData CurrentData { get; private set; } = new();
+    public event Func<Task>? OnDataChanged;
 
-	public event Func<Task>? OnDataChanged;
+    public DataService(IConfiguration configuration)
+    {
+        _configuration = configuration;
+        _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
 
-	public DataService(IConfiguration configuration)
-	{
-		_configuration = configuration;
-		_dataFilePath = configuration["Dashboard:DataFilePath"] ?? "wwwroot/data.json";
-	}
+        _dataFilePath = _configuration["Dashboard:DataFilePath"] ?? "wwwroot/data.json";
+    }
 
-	public async Task InitializeAsync()
-	{
-		try
-		{
-			var absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _dataFilePath);
-			
-			if (File.Exists(absolutePath))
-			{
-				await LoadDataAsync(absolutePath);
-			}
-			else
-			{
-				System.Diagnostics.Debug.WriteLine($"DataService: data.json not found at {absolutePath}; using empty defaults");
-				CurrentData = GetDefaultData();
-			}
+    public async Task InitializeAsync()
+    {
+        try
+        {
+            var json = File.ReadAllText(_dataFilePath);
+            var loadedData = JsonSerializer.Deserialize<DashboardData>(json, _jsonOptions);
 
-			StartFileWatcher(absolutePath);
-		}
-		catch (Exception ex)
-		{
-			System.Diagnostics.Debug.WriteLine($"DataService: InitializeAsync error: {ex.Message}");
-			CurrentData = GetDefaultData();
-		}
-	}
+            CurrentData = loadedData ?? GetDefaultData();
+            System.Diagnostics.Debug.WriteLine($"DataService: Loaded data from {_dataFilePath}");
+        }
+        catch (FileNotFoundException)
+        {
+            System.Diagnostics.Debug.WriteLine($"DataService: {_dataFilePath} not found; using empty defaults");
+            CurrentData = GetDefaultData();
+        }
+        catch (JsonException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"DataService: JSON parse error: {ex.Message}");
+            CurrentData = GetDefaultData();
+        }
+        catch (IOException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"DataService: File access error: {ex.Message}");
+            CurrentData = GetDefaultData();
+        }
 
-	public async Task<DashboardData> ReloadDataAsync()
-	{
-		try
-		{
-			var absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _dataFilePath);
-			
-			if (File.Exists(absolutePath))
-			{
-				await LoadDataAsync(absolutePath);
-			}
-			else
-			{
-				System.Diagnostics.Debug.WriteLine("DataService: data.json not found during reload");
-				CurrentData = GetDefaultData();
-			}
-		}
-		catch (JsonException ex)
-		{
-			System.Diagnostics.Debug.WriteLine($"DataService: JSON parse error during reload: {ex.Message}");
-		}
-		catch (IOException ex)
-		{
-			System.Diagnostics.Debug.WriteLine($"DataService: IO error during reload: {ex.Message}");
-		}
-		catch (Exception ex)
-		{
-			System.Diagnostics.Debug.WriteLine($"DataService: Unexpected error during reload: {ex.Message}");
-		}
+        SetupFileWatcher();
+        await Task.CompletedTask;
+    }
 
-		return CurrentData;
-	}
+    private void SetupFileWatcher()
+    {
+        try
+        {
+            var dirPath = Path.GetDirectoryName(_dataFilePath);
+            if (string.IsNullOrEmpty(dirPath))
+                dirPath = ".";
 
-	private async Task LoadDataAsync(string filePath)
-	{
-		var json = await File.ReadAllTextAsync(filePath);
-		var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-		var data = JsonSerializer.Deserialize<DashboardData>(json, options);
-		
-		lock (_lockObject)
-		{
-			CurrentData = data ?? GetDefaultData();
-		}
-	}
+            _fileWatcher = new FileSystemWatcher(dirPath)
+            {
+                Filter = "data.json",
+                NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite
+            };
 
-	private void StartFileWatcher(string filePath)
-	{
-		var directory = Path.GetDirectoryName(filePath);
-		var fileName = Path.GetFileName(filePath);
+            _fileWatcher.Created += OnFileChanged;
+            _fileWatcher.Changed += OnFileChanged;
+            _fileWatcher.Renamed += OnFileChanged;
 
-		if (string.IsNullOrEmpty(directory) || string.IsNullOrEmpty(fileName))
-		{
-			return;
-		}
+            _fileWatcher.EnableRaisingEvents = true;
+            System.Diagnostics.Debug.WriteLine("DataService: FileSystemWatcher initialized for data.json");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"DataService: Failed to setup FileSystemWatcher: {ex.Message}");
+        }
+    }
 
-		_fileSystemWatcher = new FileSystemWatcher(directory, fileName)
-		{
-			NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
-			EnableRaisingEvents = true
-		};
+    private void OnFileChanged(object sender, FileSystemEventArgs e)
+    {
+        System.Diagnostics.Debug.WriteLine("DataService: FileSystemWatcher detected data.json change");
+        _ = DebouncedReload();
+    }
 
-		_fileSystemWatcher.Changed += (s, e) => OnFileChanged();
-		_fileSystemWatcher.Error += (s, e) => System.Diagnostics.Debug.WriteLine($"FileSystemWatcher error: {e.GetException()?.Message}");
-	}
+    private async Task DebouncedReload()
+    {
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
 
-	private void OnFileChanged()
-	{
-		lock (_lockObject)
-		{
-			_debounceCts?.Cancel();
-			_debounceCts?.Dispose();
-			_debounceCts = new CancellationTokenSource();
-		}
+        var cts = new CancellationTokenSource();
+        _debounceCts = cts;
 
-		var token = _debounceCts.Token;
+        try
+        {
+            await Task.Delay(500, cts.Token);
+            await ReloadDataAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            System.Diagnostics.Debug.WriteLine("DataService: Debounce reload cancelled by newer event");
+        }
+    }
 
-		_ = Task.Delay(500, token).ContinueWith(async _ =>
-		{
-			if (!token.IsCancellationRequested)
-			{
-				await ReloadDataAsync();
-				if (OnDataChanged != null)
-				{
-					await OnDataChanged.Invoke();
-				}
-			}
-		}, TaskScheduler.Default);
-	}
+    public async Task<DashboardData> ReloadDataAsync()
+    {
+        string? json = null;
+        bool readSuccess = false;
 
-	private static DashboardData GetDefaultData()
-	{
-		return new DashboardData
-		{
-			ProjectName = "Dashboard",
-			ProjectStatus = "Unknown",
-			Milestones = new(),
-			ShippedItems = new(),
-			InProgressItems = new(),
-			CarryoverItems = new(),
-			LastUpdated = DateTime.UtcNow
-		};
-	}
+        for (int attempt = 0; attempt < 3; attempt++)
+        {
+            try
+            {
+                using var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using var reader = new StreamReader(fs);
+                json = await reader.ReadToEndAsync();
+                readSuccess = true;
+                System.Diagnostics.Debug.WriteLine($"DataService: Successfully read data.json on attempt {attempt + 1}");
+                break;
+            }
+            catch (IOException) when (attempt < 2)
+            {
+                int delayMs = 100 * (attempt + 1);
+                System.Diagnostics.Debug.WriteLine($"DataService: File read attempt {attempt + 1} failed, retrying in {delayMs}ms");
+                await Task.Delay(delayMs);
+            }
+            catch (IOException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DataService: File read failed after 3 attempts: {ex.Message}");
+            }
+        }
 
-	public async ValueTask DisposeAsync()
-	{
-		_fileSystemWatcher?.Dispose();
-		_debounceCts?.Cancel();
-		_debounceCts?.Dispose();
-		await Task.CompletedTask;
-	}
+        if (readSuccess && !string.IsNullOrEmpty(json))
+        {
+            try
+            {
+                var loadedData = JsonSerializer.Deserialize<DashboardData>(json, _jsonOptions);
+                if (loadedData != null)
+                {
+                    CurrentData = loadedData;
+                    System.Diagnostics.Debug.WriteLine("DataService: Successfully deserialized JSON data");
+                }
+            }
+            catch (JsonException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DataService: JSON parse error on reload: {ex.Message}");
+            }
+        }
+        else
+        {
+            try
+            {
+                var json2 = File.ReadAllText(_dataFilePath);
+                var loadedData = JsonSerializer.Deserialize<DashboardData>(json2, _jsonOptions);
+                if (loadedData != null)
+                {
+                    CurrentData = loadedData;
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                System.Diagnostics.Debug.WriteLine("DataService: File not found during reload");
+                CurrentData = GetDefaultData();
+            }
+            catch (JsonException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DataService: JSON parse error: {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DataService: IO error during reload: {ex.Message}");
+            }
+        }
+
+        await (OnDataChanged?.Invoke() ?? Task.CompletedTask);
+        return CurrentData;
+    }
+
+    private static DashboardData GetDefaultData()
+    {
+        return new DashboardData
+        {
+            ProjectName = "Dashboard",
+            ProjectStatus = "Unknown",
+            Milestones = new(),
+            ShippedItems = new(),
+            InProgressItems = new(),
+            CarryoverItems = new(),
+            LastUpdated = DateTime.UtcNow
+        };
+    }
+
+    public void Dispose()
+    {
+        if (_fileWatcher != null)
+        {
+            _fileWatcher.EnableRaisingEvents = false;
+            _fileWatcher.Dispose();
+            System.Diagnostics.Debug.WriteLine("DataService: FileSystemWatcher disposed");
+        }
+
+        _debounceCts?.Dispose();
+        System.Diagnostics.Debug.WriteLine("DataService: CancellationTokenSource disposed");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Dispose();
+        await ValueTask.CompletedTask;
+    }
 }
