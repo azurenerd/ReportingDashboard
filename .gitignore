@@ -1,42 +1,31 @@
-# Build results
+## .NET
 bin/
 obj/
-.vs/
-.vscode/
-
-# Project-specific data files
-wwwroot/data.json
-
-# Database files
-*.db
-
-# User-specific files
-*.suo
 *.user
-*.userosscache
-*.sln.docstates
-
-# Visual Studio cache/options
+*.suo
+*.vs/
 .vs/
 
-# Rider
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+## NuGet
+*.nupkg
+**/packages/*
+*.nuget.props
+*.nuget.targets
+
+## IDE
 .idea/
-*.sln.iml
+*.swp
+*~
 
-# OS files
-.DS_Store
+## OS
 Thumbs.db
+.DS_Store
 
-# Node modules (if needed for npm packages)
-node_modules/
-
-# Publish output
-publish/
-PublishProfiles/
-
-# Test results
-TestResults/
-
-# Local environment files
-.env
-.env.local
+## Project-specific: data.json contains real project data and should not be committed
+src/ReportingDashboard/wwwroot/data/data.json
