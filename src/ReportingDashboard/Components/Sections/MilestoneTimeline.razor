@@ -13,7 +13,8 @@
                 <div class="timeline-milestone">
                     <div class="milestone-title">@milestone.Title</div>
                     <div class="milestone-marker @GetStatusClass(milestone.Status)"></div>
-                    <div class="milestone-date">@(milestone.Date ?? "TBD")</div>
+                    <span class="status-badge @GetStatusClass(milestone.Status)">@FormatStatusLabel(milestone.Status)</span>
+                    <div class="milestone-date">@FormatDate(milestone.Date)</div>
                     @if (!string.IsNullOrWhiteSpace(milestone.Description))
                     {
                         <div class="milestone-description">@milestone.Description</div>
@@ -38,5 +39,25 @@
         "at-risk" => "at-risk",
         "upcoming" => "upcoming",
         _ => "upcoming"
+    };
+
+    private string FormatDate(string? date)
+    {
+        if (string.IsNullOrWhiteSpace(date))
+            return "TBD";
+
+        if (DateTime.TryParse(date, out var parsed))
+            return parsed.ToString("MMM d, yyyy");
+
+        return date;
+    }
+
+    private string FormatStatusLabel(string status) => status switch
+    {
+        "completed" => "Complete",
+        "in-progress" => "In Progress",
+        "at-risk" => "At Risk",
+        "upcoming" => "Upcoming",
+        _ => "Upcoming"
     };
 }
