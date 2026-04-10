@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using AgentSquad.Runner.Models;
+using AgentSquad.Runner.Configuration;
 
 namespace AgentSquad.Runner.Services;
 
@@ -25,6 +26,10 @@ public class DashboardDataService : IDisposable
     private Timer _debounceTimer;
     private string _lastLoadedHash;
     private bool _isReloading;
+    
+    // Step 2: Debounce state tracking
+    private bool _pendingReload;
+    private object _debounceLock = new object();
     
     // Events
     public event Action OnDataChanged;
@@ -49,6 +54,7 @@ public class DashboardDataService : IDisposable
         _lastError = null;
         _lastLoadedHash = null;
         _isReloading = false;
+        _pendingReload = false;
         
         // Load initial data on startup
         LoadData();
@@ -118,7 +124,7 @@ public class DashboardDataService : IDisposable
     /// <summary>
     /// Initializes FileSystemWatcher for data.json monitoring.
     /// Called from constructor after initial data load.
-    /// Placeholder implementation for Step 1; actual event handling in Step 2.
+    /// Step 1 implementation; event handlers wired here, logic in Steps 2-4.
     /// </summary>
     private void InitializeFileWatch()
     {
@@ -133,7 +139,7 @@ public class DashboardDataService : IDisposable
                 EnableRaisingEvents = false
             };
             
-            // Wire up handlers (implementation in Step 2)
+            // Wire up handlers (implementation in Step 2+)
             _fileSystemWatcher.Changed += OnFileChanged;
             _fileSystemWatcher.Created += OnFileChanged;
             _fileSystemWatcher.Deleted += OnFileChanged;
@@ -153,20 +159,102 @@ public class DashboardDataService : IDisposable
     }
     
     /// <summary>
-    /// Placeholder for file change handler (implemented in Step 2).
+    /// Step 2: File change event handler.
+    /// Called by FileSystemWatcher on Changed/Created/Deleted events.
+    /// Routes to ScheduleReload() to initiate debounce timer.
     /// </summary>
     private void OnFileChanged(object sender, FileSystemEventArgs e)
     {
-        // Step 2: Implement debounce logic and ScheduleReload() call
+        // Ignore events for files other than data.json
+        if (!e.Name.Equals(Path.GetFileName(_dataJsonPath), StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+        
+        ScheduleReload();
     }
     
     /// <summary>
-    /// Error handler for FileSystemWatcher exceptions.
+    /// Step 2: Schedules a reload with 500ms debounce.
+    /// Cancels any pending timer and starts a new one.
+    /// Multiple events within the window are coalesced into a single reload.
     /// </summary>
-    private void OnFileWatcherError(object sender, ErrorEventArgs e)
+    private void ScheduleReload()
     {
-        Exception ex = e.GetException();
-        _logger.LogError(ex, "FileSystemWatcher error; file auto-update may be disabled");
+        lock (_debounceLock)
+        {
+            // If a reload is already scheduled, log that this event is coalesced
+            if (_pendingReload)
+            {
+                _logger.LogDebug("File event coalesced; debounce timer restarted");
+            }
+            else
+            {
+                _pendingReload = true;
+                _logger.LogDebug("File event detected; scheduling reload with 500ms debounce");
+            }
+            
+            // Cancel any pending timer
+            if (_debounceTimer != null)
+            {
+                _debounceTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                _debounceTimer.Dispose();
+                _debounceTimer = null;
+            }
+            
+            // Start new debounce timer (500ms from configuration)
+            int debounceMs = _options.Value.FileWatchDebounceMs;
+            _debounceTimer = new Timer(
+                callback: OnDebounceTimerElapsed,
+                state: null,
+                dueTime: debounceMs,
+                period: Timeout.Infinite);
+        }
+    }
+    
+    /// <summary>
+    /// Step 2: Timer callback executed after debounce window (500ms) expires.
+    /// Calls ReloadData() to re-read and re-parse data.json.
+    /// Only executes if no new file events occurred during the debounce window.
+    /// </summary>
+    private void OnDebounceTimerElapsed(object state)
+    {
+        lock (_debounceLock)
+        {
+            // Timer has elapsed; reset pending reload flag
+            _pendingReload = false;
+            
+            // Dispose the timer
+            if (_debounceTimer != null)
+            {
+                _debounceTimer.Dispose();
+                _debounceTimer = null;
+            }
+        }
+        
+        // Call ReloadData() to re-read and re-parse data.json
+        // Step 4 will implement full reload logic with hash checking and event raising
+        ReloadData();
+    }
+    
+    /// <summary>
+    /// Step 4: Reloads data from data.json file.
+    /// Placeholder implementation for Step 2 compilation.
+    /// Steps 3-4 will implement hash checking, retry logic, and event publishing.
+    /// </summary>
+    private void ReloadData()
+    {
+        _logger.LogInformation("data.json change detected, reloading...");
+        
+        // Step 3-4 will implement:
+        // - File hash checking (skip if unchanged)
+        // - Retry logic for file locks
+        // - JSON parsing and validation
+        // - Error handling and last-known-good fallback
+        // - OnDataChanged event publishing
+        
+        // Placeholder: just raise the event so components re-render
+        OnDataChanged?.Invoke();
     }
     
     /// <summary>
@@ -328,6 +416,15 @@ public class DashboardDataService : IDisposable
     
     public string GetLastError() => _lastError;
     
+    /// <summary>
+    /// Error handler for FileSystemWatcher exceptions.
+    /// </summary>
+    private void OnFileWatcherError(object sender, ErrorEventArgs e)
+    {
+        Exception ex = e.GetException();
+        _logger.LogError(ex, "FileSystemWatcher error; file auto-update may be disabled");
+    }
+    
     // IDisposable implementation
     
     public void Dispose()
@@ -340,12 +437,15 @@ public class DashboardDataService : IDisposable
     {
         if (disposing)
         {
-            // Cancel pending debounce timer
-            if (_debounceTimer != null)
+            lock (_debounceLock)
             {
-                _debounceTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                _debounceTimer.Dispose();
-                _debounceTimer = null;
+                // Cancel pending debounce timer
+                if (_debounceTimer != null)
+                {
+                    _debounceTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    _debounceTimer.Dispose();
+                    _debounceTimer = null;
+                }
             }
             
             // Stop and dispose FileSystemWatcher
