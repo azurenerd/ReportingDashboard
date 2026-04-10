@@ -74,7 +74,7 @@ code {
     input,
     select,
     a[href] {
-        pointer-events: none;
+        display: none !important;
     }
 
     /* Page Breaks */
