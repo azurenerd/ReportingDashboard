@@ -8,7 +8,21 @@
             Shipped (@Items.Count)
         </h3>
         <div class="card-list">
-            @* Cards will be implemented in Step 2 *@
+            @foreach (var item in Items)
+            {
+                <div class="shipped-card">
+                    <div class="card-indicator">
+                        <span class="checkmark"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title">@item.Title</div>
+                        @if (!string.IsNullOrWhiteSpace(item.Description))
+                        {
+                            <div class="card-description">@item.Description</div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
     </section>
 }
