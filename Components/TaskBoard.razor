@@ -1,89 +1,110 @@
 @using AgentSquad.Runner.Models
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0">Completed (@(Tasks?.Count(t => t.Status == TaskStatus.Completed) ?? 0))</h5>
+<div class="container-fluid">
+    <div class="row g-4">
+        <!-- Completed Column -->
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="mb-3">
+                <h4 class="d-inline-block me-2">Completed</h4>
+                <span class="badge bg-success">@Tasks.Count(t => t.Status == TaskStatus.Completed)</span>
             </div>
-            <div class="card-body">
-                @if (Tasks != null && Tasks.Any(t => t.Status == TaskStatus.Completed))
-                {
-                    @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.Completed))
-                    {
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <h6 class="card-title">@task.Title</h6>
-                                <p class="card-text text-muted small">@task.Description</p>
-                                <small class="text-muted">Assigned to: @task.AssignedTo</small>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted">No completed tasks.</p>
-                }
-            </div>
+            @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.Completed).OrderBy(t => t.DueDate))
+            {
+                <div class="card mb-2 border-light shadow-sm task-card" style="transition: box-shadow 0.3s ease;">
+                    <div class="card-body p-3">
+                        <h5 class="card-title fw-bold text-dark mb-2">@task.Title</h5>
+                        <p class="card-text mb-2">
+                            <small class="text-muted">@task.AssignedTo</small>
+                        </p>
+                        <p class="card-text text-end mb-0">
+                            <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
+                        </p>
+                    </div>
+                </div>
+            }
+            @if (!Tasks.Any(t => t.Status == TaskStatus.Completed))
+            {
+                <div class="alert alert-light text-muted py-3">No tasks</div>
+            }
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0">In Progress (@(Tasks?.Count(t => t.Status == TaskStatus.InProgress) ?? 0))</h5>
+        <!-- In Progress Column -->
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="mb-3">
+                <h4 class="d-inline-block me-2">In Progress</h4>
+                <span class="badge bg-primary">@Tasks.Count(t => t.Status == TaskStatus.InProgress)</span>
             </div>
-            <div class="card-body">
-                @if (Tasks != null && Tasks.Any(t => t.Status == TaskStatus.InProgress))
-                {
-                    @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.InProgress))
-                    {
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <h6 class="card-title">@task.Title</h6>
-                                <p class="card-text text-muted small">@task.Description</p>
-                                <small class="text-muted">Assigned to: @task.AssignedTo</small>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted">No in-progress tasks.</p>
-                }
-            </div>
+            @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.InProgress).OrderBy(t => t.DueDate))
+            {
+                <div class="card mb-2 border-light shadow-sm task-card" style="transition: box-shadow 0.3s ease;">
+                    <div class="card-body p-3">
+                        <h5 class="card-title fw-bold text-dark mb-2">@task.Title</h5>
+                        <p class="card-text mb-2">
+                            <small class="text-muted">@task.AssignedTo</small>
+                        </p>
+                        <p class="card-text text-end mb-0">
+                            <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
+                        </p>
+                    </div>
+                </div>
+            }
+            @if (!Tasks.Any(t => t.Status == TaskStatus.InProgress))
+            {
+                <div class="alert alert-light text-muted py-3">No tasks</div>
+            }
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">Carried Over (@(Tasks?.Count(t => t.Status == TaskStatus.CarriedOver) ?? 0))</h5>
+        <!-- Carried Over Column -->
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="mb-3">
+                <h4 class="d-inline-block me-2">Carried Over</h4>
+                <span class="badge bg-warning text-dark">@Tasks.Count(t => t.Status == TaskStatus.CarriedOver)</span>
             </div>
-            <div class="card-body">
-                @if (Tasks != null && Tasks.Any(t => t.Status == TaskStatus.CarriedOver))
-                {
-                    @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.CarriedOver))
-                    {
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <h6 class="card-title">@task.Title</h6>
-                                <p class="card-text text-muted small">@task.Description</p>
-                                <small class="text-muted">Assigned to: @task.AssignedTo</small>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted">No carried over tasks.</p>
-                }
-            </div>
+            @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.CarriedOver).OrderBy(t => t.DueDate))
+            {
+                <div class="card mb-2 border-light shadow-sm task-card" style="transition: box-shadow 0.3s ease;">
+                    <div class="card-body p-3">
+                        <h5 class="card-title fw-bold text-dark mb-2">@task.Title</h5>
+                        <p class="card-text mb-2">
+                            <small class="text-muted">@task.AssignedTo</small>
+                        </p>
+                        <p class="card-text text-end mb-0">
+                            <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
+                        </p>
+                    </div>
+                </div>
+            }
+            @if (!Tasks.Any(t => t.Status == TaskStatus.CarriedOver))
+            {
+                <div class="alert alert-light text-muted py-3">No tasks</div>
+            }
         </div>
     </div>
 </div>
 
+<style>
+    .task-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    @media print {
+        .task-card {
+            box-shadow: none !important;
+            border: 1px solid #dee2e6 !important;
+        }
+
+        .task-card:hover {
+            box-shadow: none !important;
+        }
+    }
+</style>
+
 @code {
     [Parameter]
-    public List<ProjectTask> Tasks { get; set; } = new();
+    public List<Task> Tasks { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Tasks ??= new();
+    }
 }
