@@ -8,7 +8,22 @@
             @foreach (var milestone in SortedMilestones)
             {
                 <div class="milestone-card">
-                    <!-- Rendering logic will be added in Step 4 -->
+                    <svg class="status-icon" viewBox="0 0 20 20">
+                        @{
+                            string color = milestone.Status switch
+                            {
+                                "Completed" => "#4CAF50",
+                                "On Track" => "#FFC107",
+                                "At Risk" => "#F44336",
+                                _ => "#999"
+                            };
+                        }
+                        <circle cx="10" cy="10" r="9" fill="@color" />
+                    </svg>
+                    <div class="milestone-info">
+                        <span class="milestone-name" title="@milestone.Name">@milestone.Name</span>
+                        <span class="milestone-date">@milestone.Date.ToString("MM/dd/yyyy")</span>
+                    </div>
                 </div>
             }
         </div>
