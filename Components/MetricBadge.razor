@@ -7,10 +7,10 @@
         {
             <span class="metric-label">@Metric.Label</span>
         }
-        <span class="metric-value">@(Metric.Value ?? "-")</span>
+        <span class="metric-value">@(string.IsNullOrWhiteSpace(Metric.Value) ? "\u2014" : Metric.Value)</span>
         <div class="trend-indicator">
             <span class="trend-arrow @GetTrendClass(Metric.Trend)"></span>
-            <span class="trend-text @GetTrendClass(Metric.Trend)-text">@GetTrendLabel(Metric.Trend)</span>
+            <span class="trend-text @GetTrendClass(Metric.Trend)">@GetTrendLabel(Metric.Trend)</span>
         </div>
     </div>
 }
