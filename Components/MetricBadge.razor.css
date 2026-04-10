@@ -32,3 +32,57 @@
     background-color: var(--bg-card, #ffffff);
     white-space: nowrap;
 }
+
+.trend-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 6px;
+    background-color: var(--bg-card, #ffffff);
+}
+
+.trend-arrow {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    background-color: transparent;
+}
+
+.trend-up {
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid var(--status-shipped, #28a745);
+}
+
+.trend-down {
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid var(--status-off-track, #dc3545);
+}
+
+.trend-stable {
+    width: 12px;
+    height: 3px;
+    background-color: var(--text-secondary, #6c757d);
+    border: none;
+}
+
+.trend-text {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    background-color: var(--bg-card, #ffffff);
+}
+
+.trend-up-text {
+    color: var(--status-shipped, #28a745);
+}
+
+.trend-down-text {
+    color: var(--status-off-track, #dc3545);
+}
+
+.trend-stable-text {
+    color: var(--text-secondary, #6c757d);
+}

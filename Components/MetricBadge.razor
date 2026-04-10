@@ -8,10 +8,30 @@
             <span class="metric-label">@Metric.Label</span>
         }
         <span class="metric-value">@(Metric.Value ?? "-")</span>
+        <div class="trend-indicator">
+            <span class="trend-arrow @GetTrendClass(Metric.Trend)"></span>
+            <span class="trend-text @GetTrendClass(Metric.Trend)-text">@GetTrendLabel(Metric.Trend)</span>
+        </div>
     </div>
 }
 
 @code {
     [Parameter]
     public KeyMetric? Metric { get; set; }
+
+    private static string GetTrendClass(string? trend) => trend?.ToLowerInvariant() switch
+    {
+        "up" => "trend-up",
+        "down" => "trend-down",
+        "stable" => "trend-stable",
+        _ => "trend-stable"
+    };
+
+    private static string GetTrendLabel(string? trend) => trend?.ToLowerInvariant() switch
+    {
+        "up" => "Up",
+        "down" => "Down",
+        "stable" => "Stable",
+        _ => "Stable"
+    };
 }
