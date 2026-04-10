@@ -1,16 +1,18 @@
-<section class="shipped-items">
-    <!-- Full implementation in T5 -->
-    @if (Items.Count > 0)
-    {
-        <h2>Shipped <span class="item-count">@Items.Count</span></h2>
-        @foreach (var item in Items)
-        {
-            <div class="work-item-stub">@item.Title</div>
-        }
-    }
-</section>
+@using ReportingDashboard.Models
+
+@if (SafeItems.Count > 0)
+{
+    <section class="dashboard-section shipped-section">
+        <div class="section-header">
+            <h2>Shipped</h2>
+            <span class="item-count">@SafeItems.Count</span>
+        </div>
+    </section>
+}
 
 @code {
     [Parameter]
-    public List<WorkItem> Items { get; set; } = [];
+    public List<WorkItem>? Items { get; set; }
+
+    private List<WorkItem> SafeItems => Items ?? [];
 }
