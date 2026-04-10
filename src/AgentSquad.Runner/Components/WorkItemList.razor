@@ -1,0 +1,172 @@
+@inherits ComponentBase
+@using AgentSquad.Runner.Models
+@using MudBlazor
+
+<style>
+    .shipped-header {
+        background-color: #4CAF50;
+        color: white;
+        padding: 12px 16px;
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    .in-progress-header {
+        background-color: #2196F3;
+        color: white;
+        padding: 12px 16px;
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    .carried-over-header {
+        background-color: #FF9800;
+        color: white;
+        padding: 12px 16px;
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    .work-item-card {
+        margin-bottom: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .work-item-list {
+        list-style: circle;
+        padding-left: 20px;
+        line-height: 1.6;
+        margin: 0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .work-item-list li {
+        margin-bottom: 8px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .work-item-list li strong {
+        font-size: 15px;
+        display: block;
+        margin-bottom: 2px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .assignee-text {
+        font-size: 12px;
+        color: #999;
+        font-style: italic;
+        margin-left: 8px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .empty-state {
+        color: #999;
+        font-style: italic;
+        padding: 16px 0;
+        margin: 0;
+    }
+
+    .mud-card {
+        overflow: hidden;
+    }
+
+    .mud-card-content {
+        overflow-x: hidden;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+</style>
+
+<div>
+    <!-- Shipped Section -->
+    <MudCard Class="work-item-card">
+        <MudCardHeader Class="shipped-header">
+            <span>Shipped (@(Shipped?.Count ?? 0))</span>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (Shipped != null && Shipped.Count > 0)
+            {
+                <ul class="work-item-list">
+                    @foreach (var item in Shipped)
+                    {
+                        <li>
+                            <strong>@item.Title</strong>
+                            @if (!string.IsNullOrEmpty(item.Assignee))
+                            {
+                                <span class="assignee-text">@item.Assignee</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="empty-state">No items shipped</p>
+            }
+        </MudCardContent>
+    </MudCard>
+
+    <!-- In Progress Section -->
+    <MudCard Class="work-item-card">
+        <MudCardHeader Class="in-progress-header">
+            <span>In Progress (@(InProgress?.Count ?? 0))</span>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (InProgress != null && InProgress.Count > 0)
+            {
+                <ul class="work-item-list">
+                    @foreach (var item in InProgress)
+                    {
+                        <li>
+                            <strong>@item.Title</strong>
+                            @if (!string.IsNullOrEmpty(item.Assignee))
+                            {
+                                <span class="assignee-text">@item.Assignee</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="empty-state">No items in progress</p>
+            }
+        </MudCardContent>
+    </MudCard>
+
+    <!-- Carried Over Section -->
+    <MudCard Class="work-item-card">
+        <MudCardHeader Class="carried-over-header">
+            <span>Carried Over (@(CarriedOver?.Count ?? 0))</span>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (CarriedOver != null && CarriedOver.Count > 0)
+            {
+                <ul class="work-item-list">
+                    @foreach (var item in CarriedOver)
+                    {
+                        <li>
+                            <strong>@item.Title</strong>
+                            @if (!string.IsNullOrEmpty(item.Assignee))
+                            {
+                                <span class="assignee-text">@item.Assignee</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="empty-state">No items carried over</p>
+            }
+        </MudCardContent>
+    </MudCard>
+</div>
