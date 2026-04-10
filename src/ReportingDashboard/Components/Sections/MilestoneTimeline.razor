@@ -32,7 +32,7 @@
     private List<Milestone> SortedMilestones =>
         (Milestones ?? []).OrderBy(m => m.Date).ToList();
 
-    private string GetStatusClass(string status) => status switch
+    private static string GetStatusClass(string status) => status switch
     {
         "completed" => "completed",
         "in-progress" => "in-progress",
@@ -41,7 +41,7 @@
         _ => "upcoming"
     };
 
-    private string FormatDate(string? date)
+    private static string FormatDate(string? date)
     {
         if (string.IsNullOrWhiteSpace(date))
             return "TBD";
@@ -52,7 +52,7 @@
         return date;
     }
 
-    private string FormatStatusLabel(string status) => status switch
+    private static string FormatStatusLabel(string status) => status switch
     {
         "completed" => "Complete",
         "in-progress" => "In Progress",
