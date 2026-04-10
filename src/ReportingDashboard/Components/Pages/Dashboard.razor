@@ -1,4 +1,254 @@
 @page "/"
+@implements IDisposable
+@inject DashboardDataService DataService
 
-<h1>Executive Project Reporting Dashboard</h1>
-<p>Foundation scaffolding complete. Data-driven content will be added in the next step.</p>
+@if (_data is null)
+{
+    <div class="dashboard-container">
+        <p>Loading dashboard data...</p>
+    </div>
+}
+else if (_data.ErrorMessage is not null)
+{
+    <div class="dashboard-container">
+        <div class="error-banner">
+            <h2>⚠ Unable to Load Dashboard</h2>
+            <p>@_data.ErrorMessage</p>
+            <p class="error-hint">Ensure <code>wwwroot/data/data.json</code> exists and contains valid JSON.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="dashboard-container">
+
+        @* ── Project Header ── *@
+        <section class="dashboard-header">
+            <div class="header-top-row">
+                <h1 class="project-name">@(_data.Project?.Name ?? "Untitled Project")</h1>
+                @if (_data.Project?.OverallHealth is not null)
+                {
+                    <span class="status-badge status-@GetHealthCssClass(_data.Project.OverallHealth)">
+                        @FormatHealth(_data.Project.OverallHealth)
+                    </span>
+                }
+            </div>
+            <div class="header-meta">
+                @if (_data.Project?.Lead is not null)
+                {
+                    <span class="meta-item"><strong>Lead:</strong> @_data.Project.Lead</span>
+                }
+                @if (_data.Project?.Status is not null)
+                {
+                    <span class="meta-item"><strong>Status:</strong> @_data.Project.Status</span>
+                }
+                @if (_data.Project?.LastUpdated is not null)
+                {
+                    <span class="meta-item"><strong>Updated:</strong> @_data.Project.LastUpdated</span>
+                }
+            </div>
+            @if (_data.Project?.Summary is not null)
+            {
+                <p class="project-summary">@_data.Project.Summary</p>
+            }
+        </section>
+
+        @* ── Monthly Summary Metrics ── *@
+        @if (_data.CurrentMonth is not null)
+        {
+            <section class="metrics-strip">
+                <div class="metric-card">
+                    <div class="metric-value">@_data.CurrentMonth.TotalItems</div>
+                    <div class="metric-label">Total Items</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">@_data.CurrentMonth.CompletedItems</div>
+                    <div class="metric-label">Completed</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">@_data.CurrentMonth.CarriedItems</div>
+                    <div class="metric-label">Carried Over</div>
+                </div>
+                <div class="metric-card metric-health-@GetHealthCssClass(_data.CurrentMonth.OverallHealth)">
+                    <div class="metric-value">@FormatHealth(_data.CurrentMonth.OverallHealth)</div>
+                    <div class="metric-label">Overall Health</div>
+                </div>
+            </section>
+        }
+
+        @* ── Milestone Timeline ── *@
+        @if (_data.Milestones.Count > 0)
+        {
+            <section class="milestone-timeline">
+                <h2 class="section-title">
+                    Milestone Timeline
+                    <span class="item-count">@_data.Milestones.Count</span>
+                </h2>
+                <div class="timeline-track">
+                    @foreach (var milestone in _data.Milestones)
+                    {
+                        <div class="timeline-item milestone-@milestone.Status">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">@milestone.Title</div>
+                                @if (milestone.Date is not null)
+                                {
+                                    <div class="timeline-date">@milestone.Date</div>
+                                }
+                                @if (milestone.Description is not null)
+                                {
+                                    <div class="timeline-description">@milestone.Description</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+
+        @* ── Shipped Items ── *@
+        @if (_data.Shipped.Count > 0)
+        {
+            <section class="section-shipped">
+                <h2 class="section-title">
+                    ✅ Shipped
+                    <span class="item-count">@_data.Shipped.Count</span>
+                </h2>
+                <div class="work-items">
+                    @foreach (var item in _data.Shipped)
+                    {
+                        <div class="work-item-card card-completed">
+                            <div class="work-item-header">
+                                <span class="work-item-title">@item.Title</span>
+                                @if (item.Category is not null)
+                                {
+                                    <span class="work-item-category">@item.Category</span>
+                                }
+                            </div>
+                            @if (item.Description is not null)
+                            {
+                                <p class="work-item-description">@item.Description</p>
+                            }
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill progress-completed" style="width: 100%">
+                                    <span class="progress-label">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+
+        @* ── In-Progress Items ── *@
+        @if (_data.InProgress.Count > 0)
+        {
+            <section class="section-in-progress">
+                <h2 class="section-title">
+                    🔄 In Progress
+                    <span class="item-count">@_data.InProgress.Count</span>
+                </h2>
+                <div class="work-items">
+                    @foreach (var item in _data.InProgress)
+                    {
+                        var percent = item.PercentComplete ?? 0;
+                        <div class="work-item-card card-in-progress">
+                            <div class="work-item-header">
+                                <span class="work-item-title">@item.Title</span>
+                                @if (item.Category is not null)
+                                {
+                                    <span class="work-item-category">@item.Category</span>
+                                }
+                            </div>
+                            @if (item.Description is not null)
+                            {
+                                <p class="work-item-description">@item.Description</p>
+                            }
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill progress-in-progress" style="width: @(percent)%">
+                                    <span class="progress-label">@(percent)%</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+
+        @* ── Carried-Over Items ── *@
+        @if (_data.CarriedOver.Count > 0)
+        {
+            <section class="section-carried-over">
+                <h2 class="section-title">
+                    ⏳ Carried Over
+                    <span class="item-count">@_data.CarriedOver.Count</span>
+                </h2>
+                <div class="work-items">
+                    @foreach (var item in _data.CarriedOver)
+                    {
+                        var percent = item.PercentComplete ?? 0;
+                        <div class="work-item-card card-carried-over">
+                            <div class="work-item-header">
+                                <span class="work-item-title">@item.Title</span>
+                                @if (item.Category is not null)
+                                {
+                                    <span class="work-item-category">@item.Category</span>
+                                }
+                            </div>
+                            @if (item.Description is not null)
+                            {
+                                <p class="work-item-description">@item.Description</p>
+                            }
+                            @if (percent > 0)
+                            {
+                                <div class="progress-bar-track">
+                                    <div class="progress-bar-fill progress-carried-over" style="width: @(percent)%">
+                                        <span class="progress-label">@(percent)%</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+
+    </div>
+}
+
+@code {
+    private DashboardData? _data;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _data = await DataService.GetDashboardDataAsync();
+        DataService.OnDataChanged += HandleDataChanged;
+    }
+
+    private async void HandleDataChanged()
+    {
+        _data = await DataService.GetDashboardDataAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private static string GetHealthCssClass(string? health) => health?.ToLowerInvariant() switch
+    {
+        "on-track" => "on-track",
+        "at-risk" => "at-risk",
+        "behind" => "behind",
+        _ => "unknown"
+    };
+
+    private static string FormatHealth(string? health) => health?.ToLowerInvariant() switch
+    {
+        "on-track" => "On Track",
+        "at-risk" => "At Risk",
+        "behind" => "Behind",
+        _ => health ?? "Unknown"
+    };
+
+    public void Dispose()
+    {
+        DataService.OnDataChanged -= HandleDataChanged;
+    }
+}
