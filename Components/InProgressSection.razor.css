@@ -11,6 +11,7 @@
     align-items: center;
     gap: 6px;
     margin-bottom: 12px;
+    background: var(--bg-card, #ffffff);
 }
 
 .section-title {
@@ -47,6 +48,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 8px;
+    background: var(--bg-card, #ffffff);
 }
 
 .item-title {
@@ -54,6 +56,11 @@
     font-size: 13px;
     color: var(--text-primary, #212529);
     background: var(--bg-card, #ffffff);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1;
 }
 
 .item-description {
@@ -62,6 +69,8 @@
     margin-top: 4px;
     line-height: 1.4;
     background: var(--bg-card, #ffffff);
+    max-height: 2.8em;
+    overflow: hidden;
 }
 
 .badges {
@@ -78,6 +87,7 @@
     font-size: var(--font-size-small, 11px);
     font-weight: 600;
     white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .category-badge {
@@ -115,6 +125,7 @@
     align-items: center;
     gap: 8px;
     margin-top: 8px;
+    background: var(--bg-card, #ffffff);
 }
 
 .progress-track {
@@ -123,6 +134,7 @@
     background: var(--border-color, #dee2e6);
     border-radius: 4px;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .progress-fill {
