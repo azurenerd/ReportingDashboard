@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Executive Dashboard</title>
+    <base href="/" />
+    
+    <!-- Bootstrap 5.3.0 CSS -->
+    <link href="_content/Bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- Bootstrap Icons 1.11.3 -->
+    <link href="_content/Bootstrap.Icons/font/bootstrap-icons.css" rel="stylesheet" />
+    
+    <!-- Custom Site Styles -->
+    <link href="css/site.css" rel="stylesheet" />
+    
+    <!-- Component-specific styles -->
+    <link href="AgentSquad.Runner.styles.css" rel="stylesheet" />
+    
+    <!-- Favicon (optional) -->
+    <link rel="icon" type="image/png" href="favicon.png" />
+    
+    <!-- Preload critical fonts for performance -->
+    <link rel="preload" href="_content/Bootstrap.Icons/font/bootstrap-icons.woff2" as="font" type="font/woff2" crossorigin />
+</head>
+<body>
+    <!-- Blazor App Root -->
+    <div id="app">
+        <!-- Loading spinner shown while Blazor initializes -->
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%"></circle>
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <!-- Blazor error UI shown if circuit is disconnected or error occurs -->
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser console for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <!-- Blazor Server JavaScript runtime -->
+    <script src="_framework/blazor.server.js"></script>
+    
+    <!-- Custom initialization script (optional, for future enhancements) -->
+    <script>
+        // Add any custom JavaScript initialization here
+        document.addEventListener('DOMContentLoaded', function () {
+            // Log when page is fully loaded (for debugging)
+            console.log('Executive Dashboard loaded successfully');
+        });
+
+        // Handle Blazor events
+        Blazor.start().then(function () {
+            console.log('Blazor runtime initialized');
+        }).catch(function (err) {
+            console.error('Failed to start Blazor runtime:', err);
+        });
+    </script>
+</body>
+</html>
