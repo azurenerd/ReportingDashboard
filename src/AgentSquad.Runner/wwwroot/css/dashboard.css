@@ -1,76 +1,750 @@
+/* ============================================================================
+   Dashboard CSS - Executive Dashboard Styling
+   
+   Overview:
+   - Fixed-width 1200px layout, light theme, professional typography
+   - Color palette: white/light-gray backgrounds, dark text, blue accents
+   - Typography: Segoe UI/system-ui, 14-16px body text, hierarchical heading scale
+   - Spacing: 8px base unit for consistent rhythm
+   - Cross-browser compatible (Chrome, Edge, Firefox)
+   
+   ========================================================================== */
+
+/* ============================================================================
+   1. CSS Custom Properties (Color Palette)
+   ============================================================================ */
+
+:root {
+  /* Primary Colors */
+  --color-bg-primary: #FFFFFF;           /* Page background: white */
+  --color-bg-secondary: #F5F5F5;         /* Card/section background: light gray */
+  --color-text-primary: #333333;         /* Primary text: dark gray */
+  --color-text-secondary: #666666;       /* Secondary text: muted gray */
+  --color-text-muted: #999999;           /* Muted text: lighter gray */
+  
+  /* Accent Colors */
+  --color-accent: #2196F3;               /* Primary accent: blue (links, highlights) */
+  --color-accent-hover: #1976D2;         /* Accent hover state: darker blue */
+  --color-accent-light: #E3F2FD;         /* Light accent background: pale blue */
+  
+  /* Status Colors */
+  --color-success: #4CAF50;              /* Success/Shipped: green */
+  --color-success-light: #E8F5E9;        /* Success background: pale green */
+  --color-warning: #FF9800;              /* Warning/Carried Over: orange */
+  --color-warning-light: #FFF3E0;        /* Warning background: pale orange */
+  --color-error: #F44336;                /* Error/At Risk: red */
+  --color-error-light: #FFEBEE;          /* Error background: pale red */
+  --color-info: #2196F3;                 /* Info/In Progress: blue (same as accent) */
+  --color-info-light: #E3F2FD;           /* Info background: pale blue */
+  
+  /* Semantic Status Colors */
+  --color-status-completed: #4CAF50;     /* Completed: green */
+  --color-status-on-track: #2196F3;      /* On Track: blue */
+  --color-status-at-risk: #F44336;       /* At Risk: red */
+  
+  /* Border & Divider Colors */
+  --color-border: #EEEEEE;               /* Light border: very light gray */
+  --color-border-dark: #DDDDDD;          /* Darker border: medium light gray */
+  --color-divider: #E0E0E0;              /* Divider line: light gray */
+  
+  /* Semantic Colors */
+  --color-link: #2196F3;                 /* Link color: blue */
+  --color-link-visited: #1976D2;         /* Visited link: darker blue */
+  
+  /* =========================================================================
+     2. Spacing Variables (8px base unit)
+     ========================================================================= */
+  
+  --space-xs: 4px;                       /* Extra small: 0.5 * base unit */
+  --space-sm: 8px;                       /* Small: 1 * base unit */
+  --space-md: 12px;                      /* Medium: 1.5 * base unit */
+  --space-lg: 16px;                      /* Large: 2 * base unit */
+  --space-xl: 24px;                      /* Extra large: 3 * base unit */
+  --space-2xl: 32px;                     /* 2X large: 4 * base unit */
+  --space-3xl: 48px;                     /* 3X large: 6 * base unit */
+  
+  /* =========================================================================
+     3. Typography Variables
+     ========================================================================= */
+  
+  /* Font Stack (system fonts for consistent rendering) */
+  --font-family: "Segoe UI", -apple-system, system-ui, "Helvetica Neue", sans-serif;
+  --font-family-mono: "Courier New", Courier, monospace;
+  
+  /* Font Sizes */
+  --font-size-xs: 11px;                  /* Extra small label */
+  --font-size-sm: 12px;                  /* Small label/caption */
+  --font-size-base: 14px;                /* Base body text (14px) */
+  --font-size-md: 16px;                  /* Medium body text (16px preferred) */
+  --font-size-lg: 18px;                  /* Large heading */
+  --font-size-xl: 20px;                  /* Extra large heading */
+  --font-size-2xl: 24px;                 /* 2X large heading */
+  --font-size-3xl: 28px;                 /* 3X large heading (page title) */
+  
+  /* Font Weights */
+  --font-weight-normal: 400;             /* Normal/regular text */
+  --font-weight-medium: 500;             /* Medium weight (subtle emphasis) */
+  --font-weight-semibold: 600;           /* Semibold (headings, strong text) */
+  --font-weight-bold: 700;               /* Bold (strong emphasis) */
+  
+  /* Line Heights (for readability) */
+  --line-height-tight: 1.2;              /* Tight line height (headings) */
+  --line-height-normal: 1.5;             /* Normal line height (body text) */
+  --line-height-loose: 1.75;             /* Loose line height (long text) */
+  
+  /* =========================================================================
+     4. Layout & Sizing Variables
+     ========================================================================= */
+  
+  --container-max-width: 1200px;         /* Fixed-width container */
+  --container-padding: 20px;             /* Container horizontal padding */
+  --card-border-radius: 4px;             /* Card corner radius */
+  --card-padding: 16px;                  /* Card internal padding */
+  --card-gap: 12px;                      /* Gap between card elements */
+  
+  /* =========================================================================
+     5. Shadow & Depth Variables
+     ========================================================================= */
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.16);
+  
+  /* =========================================================================
+     6. Transition & Animation Variables
+     ========================================================================= */
+  
+  --transition-duration: 200ms;          /* Standard animation duration */
+  --transition-timing: ease-in-out;      /* Standard easing function */
+}
+
+/* ============================================================================
+   7. Base HTML Styles (Reset & Defaults)
+   ============================================================================ */
+
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;                       /* Base font size for rem calculations */
+  scroll-behavior: smooth;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #FAFAFA;
-    color: #333333;
-    font-size: 14px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.dashboard-container {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #FFFFFF;
+/* ============================================================================
+   8. Typography: Headings
+   ============================================================================ */
+
+h1 {
+  font-size: var(--font-size-3xl);       /* 28px */
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-lg);
 }
 
-.status-chart-container {
-    max-width: 600px;
-    height: auto;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #F5F5F5;
-    border-radius: 4px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+h2 {
+  font-size: var(--font-size-2xl);       /* 24px */
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-lg);
 }
 
-h1, h2, h3 {
-    color: #1565C0;
-    margin-bottom: 16px;
+h3 {
+  font-size: var(--font-size-xl);        /* 20px */
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
 }
 
-.card {
-    border: 1px solid #E0E0E0;
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 20px;
-    background-color: #FFFFFF;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+h4 {
+  font-size: var(--font-size-lg);        /* 18px */
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
 }
 
-.error-alert {
-    background-color: #FFEBEE;
-    border: 1px solid #EF5350;
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 20px;
-    color: #C62828;
+h5 {
+  font-size: var(--font-size-md);        /* 16px */
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
 }
 
-.timeline-item {
-    padding: 12px;
-    margin-bottom: 12px;
-    background-color: #F5F5F5;
-    border-left: 4px solid #1565C0;
-    border-radius: 2px;
+h6 {
+  font-size: var(--font-size-base);      /* 14px */
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
 }
 
-@media (max-width: 1200px) {
-    .dashboard-container {
-        width: 100%;
-    }
+/* ============================================================================
+   9. Typography: Paragraphs & Text Elements
+   ============================================================================ */
+
+p {
+  margin-bottom: var(--space-lg);
+  line-height: var(--line-height-normal);
 }
 
-@media (max-width: 768px) {
-    .status-chart-container {
-        max-width: 100%;
-    }
+p:last-child {
+  margin-bottom: 0;
 }
+
+/* Muted/secondary text */
+.text-secondary {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Text emphasis */
+strong, .font-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+em, .font-italic {
+  font-style: italic;
+}
+
+/* Code & monospace */
+code, pre {
+  font-family: var(--font-family-mono);
+  background-color: var(--color-bg-secondary);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+pre {
+  padding: var(--space-lg);
+  overflow-x: auto;
+  line-height: var(--line-height-loose);
+}
+
+/* ============================================================================
+   10. Typography: Labels & Captions
+   ============================================================================ */
+
+label {
+  font-size: var(--font-size-sm);        /* 12px */
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  display: block;
+  margin-bottom: var(--space-xs);
+}
+
+.label-small {
+  font-size: var(--font-size-xs);        /* 11px */
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.caption {
+  font-size: var(--font-size-sm);        /* 12px */
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-tight);
+}
+
+/* ============================================================================
+   11. Links
+   ============================================================================ */
+
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  transition: color var(--transition-duration) var(--transition-timing);
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+a:visited {
+  color: var(--color-link-visited);
+}
+
+a:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   12. Lists
+   ============================================================================ */
+
+ul, ol {
+  margin-bottom: var(--space-lg);
+  padding-left: var(--space-2xl);
+}
+
+ul ul, ul ol, ol ul, ol ol {
+  margin-bottom: 0;
+  margin-top: var(--space-sm);
+}
+
+li {
+  margin-bottom: var(--space-sm);
+  line-height: var(--line-height-normal);
+}
+
+dl {
+  margin-bottom: var(--space-lg);
+}
+
+dt {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-xs);
+}
+
+dd {
+  margin-left: var(--space-xl);
+  margin-bottom: var(--space-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   13. Utility Classes: Text Alignment & Transform
+   ============================================================================ */
+
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.text-lowercase {
+  text-transform: lowercase;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+.text-nowrap {
+  white-space: nowrap;
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================================
+   14. Utility Classes: Font Weights & Styles
+   ============================================================================ */
+
+.font-light {
+  font-weight: 300;
+}
+
+.font-normal {
+  font-weight: var(--font-weight-normal);
+}
+
+.font-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.font-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+
+.font-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+/* ============================================================================
+   15. Utility Classes: Colors
+   ============================================================================ */
+
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-success {
+  color: var(--color-success);
+}
+
+.text-warning {
+  color: var(--color-warning);
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+.text-info {
+  color: var(--color-info);
+}
+
+.bg-primary {
+  background-color: var(--color-bg-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-bg-secondary);
+}
+
+.bg-success {
+  background-color: var(--color-success-light);
+}
+
+.bg-warning {
+  background-color: var(--color-warning-light);
+}
+
+.bg-error {
+  background-color: var(--color-error-light);
+}
+
+.bg-info {
+  background-color: var(--color-info-light);
+}
+
+/* ============================================================================
+   16. Utility Classes: Spacing (Margin & Padding)
+   ============================================================================ */
+
+.m-0 { margin: 0; }
+.m-xs { margin: var(--space-xs); }
+.m-sm { margin: var(--space-sm); }
+.m-md { margin: var(--space-md); }
+.m-lg { margin: var(--space-lg); }
+.m-xl { margin: var(--space-xl); }
+.m-2xl { margin: var(--space-2xl); }
+
+.mx-auto { margin-left: auto; margin-right: auto; }
+.my-auto { margin-top: auto; margin-bottom: auto; }
+
+.mt-0 { margin-top: 0; }
+.mt-xs { margin-top: var(--space-xs); }
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mt-xl { margin-top: var(--space-xl); }
+
+.mb-0 { margin-bottom: 0; }
+.mb-xs { margin-bottom: var(--space-xs); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+.mb-xl { margin-bottom: var(--space-xl); }
+
+.p-0 { padding: 0; }
+.p-xs { padding: var(--space-xs); }
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-md); }
+.p-lg { padding: var(--space-lg); }
+.p-xl { padding: var(--space-xl); }
+.p-2xl { padding: var(--space-2xl); }
+
+.px-lg { padding-left: var(--space-lg); padding-right: var(--space-lg); }
+.py-lg { padding-top: var(--space-lg); padding-bottom: var(--space-lg); }
+
+/* ============================================================================
+   17. Utility Classes: Display & Visibility
+   ============================================================================ */
+
+.d-block {
+  display: block;
+}
+
+.d-inline {
+  display: inline;
+}
+
+.d-inline-block {
+  display: inline-block;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.d-grid {
+  display: grid;
+}
+
+.d-none {
+  display: none;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.invisible {
+  visibility: hidden;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ============================================================================
+   18. Utility Classes: Flexbox Layout
+   ============================================================================ */
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.gap-sm {
+  gap: var(--space-sm);
+}
+
+.gap-md {
+  gap: var(--space-md);
+}
+
+.gap-lg {
+  gap: var(--space-lg);
+}
+
+/* ============================================================================
+   19. Utility Classes: Border & Rounding
+   ============================================================================ */
+
+.border {
+  border: 1px solid var(--color-border);
+}
+
+.border-top {
+  border-top: 1px solid var(--color-border);
+}
+
+.border-bottom {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.rounded {
+  border-radius: var(--card-border-radius);
+}
+
+.rounded-sm {
+  border-radius: 2px;
+}
+
+.rounded-md {
+  border-radius: 6px;
+}
+
+.rounded-lg {
+  border-radius: 8px;
+}
+
+/* ============================================================================
+   20. Utility Classes: Shadows
+   ============================================================================ */
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+/* ============================================================================
+   21. Form Elements Base Styles
+   ============================================================================ */
+
+input, textarea, select, button {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+}
+
+input, textarea, select {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--card-border-radius);
+  padding: 8px 12px;
+  transition: border-color var(--transition-duration) var(--transition-timing);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-light);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: var(--card-border-radius);
+  font-weight: var(--font-weight-semibold);
+  padding: 8px 16px;
+  transition: background-color var(--transition-duration) var(--transition-timing);
+}
+
+button:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   22. Tables
+   ============================================================================ */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-lg);
+}
+
+thead {
+  background-color: var(--color-bg-secondary);
+  border-bottom: 2px solid var(--color-border-dark);
+}
+
+th {
+  padding: var(--space-md);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color var(--transition-duration) var(--transition-timing);
+}
+
+tbody tr:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+td {
+  padding: var(--space-md);
+  color: var(--color-text-primary);
+}
+
+/* ============================================================================
+   23. Blockquote & Horizontal Rule
+   ============================================================================ */
+
+blockquote {
+  padding: var(--space-lg) var(--space-xl);
+  margin: var(--space-lg) 0;
+  border-left: 4px solid var(--color-accent);
+  background-color: var(--color-bg-secondary);
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-xl) 0;
+  height: 1px;
+  background-color: transparent;
+}
+
+/* ============================================================================
+   24. Print Styles (Optional)
+   ============================================================================ */
+
+@media print {
+  body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+  }
+
+  a {
+    text-decoration: underline;
+  }
+
+  button, input, select, textarea {
+    border: 1px solid #000;
+  }
+}
+
+/* ============================================================================
+   End of Dashboard CSS - Scaffold & Typography Foundation
+   ============================================================================ */
