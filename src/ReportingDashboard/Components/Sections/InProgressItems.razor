@@ -8,7 +8,24 @@
             <span class="item-count">@SafeItems.Count</span>
         </div>
 
-        @* Card rendering added in Step 2; progress bars in Step 3 *@
+        @foreach (var item in SafeItems)
+        {
+            <div class="work-item-card in-progress">
+                <div class="card-header">
+                    <h3>@item.Title</h3>
+                    @if (!string.IsNullOrWhiteSpace(item.Category))
+                    {
+                        <span class="category-tag">@item.Category</span>
+                    }
+                </div>
+                @if (!string.IsNullOrWhiteSpace(item.Description))
+                {
+                    <div class="card-body">
+                        <p>@item.Description</p>
+                    </div>
+                }
+            </div>
+        }
     </section>
 }
 
