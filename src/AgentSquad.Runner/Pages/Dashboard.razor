@@ -4,25 +4,61 @@
 @inherits LayoutComponentBase
 @implements IAsyncDisposable
 
-<div class="dashboard-container">
+<MudContainer MaxWidth="MaxWidth.Lg" Class="dashboard-wrapper py-6">
     <!-- Error Boundary -->
     @if (!DataService.HasData && !string.IsNullOrEmpty(DataService.GetLastError()))
     {
-        <MudAlert Severity="Severity.Error" Class="mb-4">
-            <strong>Error Loading Dashboard</strong>
-            <p>@DataService.GetLastError()</p>
-            <p style="font-size: 12px; color: #666;">Check data.json format and try again.</p>
+        <MudAlert Severity="Severity.Error" Class="mb-6">
+            <MudText Typo="Typo.h6"><strong>Error Loading Dashboard</strong></MudText>
+            <MudText Typo="Typo.body2" Class="mt-2">@DataService.GetLastError()</MudText>
+            <MudText Typo="Typo.caption" Class="mt-1" Color="Color.Default">Check data.json format and try again.</MudText>
         </MudAlert>
     }
 
-    <!-- Content will be rendered here -->
+    <!-- Main Content -->
     @if (DataService.HasData)
     {
-        <!-- Project Summary Card - Placeholder -->
-        <!-- Milestone Timeline Component - Placeholder -->
-        <!-- Status Chart Component - Placeholder -->
-        <!-- Work Item List Component - Placeholder -->
+        <!-- Project Summary Card -->
+        @if (DataService.GetProject() != null)
+        {
+            var project = DataService.GetProject();
+            <MudPaper Class="pa-6 mb-6" Elevation="2">
+                <MudText Typo="Typo.h4" Class="mb-2">@project.Name</MudText>
+                @if (!string.IsNullOrEmpty(project.Description))
+                {
+                    <MudText Typo="Typo.body1" Class="text-muted">@project.Description</MudText>
+                }
+            </MudPaper>
+        }
+
+        <!-- Milestone Timeline Component -->
+        <MudPaper Class="pa-6 mb-6" Elevation="2">
+            <MudText Typo="Typo.h5" Class="mb-4">Key Milestones</MudText>
+            <MilestoneTimeline Milestones="DataService.GetMilestones()" />
+        </MudPaper>
+
+        <!-- Status Chart Component -->
+        <MudPaper Class="pa-6 mb-6" Elevation="2">
+            <MudText Typo="Typo.h5" Class="mb-4">Work Item Status</MudText>
+            <StatusChart StatusCounts="DataService.GetStatusCounts()" />
+        </MudPaper>
+
+        <!-- Work Item List Component -->
+        <MudPaper Class="pa-6" Elevation="2">
+            <MudText Typo="Typo.h5" Class="mb-4">Work Items</MudText>
+            <WorkItemList 
+                Shipped="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"
+                InProgress="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"
+                CarriedOver="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)" />
+        </MudPaper>
     }
-</div>
+    else if (DataService.HasData == false && string.IsNullOrEmpty(DataService.GetLastError()))
+    {
+        <MudAlert Severity="Severity.Warning" Class="mb-6">
+            <MudText Typo="Typo.h6"><strong>No Data Available</strong></MudText>
+            <MudText Typo="Typo.body2" Class="mt-2">Dashboard is loading data from data.json.</MudText>
+        </MudAlert>
+    }
+</MudContainer>
 
 @inject DashboardDataService DataService
