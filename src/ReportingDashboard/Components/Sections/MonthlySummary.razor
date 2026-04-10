@@ -12,10 +12,46 @@
         {
             <h2>Monthly Summary</h2>
         }
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-value">@Summary.TotalItems</span>
+                <span class="metric-label">Total Items</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value">@Summary.CompletedItems</span>
+                <span class="metric-label">Completed</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value">@Summary.CarriedItems</span>
+                <span class="metric-label">Carried Over</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value @GetHealthCssClass(Summary.OverallHealth)">@FormatHealth(Summary.OverallHealth)</span>
+                <span class="metric-label">Overall Health</span>
+            </div>
+        </div>
     </section>
 }
 
 @code {
     [Parameter]
     public MonthSummary? Summary { get; set; }
+
+    private static string GetHealthCssClass(string? health) => health switch
+    {
+        "on-track" => "health-on-track",
+        "at-risk" => "health-at-risk",
+        "behind" => "health-behind",
+        _ => ""
+    };
+
+    private static string FormatHealth(string? health) => health switch
+    {
+        "on-track" => "On Track",
+        "at-risk" => "At Risk",
+        "behind" => "Behind",
+        null => "N/A",
+        _ => char.ToUpperInvariant(health[0]) + health[1..]
+    };
 }
