@@ -195,3 +195,170 @@ h2 {
     display: block;
     margin-bottom: var(--spacing-xs);
 }
+
+/* ------------------------------------------------------------
+   Metrics Strip — Flexbox, 4 Equal-Width Cards
+   ------------------------------------------------------------ */
+.metrics-strip {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.metric-card {
+    flex: 1;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: var(--spacing-md);
+    text-align: center;
+}
+
+.metric-card .metric-value {
+    font-size: var(--font-size-metric);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: var(--spacing-xs);
+}
+
+.metric-card .metric-label {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Health-colored metric values */
+.metric-card .metric-value.on-track {
+    color: var(--status-on-track);
+}
+
+.metric-card .metric-value.at-risk {
+    color: var(--status-at-risk);
+}
+
+.metric-card .metric-value.behind {
+    color: var(--status-behind);
+}
+
+/* ------------------------------------------------------------
+   Section Headers with Item Count Badge
+   ------------------------------------------------------------ */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
+.section-header .item-count {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+
+/* ------------------------------------------------------------
+   Work Item Cards with Status-Colored Left Borders
+   ------------------------------------------------------------ */
+.work-item-card {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-border);
+    border-radius: 4px;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.work-item-card.completed {
+    border-left-color: var(--status-completed);
+}
+
+.work-item-card.in-progress {
+    border-left-color: var(--status-in-progress);
+}
+
+.work-item-card.carried-over {
+    border-left-color: var(--status-carried-over);
+}
+
+.work-item-card .card-title {
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+}
+
+.work-item-card .card-description {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body);
+    margin-bottom: var(--spacing-sm);
+}
+
+/* ------------------------------------------------------------
+   Category Tags
+   ------------------------------------------------------------ */
+.category-tag {
+    display: inline-block;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1px 8px;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+/* ------------------------------------------------------------
+   Progress Bars — Pure CSS, No Animation
+   Width is set via inline style="width: N%" on .progress-fill
+   ------------------------------------------------------------ */
+.progress-track {
+    width: 100%;
+    height: 8px;
+    background: var(--color-surface);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: var(--spacing-xs);
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: none;
+    background-color: var(--status-in-progress);
+    min-width: 0;
+}
+
+.progress-fill.completed {
+    background-color: var(--status-completed);
+}
+
+.progress-fill.carried-over {
+    background-color: var(--status-carried-over);
+}
+
+.progress-fill.at-risk {
+    background-color: var(--status-at-risk);
+}
+
+.progress-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-top: 2px;
+}
+
+/* ------------------------------------------------------------
+   Dashboard Section Spacing
+   ------------------------------------------------------------ */
+.dashboard-section {
+    margin-bottom: var(--spacing-xl);
+}
