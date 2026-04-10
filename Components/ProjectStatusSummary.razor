@@ -71,9 +71,6 @@
         }
     }
 
-    /// <summary>
-    /// Counts the number of completed tasks (shipped count)
-    /// </summary>
     private int GetShippedCount()
     {
         try
@@ -89,9 +86,6 @@
         }
     }
 
-    /// <summary>
-    /// Counts the number of in-progress tasks
-    /// </summary>
     private int GetInProgressCount()
     {
         try
@@ -107,11 +101,6 @@
         }
     }
 
-    /// <summary>
-    /// Calculates the percentage of completed tasks that were on-schedule
-    /// Formula: (on-time completed tasks / total completed tasks) * 100
-    /// Returns 0 if no completed tasks exist (avoids division by zero)
-    /// </summary>
     private double GetOnTimePercentage()
     {
         try
@@ -135,10 +124,6 @@
         }
     }
 
-    /// <summary>
-    /// Determines if a completed task was on-schedule
-    /// Checks for IsOnTime property on the task object
-    /// </summary>
     private bool IsTaskOnTime(Task task)
     {
         try
@@ -160,12 +145,6 @@
         }
     }
 
-    /// <summary>
-    /// Returns Bootstrap color classes for a given percentage value
-    /// Green (text-success bg-light-success): >= 80%
-    /// Yellow (text-warning bg-light-warning): 50-79%
-    /// Red (text-danger bg-light-danger): < 50%
-    /// </summary>
     private string GetColorClass(double percentage)
     {
         try

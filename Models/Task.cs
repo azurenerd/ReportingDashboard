@@ -1,18 +1,20 @@
-namespace AgentSquad.Runner.Models;
-
-public class ProjectTask
+namespace AgentSquad.Runner.Models
 {
-    public string Id { get; set; } = string.Empty;
-    public string Title { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public TaskStatus Status { get; set; }
-    public string AssignedTo { get; set; } = string.Empty;
-    public DateTime DueDate { get; set; }
-}
+    public class Task
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public TaskStatus Status { get; set; } = TaskStatus.CarriedOver;
+        public string AssignedTo { get; set; } = string.Empty;
+        public DateTime DueDate { get; set; }
+        public bool IsOnTime { get; set; } = true;
+    }
 
-public enum TaskStatus
-{
-    Completed,
-    InProgress,
-    CarriedOver
+    public enum TaskStatus
+    {
+        Completed,
+        InProgress,
+        CarriedOver
+    }
 }
