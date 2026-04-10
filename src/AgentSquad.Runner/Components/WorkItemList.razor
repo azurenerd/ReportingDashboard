@@ -1,9 +1,204 @@
 @using AgentSquad.Runner.Models
 @using MudBlazor
 
-<div class="work-item-list">
-    <!-- Work item sections will be implemented in step 4 -->
+<div class="work-item-list-container">
+    <div class="work-item-grid">
+        <!-- Shipped Section -->
+        <MudCard class="work-item-card">
+            <MudCardHeader class="shipped-header">
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6" style="color: white; font-weight: 600;">Shipped</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                @if (Shipped != null && Shipped.Count > 0)
+                {
+                    <ul class="work-item-list">
+                        @foreach (var item in Shipped)
+                        {
+                            <li class="work-item">
+                                <div class="work-item-title">
+                                    <strong>@item.Title</strong>
+                                </div>
+                                @if (!string.IsNullOrEmpty(item.Assignee))
+                                {
+                                    <div class="work-item-assignee">
+                                        @item.Assignee
+                                    </div>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="no-items-message">No items in this status</p>
+                }
+            </MudCardContent>
+        </MudCard>
+
+        <!-- In Progress Section -->
+        <MudCard class="work-item-card">
+            <MudCardHeader class="in-progress-header">
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6" style="color: white; font-weight: 600;">In Progress</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                @if (InProgress != null && InProgress.Count > 0)
+                {
+                    <ul class="work-item-list">
+                        @foreach (var item in InProgress)
+                        {
+                            <li class="work-item">
+                                <div class="work-item-title">
+                                    <strong>@item.Title</strong>
+                                </div>
+                                @if (!string.IsNullOrEmpty(item.Assignee))
+                                {
+                                    <div class="work-item-assignee">
+                                        @item.Assignee
+                                    </div>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="no-items-message">No items in this status</p>
+                }
+            </MudCardContent>
+        </MudCard>
+
+        <!-- Carried Over Section -->
+        <MudCard class="work-item-card">
+            <MudCardHeader class="carried-over-header">
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6" style="color: white; font-weight: 600;">Carried Over</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                @if (CarriedOver != null && CarriedOver.Count > 0)
+                {
+                    <ul class="work-item-list">
+                        @foreach (var item in CarriedOver)
+                        {
+                            <li class="work-item">
+                                <div class="work-item-title">
+                                    <strong>@item.Title</strong>
+                                </div>
+                                @if (!string.IsNullOrEmpty(item.Assignee))
+                                {
+                                    <div class="work-item-assignee">
+                                        @item.Assignee
+                                    </div>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="no-items-message">No items in this status</p>
+                }
+            </MudCardContent>
+        </MudCard>
+    </div>
 </div>
+
+<style>
+    .work-item-list-container {
+        width: 100%;
+        padding: 20px 0;
+    }
+
+    .work-item-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        width: 100%;
+    }
+
+    .work-item-card {
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .work-item-card :deep(.mud-card-header {
+        padding: 16px;
+        border-radius: 4px 4px 0 0;
+    }
+
+    .work-item-card :deep(.mud-card-content {
+        padding: 16px;
+        flex-grow: 1;
+    }
+
+    .shipped-header {
+        background-color: #4CAF50;
+    }
+
+    .in-progress-header {
+        background-color: #2196F3;
+    }
+
+    .carried-over-header {
+        background-color: #FF9800;
+    }
+
+    .work-item-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .work-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .work-item:last-child {
+        border-bottom: none;
+    }
+
+    .work-item-title {
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        font-size: 14px;
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 4px;
+        word-wrap: break-word;
+    }
+
+    .work-item-assignee {
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        font-size: 12px;
+        color: #999;
+        margin-top: 4px;
+    }
+
+    .no-items-message {
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        font-size: 13px;
+        color: #999;
+        margin: 0;
+        padding: 8px 0;
+        text-align: center;
+        font-style: italic;
+    }
+
+    @media (max-width: 1400px) {
+        .work-item-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+    }
+</style>
 
 @code {
     [Parameter]
@@ -17,6 +212,12 @@
 
     protected override void OnParametersSet()
     {
-        // Parameter binding and grouping logic will be implemented in step 4
+        // Ensure parameters are always set to safe defaults
+        if (Shipped == null)
+            Shipped = new List<WorkItem>().AsReadOnly();
+        if (InProgress == null)
+            InProgress = new List<WorkItem>().AsReadOnly();
+        if (CarriedOver == null)
+            CarriedOver = new List<WorkItem>().AsReadOnly();
     }
 }
