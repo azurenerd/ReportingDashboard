@@ -10,7 +10,7 @@ public class DashboardDataService : IDashboardDataService
     private readonly ILogger<DashboardDataService> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    // File-watching infrastructure (wired in subsequent steps)
+    // File-watching infrastructure
     private FileSystemWatcher? _watcher;
     private Timer? _pollingTimer;
     private CancellationTokenSource? _debounceCts;
@@ -84,6 +84,70 @@ public class DashboardDataService : IDashboardDataService
         }
 
         OnDataChanged?.Invoke();
+    }
+
+    private async Task ReloadAsync()
+    {
+        if (!_loadLock.Wait(0))
+        {
+            _logger.LogDebug("Reload already in progress, skipping.");
+            return;
+        }
+
+        try
+        {
+            if (!File.Exists(_filePath))
+            {
+                _logger.LogWarning("Data file not found during reload: {Path}", _filePath);
+                return;
+            }
+
+            var fileBytes = await ReadFileBytesWithRetryAsync();
+            if (fileBytes is null)
+            {
+                _logger.LogWarning("Failed to read file during reload after retries.");
+                return;
+            }
+
+            var newHash = ComputeHash(fileBytes);
+            if (newHash == _lastFileHash)
+            {
+                _logger.LogDebug("File hash unchanged, skipping reload.");
+                return;
+            }
+
+            _lastFileHash = newHash;
+
+            try
+            {
+                var data = JsonSerializer.Deserialize<DashboardData>(
+                    (ReadOnlySpan<byte>)fileBytes, _jsonOptions);
+
+                if (data?.Project is null)
+                {
+                    LoadError = "Invalid data: missing required 'project' section";
+                    _logger.LogError(LoadError);
+                }
+                else
+                {
+                    Data = data;
+                    LoadError = null;
+                    ValidateData();
+                    _logger.LogInformation("Dashboard data reloaded successfully.");
+                }
+            }
+            catch (JsonException ex)
+            {
+                LoadError = $"Error loading data: {ex.Message}";
+                _logger.LogError(ex, "Failed to deserialize data.json during reload.");
+            }
+
+            OnDataChanged?.Invoke();
+        }
+        finally
+        {
+            _loadLock.Release();
+        }
     }
 
     private async Task<byte[]?> ReadFileBytesWithRetryAsync(int maxRetries = 3, int delayMs = 200)
