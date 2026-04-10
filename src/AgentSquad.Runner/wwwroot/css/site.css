@@ -1,6 +1,8 @@
 /* Executive Dashboard Color Palette & Typography
    WCAG 2.1 AA Contrast Compliance Verified
-   Viewport Optimization: 1920x1080 Primary, 1680px & 2560px Secondary */
+   Viewport Optimization: 1920x1080 Primary, 1680px & 2560px Secondary
+   Bootstrap 5.3.0 Integration - All custom styles use CSS variables
+   No vendor prefixes, no unsupported CSS3 features */
 
 :root {
   --bs-primary: #0066cc;
@@ -11,7 +13,6 @@
   --bs-light: #f8f9fa;
   --bs-dark: #212529;
   
-  /* Viewport & Layout */
   --dashboard-max-width: 1880px;
   --dashboard-gutter: 20px;
   --status-column-max-height: 600px;
@@ -19,7 +20,6 @@
   --metrics-footer-height: 180px;
 }
 
-/* Viewport Fit Baseline */
 html {
   width: 100%;
   height: 100%;
@@ -55,7 +55,6 @@ body {
   box-sizing: border-box;
 }
 
-/* Timeline Container - Fixed Height to Prevent CLS */
 .timeline-container {
   display: flex;
   gap: 1rem;
@@ -95,6 +94,7 @@ body {
 
 .timeline-marker:focus {
   outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
 }
 
 .timeline-marker.completed {
@@ -134,7 +134,6 @@ body {
   max-width: 110px;
 }
 
-/* Status Grid - Responsive 3-Column Layout */
 .status-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -160,7 +159,6 @@ body {
   word-break: break-word;
 }
 
-/* Scrollbar Styling for Status Columns */
 .status-column::-webkit-scrollbar {
   width: 8px;
 }
@@ -208,6 +206,7 @@ body {
 
 .status-badge:focus {
   outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
 }
 
 .status-badge.shipped {
@@ -282,7 +281,6 @@ body {
   padding: 1rem;
 }
 
-/* Metrics Footer - Fixed Height to Prevent CLS */
 .metrics-footer {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -313,6 +311,7 @@ body {
 
 .metric-box:focus-within {
   outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
 }
 
 .metric-label {
@@ -352,7 +351,6 @@ body {
   flex-shrink: 0;
 }
 
-/* Alert Styles for Error Messages */
 .alert {
   padding: 1rem;
   margin-bottom: 1rem;
@@ -375,7 +373,6 @@ body {
   font-weight: 600;
 }
 
-/* Accessibility & Focus States */
 a {
   color: var(--bs-primary);
   text-decoration: none;
@@ -410,7 +407,6 @@ input:focus, textarea:focus, select:focus {
   outline-offset: 2px;
 }
 
-/* Print Styles */
 @media print {
   .timeline-marker,
   .status-badge,
@@ -435,7 +431,6 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
-/* 1680px Viewport (Laptop with taskbar) */
 @media (max-width: 1680px) {
   :root {
     --dashboard-max-width: 1650px;
@@ -452,7 +447,6 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
-/* 1920px Viewport (Standard Desktop) - Primary Target */
 @media (min-width: 1681px) and (max-width: 1920px) {
   :root {
     --dashboard-max-width: 1880px;
@@ -469,7 +463,6 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
-/* 2560px Viewport (Wide Monitor) */
 @media (min-width: 1921px) {
   :root {
     --dashboard-max-width: 2500px;
@@ -494,7 +487,6 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
-/* Base Reset & Normalize */
 * {
   box-sizing: border-box;
 }
@@ -514,7 +506,6 @@ p {
   word-break: break-word;
 }
 
-/* Loading Spinner (for future use) */
 .spinner {
   display: inline-block;
   width: 2rem;
@@ -532,7 +523,6 @@ p {
   }
 }
 
-/* Keyboard Navigation Visible Focus Indicators */
 *:focus-visible {
   outline: 2px solid var(--bs-primary);
   outline-offset: 2px;
@@ -547,12 +537,10 @@ p {
   outline-offset: 2px;
 }
 
-/* Cumulative Layout Shift Prevention */
 html, body, #app, .timeline-container, .status-grid, .metrics-footer {
   position: relative;
 }
 
-/* Ensure no unwanted margins cause overflow */
 body, #app {
   margin: 0;
   padding: 0;
@@ -562,13 +550,11 @@ body, #app {
   padding: 0 var(--dashboard-gutter);
 }
 
-/* Prevent horizontal overflow from any element */
 body, html {
   max-width: 100%;
   overflow-x: hidden;
 }
 
-/* Ensure images and content don't overflow */
 img, svg {
   max-width: 100%;
   height: auto;
