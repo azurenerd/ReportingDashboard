@@ -86,6 +86,7 @@ public class DashboardDataService : IDashboardDataService
         OnDataChanged?.Invoke();
 
         StartWatcher();
+        StartPolling();
     }
 
     private async Task ReloadAsync()
@@ -214,6 +215,42 @@ public class DashboardDataService : IDashboardDataService
     private void OnWatcherError(object sender, ErrorEventArgs e)
     {
         _logger.LogError(e.GetException(), "FileSystemWatcher error. Polling fallback will continue monitoring.");
+    }
+
+    private void StartPolling()
+    {
+        _pollingTimer = new Timer(
+            callback: _ => PollForChanges(),
+            state: null,
+            dueTime: TimeSpan.FromSeconds(5),
+            period: TimeSpan.FromSeconds(5));
+        _logger.LogInformation("Polling fallback started with 5-second interval.");
+    }
+
+    private void PollForChanges()
+    {
+        try
+        {
+            if (!File.Exists(_filePath))
+                return;
+
+            var fileBytes = File.ReadAllBytes(_filePath);
+            var currentHash = ComputeHash(fileBytes);
+
+            if (currentHash != _lastFileHash)
+            {
+                _logger.LogInformation("Polling detected file change (hash mismatch). Triggering reload.");
+                QueueDebouncedReload();
+            }
+        }
+        catch (IOException ex)
+        {
+            _logger.LogDebug(ex, "Polling skipped: file is locked.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error during polling check.");
+        }
     }
 
     private async Task<byte[]?> ReadFileBytesWithRetryAsync(int maxRetries = 3, int delayMs = 200)
