@@ -1,9 +1,27 @@
 @using AgentSquad.Runner.Models
 @using Microsoft.AspNetCore.Components
 
-<div class="status-chart">
-    <canvas @ref="chartCanvas" id="statusChartCanvas"></canvas>
+<div class="status-chart-container">
+    <div class="status-chart">
+        <canvas @ref="chartCanvas" id="statusChartCanvas"></canvas>
+    </div>
 </div>
+
+<style>
+    .status-chart-container {
+        width: 100%;
+        padding: 20px 0;
+    }
+
+    .status-chart {
+        position: relative;
+        height: 400px;
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        padding: 20px;
+    }
+</style>
 
 @code {
     [Parameter]
@@ -13,16 +31,94 @@
     public IJSRuntime JSRuntime { get; set; }
 
     private ElementReference chartCanvas;
+    private IJSObjectReference chartModule;
+    private object chartInstance;
+    private (int Shipped, int InProgress, int CarriedOver) lastStatusCounts;
+    private bool isInitialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                chartModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
+                    "import", "./Components/StatusChart.razor.js");
+                await InitializeChart();
+                isInitialized = true;
+                lastStatusCounts = StatusCounts;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading chart module: {ex.Message}");
+            }
+        }
+    }
 
     protected override async Task OnParametersSetAsync()
     {
-        // Chart initialization will be implemented in step 3
-        await Task.CompletedTask;
+        if (isInitialized && StatusCounts != lastStatusCounts)
+        {
+            await UpdateChart();
+            lastStatusCounts = StatusCounts;
+        }
     }
 
     private async Task InitializeChart()
     {
-        // JavaScript interop for Chart.js will be implemented in step 3
-        await Task.CompletedTask;
+        if (chartModule == null || !isInitialized)
+            return;
+
+        try
+        {
+            var labels = new[] { "Shipped", "In Progress", "Carried Over" };
+            var data = new[] { StatusCounts.Shipped, StatusCounts.InProgress, StatusCounts.CarriedOver };
+
+            chartInstance = await chartModule.InvokeAsync<object>(
+                "initializeChart",
+                chartCanvas,
+                labels,
+                data);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error initializing chart: {ex.Message}");
+        }
+    }
+
+    private async Task UpdateChart()
+    {
+        if (chartModule == null || chartInstance == null)
+            return;
+
+        try
+        {
+            var data = new[] { StatusCounts.Shipped, StatusCounts.InProgress, StatusCounts.CarriedOver };
+
+            await chartModule.InvokeVoidAsync(
+                "updateChart",
+                chartInstance,
+                data);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating chart: {ex.Message}");
+        }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (chartModule is not null)
+        {
+            try
+            {
+                await chartModule.InvokeVoidAsync("destroyChart", chartInstance);
+                await chartModule.DisposeAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error disposing chart: {ex.Message}");
+            }
+        }
     }
 }
