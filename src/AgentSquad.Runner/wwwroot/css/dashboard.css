@@ -1,610 +1,841 @@
-/* ============================================================================
-   Dashboard CSS - Executive Dashboard Styling
-   
-   Overview:
-   - Fixed-width 1200px layout, light theme, professional typography
-   - Color palette: white/light-gray backgrounds, dark text, blue accents
-   - Typography: Segoe UI/system-ui, 14-16px body text, hierarchical heading scale
-   - Spacing: 8px base unit for consistent rhythm
-   - Cross-browser compatible (Chrome, Edge, Firefox)
-   
-   ========================================================================== */
+/* Executive Dashboard Styles - Step 5: Cross-Browser Tested & Refined */
 
 /* ============================================================================
-   1. CSS Custom Properties (Color Palette)
+   Color Palette (CSS Custom Properties)
    ============================================================================ */
-
 :root {
-  /* Primary Colors */
-  --color-bg-primary: #FFFFFF;           /* Page background: white */
-  --color-bg-secondary: #F5F5F5;         /* Card/section background: light gray */
-  --color-text-primary: #333333;         /* Primary text: dark gray */
-  --color-text-secondary: #666666;       /* Secondary text: muted gray */
-  --color-text-muted: #999999;           /* Muted text: lighter gray */
-  
-  /* Accent Colors */
-  --color-accent: #2196F3;               /* Primary accent: blue (links, highlights) */
-  --color-accent-hover: #1976D2;         /* Accent hover state: darker blue */
-  --color-accent-light: #E3F2FD;         /* Light accent background: pale blue */
+  /* Semantic Colors */
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #F5F5F5;
+  --color-text-primary: #333333;
+  --color-text-secondary: #666666;
+  --color-border: #E0E0E0;
+  --color-accent: #2196F3;
   
   /* Status Colors */
-  --color-success: #4CAF50;              /* Success/Shipped: green */
-  --color-success-light: #E8F5E9;        /* Success background: pale green */
-  --color-warning: #FF9800;              /* Warning/Carried Over: orange */
-  --color-warning-light: #FFF3E0;        /* Warning background: pale orange */
-  --color-error: #F44336;                /* Error/At Risk: red */
-  --color-error-light: #FFEBEE;          /* Error background: pale red */
-  --color-info: #2196F3;                 /* Info/In Progress: blue (same as accent) */
-  --color-info-light: #E3F2FD;           /* Info background: pale blue */
+  --color-success: #4CAF50;
+  --color-warning: #FF9800;
+  --color-error: #F44336;
+  --color-info: #2196F3;
   
   /* Semantic Status Colors */
-  --color-status-completed: #4CAF50;     /* Completed: green */
-  --color-status-on-track: #2196F3;      /* On Track: blue */
-  --color-status-at-risk: #F44336;       /* At Risk: red */
+  --color-shipped: #4CAF50;
+  --color-in-progress: #2196F3;
+  --color-carried-over: #FF9800;
   
-  /* Border & Divider Colors */
-  --color-border: #EEEEEE;               /* Light border: very light gray */
-  --color-border-dark: #DDDDDD;          /* Darker border: medium light gray */
-  --color-divider: #E0E0E0;              /* Divider line: light gray */
+  /* Milestone Status Colors */
+  --color-milestone-completed: #4CAF50;
+  --color-milestone-on-track: #FFC107;
+  --color-milestone-at-risk: #F44336;
   
-  /* Semantic Colors */
-  --color-link: #2196F3;                 /* Link color: blue */
-  --color-link-visited: #1976D2;         /* Visited link: darker blue */
+  /* Spacing (8px base unit) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 48px;
   
-  /* =========================================================================
-     2. Spacing Variables (8px base unit)
-     ========================================================================= */
+  /* Typography */
+  --font-family-base: "Segoe UI", -apple-system, system-ui, "Helvetica Neue", sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
   
-  --space-xs: 4px;                       /* Extra small: 0.5 * base unit */
-  --space-sm: 8px;                       /* Small: 1 * base unit */
-  --space-md: 12px;                      /* Medium: 1.5 * base unit */
-  --space-lg: 16px;                      /* Large: 2 * base unit */
-  --space-xl: 24px;                      /* Extra large: 3 * base unit */
-  --space-2xl: 32px;                     /* 2X large: 4 * base unit */
-  --space-3xl: 48px;                     /* 3X large: 6 * base unit */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
   
-  /* =========================================================================
-     3. Typography Variables
-     ========================================================================= */
+  --line-height-tight: 1.4;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
   
-  /* Font Stack (system fonts for consistent rendering) */
-  --font-family: "Segoe UI", -apple-system, system-ui, "Helvetica Neue", sans-serif;
-  --font-family-mono: "Courier New", Courier, monospace;
+  /* Shadows & Effects */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15);
   
-  /* Font Sizes */
-  --font-size-xs: 11px;                  /* Extra small label */
-  --font-size-sm: 12px;                  /* Small label/caption */
-  --font-size-base: 14px;                /* Base body text (14px) */
-  --font-size-md: 16px;                  /* Medium body text (16px preferred) */
-  --font-size-lg: 18px;                  /* Large heading */
-  --font-size-xl: 20px;                  /* Extra large heading */
-  --font-size-2xl: 24px;                 /* 2X large heading */
-  --font-size-3xl: 28px;                 /* 3X large heading (page title) */
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   
-  /* Font Weights */
-  --font-weight-normal: 400;             /* Normal/regular text */
-  --font-weight-medium: 500;             /* Medium weight (subtle emphasis) */
-  --font-weight-semibold: 600;           /* Semibold (headings, strong text) */
-  --font-weight-bold: 700;               /* Bold (strong emphasis) */
-  
-  /* Line Heights (for readability) */
-  --line-height-tight: 1.2;              /* Tight line height (headings) */
-  --line-height-normal: 1.5;             /* Normal line height (body text) */
-  --line-height-loose: 1.75;             /* Loose line height (long text) */
-  
-  /* =========================================================================
-     4. Layout & Sizing Variables
-     ========================================================================= */
-  
-  --container-max-width: 1200px;         /* Fixed-width container */
-  --container-padding: 20px;             /* Container horizontal padding */
-  --card-border-radius: 4px;             /* Card corner radius */
-  --card-padding: 16px;                  /* Card internal padding */
-  --card-gap: 12px;                      /* Gap between card elements */
-  
-  /* =========================================================================
-     5. Shadow & Depth Variables
-     ========================================================================= */
-  
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.16);
-  
-  /* =========================================================================
-     6. Transition & Animation Variables
-     ========================================================================= */
-  
-  --transition-duration: 200ms;          /* Standard animation duration */
-  --transition-timing: ease-in-out;      /* Standard easing function */
+  /* Border Radius */
+  --border-radius-sm: 2px;
+  --border-radius-md: 4px;
+  --border-radius-lg: 8px;
 }
 
 /* ============================================================================
-   7. Base HTML Styles (Reset & Defaults)
+   Base HTML Styles (Cross-Browser Reset & Typography)
    ============================================================================ */
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 html {
-  font-size: 16px;                       /* Base font size for rem calculations */
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
 }
 
 body {
-  font-family: var(--font-family);
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-base);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
   color: var(--color-text-primary);
   background-color: var(--color-bg-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
-  width: 100%;
   overflow-x: hidden;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 /* ============================================================================
-   8. Typography: Headings
+   Typography & Text Elements
    ============================================================================ */
 
-h1 {
-  font-size: var(--font-size-3xl);       /* 28px */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
   color: var(--color-text-primary);
-  margin-bottom: var(--space-lg);
+}
+
+h1 {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-lg);
 }
 
 h2 {
-  font-size: var(--font-size-2xl);       /* 24px */
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-tight);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-lg);
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-lg);
 }
 
 h3 {
-  font-size: var(--font-size-xl);        /* 20px */
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-tight);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-md);
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-md);
 }
 
-h4 {
-  font-size: var(--font-size-lg);        /* 18px */
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-tight);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-md);
+h4, h5, h6 {
+  font-size: var(--font-size-md);
+  margin-bottom: var(--spacing-md);
 }
-
-h5 {
-  font-size: var(--font-size-md);        /* 16px */
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-normal);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-sm);
-}
-
-h6 {
-  font-size: var(--font-size-base);      /* 14px */
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-normal);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-sm);
-}
-
-/* ============================================================================
-   9. Typography: Paragraphs & Text Elements
-   ============================================================================ */
 
 p {
-  margin-bottom: var(--space-lg);
+  margin: 0 0 var(--spacing-md) 0;
   line-height: var(--line-height-normal);
 }
 
-p:last-child {
-  margin-bottom: 0;
-}
-
-.text-secondary {
+small, .text-muted {
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-  font-size: var(--font-size-base);
 }
-
-.text-muted {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-}
-
-strong, .font-bold {
-  font-weight: var(--font-weight-bold);
-}
-
-em, .font-italic {
-  font-style: italic;
-}
-
-code, pre {
-  font-family: var(--font-family-mono);
-  background-color: var(--color-bg-secondary);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: 3px;
-  font-size: 0.9em;
-}
-
-pre {
-  padding: var(--space-lg);
-  overflow-x: auto;
-  line-height: var(--line-height-loose);
-}
-
-/* ============================================================================
-   10. Typography: Labels & Captions
-   ============================================================================ */
-
-label {
-  font-size: var(--font-size-sm);        /* 12px */
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-  display: block;
-  margin-bottom: var(--space-xs);
-}
-
-.label-small {
-  font-size: var(--font-size-xs);        /* 11px */
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.caption {
-  font-size: var(--font-size-sm);        /* 12px */
-  color: var(--color-text-secondary);
-  line-height: var(--line-height-tight);
-}
-
-/* ============================================================================
-   11. Links
-   ============================================================================ */
 
 a {
-  color: var(--color-link);
+  color: var(--color-accent);
   text-decoration: none;
-  transition: color var(--transition-duration) var(--transition-timing);
+  transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-accent-hover);
+  color: #1976D2;
   text-decoration: underline;
 }
 
-a:visited {
-  color: var(--color-link-visited);
+strong, b {
+  font-weight: var(--font-weight-semibold);
 }
 
-a:focus {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+em, i {
+  font-style: italic;
 }
 
 /* ============================================================================
-   12. Lists
+   Lists
    ============================================================================ */
 
 ul, ol {
-  margin-bottom: var(--space-lg);
-  padding-left: var(--space-2xl);
+  margin: 0 0 var(--spacing-lg) 0;
+  padding-left: var(--spacing-xl);
 }
 
-ul ul, ul ol, ol ul, ol ol {
+ul ul, ol ol, ul ol, ol ul {
   margin-bottom: 0;
-  margin-top: var(--space-sm);
 }
 
 li {
-  margin-bottom: var(--space-sm);
-  line-height: var(--line-height-normal);
+  margin-bottom: var(--spacing-sm);
 }
 
 dl {
-  margin-bottom: var(--space-lg);
+  margin: 0;
 }
 
 dt {
   font-weight: var(--font-weight-semibold);
-  margin-bottom: var(--space-xs);
+  margin-top: var(--spacing-md);
 }
 
 dd {
-  margin-left: var(--space-xl);
-  margin-bottom: var(--space-sm);
-  color: var(--color-text-secondary);
+  margin-left: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
 }
 
 /* ============================================================================
-   13. Utility Classes: Text Alignment & Transform
+   Table Styles
    ============================================================================ */
 
-.text-left {
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--spacing-xl);
+}
+
+thead {
+  background-color: var(--color-bg-secondary);
+}
+
+th, td {
+  padding: var(--spacing-md);
   text-align: left;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.text-center {
-  text-align: center;
+th {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
-.text-right {
-  text-align: right;
+tbody tr:hover {
+  background-color: var(--color-bg-secondary);
 }
 
-.text-justify {
-  text-align: justify;
+/* ============================================================================
+   Code & Preformatted Text
+   ============================================================================ */
+
+code, pre {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 13px;
+  background-color: var(--color-bg-secondary);
+  padding: 2px 6px;
+  border-radius: var(--border-radius-md);
 }
 
-.text-uppercase {
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+pre {
+  overflow-x: auto;
+  padding: var(--spacing-md);
+  line-height: var(--line-height-relaxed);
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
-.text-lowercase {
-  text-transform: lowercase;
+/* ============================================================================
+   Form Elements
+   ============================================================================ */
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.text-capitalize {
-  text-transform: capitalize;
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
 }
 
-.text-nowrap {
-  white-space: nowrap;
+button {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  border: none;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-accent);
+  color: white;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.text-truncate {
+button:hover {
+  background-color: #1976D2;
+  box-shadow: var(--shadow-md);
+}
+
+button:active {
+  background-color: #1565C0;
+}
+
+button:disabled {
+  background-color: var(--color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ============================================================================
+   Layout - Fixed-Width Container
+   ============================================================================ */
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--color-bg-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 1280px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 12px;
+  }
+}
+
+/* ============================================================================
+   Layout - Dashboard Section
+   ============================================================================ */
+
+.dashboard-section {
+  margin-bottom: var(--spacing-xl);
+  background-color: var(--color-bg-secondary);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-normal);
+}
+
+.dashboard-section:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* ============================================================================
+   Grid System (Flexbox-Based)
+   ============================================================================ */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 calc(var(--spacing-md) * -1);
+  gap: var(--spacing-lg);
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 200px;
+  padding: 0 var(--spacing-md);
+}
+
+.col-1 { flex: 0 0 calc(8.333% - var(--spacing-md)); }
+.col-2 { flex: 0 0 calc(16.667% - var(--spacing-md)); }
+.col-3 { flex: 0 0 calc(25% - var(--spacing-md)); }
+.col-4 { flex: 0 0 calc(33.333% - var(--spacing-md)); }
+.col-6 { flex: 0 0 calc(50% - var(--spacing-md)); }
+.col-8 { flex: 0 0 calc(66.667% - var(--spacing-md)); }
+.col-12 { flex: 0 0 100%; padding: 0; }
+
+/* Alignment Utilities */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }
+.items-end { align-items: flex-end; }
+
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+
+/* Spacing Utilities */
+.mt-1 { margin-top: var(--spacing-sm); }
+.mt-2 { margin-top: var(--spacing-md); }
+.mt-3 { margin-top: var(--spacing-lg); }
+.mt-4 { margin-top: var(--spacing-xl); }
+
+.mb-1 { margin-bottom: var(--spacing-sm); }
+.mb-2 { margin-bottom: var(--spacing-md); }
+.mb-3 { margin-bottom: var(--spacing-lg); }
+.mb-4 { margin-bottom: var(--spacing-xl); }
+
+.p-2 { padding: var(--spacing-md); }
+.p-3 { padding: var(--spacing-lg); }
+.p-4 { padding: var(--spacing-xl); }
+
+/* Overflow Prevention */
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.overflow-x-hidden {
+  overflow-x: hidden;
+}
+
+.truncate {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 /* ============================================================================
-   14. Utility Classes: Font Weights & Styles
+   Component: MilestoneTimeline
    ============================================================================ */
 
-.font-light {
-  font-weight: 300;
-}
-
-.font-normal {
-  font-weight: var(--font-weight-normal);
-}
-
-.font-medium {
-  font-weight: var(--font-weight-medium);
-}
-
-.font-semibold {
-  font-weight: var(--font-weight-semibold);
-}
-
-.font-bold {
-  font-weight: var(--font-weight-bold);
-}
-
-/* ============================================================================
-   15. Utility Classes: Colors
-   ============================================================================ */
-
-.text-primary {
-  color: var(--color-text-primary);
-}
-
-.text-secondary {
-  color: var(--color-text-secondary);
-}
-
-.text-muted {
-  color: var(--color-text-muted);
-}
-
-.text-success {
-  color: var(--color-success);
-}
-
-.text-warning {
-  color: var(--color-warning);
-}
-
-.text-error {
-  color: var(--color-error);
-}
-
-.text-info {
-  color: var(--color-info);
-}
-
-.bg-primary {
-  background-color: var(--color-bg-primary);
-}
-
-.bg-secondary {
-  background-color: var(--color-bg-secondary);
-}
-
-.bg-success {
-  background-color: var(--color-success-light);
-}
-
-.bg-warning {
-  background-color: var(--color-warning-light);
-}
-
-.bg-error {
-  background-color: var(--color-error-light);
-}
-
-.bg-info {
-  background-color: var(--color-info-light);
-}
-
-/* ============================================================================
-   16. Utility Classes: Spacing (Margin & Padding)
-   ============================================================================ */
-
-.m-0 { margin: 0; }
-.m-xs { margin: var(--space-xs); }
-.m-sm { margin: var(--space-sm); }
-.m-md { margin: var(--space-md); }
-.m-lg { margin: var(--space-lg); }
-.m-xl { margin: var(--space-xl); }
-.m-2xl { margin: var(--space-2xl); }
-
-.mx-auto { margin-left: auto; margin-right: auto; }
-.my-auto { margin-top: auto; margin-bottom: auto; }
-
-.mt-0 { margin-top: 0; }
-.mt-xs { margin-top: var(--space-xs); }
-.mt-sm { margin-top: var(--space-sm); }
-.mt-md { margin-top: var(--space-md); }
-.mt-lg { margin-top: var(--space-lg); }
-.mt-xl { margin-top: var(--space-xl); }
-
-.mb-0 { margin-bottom: 0; }
-.mb-xs { margin-bottom: var(--space-xs); }
-.mb-sm { margin-bottom: var(--space-sm); }
-.mb-md { margin-bottom: var(--space-md); }
-.mb-lg { margin-bottom: var(--space-lg); }
-.mb-xl { margin-bottom: var(--space-xl); }
-
-.p-0 { padding: 0; }
-.p-xs { padding: var(--space-xs); }
-.p-sm { padding: var(--space-sm); }
-.p-md { padding: var(--space-md); }
-.p-lg { padding: var(--space-lg); }
-.p-xl { padding: var(--space-xl); }
-.p-2xl { padding: var(--space-2xl); }
-
-.px-lg { padding-left: var(--space-lg); padding-right: var(--space-lg); }
-.py-lg { padding-top: var(--space-lg); padding-bottom: var(--space-lg); }
-
-/* ============================================================================
-   17. Utility Classes: Display & Visibility
-   ============================================================================ */
-
-.d-block {
-  display: block;
-}
-
-.d-inline {
-  display: inline;
-}
-
-.d-inline-block {
-  display: inline-block;
-}
-
-.d-flex {
-  display: flex;
-}
-
-.d-grid {
-  display: grid;
-}
-
-.d-none {
-  display: none;
-}
-
-.hidden {
-  visibility: hidden;
-}
-
-.invisible {
-  visibility: hidden;
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-}
-
-/* ============================================================================
-   18. Utility Classes: Flexbox Layout
-   ============================================================================ */
-
-.flex-row {
-  display: flex;
-  flex-direction: row;
-}
-
-.flex-column {
+.milestone-timeline {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-primary);
+  border-radius: var(--border-radius-md);
 }
 
-.flex-center {
+.milestone-timeline-empty {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-align: center;
 }
 
-.flex-between {
+.milestone-card {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-normal);
+  cursor: default;
 }
 
-.flex-wrap {
-  flex-wrap: wrap;
+.milestone-card:hover {
+  background-color: var(--color-bg-primary);
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
-.gap-sm {
-  gap: var(--space-sm);
+.status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: white;
+  font-weight: var(--font-weight-bold);
 }
 
-.gap-md {
-  gap: var(--space-md);
+.status-icon.completed {
+  background-color: var(--color-milestone-completed);
+  color: white;
 }
 
-.gap-lg {
-  gap: var(--space-lg);
+.status-icon.on-track {
+  background-color: var(--color-milestone-on-track);
+  color: #333;
+}
+
+.status-icon.at-risk {
+  background-color: var(--color-milestone-at-risk);
+  color: white;
+}
+
+.milestone-name {
+  flex: 1;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  max-width: 600px;
+}
+
+.milestone-date {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ============================================================================
-   19. Utility Classes: Border & Rounding
+   Component: StatusChart
    ============================================================================ */
 
-.border {
+.status-chart-section {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.status-chart-container {
+  flex: 1;
+  max-width: 600px;
+  min-width: 300px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-primary);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
   border: 1px solid var(--color-border);
 }
 
-.border-top {
-  border-top: 1px solid var(--color-border);
+#statusChart {
+  max-width: 100%;
+  max-height: 280px;
 }
 
-.border-bottom {
-  border-bottom: 1px solid var(--color-border);
+.status-chart-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
 }
 
-.rounded {
-  border-radius: var(--card-border-radius);
+.status-chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: var(--color-bg-primary);
+  border-radius: var(--border-radius-md);
+  min-width: 200px;
+  border: 1px solid var(--color-border);
 }
 
-.rounded-sm {
+.status-chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+}
+
+.status-chart-legend-color {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
   border-radius: 2px;
+  flex-shrink: 0;
 }
 
-.rounded-md {
-  border-radius: 6px;
+.status-chart-legend-color.shipped {
+  background-color: var(--color-shipped);
 }
 
-.rounded-lg {
-  border-radius: 8px;
+.status-chart-legend-color.in-progress {
+  background-color: var(--color-in-progress);
+}
+
+.status-chart-legend-color.carried-over {
+  background-color: var(--color-carried-over);
 }
 
 /* ============================================================================
-   20. Utility Classes: Shadows
+   Component: WorkItemList
    ============================================================================ */
+
+.work-item-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  width: 100%;
+}
+
+.work-item-section {
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-primary);
+  transition: box-shadow var(--transition-normal);
+}
+
+.work-item-section:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.section-header {
+  padding: var(--spacing-lg);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.section-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  width: 100%;
+}
+
+.section-header-title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.section-header-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.section-header.shipped {
+  background-color: var(--color-shipped);
+}
+
+.section-header.in-progress {
+  background-color: var(--color-in-progress);
+}
+
+.section-header.carried-over {
+  background-color: var(--color-carried-over);
+}
+
+.work-item-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--spacing-lg);
+  background-color: var(--color-bg-primary);
+  border-top: 1px solid var(--color-border);
+}
+
+.work-item-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  color: var(--color-text-secondary);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  min-height: 100px;
+}
+
+.work-item-list-empty-icon {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 20px;
+  margin-bottom: var(--spacing-sm);
+  opacity: 0.5;
+}
+
+.work-item {
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  transition: background-color var(--transition-fast);
+}
+
+.work-item:last-child {
+  border-bottom: none;
+}
+
+.work-item:hover {
+  background-color: var(--color-bg-secondary);
+  padding: var(--spacing-md);
+  margin: 0 calc(var(--spacing-md) * -1);
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
+}
+
+.work-item-title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-normal);
+  word-break: break-word;
+}
+
+.assignee-text {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* ============================================================================
+   Print Styles (For Screenshot/PDF Capture)
+   ============================================================================ */
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: white;
+  }
+  
+  .dashboard-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    min-height: auto;
+  }
+  
+  .dashboard-section {
+    page-break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid var(--color-border);
+  }
+  
+  a {
+    text-decoration: none;
+    color: var(--color-text-primary);
+  }
+}
+
+/* ============================================================================
+   Accessibility & High Contrast
+   ============================================================================ */
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-text-primary: #000000;
+    --color-text-secondary: #333333;
+    --color-border: #666666;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================================
+   Cross-Browser Compatibility Fixes
+   ============================================================================ */
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+input, textarea, select {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Firefox specific adjustments */
+::-moz-selection {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+/* General selection styles */
+::selection {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+/* Scrollbar styling (Chrome/Edge only) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   Utility Classes
+   ============================================================================ */
+
+.hidden {
+  display: none !important;
+}
+
+.visible {
+  display: block !important;
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.no-wrap {
+  white-space: nowrap;
+}
+
+.break-word {
+  word-break: break-word;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.opacity-75 {
+  opacity: 0.75;
+}
 
 .shadow-sm {
   box-shadow: var(--shadow-sm);
@@ -617,636 +848,3 @@ dd {
 .shadow-lg {
   box-shadow: var(--shadow-lg);
 }
-
-/* ============================================================================
-   21. Form Elements Base Styles
-   ============================================================================ */
-
-input, textarea, select, button {
-  font-family: var(--font-family);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-normal);
-}
-
-input, textarea, select {
-  color: var(--color-text-primary);
-  background-color: var(--color-bg-primary);
-  border: 1px solid var(--color-border-dark);
-  border-radius: var(--card-border-radius);
-  padding: 8px 12px;
-  transition: border-color var(--transition-duration) var(--transition-timing);
-}
-
-input:focus, textarea:focus, select:focus {
-  outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-light);
-}
-
-textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-button {
-  cursor: pointer;
-  border: none;
-  border-radius: var(--card-border-radius);
-  font-weight: var(--font-weight-semibold);
-  padding: 8px 16px;
-  transition: background-color var(--transition-duration) var(--transition-timing);
-}
-
-button:focus {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-/* ============================================================================
-   22. Tables
-   ============================================================================ */
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: var(--space-lg);
-}
-
-thead {
-  background-color: var(--color-bg-secondary);
-  border-bottom: 2px solid var(--color-border-dark);
-}
-
-th {
-  padding: var(--space-md);
-  text-align: left;
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-tbody tr {
-  border-bottom: 1px solid var(--color-border);
-  transition: background-color var(--transition-duration) var(--transition-timing);
-}
-
-tbody tr:hover {
-  background-color: var(--color-bg-secondary);
-}
-
-td {
-  padding: var(--space-md);
-  color: var(--color-text-primary);
-}
-
-/* ============================================================================
-   23. Blockquote & Horizontal Rule
-   ============================================================================ */
-
-blockquote {
-  padding: var(--space-lg) var(--space-xl);
-  margin: var(--space-lg) 0;
-  border-left: 4px solid var(--color-accent);
-  background-color: var(--color-bg-secondary);
-  font-style: italic;
-  color: var(--color-text-secondary);
-}
-
-blockquote p:last-child {
-  margin-bottom: 0;
-}
-
-hr {
-  border: none;
-  border-top: 1px solid var(--color-border);
-  margin: var(--space-xl) 0;
-  height: 1px;
-  background-color: transparent;
-}
-
-/* ============================================================================
-   24. Layout: Fixed-Width Container
-   ============================================================================ */
-
-.dashboard-container {
-  max-width: var(--container-max-width);  /* 1200px */
-  width: 100%;
-  margin: 0 auto;
-  padding: var(--container-padding);     /* 20px */
-  background-color: var(--color-bg-primary);
-  box-sizing: border-box;
-}
-
-.dashboard-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.dashboard-container::-webkit-scrollbar-track {
-  background: var(--color-bg-secondary);
-}
-
-.dashboard-container::-webkit-scrollbar-thumb {
-  background: var(--color-border-dark);
-  border-radius: 4px;
-}
-
-.dashboard-container::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
-}
-
-/* ============================================================================
-   25. Layout: Dashboard Sections
-   ============================================================================ */
-
-.dashboard-section {
-  margin-bottom: var(--space-xl);        /* 24px */
-  background-color: var(--color-bg-secondary);
-  padding: var(--card-padding);          /* 16px */
-  border-radius: var(--card-border-radius);
-  box-shadow: var(--shadow-sm);
-  box-sizing: border-box;
-}
-
-.dashboard-section:last-child {
-  margin-bottom: 0;
-}
-
-.dashboard-section h2,
-.dashboard-section h3 {
-  margin-top: 0;
-}
-
-/* ============================================================================
-   26. Layout: Grid System (Flexbox-based)
-   ============================================================================ */
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  margin-right: calc(var(--card-gap) * -1 / 2);
-  margin-left: calc(var(--card-gap) * -1 / 2);
-}
-
-.row > * {
-  flex-shrink: 0;
-  width: 100%;
-  max-width: 100%;
-  padding-right: calc(var(--card-gap) / 2);
-  padding-left: calc(var(--card-gap) / 2);
-}
-
-.col {
-  flex: 1 0 0%;
-}
-
-.col-1 { flex: 0 0 calc(8.333% - var(--card-gap) / 2); }
-.col-2 { flex: 0 0 calc(16.667% - var(--card-gap) / 2); }
-.col-3 { flex: 0 0 calc(25% - var(--card-gap) / 2); }
-.col-4 { flex: 0 0 calc(33.333% - var(--card-gap) / 2); }
-.col-5 { flex: 0 0 calc(41.667% - var(--card-gap) / 2); }
-.col-6 { flex: 0 0 calc(50% - var(--card-gap) / 2); }
-.col-7 { flex: 0 0 calc(58.333% - var(--card-gap) / 2); }
-.col-8 { flex: 0 0 calc(66.667% - var(--card-gap) / 2); }
-.col-9 { flex: 0 0 calc(75% - var(--card-gap) / 2); }
-.col-10 { flex: 0 0 calc(83.333% - var(--card-gap) / 2); }
-.col-11 { flex: 0 0 calc(91.667% - var(--card-gap) / 2); }
-.col-12 { flex: 0 0 calc(100% - var(--card-gap) / 2); }
-
-.col-auto {
-  flex: 0 0 auto;
-  width: auto;
-}
-
-.row.align-items-start {
-  align-items: flex-start;
-}
-
-.row.align-items-center {
-  align-items: center;
-}
-
-.row.align-items-end {
-  align-items: flex-end;
-}
-
-.row.justify-content-start {
-  justify-content: flex-start;
-}
-
-.row.justify-content-center {
-  justify-content: center;
-}
-
-.row.justify-content-end {
-  justify-content: flex-end;
-}
-
-.row.justify-content-between {
-  justify-content: space-between;
-}
-
-.row.justify-content-around {
-  justify-content: space-around;
-}
-
-.row.justify-content-evenly {
-  justify-content: space-evenly;
-}
-
-.col-offset-1 { margin-left: calc(8.333% + var(--card-gap) / 2); }
-.col-offset-2 { margin-left: calc(16.667% + var(--card-gap) / 2); }
-.col-offset-3 { margin-left: calc(25% + var(--card-gap) / 2); }
-.col-offset-4 { margin-left: calc(33.333% + var(--card-gap) / 2); }
-.col-offset-5 { margin-left: calc(41.667% + var(--card-gap) / 2); }
-.col-offset-6 { margin-left: calc(50% + var(--card-gap) / 2); }
-.col-offset-7 { margin-left: calc(58.333% + var(--card-gap) / 2); }
-.col-offset-8 { margin-left: calc(66.667% + var(--card-gap) / 2); }
-.col-offset-9 { margin-left: calc(75% + var(--card-gap) / 2); }
-.col-offset-10 { margin-left: calc(83.333% + var(--card-gap) / 2); }
-.col-offset-11 { margin-left: calc(91.667% + var(--card-gap) / 2); }
-
-/* ============================================================================
-   27. Layout: Overflow Prevention
-   ============================================================================ */
-
-body, html {
-  overflow-x: hidden;
-}
-
-.dashboard-container,
-.row,
-.col,
-.dashboard-section {
-  overflow-x: hidden;
-  max-width: 100%;
-}
-
-img, video, embed, object {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-pre, code {
-  word-break: break-word;
-  white-space: pre-wrap;
-}
-
-.text-break {
-  word-break: break-word;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-/* ============================================================================
-   28. Component-Specific Styles: MilestoneTimeline
-   
-   Styles for chronological milestone timeline component.
-   Features:
-   - Flex container with gap for horizontal timeline layout
-   - Individual milestone cards with status indicators
-   - Color-coded status badges (Completed/On Track/At Risk)
-   - Hover effects for interactivity
-   - Ellipsis truncation for long milestone names
-   
-   ========================================================================== */
-
-.milestone-timeline {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: var(--card-gap);                  /* 12px gap between cards */
-  align-items: flex-start;
-  width: 100%;
-  margin-bottom: var(--space-xl);
-}
-
-.milestone-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);  /* 8px 12px */
-  background-color: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--card-border-radius);
-  transition: all var(--transition-duration) var(--transition-timing);
-  flex: 1;
-  min-width: 120px;
-  max-width: 160px;
-}
-
-.milestone-card:hover {
-  background-color: var(--color-accent-light);
-  border-color: var(--color-accent);
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-2px);
-}
-
-.status-icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: var(--font-weight-bold);
-  font-size: 10px;
-  color: #FFFFFF;
-}
-
-.status-icon.completed {
-  background-color: var(--color-status-completed);
-}
-
-.status-icon.on-track {
-  background-color: var(--color-status-on-track);
-}
-
-.status-icon.at-risk {
-  background-color: var(--color-status-at-risk);
-}
-
-.milestone-name {
-  font-size: var(--font-size-sm);        /* 12px */
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-  width: 100%;
-  word-break: break-word;
-  line-height: var(--line-height-tight);
-}
-
-.milestone-date {
-  font-size: var(--font-size-xs);        /* 11px */
-  color: var(--color-text-secondary);
-  text-align: center;
-  white-space: nowrap;
-}
-
-.milestone-timeline-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: var(--space-2xl);
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--card-border-radius);
-  color: var(--color-text-secondary);
-  font-style: italic;
-  min-height: 80px;
-}
-
-/* ============================================================================
-   29. Component-Specific Styles: StatusChart
-   
-   Styles for work item status bar/pie chart component.
-   Features:
-   - Centered max-width 600px container
-   - Fixed height 300px for consistent chart area
-   - Responsive canvas element within container
-   - Professional spacing and shadows
-   
-   ========================================================================== */
-
-.status-chart-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-bottom: var(--space-xl);
-}
-
-.status-chart-container {
-  max-width: 600px;
-  width: 100%;
-  height: 300px;
-  background-color: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--card-border-radius);
-  padding: var(--space-lg);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.status-chart-container canvas,
-.status-chart-container .chart-canvas {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-}
-
-.chart-canvas {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.status-chart-title {
-  font-size: var(--font-size-md);        /* 16px */
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  text-align: center;
-  margin-bottom: var(--space-lg);
-}
-
-.status-chart-legend {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: var(--space-lg);
-  justify-content: center;
-  margin-top: var(--space-lg);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.status-chart-legend-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.status-chart-legend-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-.status-chart-legend-color.shipped {
-  background-color: var(--color-success);
-}
-
-.status-chart-legend-color.in-progress {
-  background-color: var(--color-info);
-}
-
-.status-chart-legend-color.carried-over {
-  background-color: var(--color-warning);
-}
-
-/* ============================================================================
-   30. Component-Specific Styles: WorkItemList
-   
-   Styles for work item grouping component.
-   Features:
-   - Three color-coded sections (Shipped/In Progress/Carried Over)
-   - MudBlazor Card container with custom styling
-   - Color-coded headers with white text
-   - Semantic list markup with consistent spacing
-   - Empty state messaging
-   
-   ========================================================================== */
-
-.work-item-section {
-  margin-bottom: var(--space-xl);
-  background-color: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--card-border-radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-}
-
-.section-header {
-  padding: var(--space-lg);
-  font-size: var(--font-size-md);        /* 16px */
-  font-weight: var(--font-weight-bold);
-  color: #FFFFFF;
-  background-color: var(--color-text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-}
-
-.section-header.shipped {
-  background-color: var(--color-success);
-}
-
-.section-header.in-progress {
-  background-color: var(--color-info);
-}
-
-.section-header.carried-over {
-  background-color: var(--color-warning);
-}
-
-.section-header-title {
-  margin: 0;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  color: inherit;
-}
-
-.section-header-count {
-  background-color: rgba(255, 255, 255, 0.3);
-  padding: var(--space-xs) var(--space-md);
-  border-radius: 12px;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  min-width: 32px;
-  text-align: center;
-  color: #FFFFFF;
-}
-
-.work-item-list {
-  list-style: none;
-  margin: 0;
-  padding: var(--space-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-
-.work-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  padding: var(--space-md);
-  background-color: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--card-border-radius);
-  transition: all var(--transition-duration) var(--transition-timing);
-}
-
-.work-item:hover {
-  border-color: var(--color-text-secondary);
-  box-shadow: var(--shadow-sm);
-  background-color: var(--color-bg-secondary);
-}
-
-.work-item-title {
-  font-size: var(--font-size-base);      /* 14px */
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  line-height: var(--line-height-normal);
-  word-break: break-word;
-  margin: 0;
-}
-
-.assignee-text {
-  font-size: var(--font-size-sm);        /* 12px */
-  color: var(--color-text-secondary);
-  font-style: italic;
-  margin: 0;
-}
-
-.work-item-list-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-2xl);
-  color: var(--color-text-secondary);
-  font-style: italic;
-  text-align: center;
-  min-height: 100px;
-  font-size: var(--font-size-sm);
-}
-
-.work-item-list-empty-icon {
-  display: inline-block;
-  margin-right: var(--space-sm);
-  opacity: 0.5;
-}
-
-/* ============================================================================
-   Print Styles
-   ============================================================================ */
-
-@media print {
-  body {
-    background-color: var(--color-bg-primary);
-    color: var(--color-text-primary);
-  }
-
-  a {
-    text-decoration: underline;
-  }
-
-  button, input, select, textarea {
-    border: 1px solid #000;
-  }
-  
-  .dashboard-container {
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-  }
-}
-
-/* ============================================================================
-   End of Dashboard CSS - Step 3: Component-Specific Styles
-   ============================================================================ */
