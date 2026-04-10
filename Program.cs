@@ -28,7 +28,8 @@ app.MapRazorComponents<App>()
 app.Run();
 
 /// <summary>
-/// Temporary stub implementation replaced by DashboardDataService in T2.
+/// Temporary no-op implementation of IDashboardDataService.
+/// Replaced by DashboardDataService in T2.
 /// </summary>
 internal sealed class PlaceholderDataService : IDashboardDataService
 {
@@ -41,7 +42,6 @@ internal sealed class PlaceholderDataService : IDashboardDataService
 
     public void Dispose()
     {
-        // Suppress unused event warning
         _ = OnDataChanged;
     }
 }
