@@ -11,10 +11,12 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    background-color: var(--bg-header, #1a2332);
 }
 
 .header-left {
     flex: 1;
+    min-width: 0;
     background-color: var(--bg-header, #1a2332);
 }
 
@@ -23,6 +25,7 @@
     display: flex;
     align-items: flex-start;
     padding-top: 4px;
+    margin-left: 16px;
     background-color: var(--bg-header, #1a2332);
 }
 
@@ -34,6 +37,9 @@
     padding: 0;
     line-height: 1.2;
     background-color: var(--bg-header, #1a2332);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .project-sponsor {
@@ -42,6 +48,9 @@
     color: rgba(255, 255, 255, 0.8);
     margin-bottom: 8px;
     background-color: var(--bg-header, #1a2332);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .header-meta {

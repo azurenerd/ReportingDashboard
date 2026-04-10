@@ -5,7 +5,7 @@
     <header class="project-header">
         <div class="header-content">
             <div class="header-left">
-                <h1 class="project-name">@Project.Name</h1>
+                <h1 class="project-name">@(Project.Name ?? "Untitled Project")</h1>
                 @if (!string.IsNullOrWhiteSpace(Project.Executive))
                 {
                     <div class="project-sponsor">@Project.Executive</div>
