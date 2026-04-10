@@ -1,20 +1,23 @@
-@implements IAsyncDisposable
 @namespace AgentSquad.Runner.Components
 
 <section class="timeline-container" aria-label="Project milestone timeline">
     <h2 class="visually-hidden">Milestones</h2>
+    
     @if (Dashboard?.Milestones?.Any() == true)
     {
         @foreach (var milestone in SortedMilestones)
         {
             <div class="timeline-item">
-                <div class="timeline-marker" style="background-color: var(--bs-@GetStatusColor(milestone.Status));" aria-hidden="true">
+                <div class="timeline-marker" 
+                     style="background-color: var(--bs-@GetStatusColor(milestone.Status));"
+                     role="presentation"
+                     aria-hidden="true">
                 </div>
                 <div class="timeline-content">
                     <h6 class="milestone-name">@milestone.Name</h6>
                     <p class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</p>
-                    <span class="badge bg-@GetStatusColor(milestone.Status)" 
-                          role="status" 
+                    <span class="badge bg-@GetStatusColor(milestone.Status) text-white"
+                          role="status"
                           aria-label="@milestone.Name status: @GetStatusDisplayText(milestone.Status)">
                         @GetStatusDisplayText(milestone.Status)
                     </span>
@@ -24,17 +27,20 @@
     }
     else
     {
-        <div class="alert alert-info" role="status">No milestones to display</div>
+        <div class="alert alert-info" role="status">
+            No milestones to display
+        </div>
     }
 </section>
 
 @code {
-    [CascadingParameter] public ProjectDashboard? Dashboard { get; set; }
-    
+    [CascadingParameter]
+    public ProjectDashboard? Dashboard { get; set; }
+
     private IEnumerable<Milestone> SortedMilestones =>
         Dashboard?.Milestones?.OrderBy(m => m.TargetDate) ?? new List<Milestone>();
-    
-    private string GetStatusColor(string status) => status?.ToLower() switch
+
+    private string GetStatusColor(string? status) => status?.ToLower() switch
     {
         "completed" => "success",
         "ontrack" => "primary",
@@ -42,8 +48,8 @@
         "delayed" => "danger",
         _ => "secondary"
     };
-    
-    private string GetStatusDisplayText(string status) => status?.ToLower() switch
+
+    private string GetStatusDisplayText(string? status) => status?.ToLower() switch
     {
         "completed" => "Completed",
         "ontrack" => "On Track",
@@ -51,9 +57,4 @@
         "delayed" => "Delayed",
         _ => "Unknown"
     };
-    
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        await Task.CompletedTask;
-    }
 }
