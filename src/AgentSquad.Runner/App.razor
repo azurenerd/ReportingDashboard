@@ -1,62 +1,38 @@
-@using Microsoft.AspNetCore.Components.Routing
-@using Microsoft.AspNetCore.Components.Web
-@using AgentSquad.Runner.Models
-@using AgentSquad.Runner.Services
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="icon" href="favicon.ico" />
+    
+    <!-- Bootstrap 5.3.0 CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    
+    <!-- Bootstrap Icons 1.11.3 CSS -->
+    <link rel="stylesheet" href="css/bootstrap-icons.css" />
+    
+    <!-- Custom Site CSS -->
+    <link rel="stylesheet" href="css/site.css" />
+    
+    <title>Executive Dashboard</title>
+</head>
+<body>
+    <div id="app">
+        <svg class="spinner" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);"></svg>
+    </div>
 
-<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <div class="container mt-5">
-                <div class="alert alert-danger" role="alert">
-                    <h4 class="alert-heading">Page Not Found</h4>
-                    <p>Sorry, the page you are looking for does not exist.</p>
-                </div>
-            </div>
-        </LayoutView>
-    </NotFound>
-</Router>
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser console for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
 
-@code {
-    [Inject]
-    private IProjectDataService DataService { get; set; } = null!;
-
-    private ProjectDashboard? Dashboard { get; set; }
-    private string? ErrorMessage { get; set; }
-    private bool IsLoading { get; set; } = true;
-
-    protected override void OnInitialized()
-    {
-        try
-        {
-            if (DataService.IsInitialized)
-            {
-                Dashboard = DataService.GetDashboard();
-                ErrorMessage = null;
-            }
-            else if (DataService.LastError != null)
-            {
-                ErrorMessage = DataService.LastError;
-                Dashboard = null;
-            }
-        }
-        catch (InvalidOperationException ex)
-        {
-            ErrorMessage = "Dashboard data not initialized. " + ex.Message;
-            Dashboard = null;
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Unexpected error: {ex.Message}";
-            Dashboard = null;
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-}
+    <script src="_framework/blazor.web.js"></script>
+</body>
+</html>
