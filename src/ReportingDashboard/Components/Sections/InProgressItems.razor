@@ -1,0 +1,16 @@
+<section class="in-progress-items">
+    <!-- Full implementation in T6 -->
+    @if (Items.Count > 0)
+    {
+        <h2>In Progress <span class="item-count">@Items.Count</span></h2>
+        @foreach (var item in Items)
+        {
+            <div class="work-item-stub">@item.Title — @(item.PercentComplete ?? 0)%</div>
+        }
+    }
+</section>
+
+@code {
+    [Parameter]
+    public List<WorkItem> Items { get; set; } = [];
+}

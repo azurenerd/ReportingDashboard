@@ -1,0 +1,42 @@
+@page "/"
+@rendermode InteractiveServer
+@inject DashboardDataService DataService
+@implements IDisposable
+
+@if (data is null)
+{
+    <div class="loading">Loading dashboard data...</div>
+}
+else if (data.ErrorMessage is not null)
+{
+    <div class="error-banner">
+        <h2>⚠ Unable to Load Dashboard</h2>
+        <p>@data.ErrorMessage</p>
+        <p>Check that <code>data.json</code> exists in <code>wwwroot/data/</code> and contains valid JSON.</p>
+    </div>
+}
+else
+{
+    <div class="dashboard">
+        <ProjectHeader Project="data.Project" />
+        <MonthlySummary CurrentMonth="data.CurrentMonth" />
+        <MilestoneTimeline Milestones="data.Milestones" />
+        <ShippedItems Items="data.Shipped" />
+        <InProgressItems Items="data.InProgress" />
+        <CarriedOverItems Items="data.CarriedOver" />
+    </div>
+}
+
+@code {
+    private DashboardData? data;
+
+    protected override async Task OnInitializedAsync()
+    {
+        data = await DataService.GetDashboardDataAsync();
+    }
+
+    public void Dispose()
+    {
+        // Event unsubscription wired in T9
+    }
+}

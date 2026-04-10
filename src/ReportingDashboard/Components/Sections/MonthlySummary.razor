@@ -1,0 +1,28 @@
+<section class="monthly-summary">
+    @if (CurrentMonth is not null)
+    {
+        <div class="metrics-strip">
+            <div class="metric-card">
+                <span class="metric-value">@CurrentMonth.TotalItems</span>
+                <span class="metric-label">Total Items</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value">@CurrentMonth.CompletedItems</span>
+                <span class="metric-label">Completed</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value">@CurrentMonth.CarriedItems</span>
+                <span class="metric-label">Carried Over</span>
+            </div>
+            <div class="metric-card health-@(CurrentMonth.OverallHealth ?? "unknown")">
+                <span class="metric-value">@(CurrentMonth.OverallHealth ?? "N/A")</span>
+                <span class="metric-label">Overall Health</span>
+            </div>
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public MonthSummary? CurrentMonth { get; set; }
+}

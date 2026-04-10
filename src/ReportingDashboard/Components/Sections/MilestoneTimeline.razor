@@ -1,0 +1,18 @@
+<section class="milestone-timeline">
+    <!-- Full implementation in T4 -->
+    @if (Milestones.Count > 0)
+    {
+        <h2>Milestones</h2>
+        <div class="timeline-placeholder">
+            @foreach (var milestone in Milestones)
+            {
+                <span class="milestone-stub status-@milestone.Status">@milestone.Title</span>
+            }
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public List<Milestone> Milestones { get; set; } = [];
+}
