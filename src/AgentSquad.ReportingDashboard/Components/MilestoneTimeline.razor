@@ -1,5 +1,5 @@
 @namespace AgentSquad.ReportingDashboard.Components
-@using ChartJs.Blazor.BarChart
+@using ChartJs.Blazor.LineChart
 @using ChartJs.Blazor.Common
 @using ChartJs.Blazor.Util
 
@@ -42,6 +42,26 @@
             return;
         }
 
+        var pointBackgroundColors = new List<string>();
+        var pointBorderColors = new List<string>();
+        var pointBorderWidths = new List<int>();
+
+        foreach (var milestone in milestones)
+        {
+            if (milestone.IsCompleted)
+            {
+                pointBackgroundColors.Add("#28a745");
+                pointBorderColors.Add("#28a745");
+                pointBorderWidths.Add(0);
+            }
+            else
+            {
+                pointBackgroundColors.Add("#ffffff");
+                pointBorderColors.Add("#6c757d");
+                pointBorderWidths.Add(2);
+            }
+        }
+
         config = new ChartConfig
         {
             Type = ChartType.Line,
@@ -62,16 +82,10 @@
                         BorderWidth = 1,
                         Fill = false,
                         Tension = 0.3,
-                        PointRadius = 6,
-                        PointBackgroundColor = milestones.Select(m => 
-                            m.IsCompleted ? "#28a745" : "#ffffff"
-                        ).ToList(),
-                        PointBorderColor = milestones.Select(m => 
-                            m.IsCompleted ? "#28a745" : "#6c757d"
-                        ).ToList(),
-                        PointBorderWidth = milestones.Select(m => 
-                            m.IsCompleted ? 0 : 2
-                        ).ToList(),
+                        PointRadius = milestones.Select(_ => 6).ToList(),
+                        PointBackgroundColor = pointBackgroundColors.Cast<object>().ToList(),
+                        PointBorderColor = pointBorderColors.Cast<object>().ToList(),
+                        PointBorderWidth = pointBorderWidths.Cast<object>().ToList(),
                     }
                 }
             },
