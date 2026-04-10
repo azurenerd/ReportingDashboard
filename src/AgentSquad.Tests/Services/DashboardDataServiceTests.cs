@@ -188,53 +188,272 @@ namespace AgentSquad.Tests.Services
 
         #endregion
 
-        #region Placeholder Tests (Ready for Implementation in Step 2+)
+        #region Step 2: JSON Parsing and Validation Tests
 
         [Fact]
-        public void DashboardDataServiceTests_SetupComplete()
+        public void ValidJsonDeserializes_ValidDataJsonLoads_GetCurrentDataReturnsNonNull()
         {
-            // Arrange: Use helper method to create valid JSON
-            var validJson = CreateValidJson();
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath);
 
-            // Assert: Verify helper produces valid JSON structure
-            Assert.NotNull(validJson);
-            Assert.Contains("\"project\"", validJson);
-            Assert.Contains("\"milestones\"", validJson);
-            Assert.Contains("\"workItems\"", validJson);
+            // Act
+            var service = CreateMockDataService(options);
+            var currentData = service.GetCurrentData();
+
+            // Assert
+            Assert.NotNull(currentData);
+            Assert.True(service.HasData);
+            Assert.Null(service.GetLastError());
         }
 
         [Fact]
-        public void DashboardDataServiceTests_InvalidJsonDetected()
+        public void ValidJsonPopulatesModels_ValidJsonParsed_ProjectNameMilestonesAndWorkItemsCorrect()
         {
-            // Arrange: Use helper method to create invalid JSON
-            var invalidJson = CreateInvalidJson();
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath);
 
-            // Assert: Verify invalid JSON contains syntax errors
-            Assert.NotNull(invalidJson);
-            Assert.Contains("Missing comma", invalidJson);
+            // Act
+            var service = CreateMockDataService(options);
+            var project = service.GetProject();
+            var milestones = service.GetMilestones();
+            var workItems = service.GetWorkItems();
+
+            // Assert
+            Assert.NotNull(project);
+            Assert.Equal("Sample Project", project.Name);
+            Assert.Equal("A sample project for testing", project.Description);
+            Assert.NotNull(milestones);
+            Assert.Equal(3, milestones.Count);
+            Assert.NotNull(workItems);
+            Assert.Equal(9, workItems.Count);
         }
 
         [Fact]
-        public void DashboardDataServiceTests_TempFileCreation()
+        public void MalformedJsonCaught_MissingCommaInJson_JsonExceptionCaughtAndHasDataFalse()
         {
-            // Arrange: Create a temporary data.json file
-            var tempPath = CreateTempDataJsonFile(CreateValidJson());
+            // Arrange
+            var invalidJsonPath = SetupInvalidDataJsonFile();
+            var options = CreateMockOptions(invalidJsonPath);
 
-            // Assert: Verify file exists and is tracked for cleanup
-            Assert.True(File.Exists(tempPath));
-            Assert.Contains(tempPath, _tempFiles);
+            // Act
+            var service = CreateMockDataService(options);
+            var currentData = service.GetCurrentData();
+
+            // Assert
+            Assert.Null(currentData);
+            Assert.False(service.HasData);
+            Assert.NotNull(service.GetLastError());
+            Assert.Contains("JSON parsing error", service.GetLastError());
         }
 
         [Fact]
-        public void DashboardDataServiceTests_MockOptionsConfiguration()
+        public void InvalidUtf8Rejected_NonUtf8Encoding_JsonExceptionCaught()
         {
-            // Arrange: Create mock options with custom path
-            var customPath = Path.Combine(Path.GetTempPath(), "custom_data.json");
-            var options = CreateMockOptions(customPath, 600);
+            // Arrange
+            var nonUtf8Path = SetupNonUtf8DataJsonFile();
+            var options = CreateMockOptions(nonUtf8Path);
 
-            // Assert: Verify options are configured correctly
-            Assert.Equal(customPath, options.Value.DataJsonPath);
-            Assert.Equal(600, options.Value.FileWatchDebounceMs);
+            // Act
+            var service = CreateMockDataService(options);
+            var currentData = service.GetCurrentData();
+
+            // Assert
+            Assert.Null(currentData);
+            Assert.False(service.HasData);
+            Assert.NotNull(service.GetLastError());
+        }
+
+        [Fact]
+        public void CaseInsensitivePropertyNames_ProjectPropertyInDifferentCases_DeserializesCorrectly()
+        {
+            // Arrange
+            var caseInsensitiveJson = @"{
+  ""PROJECT"": {
+    ""NAME"": ""Case Insensitive Project"",
+    ""DESCRIPTION"": ""Testing case insensitivity""
+  },
+  ""MILESTONES"": [],
+  ""WORKITEMS"": []
+}";
+            var jsonPath = CreateTempDataJsonFile(caseInsensitiveJson);
+            var options = CreateMockOptions(jsonPath);
+
+            // Act
+            var service = CreateMockDataService(options);
+            var project = service.GetProject();
+
+            // Assert
+            Assert.NotNull(project);
+            Assert.Equal("Case Insensitive Project", project.Name);
+            Assert.True(service.HasData);
+        }
+
+        [Fact]
+        public void RequiredFieldsEnforced_MissingProjectName_HasDataFalseAndErrorSet()
+        {
+            // Arrange
+            var missingNameJson = @"{
+  ""project"": {
+    ""description"": ""Missing project name""
+  },
+  ""milestones"": [],
+  ""workItems"": []
+}";
+            var jsonPath = CreateTempDataJsonFile(missingNameJson);
+            var options = CreateMockOptions(jsonPath);
+
+            // Act
+            var service = CreateMockDataService(options);
+
+            // Assert
+            Assert.False(service.HasData);
+            Assert.NotNull(service.GetLastError());
+        }
+
+        [Fact]
+        public void StringLengthValidated_ProjectNameExceedsMaxLength_ValidationErrorLogged()
+        {
+            // Arrange
+            var longName = new string('A', 257);
+            var jsonWithLongName = new
+            {
+                project = new { name = longName, description = "Test" },
+                milestones = new object[] { },
+                workItems = new object[] { }
+            };
+            var longNameJson = JsonSerializer.Serialize(jsonWithLongName);
+            var jsonPath = CreateTempDataJsonFile(longNameJson);
+            var options = CreateMockOptions(jsonPath);
+
+            // Act
+            var service = CreateMockDataService(options);
+
+            // Assert
+            Assert.False(service.HasData);
+            Assert.NotNull(service.GetLastError());
+        }
+
+        [Fact]
+        public void EnumValuesEnforced_InvalidWorkItemStatus_ErrorCaughtAndMessageSet()
+        {
+            // Arrange
+            var invalidStatusJson = @"{
+  ""project"": { ""name"": ""Test"" },
+  ""milestones"": [],
+  ""workItems"": [
+    { ""title"": ""Test Item"", ""status"": ""InvalidStatus"", ""assignee"": ""Test"" }
+  ]
+}";
+            var jsonPath = CreateTempDataJsonFile(invalidStatusJson);
+            var options = CreateMockOptions(jsonPath);
+
+            // Act
+            var service = CreateMockDataService(options);
+
+            // Assert
+            Assert.False(service.HasData);
+            Assert.NotNull(service.GetLastError());
+        }
+
+        [Fact]
+        public void InvalidMilestoneStatus_StatusNotInAllowedValues_ValidationFails()
+        {
+            // Arrange
+            var invalidMilestoneStatusJson = @"{
+  ""project"": { ""name"": ""Test"" },
+  ""milestones"": [
+    { ""name"": ""M1"", ""date"": ""2026-01-01T00:00:00Z"", ""status"": ""InvalidStatus"" }
+  ],
+  ""workItems"": []
+}";
+            var jsonPath = CreateTempDataJsonFile(invalidMilestoneStatusJson);
+            var options = CreateMockOptions(jsonPath);
+
+            // Act
+            var service = CreateMockDataService(options);
+
+            // Assert
+            Assert.False(service.HasData);
+            Assert.NotNull(service.GetLastError());
+        }
+
+        [Fact]
+        public void ValidJsonWithOptionalFields_AssigneeAndDescriptionOmitted_DeserializesWithDefaults()
+        {
+            // Arrange
+            var minimalJson = @"{
+  ""project"": { ""name"": ""Minimal Project"" },
+  ""milestones"": [
+    { ""name"": ""M1"", ""date"": ""2026-01-01T00:00:00Z"", ""status"": ""Completed"" }
+  ],
+  ""workItems"": [
+    { ""title"": ""Item 1"", ""status"": ""Shipped"" }
+  ]
+}";
+            var jsonPath = CreateTempDataJsonFile(minimalJson);
+            var options = CreateMockOptions(jsonPath);
+
+            // Act
+            var service = CreateMockDataService(options);
+            var workItems = service.GetWorkItems();
+
+            // Assert
+            Assert.True(service.HasData);
+            Assert.Single(workItems);
+            Assert.Null(workItems[0].Assignee);
+        }
+
+        [Fact]
+        public void EmptyCollectionsAllowed_NoMilestonesAndWorkItems_ReturnsEmptyLists()
+        {
+            // Arrange
+            var emptyCollectionsJson = @"{
+  ""project"": { ""name"": ""Empty Project"" },
+  ""milestones"": [],
+  ""workItems"": []
+}";
+            var jsonPath = CreateTempDataJsonFile(emptyCollectionsJson);
+            var options = CreateMockOptions(jsonPath);
+
+            // Act
+            var service = CreateMockDataService(options);
+            var milestones = service.GetMilestones();
+            var workItems = service.GetWorkItems();
+
+            // Assert
+            Assert.True(service.HasData);
+            Assert.Empty(milestones);
+            Assert.Empty(workItems);
+        }
+
+        [Fact]
+        public void MilestoneStatusEnum_AllValidStatuses_DeserializeCorrectly()
+        {
+            // Arrange
+            var multiStatusJson = @"{
+  ""project"": { ""name"": ""Test"" },
+  ""milestones"": [
+    { ""name"": ""M1"", ""date"": ""2026-01-01T00:00:00Z"", ""status"": ""Completed"" },
+    { ""name"": ""M2"", ""date"": ""2026-02-01T00:00:00Z"", ""status"": ""On Track"" },
+    { ""name"": ""M3"", ""date"": ""2026-03-01T00:00:00Z"", ""status"": ""At Risk"" }
+  ],
+  ""workItems"": []
+}";
+            var jsonPath = CreateTempDataJsonFile(multiStatusJson);
+            var options = CreateMockOptions(jsonPath);
+
+            // Act
+            var service = CreateMockDataService(options);
+            var milestones = service.GetMilestones();
+
+            // Assert
+            Assert.True(service.HasData);
+            Assert.Equal(3, milestones.Count);
+            Assert.Equal("Completed", milestones[0].Status);
+            Assert.Equal("On Track", milestones[1].Status);
+            Assert.Equal("At Risk", milestones[2].Status);
         }
 
         #endregion
@@ -243,7 +462,6 @@ namespace AgentSquad.Tests.Services
 
         public void Dispose()
         {
-            // Cleanup all temporary files created during tests
             foreach (var tempFile in _tempFiles)
             {
                 try
@@ -255,7 +473,6 @@ namespace AgentSquad.Tests.Services
                 }
                 catch (IOException)
                 {
-                    // File may be locked by FileSystemWatcher; ignore cleanup errors
                 }
             }
 
