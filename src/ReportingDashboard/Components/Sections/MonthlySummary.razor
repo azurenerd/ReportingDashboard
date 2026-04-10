@@ -1,28 +1,57 @@
-<section class="monthly-summary">
-    @if (CurrentMonth is not null)
-    {
-        <div class="metrics-strip">
+@namespace ReportingDashboard.Components.Sections
+@using ReportingDashboard.Models
+
+@if (Summary is not null)
+{
+    <section class="section">
+        @if (!string.IsNullOrWhiteSpace(Summary.Month))
+        {
+            <h2>Monthly Summary — @Summary.Month</h2>
+        }
+        else
+        {
+            <h2>Monthly Summary</h2>
+        }
+
+        <div class="metrics-grid">
             <div class="metric-card">
-                <span class="metric-value">@CurrentMonth.TotalItems</span>
+                <span class="metric-value">@Summary.TotalItems</span>
                 <span class="metric-label">Total Items</span>
             </div>
             <div class="metric-card">
-                <span class="metric-value">@CurrentMonth.CompletedItems</span>
+                <span class="metric-value">@Summary.CompletedItems</span>
                 <span class="metric-label">Completed</span>
             </div>
             <div class="metric-card">
-                <span class="metric-value">@CurrentMonth.CarriedItems</span>
+                <span class="metric-value">@Summary.CarriedItems</span>
                 <span class="metric-label">Carried Over</span>
             </div>
-            <div class="metric-card health-@(CurrentMonth.OverallHealth ?? "unknown")">
-                <span class="metric-value">@(CurrentMonth.OverallHealth ?? "N/A")</span>
+            <div class="metric-card">
+                <span class="metric-value @GetHealthCssClass(Summary.OverallHealth)">@FormatHealth(Summary.OverallHealth)</span>
                 <span class="metric-label">Overall Health</span>
             </div>
         </div>
-    }
-</section>
+    </section>
+}
 
 @code {
     [Parameter]
-    public MonthSummary? CurrentMonth { get; set; }
+    public MonthSummary? Summary { get; set; }
+
+    private static string GetHealthCssClass(string? health) => health switch
+    {
+        "on-track" => "health-on-track",
+        "at-risk" => "health-at-risk",
+        "behind" => "health-behind",
+        _ => ""
+    };
+
+    private static string FormatHealth(string? health) => health switch
+    {
+        "on-track" => "On Track",
+        "at-risk" => "At Risk",
+        "behind" => "Behind",
+        null => "N/A",
+        _ => string.IsNullOrEmpty(health) ? "N/A" : char.ToUpperInvariant(health[0]) + health[1..]
+    };
 }
