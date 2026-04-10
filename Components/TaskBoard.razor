@@ -4,19 +4,28 @@
     <div class="row g-4">
         <!-- Completed Column -->
         <div class="col-lg-4 col-md-6 col-12">
-            <h4>Completed</h4>
+            <div class="mb-3">
+                <h4 class="d-inline-block me-2">Completed</h4>
+                <span class="badge bg-success">@Tasks.Count(t => t.Status == TaskStatus.Completed)</span>
+            </div>
             <p class="text-muted">Column placeholder - tasks will display here</p>
         </div>
 
         <!-- In Progress Column -->
         <div class="col-lg-4 col-md-6 col-12">
-            <h4>In Progress</h4>
+            <div class="mb-3">
+                <h4 class="d-inline-block me-2">In Progress</h4>
+                <span class="badge bg-primary">@Tasks.Count(t => t.Status == TaskStatus.InProgress)</span>
+            </div>
             <p class="text-muted">Column placeholder - tasks will display here</p>
         </div>
 
         <!-- Carried Over Column -->
         <div class="col-lg-4 col-md-6 col-12">
-            <h4>Carried Over</h4>
+            <div class="mb-3">
+                <h4 class="d-inline-block me-2">Carried Over</h4>
+                <span class="badge bg-warning text-dark">@Tasks.Count(t => t.Status == TaskStatus.CarriedOver)</span>
+            </div>
             <p class="text-muted">Column placeholder - tasks will display here</p>
         </div>
     </div>
