@@ -1,18 +1,179 @@
 @namespace AgentSquad.ReportingDashboard.Components
+@using ChartJs.Blazor.BarChart
+@using ChartJs.Blazor.Common
+@using ChartJs.Blazor.Util
 
 <div class="chart-container">
     <h3>Project Milestones Timeline</h3>
+    
     @if (DashboardData?.Milestones?.Count > 0)
     {
-        <!-- Chart will be rendered here -->
+        <LineChart @ref="chart" Config="config" Width="100" Height="30"></LineChart>
     }
     else
     {
-        <p>No milestones scheduled</p>
+        <p class="text-muted">No milestones scheduled</p>
     }
 </div>
 
 @code {
     [CascadingParameter]
     public DashboardData DashboardData { get; set; }
+
+    private LineChart<TimestampData> chart;
+    private ChartConfig config;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (DashboardData?.Milestones?.Count > 0)
+        {
+            await BuildChart();
+        }
+    }
+
+    private async Task BuildChart()
+    {
+        var milestones = DashboardData.Milestones
+            .OrderBy(m => m.DueDate)
+            .ToList();
+
+        if (milestones.Count == 0)
+        {
+            return;
+        }
+
+        config = new ChartConfig
+        {
+            Type = ChartType.Line,
+            Data = new ChartData
+            {
+                Labels = milestones.Select(m => m.Name).ToList(),
+                Datasets = new List<IDataset>
+                {
+                    new LineDataset<TimestampData>
+                    {
+                        Label = "Milestones",
+                        Data = milestones.Select(m => new TimestampData
+                        {
+                            X = m.DueDate.ToOADate(),
+                            Y = m.IsCompleted ? 1 : 0
+                        }).ToList(),
+                        BorderColor = new List<string> { "#6c757d" },
+                        BorderWidth = 1,
+                        Fill = false,
+                        Tension = 0.3,
+                        PointRadius = 6,
+                        PointBackgroundColor = milestones.Select(m => 
+                            m.IsCompleted ? "#28a745" : "#ffffff"
+                        ).ToList(),
+                        PointBorderColor = milestones.Select(m => 
+                            m.IsCompleted ? "#28a745" : "#6c757d"
+                        ).ToList(),
+                        PointBorderWidth = milestones.Select(m => 
+                            m.IsCompleted ? 0 : 2
+                        ).ToList(),
+                    }
+                }
+            },
+            Options = new ChartOptions
+            {
+                Responsive = true,
+                MaintainAspectRatio = true,
+                Title = new OptionsTitle
+                {
+                    Display = true,
+                    Text = new List<string> { "Project Milestones Timeline" },
+                    FontSize = 14
+                },
+                Scales = new Scales
+                {
+                    XAxes = new List<CartesianAxis>
+                    {
+                        new LinearCartesianAxis
+                        {
+                            ScaleLabel = new ScaleLabel
+                            {
+                                Display = true,
+                                LabelString = "Timeline"
+                            },
+                            Type = "linear",
+                            Position = Anchor.Bottom,
+                            Ticks = new LinearCartesianTicks
+                            {
+                                BeginAtZero = false,
+                                MaxRotation = 45,
+                                MinRotation = 0
+                            }
+                        }
+                    },
+                    YAxes = new List<CartesianAxis>
+                    {
+                        new LinearCartesianAxis
+                        {
+                            ScaleLabel = new ScaleLabel
+                            {
+                                Display = true,
+                                LabelString = "Status"
+                            },
+                            Ticks = new LinearCartesianTicks
+                            {
+                                Min = -0.5,
+                                Max = 1.5,
+                                StepSize = 1,
+                                BeginAtZero = false
+                            }
+                        }
+                    }
+                },
+                Legend = new Legend
+                {
+                    Display = true,
+                    Position = Position.Top
+                }
+            }
+        };
+
+        if (chart != null)
+        {
+            await chart.Update();
+        }
+    }
+
+    private class TimestampData
+    {
+        public double X { get; set; }
+        public int Y { get; set; }
+    }
 }
+
+<style scoped>
+    .chart-container {
+        position: relative;
+        width: 100%;
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h3 {
+        margin-top: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .text-muted {
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    @media print {
+        .chart-container {
+            background-color: transparent;
+            box-shadow: none;
+            page-break-inside: avoid;
+        }
+    }
+</style>
