@@ -2,13 +2,22 @@
 
 <div class="row g-3">
     <div class="col-md-4">
-        <!-- Shipped Column -->
+        <StatusColumn 
+            Title="Shipped" 
+            Items="Dashboard?.Shipped" 
+            BadgeClass="success" />
     </div>
     <div class="col-md-4">
-        <!-- In Progress Column -->
+        <StatusColumn 
+            Title="In Progress" 
+            Items="Dashboard?.InProgress" 
+            BadgeClass="primary" />
     </div>
     <div class="col-md-4">
-        <!-- Carried Over Column -->
+        <StatusColumn 
+            Title="Carried Over" 
+            Items="Dashboard?.CarriedOver" 
+            BadgeClass="warning" />
     </div>
 </div>
 
