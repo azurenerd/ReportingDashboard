@@ -25,3 +25,49 @@
     padding-top: 4px;
     background-color: var(--bg-header, #1a2332);
 }
+
+.project-name {
+    font-size: var(--font-size-title, 24px);
+    font-weight: 700;
+    color: var(--text-on-dark, #ffffff);
+    margin: 0 0 4px 0;
+    padding: 0;
+    line-height: 1.2;
+    background-color: var(--bg-header, #1a2332);
+}
+
+.project-sponsor {
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 8px;
+    background-color: var(--bg-header, #1a2332);
+}
+
+.header-meta {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    font-size: var(--font-size-body, 13px);
+    color: rgba(255, 255, 255, 0.65);
+    background-color: var(--bg-header, #1a2332);
+}
+
+.meta-item {
+    background-color: var(--bg-header, #1a2332);
+}
+
+.meta-separator {
+    margin: 0 8px;
+    color: rgba(255, 255, 255, 0.4);
+    background-color: var(--bg-header, #1a2332);
+}
+
+.reporting-period {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.report-date {
+    font-weight: 400;
+}

@@ -5,7 +5,22 @@
     <header class="project-header">
         <div class="header-content">
             <div class="header-left">
-                @* Title, sponsor, dates - Step 2 *@
+                <h1 class="project-name">@Project.Name</h1>
+                @if (!string.IsNullOrWhiteSpace(Project.Executive))
+                {
+                    <div class="project-sponsor">@Project.Executive</div>
+                }
+                <div class="header-meta">
+                    @if (!string.IsNullOrWhiteSpace(Project.ReportingPeriod))
+                    {
+                        <span class="meta-item reporting-period">@Project.ReportingPeriod</span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Project.ReportDate))
+                    {
+                        <span class="meta-separator">|</span>
+                        <span class="meta-item report-date">Report Date: @Project.ReportDate</span>
+                    }
+                </div>
             </div>
             <div class="header-right">
                 @* Status badge - Step 3 *@
