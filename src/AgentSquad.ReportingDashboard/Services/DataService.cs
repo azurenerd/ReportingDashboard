@@ -134,6 +134,88 @@ namespace AgentSquad.ReportingDashboard.Services
 
         public async Task<DashboardData> ReloadDataAsync()
         {
+            string json = null;
+            bool fileReadSuccessful = false;
+
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                try
+                {
+                    using (var fileStream = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        using (var reader = new StreamReader(fileStream))
+                        {
+                            json = await reader.ReadToEndAsync();
+                            fileReadSuccessful = true;
+                            break;
+                        }
+                    }
+                }
+                catch (IOException ex) when (attempt < 2)
+                {
+                    int delayMs = 100 * (attempt + 1);
+                    Debug.WriteLine($"DataService: File read attempt {attempt + 1} failed - {ex.Message}; retrying in {delayMs}ms");
+                    await Task.Delay(delayMs);
+                }
+                catch (IOException ex)
+                {
+                    Debug.WriteLine($"DataService: File read attempt {attempt + 1} failed after 3 attempts - {ex.Message}; retaining previous data");
+                }
+            }
+
+            if (fileReadSuccessful && json != null)
+            {
+                try
+                {
+                    var loadedData = JsonSerializer.Deserialize<DashboardData>(json, _jsonOptions);
+
+                    if (loadedData != null)
+                    {
+                        CurrentData = loadedData;
+                        Debug.WriteLine("DataService: Successfully reloaded data from file");
+                    }
+                    else
+                    {
+                        Debug.WriteLine("DataService: Deserialized data was null; retaining previous data");
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    Debug.WriteLine($"DataService: JSON parse error - {ex.Message}; retaining previous data");
+                }
+            }
+            else if (!fileReadSuccessful)
+            {
+                try
+                {
+                    using (var fileStream = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        using (var reader = new StreamReader(fileStream))
+                        {
+                            json = await reader.ReadToEndAsync();
+                        }
+                    }
+                }
+                catch (FileNotFoundException ex)
+                {
+                    Debug.WriteLine($"DataService: data.json not found at '{_dataFilePath}' during reload; using defaults");
+                    SetDefaultData();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"DataService: Unexpected error reading file - {ex.Message}; retaining previous data");
+                }
+            }
+
+            try
+            {
+                await OnDataChanged?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DataService: Error invoking OnDataChanged event - {ex.Message}");
+            }
+
             return CurrentData;
         }
 
