@@ -1,0 +1,37 @@
+@inherits ComponentBase
+@using ChartJS.Blazor.BarChart
+@using ChartJS.Blazor.Common
+
+<div class="status-chart-wrapper">
+    <div class="status-chart-container">
+        <canvas id="statusChart"></canvas>
+    </div>
+</div>
+
+<style>
+    .status-chart-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .status-chart-container {
+        width: 100%;
+        max-width: 600px;
+        height: 300px;
+        background-color: #F5F5F5;
+        padding: 1.5rem;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    }
+
+    @media (max-width: 768px) {
+        .status-chart-container {
+            padding: 1rem;
+            margin: 0 1rem;
+        }
+    }
+</style>
+
+@code {
+}
