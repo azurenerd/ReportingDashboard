@@ -7,9 +7,9 @@
     </div>
 
     <div class="status-column-items">
-        @if (Items != null && Items.Count > 0)
+        @if (SortedItems.Any())
         {
-            @foreach (var item in Items)
+            @foreach (var item in SortedItems)
             {
                 <div class="card work-item-card">
                     <h6 class="work-item-title">@item.Title</h6>
@@ -39,4 +39,7 @@
 
     [Parameter]
     public string BadgeClass { get; set; } = "secondary";
+
+    private IEnumerable<WorkItem> SortedItems =>
+        Items?.OrderByDescending(i => i.CompletedDate).ToList() ?? new List<WorkItem>();
 }

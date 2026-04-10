@@ -1,0 +1,104 @@
+/* Status Grid & Column Styling */
+
+.status-column {
+    background-color: #f8f9fa;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.status-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.status-column-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.status-column-items {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.work-item-card {
+    background-color: #ffffff;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    border-radius: 0.375rem;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.work-item-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.work-item-title {
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #212529;
+    line-height: 1.3;
+}
+
+.work-item-description {
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.work-item-date {
+    display: block;
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 0.5rem;
+}
+
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    color: #999;
+}
+
+.empty-state-message {
+    margin: 0;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+/* Scrollbar styling for status-column-items */
+.status-column-items::-webkit-scrollbar {
+    width: 6px;
+}
+
+.status-column-items::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.status-column-items::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+.status-column-items::-webkit-scrollbar-thumb:hover {
+    background: #888;
+}
