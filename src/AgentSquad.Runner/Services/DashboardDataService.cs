@@ -131,6 +131,26 @@ public class DashboardDataService : IDashboardDataService, IDisposable
         {
             lock (_lockObject)
             {
+                var dataJsonPath = Path.Combine(
+                    AppContext.BaseDirectory,
+                    _options.Value?.DataJsonPath ?? "data.json");
+
+                if (!File.Exists(dataJsonPath))
+                {
+                    _logger.LogInformation("data.json change detected, re-parsing...");
+                    LoadFromJson();
+                    OnDataChanged?.Invoke();
+                    return;
+                }
+
+                var fileHash = HashFile(dataJsonPath);
+                
+                if (fileHash == _lastLoadedHash)
+                {
+                    _logger.LogDebug("File hash unchanged; skipping reload");
+                    return;
+                }
+
                 _logger.LogInformation("data.json change detected, re-parsing...");
                 LoadFromJson();
                 OnDataChanged?.Invoke();
@@ -147,6 +167,26 @@ public class DashboardDataService : IDashboardDataService, IDisposable
                 _debounceTimer?.Dispose();
                 _debounceTimer = null;
             }
+        }
+    }
+
+    private string HashFile(string filePath)
+    {
+        try
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                using (var fileStream = File.OpenRead(filePath))
+                {
+                    var hashBytes = sha256.ComputeHash(fileStream);
+                    return Convert.ToBase64String(hashBytes);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error computing file hash: {error}", ex.Message);
+            return null;
         }
     }
 
@@ -180,6 +220,9 @@ public class DashboardDataService : IDashboardDataService, IDisposable
             _cachedData = data;
             _lastError = null;
             HasData = true;
+
+            var fileHash = HashFile(dataJsonPath);
+            _lastLoadedHash = fileHash;
 
             _logger.LogInformation("DashboardDataService initialized, data.json loaded successfully");
         }
