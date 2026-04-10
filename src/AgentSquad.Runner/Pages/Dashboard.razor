@@ -8,7 +8,7 @@
 <MudContainer MaxWidth="MaxWidth.Lg" Class="dashboard-container">
     @if (DataService != null && !DataService.HasData && !string.IsNullOrEmpty(DataService.GetLastError()))
     {
-        <MudAlert Severity="Severity.Error" Class="mb-4">
+        <MudAlert Severity="Severity.Error" Class="dashboard-section mb-6">
             <strong>Error Loading Dashboard</strong>
             <p>@DataService.GetLastError()</p>
             <p style="font-size: 12px; color: #666;">Check data.json format and try again.</p>
@@ -17,10 +17,10 @@
 
     @if (DataService?.GetProject() != null)
     {
-        <MudCard Class="mb-4">
+        <MudCard Class="dashboard-section mb-6">
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudText Typo="Typo.h5">@DataService.GetProject().Name</MudText>
+                    <MudText Typo="Typo.h5" Class="font-weight-bold">@DataService.GetProject().Name</MudText>
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>
@@ -31,20 +31,26 @@
 
     @if (DataService?.GetMilestones() != null)
     {
-        <MilestoneTimeline Milestones="DataService.GetMilestones()" />
+        <div class="dashboard-section mb-6">
+            <MilestoneTimeline Milestones="DataService.GetMilestones()" />
+        </div>
     }
 
     @if (DataService != null)
     {
-        <StatusChart StatusCounts="DataService.GetStatusCounts()" />
+        <div class="dashboard-section mb-6">
+            <StatusChart StatusCounts="DataService.GetStatusCounts()" />
+        </div>
     }
 
     @if (DataService != null)
     {
-        <WorkItemList 
-            Shipped="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"
-            InProgress="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"
-            CarriedOver="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)" />
+        <div class="dashboard-section">
+            <WorkItemList 
+                Shipped="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"
+                InProgress="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"
+                CarriedOver="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)" />
+        </div>
     }
 </MudContainer>
 
@@ -52,12 +58,90 @@
     .dashboard-container {
         max-width: 1200px !important;
         margin: 0 auto;
-        padding: 20px;
+        padding: 16px;
         box-sizing: border-box;
+        background-color: #fafafa;
+        min-height: 100vh;
     }
 
+    .dashboard-section {
+        background-color: transparent;
+    }
+
+    .dashboard-section:last-child {
+        margin-bottom: 0 !important;
+    }
+
+    /* Ensure no horizontal scrollbars at viewport widths */
     :global(body) {
         overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+    }
+
+    :global(html) {
+        overflow-x: hidden;
+    }
+
+    /* MudAlert spacing */
+    :global(.mud-alert) {
+        margin-bottom: 20px;
+    }
+
+    /* MudCard spacing */
+    :global(.mud-card) {
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        transition: box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    :global(.mud-card:hover) {
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    }
+
+    /* Typography consistency */
+    :global(.mud-typography.mud-typography--h5) {
+        font-size: 1.5rem;
+        font-weight: 600;
+        letter-spacing: 0.0125em;
+        color: #212121;
+    }
+
+    :global(.mud-typography.mud-typography--body1) {
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #424242;
+    }
+
+    /* Container viewport optimization */
+    @media (max-width: 1280px) {
+        .dashboard-container {
+            padding: 12px;
+        }
+    }
+
+    /* Vertical rhythm and consistency */
+    .mb-6 {
+        margin-bottom: 24px !important;
+    }
+
+    /* Prevent layout shift on scroll */
+    :global(::-webkit-scrollbar) {
+        width: 8px;
+    }
+
+    :global(::-webkit-scrollbar-track) {
+        background: #f1f1f1;
+    }
+
+    :global(::-webkit-scrollbar-thumb) {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    :global(::-webkit-scrollbar-thumb:hover) {
+        background: #555;
     }
 </style>
 
