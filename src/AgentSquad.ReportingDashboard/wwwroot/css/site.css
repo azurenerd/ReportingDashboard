@@ -42,6 +42,7 @@ code {
     .dashboard-grid {
         margin: 0;
         padding: 20px;
+        page-break-inside: avoid;
     }
 
     /* Element Visibility */
@@ -78,15 +79,12 @@ code {
     }
 
     /* Page Breaks */
-    .dashboard-grid {
-        page-break-inside: avoid;
-    }
-
     .chart-container {
         page-break-inside: avoid;
     }
 
     .card {
+        border: 1px solid #ddd;
         page-break-inside: avoid;
     }
 
@@ -97,6 +95,8 @@ code {
     p {
         widows: 3;
         orphans: 3;
+        font-size: 11pt;
+        line-height: 1.4;
     }
 
     /* Typography */
@@ -105,17 +105,7 @@ code {
         margin: 0.5em 0;
     }
 
-    p {
-        font-size: 11pt;
-        line-height: 1.4;
-    }
-
     /* Component Styling */
-    .card {
-        border: 1px solid #ddd;
-        page-break-inside: avoid;
-    }
-
     .badge-success {
         background-color: #28a745 !important;
         -webkit-print-color-adjust: exact;
