@@ -354,7 +354,25 @@ public class DashboardDataService : IDashboardDataService
 
     public void Dispose()
     {
+        if (_watcher is not null)
+        {
+            _watcher.EnableRaisingEvents = false;
+            _watcher.Changed -= OnFileChanged;
+            _watcher.Created -= OnFileChanged;
+            _watcher.Error -= OnWatcherError;
+            _watcher.Dispose();
+            _watcher = null;
+        }
+
+        _pollingTimer?.Dispose();
+        _pollingTimer = null;
+
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
+        _debounceCts = null;
+
         _loadLock.Dispose();
+
         _logger.LogInformation("DashboardDataService disposed.");
     }
 }
