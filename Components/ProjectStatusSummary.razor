@@ -1,6 +1,14 @@
 @using AgentSquad.Runner.Models
 
 <div class="kpi-summary-container">
+    @if (IsNoDataState)
+    {
+        <div class="no-data-alert alert alert-info" role="alert">
+            <span class="alert-icon">ℹ️</span>
+            <span class="alert-text">No task data available</span>
+        </div>
+    }
+    
     <div class="kpi-grid">
         <!-- Shipped Card -->
         <div class="kpi-card card">
@@ -47,9 +55,20 @@
     [Parameter]
     public List<Task> Tasks { get; set; } = new();
 
-    protected override void OnInitialized()
+    private bool IsNoDataState { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        await Task.CompletedTask;
+        
+        try
+        {
+            IsNoDataState = Tasks == null || Tasks.Count == 0;
+        }
+        catch (Exception ex)
+        {
+            IsNoDataState = true;
+        }
     }
 
     /// <summary>
@@ -57,10 +76,17 @@
     /// </summary>
     private int GetShippedCount()
     {
-        if (Tasks == null || Tasks.Count == 0)
-            return 0;
+        try
+        {
+            if (Tasks == null || Tasks.Count == 0)
+                return 0;
 
-        return Tasks.Count(t => t.Status == TaskStatus.Completed);
+            return Tasks.Count(t => t.Status == TaskStatus.Completed);
+        }
+        catch
+        {
+            return 0;
+        }
     }
 
     /// <summary>
@@ -68,10 +94,17 @@
     /// </summary>
     private int GetInProgressCount()
     {
-        if (Tasks == null || Tasks.Count == 0)
-            return 0;
+        try
+        {
+            if (Tasks == null || Tasks.Count == 0)
+                return 0;
 
-        return Tasks.Count(t => t.Status == TaskStatus.InProgress);
+            return Tasks.Count(t => t.Status == TaskStatus.InProgress);
+        }
+        catch
+        {
+            return 0;
+        }
     }
 
     /// <summary>
@@ -110,6 +143,9 @@
     {
         try
         {
+            if (task == null)
+                return true;
+
             var isOnTimeProperty = task.GetType().GetProperty("IsOnTime", 
                 System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public);
             
@@ -134,6 +170,9 @@
     {
         try
         {
+            if (double.IsNaN(percentage) || double.IsInfinity(percentage))
+                return "text-secondary";
+
             if (percentage >= 80)
                 return "text-success bg-light-success";
             
@@ -152,6 +191,28 @@
 <style>
     .kpi-summary-container {
         margin-bottom: 2rem;
+    }
+
+    .no-data-alert {
+        border: 1px solid #d1ecf1;
+        border-radius: 0.375rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        background-color: #d1ecf1;
+        color: #0c5460;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .alert-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .alert-text {
+        font-size: 0.95rem;
+        margin: 0;
     }
 
     .kpi-grid {
