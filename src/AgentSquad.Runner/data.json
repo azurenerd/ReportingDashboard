@@ -1,0 +1,100 @@
+{
+  "project": {
+    "name": "Executive Dashboard Initiative",
+    "description": "Real-time visibility platform for project health, milestone tracking, and work item categorization. Enables executives to assess project status at a glance with PowerPoint-ready visualizations and automatic file-based updates without application restart."
+  },
+  "milestones": [
+    {
+      "name": "Project Kickoff",
+      "date": "2026-02-01T00:00:00Z",
+      "status": "Completed"
+    },
+    {
+      "name": "Requirements & Design Review",
+      "date": "2026-02-28T00:00:00Z",
+      "status": "Completed"
+    },
+    {
+      "name": "Backend Infrastructure Setup",
+      "date": "2026-03-15T00:00:00Z",
+      "status": "Completed"
+    },
+    {
+      "name": "MVP Dashboard Release",
+      "date": "2026-04-10T00:00:00Z",
+      "status": "On Track"
+    },
+    {
+      "name": "Advanced Analytics Features",
+      "date": "2026-05-15T00:00:00Z",
+      "status": "At Risk"
+    },
+    {
+      "name": "Performance Optimization & Testing",
+      "date": "2026-06-10T00:00:00Z",
+      "status": "At Risk"
+    }
+  ],
+  "workItems": [
+    {
+      "title": "Project charter and scope definition",
+      "status": "Shipped",
+      "assignee": "Sarah Chen"
+    },
+    {
+      "title": "Architecture design and technical specification",
+      "status": "Shipped",
+      "assignee": "Michael Rodriguez"
+    },
+    {
+      "title": "Database schema and data model design",
+      "status": "Shipped",
+      "assignee": "Priya Patel"
+    },
+    {
+      "title": "Blazor Server UI framework setup",
+      "status": "Shipped",
+      "assignee": "James Thompson"
+    },
+    {
+      "title": "FileSystemWatcher implementation for data.json",
+      "status": "InProgress",
+      "assignee": "Elena Volkov"
+    },
+    {
+      "title": "MudBlazor component integration",
+      "status": "InProgress",
+      "assignee": "David Park"
+    },
+    {
+      "title": "Milestone timeline custom SVG rendering",
+      "status": "InProgress",
+      "assignee": "Jessica Martinez"
+    },
+    {
+      "title": "Chart.js status visualization",
+      "status": "InProgress",
+      "assignee": "Robert Silva"
+    },
+    {
+      "title": "Error handling and validation layer",
+      "status": "CarriedOver",
+      "assignee": "Amanda Foster"
+    },
+    {
+      "title": "Unit tests for DashboardDataService",
+      "status": "CarriedOver",
+      "assignee": "Kevin Chen"
+    },
+    {
+      "title": "Integration tests and end-to-end testing",
+      "status": "CarriedOver",
+      "assignee": "Lisa Wang"
+    },
+    {
+      "title": "Documentation and deployment guide",
+      "status": "CarriedOver",
+      "assignee": "Marcus Johnson"
+    }
+  ]
+}
