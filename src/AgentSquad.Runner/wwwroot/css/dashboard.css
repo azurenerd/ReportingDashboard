@@ -211,7 +211,6 @@ p:last-child {
   margin-bottom: 0;
 }
 
-/* Muted/secondary text */
 .text-secondary {
   color: var(--color-text-secondary);
   font-size: var(--font-size-base);
@@ -222,7 +221,6 @@ p:last-child {
   font-size: var(--font-size-sm);
 }
 
-/* Text emphasis */
 strong, .font-bold {
   font-weight: var(--font-weight-bold);
 }
@@ -231,7 +229,6 @@ em, .font-italic {
   font-style: italic;
 }
 
-/* Code & monospace */
 code, pre {
   font-family: var(--font-family-mono);
   background-color: var(--color-bg-secondary);
@@ -730,13 +727,8 @@ hr {
 }
 
 /* ============================================================================
-   24. Layout: Fixed-Width Container (Step 2)
-   
-   Fixed-width 1200px container layout for Executive Dashboard.
-   Ensures consistent appearance at 1920x1080 (PowerPoint-ready).
-   No horizontal scrollbars at any standard desktop resolution.
-   
-   ========================================================================== */
+   24. Layout: Fixed-Width Container
+   ============================================================================ */
 
 .dashboard-container {
   max-width: var(--container-max-width);  /* 1200px */
@@ -789,11 +781,7 @@ hr {
 
 /* ============================================================================
    26. Layout: Grid System (Flexbox-based)
-   
-   Simple flexbox-based grid system for dashboard layout.
-   Supports responsive rows and columns without media queries.
-   
-   ========================================================================== */
+   ============================================================================ */
 
 .row {
   display: flex;
@@ -810,7 +798,6 @@ hr {
   padding-left: calc(var(--card-gap) / 2);
 }
 
-/* Column sizing */
 .col {
   flex: 1 0 0%;
 }
@@ -832,10 +819,6 @@ hr {
   flex: 0 0 auto;
   width: auto;
 }
-
-/* ============================================================================
-   27. Layout: Alignment & Distribution
-   ============================================================================ */
 
 .row.align-items-start {
   align-items: flex-start;
@@ -873,7 +856,6 @@ hr {
   justify-content: space-evenly;
 }
 
-/* Column offset (margin-left push) */
 .col-offset-1 { margin-left: calc(8.333% + var(--card-gap) / 2); }
 .col-offset-2 { margin-left: calc(16.667% + var(--card-gap) / 2); }
 .col-offset-3 { margin-left: calc(25% + var(--card-gap) / 2); }
@@ -887,14 +869,8 @@ hr {
 .col-offset-11 { margin-left: calc(91.667% + var(--card-gap) / 2); }
 
 /* ============================================================================
-   28. Layout: Overflow Prevention (No Horizontal Scrollbars)
-   
-   Ensures 1920x1080 and 1440x900 viewports fit without horizontal scroll.
-   Total width: 1200px (container) + 40px (padding: 20px each side) = 1240px
-   Safe threshold at 1920px viewport: 1240px < 1920px ✓
-   Safe threshold at 1440px viewport: 1240px < 1440px ✓
-   
-   ========================================================================== */
+   27. Layout: Overflow Prevention
+   ============================================================================ */
 
 body, html {
   overflow-x: hidden;
@@ -908,20 +884,17 @@ body, html {
   max-width: 100%;
 }
 
-/* Prevent images and videos from causing overflow */
 img, video, embed, object {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-/* Prevent pre/code blocks from breaking layout */
 pre, code {
   word-break: break-word;
   white-space: pre-wrap;
 }
 
-/* Prevent long words from breaking layout */
 .text-break {
   word-break: break-word;
   word-wrap: break-word;
@@ -929,7 +902,328 @@ pre, code {
 }
 
 /* ============================================================================
-   29. Print Styles (Optional)
+   28. Component-Specific Styles: MilestoneTimeline
+   
+   Styles for chronological milestone timeline component.
+   Features:
+   - Flex container with gap for horizontal timeline layout
+   - Individual milestone cards with status indicators
+   - Color-coded status badges (Completed/On Track/At Risk)
+   - Hover effects for interactivity
+   - Ellipsis truncation for long milestone names
+   
+   ========================================================================== */
+
+.milestone-timeline {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--card-gap);                  /* 12px gap between cards */
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: var(--space-xl);
+}
+
+.milestone-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);  /* 8px 12px */
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--card-border-radius);
+  transition: all var(--transition-duration) var(--transition-timing);
+  flex: 1;
+  min-width: 120px;
+  max-width: 160px;
+}
+
+.milestone-card:hover {
+  background-color: var(--color-accent-light);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+.status-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: 10px;
+  color: #FFFFFF;
+}
+
+.status-icon.completed {
+  background-color: var(--color-status-completed);
+}
+
+.status-icon.on-track {
+  background-color: var(--color-status-on-track);
+}
+
+.status-icon.at-risk {
+  background-color: var(--color-status-at-risk);
+}
+
+.milestone-name {
+  font-size: var(--font-size-sm);        /* 12px */
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  width: 100%;
+  word-break: break-word;
+  line-height: var(--line-height-tight);
+}
+
+.milestone-date {
+  font-size: var(--font-size-xs);        /* 11px */
+  color: var(--color-text-secondary);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.milestone-timeline-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--space-2xl);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--card-border-radius);
+  color: var(--color-text-secondary);
+  font-style: italic;
+  min-height: 80px;
+}
+
+/* ============================================================================
+   29. Component-Specific Styles: StatusChart
+   
+   Styles for work item status bar/pie chart component.
+   Features:
+   - Centered max-width 600px container
+   - Fixed height 300px for consistent chart area
+   - Responsive canvas element within container
+   - Professional spacing and shadows
+   
+   ========================================================================== */
+
+.status-chart-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: var(--space-xl);
+}
+
+.status-chart-container {
+  max-width: 600px;
+  width: 100%;
+  height: 300px;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--card-border-radius);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.status-chart-container canvas,
+.status-chart-container .chart-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+}
+
+.chart-canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.status-chart-title {
+  font-size: var(--font-size-md);        /* 16px */
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.status-chart-legend {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  justify-content: center;
+  margin-top: var(--space-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.status-chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.status-chart-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.status-chart-legend-color.shipped {
+  background-color: var(--color-success);
+}
+
+.status-chart-legend-color.in-progress {
+  background-color: var(--color-info);
+}
+
+.status-chart-legend-color.carried-over {
+  background-color: var(--color-warning);
+}
+
+/* ============================================================================
+   30. Component-Specific Styles: WorkItemList
+   
+   Styles for work item grouping component.
+   Features:
+   - Three color-coded sections (Shipped/In Progress/Carried Over)
+   - MudBlazor Card container with custom styling
+   - Color-coded headers with white text
+   - Semantic list markup with consistent spacing
+   - Empty state messaging
+   
+   ========================================================================== */
+
+.work-item-section {
+  margin-bottom: var(--space-xl);
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--card-border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.section-header {
+  padding: var(--space-lg);
+  font-size: var(--font-size-md);        /* 16px */
+  font-weight: var(--font-weight-bold);
+  color: #FFFFFF;
+  background-color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.section-header.shipped {
+  background-color: var(--color-success);
+}
+
+.section-header.in-progress {
+  background-color: var(--color-info);
+}
+
+.section-header.carried-over {
+  background-color: var(--color-warning);
+}
+
+.section-header-title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: inherit;
+}
+
+.section-header-count {
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: 12px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  min-width: 32px;
+  text-align: center;
+  color: #FFFFFF;
+}
+
+.work-item-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.work-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--card-border-radius);
+  transition: all var(--transition-duration) var(--transition-timing);
+}
+
+.work-item:hover {
+  border-color: var(--color-text-secondary);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-bg-secondary);
+}
+
+.work-item-title {
+  font-size: var(--font-size-base);      /* 14px */
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-normal);
+  word-break: break-word;
+  margin: 0;
+}
+
+.assignee-text {
+  font-size: var(--font-size-sm);        /* 12px */
+  color: var(--color-text-secondary);
+  font-style: italic;
+  margin: 0;
+}
+
+.work-item-list-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl);
+  color: var(--color-text-secondary);
+  font-style: italic;
+  text-align: center;
+  min-height: 100px;
+  font-size: var(--font-size-sm);
+}
+
+.work-item-list-empty-icon {
+  display: inline-block;
+  margin-right: var(--space-sm);
+  opacity: 0.5;
+}
+
+/* ============================================================================
+   Print Styles
    ============================================================================ */
 
 @media print {
@@ -954,5 +1248,5 @@ pre, code {
 }
 
 /* ============================================================================
-   End of Dashboard CSS - Step 2: Fixed-Width Layout & Container Foundation
+   End of Dashboard CSS - Step 3: Component-Specific Styles
    ============================================================================ */
