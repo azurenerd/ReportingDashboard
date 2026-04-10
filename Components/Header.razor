@@ -1,4 +1,38 @@
 @code {
-    // Header component - displays ProjectName and LastUpdated timestamp
-    // Will be implemented in Step 3
+    [CascadingParameter]
+    public DashboardData DashboardData { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (DashboardData == null)
+        {
+            DashboardData = new DashboardData();
+        }
+    }
 }
+
+<div class="dashboard-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="dashboard-title">Executive Project Dashboard</h1>
+                <p class="project-name text-muted">@DashboardData?.ProjectName</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <small class="text-muted">
+                    Last Updated: 
+                    <span class="last-updated">
+                        @if (DashboardData?.LastUpdated != default)
+                        {
+                            @DashboardData.LastUpdated.ToString("g")
+                        }
+                        else
+                        {
+                            <span>--</span>
+                        }
+                    </span>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

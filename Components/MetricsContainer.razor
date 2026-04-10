@@ -1,4 +1,17 @@
 @code {
-    // MetricsContainer component - three-column grid layout for metrics
-    // Will be implemented in Step 4
+    [CascadingParameter]
+    public DashboardData DashboardData { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (DashboardData == null)
+        {
+            DashboardData = new DashboardData();
+        }
+    }
 }
+
+<div class="metrics-container">
+    <!-- Placeholder for metrics cards - will be implemented in Step 4 -->
+    <p class="text-muted">Metrics cards will be rendered here in Step 4</p>
+</div>

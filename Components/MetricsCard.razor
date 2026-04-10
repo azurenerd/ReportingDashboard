@@ -1,4 +1,34 @@
 @code {
-    // MetricsCard component - individual metric item card
-    // Will be implemented in Step 4
+    [Parameter]
+    public MetricItem Item { get; set; }
+
+    [Parameter]
+    public string Category { get; set; }
+
+    private string GetCardClass()
+    {
+        return Category switch
+        {
+            "Shipped" => "card-shipped",
+            "InProgress" => "card-in-progress",
+            "Carryover" => "card-carryover",
+            _ => "card-default"
+        };
+    }
+
+    private string GetCategoryBadgeClass()
+    {
+        return Category switch
+        {
+            "Shipped" => "badge-success",
+            "InProgress" => "badge-warning",
+            "Carryover" => "badge-danger",
+            _ => "badge-secondary"
+        };
+    }
 }
+
+<!-- Placeholder component - will be fully implemented in Step 4 -->
+<div class="metrics-card-placeholder">
+    Metrics cards will be implemented here in Step 4
+</div>

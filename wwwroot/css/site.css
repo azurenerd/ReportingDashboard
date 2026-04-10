@@ -5,9 +5,58 @@
     margin: 0 auto;
 }
 
+.dashboard-header {
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 1.5rem;
+}
+
+.dashboard-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #212529;
+    margin: 0;
+}
+
+.project-name {
+    font-size: 1rem;
+    margin-top: 0.25rem;
+}
+
+.last-updated {
+    font-weight: 500;
+    color: #666;
+}
+
+/* Status Summary Styling */
+.status-summary {
+    margin-bottom: 2rem;
+}
+
+.metric-summary {
+    padding: 1rem;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Dashboard Grid Layout */
 .dashboard-grid {
     display: grid;
     gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 /* Metric Cards - Category-based Styling */
@@ -21,6 +70,40 @@
 
 .card-carryover {
     border-left: 4px solid #dc3545;
+}
+
+.card-default {
+    border-left: 4px solid #6c757d;
+}
+
+/* Card Base Styling */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.5rem;
+}
+
+.card-text {
+    font-size: 0.95rem;
+    color: #495057;
+    line-height: 1.5;
 }
 
 /* Health Indicator Badges */
@@ -37,6 +120,44 @@
     background-color: #dc3545;
 }
 
+.badge-secondary {
+    background-color: #6c757d;
+}
+
+/* Placeholder Styling */
+.milestone-timeline-placeholder,
+.metrics-container-placeholder,
+.data-refresh-indicator-placeholder,
+.metrics-card-placeholder {
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 0.375rem;
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Data Refresh Indicator */
+.data-refresh-indicator {
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+.data-refresh-indicator.loading {
+    background-color: #e7f3ff;
+    color: #004085;
+}
+
+.data-refresh-indicator.ready {
+    background-color: #d4edda;
+    color: #155724;
+}
+
 /* Print CSS - Screenshot Optimization */
 @media print {
     body {
@@ -49,23 +170,53 @@
         display: none !important;
     }
 
+    .dashboard-container {
+        padding: 0;
+        max-width: 100%;
+    }
+
+    .dashboard-header {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
     .dashboard-grid {
         page-break-inside: avoid;
         gap: 0.75rem;
+        margin-bottom: 1rem;
     }
 
     .card {
         page-break-inside: avoid;
         box-shadow: none;
         border: 1px solid #dee2e6;
+        margin-bottom: 0.5rem;
+    }
+
+    .card:hover {
+        box-shadow: none;
+        transform: none;
     }
 
     .card-body {
         padding: 0.75rem;
     }
 
+    .status-summary {
+        margin-bottom: 1rem;
+    }
+
     h1, h2, h3, h4, h5, h6 {
         page-break-after: avoid;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-title {
+        font-size: 1.5rem;
     }
 }
 
@@ -77,6 +228,10 @@
 
     .dashboard-grid {
         gap: 1rem;
+    }
+
+    .metric-value {
+        font-size: 1.75rem;
     }
 }
 
@@ -90,6 +245,25 @@
     }
 
     .card-body {
-        padding: 0.5rem;
+        padding: 1rem;
+    }
+
+    .dashboard-title {
+        font-size: 1.5rem;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+    }
+
+    .status-summary .row {
+        flex-direction: column;
+    }
+
+    .col-md-4,
+    .col-md-6,
+    .col-md-8 {
+        flex: 0 0 100%;
+        max-width: 100%;
     }
 }

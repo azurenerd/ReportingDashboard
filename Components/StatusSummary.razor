@@ -1,4 +1,72 @@
 @code {
-    // StatusSummary component - displays project status and health indicator
-    // Will be implemented in Step 3
+    [CascadingParameter]
+    public DashboardData DashboardData { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (DashboardData == null)
+        {
+            DashboardData = new DashboardData();
+        }
+    }
+
+    private string GetHealthClass()
+    {
+        return DashboardData?.ProjectStatus switch
+        {
+            "On Track" => "badge-success",
+            "At Risk" => "badge-warning",
+            "Off Track" => "badge-danger",
+            _ => "badge-secondary"
+        };
+    }
+
+    private string GetHealthLabel()
+    {
+        return DashboardData?.ProjectStatus ?? "Unknown";
+    }
 }
+
+<div class="status-summary mb-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h2 class="card-title mb-0">@DashboardData?.ProjectName</h2>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-md-end justify-content-start align-items-center gap-3">
+                                <span class="badge @GetHealthClass()" style="font-size: 0.95rem; padding: 0.5rem 1rem;">
+                                    @GetHealthLabel()
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3 text-center">
+                        <div class="col-md-4">
+                            <div class="metric-summary">
+                                <h3 class="metric-value">@(DashboardData?.ShippedItems?.Count ?? 0)</h3>
+                                <p class="metric-label">Shipped</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="metric-summary">
+                                <h3 class="metric-value">@(DashboardData?.InProgressItems?.Count ?? 0)</h3>
+                                <p class="metric-label">In Progress</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="metric-summary">
+                                <h3 class="metric-value">@(DashboardData?.CarryoverItems?.Count ?? 0)</h3>
+                                <p class="metric-label">Carryover</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
