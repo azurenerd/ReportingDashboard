@@ -1,5 +1,17 @@
-<div class="work-item-section carried-over">
-    <!-- CarriedOverSection: implemented in T8 -->
+@using ReportingDashboard.Models
+
+<div class="carried-over-section">
+    <div class="section-header">
+        <span class="section-title">Carried Over</span>
+        <span class="section-count">(@(Items?.Count ?? 0))</span>
+    </div>
+
+    @if (Items is not null && Items.Count > 0)
+    {
+        <div class="items-list">
+            @* Cards will be implemented in Step 2 *@
+        </div>
+    }
 </div>
 
 @code {
