@@ -1,6 +1,10 @@
-<div class="metric-badge">
-    <!-- MetricBadge: implemented in T9 -->
-</div>
+@using ReportingDashboard.Models
+
+@if (Metric is not null)
+{
+    <div class="metric-badge">
+    </div>
+}
 
 @code {
     [Parameter]

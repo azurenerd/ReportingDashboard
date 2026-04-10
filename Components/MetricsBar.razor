@@ -1,6 +1,14 @@
-<div class="metrics-bar">
-    <!-- MetricsBar: implemented in T9 -->
-</div>
+@using ReportingDashboard.Models
+
+@if (Metrics is not null && Metrics.Count > 0)
+{
+    <div class="metrics-bar">
+        @foreach (var metric in Metrics)
+        {
+            <MetricBadge Metric="@metric" />
+        }
+    </div>
+}
 
 @code {
     [Parameter]
