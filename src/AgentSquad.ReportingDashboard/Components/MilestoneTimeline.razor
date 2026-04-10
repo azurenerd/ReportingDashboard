@@ -29,6 +29,14 @@
         {
             await BuildChart();
         }
+        else
+        {
+            config = null;
+            if (chart != null)
+            {
+                await chart.Update();
+            }
+        }
     }
 
     private async Task BuildChart()
@@ -61,6 +69,11 @@
                 pointBorderWidths.Add(2);
             }
         }
+
+        var minDate = milestones.Min(m => m.DueDate).ToOADate();
+        var maxDate = milestones.Max(m => m.DueDate).ToOADate();
+        var dateRange = maxDate - minDate;
+        var padding = Math.Max(dateRange * 0.1, 30);
 
         config = new ChartConfig
         {
@@ -97,7 +110,8 @@
                 {
                     Display = true,
                     Text = new List<string> { "Project Milestones Timeline" },
-                    FontSize = 14
+                    FontSize = 14,
+                    FontColor = "#212529"
                 },
                 Scales = new Scales
                 {
@@ -116,7 +130,9 @@
                             {
                                 BeginAtZero = false,
                                 MaxRotation = 45,
-                                MinRotation = 0
+                                MinRotation = 0,
+                                Min = minDate - padding,
+                                Max = maxDate + padding
                             }
                         }
                     },
@@ -134,7 +150,8 @@
                                 Min = -0.5,
                                 Max = 1.5,
                                 StepSize = 1,
-                                BeginAtZero = false
+                                BeginAtZero = false,
+                                Callback = new ChartCallback(FormatYAxisLabel)
                             }
                         }
                     }
@@ -143,6 +160,12 @@
                 {
                     Display = true,
                     Position = Position.Top
+                },
+                Tooltips = new Tooltips
+                {
+                    Mode = InteractionMode.Nearest,
+                    Intersect = false,
+                    Enabled = true
                 }
             }
         };
@@ -151,6 +174,19 @@
         {
             await chart.Update();
         }
+    }
+
+    private string FormatYAxisLabel(ChartContext context)
+    {
+        if (context.Value == 0)
+        {
+            return "Incomplete";
+        }
+        else if (context.Value == 1)
+        {
+            return "Completed";
+        }
+        return context.Value.ToString();
     }
 
     private class TimestampData
