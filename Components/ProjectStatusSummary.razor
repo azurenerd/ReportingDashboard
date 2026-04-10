@@ -1,0 +1,33 @@
+@using AgentSquad.Runner.Models
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">Completed Tasks</h6>
+                <h3 class="mb-0">@(Tasks?.Count(t => t.Status == TaskStatus.Completed) ?? 0)</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h6 class="card-title">In Progress</h6>
+                <h3 class="mb-0">@(Tasks?.Count(t => t.Status == TaskStatus.InProgress) ?? 0)</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-title">Carried Over</h6>
+                <h3 class="mb-0">@(Tasks?.Count(t => t.Status == TaskStatus.CarriedOver) ?? 0)</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<ProjectTask> Tasks { get; set; } = new();
+}

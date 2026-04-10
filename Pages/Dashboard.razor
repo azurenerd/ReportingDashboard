@@ -1,0 +1,62 @@
+@page "/dashboard"
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
+@inject IDataService DataService
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1>Executive Reporting Dashboard</h1>
+        </div>
+    </div>
+
+    @if (ProjectStatus == null)
+    {
+        <div class="alert alert-info" role="alert">
+            Loading project data...
+        </div>
+    }
+    else if (string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <MilestoneTimeline Milestones="ProjectStatus.Milestones" />
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <ProjectStatusSummary Tasks="ProjectStatus.Tasks" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <TaskBoard Tasks="ProjectStatus.Tasks" />
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">
+            @ErrorMessage
+        </div>
+    }
+</div>
+
+@code {
+    private ProjectStatus ProjectStatus;
+    private string ErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ProjectStatus = await DataService.ReadProjectDataAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Failed to load project data. Please verify data.json format.";
+        }
+    }
+}
