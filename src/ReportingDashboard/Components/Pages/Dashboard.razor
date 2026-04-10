@@ -1,42 +1,31 @@
 @page "/"
-@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Web
 @inject DashboardDataService DataService
-@implements IDisposable
+@rendermode RenderMode.InteractiveServer
 
-@if (data is null)
-{
-    <div class="loading">Loading dashboard data...</div>
-}
-else if (data.ErrorMessage is not null)
-{
-    <div class="error-banner">
-        <h2>⚠ Unable to Load Dashboard</h2>
-        <p>@data.ErrorMessage</p>
-        <p>Check that <code>data.json</code> exists in <code>wwwroot/data/</code> and contains valid JSON.</p>
-    </div>
-}
-else
-{
-    <div class="dashboard">
-        <ProjectHeader Project="data.Project" />
-        <MonthlySummary CurrentMonth="data.CurrentMonth" />
-        <MilestoneTimeline Milestones="data.Milestones" />
-        <ShippedItems Items="data.Shipped" />
-        <InProgressItems Items="data.InProgress" />
-        <CarriedOverItems Items="data.CarriedOver" />
-    </div>
-}
+<div class="dashboard-container">
+    @if (!string.IsNullOrEmpty(_data.ErrorMessage))
+    {
+        <div class="error-banner">
+            <strong>⚠ Data Error:</strong> @_data.ErrorMessage
+        </div>
+    }
+    else
+    {
+        <ProjectHeader Project="@_data.Project" />
+        <MonthlySummary Summary="@_data.CurrentMonth" />
+        <MilestoneTimeline Milestones="@_data.Milestones" />
+        <ShippedItems Items="@_data.Shipped" />
+        <InProgressItems Items="@_data.InProgress" />
+        <CarriedOverItems Items="@_data.CarriedOver" />
+    }
+</div>
 
 @code {
-    private DashboardData? data;
+    private DashboardData _data = new();
 
     protected override async Task OnInitializedAsync()
     {
-        data = await DataService.GetDashboardDataAsync();
-    }
-
-    public void Dispose()
-    {
-        // Event unsubscription wired in T9
+        _data = await DataService.GetDashboardDataAsync();
     }
 }
