@@ -1,18 +1,30 @@
-<section class="milestone-timeline">
-    <!-- Full implementation in T4 -->
-    @if (Milestones.Count > 0)
-    {
-        <h2>Milestones</h2>
-        <div class="timeline-placeholder">
-            @foreach (var milestone in Milestones)
-            {
-                <span class="milestone-stub status-@milestone.Status">@milestone.Title</span>
-            }
+@using ReportingDashboard.Models
+
+@if (SortedMilestones.Count > 0)
+{
+    <section class="milestone-timeline">
+        <div class="section-header">
+            <h2>Milestones</h2>
+            <span class="item-count">@SortedMilestones.Count</span>
         </div>
-    }
-</section>
+        <div class="timeline-track">
+        </div>
+    </section>
+}
 
 @code {
     [Parameter]
     public List<Milestone> Milestones { get; set; } = [];
+
+    private List<Milestone> SortedMilestones =>
+        (Milestones ?? []).OrderBy(m => m.Date).ToList();
+
+    private string GetStatusClass(string status) => status switch
+    {
+        "completed" => "completed",
+        "in-progress" => "in-progress",
+        "at-risk" => "at-risk",
+        "upcoming" => "upcoming",
+        _ => "upcoming"
+    };
 }
