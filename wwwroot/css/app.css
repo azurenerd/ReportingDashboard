@@ -380,7 +380,7 @@ html, body {
     /* --- High-Contrast B&W Fallbacks (print) --- */
 
     /*
-     * Priority badges: graduated borders so P0–P3 severity
+     * Priority badges: graduated borders so P0-P3 severity
      * is distinguishable without color (red/orange/yellow/gray).
      * The badge text ("P0", "P1", etc.) is always visible;
      * border weight reinforces urgency in monochrome output.
@@ -465,9 +465,15 @@ html, body {
     box-shadow: none !important;
 }
 
-/* Cards: subtle borders replace shadows */
+/*
+ * Cards: subtle borders replace shadows.
+ * Uses individual border sides to preserve the colored border-left
+ * set by .card.shipped / .card.in-progress / .card.carried-over.
+ */
 .dashboard.print-mode .card {
-    border: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 /* Work item sections: subtle borders replace shadows */
@@ -526,7 +532,7 @@ html, body {
    ============================================ */
 
 /*
- * Priority badges: graduated border weight/style so P0–P3
+ * Priority badges: graduated border weight/style so P0-P3
  * severity is distinguishable without color in screenshots.
  * Mirrors the @media print rules for consistency.
  */
