@@ -33,8 +33,9 @@
         DataService.OnDataChanged += OnDataChanged;
 
         var uri = new Uri(Navigation.Uri);
-        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        _printMode = string.Equals(query["print"], "true", StringComparison.OrdinalIgnoreCase);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+        _printMode = query.TryGetValue("print", out var values)
+            && values.ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
     }
 
     private async void OnDataChanged()

@@ -241,42 +241,353 @@ html, body {
     display: none;
 }
 
-/* Print-mode overrides */
-.dashboard.print-mode #blazor-error-ui,
-.dashboard.print-mode .blazor-reconnect-modal {
-    display: none !important;
+/*
+ * Trend label: hidden by default in normal mode.
+ * Color arrows/icons are sufficient when color is available.
+ * Shown in print-mode and @media print for B&W fallback.
+ * Depends on T9 adding <span class="trend-label">(up)</span> to MetricBadge.
+ */
+.trend-label {
+    display: none;
 }
 
-/* Print media query */
+/* ============================================
+   @media print — Browser Print / PDF Output
+   Activated via Ctrl+P or "Print to PDF"
+   ============================================ */
 @media print {
+    /* Reset page margins for edge-to-edge printing */
+    @page {
+        margin: 0;
+        size: landscape;
+    }
+
     body {
         margin: 0;
         padding: 0;
+        background-color: white;
     }
 
+    /* Expand dashboard to fill print page and preserve colors */
     .dashboard {
         width: 100%;
+        min-height: auto;
+        margin: 0;
         box-shadow: none;
+        overflow: visible;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 
+    /* Remove all box-shadows globally */
+    * {
+        box-shadow: none !important;
+    }
+
+    /* Hide Blazor framework UI and error banner */
     #blazor-error-ui,
-    .blazor-error-ui {
+    .blazor-error-ui,
+    .blazor-reconnect-modal,
+    [data-blazor-reconnect],
+    .error-banner {
         display: none !important;
     }
 
-    .error-banner {
-        print-color-adjust: exact;
-        -webkit-print-color-adjust: exact;
-    }
-
+    /* Preserve colors on all visual indicator elements */
     .card,
     .work-item-section,
     .metric-badge,
     .milestone-timeline,
     .project-header,
     .status-badge,
-    .priority-badge {
+    .priority-badge,
+    .progress-track,
+    .progress-fill,
+    .milestone-marker {
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
     }
+
+    /* Cards: visible borders instead of shadows for monochrome fidelity */
+    .card {
+        border: 1px solid #999;
+    }
+
+    /* Status badges: add border so they remain visible without color */
+    .status-badge {
+        border: 1px solid #333;
+    }
+
+    /* Section left borders: increase thickness for monochrome visibility */
+    .card.shipped {
+        border-left: 5px solid #333;
+    }
+
+    .card.in-progress {
+        border-left: 5px solid #666;
+    }
+
+    .card.carried-over {
+        border-left: 5px solid #999;
+    }
+
+    /* Work item sections: visible borders */
+    .work-item-section {
+        border: 1px solid #ccc;
+    }
+
+    /* Metric badges: visible borders */
+    .metric-badge {
+        border: 1px solid #ccc;
+    }
+
+    /* Milestone markers: distinct border patterns for B&W */
+    .milestone-marker.completed {
+        background-color: #333 !important;
+        border-color: #333 !important;
+    }
+
+    .milestone-marker.in-progress {
+        background-color: white !important;
+        border: 3px solid #333 !important;
+        border-right-color: transparent !important;
+    }
+
+    .milestone-marker.upcoming {
+        background-color: white !important;
+        border: 2px dashed #666 !important;
+    }
+
+    .milestone-marker.delayed {
+        background-color: white !important;
+        border: 3px double #333 !important;
+    }
+
+    /* Trend indicators: ensure text labels are visible in print */
+    .trend-label {
+        display: inline !important;
+    }
+
+    /* Progress bars: add border for monochrome visibility */
+    .progress-track {
+        border: 1px solid #666;
+    }
+
+    .progress-fill {
+        background-color: #333 !important;
+    }
+
+    /* --- High-Contrast B&W Fallbacks (print) --- */
+
+    /*
+     * Priority badges: graduated borders so P0-P3 severity
+     * is distinguishable without color (red/orange/yellow/gray).
+     * The badge text ("P0", "P1", etc.) is always visible;
+     * border weight reinforces urgency in monochrome output.
+     */
+    .priority-badge.priority-p0 {
+        border: 2px solid #000;
+        font-weight: 700;
+    }
+
+    .priority-badge.priority-p1 {
+        border: 2px solid #333;
+        font-weight: 600;
+    }
+
+    .priority-badge.priority-p2 {
+        border: 1px solid #666;
+    }
+
+    .priority-badge.priority-p3 {
+        border: 1px dashed #999;
+    }
+
+    /*
+     * Project status badge: distinct border patterns per status.
+     * Text ("On Track" / "At Risk" / "Off Track") is the primary
+     * identifier in B&W; border style provides secondary cue.
+     */
+    .status-badge.status-on-track {
+        border: 2px solid #000;
+    }
+
+    .status-badge.status-at-risk {
+        border: 2px dashed #000;
+    }
+
+    .status-badge.status-off-track {
+        border: 3px solid #000;
+        font-weight: 700;
+    }
+
+    .status-badge.status-unknown {
+        border: 1px dotted #999;
+    }
+
+    /*
+     * Timeline "Today" marker: thick solid black line so it
+     * stands out in monochrome (normally red dashed).
+     */
+    .today-marker {
+        border-left: 3px solid #000 !important;
+    }
+
+    .today-marker-label {
+        color: #000 !important;
+        font-weight: 700;
+    }
+}
+
+/* ============================================
+   Print Mode — Screenshot Capture via ?print=true
+   Applied when Dashboard.razor detects the query
+   parameter and adds class="dashboard print-mode"
+   ============================================ */
+
+/* Hide all Blazor framework chrome in screenshot mode */
+.dashboard.print-mode #blazor-error-ui,
+.dashboard.print-mode .blazor-error-ui,
+.dashboard.print-mode .blazor-reconnect-modal,
+.dashboard.print-mode [data-blazor-reconnect] {
+    display: none !important;
+}
+
+/* Hide the error banner in print mode (PM will fix data before capturing) */
+.dashboard.print-mode .error-banner {
+    display: none !important;
+}
+
+/* Remove all box-shadows for flat screenshot appearance */
+.dashboard.print-mode *,
+.dashboard.print-mode *::before,
+.dashboard.print-mode *::after {
+    box-shadow: none !important;
+}
+
+/*
+ * Cards: subtle borders replace shadows.
+ * Uses individual border sides to preserve the colored border-left
+ * set by .card.shipped / .card.in-progress / .card.carried-over.
+ */
+.dashboard.print-mode .card {
+    border-top: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Work item sections: subtle borders replace shadows */
+.dashboard.print-mode .work-item-section {
+    border: 1px solid var(--border-color);
+}
+
+/* Metric badges: subtle borders replace shadows */
+.dashboard.print-mode .metric-badge {
+    border: 1px solid var(--border-color);
+}
+
+/* Milestone timeline: subtle border replaces shadow */
+.dashboard.print-mode .milestone-timeline {
+    border: 1px solid var(--border-color);
+}
+
+/*
+ * B&W fallback: show text labels on trend indicators.
+ * In print-mode, .trend-label is shown as a parenthetical.
+ * Depends on T9 adding <span class="trend-label">(up)</span> to MetricBadge.
+ */
+.dashboard.print-mode .trend-label {
+    display: inline;
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+    margin-left: 4px;
+}
+
+/* Status badges: add border for monochrome screenshot fidelity */
+.dashboard.print-mode .status-badge {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+/*
+ * Section header text indicators for B&W identification.
+ * Unicode prefixes convey section meaning without relying on color.
+ * Depends on T6/T7/T8 applying status classes to .section-header elements.
+ */
+.dashboard.print-mode .section-header.shipped::before {
+    content: "\2713 ";
+}
+
+.dashboard.print-mode .section-header.in-progress::before {
+    content: "\25B6 ";
+}
+
+.dashboard.print-mode .section-header.carried-over::before {
+    content: "\26A0 ";
+}
+
+/* ============================================
+   High-Contrast B&W Fallbacks — Screenshot Mode
+   Graduated borders and patterns for elements
+   that rely on color in normal mode.
+   ============================================ */
+
+/*
+ * Priority badges: graduated border weight/style so P0-P3
+ * severity is distinguishable without color in screenshots.
+ * Mirrors the @media print rules for consistency.
+ */
+.dashboard.print-mode .priority-badge.priority-p0 {
+    border: 2px solid #000;
+    font-weight: 700;
+}
+
+.dashboard.print-mode .priority-badge.priority-p1 {
+    border: 2px solid #333;
+    font-weight: 600;
+}
+
+.dashboard.print-mode .priority-badge.priority-p2 {
+    border: 1px solid #666;
+}
+
+.dashboard.print-mode .priority-badge.priority-p3 {
+    border: 1px dashed #999;
+}
+
+/*
+ * Project status badge: distinct border patterns per status.
+ * "On Track" = solid, "At Risk" = dashed, "Off Track" = heavy,
+ * unknown = dotted. Text label is the primary B&W identifier;
+ * border pattern is the secondary visual cue.
+ */
+.dashboard.print-mode .status-badge.status-on-track {
+    border: 2px solid #000;
+}
+
+.dashboard.print-mode .status-badge.status-at-risk {
+    border: 2px dashed #000;
+}
+
+.dashboard.print-mode .status-badge.status-off-track {
+    border: 3px solid #000;
+    font-weight: 700;
+}
+
+.dashboard.print-mode .status-badge.status-unknown {
+    border: 1px dotted #999;
+}
+
+/*
+ * Timeline "Today" marker: thick solid black line
+ * replaces the default red dashed style for B&W fidelity.
+ * Depends on T5 (MilestoneTimeline) using .today-marker
+ * and .today-marker-label CSS classes.
+ */
+.dashboard.print-mode .today-marker {
+    border-left: 3px solid #000;
+}
+
+.dashboard.print-mode .today-marker-label {
+    color: #000;
+    font-weight: 700;
 }
