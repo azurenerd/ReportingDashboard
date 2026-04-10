@@ -30,37 +30,39 @@
 <div class="status-summary mb-4">
     <div class="row">
         <div class="col-12">
-            <div class="card">
+            <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <div class="row align-items-center">
+                    <div class="row align-items-center mb-3">
                         <div class="col-md-6">
-                            <h2 class="card-title mb-0">@DashboardData?.ProjectName</h2>
+                            <h2 class="card-title mb-0">
+                                @(!string.IsNullOrEmpty(DashboardData?.ProjectName) ? DashboardData.ProjectName : "Project Dashboard")
+                            </h2>
                         </div>
-                        <div class="col-md-6">
-                            <div class="d-flex justify-content-md-end justify-content-start align-items-center gap-3">
-                                <span class="badge @GetHealthClass()" style="font-size: 0.95rem; padding: 0.5rem 1rem;">
-                                    @GetHealthLabel()
-                                </span>
-                            </div>
+                        <div class="col-md-6 text-md-end text-start">
+                            <span class="badge @GetHealthClass() health-badge" style="font-size: 0.95rem; padding: 0.6rem 1.2rem;">
+                                ● @GetHealthLabel()
+                            </span>
                         </div>
                     </div>
 
-                    <div class="row mt-3 text-center">
+                    <hr class="my-3" style="opacity: 0.2;">
+
+                    <div class="row text-center gx-3">
                         <div class="col-md-4">
                             <div class="metric-summary">
-                                <h3 class="metric-value">@(DashboardData?.ShippedItems?.Count ?? 0)</h3>
+                                <h3 class="metric-value text-shipped">@(DashboardData?.ShippedItems?.Count ?? 0)</h3>
                                 <p class="metric-label">Shipped</p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="metric-summary">
-                                <h3 class="metric-value">@(DashboardData?.InProgressItems?.Count ?? 0)</h3>
+                                <h3 class="metric-value text-in-progress">@(DashboardData?.InProgressItems?.Count ?? 0)</h3>
                                 <p class="metric-label">In Progress</p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="metric-summary">
-                                <h3 class="metric-value">@(DashboardData?.CarryoverItems?.Count ?? 0)</h3>
+                                <h3 class="metric-value text-carryover">@(DashboardData?.CarryoverItems?.Count ?? 0)</h3>
                                 <p class="metric-label">Carryover</p>
                             </div>
                         </div>

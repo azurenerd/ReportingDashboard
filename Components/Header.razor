@@ -16,23 +16,27 @@
         <div class="row align-items-center">
             <div class="col-md-8">
                 <h1 class="dashboard-title">Executive Project Dashboard</h1>
-                <p class="project-name text-muted">@DashboardData?.ProjectName</p>
+                @if (!string.IsNullOrEmpty(DashboardData?.ProjectName))
+                {
+                    <p class="project-name text-muted">@DashboardData.ProjectName</p>
+                }
             </div>
             <div class="col-md-4 text-end">
-                <small class="text-muted">
-                    Last Updated: 
-                    <span class="last-updated">
-                        @if (DashboardData?.LastUpdated != default)
-                        {
-                            @DashboardData.LastUpdated.ToString("g")
-                        }
-                        else
-                        {
-                            <span>--</span>
-                        }
-                    </span>
+                <small class="text-muted d-block">
+                    Last Updated
                 </small>
+                <span class="last-updated">
+                    @if (DashboardData?.LastUpdated != default)
+                    {
+                        @DashboardData.LastUpdated.ToString("g")
+                    }
+                    else
+                    {
+                        <span>--</span>
+                    }
+                </span>
             </div>
         </div>
+        <hr class="mt-2 mb-0" style="opacity: 0.2;">
     </div>
 </div>
