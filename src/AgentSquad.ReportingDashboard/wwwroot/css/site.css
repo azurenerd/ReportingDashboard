@@ -86,17 +86,12 @@ code {
     .card {
         border: 1px solid #ddd;
         page-break-inside: avoid;
+        background-color: white;
+        box-shadow: none;
     }
 
     .card + .card {
         page-break-after: auto;
-    }
-
-    p {
-        widows: 3;
-        orphans: 3;
-        font-size: 11pt;
-        line-height: 1.4;
     }
 
     /* Typography */
@@ -105,9 +100,17 @@ code {
         margin: 0.5em 0;
     }
 
+    p {
+        font-size: 11pt;
+        line-height: 1.4;
+        widows: 3;
+        orphans: 3;
+    }
+
     /* Component Styling */
     .badge-success {
         background-color: #28a745 !important;
+        color: white !important;
         -webkit-print-color-adjust: exact;
         -moz-print-color-adjust: exact;
         print-color-adjust: exact;
@@ -123,14 +126,31 @@ code {
 
     .badge-danger {
         background-color: #dc3545 !important;
+        color: white !important;
         -webkit-print-color-adjust: exact;
         -moz-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 
-    .card-shipped,
-    .card-in-progress,
+    .card-shipped {
+        background-color: #f0fdf4 !important;
+        border-color: #86efac !important;
+        -webkit-print-color-adjust: exact;
+        -moz-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .card-in-progress {
+        background-color: #fffbeb !important;
+        border-color: #fcd34d !important;
+        -webkit-print-color-adjust: exact;
+        -moz-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
     .card-carryover {
+        background-color: #fef2f2 !important;
+        border-color: #fca5a5 !important;
         -webkit-print-color-adjust: exact;
         -moz-print-color-adjust: exact;
         print-color-adjust: exact;
