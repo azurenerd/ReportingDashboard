@@ -52,6 +52,6 @@
         "at-risk" => "At Risk",
         "behind" => "Behind",
         null => "N/A",
-        _ => char.ToUpperInvariant(health[0]) + health[1..]
+        _ => string.IsNullOrEmpty(health) ? "N/A" : char.ToUpperInvariant(health[0]) + health[1..]
     };
 }
