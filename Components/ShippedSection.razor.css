@@ -86,3 +86,52 @@
     line-height: 1.4;
     background-color: var(--bg-card, #ffffff);
 }
+
+.card-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+    background-color: var(--bg-card, #ffffff);
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: var(--font-size-small, 11px);
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.badge-category {
+    background-color: #e9ecef;
+    color: var(--text-secondary, #6c757d);
+}
+
+.priority-p0 {
+    background-color: var(--priority-p0, #dc3545);
+    color: #ffffff;
+}
+
+.priority-p1 {
+    background-color: var(--priority-p1, #fd7e14);
+    color: #ffffff;
+}
+
+.priority-p2 {
+    background-color: var(--priority-p2, #ffc107);
+    color: #212529;
+}
+
+.priority-p3 {
+    background-color: var(--priority-p3, #6c757d);
+    color: #ffffff;
+}
+
+.priority-default {
+    background-color: #6c757d;
+    color: #ffffff;
+}

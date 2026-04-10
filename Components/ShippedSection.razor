@@ -20,6 +20,16 @@
                         {
                             <div class="card-description">@item.Description</div>
                         }
+                        <div class="card-badges">
+                            @if (!string.IsNullOrWhiteSpace(item.Category))
+                            {
+                                <span class="badge badge-category">@item.Category</span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.Priority))
+                            {
+                                <span class="badge badge-priority @GetPriorityClass(item.Priority)">@item.Priority</span>
+                            }
+                        </div>
                     </div>
                 </div>
             }
@@ -30,4 +40,13 @@
 @code {
     [Parameter]
     public List<WorkItem>? Items { get; set; }
+
+    private static string GetPriorityClass(string? priority) => priority switch
+    {
+        "P0" => "priority-p0",
+        "P1" => "priority-p1",
+        "P2" => "priority-p2",
+        "P3" => "priority-p3",
+        _ => "priority-default"
+    };
 }
