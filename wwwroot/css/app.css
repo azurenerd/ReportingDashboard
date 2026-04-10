@@ -1,0 +1,282 @@
+/* ============================================
+   Executive Reporting Dashboard - Design System
+   Fixed 1280x900 layout for PowerPoint screenshots
+   ============================================ */
+
+:root {
+    /* Status colors */
+    --status-shipped: #28a745;
+    --status-in-progress: #007bff;
+    --status-carried-over: #fd7e14;
+    --status-at-risk: #ffc107;
+    --status-on-track: #28a745;
+    --status-off-track: #dc3545;
+    --status-completed: #28a745;
+    --status-upcoming: #6c757d;
+    --status-delayed: #dc3545;
+
+    /* Priority colors */
+    --priority-p0: #dc3545;
+    --priority-p1: #fd7e14;
+    --priority-p2: #ffc107;
+    --priority-p3: #6c757d;
+
+    /* Layout */
+    --dashboard-width: 1280px;
+    --dashboard-min-height: 900px;
+
+    /* Typography */
+    --font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-size-title: 24px;
+    --font-size-section-header: 16px;
+    --font-size-body: 13px;
+    --font-size-small: 11px;
+
+    /* Surfaces */
+    --bg-page: #f4f6f9;
+    --bg-card: #ffffff;
+    --bg-header: #1a2332;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --text-on-dark: #ffffff;
+    --border-color: #dee2e6;
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Global reset - no animations for screenshot fidelity */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    transition: none !important;
+    animation: none !important;
+}
+
+html, body {
+    height: 100%;
+    background-color: var(--bg-page);
+    font-family: var(--font-family);
+    font-size: var(--font-size-body);
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+/* Page wrapper from MainLayout */
+.page {
+    background-color: var(--bg-page);
+}
+
+/* Dashboard container - fixed 1280px for screenshot consistency */
+.dashboard {
+    width: var(--dashboard-width);
+    min-height: var(--dashboard-min-height);
+    margin: 0 auto;
+    background-color: var(--bg-page);
+    font-family: var(--font-family);
+    font-size: var(--font-size-body);
+    color: var(--text-primary);
+    overflow: hidden;
+    position: relative;
+}
+
+/* 3-column grid for work item sections */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    padding: 0 16px 16px 16px;
+}
+
+/* Error banner */
+.error-banner {
+    background-color: #dc3545;
+    color: #ffffff;
+    padding: 12px 20px;
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* Base card styles */
+.card {
+    background-color: var(--bg-card);
+    border-radius: 6px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid transparent;
+}
+
+.card.shipped {
+    border-left-color: var(--status-shipped);
+}
+
+.card.in-progress {
+    border-left-color: var(--status-in-progress);
+}
+
+.card.carried-over {
+    border-left-color: var(--status-carried-over);
+}
+
+/* Section header */
+.section-header {
+    font-size: var(--font-size-section-header);
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+/* Priority badges */
+.priority-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.priority-badge.priority-p0 {
+    background-color: var(--priority-p0);
+}
+
+.priority-badge.priority-p1 {
+    background-color: var(--priority-p1);
+    color: #212529;
+}
+
+.priority-badge.priority-p2 {
+    background-color: var(--priority-p2);
+    color: #212529;
+}
+
+.priority-badge.priority-p3 {
+    background-color: var(--priority-p3);
+}
+
+/* Category badge */
+.category-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    background-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* Work item section containers */
+.work-item-section {
+    background-color: var(--bg-card);
+    border-radius: 6px;
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+}
+
+/* Project header area */
+.project-header {
+    background-color: var(--bg-header);
+    color: var(--text-on-dark);
+    padding: 16px 20px;
+}
+
+/* Milestone timeline area */
+.milestone-timeline {
+    background-color: var(--bg-card);
+    padding: 16px 20px;
+    margin: 0 0 0 0;
+    box-shadow: var(--shadow-card);
+}
+
+/* Metrics bar area */
+.metrics-bar {
+    display: flex;
+    gap: 16px;
+    padding: 0 16px 16px 16px;
+}
+
+/* Metric badge */
+.metric-badge {
+    flex: 1;
+    background-color: var(--bg-card);
+    border-radius: 6px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow-card);
+    text-align: center;
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+}
+
+.status-badge.status-on-track {
+    background-color: var(--status-on-track);
+    color: #ffffff;
+}
+
+.status-badge.status-at-risk {
+    background-color: var(--status-at-risk);
+    color: #212529;
+}
+
+.status-badge.status-off-track {
+    background-color: var(--status-off-track);
+    color: #ffffff;
+}
+
+.status-badge.status-unknown {
+    background-color: var(--text-secondary);
+    color: #ffffff;
+}
+
+/* Override default Blazor error UI */
+#blazor-error-ui {
+    display: none;
+}
+
+/* Print-mode overrides */
+.dashboard.print-mode #blazor-error-ui,
+.dashboard.print-mode .blazor-reconnect-modal {
+    display: none !important;
+}
+
+/* Print media query */
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .dashboard {
+        width: 100%;
+        box-shadow: none;
+    }
+
+    #blazor-error-ui,
+    .blazor-error-ui {
+        display: none !important;
+    }
+
+    .error-banner {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .card,
+    .work-item-section,
+    .metric-badge,
+    .milestone-timeline,
+    .project-header,
+    .status-badge,
+    .priority-badge {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}

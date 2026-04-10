@@ -1,0 +1,49 @@
+@page "/"
+@implements IDisposable
+@inject IDashboardDataService DataService
+@inject NavigationManager Navigation
+
+<div class="dashboard @(_printMode ? "print-mode" : "")">
+    @if (DataService.LoadError is not null)
+    {
+        <ErrorBanner Message="@DataService.LoadError" />
+    }
+
+    @if (DataService.Data is not null)
+    {
+        var data = DataService.Data;
+        <ProjectHeader Project="@data.Project" />
+        <MilestoneTimeline Milestones="@data.Milestones" />
+
+        <div class="content-grid">
+            <ShippedSection Items="@data.Shipped" />
+            <InProgressSection Items="@data.InProgress" />
+            <CarriedOverSection Items="@data.CarriedOver" />
+        </div>
+
+        <MetricsBar Metrics="@data.Metrics" />
+    }
+</div>
+
+@code {
+    private bool _printMode;
+
+    protected override void OnInitialized()
+    {
+        DataService.OnDataChanged += OnDataChanged;
+
+        var uri = new Uri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        _printMode = string.Equals(query["print"], "true", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async void OnDataChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        DataService.OnDataChanged -= OnDataChanged;
+    }
+}
