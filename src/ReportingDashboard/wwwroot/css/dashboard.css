@@ -306,7 +306,7 @@ h2 {
 }
 
 .work-item-card.carried-over {
-    border-left-color: var(--status-carried-over);
+    border-left-color: var(--status-at-risk);
 }
 
 .work-item-card .card-title {
@@ -321,6 +321,47 @@ h2 {
 }
 
 /* ------------------------------------------------------------
+   Card Header — Title + Category Tag Layout
+   ------------------------------------------------------------ */
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    flex: 1;
+}
+
+/* ------------------------------------------------------------
+   Card Body — Description Text
+   ------------------------------------------------------------ */
+.card-body {
+    margin-bottom: var(--spacing-sm);
+}
+
+.card-body p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+/* ------------------------------------------------------------
+   Card Footer — Progress Bar Area
+   ------------------------------------------------------------ */
+.card-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* ------------------------------------------------------------
    Category Tags
    ------------------------------------------------------------ */
 .category-tag {
@@ -331,7 +372,24 @@ h2 {
     padding: 1px 8px;
     font-size: 12px;
     color: var(--color-text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------
+   Carry-Over Reason — Prominent Deferral Explanation
+   ------------------------------------------------------------ */
+.carry-over-reason {
+    background: #FFF3E0;
+    border-radius: 4px;
+    padding: var(--spacing-sm) var(--spacing-md);
     margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-body);
+    line-height: 1.5;
+}
+
+.carry-over-reason p {
+    margin: 0;
 }
 
 /* ------------------------------------------------------------
@@ -345,6 +403,7 @@ h2 {
     border-radius: 4px;
     overflow: hidden;
     margin-top: var(--spacing-xs);
+    flex: 1;
 }
 
 .progress-fill {
@@ -372,6 +431,7 @@ h2 {
     font-weight: 600;
     color: var(--color-text-secondary);
     margin-top: 2px;
+    white-space: nowrap;
 }
 
 /* ------------------------------------------------------------
@@ -628,7 +688,12 @@ h2 {
     }
 
     .work-item-card.carried-over {
-        border-left-color: var(--status-carried-over) !important;
+        border-left-color: var(--status-at-risk) !important;
+    }
+
+    /* Force carry-over reason background to print */
+    .carry-over-reason {
+        background-color: #FFF3E0 !important;
     }
 
     /* Ensure error banner is visible when printing error state */
