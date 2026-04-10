@@ -6,7 +6,7 @@
         <div class="kpi-card card">
             <div class="card-body">
                 <h6 class="card-title text-muted mb-3">Shipped</h6>
-                <div class="kpi-value">@GetShippedCount()</div>
+                <div class="kpi-value text-secondary">@GetShippedCount()</div>
                 <p class="kpi-unit text-muted">completed tasks</p>
             </div>
         </div>
@@ -15,7 +15,7 @@
         <div class="kpi-card card">
             <div class="card-body">
                 <h6 class="card-title text-muted mb-3">In Progress</h6>
-                <div class="kpi-value">@GetInProgressCount()</div>
+                <div class="kpi-value text-secondary">@GetInProgressCount()</div>
                 <p class="kpi-unit text-muted">active tasks</p>
             </div>
         </div>
@@ -24,7 +24,7 @@
         <div class="kpi-card card">
             <div class="card-body">
                 <h6 class="card-title text-muted mb-3">On-Time %</h6>
-                <div class="kpi-value">@(GetOnTimePercentage().ToString("F0"))%</div>
+                <div class="kpi-value @GetColorClass(GetOnTimePercentage())">@(GetOnTimePercentage().ToString("F0"))%</div>
                 <p class="kpi-unit text-muted">on schedule</p>
             </div>
         </div>
@@ -111,6 +111,30 @@
             return true;
         }
     }
+
+    /// <summary>
+    /// Returns Bootstrap color classes for a given percentage value
+    /// Green (text-success bg-light-success): >= 80%
+    /// Yellow (text-warning bg-light-warning): 50-79%
+    /// Red (text-danger bg-light-danger): < 50%
+    /// </summary>
+    private string GetColorClass(double percentage)
+    {
+        try
+        {
+            if (percentage >= 80)
+                return "text-success bg-light-success";
+            
+            if (percentage >= 50)
+                return "text-warning bg-light-warning";
+            
+            return "text-danger bg-light-danger";
+        }
+        catch
+        {
+            return "text-secondary";
+        }
+    }
 }
 
 <style>
@@ -162,7 +186,36 @@
         font-weight: 700;
         line-height: 1;
         margin: 0.5rem 0;
-        color: #212529;
+        padding: 0.5rem 0;
+        border-radius: 0.25rem;
+    }
+
+    .kpi-value.text-success {
+        color: #198754;
+    }
+
+    .kpi-value.bg-light-success {
+        background-color: #f0f9f6;
+    }
+
+    .kpi-value.text-warning {
+        color: #ff9800;
+    }
+
+    .kpi-value.bg-light-warning {
+        background-color: #fff8f0;
+    }
+
+    .kpi-value.text-danger {
+        color: #dc3545;
+    }
+
+    .kpi-value.bg-light-danger {
+        background-color: #fef5f5;
+    }
+
+    .kpi-value.text-secondary {
+        color: #6c757d;
     }
 
     .kpi-unit {
