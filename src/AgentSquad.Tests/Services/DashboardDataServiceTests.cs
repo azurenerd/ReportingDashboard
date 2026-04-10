@@ -1039,6 +1039,179 @@ namespace AgentSquad.Tests.Services
 
         #endregion
 
+        #region Step 6: Data Accessor and Aggregation Tests
+
+        [Fact]
+        public void GetWorkItemsByStatusShipped_FilterWorkItemsWhereStatusShipped_CorrectSubsetReturned()
+        {
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath);
+            var service = CreateMockDataService(options);
+
+            // Act
+            var shippedItems = service.GetWorkItemsByStatus(WorkItemStatus.Shipped);
+
+            // Assert
+            Assert.NotNull(shippedItems);
+            Assert.Equal(4, shippedItems.Count);
+            Assert.All(shippedItems, item => Assert.Equal(WorkItemStatus.Shipped, item.Status));
+            Assert.Contains(shippedItems, item => item.Title == "Feature 1");
+            Assert.Contains(shippedItems, item => item.Title == "Feature 2");
+            Assert.Contains(shippedItems, item => item.Title == "Feature 3");
+            Assert.Contains(shippedItems, item => item.Title == "Feature 4");
+        }
+
+        [Fact]
+        public void GetWorkItemsByStatusInProgress_FilterByInProgress_OnlyInProgressItems()
+        {
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath);
+            var service = CreateMockDataService(options);
+
+            // Act
+            var inProgressItems = service.GetWorkItemsByStatus(WorkItemStatus.InProgress);
+
+            // Assert
+            Assert.NotNull(inProgressItems);
+            Assert.Equal(3, inProgressItems.Count);
+            Assert.All(inProgressItems, item => Assert.Equal(WorkItemStatus.InProgress, item.Status));
+            Assert.Contains(inProgressItems, item => item.Title == "Bug Fix 1");
+            Assert.Contains(inProgressItems, item => item.Title == "Bug Fix 2");
+            Assert.Contains(inProgressItems, item => item.Title == "Bug Fix 3");
+        }
+
+        [Fact]
+        public void GetWorkItemsByStatusCarriedOver_FilterByCarriedOver_OnlyCarriedOverItems()
+        {
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath);
+            var service = CreateMockDataService(options);
+
+            // Act
+            var carriedOverItems = service.GetWorkItemsByStatus(WorkItemStatus.CarriedOver);
+
+            // Assert
+            Assert.NotNull(carriedOverItems);
+            Assert.Equal(2, carriedOverItems.Count);
+            Assert.All(carriedOverItems, item => Assert.Equal(WorkItemStatus.CarriedOver, item.Status));
+            Assert.Contains(carriedOverItems, item => item.Title == "Debt 1");
+            Assert.Contains(carriedOverItems, item => item.Title == "Debt 2");
+        }
+
+        [Fact]
+        public void GetStatusCounts_SampleData_ReturnsCorrectCounts()
+        {
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath);
+            var service = CreateMockDataService(options);
+
+            // Act
+            var (shipped, inProgress, carriedOver) = service.GetStatusCounts();
+
+            // Assert
+            Assert.Equal(4, shipped);
+            Assert.Equal(3, inProgress);
+            Assert.Equal(2, carriedOver);
+        }
+
+        [Fact]
+        public void GetMilestonesSorted_MilestonesReturnedSorted_ChronologicalOrder()
+        {
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath);
+            var service = CreateMockDataService(options);
+
+            // Act
+            var milestones = service.GetMilestones();
+
+            // Assert
+            Assert.NotNull(milestones);
+            Assert.Equal(3, milestones.Count);
+            
+            // Verify chronological order
+            Assert.Equal("2026-03-01", milestones[0].Date.ToString("yyyy-MM-dd"));
+            Assert.Equal("2026-04-15", milestones[1].Date.ToString("yyyy-MM-dd"));
+            Assert.Equal("2026-05-30", milestones[2].Date.ToString("yyyy-MM-dd"));
+            
+            // Verify milestone names
+            Assert.Equal("Phase 1 Complete", milestones[0].Name);
+            Assert.Equal("Phase 2 In Progress", milestones[1].Name);
+            Assert.Equal("Phase 3 Planned", milestones[2].Name);
+        }
+
+        [Fact]
+        public void EmptyMilestonesAllowed_NoMilestonesInData_GetMilestonesReturnsEmptyList()
+        {
+            // Arrange
+            var emptyMilestonesJson = @"{
+  ""project"": { ""name"": ""No Milestones Project"" },
+  ""milestones"": [],
+  ""workItems"": [
+    { ""title"": ""Item 1"", ""status"": ""Shipped"" }
+  ]
+}";
+            var jsonPath = CreateTempDataJsonFile(emptyMilestonesJson);
+            var options = CreateMockOptions(jsonPath);
+            var service = CreateMockDataService(options);
+
+            // Act
+            var milestones = service.GetMilestones();
+
+            // Assert
+            Assert.NotNull(milestones);
+            Assert.Empty(milestones);
+            Assert.True(service.HasData);
+        }
+
+        [Fact]
+        public void EmptyWorkItemsAllowed_NoWorkItemsInData_GetStatusCountsReturnsZeros()
+        {
+            // Arrange
+            var emptyWorkItemsJson = @"{
+  ""project"": { ""name"": ""No Work Items Project"" },
+  ""milestones"": [
+    { ""name"": ""M1"", ""date"": ""2026-01-01T00:00:00Z"", ""status"": ""Completed"" }
+  ],
+  ""workItems"": []
+}";
+            var jsonPath = CreateTempDataJsonFile(emptyWorkItemsJson);
+            var options = CreateMockOptions(jsonPath);
+            var service = CreateMockDataService(options);
+
+            // Act
+            var (shipped, inProgress, carriedOver) = service.GetStatusCounts();
+
+            // Assert
+            Assert.Equal(0, shipped);
+            Assert.Equal(0, inProgress);
+            Assert.Equal(0, carriedOver);
+            Assert.True(service.HasData);
+        }
+
+        [Fact]
+        public void GetProjectReturnsValidProject_ProjectDataLoaded_NameAndDescriptionCorrect()
+        {
+            // Arrange
+            var validJsonPath = SetupValidDataJsonFile();
+            var options = CreateMockOptions(validJsonPath);
+            var service = CreateMockDataService(options);
+
+            // Act
+            var project = service.GetProject();
+
+            // Assert
+            Assert.NotNull(project);
+            Assert.Equal("Sample Project", project.Name);
+            Assert.Equal("A sample project for testing", project.Description);
+        }
+
+        #endregion
+
         #region IDisposable Implementation
 
         public void Dispose()
