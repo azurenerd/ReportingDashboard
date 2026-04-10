@@ -12,7 +12,12 @@
             @foreach (var item in Items)
             {
                 <div class="card work-item-card">
-                    <!-- Card content placeholder -->
+                    <h6 class="work-item-title">@item.Title</h6>
+                    @if (!string.IsNullOrEmpty(item.Description))
+                    {
+                        <p class="work-item-description">@item.Description</p>
+                    }
+                    <small class="work-item-date">@item.CompletedDate.ToString("MMM dd, yyyy")</small>
                 </div>
             }
         }
