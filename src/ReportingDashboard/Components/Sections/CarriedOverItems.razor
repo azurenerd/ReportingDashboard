@@ -8,7 +8,36 @@
             <span class="item-count">@SafeItems.Count</span>
         </div>
 
-        <!-- Card rendering implemented in Step 3 -->
+        @foreach (var item in SafeItems)
+        {
+            <div class="work-item-card carried-over">
+                <div class="card-header">
+                    <h3>@item.Title</h3>
+                    @if (!string.IsNullOrWhiteSpace(item.Category))
+                    {
+                        <span class="category-tag">@item.Category</span>
+                    }
+                </div>
+                <div class="carry-over-reason">
+                    @if (!string.IsNullOrWhiteSpace(item.CarryOverReason))
+                    {
+                        <p><strong>Reason:</strong> @item.CarryOverReason</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted"><em>No reason provided</em></p>
+                    }
+                </div>
+                @if (!string.IsNullOrWhiteSpace(item.Description))
+                {
+                    <div class="card-body">
+                        <p>@item.Description</p>
+                    </div>
+                }
+
+                <!-- Progress bar rendering implemented in Step 4 -->
+            </div>
+        }
     </section>
 }
 
