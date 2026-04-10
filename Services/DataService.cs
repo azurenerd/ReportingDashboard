@@ -109,4 +109,140 @@ public class DataService
             throw new JsonParseException(message, ex);
         }
     }
+
+    /// <summary>
+    /// Validates project status data model constraints.
+    /// Checks for unique IDs, valid enum values, and proper date formats.
+    /// </summary>
+    /// <param name="data">The ProjectStatus object to validate.</param>
+    /// <exception cref="ValidationException">Thrown when validation constraints are violated.</exception>
+    private void ValidateProjectStatus(ProjectStatus data)
+    {
+        try
+        {
+            _logger.LogInformation("Starting ProjectStatus validation");
+
+            if (data == null)
+            {
+                throw new ValidationException("ProjectStatus cannot be null");
+            }
+
+            // Validate milestone uniqueness
+            var milestoneIds = new HashSet<string>();
+            if (data.Milestones != null)
+            {
+                foreach (var milestone in data.Milestones)
+                {
+                    if (string.IsNullOrWhiteSpace(milestone.Id))
+                    {
+                        throw new ValidationException("Milestone ID cannot be empty");
+                    }
+
+                    if (!milestoneIds.Add(milestone.Id))
+                    {
+                        throw new ValidationException($"Duplicate milestone ID: {milestone.Id}");
+                    }
+                }
+                _logger.LogInformation("Milestone ID uniqueness validation passed: {Count} milestones", milestoneIds.Count);
+            }
+
+            // Validate task uniqueness
+            var taskIds = new HashSet<string>();
+            if (data.Tasks != null)
+            {
+                foreach (var task in data.Tasks)
+                {
+                    if (string.IsNullOrWhiteSpace(task.Id))
+                    {
+                        throw new ValidationException("Task ID cannot be empty");
+                    }
+
+                    if (!taskIds.Add(task.Id))
+                    {
+                        throw new ValidationException($"Duplicate task ID: {task.Id}");
+                    }
+                }
+                _logger.LogInformation("Task ID uniqueness validation passed: {Count} tasks", taskIds.Count);
+            }
+
+            // Validate enum values for tasks
+            if (data.Tasks != null)
+            {
+                foreach (var task in data.Tasks)
+                {
+                    var validTaskStatuses = new[] { "Completed", "InProgress", "CarriedOver" };
+                    var statusStr = task.Status.ToString();
+
+                    if (!validTaskStatuses.Contains(statusStr))
+                    {
+                        throw new ValidationException($"Invalid task status: {statusStr}. Must be one of: Completed, InProgress, CarriedOver");
+                    }
+                }
+                _logger.LogInformation("Task status enum validation passed");
+            }
+
+            // Validate enum values for milestones
+            if (data.Milestones != null)
+            {
+                foreach (var milestone in data.Milestones)
+                {
+                    var validMilestoneStatuses = new[] { "OnTrack", "AtRisk", "Completed" };
+                    var statusStr = milestone.Status.ToString();
+
+                    if (!validMilestoneStatuses.Contains(statusStr))
+                    {
+                        throw new ValidationException($"Invalid milestone status: {statusStr}. Must be one of: OnTrack, AtRisk, Completed");
+                    }
+                }
+                _logger.LogInformation("Milestone status enum validation passed");
+            }
+
+            // Validate dates
+            if (data.Tasks != null)
+            {
+                foreach (var task in data.Tasks)
+                {
+                    if (task.DueDate == default(DateTime))
+                    {
+                        throw new ValidationException($"Task {task.Id} has invalid DueDate: cannot be default/empty");
+                    }
+
+                    if (task.DueDate.Kind != DateTimeKind.Utc && task.DueDate.Kind != DateTimeKind.Unspecified)
+                    {
+                        _logger.LogWarning("Task {TaskId} DueDate may not be in UTC format", task.Id);
+                    }
+                }
+                _logger.LogInformation("Task date validation passed");
+            }
+
+            if (data.Milestones != null)
+            {
+                foreach (var milestone in data.Milestones)
+                {
+                    if (milestone.TargetDate == default(DateTime))
+                    {
+                        throw new ValidationException($"Milestone {milestone.Id} has invalid TargetDate: cannot be default/empty");
+                    }
+
+                    if (milestone.TargetDate.Kind != DateTimeKind.Utc && milestone.TargetDate.Kind != DateTimeKind.Unspecified)
+                    {
+                        _logger.LogWarning("Milestone {MilestoneId} TargetDate may not be in UTC format", milestone.Id);
+                    }
+                }
+                _logger.LogInformation("Milestone date validation passed");
+            }
+
+            _logger.LogInformation("ProjectStatus validation completed successfully");
+        }
+        catch (ValidationException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            var message = $"Unexpected error during validation: {ex.Message}";
+            _logger.LogError(ex, "Validation error: {Message}", message);
+            throw new ValidationException(message, ex);
+        }
+    }
 }
