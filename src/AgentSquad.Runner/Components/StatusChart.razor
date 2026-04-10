@@ -1,25 +1,31 @@
 @using AgentSquad.Runner.Models
 @using Microsoft.AspNetCore.Components
 
-<div class="status-chart-container">
-    <div class="status-chart">
+<div class="status-chart-wrapper">
+    <div class="status-chart-container">
         <canvas @ref="chartCanvas" id="statusChartCanvas"></canvas>
     </div>
 </div>
 
 <style>
-    .status-chart-container {
+    .status-chart-wrapper {
         width: 100%;
-        padding: 20px 0;
+        padding: 0;
     }
 
-    .status-chart {
+    .status-chart-container {
         position: relative;
         height: 400px;
         background: white;
         border-radius: 4px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        border: 1px solid #e0e0e0;
         padding: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .status-chart-container {
+            height: 300px;
+        }
     }
 </style>
 

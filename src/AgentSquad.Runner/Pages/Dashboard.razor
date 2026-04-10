@@ -1,114 +1,179 @@
 @page "/"
 @page "/dashboard"
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Components
+@using MudBlazor
+@inject DashboardDataService DataService
 
-@inherits LayoutComponentBase
-@implements IAsyncDisposable
+<MudThemeProvider Theme="dashboardTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-<MudContainer MaxWidth="MaxWidth.Lg" Class="py-6">
-    <style>
-        .dashboard-wrapper {
-            max-width: 1200px !important;
-            margin: 0 auto;
-        }
-        .dashboard-section {
-            margin-bottom: 2rem;
-        }
-        .dashboard-grid {
-            display: grid;
-            gap: 2rem;
-        }
-    </style>
-
-    <div class="dashboard-wrapper dashboard-grid">
-        <!-- Error Boundary Section -->
+<div class="dashboard-wrapper">
+    <MudContainer MaxWidth="MaxWidth.Xl" Class="dashboard-container">
         @if (!DataService.HasData && !string.IsNullOrEmpty(DataService.GetLastError()))
         {
-            <MudAlert Severity="Severity.Error" Class="dashboard-section">
-                <MudStack Spacing="2">
-                    <MudText Typo="Typo.h6" GutterBottom="false">
-                        <strong>⚠️ Error Loading Dashboard</strong>
-                    </MudText>
-                    <MudText Typo="Typo.body2" Class="mt-2">
-                        @DataService.GetLastError()
-                    </MudText>
-                    <MudText Typo="Typo.caption" Class="mt-2">
-                        Please check your data.json file format and try again.
-                    </MudText>
-                </MudStack>
+            <MudAlert Severity="Severity.Error" Class="mt-4 mb-4">
+                <MudText Typo="Typo.h6">Error Loading Dashboard</MudText>
+                <MudText Typo="Typo.body2">@DataService.GetLastError()</MudText>
+                <MudText Typo="Typo.caption" Style="color: #999; margin-top: 8px;">
+                    Check data.json format and try again.
+                </MudText>
             </MudAlert>
         }
-
-        <!-- Loading State -->
-        @if (!DataService.HasData && string.IsNullOrEmpty(DataService.GetLastError()))
-        {
-            <MudAlert Severity="Severity.Info" Class="dashboard-section">
-                <MudStack Spacing="2">
-                    <MudText Typo="Typo.h6" GutterBottom="false">
-                        <strong>📊 Loading Dashboard</strong>
-                    </MudText>
-                    <MudText Typo="Typo.body2" Class="mt-2">
-                        Reading data.json and initializing dashboard...
-                    </MudText>
-                </MudStack>
-            </MudAlert>
-        }
-
-        <!-- Main Dashboard Content -->
-        @if (DataService.HasData)
+        else if (DataService.HasData)
         {
             <!-- Project Summary Section -->
-            @if (DataService.GetProject() != null)
-            {
-                var project = DataService.GetProject();
-                <section class="dashboard-section">
-                    <MudPaper Class="pa-6" Elevation="2">
-                        <MudText Typo="Typo.h3" GutterBottom="true" Class="mb-3">
-                            @project.Name
+            <MudCard Class="dashboard-card mt-6 mb-6">
+                <MudCardContent>
+                    @{
+                        var project = DataService.GetProject();
+                    }
+                    <MudText Typo="Typo.h5" Class="mb-2" Style="font-weight: 600;">
+                        @(project?.Name ?? "Project Dashboard")
+                    </MudText>
+                    @if (!string.IsNullOrEmpty(project?.Description))
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Tertiary">
+                            @project.Description
                         </MudText>
-                        @if (!string.IsNullOrEmpty(project.Description))
-                        {
-                            <MudText Typo="Typo.body1" Color="Color.TextSecondary">
-                                @project.Description
-                            </MudText>
-                        }
-                    </MudPaper>
-                </section>
-            }
+                    }
+                </MudCardContent>
+            </MudCard>
 
             <!-- Milestone Timeline Section -->
-            <section class="dashboard-section">
-                <MudPaper Class="pa-6" Elevation="2">
-                    <MudText Typo="Typo.h5" GutterBottom="true" Class="mb-4">
-                        📅 Key Milestones
-                    </MudText>
-                    <MilestoneTimeline Milestones="DataService.GetMilestones()" />
-                </MudPaper>
-            </section>
+            <div class="dashboard-section mb-6">
+                <MudText Typo="Typo.h6" Class="section-title mb-4">Milestones</MudText>
+                <MilestoneTimeline Milestones="DataService.GetMilestones()" />
+            </div>
 
             <!-- Status Chart Section -->
-            <section class="dashboard-section">
-                <MudPaper Class="pa-6" Elevation="2">
-                    <MudText Typo="Typo.h5" GutterBottom="true" Class="mb-4">
-                        📈 Work Item Status
-                    </MudText>
-                    <StatusChart StatusCounts="DataService.GetStatusCounts()" />
-                </MudPaper>
-            </section>
+            <div class="dashboard-section mb-6">
+                <MudText Typo="Typo.h6" Class="section-title mb-4">Work Item Status</MudText>
+                <StatusChart StatusCounts="DataService.GetStatusCounts()" />
+            </div>
 
-            <!-- Work Items List Section -->
-            <section class="dashboard-section">
-                <MudPaper Class="pa-6" Elevation="2">
-                    <MudText Typo="Typo.h5" GutterBottom="true" Class="mb-4">
-                        ✓ Work Items
-                    </MudText>
-                    <WorkItemList 
-                        Shipped="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"
-                        InProgress="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"
-                        CarriedOver="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)" />
-                </MudPaper>
-            </section>
+            <!-- Work Items Section -->
+            <div class="dashboard-section mb-6">
+                <MudText Typo="Typo.h6" Class="section-title mb-4">Work Items</MudText>
+                <WorkItemList 
+                    Shipped="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"
+                    InProgress="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"
+                    CarriedOver="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)" />
+            </div>
         }
-    </div>
-</MudContainer>
+        else
+        {
+            <MudAlert Severity="Severity.Info" Class="mt-4">
+                Loading dashboard data...
+            </MudAlert>
+        }
+    </MudContainer>
+</div>
 
-@inject DashboardDataService DataService
+<style>
+    .dashboard-wrapper {
+        background-color: #f5f5f5;
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .dashboard-container {
+        max-width: 1200px !important;
+        margin: 0 auto;
+    }
+
+    .dashboard-card {
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .dashboard-card :deep(.mud-card-content) {
+        padding: 24px;
+    }
+
+    .dashboard-section {
+        background: white;
+        border-radius: 4px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .section-title {
+        color: #333;
+        font-weight: 600;
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+    }
+</style>
+
+@code {
+    private MudTheme dashboardTheme = new MudTheme()
+    {
+        Palette = new Palette()
+        {
+            Primary = "#2196F3",
+            Secondary = "#FF9800",
+            Background = "#ffffff",
+            Surface = "#fafafa",
+            Error = "#f44336",
+            Success = "#4CAF50",
+            Warning = "#ff9800",
+            Info = "#2196F3",
+            Dark = "#333333",
+            TextPrimary = "#333333",
+            TextSecondary = "#666666",
+        },
+        Typography = new Typography()
+        {
+            Default = new DefaultTypography()
+            {
+                FontFamily = new[] { "'Segoe UI'", "'Helvetica Neue'", "sans-serif" },
+                FontSize = "14px",
+            },
+            H5 = new H5Typography()
+            {
+                FontFamily = new[] { "'Segoe UI'", "'Helvetica Neue'", "sans-serif" },
+                FontSize = "20px",
+                FontWeight = 600,
+            },
+            H6 = new H6Typography()
+            {
+                FontFamily = new[] { "'Segoe UI'", "'Helvetica Neue'", "sans-serif" },
+                FontSize = "16px",
+                FontWeight = 600,
+            },
+            Body1 = new Body1Typography()
+            {
+                FontFamily = new[] { "'Segoe UI'", "'Helvetica Neue'", "sans-serif" },
+                FontSize = "14px",
+            },
+            Body2 = new Body2Typography()
+            {
+                FontFamily = new[] { "'Segoe UI'", "'Helvetica Neue'", "sans-serif" },
+                FontSize = "13px",
+            },
+            Caption = new CaptionTypography()
+            {
+                FontFamily = new[] { "'Segoe UI'", "'Helvetica Neue'", "sans-serif" },
+                FontSize = "12px",
+            },
+        }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        DataService.OnDataChanged += OnDataChanged;
+        await Task.CompletedTask;
+    }
+
+    private void OnDataChanged()
+    {
+        StateHasChanged();
+    }
+
+    void IDisposable.Dispose()
+    {
+        DataService.OnDataChanged -= OnDataChanged;
+    }
+}

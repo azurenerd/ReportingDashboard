@@ -1,7 +1,7 @@
 @using AgentSquad.Runner.Models
 @using MudBlazor
 
-<div class="work-item-list-container">
+<div class="work-item-list-wrapper">
     <div class="work-item-grid">
         <!-- Shipped Section -->
         <MudCard class="work-item-card">
@@ -108,33 +108,33 @@
 </div>
 
 <style>
-    .work-item-list-container {
+    .work-item-list-wrapper {
         width: 100%;
-        padding: 20px 0;
+        padding: 0;
     }
 
     .work-item-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
+        gap: 16px;
         width: 100%;
     }
 
     .work-item-card {
         background: white;
         border-radius: 4px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        border: 1px solid #e0e0e0;
         display: flex;
         flex-direction: column;
         height: 100%;
     }
 
-    .work-item-card :deep(.mud-card-header {
+    .work-item-card :deep(.mud-card-header) {
         padding: 16px;
         border-radius: 4px 4px 0 0;
     }
 
-    .work-item-card :deep(.mud-card-content {
+    .work-item-card :deep(.mud-card-content) {
         padding: 16px;
         flex-grow: 1;
     }
@@ -159,7 +159,7 @@
 
     .work-item {
         padding: 12px 0;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid #f0f0f0;
     }
 
     .work-item:last-child {
@@ -195,6 +195,13 @@
     @media (max-width: 1400px) {
         .work-item-grid {
             grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .work-item-grid {
+            grid-template-columns: 1fr;
             gap: 16px;
         }
     }
@@ -212,7 +219,6 @@
 
     protected override void OnParametersSet()
     {
-        // Ensure parameters are always set to safe defaults
         if (Shipped == null)
             Shipped = new List<WorkItem>().AsReadOnly();
         if (InProgress == null)

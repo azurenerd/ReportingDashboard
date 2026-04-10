@@ -4,24 +4,24 @@
 <div class="milestone-timeline-container">
     @if (SortedMilestones == null || SortedMilestones.Count == 0)
     {
-        <div class="milestone-empty-state">
-            <p>No milestones scheduled</p>
-        </div>
+        <p class="no-data-message">No milestones scheduled</p>
     }
     else
     {
-        <div class="milestone-timeline">
+        <div class="milestone-grid">
             @foreach (var milestone in SortedMilestones)
             {
+                var statusColor = GetStatusColor(milestone.Status);
                 <div class="milestone-item">
-                    <div class="milestone-badge">
-                        <svg class="milestone-status-circle" viewBox="0 0 24 24" width="24" height="24">
-                            <circle cx="12" cy="12" r="10" fill="@GetStatusColor(milestone.Status)" stroke="#fff" stroke-width="2" />
+                    <div class="milestone-badge" style="background-color: @statusColor;">
+                        <svg class="status-circle" viewBox="0 0 24 24" width="20" height="20">
+                            <circle cx="12" cy="12" r="10" fill="@statusColor" />
                         </svg>
                     </div>
                     <div class="milestone-content">
                         <div class="milestone-name">@milestone.Name</div>
                         <div class="milestone-date">@milestone.Date.ToString("MM/dd/yyyy")</div>
+                        <div class="milestone-status">@milestone.Status</div>
                     </div>
                 </div>
             }
@@ -32,82 +32,83 @@
 <style>
     .milestone-timeline-container {
         width: 100%;
-        padding: 24px 0;
-        background-color: #f9f9f9;
-        border-radius: 4px;
-        border: 1px solid #e0e0e0;
+        padding: 0;
     }
 
-    .milestone-empty-state {
-        padding: 32px 24px;
-        text-align: center;
+    .no-data-message {
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        font-size: 13px;
         color: #999;
-        font-size: 14px;
-        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        text-align: center;
+        padding: 20px 0;
+        margin: 0;
     }
 
-    .milestone-timeline {
+    .milestone-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 16px;
-        padding: 24px;
-        max-width: 1200px;
+        width: 100%;
     }
 
     .milestone-item {
         display: flex;
-        align-items: flex-start;
         gap: 12px;
         padding: 12px;
-        background-color: #fff;
+        background: white;
         border-radius: 4px;
-        border: 1px solid #e8e8e8;
+        border: 1px solid #e0e0e0;
         transition: box-shadow 0.2s ease;
     }
 
     .milestone-item:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
 
     .milestone-badge {
         flex-shrink: 0;
-        width: 28px;
-        height: 28px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-top: 2px;
     }
 
-    .milestone-status-circle {
-        width: 24px;
-        height: 24px;
+    .status-circle {
+        width: 20px;
+        height: 20px;
     }
 
     .milestone-content {
-        flex: 1;
-        min-width: 0;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .milestone-name {
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
         font-size: 14px;
         font-weight: 600;
-        color: #212121;
-        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #333;
         margin-bottom: 4px;
-        word-break: break-word;
+        word-wrap: break-word;
     }
 
     .milestone-date {
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
         font-size: 12px;
-        color: #757575;
-        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #999;
+        margin-bottom: 2px;
     }
 
-    @media (max-width: 1920px) {
-        .milestone-timeline {
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        }
+    .milestone-status {
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        font-size: 11px;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 </style>
 
@@ -119,7 +120,7 @@
 
     protected override void OnParametersSet()
     {
-        if (Milestones != null && Milestones.Count > 0)
+        if (Milestones != null)
         {
             SortedMilestones = Milestones
                 .OrderBy(m => m.Date)
@@ -136,10 +137,10 @@
     {
         return status switch
         {
-            "Completed" => "#4CAF50",  // Green
-            "On Track" => "#FFC107",   // Yellow/Amber
-            "At Risk" => "#F44336",    // Red
-            _ => "#9E9E9E"             // Gray (fallback)
+            "Completed" => "#4CAF50",
+            "On Track" => "#FFC107",
+            "At Risk" => "#f44336",
+            _ => "#999999"
         };
     }
 }

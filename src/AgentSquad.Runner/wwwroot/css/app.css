@@ -1,90 +1,149 @@
+:root {
+    --primary-color: #2196F3;
+    --secondary-color: #FF9800;
+    --success-color: #4CAF50;
+    --error-color: #f44336;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-tertiary: #999999;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --bg-tertiary: #fafafa;
+    --border-color: #e0e0e0;
+    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.12);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 html, body {
-    font-family: 'Roboto', 'Segoe UI', sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
-    line-height: 1.6;
+    height: 100%;
+    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+    font-size: 14px;
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+    line-height: 1.5;
 }
 
 body {
-    margin: 0;
-    padding: 0;
+    overflow-x: hidden;
 }
 
-.dashboard-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
+main {
+    flex: 1;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    color: #1976d2;
+.mud-container {
+    max-width: 1200px !important;
 }
 
-a {
-    color: #1976d2;
-    text-decoration: none;
+.mud-card {
+    border-radius: 4px;
+    box-shadow: var(--shadow-1);
+    background-color: var(--bg-primary);
 }
 
-a:hover {
-    text-decoration: underline;
+.mud-card-header {
+    padding: 16px;
+    border-radius: 4px 4px 0 0;
 }
 
-#blazor-error-ui {
-    background: lightyellow;
-    bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    display: none;
-    left: 0;
-    padding: 10px 20px;
-    position: fixed;
-    right: 0;
-    z-index: 1000;
+.mud-card-content {
+    padding: 16px;
 }
 
-#blazor-error-ui .dismiss {
-    cursor: pointer;
-    position: absolute;
-    right: 3.5rem;
-    top: 0.5rem;
+.mud-button-root {
+    text-transform: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 16px;
+    border-radius: 4px;
 }
 
-.loading-progress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
+.mud-button-root.mud-button-filled-primary {
+    background-color: var(--primary-color);
 }
 
-.loading-progress circle {
-    fill: none;
-    stroke: #1976d2;
-    stroke-width: 4;
-    stroke-dasharray: 251.2;
-    stroke-dashoffset: 251.2;
-    animation: progress 2s infinite linear;
-    transform-origin: 50% 50%;
+.mud-button-root.mud-button-text {
+    color: var(--primary-color);
 }
 
-.loading-progress-text {
-    display: none;
+.mud-alert {
+    border-radius: 4px;
+    padding: 16px;
 }
 
-@keyframes progress {
-    0% {
-        stroke-dashoffset: 251.2;
-        transform: rotate(0deg);
+.mud-alert-icon {
+    margin-right: 12px;
+}
+
+.mud-typography {
+    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+}
+
+.mud-typography.mud-typography-h5 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.mud-typography.mud-typography-h6 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.mud-typography.mud-typography-body1 {
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.mud-typography.mud-typography-body2 {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.mud-typography.mud-typography-caption {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cccccc;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #999999;
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background-color: white;
     }
-    100% {
-        stroke-dashoffset: 0;
-        transform: rotate(360deg);
+    
+    .dashboard-wrapper {
+        background-color: white;
+        padding: 0;
     }
-}
-
-@media (max-width: 1200px) {
-    .dashboard-container {
-        padding: 15px;
+    
+    .dashboard-section, .dashboard-card {
+        box-shadow: none;
+        border: 1px solid var(--border-color);
     }
 }
