@@ -31,8 +31,43 @@ public class DataService
     /// <exception cref="DataLoadException">Thrown for unexpected errors during data loading.</exception>
     public async Task<ProjectStatus> ReadProjectDataAsync()
     {
-        // Implementation in subsequent steps
-        throw new NotImplementedException();
+        try
+        {
+            _logger.LogInformation("Starting ReadProjectDataAsync from {Path}", DATA_FILE_PATH);
+
+            var json = await LoadJsonFileAsync(DATA_FILE_PATH);
+            var projectStatus = await DeserializeProjectStatusAsync(json);
+            ValidateProjectStatus(projectStatus);
+
+            _logger.LogInformation("Successfully read and validated project data");
+            return projectStatus;
+        }
+        catch (FileReadException)
+        {
+            _logger.LogError("File read error occurred");
+            throw;
+        }
+        catch (JsonParseException)
+        {
+            _logger.LogError("JSON parse error occurred");
+            throw;
+        }
+        catch (ValidationException)
+        {
+            _logger.LogError("Validation error occurred");
+            throw;
+        }
+        catch (DataLoadException)
+        {
+            _logger.LogError("Data load error occurred");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            var message = "Unexpected error loading project data";
+            _logger.LogError(ex, "Unexpected error during project data loading: {Message}", message);
+            throw new DataLoadException(message, ex);
+        }
     }
 
     /// <summary>
