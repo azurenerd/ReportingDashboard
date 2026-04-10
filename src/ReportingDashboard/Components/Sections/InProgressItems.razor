@@ -1,16 +1,45 @@
-<section class="in-progress-items">
-    <!-- Full implementation in T6 -->
-    @if (Items.Count > 0)
-    {
-        <h2>In Progress <span class="item-count">@Items.Count</span></h2>
-        @foreach (var item in Items)
+@using ReportingDashboard.Models
+
+@if (SafeItems.Count > 0)
+{
+    <section class="dashboard-section in-progress-section">
+        <div class="section-header">
+            <h2>In Progress</h2>
+            <span class="item-count">@SafeItems.Count</span>
+        </div>
+
+        @foreach (var item in SafeItems)
         {
-            <div class="work-item-stub">@item.Title — @(item.PercentComplete ?? 0)%</div>
+            <div class="work-item-card in-progress">
+                <div class="card-header">
+                    <h3>@item.Title</h3>
+                    @if (!string.IsNullOrWhiteSpace(item.Category))
+                    {
+                        <span class="category-tag">@item.Category</span>
+                    }
+                </div>
+                @if (!string.IsNullOrWhiteSpace(item.Description))
+                {
+                    <div class="card-body">
+                        <p>@item.Description</p>
+                    </div>
+                }
+                <div class="card-footer">
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: @(GetPercent(item))%"></div>
+                    </div>
+                    <span class="progress-label">@(GetPercent(item))%</span>
+                </div>
+            </div>
         }
-    }
-</section>
+    </section>
+}
 
 @code {
     [Parameter]
-    public List<WorkItem> Items { get; set; } = [];
+    public List<WorkItem>? Items { get; set; }
+
+    private List<WorkItem> SafeItems => Items ?? [];
+
+    private int GetPercent(WorkItem item) => Math.Clamp(item.PercentComplete ?? 0, 0, 100);
 }
