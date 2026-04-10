@@ -150,6 +150,31 @@ public class DashboardDataService : IDashboardDataService
         }
     }
 
+    private void QueueDebouncedReload()
+    {
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
+        _debounceCts = new CancellationTokenSource();
+        var token = _debounceCts.Token;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(500, token);
+                await ReloadAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                // Debounce was reset by a newer event - expected behavior
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during debounced reload.");
+            }
+        }, token);
+    }
+
     private async Task<byte[]?> ReadFileBytesWithRetryAsync(int maxRetries = 3, int delayMs = 200)
     {
         for (int attempt = 1; attempt <= maxRetries; attempt++)
