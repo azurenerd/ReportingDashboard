@@ -241,10 +241,14 @@ html, body {
     display: none;
 }
 
-/* Print-mode overrides */
-.dashboard.print-mode #blazor-error-ui,
-.dashboard.print-mode .blazor-reconnect-modal {
-    display: none !important;
+/*
+ * Trend label: hidden by default in normal mode.
+ * Color arrows/icons are sufficient when color is available.
+ * Shown in print-mode and @media print for B&W fallback.
+ * Depends on T9 adding <span class="trend-label">(up)</span> to MetricBadge.
+ */
+.trend-label {
+    display: none;
 }
 
 /* ============================================
@@ -372,4 +376,84 @@ html, body {
     .progress-fill {
         background-color: #333 !important;
     }
+}
+
+/* ============================================
+   Print Mode — Screenshot Capture via ?print=true
+   Applied when Dashboard.razor detects the query
+   parameter and adds class="dashboard print-mode"
+   ============================================ */
+
+/* Hide all Blazor framework chrome in screenshot mode */
+.dashboard.print-mode #blazor-error-ui,
+.dashboard.print-mode .blazor-error-ui,
+.dashboard.print-mode .blazor-reconnect-modal,
+.dashboard.print-mode [data-blazor-reconnect] {
+    display: none !important;
+}
+
+/* Hide the error banner in print mode (PM will fix data before capturing) */
+.dashboard.print-mode .error-banner {
+    display: none !important;
+}
+
+/* Remove all box-shadows for flat screenshot appearance */
+.dashboard.print-mode *,
+.dashboard.print-mode *::before,
+.dashboard.print-mode *::after {
+    box-shadow: none !important;
+}
+
+/* Cards: subtle borders replace shadows */
+.dashboard.print-mode .card {
+    border: 1px solid var(--border-color);
+}
+
+/* Work item sections: subtle borders replace shadows */
+.dashboard.print-mode .work-item-section {
+    border: 1px solid var(--border-color);
+}
+
+/* Metric badges: subtle borders replace shadows */
+.dashboard.print-mode .metric-badge {
+    border: 1px solid var(--border-color);
+}
+
+/* Milestone timeline: subtle border replaces shadow */
+.dashboard.print-mode .milestone-timeline {
+    border: 1px solid var(--border-color);
+}
+
+/*
+ * B&W fallback: show text labels on trend indicators.
+ * In print-mode, .trend-label is shown as a parenthetical.
+ * Depends on T9 adding <span class="trend-label">(up)</span> to MetricBadge.
+ */
+.dashboard.print-mode .trend-label {
+    display: inline;
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+    margin-left: 4px;
+}
+
+/* Status badges: add border for monochrome screenshot fidelity */
+.dashboard.print-mode .status-badge {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+/*
+ * Section header text indicators for B&W identification.
+ * Unicode prefixes convey section meaning without relying on color.
+ * Depends on T6/T7/T8 applying status classes to .section-header elements.
+ */
+.dashboard.print-mode .section-header.shipped::before {
+    content: "\2713 ";
+}
+
+.dashboard.print-mode .section-header.in-progress::before {
+    content: "\25B6 ";
+}
+
+.dashboard.print-mode .section-header.carried-over::before {
+    content: "\26A0 ";
 }
