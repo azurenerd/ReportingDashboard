@@ -23,7 +23,9 @@
                 </div>
             </div>
             <div class="header-right">
-                @* Status badge - Step 3 *@
+                <span class="status-badge @GetStatusClass(Project.Status)">
+                    @GetStatusText(Project.Status)
+                </span>
             </div>
         </div>
     </header>
@@ -32,4 +34,15 @@
 @code {
     [Parameter]
     public ProjectInfo? Project { get; set; }
+
+    private static string GetStatusClass(string? status) => status switch
+    {
+        "On Track" => "status-on-track",
+        "At Risk" => "status-at-risk",
+        "Off Track" => "status-off-track",
+        _ => "status-unknown"
+    };
+
+    private static string GetStatusText(string? status) =>
+        string.IsNullOrWhiteSpace(status) ? "Unknown" : status;
 }

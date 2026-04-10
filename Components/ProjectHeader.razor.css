@@ -71,3 +71,35 @@
 .report-date {
     font-weight: 400;
 }
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: var(--font-size-body, 13px);
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.status-on-track {
+    background-color: var(--status-shipped, #28a745);
+    color: #ffffff;
+}
+
+.status-at-risk {
+    background-color: var(--status-at-risk, #ffc107);
+    color: #212529;
+}
+
+.status-off-track {
+    background-color: var(--status-off-track, #dc3545);
+    color: #ffffff;
+}
+
+.status-unknown {
+    background-color: #6c757d;
+    color: #ffffff;
+}
