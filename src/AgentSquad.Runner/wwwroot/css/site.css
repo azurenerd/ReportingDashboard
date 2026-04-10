@@ -4,64 +4,21 @@ html, body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
-a, .btn-link {
-    color: #0066cc;
+html {
+    position: relative;
+    min-height: 100%;
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #0066cc;
-    border-color: #0066cc;
+body {
+    margin-bottom: 60px;
 }
 
-    .btn-primary:hover {
-        color: #fff;
-        background-color: #0052a3;
-        border-color: #004085;
-    }
-
-.content {
-    padding-top: 1.1rem;
-}
-
-.valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26c485;
-}
-
-.invalid {
-    outline: 1px solid red;
-}
-
-.validation-message {
-    color: red;
-}
-
-#blazor-error-ui {
-    background: lightyellow;
-    bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    display: none;
-    left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.0rem;
-    position: fixed;
-    right: 0;
-    z-index: 1000;
-}
-
-    #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
-    }
-
-/* Metrics Footer Styles */
 .metric-box {
     text-align: center;
     padding: 1.5rem;
     background-color: #f8f9fa;
     border-radius: 0.375rem;
-    border: 1px solid #dee2e6;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
 .metric-value {
@@ -81,20 +38,28 @@ a, .btn-link {
     margin: 0;
 }
 
-.metric-value.text-success {
-    color: #28a745;
+.text-success {
+    color: #28a745 !important;
 }
 
-.metric-value.text-warning {
-    color: #ffc107;
+.text-warning {
+    color: #ffc107 !important;
 }
 
-.metric-value.text-danger {
-    color: #dc3545;
+.text-danger {
+    color: #dc3545 !important;
 }
 
-.metrics-footer {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid #dee2e6;
+@media (max-width: 767.98px) {
+    .metric-box {
+        padding: 1rem;
+    }
+
+    .metric-value {
+        font-size: 2rem;
+    }
+
+    .metric-label {
+        font-size: 0.7rem;
+    }
 }
