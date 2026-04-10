@@ -1,16 +1,22 @@
-<section class="in-progress-items">
-    <!-- Full implementation in T6 -->
-    @if (Items.Count > 0)
-    {
-        <h2>In Progress <span class="item-count">@Items.Count</span></h2>
-        @foreach (var item in Items)
-        {
-            <div class="work-item-stub">@item.Title — @(item.PercentComplete ?? 0)%</div>
-        }
-    }
-</section>
+@using ReportingDashboard.Models
+
+@if (SafeItems.Count > 0)
+{
+    <section class="dashboard-section in-progress-section">
+        <div class="section-header">
+            <h2>In Progress</h2>
+            <span class="item-count">@SafeItems.Count</span>
+        </div>
+
+        @* Card rendering added in Step 2; progress bars in Step 3 *@
+    </section>
+}
 
 @code {
     [Parameter]
-    public List<WorkItem> Items { get; set; } = [];
+    public List<WorkItem>? Items { get; set; }
+
+    private List<WorkItem> SafeItems => Items ?? [];
+
+    private int GetPercent(WorkItem item) => Math.Clamp(item.PercentComplete ?? 0, 0, 100);
 }
