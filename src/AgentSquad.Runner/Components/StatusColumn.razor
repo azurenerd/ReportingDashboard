@@ -1,33 +1,30 @@
 @using AgentSquad.Runner.Models
 
 <div class="status-column">
-    <div class="status-column-header">
-        <h5 class="status-column-title">@Title</h5>
-        <span class="badge bg-@BadgeClass">@(Items?.Count ?? 0)</span>
-    </div>
-
-    <div class="status-column-items">
-        @if (SortedItems.Any())
+    <h5 class="mb-3">@Title <span class="badge @BadgeClass">@(Items?.Count ?? 0)</span></h5>
+    @if (Items != null && Items.Count > 0)
+    {
+        @foreach (var item in Items.OrderByDescending(i => i.CompletedDate).Take(20))
         {
-            @foreach (var item in SortedItems)
-            {
-                <div class="card work-item-card">
-                    <h6 class="work-item-title">@item.Title</h6>
-                    @if (!string.IsNullOrEmpty(item.Description))
+            <div class="card mb-2">
+                <div class="card-body p-3">
+                    <h6 class="card-title mb-1">@item.Title</h6>
+                    @if (!string.IsNullOrWhiteSpace(item.Description))
                     {
-                        <p class="work-item-description">@item.Description</p>
+                        <p class="card-text small text-muted mb-2">@item.Description</p>
                     }
-                    <small class="work-item-date">@item.CompletedDate.ToString("MMM dd, yyyy")</small>
+                    @if (item.CompletedDate.HasValue)
+                    {
+                        <small class="text-muted">@item.CompletedDate.Value.ToString("MMM dd, yyyy")</small>
+                    }
                 </div>
-            }
-        }
-        else
-        {
-            <div class="empty-state">
-                <p class="empty-state-message">No items</p>
             </div>
         }
-    </div>
+    }
+    else
+    {
+        <p class="text-muted small">No items</p>
+    }
 </div>
 
 @code {
@@ -38,8 +35,5 @@
     public List<WorkItem>? Items { get; set; }
 
     [Parameter]
-    public string BadgeClass { get; set; } = "secondary";
-
-    private IEnumerable<WorkItem> SortedItems =>
-        Items?.OrderByDescending(i => i.CompletedDate).ToList() ?? new List<WorkItem>();
+    public string BadgeClass { get; set; } = "bg-secondary";
 }

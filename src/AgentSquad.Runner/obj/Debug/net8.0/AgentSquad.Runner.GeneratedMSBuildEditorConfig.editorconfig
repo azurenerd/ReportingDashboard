@@ -1,0 +1,53 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = AgentSquad.Runner
+build_property.RootNamespace = AgentSquad.Runner
+build_property.ProjectDir = C:\Agents\principalengineer-2755981ac5ac4111af75891420f58b14\ReportingDashboard\src\AgentSquad.Runner\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Agents\principalengineer-2755981ac5ac4111af75891420f58b14\ReportingDashboard\src\AgentSquad.Runner
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Agents/principalengineer-2755981ac5ac4111af75891420f58b14/ReportingDashboard/src/AgentSquad.Runner/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Agents/principalengineer-2755981ac5ac4111af75891420f58b14/ReportingDashboard/src/AgentSquad.Runner/Components/MetricsFooter.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xNZXRyaWNzRm9vdGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Agents/principalengineer-2755981ac5ac4111af75891420f58b14/ReportingDashboard/src/AgentSquad.Runner/Components/StatusColumn.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTdGF0dXNDb2x1bW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Agents/principalengineer-2755981ac5ac4111af75891420f58b14/ReportingDashboard/src/AgentSquad.Runner/Components/StatusGrid.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTdGF0dXNHcmlkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Agents/principalengineer-2755981ac5ac4111af75891420f58b14/ReportingDashboard/src/AgentSquad.Runner/Components/TimelinePanel.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUaW1lbGluZVBhbmVsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Agents/principalengineer-2755981ac5ac4111af75891420f58b14/ReportingDashboard/src/AgentSquad.Runner/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = TWFpbkxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Agents/principalengineer-2755981ac5ac4111af75891420f58b14/ReportingDashboard/src/AgentSquad.Runner/Routes.razor]
+build_metadata.AdditionalFiles.TargetPath = Um91dGVzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Agents/principalengineer-2755981ac5ac4111af75891420f58b14/ReportingDashboard/src/AgentSquad.Runner/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 

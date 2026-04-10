@@ -1,60 +1,42 @@
-@namespace AgentSquad.Runner.Components
+@using AgentSquad.Runner.Models
 
-<section class="timeline-container" aria-label="Project milestone timeline">
-    <h2 class="visually-hidden">Milestones</h2>
-    
-    @if (Dashboard?.Milestones?.Any() == true)
-    {
-        @foreach (var milestone in SortedMilestones)
+<div class="timeline-section mb-5">
+    <h2 class="mb-4">Milestone Timeline</h2>
+    <div class="timeline-container d-flex gap-2 overflow-auto pb-3">
+        @if (Dashboard?.Milestones != null && Dashboard.Milestones.Count > 0)
         {
-            <div class="timeline-item">
-                <div class="timeline-marker" 
-                     style="background-color: var(--bs-@GetStatusColor(milestone.Status));"
-                     role="presentation"
-                     aria-hidden="true">
+            @foreach (var milestone in Dashboard.Milestones.OrderBy(m => m.TargetDate))
+            {
+                <div class="timeline-item flex-shrink-0">
+                    <div class="timeline-marker @GetStatusClass(milestone.Status)"></div>
+                    <h6>@milestone.Name</h6>
+                    <small class="text-muted d-block">@milestone.TargetDate.ToString("MMM dd")</small>
+                    <span class="badge @GetBadgeClass(milestone.Status)">@milestone.Status</span>
                 </div>
-                <div class="timeline-content">
-                    <h6 class="milestone-name">@milestone.Name</h6>
-                    <p class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</p>
-                    <span class="badge bg-@GetStatusColor(milestone.Status) text-white"
-                          role="status"
-                          aria-label="@milestone.Name status: @GetStatusDisplayText(milestone.Status)">
-                        @GetStatusDisplayText(milestone.Status)
-                    </span>
-                </div>
-            </div>
+            }
         }
-    }
-    else
-    {
-        <div class="alert alert-info" role="status">
-            No milestones to display
-        </div>
-    }
-</section>
+    </div>
+</div>
 
 @code {
     [CascadingParameter]
     public ProjectDashboard? Dashboard { get; set; }
 
-    private IEnumerable<Milestone> SortedMilestones =>
-        Dashboard?.Milestones?.OrderBy(m => m.TargetDate) ?? new List<Milestone>();
-
-    private string GetStatusColor(string? status) => status?.ToLower() switch
+    private string GetStatusClass(string status) => status switch
     {
-        "completed" => "success",
-        "ontrack" => "primary",
-        "atrisk" => "warning",
-        "delayed" => "danger",
-        _ => "secondary"
+        "Completed" => "status-completed",
+        "OnTrack" => "status-ontrack",
+        "AtRisk" => "status-atrisk",
+        "Delayed" => "status-delayed",
+        _ => "status-unknown"
     };
 
-    private string GetStatusDisplayText(string? status) => status?.ToLower() switch
+    private string GetBadgeClass(string status) => status switch
     {
-        "completed" => "Completed",
-        "ontrack" => "On Track",
-        "atrisk" => "At Risk",
-        "delayed" => "Delayed",
-        _ => "Unknown"
+        "Completed" => "bg-success",
+        "OnTrack" => "bg-primary",
+        "AtRisk" => "bg-warning",
+        "Delayed" => "bg-danger",
+        _ => "bg-secondary"
     };
 }
