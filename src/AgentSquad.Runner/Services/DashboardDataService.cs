@@ -118,30 +118,32 @@ public class DashboardDataService : IDashboardDataService, IDisposable
         catch (FileNotFoundException ex)
         {
             _lastError = $"FileNotFound: {ex.Message}";
-            _logger.LogError(_lastError);
+            _logger.LogError("Failed to load data.json: {error}", _lastError);
             HasData = false;
-            _cachedData = new DashboardData();
         }
         catch (JsonException ex)
         {
             _lastError = $"JSON syntax error in data.json: {ex.Message}";
-            _logger.LogError(_lastError);
+            _logger.LogError("Failed to parse data.json: {error}", _lastError);
             HasData = false;
-            _cachedData = new DashboardData();
         }
         catch (ArgumentException ex)
         {
             _lastError = $"Validation error: {ex.Message}";
-            _logger.LogError(_lastError);
+            _logger.LogError("Validation failed for data.json: {error}", _lastError);
             HasData = false;
-            _cachedData = new DashboardData();
+        }
+        catch (IOException ex)
+        {
+            _lastError = $"IO error reading data.json: {ex.Message}";
+            _logger.LogError("IO error reading data.json: {error}", _lastError);
+            HasData = false;
         }
         catch (Exception ex)
         {
             _lastError = $"Unexpected error loading data.json: {ex.Message}";
-            _logger.LogError(_lastError);
+            _logger.LogError("Unexpected error: {error}", _lastError);
             HasData = false;
-            _cachedData = new DashboardData();
         }
     }
 
