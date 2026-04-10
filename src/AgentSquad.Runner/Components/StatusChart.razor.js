@@ -1,96 +1,64 @@
-let chartInstances = new Map();
-
-export async function initializeChart(canvas, labels, data) {
-    // Dynamically load Chart.js from CDN if not already loaded
-    if (typeof Chart === 'undefined') {
-        await loadChartJs();
-    }
-
+export function initializeChart(canvas, labels, data) {
     const ctx = canvas.getContext('2d');
     
-    const chartConfig = {
+    const chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
-            datasets: [
-                {
-                    label: 'Work Items',
-                    data: data,
-                    backgroundColor: [
-                        '#4CAF50', // Green for Shipped
-                        '#2196F3', // Blue for In Progress
-                        '#FF9800'  // Orange for Carried Over
-                    ],
-                    borderColor: [
-                        '#45a049',
-                        '#0b7dda',
-                        '#e68900'
-                    ],
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    barPercentage: 0.7,
-                    categoryPercentage: 0.8
-                }
-            ]
+            datasets: [{
+                label: 'Work Items',
+                data: data,
+                backgroundColor: [
+                    '#4CAF50',
+                    '#2196F3',
+                    '#FF9800'
+                ],
+                borderColor: [
+                    '#388E3C',
+                    '#1976D2',
+                    '#F57C00'
+                ],
+                borderWidth: 1,
+                borderRadius: 4
+            }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
+            maintainAspectRatio: true,
             indexAxis: 'x',
             plugins: {
                 legend: {
                     display: true,
-                    position: 'top',
                     labels: {
                         font: {
                             family: "'Segoe UI', 'Helvetica Neue', sans-serif",
-                            size: 14
+                            size: 13
                         },
                         color: '#333',
-                        padding: 15,
-                        usePointStyle: false
+                        padding: 16
                     }
                 },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
-                    titleFont: {
-                        size: 14
-                    },
-                    bodyFont: {
-                        size: 13
-                    },
-                    cornerRadius: 4,
-                    displayColors: true,
-                    borderColor: '#ddd',
-                    borderWidth: 1
+                title: {
+                    display: false
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    min: 0,
                     ticks: {
-                        stepSize: 1,
                         font: {
                             family: "'Segoe UI', 'Helvetica Neue', sans-serif",
                             size: 12
                         },
                         color: '#666',
-                        padding: 8
+                        stepSize: 1
                     },
                     grid: {
-                        color: '#e0e0e0',
-                        drawBorder: true,
-                        drawTicks: true
+                        color: '#f0f0f0',
+                        drawBorder: true
                     },
                     title: {
-                        display: true,
-                        text: 'Count',
-                        font: {
-                            size: 13
-                        },
-                        color: '#666'
+                        display: false
                     }
                 },
                 x: {
@@ -99,50 +67,32 @@ export async function initializeChart(canvas, labels, data) {
                             family: "'Segoe UI', 'Helvetica Neue', sans-serif",
                             size: 13
                         },
-                        color: '#333',
-                        padding: 8
+                        color: '#333'
                     },
                     grid: {
-                        color: 'transparent',
-                        drawBorder: true,
-                        drawTicks: false
+                        display: false,
+                        drawBorder: true
                     }
                 }
             }
         }
-    };
-
-    const chart = new Chart(ctx, chartConfig);
-    chartInstances.set(canvas, chart);
-    
-    return canvas;
-}
-
-export function updateChart(canvas, data) {
-    const chart = chartInstances.get(canvas);
-    
-    if (chart) {
-        chart.data.datasets[0].data = data;
-        chart.update('none');
-    }
-}
-
-export function destroyChart(canvas) {
-    const chart = chartInstances.get(canvas);
-    
-    if (chart) {
-        chart.destroy();
-        chartInstances.delete(canvas);
-    }
-}
-
-function loadChartJs() {
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
-        script.async = true;
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Failed to load Chart.js'));
-        document.head.appendChild(script);
     });
+    
+    return chartInstance;
+}
+
+export function updateChart(chartInstance, data) {
+    if (!chartInstance || !chartInstance.data) {
+        console.warn('Chart instance not available for update');
+        return;
+    }
+    
+    chartInstance.data.datasets[0].data = data;
+    chartInstance.update('none');
+}
+
+export function destroyChart(chartInstance) {
+    if (chartInstance && typeof chartInstance.destroy === 'function') {
+        chartInstance.destroy();
+    }
 }

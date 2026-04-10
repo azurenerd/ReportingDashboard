@@ -112,7 +112,6 @@ main {
     color: var(--text-tertiary);
 }
 
-/* Scrollbar Styling */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -131,7 +130,6 @@ main {
     background: #999999;
 }
 
-/* Print Styles */
 @media print {
     body {
         background-color: white;
