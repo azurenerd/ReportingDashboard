@@ -1,0 +1,119 @@
+@using AgentSquad.Runner.Models
+@using System.Linq
+
+@if (SortedMilestones.Any())
+{
+    <div class="milestone-timeline">
+        <div class="milestones-container">
+            @foreach (var milestone in SortedMilestones)
+            {
+                <div class="milestone-card">
+                    <svg class="status-icon" viewBox="0 0 20 20">
+                        @{
+                            string color = milestone.Status switch
+                            {
+                                "Completed" => "#4CAF50",
+                                "On Track" => "#FFC107",
+                                "At Risk" => "#F44336",
+                                _ => "#999"
+                            };
+                        }
+                        <circle cx="10" cy="10" r="9" fill="@color" />
+                    </svg>
+                    <div class="milestone-info">
+                        <span class="milestone-name" title="@milestone.Name">@milestone.Name</span>
+                        <span class="milestone-date">@milestone.Date.ToString("MM/dd/yyyy")</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="milestone-empty">
+        <p>No milestones scheduled</p>
+    </div>
+}
+
+<style>
+    .milestone-timeline {
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .milestones-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 16px 0;
+        overflow-x: hidden;
+    }
+
+    .milestone-card {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        flex-basis: auto;
+        transition: background-color 0.2s ease;
+    }
+
+    .milestone-card:hover {
+        background-color: #eeeeee;
+    }
+
+    .status-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+    .milestone-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .milestone-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+    .milestone-date {
+        font-size: 12px;
+        color: #666;
+    }
+
+    .milestone-empty {
+        padding: 24px 16px;
+        text-align: center;
+        color: #999;
+    }
+
+    .milestone-empty p {
+        margin: 0;
+        font-size: 14px;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<Milestone> Milestones { get; set; } = [];
+
+    private IEnumerable<Milestone> SortedMilestones => Milestones?.OrderBy(m => m.Date) ?? [];
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+    }
+}
