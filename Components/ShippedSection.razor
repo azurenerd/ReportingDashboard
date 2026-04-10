@@ -10,28 +10,31 @@
         <div class="card-list">
             @foreach (var item in Items)
             {
-                <div class="shipped-card">
-                    <div class="card-indicator">
-                        <span class="checkmark"></span>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-title">@item.Title</div>
-                        @if (!string.IsNullOrWhiteSpace(item.Description))
-                        {
-                            <div class="card-description">@item.Description</div>
-                        }
-                        <div class="card-badges">
-                            @if (!string.IsNullOrWhiteSpace(item.Category))
+                @if (!string.IsNullOrWhiteSpace(item.Title))
+                {
+                    <div class="shipped-card">
+                        <div class="card-indicator">
+                            <span class="checkmark"></span>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-title">@item.Title</div>
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
                             {
-                                <span class="badge badge-category">@item.Category</span>
+                                <div class="card-description">@item.Description</div>
                             }
-                            @if (!string.IsNullOrWhiteSpace(item.Priority))
-                            {
-                                <span class="badge badge-priority @GetPriorityClass(item.Priority)">@item.Priority</span>
-                            }
+                            <div class="card-badges">
+                                @if (!string.IsNullOrWhiteSpace(item.Category))
+                                {
+                                    <span class="badge badge-category">@item.Category</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(item.Priority))
+                                {
+                                    <span class="badge badge-priority @GetPriorityClass(item.Priority)">@item.Priority</span>
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
             }
         </div>
     </section>
