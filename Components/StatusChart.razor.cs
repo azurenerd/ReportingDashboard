@@ -12,6 +12,8 @@ namespace AgentSquad.Runner.Components
         [Inject]
         public IJSRuntime JSRuntime { get; set; }
 
+        private (int Shipped, int InProgress, int CarriedOver) _previousCounts;
+
         protected override async Task OnParametersSetAsync()
         {
             await base.OnParametersSetAsync();
