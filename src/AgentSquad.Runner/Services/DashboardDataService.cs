@@ -1,351 +1,209 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using AgentSquad.Runner.Models;
+using Microsoft.Extensions.Options;
 
-namespace AgentSquad.Runner.Services
+namespace AgentSquad.Runner.Services;
+
+public class DashboardDataService : IDisposable
 {
-    public class DashboardDataService : IDashboardDataService, IDisposable
+    private readonly ILogger<DashboardDataService> _logger;
+    private readonly IOptions<DashboardOptions> _options;
+    private readonly FileSystemWatcher? _watcher;
+    private DashboardData? _cachedData;
+    private string? _lastLoadedHash;
+    private string? _lastError;
+    private Timer? _debounceTimer;
+    private bool _isDisposed;
+
+    public event Action? OnDataChanged;
+
+    public bool HasData => _cachedData != null && string.IsNullOrEmpty(_lastError);
+
+    public DashboardDataService(ILogger<DashboardDataService> logger, IOptions<DashboardOptions> options)
     {
-        private readonly ILogger<DashboardDataService> _logger;
-        private readonly IOptions<DashboardOptions> _options;
-        private DashboardData _cachedData;
-        private string _lastError;
-        private string _lastLoadedHash;
-        private FileSystemWatcher _watcher;
-        private Timer _debounceTimer;
-        private bool _pendingReload;
-        private object _lockObject = new object();
-        private bool _disposed;
+        _logger = logger;
+        _options = options;
 
-        public event Action OnDataChanged;
-
-        public bool HasData => _cachedData != null && string.IsNullOrEmpty(_lastError);
-
-        public DashboardDataService(ILogger<DashboardDataService> logger, IOptions<DashboardOptions> options)
+        try
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _options = options ?? throw new ArgumentNullException(nameof(options));
-            _pendingReload = false;
-
-            LoadInitialData();
+            LoadDataFromFile();
             InitializeFileWatcher();
+            _logger.LogInformation("DashboardDataService initialized successfully");
         }
-
-        private void LoadInitialData()
+        catch (Exception ex)
         {
-            try
-            {
-                _cachedData = LoadFromJson();
-                _lastError = null;
-                _lastLoadedHash = HashFile(_options.Value.DataJsonPath);
-                _logger.LogInformation("DashboardDataService initialized, data.json loaded successfully");
-            }
-            catch (FileNotFoundException ex)
-            {
-                _lastError = $"File not found: {ex.Message}";
-                _logger.LogError($"IOException reading data.json: {_lastError}");
-                _cachedData = null;
-            }
-            catch (JsonException ex)
-            {
-                _lastError = $"JSON syntax error in data.json: {ex.Message}";
-                _logger.LogError($"Failed to parse data.json: {_lastError}");
-                _cachedData = null;
-            }
-            catch (Exception ex)
-            {
-                _lastError = $"Error loading data.json: {ex.Message}";
-                _logger.LogError($"Error loading data.json: {_lastError}");
-                _cachedData = null;
-            }
+            _logger.LogError(ex, "Error initializing DashboardDataService");
+            _lastError = $"Failed to initialize dashboard: {ex.Message}";
         }
+    }
 
-        private void InitializeFileWatcher()
+    private void LoadDataFromFile()
+    {
+        try
         {
-            try
+            var filePath = Path.Combine(AppContext.BaseDirectory, _options.Value.DataJsonPath);
+
+            if (!File.Exists(filePath))
             {
-                var dataJsonPath = Path.Combine(AppContext.BaseDirectory, _options.Value.DataJsonPath);
-                var directoryPath = Path.GetDirectoryName(dataJsonPath);
-                var fileName = Path.GetFileName(dataJsonPath);
-
-                _watcher = new FileSystemWatcher(directoryPath, fileName)
-                {
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size
-                };
-
-                _watcher.Changed += OnFileChanged;
-                _watcher.EnableRaisingEvents = true;
-
-                _logger.LogInformation("FileSystemWatcher initialized for data.json");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Failed to initialize FileSystemWatcher: {ex.Message}");
-            }
-        }
-
-        private void OnFileChanged(object sender, FileSystemEventArgs e)
-        {
-            lock (_lockObject)
-            {
-                _pendingReload = true;
-                _debounceTimer?.Dispose();
-                _debounceTimer = new Timer(_ => OnDebounceTimerElapsed(), null, _options.Value.FileWatchDebounceMs, Timeout.Infinite);
-            }
-        }
-
-        private void OnDebounceTimerElapsed()
-        {
-            lock (_lockObject)
-            {
-                if (!_pendingReload)
-                    return;
-
-                _pendingReload = false;
-
-                try
-                {
-                    var dataJsonPath = Path.Combine(AppContext.BaseDirectory, _options.Value.DataJsonPath);
-                    var fileHash = HashFile(dataJsonPath);
-
-                    if (fileHash == _lastLoadedHash)
-                    {
-                        _logger.LogDebug("File hash unchanged; skipping reload");
-                        return;
-                    }
-
-                    _logger.LogInformation("data.json change detected, re-parsing...");
-
-                    var newData = LoadFromJson();
-                    _cachedData = newData;
-                    _lastError = null;
-                    _lastLoadedHash = fileHash;
-
-                    OnDataChanged?.Invoke();
-                }
-                catch (JsonException ex)
-                {
-                    _lastError = $"JSON syntax error in data.json: {ex.Message}";
-                    _logger.LogError($"Failed to parse data.json: {_lastError}");
-                    OnDataChanged?.Invoke();
-                }
-                catch (IOException ex)
-                {
-                    _lastError = $"IOException reading data.json: {ex.Message}";
-                    _logger.LogError(_lastError);
-                    OnDataChanged?.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    _lastError = $"Error loading data.json: {ex.Message}";
-                    _logger.LogError(_lastError);
-                    OnDataChanged?.Invoke();
-                }
-            }
-        }
-
-        private DashboardData LoadFromJson()
-        {
-            var dataJsonPath = Path.Combine(AppContext.BaseDirectory, _options.Value.DataJsonPath);
-
-            if (!File.Exists(dataJsonPath))
-            {
-                throw new FileNotFoundException($"data.json not found at {dataJsonPath}");
+                throw new FileNotFoundException($"data.json not found at {filePath}");
             }
 
-            var json = File.ReadAllText(dataJsonPath, Encoding.UTF8);
+            var json = File.ReadAllText(filePath, Encoding.UTF8);
+            var fileHash = ComputeHash(json);
+
+            if (fileHash == _lastLoadedHash)
+            {
+                _logger.LogDebug("File hash unchanged; skipping reload");
+                return;
+            }
 
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
                 AllowTrailingCommas = false,
-                MaxDepth = 64,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                MaxDepth = 64
             };
 
-            var data = JsonSerializer.Deserialize<DashboardData>(json, options);
+            _cachedData = JsonSerializer.Deserialize<DashboardData>(json, options)
+                ?? throw new JsonException("Failed to deserialize data.json");
 
-            ValidateData(data);
+            ValidateData(_cachedData);
+            _lastLoadedHash = fileHash;
+            _lastError = null;
 
-            return data;
+            _logger.LogInformation("data.json loaded and parsed successfully");
         }
-
-        private void ValidateData(DashboardData data)
+        catch (JsonException ex)
         {
-            if (data?.Project == null)
-            {
-                throw new InvalidOperationException("Project is required in data.json");
-            }
-
-            if (string.IsNullOrWhiteSpace(data.Project.Name))
-            {
-                throw new InvalidOperationException("Project.Name is required");
-            }
-
-            if (data.Project.Name.Length > 256)
-            {
-                throw new InvalidOperationException("Project.Name exceeds 256 character limit");
-            }
-
-            if (!string.IsNullOrEmpty(data.Project.Description) && data.Project.Description.Length > 1024)
-            {
-                throw new InvalidOperationException("Project.Description exceeds 1024 character limit");
-            }
-
-            if (data.Milestones != null)
-            {
-                foreach (var milestone in data.Milestones)
-                {
-                    if (string.IsNullOrWhiteSpace(milestone.Name))
-                    {
-                        throw new InvalidOperationException("Milestone.Name is required");
-                    }
-
-                    if (milestone.Name.Length > 256)
-                    {
-                        throw new InvalidOperationException("Milestone.Name exceeds 256 character limit");
-                    }
-                }
-            }
-
-            if (data.WorkItems != null)
-            {
-                foreach (var item in data.WorkItems)
-                {
-                    if (string.IsNullOrWhiteSpace(item.Title))
-                    {
-                        throw new InvalidOperationException("WorkItem.Title is required");
-                    }
-
-                    if (item.Title.Length > 512)
-                    {
-                        throw new InvalidOperationException("WorkItem.Title exceeds 512 character limit");
-                    }
-
-                    if (!Enum.IsDefined(typeof(WorkItemStatus), item.Status))
-                    {
-                        throw new InvalidOperationException($"Invalid WorkItem.Status: {item.Status}");
-                    }
-
-                    if (!string.IsNullOrEmpty(item.Assignee) && item.Assignee.Length > 256)
-                    {
-                        throw new InvalidOperationException("WorkItem.Assignee exceeds 256 character limit");
-                    }
-                }
-            }
+            _lastError = $"JSON parsing error: {ex.Message}";
+            _logger.LogError(ex, "Failed to parse data.json");
         }
-
-        private string HashFile(string filePath)
+        catch (IOException ex)
         {
-            try
+            _lastError = $"File read error: {ex.Message}";
+            _logger.LogError(ex, "IOException reading data.json");
+        }
+        catch (Exception ex)
+        {
+            _lastError = $"Unexpected error: {ex.Message}";
+            _logger.LogError(ex, "Unexpected error loading data.json");
+        }
+    }
+
+    private void InitializeFileWatcher()
+    {
+        try
+        {
+            var directory = AppContext.BaseDirectory;
+            var fileName = _options.Value.DataJsonPath;
+
+            _watcher = new FileSystemWatcher(directory)
             {
-                if (!File.Exists(filePath))
-                {
-                    return null;
-                }
+                Filter = fileName,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                EnableRaisingEvents = true
+            };
 
-                using (var sha256 = SHA256.Create())
-                {
-                    using (var fileStream = File.OpenRead(filePath))
-                    {
-                        var hash = sha256.ComputeHash(fileStream);
-                        return Convert.ToBase64String(hash);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning($"Failed to compute file hash: {ex.Message}");
-                return null;
-            }
+            _watcher.Changed += OnFileChanged;
+            _logger.LogInformation("FileSystemWatcher initialized for data.json");
         }
-
-        public DashboardData GetCurrentData()
+        catch (Exception ex)
         {
-            return _cachedData;
+            _logger.LogError(ex, "Error initializing FileSystemWatcher");
         }
+    }
 
-        public Project GetProject()
+    private void OnFileChanged(object sender, FileSystemEventArgs e)
+    {
+        try
         {
-            return _cachedData?.Project;
-        }
-
-        public IReadOnlyList<Milestone> GetMilestones()
-        {
-            if (_cachedData?.Milestones == null)
-            {
-                return new List<Milestone>().AsReadOnly();
-            }
-
-            return _cachedData.Milestones
-                .OrderBy(m => m.Date)
-                .ToList()
-                .AsReadOnly();
-        }
-
-        public IReadOnlyList<WorkItem> GetWorkItems()
-        {
-            if (_cachedData?.WorkItems == null)
-            {
-                return new List<WorkItem>().AsReadOnly();
-            }
-
-            return _cachedData.WorkItems.AsReadOnly();
-        }
-
-        public IReadOnlyList<WorkItem> GetWorkItemsByStatus(WorkItemStatus status)
-        {
-            if (_cachedData?.WorkItems == null)
-            {
-                return new List<WorkItem>().AsReadOnly();
-            }
-
-            return _cachedData.WorkItems
-                .Where(w => w.Status == status)
-                .ToList()
-                .AsReadOnly();
-        }
-
-        public (int Shipped, int InProgress, int CarriedOver) GetStatusCounts()
-        {
-            if (_cachedData?.WorkItems == null)
-            {
-                return (0, 0, 0);
-            }
-
-            var shipped = _cachedData.WorkItems.Count(w => w.Status == WorkItemStatus.Shipped);
-            var inProgress = _cachedData.WorkItems.Count(w => w.Status == WorkItemStatus.InProgress);
-            var carriedOver = _cachedData.WorkItems.Count(w => w.Status == WorkItemStatus.CarriedOver);
-
-            return (shipped, inProgress, carriedOver);
-        }
-
-        public string GetLastError()
-        {
-            return _lastError;
-        }
-
-        public void Dispose()
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
             _debounceTimer?.Dispose();
-            _watcher?.Dispose();
-            _disposed = true;
-
-            GC.SuppressFinalize(this);
+            _debounceTimer = new Timer(
+                _ => ReloadData(),
+                null,
+                _options.Value.FileWatchDebounceMs,
+                Timeout.Infinite);
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in OnFileChanged");
+        }
+    }
+
+    private void ReloadData()
+    {
+        try
+        {
+            _debounceTimer?.Dispose();
+            LoadDataFromFile();
+            OnDataChanged?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reloading data");
+        }
+    }
+
+    private void ValidateData(DashboardData data)
+    {
+        if (data?.Project == null)
+            throw new InvalidOperationException("Project is required");
+
+        if (string.IsNullOrEmpty(data.Project.Name))
+            throw new InvalidOperationException("Project name is required");
+
+        if (data.Milestones?.Any(m => string.IsNullOrEmpty(m.Name)) == true)
+            throw new InvalidOperationException("Milestone name is required");
+
+        if (data.WorkItems?.Any(w => !Enum.IsDefined(w.Status)) == true)
+            throw new InvalidOperationException("Invalid work item status");
+    }
+
+    private string ComputeHash(string input)
+    {
+        using var sha = SHA256.Create();
+        var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
+        return Convert.ToBase64String(hash);
+    }
+
+    public DashboardData? GetCurrentData() => _cachedData;
+
+    public Project? GetProject() => _cachedData?.Project;
+
+    public IReadOnlyList<Milestone> GetMilestones() =>
+        _cachedData?.Milestones?.OrderBy(m => m.Date).ToList().AsReadOnly()
+        ?? new List<Milestone>().AsReadOnly();
+
+    public IReadOnlyList<WorkItem> GetWorkItems() =>
+        _cachedData?.WorkItems?.AsReadOnly() ?? new List<WorkItem>().AsReadOnly();
+
+    public IReadOnlyList<WorkItem> GetWorkItemsByStatus(WorkItemStatus status) =>
+        _cachedData?.WorkItems?
+            .Where(w => w.Status == status)
+            .ToList()
+            .AsReadOnly() ?? new List<WorkItem>().AsReadOnly();
+
+    public (int Shipped, int InProgress, int CarriedOver) GetStatusCounts()
+    {
+        var items = _cachedData?.WorkItems ?? new List<WorkItem>();
+        return (
+            items.Count(w => w.Status == WorkItemStatus.Shipped),
+            items.Count(w => w.Status == WorkItemStatus.InProgress),
+            items.Count(w => w.Status == WorkItemStatus.CarriedOver)
+        );
+    }
+
+    public string? GetLastError() => _lastError;
+
+    public void Dispose()
+    {
+        if (_isDisposed)
+            return;
+
+        _watcher?.Dispose();
+        _debounceTimer?.Dispose();
+        _isDisposed = true;
     }
 }
