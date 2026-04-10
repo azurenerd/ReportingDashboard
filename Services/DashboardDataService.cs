@@ -87,7 +87,6 @@ public class DashboardDataService : IDashboardDataService
     {
         if (Data is null) return;
 
-        // Validate project fields
         if (string.IsNullOrWhiteSpace(Data.Project.Name))
         {
             _logger.LogWarning("Project name is empty or missing");
@@ -98,7 +97,6 @@ public class DashboardDataService : IDashboardDataService
             _logger.LogWarning("Unrecognized project status: '{Status}'. Will render with fallback styling.", Data.Project.Status);
         }
 
-        // Coerce null arrays to empty lists
         if (Data.Milestones is null)
         {
             _logger.LogWarning("Milestones array is null in data.json. Defaulting to empty list.");
@@ -129,7 +127,6 @@ public class DashboardDataService : IDashboardDataService
             Data = Data with { Metrics = new List<KeyMetric>() };
         }
 
-        // Validate milestone dates and statuses
         foreach (var milestone in Data.Milestones)
         {
             if (!DateOnly.TryParseExact(milestone.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
@@ -143,7 +140,6 @@ public class DashboardDataService : IDashboardDataService
             }
         }
 
-        // Validate in-progress percent complete
         foreach (var item in Data.InProgress)
         {
             if (item.PercentComplete < 0 || item.PercentComplete > 100)
