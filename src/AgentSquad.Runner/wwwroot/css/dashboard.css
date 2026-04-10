@@ -1,79 +1,109 @@
-/* Executive Dashboard Styles - Step 5: Cross-Browser Tested & Refined */
+/* ============================================================================
+   EXECUTIVE DASHBOARD - PRODUCTION STYLES (Step 6: Final)
+   
+   Purpose: Fixed-width 1200px light-themed dashboard for executive viewing.
+   Optimized for: Chrome, Edge, Firefox (latest) at 1920x1080 resolution.
+   Features: No horizontal scrollbars, PowerPoint-ready screenshots, responsive
+   typography, color-coded status indicators, professional Material Design spacing.
+   
+   Structure:
+   1. CSS Custom Properties (Color Palette, Typography, Spacing, Effects)
+   2. Base HTML Styles (Reset, Typography, Forms)
+   3. Layout System (Fixed-Width Container, Grid, Utilities)
+   4. Component Styles (MilestoneTimeline, StatusChart, WorkItemList)
+   5. Cross-Browser Fixes & Print Styles
+   6. Utility Classes & Accessibility
+   ============================================================================ */
 
 /* ============================================================================
-   Color Palette (CSS Custom Properties)
+   SECTION 1: CSS CUSTOM PROPERTIES (Color Palette & Design Tokens)
+   
+   Usage: Reference variables with var(--color-*), var(--spacing-*), etc.
+   Theme: Light theme (white backgrounds, dark text, blue accents)
+   Accessibility: High contrast ratios (4.5:1 WCAG AA standard)
    ============================================================================ */
+
 :root {
-  /* Semantic Colors */
-  --color-bg-primary: #FFFFFF;
-  --color-bg-secondary: #F5F5F5;
-  --color-text-primary: #333333;
-  --color-text-secondary: #666666;
-  --color-border: #E0E0E0;
-  --color-accent: #2196F3;
+  /* Semantic Color Palette */
+  --color-bg-primary: #FFFFFF;          /* Main background (cards, content) */
+  --color-bg-secondary: #F5F5F5;        /* Secondary background (sections) */
+  --color-text-primary: #333333;        /* Primary text (dark gray, WCAG AA safe) */
+  --color-text-secondary: #666666;      /* Secondary text (muted, labels) */
+  --color-border: #E0E0E0;              /* Border & divider color */
+  --color-accent: #2196F3;              /* Primary accent (links, buttons, blue) */
   
-  /* Status Colors */
-  --color-success: #4CAF50;
-  --color-warning: #FF9800;
-  --color-error: #F44336;
-  --color-info: #2196F3;
-  
-  /* Semantic Status Colors */
-  --color-shipped: #4CAF50;
-  --color-in-progress: #2196F3;
-  --color-carried-over: #FF9800;
+  /* Status Colors (Work Items) */
+  --color-shipped: #4CAF50;             /* Green: Shipped/Success */
+  --color-in-progress: #2196F3;         /* Blue: In Progress */
+  --color-carried-over: #FF9800;        /* Orange: Carried Over/Warning */
   
   /* Milestone Status Colors */
-  --color-milestone-completed: #4CAF50;
-  --color-milestone-on-track: #FFC107;
-  --color-milestone-at-risk: #F44336;
+  --color-milestone-completed: #4CAF50; /* Green: Completed */
+  --color-milestone-on-track: #FFC107;  /* Amber: On Track */
+  --color-milestone-at-risk: #F44336;   /* Red: At Risk */
   
-  /* Spacing (8px base unit) */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 12px;
-  --spacing-lg: 16px;
-  --spacing-xl: 24px;
-  --spacing-2xl: 32px;
-  --spacing-3xl: 48px;
+  /* Semantic Colors */
+  --color-success: #4CAF50;             /* Success/positive feedback */
+  --color-warning: #FF9800;             /* Warning/caution */
+  --color-error: #F44336;               /* Error/critical */
+  --color-info: #2196F3;                /* Info/informational */
   
-  /* Typography */
+  /* Spacing System (8px base unit for consistent rhythm) */
+  --spacing-xs: 4px;                    /* Extra small (half unit) */
+  --spacing-sm: 8px;                    /* Small (1 unit) */
+  --spacing-md: 12px;                   /* Medium (1.5 units) */
+  --spacing-lg: 16px;                   /* Large (2 units) */
+  --spacing-xl: 24px;                   /* Extra large (3 units) */
+  --spacing-2xl: 32px;                  /* 2x large (4 units) */
+  --spacing-3xl: 48px;                  /* 3x large (6 units) */
+  
+  /* Typography System (Hierarchical type scale) */
   --font-family-base: "Segoe UI", -apple-system, system-ui, "Helvetica Neue", sans-serif;
-  --font-size-xs: 12px;
-  --font-size-sm: 13px;
-  --font-size-base: 14px;
-  --font-size-md: 16px;
-  --font-size-lg: 18px;
-  --font-size-xl: 20px;
-  --font-size-2xl: 24px;
+  --font-size-xs: 12px;                 /* Labels, small text */
+  --font-size-sm: 13px;                 /* Secondary labels */
+  --font-size-base: 14px;               /* Body text (default) */
+  --font-size-md: 16px;                 /* Body text (larger) */
+  --font-size-lg: 18px;                 /* Section heading */
+  --font-size-xl: 20px;                 /* Major heading */
+  --font-size-2xl: 24px;                /* Page heading */
   
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
+  /* Font Weights (4 levels for contrast) */
+  --font-weight-normal: 400;            /* Regular text */
+  --font-weight-medium: 500;            /* Slightly bolder (button text) */
+  --font-weight-semibold: 600;          /* Bold headings */
+  --font-weight-bold: 700;              /* Extra bold (emphasis) */
   
-  --line-height-tight: 1.4;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.6;
+  /* Line Heights (WCAG readable spacing) */
+  --line-height-tight: 1.4;             /* Headings */
+  --line-height-normal: 1.5;            /* Body text (optimal readability) */
+  --line-height-relaxed: 1.6;           /* Long-form text */
   
-  /* Shadows & Effects */
+  /* Shadows & Depth (Material Design elevation) */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15);
   
-  /* Transitions */
+  /* Transitions (Performance-optimized easing) */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   
-  /* Border Radius */
+  /* Border Radius (Rounded corners) */
   --border-radius-sm: 2px;
   --border-radius-md: 4px;
   --border-radius-lg: 8px;
 }
 
 /* ============================================================================
-   Base HTML Styles (Cross-Browser Reset & Typography)
+   SECTION 2: BASE HTML STYLES (Cross-Browser Reset & Typography)
+   
+   Purpose: Normalize HTML elements across browsers, establish baseline
+   typography hierarchy, and ensure consistent rendering.
+   
+   Key Points:
+   - Anti-aliasing enabled for smooth fonts (Webkit/Firefox specific)
+   - Color scheme set to light (for light/dark mode detection)
+   - Overflow-x hidden prevents horizontal scrollbars
    ============================================================================ */
 
 html {
@@ -81,6 +111,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 body {
@@ -98,35 +129,29 @@ body {
   box-sizing: border-box;
 }
 
-/* ============================================================================
-   Typography & Text Elements
-   ============================================================================ */
-
-h1, h2, h3, h4, h5, h6 {
-  margin: 0;
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-tight);
-  color: var(--color-text-primary);
-}
-
+/* Typography Hierarchy */
 h1 {
   font-size: var(--font-size-2xl);
-  margin-bottom: var(--spacing-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--color-text-primary);
 }
 
 h2 {
   font-size: var(--font-size-xl);
-  margin-bottom: var(--spacing-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--color-text-primary);
 }
 
-h3 {
+h3, h4, h5, h6 {
   font-size: var(--font-size-lg);
-  margin-bottom: var(--spacing-md);
-}
-
-h4, h5, h6 {
-  font-size: var(--font-size-md);
-  margin-bottom: var(--spacing-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--color-text-primary);
 }
 
 p {
@@ -158,41 +183,17 @@ em, i {
   font-style: italic;
 }
 
-/* ============================================================================
-   Lists
-   ============================================================================ */
-
+/* Lists */
 ul, ol {
   margin: 0 0 var(--spacing-lg) 0;
   padding-left: var(--spacing-xl);
-}
-
-ul ul, ol ol, ul ol, ol ul {
-  margin-bottom: 0;
 }
 
 li {
   margin-bottom: var(--spacing-sm);
 }
 
-dl {
-  margin: 0;
-}
-
-dt {
-  font-weight: var(--font-weight-semibold);
-  margin-top: var(--spacing-md);
-}
-
-dd {
-  margin-left: var(--spacing-xl);
-  margin-bottom: var(--spacing-md);
-}
-
-/* ============================================================================
-   Table Styles
-   ============================================================================ */
-
+/* Tables */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -211,7 +212,6 @@ th, td {
 
 th {
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
 }
 
 tbody tr:hover {
@@ -219,75 +219,17 @@ tbody tr:hover {
 }
 
 /* ============================================================================
-   Code & Preformatted Text
-   ============================================================================ */
-
-code, pre {
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-  font-size: 13px;
-  background-color: var(--color-bg-secondary);
-  padding: 2px 6px;
-  border-radius: var(--border-radius-md);
-}
-
-pre {
-  overflow-x: auto;
-  padding: var(--spacing-md);
-  line-height: var(--line-height-relaxed);
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-/* ============================================================================
-   Form Elements
-   ============================================================================ */
-
-input, textarea, select {
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-sm) var(--spacing-md);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-input:focus, textarea:focus, select:focus {
-  outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
-}
-
-button {
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  border: none;
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: var(--color-accent);
-  color: white;
-  transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-button:hover {
-  background-color: #1976D2;
-  box-shadow: var(--shadow-md);
-}
-
-button:active {
-  background-color: #1565C0;
-}
-
-button:disabled {
-  background-color: var(--color-text-secondary);
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-/* ============================================================================
-   Layout - Fixed-Width Container
+   SECTION 3: LAYOUT SYSTEM (Fixed-Width Container & Grid)
+   
+   Purpose: Establish fixed-width (1200px) centered layout with no horizontal
+   scrollbars at 1920x1080 resolution. Total width: 1240px (1200px + 40px padding).
+   
+   Key Classes:
+   - .dashboard-container: Fixed-width outer wrapper (max 1200px)
+   - .dashboard-section: Individual content cards with spacing
+   - .row/.col: Flexbox grid system (12-column layout)
+   
+   No responsive breakpoints: Fixed layout per PM spec (desktop-only)
    ============================================================================ */
 
 .dashboard-container {
@@ -300,22 +242,6 @@ button:disabled {
   flex-direction: column;
   gap: var(--spacing-lg);
 }
-
-@media (max-width: 1280px) {
-  .dashboard-container {
-    padding: 16px;
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard-container {
-    padding: 12px;
-  }
-}
-
-/* ============================================================================
-   Layout - Dashboard Section
-   ============================================================================ */
 
 .dashboard-section {
   margin-bottom: var(--spacing-xl);
@@ -331,10 +257,7 @@ button:disabled {
   box-shadow: var(--shadow-md);
 }
 
-/* ============================================================================
-   Grid System (Flexbox-Based)
-   ============================================================================ */
-
+/* Flexbox Grid System (12-column layout) */
 .row {
   display: flex;
   flex-wrap: wrap;
@@ -358,11 +281,12 @@ button:disabled {
 .col-8 { flex: 0 0 calc(66.667% - var(--spacing-md)); }
 .col-12 { flex: 0 0 100%; padding: 0; }
 
-/* Alignment Utilities */
+/* Text Alignment */
 .text-left { text-align: left; }
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 
+/* Flexbox Alignment */
 .items-start { align-items: flex-start; }
 .items-center { align-items: center; }
 .items-end { align-items: flex-end; }
@@ -387,19 +311,10 @@ button:disabled {
 .p-3 { padding: var(--spacing-lg); }
 .p-4 { padding: var(--spacing-xl); }
 
-/* Overflow Prevention */
-.overflow-hidden {
-  overflow: hidden;
-}
-
-.overflow-auto {
-  overflow: auto;
-}
-
-.overflow-x-hidden {
-  overflow-x: hidden;
-}
-
+/* Overflow & Text Truncation */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-x-hidden { overflow-x: hidden; }
 .truncate {
   white-space: nowrap;
   overflow: hidden;
@@ -407,8 +322,18 @@ button:disabled {
 }
 
 /* ============================================================================
-   Component: MilestoneTimeline
+   SECTION 4: COMPONENT STYLES (MilestoneTimeline, StatusChart, WorkItemList)
+   
+   Purpose: Style individual dashboard components with consistent spacing,
+   color-coding, and interactive states.
+   
+   Components:
+   1. MilestoneTimeline: SVG-based timeline with color-coded status badges
+   2. StatusChart: Chart.js bar/pie chart with legend
+   3. WorkItemList: Three color-coded sections (Green/Blue/Orange)
    ============================================================================ */
+
+/* ---- MILESTONE TIMELINE ---- */
 
 .milestone-timeline {
   display: flex;
@@ -463,7 +388,6 @@ button:disabled {
 
 .status-icon.completed {
   background-color: var(--color-milestone-completed);
-  color: white;
 }
 
 .status-icon.on-track {
@@ -473,7 +397,6 @@ button:disabled {
 
 .status-icon.at-risk {
   background-color: var(--color-milestone-at-risk);
-  color: white;
 }
 
 .milestone-name {
@@ -484,7 +407,6 @@ button:disabled {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  word-break: break-word;
   max-width: 600px;
 }
 
@@ -495,9 +417,7 @@ button:disabled {
   flex-shrink: 0;
 }
 
-/* ============================================================================
-   Component: StatusChart
-   ============================================================================ */
+/* ---- STATUS CHART ---- */
 
 .status-chart-section {
   display: flex;
@@ -573,9 +493,7 @@ button:disabled {
   background-color: var(--color-carried-over);
 }
 
-/* ============================================================================
-   Component: WorkItemList
-   ============================================================================ */
+/* ---- WORK ITEM LIST ---- */
 
 .work-item-sections {
   display: flex;
@@ -713,7 +631,14 @@ button:disabled {
 }
 
 /* ============================================================================
-   Print Styles (For Screenshot/PDF Capture)
+   SECTION 5: CROSS-BROWSER COMPATIBILITY & PRINT STYLES
+   
+   Purpose: Handle browser-specific quirks and optimize for printing/screenshots.
+   
+   Targets:
+   - Chrome/Edge: Remove default input appearance, optimize scrollbar
+   - Firefox: Selection colors, outline fallbacks
+   - Print: Optimize for PDF/screenshot capture
    ============================================================================ */
 
 @media print {
@@ -742,49 +667,25 @@ button:disabled {
   }
 }
 
-/* ============================================================================
-   Accessibility & High Contrast
-   ============================================================================ */
-
-@media (prefers-contrast: more) {
-  :root {
-    --color-text-primary: #000000;
-    --color-text-secondary: #333333;
-    --color-border: #666666;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ============================================================================
-   Cross-Browser Compatibility Fixes
-   ============================================================================ */
-
 /* Webkit browsers (Chrome, Safari, Edge) */
 input, textarea, select {
   -webkit-appearance: none;
   appearance: none;
 }
 
-/* Firefox specific adjustments */
+/* Firefox selection highlight */
 ::-moz-selection {
   background-color: var(--color-accent);
   color: white;
 }
 
-/* General selection styles */
+/* Standard selection highlight */
 ::selection {
   background-color: var(--color-accent);
   color: white;
 }
 
-/* Scrollbar styling (Chrome/Edge only) */
+/* Webkit scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -804,7 +705,10 @@ input, textarea, select {
 }
 
 /* ============================================================================
-   Utility Classes
+   SECTION 6: UTILITY CLASSES & ACCESSIBILITY
+   
+   Purpose: Common utility classes for spacing, visibility, and responsive text.
+   Accessibility: Respects prefers-reduced-motion for animations.
    ============================================================================ */
 
 .hidden {
@@ -847,4 +751,22 @@ input, textarea, select {
 
 .shadow-lg {
   box-shadow: var(--shadow-lg);
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: more) {
+  :root {
+    --color-text-primary: #000000;
+    --color-text-secondary: #333333;
+    --color-border: #666666;
+  }
+}
+
+/* Reduced Motion (Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
