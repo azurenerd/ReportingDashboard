@@ -18,3 +18,16 @@ window.initializeStatusChart = function(canvasId, chartData, chartOptions) {
         options: chartOptions
     });
 };
+
+window.updateStatusChart = function(canvasId, newData) {
+    if (!window.statusChartInstance) {
+        console.error('Chart instance not found for ' + canvasId);
+        return;
+    }
+
+    // Update chart data without full re-initialization
+    window.statusChartInstance.data.datasets[0].data = newData;
+    
+    // Re-render chart smoothly
+    window.statusChartInstance.update('none');
+};

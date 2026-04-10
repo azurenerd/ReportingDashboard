@@ -15,13 +15,23 @@ namespace AgentSquad.Runner.Components
 
         private (int Shipped, int InProgress, int CarriedOver) _previousCounts;
         private object _chartReference;
+        private bool _chartInitialized = false;
 
         protected override async Task OnParametersSetAsync()
         {
             if (_previousCounts != StatusCounts)
             {
                 _previousCounts = StatusCounts;
-                await InitializeChartAsync();
+                
+                if (!_chartInitialized)
+                {
+                    await InitializeChartAsync();
+                    _chartInitialized = true;
+                }
+                else
+                {
+                    await UpdateChartDataAsync();
+                }
             }
         }
 
@@ -87,6 +97,23 @@ namespace AgentSquad.Runner.Components
             catch (Exception ex)
             {
                 Console.WriteLine($"Error initializing chart: {ex.Message}");
+            }
+        }
+
+        private async Task UpdateChartDataAsync()
+        {
+            if (JSRuntime == null)
+                return;
+
+            var newData = new[] { StatusCounts.Shipped, StatusCounts.InProgress, StatusCounts.CarriedOver };
+
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("window.updateStatusChart", "statusChart", newData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating chart: {ex.Message}");
             }
         }
     }
