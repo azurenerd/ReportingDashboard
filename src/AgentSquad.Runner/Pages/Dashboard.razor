@@ -1,160 +1,114 @@
 @page "/"
 @page "/dashboard"
+
+@inherits LayoutComponentBase
 @implements IAsyncDisposable
-@inject DashboardDataService DataService
-@using AgentSquad.Runner.Models
-@using MudBlazor
 
-<PageTitle>Project Dashboard</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Lg" Class="py-6">
+    <style>
+        .dashboard-wrapper {
+            max-width: 1200px !important;
+            margin: 0 auto;
+        }
+        .dashboard-section {
+            margin-bottom: 2rem;
+        }
+        .dashboard-grid {
+            display: grid;
+            gap: 2rem;
+        }
+    </style>
 
-<style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 24px 16px;
-        background-color: #f5f5f5;
-        min-height: 100vh;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    }
-
-    .dashboard-header {
-        margin-bottom: 32px;
-    }
-
-    .project-title {
-        font-size: 32px;
-        font-weight: 600;
-        color: #1a1a1a;
-        margin: 0 0 8px 0;
-    }
-
-    .project-description {
-        font-size: 16px;
-        color: #666;
-        margin: 0;
-    }
-
-    .dashboard-section {
-        margin-bottom: 32px;
-    }
-
-    .section-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #1a1a1a;
-        margin: 0 0 16px 0;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-size: 14px;
-    }
-
-    .error-alert {
-        margin-bottom: 32px;
-    }
-
-    .loading-indicator {
-        text-align: center;
-        padding: 48px 24px;
-        color: #999;
-        font-size: 16px;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 48px 24px;
-        color: #999;
-        background: white;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-    }
-</style>
-
-<div class="dashboard-container">
-    @if (!DataService.HasData && string.IsNullOrEmpty(DataService.GetLastError()))
-    {
-        <div class="loading-indicator">
-            <p>Loading dashboard...</p>
-        </div>
-    }
-    else if (!DataService.HasData && !string.IsNullOrEmpty(DataService.GetLastError()))
-    {
-        <div class="error-alert">
-            <MudAlert Severity="Severity.Error" ContentAlignment="HorizontalAlignment.Left">
-                <strong>Error Loading Dashboard</strong>
-                <p style="margin: 8px 0 0 0; font-size: 14px;">@DataService.GetLastError()</p>
-                <p style="margin: 4px 0 0 0; font-size: 12px; color: #666;">
-                    Please check your data.json file and save it again to recover.
-                </p>
-            </MudAlert>
-        </div>
-    }
-    else
-    {
-        <!-- Project Summary Header -->
-        <div class="dashboard-header">
-            <h1 class="project-title">@DataService.GetProject()?.Name</h1>
-            @if (!string.IsNullOrWhiteSpace(DataService.GetProject()?.Description))
-            {
-                <p class="project-description">@DataService.GetProject().Description</p>
-            }
-        </div>
-
-        <!-- Milestone Timeline Section -->
-        @if (DataService.GetMilestones().Count > 0)
+    <div class="dashboard-wrapper dashboard-grid">
+        <!-- Error Boundary Section -->
+        @if (!DataService.HasData && !string.IsNullOrEmpty(DataService.GetLastError()))
         {
-            <div class="dashboard-section">
-                <h2 class="section-title">Milestones</h2>
-                <MilestoneTimeline Milestones="DataService.GetMilestones()" />
-            </div>
+            <MudAlert Severity="Severity.Error" Class="dashboard-section">
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.h6" GutterBottom="false">
+                        <strong>⚠️ Error Loading Dashboard</strong>
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        @DataService.GetLastError()
+                    </MudText>
+                    <MudText Typo="Typo.caption" Class="mt-2">
+                        Please check your data.json file format and try again.
+                    </MudText>
+                </MudStack>
+            </MudAlert>
         }
 
-        <!-- Status Chart Section -->
-        <div class="dashboard-section">
-            <h2 class="section-title">Work Item Status</h2>
-            <StatusChart StatusCounts="DataService.GetStatusCounts()" />
-        </div>
+        <!-- Loading State -->
+        @if (!DataService.HasData && string.IsNullOrEmpty(DataService.GetLastError()))
+        {
+            <MudAlert Severity="Severity.Info" Class="dashboard-section">
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.h6" GutterBottom="false">
+                        <strong>📊 Loading Dashboard</strong>
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        Reading data.json and initializing dashboard...
+                    </MudText>
+                </MudStack>
+            </MudAlert>
+        }
 
-        <!-- Work Items by Status Section -->
-        <div class="dashboard-section">
-            <h2 class="section-title">Work Items</h2>
-            <WorkItemList 
-                Shipped="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"
-                InProgress="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"
-                CarriedOver="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)" />
-        </div>
-    }
-</div>
+        <!-- Main Dashboard Content -->
+        @if (DataService.HasData)
+        {
+            <!-- Project Summary Section -->
+            @if (DataService.GetProject() != null)
+            {
+                var project = DataService.GetProject();
+                <section class="dashboard-section">
+                    <MudPaper Class="pa-6" Elevation="2">
+                        <MudText Typo="Typo.h3" GutterBottom="true" Class="mb-3">
+                            @project.Name
+                        </MudText>
+                        @if (!string.IsNullOrEmpty(project.Description))
+                        {
+                            <MudText Typo="Typo.body1" Color="Color.TextSecondary">
+                                @project.Description
+                            </MudText>
+                        }
+                    </MudPaper>
+                </section>
+            }
 
-@code {
-    protected override async Task OnInitializedAsync()
-    {
-        // Step 6: Subscribe to OnDataChanged event in OnInitializedAsync()
-        DataService.OnDataChanged += OnDataChanged;
-        
-        await base.OnInitializedAsync();
-    }
+            <!-- Milestone Timeline Section -->
+            <section class="dashboard-section">
+                <MudPaper Class="pa-6" Elevation="2">
+                    <MudText Typo="Typo.h5" GutterBottom="true" Class="mb-4">
+                        📅 Key Milestones
+                    </MudText>
+                    <MilestoneTimeline Milestones="DataService.GetMilestones()" />
+                </MudPaper>
+            </section>
 
-    /// <summary>
-    /// Step 6: Handler called when data.json changes.
-    /// Triggers Blazor re-render by calling StateHasChanged().
-    /// </summary>
-    private void OnDataChanged()
-    {
-        // StateHasChanged() triggers Blazor to re-render this component
-        // This causes all child components to receive updated parameters
-        // and re-render with fresh data from DashboardDataService
-        StateHasChanged();
-    }
+            <!-- Status Chart Section -->
+            <section class="dashboard-section">
+                <MudPaper Class="pa-6" Elevation="2">
+                    <MudText Typo="Typo.h5" GutterBottom="true" Class="mb-4">
+                        📈 Work Item Status
+                    </MudText>
+                    <StatusChart StatusCounts="DataService.GetStatusCounts()" />
+                </MudPaper>
+            </section>
 
-    /// <summary>
-    /// Step 6: Cleanup handler - unsubscribe from OnDataChanged event on dispose.
-    /// Prevents memory leaks and multiple event subscriptions.
-    /// </summary>
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        // Unsubscribe from OnDataChanged event
-        DataService.OnDataChanged -= OnDataChanged;
-        
-        await ValueTask.CompletedTask;
-    }
-}
+            <!-- Work Items List Section -->
+            <section class="dashboard-section">
+                <MudPaper Class="pa-6" Elevation="2">
+                    <MudText Typo="Typo.h5" GutterBottom="true" Class="mb-4">
+                        ✓ Work Items
+                    </MudText>
+                    <WorkItemList 
+                        Shipped="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"
+                        InProgress="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"
+                        CarriedOver="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)" />
+                </MudPaper>
+            </section>
+        }
+    </div>
+</MudContainer>
+
+@inject DashboardDataService DataService

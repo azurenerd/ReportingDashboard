@@ -1,42 +1,36 @@
 using Microsoft.AspNetCore.Components;
-using AgentSquad.Runner.Services;
+using AgentSquad.Core.Models;
+using AgentSquad.Core.Services;
 
 namespace AgentSquad.Runner.Pages;
 
 public partial class Dashboard : ComponentBase, IAsyncDisposable
 {
     [Inject]
-    public required IDashboardDataService DataService { get; set; }
+    public DashboardDataService DataService { get; set; } = null!;
 
-    private string? _errorMessage;
-    private bool _isLoading = true;
+    private bool _disposed = false;
 
     protected override async Task OnInitializedAsync()
     {
-        _isLoading = true;
-        
-        if (DataService.GetCurrentData() == null && DataService.GetLastError() != null)
-        {
-            _errorMessage = DataService.GetLastError();
-        }
-
         DataService.OnDataChanged += OnDataChanged;
-        _isLoading = false;
         await Task.CompletedTask;
     }
 
     private void OnDataChanged()
     {
-        _errorMessage = null;
         StateHasChanged();
     }
 
-    async ValueTask IAsyncDisposable.DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        if (DataService != null)
+        if (_disposed)
         {
-            DataService.OnDataChanged -= OnDataChanged;
+            return;
         }
+
+        DataService.OnDataChanged -= OnDataChanged;
+        _disposed = true;
         await ValueTask.CompletedTask;
     }
 }
