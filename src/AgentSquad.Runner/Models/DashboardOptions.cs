@@ -1,7 +1,8 @@
-namespace AgentSquad.Runner.Models;
-
-public class DashboardOptions
+namespace AgentSquad.Runner.Models
 {
-    public string DataJsonPath { get; set; } = "data.json";
-    public int FileWatchDebounceMs { get; set; } = 500;
+    public class DashboardOptions
+    {
+        public string DataJsonPath { get; set; } = "data.json";
+        public int FileWatchDebounceMs { get; set; } = 500;
+    }
 }
