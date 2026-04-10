@@ -3,6 +3,11 @@
 @if (Metric is not null)
 {
     <div class="metric-badge">
+        @if (!string.IsNullOrWhiteSpace(Metric.Label))
+        {
+            <span class="metric-label">@Metric.Label</span>
+        }
+        <span class="metric-value">@(Metric.Value ?? "-")</span>
     </div>
 }
 
