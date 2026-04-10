@@ -1,0 +1,22 @@
+.metrics-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: stretch;
+    gap: 16px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    margin-top: 20px;
+    padding: 12px 0;
+    background-color: var(--bg-page, #f4f6f9);
+    width: 100%;
+}
+
+@media print {
+    .metrics-bar {
+        gap: 8px;
+        margin-top: 12px;
+        padding: 8px 0;
+        background-color: #ffffff;
+    }
+}
