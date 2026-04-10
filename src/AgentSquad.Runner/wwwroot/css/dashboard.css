@@ -1,76 +1,772 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ============================================================================
+   EXECUTIVE DASHBOARD - PRODUCTION STYLES (Step 6: Final)
+   
+   Purpose: Fixed-width 1200px light-themed dashboard for executive viewing.
+   Optimized for: Chrome, Edge, Firefox (latest) at 1920x1080 resolution.
+   Features: No horizontal scrollbars, PowerPoint-ready screenshots, responsive
+   typography, color-coded status indicators, professional Material Design spacing.
+   
+   Structure:
+   1. CSS Custom Properties (Color Palette, Typography, Spacing, Effects)
+   2. Base HTML Styles (Reset, Typography, Forms)
+   3. Layout System (Fixed-Width Container, Grid, Utilities)
+   4. Component Styles (MilestoneTimeline, StatusChart, WorkItemList)
+   5. Cross-Browser Fixes & Print Styles
+   6. Utility Classes & Accessibility
+   ============================================================================ */
+
+/* ============================================================================
+   SECTION 1: CSS CUSTOM PROPERTIES (Color Palette & Design Tokens)
+   
+   Usage: Reference variables with var(--color-*), var(--spacing-*), etc.
+   Theme: Light theme (white backgrounds, dark text, blue accents)
+   Accessibility: High contrast ratios (4.5:1 WCAG AA standard)
+   ============================================================================ */
+
+:root {
+  /* Semantic Color Palette */
+  --color-bg-primary: #FFFFFF;          /* Main background (cards, content) */
+  --color-bg-secondary: #F5F5F5;        /* Secondary background (sections) */
+  --color-text-primary: #333333;        /* Primary text (dark gray, WCAG AA safe) */
+  --color-text-secondary: #666666;      /* Secondary text (muted, labels) */
+  --color-border: #E0E0E0;              /* Border & divider color */
+  --color-accent: #2196F3;              /* Primary accent (links, buttons, blue) */
+  
+  /* Status Colors (Work Items) */
+  --color-shipped: #4CAF50;             /* Green: Shipped/Success */
+  --color-in-progress: #2196F3;         /* Blue: In Progress */
+  --color-carried-over: #FF9800;        /* Orange: Carried Over/Warning */
+  
+  /* Milestone Status Colors */
+  --color-milestone-completed: #4CAF50; /* Green: Completed */
+  --color-milestone-on-track: #FFC107;  /* Amber: On Track */
+  --color-milestone-at-risk: #F44336;   /* Red: At Risk */
+  
+  /* Semantic Colors */
+  --color-success: #4CAF50;             /* Success/positive feedback */
+  --color-warning: #FF9800;             /* Warning/caution */
+  --color-error: #F44336;               /* Error/critical */
+  --color-info: #2196F3;                /* Info/informational */
+  
+  /* Spacing System (8px base unit for consistent rhythm) */
+  --spacing-xs: 4px;                    /* Extra small (half unit) */
+  --spacing-sm: 8px;                    /* Small (1 unit) */
+  --spacing-md: 12px;                   /* Medium (1.5 units) */
+  --spacing-lg: 16px;                   /* Large (2 units) */
+  --spacing-xl: 24px;                   /* Extra large (3 units) */
+  --spacing-2xl: 32px;                  /* 2x large (4 units) */
+  --spacing-3xl: 48px;                  /* 3x large (6 units) */
+  
+  /* Typography System (Hierarchical type scale) */
+  --font-family-base: "Segoe UI", -apple-system, system-ui, "Helvetica Neue", sans-serif;
+  --font-size-xs: 12px;                 /* Labels, small text */
+  --font-size-sm: 13px;                 /* Secondary labels */
+  --font-size-base: 14px;               /* Body text (default) */
+  --font-size-md: 16px;                 /* Body text (larger) */
+  --font-size-lg: 18px;                 /* Section heading */
+  --font-size-xl: 20px;                 /* Major heading */
+  --font-size-2xl: 24px;                /* Page heading */
+  
+  /* Font Weights (4 levels for contrast) */
+  --font-weight-normal: 400;            /* Regular text */
+  --font-weight-medium: 500;            /* Slightly bolder (button text) */
+  --font-weight-semibold: 600;          /* Bold headings */
+  --font-weight-bold: 700;              /* Extra bold (emphasis) */
+  
+  /* Line Heights (WCAG readable spacing) */
+  --line-height-tight: 1.4;             /* Headings */
+  --line-height-normal: 1.5;            /* Body text (optimal readability) */
+  --line-height-relaxed: 1.6;           /* Long-form text */
+  
+  /* Shadows & Depth (Material Design elevation) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15);
+  
+  /* Transitions (Performance-optimized easing) */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Border Radius (Rounded corners) */
+  --border-radius-sm: 2px;
+  --border-radius-md: 4px;
+  --border-radius-lg: 8px;
+}
+
+/* ============================================================================
+   SECTION 2: BASE HTML STYLES (Cross-Browser Reset & Typography)
+   
+   Purpose: Normalize HTML elements across browsers, establish baseline
+   typography hierarchy, and ensure consistent rendering.
+   
+   Key Points:
+   - Anti-aliasing enabled for smooth fonts (Webkit/Firefox specific)
+   - Color scheme set to light (for light/dark mode detection)
+   - Overflow-x hidden prevents horizontal scrollbars
+   ============================================================================ */
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #FAFAFA;
-    color: #333333;
-    font-size: 14px;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+  overflow-x: hidden;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+/* Typography Hierarchy */
+h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--color-text-primary);
+}
+
+h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--color-text-primary);
+}
+
+h3, h4, h5, h6 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--color-text-primary);
+}
+
+p {
+  margin: 0 0 var(--spacing-md) 0;
+  line-height: var(--line-height-normal);
+}
+
+small, .text-muted {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: #1976D2;
+  text-decoration: underline;
+}
+
+strong, b {
+  font-weight: var(--font-weight-semibold);
+}
+
+em, i {
+  font-style: italic;
+}
+
+/* Lists */
+ul, ol {
+  margin: 0 0 var(--spacing-lg) 0;
+  padding-left: var(--spacing-xl);
+}
+
+li {
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--spacing-xl);
+}
+
+thead {
+  background-color: var(--color-bg-secondary);
+}
+
+th, td {
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+th {
+  font-weight: var(--font-weight-semibold);
+}
+
+tbody tr:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+/* ============================================================================
+   SECTION 3: LAYOUT SYSTEM (Fixed-Width Container & Grid)
+   
+   Purpose: Establish fixed-width (1200px) centered layout with no horizontal
+   scrollbars at 1920x1080 resolution. Total width: 1240px (1200px + 40px padding).
+   
+   Key Classes:
+   - .dashboard-container: Fixed-width outer wrapper (max 1200px)
+   - .dashboard-section: Individual content cards with spacing
+   - .row/.col: Flexbox grid system (12-column layout)
+   
+   No responsive breakpoints: Fixed layout per PM spec (desktop-only)
+   ============================================================================ */
+
 .dashboard-container {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #FFFFFF;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--color-bg-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.dashboard-section {
+  margin-bottom: var(--spacing-xl);
+  background-color: var(--color-bg-secondary);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-normal);
+}
+
+.dashboard-section:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Flexbox Grid System (12-column layout) */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 calc(var(--spacing-md) * -1);
+  gap: var(--spacing-lg);
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 200px;
+  padding: 0 var(--spacing-md);
+}
+
+.col-1 { flex: 0 0 calc(8.333% - var(--spacing-md)); }
+.col-2 { flex: 0 0 calc(16.667% - var(--spacing-md)); }
+.col-3 { flex: 0 0 calc(25% - var(--spacing-md)); }
+.col-4 { flex: 0 0 calc(33.333% - var(--spacing-md)); }
+.col-6 { flex: 0 0 calc(50% - var(--spacing-md)); }
+.col-8 { flex: 0 0 calc(66.667% - var(--spacing-md)); }
+.col-12 { flex: 0 0 100%; padding: 0; }
+
+/* Text Alignment */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* Flexbox Alignment */
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }
+.items-end { align-items: flex-end; }
+
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+
+/* Spacing Utilities */
+.mt-1 { margin-top: var(--spacing-sm); }
+.mt-2 { margin-top: var(--spacing-md); }
+.mt-3 { margin-top: var(--spacing-lg); }
+.mt-4 { margin-top: var(--spacing-xl); }
+
+.mb-1 { margin-bottom: var(--spacing-sm); }
+.mb-2 { margin-bottom: var(--spacing-md); }
+.mb-3 { margin-bottom: var(--spacing-lg); }
+.mb-4 { margin-bottom: var(--spacing-xl); }
+
+.p-2 { padding: var(--spacing-md); }
+.p-3 { padding: var(--spacing-lg); }
+.p-4 { padding: var(--spacing-xl); }
+
+/* Overflow & Text Truncation */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-x-hidden { overflow-x: hidden; }
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================================
+   SECTION 4: COMPONENT STYLES (MilestoneTimeline, StatusChart, WorkItemList)
+   
+   Purpose: Style individual dashboard components with consistent spacing,
+   color-coding, and interactive states.
+   
+   Components:
+   1. MilestoneTimeline: SVG-based timeline with color-coded status badges
+   2. StatusChart: Chart.js bar/pie chart with legend
+   3. WorkItemList: Three color-coded sections (Green/Blue/Orange)
+   ============================================================================ */
+
+/* ---- MILESTONE TIMELINE ---- */
+
+.milestone-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-primary);
+  border-radius: var(--border-radius-md);
+}
+
+.milestone-timeline-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.milestone-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-normal);
+  cursor: default;
+}
+
+.milestone-card:hover {
+  background-color: var(--color-bg-primary);
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: white;
+  font-weight: var(--font-weight-bold);
+}
+
+.status-icon.completed {
+  background-color: var(--color-milestone-completed);
+}
+
+.status-icon.on-track {
+  background-color: var(--color-milestone-on-track);
+  color: #333;
+}
+
+.status-icon.at-risk {
+  background-color: var(--color-milestone-at-risk);
+}
+
+.milestone-name {
+  flex: 1;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 600px;
+}
+
+.milestone-date {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ---- STATUS CHART ---- */
+
+.status-chart-section {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .status-chart-container {
-    max-width: 600px;
-    height: auto;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #F5F5F5;
-    border-radius: 4px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  max-width: 600px;
+  min-width: 300px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-primary);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-border);
 }
 
-h1, h2, h3 {
-    color: #1565C0;
-    margin-bottom: 16px;
+#statusChart {
+  max-width: 100%;
+  max-height: 280px;
 }
 
-.card {
-    border: 1px solid #E0E0E0;
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 20px;
-    background-color: #FFFFFF;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.status-chart-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
 }
 
-.error-alert {
-    background-color: #FFEBEE;
-    border: 1px solid #EF5350;
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 20px;
-    color: #C62828;
+.status-chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: var(--color-bg-primary);
+  border-radius: var(--border-radius-md);
+  min-width: 200px;
+  border: 1px solid var(--color-border);
 }
 
-.timeline-item {
-    padding: 12px;
-    margin-bottom: 12px;
-    background-color: #F5F5F5;
-    border-left: 4px solid #1565C0;
-    border-radius: 2px;
+.status-chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
 }
 
-@media (max-width: 1200px) {
-    .dashboard-container {
-        width: 100%;
-    }
+.status-chart-legend-color {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
-    .status-chart-container {
-        max-width: 100%;
-    }
+.status-chart-legend-color.shipped {
+  background-color: var(--color-shipped);
+}
+
+.status-chart-legend-color.in-progress {
+  background-color: var(--color-in-progress);
+}
+
+.status-chart-legend-color.carried-over {
+  background-color: var(--color-carried-over);
+}
+
+/* ---- WORK ITEM LIST ---- */
+
+.work-item-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  width: 100%;
+}
+
+.work-item-section {
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-primary);
+  transition: box-shadow var(--transition-normal);
+}
+
+.work-item-section:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.section-header {
+  padding: var(--spacing-lg);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.section-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  width: 100%;
+}
+
+.section-header-title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.section-header-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.section-header.shipped {
+  background-color: var(--color-shipped);
+}
+
+.section-header.in-progress {
+  background-color: var(--color-in-progress);
+}
+
+.section-header.carried-over {
+  background-color: var(--color-carried-over);
+}
+
+.work-item-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--spacing-lg);
+  background-color: var(--color-bg-primary);
+  border-top: 1px solid var(--color-border);
+}
+
+.work-item-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  color: var(--color-text-secondary);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  min-height: 100px;
+}
+
+.work-item-list-empty-icon {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 20px;
+  margin-bottom: var(--spacing-sm);
+  opacity: 0.5;
+}
+
+.work-item {
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  transition: background-color var(--transition-fast);
+}
+
+.work-item:last-child {
+  border-bottom: none;
+}
+
+.work-item:hover {
+  background-color: var(--color-bg-secondary);
+  padding: var(--spacing-md);
+  margin: 0 calc(var(--spacing-md) * -1);
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
+}
+
+.work-item-title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-normal);
+  word-break: break-word;
+}
+
+.assignee-text {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* ============================================================================
+   SECTION 5: CROSS-BROWSER COMPATIBILITY & PRINT STYLES
+   
+   Purpose: Handle browser-specific quirks and optimize for printing/screenshots.
+   
+   Targets:
+   - Chrome/Edge: Remove default input appearance, optimize scrollbar
+   - Firefox: Selection colors, outline fallbacks
+   - Print: Optimize for PDF/screenshot capture
+   ============================================================================ */
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: white;
+  }
+  
+  .dashboard-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    min-height: auto;
+  }
+  
+  .dashboard-section {
+    page-break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid var(--color-border);
+  }
+  
+  a {
+    text-decoration: none;
+    color: var(--color-text-primary);
+  }
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+input, textarea, select {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Firefox selection highlight */
+::-moz-selection {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+/* Standard selection highlight */
+::selection {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+/* Webkit scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   SECTION 6: UTILITY CLASSES & ACCESSIBILITY
+   
+   Purpose: Common utility classes for spacing, visibility, and responsive text.
+   Accessibility: Respects prefers-reduced-motion for animations.
+   ============================================================================ */
+
+.hidden {
+  display: none !important;
+}
+
+.visible {
+  display: block !important;
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.no-wrap {
+  white-space: nowrap;
+}
+
+.break-word {
+  word-break: break-word;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.opacity-75 {
+  opacity: 0.75;
+}
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: more) {
+  :root {
+    --color-text-primary: #000000;
+    --color-text-secondary: #333333;
+    --color-border: #666666;
+  }
+}
+
+/* Reduced Motion (Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

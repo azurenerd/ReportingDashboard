@@ -1,100 +1,100 @@
 {
   "project": {
-    "name": "Executive Dashboard Initiative",
-    "description": "Real-time visibility platform for project health, milestone tracking, and work item categorization. Enables executives to assess project status at a glance with PowerPoint-ready visualizations and automatic file-based updates without application restart."
+    "name": "Project Athena - Executive Dashboard",
+    "description": "Real-time visibility into project health, milestones, and work item status for executive stakeholders."
   },
   "milestones": [
     {
-      "name": "Project Kickoff",
-      "date": "2026-02-01T00:00:00Z",
+      "name": "Q1 Foundation",
+      "date": "2026-03-31",
       "status": "Completed"
     },
     {
-      "name": "Requirements & Design Review",
-      "date": "2026-02-28T00:00:00Z",
-      "status": "Completed"
-    },
-    {
-      "name": "Backend Infrastructure Setup",
-      "date": "2026-03-15T00:00:00Z",
-      "status": "Completed"
-    },
-    {
-      "name": "MVP Dashboard Release",
-      "date": "2026-04-10T00:00:00Z",
+      "name": "Q2 Feature Development",
+      "date": "2026-06-30",
       "status": "On Track"
     },
     {
-      "name": "Advanced Analytics Features",
-      "date": "2026-05-15T00:00:00Z",
-      "status": "At Risk"
+      "name": "Q3 Performance Optimization",
+      "date": "2026-09-30",
+      "status": "On Track"
     },
     {
-      "name": "Performance Optimization & Testing",
-      "date": "2026-06-10T00:00:00Z",
+      "name": "Q4 Release Preparation",
+      "date": "2026-12-31",
+      "status": "On Track"
+    },
+    {
+      "name": "Production Deployment",
+      "date": "2027-01-15",
       "status": "At Risk"
     }
   ],
   "workItems": [
     {
-      "title": "Project charter and scope definition",
+      "title": "User authentication module",
       "status": "Shipped",
-      "assignee": "Sarah Chen"
+      "assignee": "Alex Chen"
     },
     {
-      "title": "Architecture design and technical specification",
+      "title": "Dashboard layout framework",
       "status": "Shipped",
-      "assignee": "Michael Rodriguez"
+      "assignee": "Jordan Smith"
     },
     {
-      "title": "Database schema and data model design",
+      "title": "CSS styling and theming",
       "status": "Shipped",
-      "assignee": "Priya Patel"
+      "assignee": "Morgan Lee"
     },
     {
-      "title": "Blazor Server UI framework setup",
+      "title": "Milestone timeline component",
       "status": "Shipped",
-      "assignee": "James Thompson"
+      "assignee": "Casey Williams"
     },
     {
-      "title": "FileSystemWatcher implementation for data.json",
+      "title": "Status chart with ChartJS",
+      "status": "Shipped",
+      "assignee": "Taylor Brown"
+    },
+    {
+      "title": "Work item list grouping",
       "status": "InProgress",
-      "assignee": "Elena Volkov"
+      "assignee": "Alex Chen"
     },
     {
-      "title": "MudBlazor component integration",
+      "title": "Real-time data refresh via FileSystemWatcher",
       "status": "InProgress",
-      "assignee": "David Park"
+      "assignee": "Jordan Smith"
     },
     {
-      "title": "Milestone timeline custom SVG rendering",
+      "title": "Error handling and validation",
       "status": "InProgress",
-      "assignee": "Jessica Martinez"
-    },
-    {
-      "title": "Chart.js status visualization",
-      "status": "InProgress",
-      "assignee": "Robert Silva"
-    },
-    {
-      "title": "Error handling and validation layer",
-      "status": "CarriedOver",
-      "assignee": "Amanda Foster"
+      "assignee": "Morgan Lee"
     },
     {
       "title": "Unit tests for DashboardDataService",
-      "status": "CarriedOver",
-      "assignee": "Kevin Chen"
+      "status": "InProgress",
+      "assignee": "Casey Williams"
     },
     {
-      "title": "Integration tests and end-to-end testing",
+      "title": "Cross-browser testing (Chrome, Edge, Firefox)",
       "status": "CarriedOver",
-      "assignee": "Lisa Wang"
+      "assignee": "Taylor Brown"
     },
     {
-      "title": "Documentation and deployment guide",
+      "title": "Performance optimization for large datasets",
       "status": "CarriedOver",
-      "assignee": "Marcus Johnson"
+      "assignee": "Alex Chen"
+    },
+    {
+      "title": "Accessibility audit (WCAG AA compliance)",
+      "status": "CarriedOver",
+      "assignee": "Jordan Smith"
+    },
+    {
+      "title": "Documentation and README updates",
+      "status": "CarriedOver",
+      "assignee": "Morgan Lee"
     }
   ]
 }
