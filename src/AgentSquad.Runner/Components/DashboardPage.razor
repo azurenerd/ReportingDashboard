@@ -22,21 +22,18 @@
 
             <main class="dashboard-main" role="main">
                 <section class="dashboard-timeline-section">
-                    <div class="section-label">Timeline Panel</div>
-                    <!-- TimelinePanel component will render here -->
+                    <TimelinePanel />
                 </section>
 
                 <section class="dashboard-content-section">
-                    <div class="section-label">Status Grid</div>
-                    <!-- StatusGrid component will render here -->
+                    <StatusGrid />
                 </section>
             </main>
 
             <footer class="dashboard-footer">
                 <div class="row">
                     <div class="col-12">
-                        <div class="section-label">Metrics Footer</div>
-                        <!-- MetricsFooter component will render here -->
+                        <MetricsFooter />
                     </div>
                 </div>
             </footer>
@@ -94,16 +91,6 @@
         background-color: #f8f9fa;
         border-top: 1px solid #dee2e6;
         flex-shrink: 0;
-    }
-
-    .section-label {
-        padding: 0.75rem 1rem;
-        background-color: #e9ecef;
-        border: 1px dashed #adb5bd;
-        border-radius: 0.25rem;
-        font-size: 0.875rem;
-        color: #6c757d;
-        font-weight: 500;
     }
 
     .dashboard-loading {
