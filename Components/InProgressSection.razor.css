@@ -109,3 +109,34 @@
     background: var(--priority-p3, #6c757d);
     color: #ffffff;
 }
+
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.progress-track {
+    flex: 1;
+    height: 8px;
+    background: var(--border-color, #dee2e6);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--status-in-progress, #007bff);
+    border-radius: 4px;
+    transition: none;
+}
+
+.progress-text {
+    font-size: var(--font-size-small, 11px);
+    font-weight: 700;
+    color: var(--text-primary, #212529);
+    min-width: 36px;
+    text-align: right;
+    background: var(--bg-card, #ffffff);
+}

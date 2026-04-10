@@ -9,6 +9,7 @@
         <div class="items-list">
             @foreach (var item in Items)
             {
+                var percent = ClampPercent(item.PercentComplete);
                 <div class="work-item-card">
                     <div class="card-header">
                         <span class="item-title">@item.Title</span>
@@ -27,7 +28,12 @@
                     {
                         <div class="item-description">@item.Description</div>
                     }
-                    @* Progress bar added in Step 3 *@
+                    <div class="progress-container">
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: @(percent.ToString(System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                        </div>
+                        <span class="progress-text">@percent%</span>
+                    </div>
                 </div>
             }
         </div>
