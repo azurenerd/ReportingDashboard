@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -7,6 +8,9 @@ namespace ReportingDashboard.Services;
 
 public class DashboardDataService : IDashboardDataService
 {
+    private static readonly string[] ValidProjectStatuses = ["On Track", "At Risk", "Off Track"];
+    private static readonly string[] ValidMilestoneStatuses = ["Completed", "In Progress", "Upcoming", "Delayed"];
+
     private readonly string _filePath;
     private readonly ILogger<DashboardDataService> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
@@ -67,15 +71,86 @@ public class DashboardDataService : IDashboardDataService
             Data = data;
             LoadError = null;
             _logger.LogInformation("Dashboard data loaded successfully for project: {ProjectName}", Data.Project.Name);
+
+            ValidateData();
         }
         catch (JsonException ex)
         {
             LoadError = $"Error loading data: {ex.Message}";
             _logger.LogError(ex, "Failed to deserialize dashboard data from {FilePath}", _filePath);
-            // Retain previous valid Data if it exists
         }
 
         OnDataChanged?.Invoke();
+    }
+
+    private void ValidateData()
+    {
+        if (Data is null) return;
+
+        // Validate project fields
+        if (string.IsNullOrWhiteSpace(Data.Project.Name))
+        {
+            _logger.LogWarning("Project name is empty or missing");
+        }
+
+        if (!ValidProjectStatuses.Contains(Data.Project.Status))
+        {
+            _logger.LogWarning("Unrecognized project status: '{Status}'. Will render with fallback styling.", Data.Project.Status);
+        }
+
+        // Coerce null arrays to empty lists
+        if (Data.Milestones is null)
+        {
+            _logger.LogWarning("Milestones array is null in data.json. Defaulting to empty list.");
+            Data = Data with { Milestones = new List<Milestone>() };
+        }
+
+        if (Data.Shipped is null)
+        {
+            _logger.LogWarning("Shipped array is null in data.json. Defaulting to empty list.");
+            Data = Data with { Shipped = new List<WorkItem>() };
+        }
+
+        if (Data.InProgress is null)
+        {
+            _logger.LogWarning("InProgress array is null in data.json. Defaulting to empty list.");
+            Data = Data with { InProgress = new List<WorkItemInProgress>() };
+        }
+
+        if (Data.CarriedOver is null)
+        {
+            _logger.LogWarning("CarriedOver array is null in data.json. Defaulting to empty list.");
+            Data = Data with { CarriedOver = new List<CarriedOverItem>() };
+        }
+
+        if (Data.Metrics is null)
+        {
+            _logger.LogWarning("Metrics array is null in data.json. Defaulting to empty list.");
+            Data = Data with { Metrics = new List<KeyMetric>() };
+        }
+
+        // Validate milestone dates and statuses
+        foreach (var milestone in Data.Milestones)
+        {
+            if (!DateOnly.TryParseExact(milestone.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+            {
+                _logger.LogWarning("Milestone '{Title}' has unparseable date: '{Date}'. Expected format: yyyy-MM-dd.", milestone.Title, milestone.Date);
+            }
+
+            if (!ValidMilestoneStatuses.Contains(milestone.Status))
+            {
+                _logger.LogWarning("Milestone '{Title}' has unrecognized status: '{Status}'. Valid values: Completed, In Progress, Upcoming, Delayed.", milestone.Title, milestone.Status);
+            }
+        }
+
+        // Validate in-progress percent complete
+        foreach (var item in Data.InProgress)
+        {
+            if (item.PercentComplete < 0 || item.PercentComplete > 100)
+            {
+                _logger.LogWarning("In-progress item '{Title}' has PercentComplete value {Percent} outside valid range 0-100.", item.Title, item.PercentComplete);
+            }
+        }
     }
 
     private async Task<string?> ReadFileWithRetryAsync()
