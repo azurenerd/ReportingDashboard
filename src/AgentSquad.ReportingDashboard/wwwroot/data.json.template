@@ -1,0 +1,78 @@
+{
+  "projectName": "Platform Migration Q2",
+  "projectStatus": "On Track",
+  "milestones": [
+    {
+      "id": "milestone-001",
+      "name": "Requirements Review",
+      "dueDate": "2026-04-15",
+      "isCompleted": true
+    },
+    {
+      "id": "milestone-002",
+      "name": "Design Phase",
+      "dueDate": "2026-05-01",
+      "isCompleted": true
+    },
+    {
+      "id": "milestone-003",
+      "name": "Development Sprint 1",
+      "dueDate": "2026-05-30",
+      "isCompleted": false
+    },
+    {
+      "id": "milestone-004",
+      "name": "Testing & QA",
+      "dueDate": "2026-06-15",
+      "isCompleted": false
+    },
+    {
+      "id": "milestone-005",
+      "name": "Production Deployment",
+      "dueDate": "2026-07-01",
+      "isCompleted": false
+    }
+  ],
+  "shippedItems": [
+    {
+      "id": "ship-001",
+      "title": "User Authentication Module",
+      "description": "OAuth2 integration with Azure AD"
+    },
+    {
+      "id": "ship-002",
+      "title": "Database Schema Design",
+      "description": "Normalized schema for customer and order data"
+    },
+    {
+      "id": "ship-003",
+      "title": "API Gateway Setup",
+      "description": "Kong API gateway with rate limiting"
+    }
+  ],
+  "inProgressItems": [
+    {
+      "id": "wip-001",
+      "title": "Payment Processing Integration",
+      "description": "Stripe integration for billing system"
+    },
+    {
+      "id": "wip-002",
+      "title": "Analytics Dashboard",
+      "description": "Real-time analytics with Power BI"
+    }
+  ],
+  "carryoverItems": [
+    {
+      "id": "carry-001",
+      "title": "Legacy System Data Migration",
+      "description": "Migrate historical data from legacy platform"
+    },
+    {
+      "id": "carry-002",
+      "title": "Performance Optimization",
+      "description": "Database query optimization and caching strategy"
+    }
+  ],
+  "lastUpdated": "2026-04-10T05:16:28.908Z"
+}
