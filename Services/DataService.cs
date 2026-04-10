@@ -1,4 +1,5 @@
 using AgentSquad.Runner.Models;
+using System.Text.Json;
 
 namespace AgentSquad.Runner.Services;
 
@@ -32,5 +33,34 @@ public class DataService
     {
         // Implementation in subsequent steps
         throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Loads JSON content from a file asynchronously.
+    /// </summary>
+    /// <param name="path">The file path to read from.</param>
+    /// <returns>The file contents as a string.</returns>
+    /// <exception cref="FileReadException">Thrown when file cannot be read.</exception>
+    private async Task<string> LoadJsonFileAsync(string path)
+    {
+        try
+        {
+            _logger.LogInformation("Loading JSON from: {Path}", path);
+            var json = await File.ReadAllTextAsync(path);
+            _logger.LogInformation("Successfully loaded JSON file: {Path}", path);
+            return json;
+        }
+        catch (FileNotFoundException)
+        {
+            var message = "data.json not found in wwwroot/data directory";
+            _logger.LogError("File not found: {Path}. Message: {Message}", path, message);
+            throw new FileReadException(message);
+        }
+        catch (IOException ex)
+        {
+            var message = $"Cannot read data.json: {ex.Message}";
+            _logger.LogError(ex, "IO error reading file: {Path}. Message: {Message}", path, message);
+            throw new FileReadException(message, ex);
+        }
     }
 }
