@@ -1,8 +1,10 @@
+using System.Threading.Tasks;
 using AgentSquad.Runner.Models;
 
-namespace AgentSquad.Runner.Services;
-
-public interface IDataService
+namespace AgentSquad.Runner.Services
 {
-    Task<ProjectStatus> ReadProjectDataAsync();
+    public interface IDataService
+    {
+        System.Threading.Tasks.Task<ProjectStatus> ReadProjectDataAsync();
+    }
 }

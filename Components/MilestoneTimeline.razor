@@ -1,24 +1,269 @@
-@using AgentSquad.Runner.Models
+@inject IJSRuntime JS
 
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">Milestone Timeline</h5>
-    </div>
-    <div class="card-body">
-        @if (Milestones == null || Milestones.Count == 0)
+<div class="milestone-timeline-container">
+    <h2 class="mb-4">Project Milestone Timeline</h2>
+    
+    @if (hasError)
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Error:</strong> Failed to load milestone timeline. Please try refreshing the page.
+        </div>
+    }
+    else if (Milestones == null || Milestones.Count == 0)
+    {
+        <div class="alert alert-info">
+            No milestones to display.
+        </div>
+    }
+    else
+    {
+        <div class="chart-wrapper">
+            <canvas id="milestoneChart" style="max-width: 100%;"></canvas>
+        </div>
+        @if (isLoading)
         {
-            <p class="text-muted">No milestones available.</p>
-        }
-        else
-        {
-            <div id="milestoneChart" style="position: relative; height: 300px;">
-                <!-- Chart.js chart will be rendered here -->
+            <div class="alert alert-info d-flex align-items-center mt-2">
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                <span>Loading milestone timeline...</span>
             </div>
         }
-    </div>
+    }
 </div>
 
 @code {
     [Parameter]
     public List<Milestone> Milestones { get; set; } = new();
+
+    private IJSObjectReference? module;
+    private bool isLoading = true;
+    private bool hasError = false;
+
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
+    {
+        try
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/chart-interop.js");
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading chart-interop.js module: {ex.Message}");
+            hasError = true;
+            isLoading = false;
+        }
+    }
+
+    protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && module != null && Milestones?.Count > 0 && !hasError)
+        {
+            try
+            {
+                var transformedMilestones = TransformMilestonesToJavaScript(Milestones);
+                if (transformedMilestones.Count > 0)
+                {
+                    await module.InvokeVoidAsync("initChart", "milestoneChart", transformedMilestones);
+                }
+                else
+                {
+                    Console.WriteLine("No valid milestones to render after transformation.");
+                    hasError = true;
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing Chart.js: {ex.Message}");
+                hasError = true;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private List<MilestoneJavaScriptModel> TransformMilestonesToJavaScript(List<Milestone> milestones)
+    {
+        var transformed = new List<MilestoneJavaScriptModel>();
+
+        if (milestones == null || milestones.Count == 0)
+        {
+            return transformed;
+        }
+
+        foreach (var milestone in milestones)
+        {
+            try
+            {
+                if (milestone == null)
+                {
+                    Console.WriteLine("Skipping null milestone.");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(milestone.Name))
+                {
+                    Console.WriteLine("Skipping milestone with null or empty name.");
+                    continue;
+                }
+
+                if (milestone.TargetDate == default(DateTime))
+                {
+                    Console.WriteLine($"Skipping milestone '{milestone.Name}' with invalid target date.");
+                    continue;
+                }
+
+                var statusString = milestone.Status.ToString();
+                if (!IsValidMilestoneStatus(statusString))
+                {
+                    Console.WriteLine($"Skipping milestone '{milestone.Name}' with invalid status '{statusString}'.");
+                    continue;
+                }
+
+                var color = GetStatusColor(statusString);
+
+                transformed.Add(new MilestoneJavaScriptModel
+                {
+                    Name = milestone.Name.Trim(),
+                    TargetDate = milestone.TargetDate.ToString("O"),
+                    Status = statusString,
+                    Color = color
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error transforming milestone: {ex.Message}");
+                continue;
+            }
+        }
+
+        return transformed;
+    }
+
+    private bool IsValidMilestoneStatus(string status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return false;
+        }
+
+        return status == "OnTrack" || status == "AtRisk" || status == "Completed";
+    }
+
+    private string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "OnTrack" => "#28a745",
+            "AtRisk" => "#ffc107",
+            "Completed" => "#007bff",
+            _ => "#6c757d"
+        };
+    }
+
+    private class MilestoneJavaScriptModel
+    {
+        public string Name { get; set; }
+        public string TargetDate { get; set; }
+        public string Status { get; set; }
+        public string Color { get; set; }
+    }
 }
+
+<style>
+.milestone-timeline-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.milestone-timeline-container h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #212529;
+    margin: 0 0 20px 0;
+}
+
+.chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background-color: white;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.chart-wrapper canvas {
+    display: block;
+}
+
+.alert {
+    margin: 0;
+    border-radius: 6px;
+}
+
+.alert-info {
+    background-color: #e7f3ff;
+    border-color: #b3d9ff;
+    color: #004085;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.me-2 {
+    margin-right: 0.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+@@media (max-width: 1024px) {
+    .milestone-timeline-container {
+        padding: 18px;
+    }
+
+    .milestone-timeline-container h2 {
+        font-size: 1.35rem;
+    }
+
+    .chart-wrapper {
+        height: 280px;
+        padding: 12px;
+    }
+}
+
+@@media (max-width: 768px) {
+    .milestone-timeline-container {
+        padding: 15px;
+        margin-bottom: 25px;
+    }
+
+    .milestone-timeline-container h2 {
+        font-size: 1.25rem;
+        margin-bottom: 15px;
+    }
+
+    .chart-wrapper {
+        height: 250px;
+        padding: 10px;
+    }
+}
+</style>

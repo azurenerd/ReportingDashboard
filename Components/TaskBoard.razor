@@ -1,110 +1,228 @@
 @using AgentSquad.Runner.Models
 
-<div class="container-fluid">
-    <div class="row g-4">
-        <!-- Completed Column -->
-        <div class="col-lg-4 col-md-6 col-12">
-            <div class="mb-3">
-                <h4 class="d-inline-block me-2">Completed</h4>
-                <span class="badge bg-success">@Tasks.Count(t => t.Status == TaskStatus.Completed)</span>
+<div class="taskboard-container">
+    <h2 class="taskboard-title">Task Board</h2>
+    
+    <div class="taskboard-grid">
+        <div class="task-column">
+            <div class="column-header completed">
+                <h3>Completed</h3>
+                <span class="task-count">@completedTasks.Count</span>
             </div>
-            @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.Completed).OrderBy(t => t.DueDate))
-            {
-                <div class="card mb-2 border-light shadow-sm task-card" style="transition: box-shadow 0.3s ease;">
-                    <div class="card-body p-3">
-                        <h5 class="card-title fw-bold text-dark mb-2">@task.Title</h5>
-                        <p class="card-text mb-2">
-                            <small class="text-muted">@task.AssignedTo</small>
-                        </p>
-                        <p class="card-text text-end mb-0">
-                            <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
-                        </p>
+            <div class="task-list">
+                @foreach (var task in completedTasks)
+                {
+                    <div class="task-card">
+                        <div class="task-title">@task.Title</div>
+                        <div class="task-description">@task.Description</div>
+                        <div class="task-footer">
+                            <span class="task-assignee">@task.AssignedTo</span>
+                            <span class="task-date">@task.DueDate.ToString("MMM d, yyyy")</span>
+                        </div>
                     </div>
-                </div>
-            }
-            @if (!Tasks.Any(t => t.Status == TaskStatus.Completed))
-            {
-                <div class="alert alert-light text-muted py-3">No tasks</div>
-            }
+                }
+            </div>
         </div>
 
-        <!-- In Progress Column -->
-        <div class="col-lg-4 col-md-6 col-12">
-            <div class="mb-3">
-                <h4 class="d-inline-block me-2">In Progress</h4>
-                <span class="badge bg-primary">@Tasks.Count(t => t.Status == TaskStatus.InProgress)</span>
+        <div class="task-column">
+            <div class="column-header inprogress">
+                <h3>In Progress</h3>
+                <span class="task-count">@inProgressTasks.Count</span>
             </div>
-            @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.InProgress).OrderBy(t => t.DueDate))
-            {
-                <div class="card mb-2 border-light shadow-sm task-card" style="transition: box-shadow 0.3s ease;">
-                    <div class="card-body p-3">
-                        <h5 class="card-title fw-bold text-dark mb-2">@task.Title</h5>
-                        <p class="card-text mb-2">
-                            <small class="text-muted">@task.AssignedTo</small>
-                        </p>
-                        <p class="card-text text-end mb-0">
-                            <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
-                        </p>
+            <div class="task-list">
+                @foreach (var task in inProgressTasks)
+                {
+                    <div class="task-card">
+                        <div class="task-title">@task.Title</div>
+                        <div class="task-description">@task.Description</div>
+                        <div class="task-footer">
+                            <span class="task-assignee">@task.AssignedTo</span>
+                            <span class="task-date">@task.DueDate.ToString("MMM d, yyyy")</span>
+                        </div>
                     </div>
-                </div>
-            }
-            @if (!Tasks.Any(t => t.Status == TaskStatus.InProgress))
-            {
-                <div class="alert alert-light text-muted py-3">No tasks</div>
-            }
+                }
+            </div>
         </div>
 
-        <!-- Carried Over Column -->
-        <div class="col-lg-4 col-md-6 col-12">
-            <div class="mb-3">
-                <h4 class="d-inline-block me-2">Carried Over</h4>
-                <span class="badge bg-warning text-dark">@Tasks.Count(t => t.Status == TaskStatus.CarriedOver)</span>
+        <div class="task-column">
+            <div class="column-header carriedover">
+                <h3>Carried Over</h3>
+                <span class="task-count">@carriedOverTasks.Count</span>
             </div>
-            @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.CarriedOver).OrderBy(t => t.DueDate))
-            {
-                <div class="card mb-2 border-light shadow-sm task-card" style="transition: box-shadow 0.3s ease;">
-                    <div class="card-body p-3">
-                        <h5 class="card-title fw-bold text-dark mb-2">@task.Title</h5>
-                        <p class="card-text mb-2">
-                            <small class="text-muted">@task.AssignedTo</small>
-                        </p>
-                        <p class="card-text text-end mb-0">
-                            <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
-                        </p>
+            <div class="task-list">
+                @foreach (var task in carriedOverTasks)
+                {
+                    <div class="task-card">
+                        <div class="task-title">@task.Title</div>
+                        <div class="task-description">@task.Description</div>
+                        <div class="task-footer">
+                            <span class="task-assignee">@task.AssignedTo</span>
+                            <span class="task-date">@task.DueDate.ToString("MMM d, yyyy")</span>
+                        </div>
                     </div>
-                </div>
-            }
-            @if (!Tasks.Any(t => t.Status == TaskStatus.CarriedOver))
-            {
-                <div class="alert alert-light text-muted py-3">No tasks</div>
-            }
+                }
+            </div>
         </div>
     </div>
 </div>
 
-<style>
-    .task-card:hover {
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    }
-
-    @media print {
-        .task-card {
-            box-shadow: none !important;
-            border: 1px solid #dee2e6 !important;
-        }
-
-        .task-card:hover {
-            box-shadow: none !important;
-        }
-    }
-</style>
-
 @code {
     [Parameter]
-    public List<Task> Tasks { get; set; }
+    public List<Models.Task> Tasks { get; set; } = new();
 
-    protected override void OnInitialized()
+    private List<Models.Task> completedTasks = new();
+    private List<Models.Task> inProgressTasks = new();
+    private List<Models.Task> carriedOverTasks = new();
+
+    protected override void OnParametersSet()
     {
-        Tasks ??= new();
+        OrganizeTasks();
+    }
+
+    private void OrganizeTasks()
+    {
+        completedTasks = Tasks?.Where(t => t.Status == Models.TaskStatus.Completed).ToList() ?? new();
+        inProgressTasks = Tasks?.Where(t => t.Status == Models.TaskStatus.InProgress).ToList() ?? new();
+        carriedOverTasks = Tasks?.Where(t => t.Status == Models.TaskStatus.CarriedOver).ToList() ?? new();
     }
 }
+
+<style>
+.taskboard-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.taskboard-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #212529;
+    margin: 0 0 20px 0;
+}
+
+.taskboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.task-column {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.column-header {
+    padding: 15px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.column-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.column-header.completed {
+    background-color: #28a745;
+}
+
+.column-header.inprogress {
+    background-color: #007bff;
+}
+
+.column-header.carriedover {
+    background-color: #ffc107;
+}
+
+.task-count {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.task-list {
+    padding: 15px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.task-card {
+    background-color: #f8f9fa;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border-left: 4px solid #dee2e6;
+}
+
+.task-title {
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+}
+
+.task-description {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.task-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #495057;
+}
+
+.task-assignee {
+    font-weight: 500;
+}
+
+.task-date {
+    text-align: right;
+}
+
+@@media (max-width: 1024px) {
+    .taskboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    .task-list {
+        max-height: 500px;
+    }
+
+    .task-card {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+}
+
+@@media (max-width: 768px) {
+    .taskboard-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .task-list {
+        max-height: 400px;
+    }
+
+    .column-header h3 {
+        font-size: 1rem;
+    }
+
+    .task-title {
+        font-size: 0.9rem;
+    }
+}
+</style>

@@ -1,7 +1,12 @@
-namespace AgentSquad.Runner.Models;
+using System;
+using System.Collections.Generic;
 
-public class ProjectStatus
+namespace AgentSquad.Runner.Models
 {
-    public List<Milestone> Milestones { get; set; } = new();
-    public List<ProjectTask> Tasks { get; set; } = new();
+    public class ProjectStatus
+    {
+        public List<Milestone> Milestones { get; set; } = new();
+        public List<Models.Task> Tasks { get; set; } = new();
+        public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+    }
 }

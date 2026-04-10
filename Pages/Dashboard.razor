@@ -1,62 +1,250 @@
 @page "/dashboard"
-@using AgentSquad.Runner.Models
-@using AgentSquad.Runner.Services
 @inject IDataService DataService
 
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1>Executive Reporting Dashboard</h1>
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <div class="container-fluid">
+            <h1 class="dashboard-title">Executive Dashboard</h1>
+            <p class="dashboard-subtitle">Project Status & Milestone Overview</p>
         </div>
-    </div>
+    </header>
 
-    @if (ProjectStatus == null)
-    {
-        <div class="alert alert-info" role="alert">
-            Loading project data...
-        </div>
-    }
-    else if (string.IsNullOrEmpty(ErrorMessage))
-    {
-        <div class="row mb-4">
-            <div class="col-12">
-                <MilestoneTimeline Milestones="ProjectStatus.Milestones" />
+    <main class="dashboard-content">
+        @if (isLoading)
+        {
+            <div class="container-fluid">
+                <div class="loading-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading project data...</p>
+                </div>
             </div>
-        </div>
+        }
+        else if (hasError)
+        {
+            <div class="container-fluid">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error:</strong> @errorMessage
+                    <button type="button" class="btn-close" @onclick="() => hasError = false"></button>
+                </div>
+            </div>
+        }
+        else if (projectStatus != null)
+        {
+            <div class="container-fluid">
+                <div class="dashboard-grid">
+                    <!-- Milestone Timeline Section -->
+                    <section class="timeline-section">
+                        <MilestoneTimeline Milestones="projectStatus.Milestones" />
+                    </section>
 
-        <div class="row mb-4">
-            <div class="col-12">
-                <ProjectStatusSummary Tasks="ProjectStatus.Tasks" />
-            </div>
-        </div>
+                    <!-- Status Summary Section -->
+                    <section class="summary-section">
+                        <ProjectStatusSummary Tasks="projectStatus.Tasks" />
+                    </section>
 
-        <div class="row">
-            <div class="col-12">
-                <TaskBoard Tasks="ProjectStatus.Tasks" />
+                    <!-- Task Board Section -->
+                    <section class="taskboard-section">
+                        <TaskBoard Tasks="projectStatus.Tasks" />
+                    </section>
+                </div>
             </div>
+        }
+        else
+        {
+            <div class="container-fluid">
+                <div class="alert alert-warning">
+                    No project data available. Please ensure data.json is properly configured.
+                </div>
+            </div>
+        }
+    </main>
+
+    <footer class="dashboard-footer">
+        <div class="container-fluid">
+            <p class="text-muted">Last updated: @(projectStatus?.LastUpdated.ToString("g") ?? "N/A")</p>
         </div>
-    }
-    else
-    {
-        <div class="alert alert-danger" role="alert">
-            @ErrorMessage
-        </div>
-    }
+    </footer>
 </div>
 
 @code {
-    private ProjectStatus ProjectStatus;
-    private string ErrorMessage;
+    private ProjectStatus projectStatus;
+    private bool isLoading = true;
+    private bool hasError = false;
+    private string errorMessage = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
     {
         try
         {
-            ProjectStatus = await DataService.ReadProjectDataAsync();
+            projectStatus = await DataService.ReadProjectDataAsync();
+            isLoading = false;
         }
-        catch (Exception ex)
+        catch (FileNotFoundException)
         {
-            ErrorMessage = "Failed to load project data. Please verify data.json format.";
+            hasError = true;
+            errorMessage = "data.json not found. Please ensure the file exists in wwwroot/data/data.json";
+            isLoading = false;
+        }
+        catch (JsonException ex)
+        {
+            hasError = true;
+            errorMessage = $"Invalid JSON format in data.json: {ex.Message}";
+            isLoading = false;
+        }
+        catch (System.Exception ex)
+        {
+            hasError = true;
+            errorMessage = $"Failed to load project data: {ex.Message}";
+            isLoading = false;
         }
     }
 }
+
+<style>
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.dashboard-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+}
+
+.dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.dashboard-subtitle {
+    font-size: 1.1rem;
+    margin: 10px 0 0 0;
+    opacity: 0.95;
+}
+
+.dashboard-content {
+    flex: 1;
+    padding: 20px 0;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 20px;
+}
+
+.loading-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    gap: 30px;
+}
+
+.timeline-section,
+.summary-section,
+.taskboard-section {
+    width: 100%;
+}
+
+.dashboard-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+.dashboard-footer p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+}
+
+.btn-close {
+    filter: brightness(0.5);
+}
+
+.btn-close:hover {
+    filter: brightness(0.7);
+}
+
+@@media (max-width: 1024px) {
+    .dashboard-header {
+        padding: 30px 0;
+        margin-bottom: 30px;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1rem;
+    }
+
+    .dashboard-content {
+        padding: 15px 0;
+    }
+
+    .dashboard-grid {
+        gap: 25px;
+    }
+}
+
+@@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 25px 0;
+        margin-bottom: 25px;
+    }
+
+    .dashboard-title {
+        font-size: 1.75rem;
+    }
+
+    .dashboard-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .dashboard-content {
+        padding: 10px 0;
+    }
+
+    .dashboard-grid {
+        gap: 20px;
+    }
+
+    .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+</style>
