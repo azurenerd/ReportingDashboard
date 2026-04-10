@@ -1,115 +1,55 @@
 {
   "project": {
-    "name": "Q1 2024 Executive Dashboard Portal",
-    "description": "Real-time project health visibility platform for executive leadership. Provides snapshot of project progress, milestones, and team deliverables. Replaces manual reporting process with automated, live data feed. Local deployment, JSON-based configuration, no external dependencies."
+    "name": "Executive Dashboard Project",
+    "description": "Real-time project visibility dashboard for executives and stakeholders"
   },
   "milestones": [
     {
-      "name": "Architecture & Design Review",
-      "date": "2024-01-15T00:00:00Z",
-      "status": "Completed"
-    },
-    {
-      "name": "Development Environment Setup",
-      "date": "2024-01-31T00:00:00Z",
-      "status": "Completed"
-    },
-    {
-      "name": "Core API & Data Layer Implementation",
-      "date": "2024-02-28T00:00:00Z",
-      "status": "Completed"
-    },
-    {
-      "name": "User Interface Components & Dashboard Assembly",
-      "date": "2024-03-31T00:00:00Z",
+      "name": "MVP Launch",
+      "date": "2026-04-30T00:00:00Z",
       "status": "On Track"
     },
     {
-      "name": "File Watching & Real-time Updates",
-      "date": "2024-04-15T00:00:00Z",
+      "name": "Phase 2 Planning",
+      "date": "2026-05-15T00:00:00Z",
       "status": "On Track"
     },
     {
-      "name": "Performance Optimization & Load Testing",
-      "date": "2024-05-10T00:00:00Z",
-      "status": "At Risk"
-    },
-    {
-      "name": "Production Deployment & Training",
-      "date": "2024-05-31T00:00:00Z",
+      "name": "Enhanced Features",
+      "date": "2026-06-30T00:00:00Z",
       "status": "At Risk"
     }
   ],
   "workItems": [
     {
-      "title": "Design system and component library documentation",
-      "status": "Shipped",
-      "assignee": "Sarah Chen"
-    },
-    {
-      "title": "Implement authentication and authorization layer",
-      "status": "Shipped",
-      "assignee": "Marcus Rodriguez"
-    },
-    {
-      "title": "Create REST API endpoints for project data retrieval",
-      "status": "Shipped",
-      "assignee": "James Park"
-    },
-    {
-      "title": "Setup CI/CD pipeline with GitHub Actions",
-      "status": "Shipped",
-      "assignee": "Emily Johnson"
-    },
-    {
-      "title": "Refactor database schema for performance",
-      "status": "Shipped",
-      "assignee": "David Kumar"
-    },
-    {
-      "title": "Build dashboard summary card component",
+      "title": "Implement FileSystemWatcher for auto-update",
       "status": "InProgress",
-      "assignee": "Lisa Wong"
+      "assignee": "PrincipalEngineer 1"
     },
     {
-      "title": "Integrate ChartJS for status visualizations",
+      "title": "Create milestone timeline component",
+      "status": "Shipped",
+      "assignee": "PrincipalEngineer 2"
+    },
+    {
+      "title": "Build status chart with ChartJS",
       "status": "InProgress",
-      "assignee": "Alex Martinez"
+      "assignee": "Developer 1"
     },
     {
-      "title": "Implement FileSystemWatcher for data changes",
-      "status": "InProgress",
-      "assignee": "Tom Bradley"
+      "title": "Design responsive layout",
+      "status": "Shipped",
+      "assignee": "Designer"
     },
     {
-      "title": "Add comprehensive unit test coverage for services",
-      "status": "InProgress",
-      "assignee": "Rachel Thompson"
-    },
-    {
-      "title": "Configure logging and monitoring infrastructure",
-      "status": "InProgress",
-      "assignee": "Christopher Lee"
-    },
-    {
-      "title": "Implement caching layer for improved performance",
+      "title": "Write unit tests for DashboardDataService",
       "status": "CarriedOver",
-      "assignee": "Patricia Anderson"
+      "assignee": "QA Engineer"
     },
     {
-      "title": "Create user training documentation and video tutorials",
-      "status": "CarriedOver",
-      "assignee": "Michael Stevens"
-    },
-    {
-      "title": "Conduct security audit and penetration testing",
-      "status": "CarriedOver",
-      "assignee": "Jennifer Taylor"
-    },
-    {
-      "title": "Optimize dashboard rendering performance at scale",
-      "status": "CarriedOver",
-      "assignee": "Robert Wilson"
+      "title": "Document data.json schema",
+      "status": "InProgress",
+      "assignee": "Technical Writer"
     }
   ]
 }
