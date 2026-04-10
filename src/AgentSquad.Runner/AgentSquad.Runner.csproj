@@ -4,14 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>AgentSquad.Runner</RootNamespace>
+    <AssemblyName>AgentSquad.Runner</AssemblyName>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Bootstrap" Version="5.3.0" />
-    <PackageReference Include="Bootstrap.Icons" Version="1.11.3" />
-    <PackageReference Include="xUnit" Version="2.6.0" />
-    <PackageReference Include="Bunit" Version="1.23.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Testing" Version="8.0.0" />
-  </ItemGroup>
 
 </Project>
