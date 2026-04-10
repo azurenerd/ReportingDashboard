@@ -8,7 +8,24 @@
                 <h4 class="d-inline-block me-2">Completed</h4>
                 <span class="badge bg-success">@Tasks.Count(t => t.Status == TaskStatus.Completed)</span>
             </div>
-            <p class="text-muted">Column placeholder - tasks will display here</p>
+            @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.Completed).OrderBy(t => t.DueDate))
+            {
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h5 class="card-title">@task.Title</h5>
+                        <p class="card-text">
+                            <small class="text-muted">@task.AssignedTo</small>
+                        </p>
+                        <p class="card-text">
+                            <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
+                        </p>
+                    </div>
+                </div>
+            }
+            @if (!Tasks.Any(t => t.Status == TaskStatus.Completed))
+            {
+                <p class="text-muted">No tasks</p>
+            }
         </div>
 
         <!-- In Progress Column -->
@@ -17,7 +34,24 @@
                 <h4 class="d-inline-block me-2">In Progress</h4>
                 <span class="badge bg-primary">@Tasks.Count(t => t.Status == TaskStatus.InProgress)</span>
             </div>
-            <p class="text-muted">Column placeholder - tasks will display here</p>
+            @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.InProgress).OrderBy(t => t.DueDate))
+            {
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h5 class="card-title">@task.Title</h5>
+                        <p class="card-text">
+                            <small class="text-muted">@task.AssignedTo</small>
+                        </p>
+                        <p class="card-text">
+                            <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
+                        </p>
+                    </div>
+                </div>
+            }
+            @if (!Tasks.Any(t => t.Status == TaskStatus.InProgress))
+            {
+                <p class="text-muted">No tasks</p>
+            }
         </div>
 
         <!-- Carried Over Column -->
@@ -26,7 +60,24 @@
                 <h4 class="d-inline-block me-2">Carried Over</h4>
                 <span class="badge bg-warning text-dark">@Tasks.Count(t => t.Status == TaskStatus.CarriedOver)</span>
             </div>
-            <p class="text-muted">Column placeholder - tasks will display here</p>
+            @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.CarriedOver).OrderBy(t => t.DueDate))
+            {
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h5 class="card-title">@task.Title</h5>
+                        <p class="card-text">
+                            <small class="text-muted">@task.AssignedTo</small>
+                        </p>
+                        <p class="card-text">
+                            <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
+                        </p>
+                    </div>
+                </div>
+            }
+            @if (!Tasks.Any(t => t.Status == TaskStatus.CarriedOver))
+            {
+                <p class="text-muted">No tasks</p>
+            }
         </div>
     </div>
 </div>
