@@ -7,10 +7,11 @@ namespace AgentSquad.Runner.Pages;
 public partial class Dashboard : ComponentBase, IAsyncDisposable
 {
     [Inject]
-    public DashboardDataService DataService { get; set; }
+    public DashboardDataService DataService { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
+        DataService.OnDataChanged += OnDataChanged;
         await Task.CompletedTask;
     }
 
@@ -21,6 +22,7 @@ public partial class Dashboard : ComponentBase, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        DataService.OnDataChanged -= OnDataChanged;
         await ValueTask.CompletedTask;
     }
 }
