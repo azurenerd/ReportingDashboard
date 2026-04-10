@@ -1,27 +1,31 @@
 @using AgentSquad.Runner.Models
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card bg-success text-white">
+<div class="kpi-summary-container">
+    <div class="kpi-grid">
+        <!-- Shipped Card -->
+        <div class="kpi-card card">
             <div class="card-body">
-                <h6 class="card-title">Completed Tasks</h6>
-                <h3 class="mb-0">@(Tasks?.Count(t => t.Status == TaskStatus.Completed) ?? 0)</h3>
+                <h6 class="card-title text-muted mb-3">Shipped</h6>
+                <div class="kpi-value placeholder-value">0</div>
+                <p class="kpi-unit text-muted">completed tasks</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card bg-warning text-dark">
+
+        <!-- In Progress Card -->
+        <div class="kpi-card card">
             <div class="card-body">
-                <h6 class="card-title">In Progress</h6>
-                <h3 class="mb-0">@(Tasks?.Count(t => t.Status == TaskStatus.InProgress) ?? 0)</h3>
+                <h6 class="card-title text-muted mb-3">In Progress</h6>
+                <div class="kpi-value placeholder-value">0</div>
+                <p class="kpi-unit text-muted">active tasks</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card bg-info text-white">
+
+        <!-- On-Time % Card -->
+        <div class="kpi-card card">
             <div class="card-body">
-                <h6 class="card-title">Carried Over</h6>
-                <h3 class="mb-0">@(Tasks?.Count(t => t.Status == TaskStatus.CarriedOver) ?? 0)</h3>
+                <h6 class="card-title text-muted mb-3">On-Time %</h6>
+                <div class="kpi-value placeholder-value">0%</div>
+                <p class="kpi-unit text-muted">on schedule</p>
             </div>
         </div>
     </div>
@@ -29,5 +33,72 @@
 
 @code {
     [Parameter]
-    public List<ProjectTask> Tasks { get; set; } = new();
+    public List<Task> Tasks { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
 }
+
+<style>
+    .kpi-summary-container {
+        margin-bottom: 2rem;
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 1023px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 767px) {
+        .kpi-grid {
+            grid-template-columns: repeat(1, 1fr);
+        }
+    }
+
+    .kpi-card {
+        border: 1px solid #e9ecef;
+        border-radius: 0.375rem;
+        transition: box-shadow 0.2s ease-in-out;
+    }
+
+    .kpi-card:hover {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .kpi-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .kpi-card .card-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .kpi-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin: 0.5rem 0;
+        color: #212529;
+    }
+
+    .kpi-unit {
+        font-size: 0.875rem;
+        margin: 0.5rem 0 0 0;
+    }
+
+    .placeholder-value {
+        color: #6c757d;
+    }
+</style>
