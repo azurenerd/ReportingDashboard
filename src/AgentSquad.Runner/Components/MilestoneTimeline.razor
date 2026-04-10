@@ -1,16 +1,115 @@
 @using AgentSquad.Runner.Models
 @using System.Linq
 
-<div class="milestone-timeline">
-    @if (Milestones == null || Milestones.Count == 0)
+<div class="milestone-timeline-container">
+    @if (SortedMilestones == null || SortedMilestones.Count == 0)
     {
-        <p class="no-data">No milestones scheduled</p>
+        <div class="milestone-empty-state">
+            <p>No milestones scheduled</p>
+        </div>
     }
     else
     {
-        <!-- Timeline rendering will be implemented in step 2 -->
+        <div class="milestone-timeline">
+            @foreach (var milestone in SortedMilestones)
+            {
+                <div class="milestone-item">
+                    <div class="milestone-badge">
+                        <svg class="milestone-status-circle" viewBox="0 0 24 24" width="24" height="24">
+                            <circle cx="12" cy="12" r="10" fill="@GetStatusColor(milestone.Status)" stroke="#fff" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="milestone-content">
+                        <div class="milestone-name">@milestone.Name</div>
+                        <div class="milestone-date">@milestone.Date.ToString("MM/dd/yyyy")</div>
+                    </div>
+                </div>
+            }
+        </div>
     }
 </div>
+
+<style>
+    .milestone-timeline-container {
+        width: 100%;
+        padding: 24px 0;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
+    }
+
+    .milestone-empty-state {
+        padding: 32px 24px;
+        text-align: center;
+        color: #999;
+        font-size: 14px;
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .milestone-timeline {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        padding: 24px;
+        max-width: 1200px;
+    }
+
+    .milestone-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px;
+        background-color: #fff;
+        border-radius: 4px;
+        border: 1px solid #e8e8e8;
+        transition: box-shadow 0.2s ease;
+    }
+
+    .milestone-item:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .milestone-badge {
+        flex-shrink: 0;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2px;
+    }
+
+    .milestone-status-circle {
+        width: 24px;
+        height: 24px;
+    }
+
+    .milestone-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .milestone-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #212121;
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        margin-bottom: 4px;
+        word-break: break-word;
+    }
+
+    .milestone-date {
+        font-size: 12px;
+        color: #757575;
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    @media (max-width: 1920px) {
+        .milestone-timeline {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+    }
+</style>
 
 @code {
     [Parameter]
@@ -20,12 +119,27 @@
 
     protected override void OnParametersSet()
     {
-        if (Milestones != null)
+        if (Milestones != null && Milestones.Count > 0)
         {
             SortedMilestones = Milestones
                 .OrderBy(m => m.Date)
                 .ToList()
                 .AsReadOnly();
         }
+        else
+        {
+            SortedMilestones = new List<Milestone>().AsReadOnly();
+        }
+    }
+
+    private string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "Completed" => "#4CAF50",  // Green
+            "On Track" => "#FFC107",   // Yellow/Amber
+            "At Risk" => "#F44336",    // Red
+            _ => "#9E9E9E"             // Gray (fallback)
+        };
     }
 }
