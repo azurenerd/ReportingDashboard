@@ -1,18 +1,21 @@
 @implements IAsyncDisposable
 @namespace AgentSquad.Runner.Components
 
-<div class="timeline-container">
+<section class="timeline-container" aria-label="Project milestone timeline">
+    <h2 class="visually-hidden">Milestones</h2>
     @if (Dashboard?.Milestones?.Any() == true)
     {
         @foreach (var milestone in SortedMilestones)
         {
             <div class="timeline-item">
-                <div class="timeline-marker" style="background-color: var(--bs-@GetStatusColor(milestone.Status));">
+                <div class="timeline-marker" style="background-color: var(--bs-@GetStatusColor(milestone.Status));" aria-hidden="true">
                 </div>
                 <div class="timeline-content">
                     <h6 class="milestone-name">@milestone.Name</h6>
                     <p class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</p>
-                    <span class="badge bg-@GetStatusColor(milestone.Status)">
+                    <span class="badge bg-@GetStatusColor(milestone.Status)" 
+                          role="status" 
+                          aria-label="@milestone.Name status: @GetStatusDisplayText(milestone.Status)">
                         @GetStatusDisplayText(milestone.Status)
                     </span>
                 </div>
@@ -21,9 +24,9 @@
     }
     else
     {
-        <div class="alert alert-info">No milestones to display</div>
+        <div class="alert alert-info" role="status">No milestones to display</div>
     }
-</div>
+</section>
 
 @code {
     [CascadingParameter] public ProjectDashboard? Dashboard { get; set; }
