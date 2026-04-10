@@ -10,13 +10,13 @@
             </div>
             @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.Completed).OrderBy(t => t.DueDate))
             {
-                <div class="card mb-2">
+                <div class="card mb-2 border-light shadow-sm task-card" style="transition: box-shadow 0.3s ease;">
                     <div class="card-body p-3">
-                        <h5 class="card-title">@task.Title</h5>
-                        <p class="card-text">
+                        <h5 class="card-title fw-bold text-dark mb-2">@task.Title</h5>
+                        <p class="card-text mb-2">
                             <small class="text-muted">@task.AssignedTo</small>
                         </p>
-                        <p class="card-text">
+                        <p class="card-text text-end mb-0">
                             <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
                         </p>
                     </div>
@@ -36,13 +36,13 @@
             </div>
             @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.InProgress).OrderBy(t => t.DueDate))
             {
-                <div class="card mb-2">
+                <div class="card mb-2 border-light shadow-sm task-card" style="transition: box-shadow 0.3s ease;">
                     <div class="card-body p-3">
-                        <h5 class="card-title">@task.Title</h5>
-                        <p class="card-text">
+                        <h5 class="card-title fw-bold text-dark mb-2">@task.Title</h5>
+                        <p class="card-text mb-2">
                             <small class="text-muted">@task.AssignedTo</small>
                         </p>
-                        <p class="card-text">
+                        <p class="card-text text-end mb-0">
                             <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
                         </p>
                     </div>
@@ -62,13 +62,13 @@
             </div>
             @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.CarriedOver).OrderBy(t => t.DueDate))
             {
-                <div class="card mb-2">
+                <div class="card mb-2 border-light shadow-sm task-card" style="transition: box-shadow 0.3s ease;">
                     <div class="card-body p-3">
-                        <h5 class="card-title">@task.Title</h5>
-                        <p class="card-text">
+                        <h5 class="card-title fw-bold text-dark mb-2">@task.Title</h5>
+                        <p class="card-text mb-2">
                             <small class="text-muted">@task.AssignedTo</small>
                         </p>
-                        <p class="card-text">
+                        <p class="card-text text-end mb-0">
                             <small class="text-muted">@task.DueDate.ToString("MMMM d, yyyy")</small>
                         </p>
                     </div>
@@ -81,6 +81,12 @@
         </div>
     </div>
 </div>
+
+<style>
+    .task-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
 
 @code {
     [Parameter]
