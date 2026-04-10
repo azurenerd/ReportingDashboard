@@ -84,6 +84,8 @@ public class DashboardDataService : IDashboardDataService
         }
 
         OnDataChanged?.Invoke();
+
+        StartWatcher();
     }
 
     private async Task ReloadAsync()
@@ -173,6 +175,45 @@ public class DashboardDataService : IDashboardDataService
                 _logger.LogError(ex, "Unexpected error during debounced reload.");
             }
         }, token);
+    }
+
+    private void StartWatcher()
+    {
+        var directory = Path.GetDirectoryName(Path.GetFullPath(_filePath));
+        var fileName = Path.GetFileName(_filePath);
+
+        if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
+        {
+            _logger.LogWarning(
+                "Cannot start FileSystemWatcher: directory '{Directory}' does not exist. Relying on polling fallback.",
+                directory);
+            return;
+        }
+
+        _watcher = new FileSystemWatcher(directory)
+        {
+            Filter = fileName,
+            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
+            EnableRaisingEvents = false
+        };
+
+        _watcher.Changed += OnFileChanged;
+        _watcher.Created += OnFileChanged;
+        _watcher.Error += OnWatcherError;
+
+        _watcher.EnableRaisingEvents = true;
+        _logger.LogInformation("FileSystemWatcher started for {Path}", _filePath);
+    }
+
+    private void OnFileChanged(object sender, FileSystemEventArgs e)
+    {
+        _logger.LogDebug("File change detected: {ChangeType} {Path}", e.ChangeType, e.FullPath);
+        QueueDebouncedReload();
+    }
+
+    private void OnWatcherError(object sender, ErrorEventArgs e)
+    {
+        _logger.LogError(e.GetException(), "FileSystemWatcher error. Polling fallback will continue monitoring.");
     }
 
     private async Task<byte[]?> ReadFileBytesWithRetryAsync(int maxRetries = 3, int delayMs = 200)
