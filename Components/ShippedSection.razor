@@ -1,6 +1,17 @@
-<div class="work-item-section shipped">
-    <!-- ShippedSection: implemented in T6 -->
-</div>
+@using ReportingDashboard.Models
+
+@if (Items is not null && Items.Count > 0)
+{
+    <section class="shipped-section">
+        <h3 class="section-header">
+            <span class="section-icon">✓</span>
+            Shipped (@Items.Count)
+        </h3>
+        <div class="card-list">
+            @* Cards will be implemented in Step 2 *@
+        </div>
+    </section>
+}
 
 @code {
     [Parameter]
