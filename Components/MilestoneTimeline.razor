@@ -1,9 +1,25 @@
 @using AgentSquad.Runner.Models
 @using System.Linq
 
-<div class="milestone-timeline">
-    <!-- Rendering logic will be added in subsequent steps -->
-</div>
+@if (SortedMilestones.Any())
+{
+    <div class="milestone-timeline">
+        <div class="milestones-container">
+            @foreach (var milestone in SortedMilestones)
+            {
+                <div class="milestone-card">
+                    <!-- Rendering logic will be added in Step 4 -->
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="milestone-empty">
+        <p>No milestones scheduled</p>
+    </div>
+}
 
 @code {
     [Parameter]
