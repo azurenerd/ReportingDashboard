@@ -30,6 +30,8 @@
     .work-item-card {
         margin-bottom: 16px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .work-item-list {
@@ -37,18 +39,23 @@
         padding-left: 20px;
         line-height: 1.6;
         margin: 0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .work-item-list li {
         margin-bottom: 8px;
         word-wrap: break-word;
         overflow-wrap: break-word;
+        word-break: break-word;
     }
 
     .work-item-list li strong {
-        font-size: 14px;
+        font-size: 15px;
         display: block;
         margin-bottom: 2px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .assignee-text {
@@ -56,6 +63,8 @@
         color: #999;
         font-style: italic;
         margin-left: 8px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .empty-state {
@@ -63,6 +72,16 @@
         font-style: italic;
         padding: 16px 0;
         margin: 0;
+    }
+
+    .mud-card {
+        overflow: hidden;
+    }
+
+    .mud-card-content {
+        overflow-x: hidden;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 </style>
 
