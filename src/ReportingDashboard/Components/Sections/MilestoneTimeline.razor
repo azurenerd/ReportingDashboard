@@ -7,7 +7,19 @@
             <h2>Milestones</h2>
             <span class="item-count">@SortedMilestones.Count</span>
         </div>
-        <div class="timeline-track">
+        <div class="timeline-track" style="grid-template-columns: repeat(@SortedMilestones.Count, 1fr)">
+            @foreach (var milestone in SortedMilestones)
+            {
+                <div class="timeline-milestone">
+                    <div class="milestone-title">@milestone.Title</div>
+                    <div class="milestone-marker @GetStatusClass(milestone.Status)"></div>
+                    <div class="milestone-date">@(milestone.Date ?? "TBD")</div>
+                    @if (!string.IsNullOrWhiteSpace(milestone.Description))
+                    {
+                        <div class="milestone-description">@milestone.Description</div>
+                    }
+                </div>
+            }
         </div>
     </section>
 }
