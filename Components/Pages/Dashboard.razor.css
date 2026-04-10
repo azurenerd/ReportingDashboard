@@ -1,0 +1,26 @@
+.dashboard {
+    width: var(--dashboard-width, 1280px);
+    min-height: var(--dashboard-min-height, 900px);
+    margin: 0 auto;
+    padding: 16px 20px;
+    background-color: var(--bg-page, #f4f6f9);
+    font-family: var(--font-family, 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif);
+    font-size: var(--font-size-body, 13px);
+    color: var(--text-primary, #212529);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+    background-color: var(--bg-page, #f4f6f9);
+}
+
+.dashboard.print-mode #blazor-error-ui,
+.dashboard.print-mode .blazor-reconnect-modal,
+.dashboard.print-mode .components-reconnect-modal {
+    display: none !important;
+}

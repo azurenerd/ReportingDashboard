@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
 builder.Services.AddSingleton<IDashboardDataService, DashboardDataService>();
 
 builder.WebHost.ConfigureKestrel(options =>
@@ -14,7 +15,6 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 
-// Load data.json before accepting requests so the first page render has data
 var dataService = app.Services.GetRequiredService<IDashboardDataService>();
 await dataService.LoadAsync();
 
