@@ -1,0 +1,45 @@
+@using AgentSquad.Runner.Models
+
+<div class="status-column">
+    <div class="status-column-header">
+        <h5 class="status-column-title">@Title</h5>
+        <span class="badge bg-@BadgeClass">@(Items?.Count ?? 0)</span>
+    </div>
+
+    <div class="status-column-items">
+        @if (SortedItems.Any())
+        {
+            @foreach (var item in SortedItems)
+            {
+                <div class="card work-item-card">
+                    <h6 class="work-item-title">@item.Title</h6>
+                    @if (!string.IsNullOrEmpty(item.Description))
+                    {
+                        <p class="work-item-description">@item.Description</p>
+                    }
+                    <small class="work-item-date">@item.CompletedDate.ToString("MMM dd, yyyy")</small>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <p class="empty-state-message">No items</p>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public List<WorkItem>? Items { get; set; }
+
+    [Parameter]
+    public string BadgeClass { get; set; } = "secondary";
+
+    private IEnumerable<WorkItem> SortedItems =>
+        Items?.OrderByDescending(i => i.CompletedDate).ToList() ?? new List<WorkItem>();
+}
