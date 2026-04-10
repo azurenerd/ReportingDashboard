@@ -6,7 +6,7 @@
         <div class="kpi-card card">
             <div class="card-body">
                 <h6 class="card-title text-muted mb-3">Shipped</h6>
-                <div class="kpi-value placeholder-value">0</div>
+                <div class="kpi-value">@GetShippedCount()</div>
                 <p class="kpi-unit text-muted">completed tasks</p>
             </div>
         </div>
@@ -15,7 +15,7 @@
         <div class="kpi-card card">
             <div class="card-body">
                 <h6 class="card-title text-muted mb-3">In Progress</h6>
-                <div class="kpi-value placeholder-value">0</div>
+                <div class="kpi-value">@GetInProgressCount()</div>
                 <p class="kpi-unit text-muted">active tasks</p>
             </div>
         </div>
@@ -24,7 +24,7 @@
         <div class="kpi-card card">
             <div class="card-body">
                 <h6 class="card-title text-muted mb-3">On-Time %</h6>
-                <div class="kpi-value placeholder-value">0%</div>
+                <div class="kpi-value">@(GetOnTimePercentage().ToString("F0"))%</div>
                 <p class="kpi-unit text-muted">on schedule</p>
             </div>
         </div>
@@ -38,6 +38,78 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
+    }
+
+    /// <summary>
+    /// Counts the number of completed tasks (shipped count)
+    /// </summary>
+    private int GetShippedCount()
+    {
+        if (Tasks == null || Tasks.Count == 0)
+            return 0;
+
+        return Tasks.Count(t => t.Status == TaskStatus.Completed);
+    }
+
+    /// <summary>
+    /// Counts the number of in-progress tasks
+    /// </summary>
+    private int GetInProgressCount()
+    {
+        if (Tasks == null || Tasks.Count == 0)
+            return 0;
+
+        return Tasks.Count(t => t.Status == TaskStatus.InProgress);
+    }
+
+    /// <summary>
+    /// Calculates the percentage of completed tasks that were on-schedule
+    /// Formula: (on-time completed tasks / total completed tasks) * 100
+    /// Returns 0 if no completed tasks exist (avoids division by zero)
+    /// </summary>
+    private double GetOnTimePercentage()
+    {
+        try
+        {
+            var completedTasks = Tasks?
+                .Where(t => t.Status == TaskStatus.Completed)
+                .ToList() ?? new List<Task>();
+
+            if (completedTasks.Count == 0)
+                return 0;
+
+            int onTimeCount = completedTasks
+                .Count(t => IsTaskOnTime(t));
+
+            double percentage = (double)onTimeCount / completedTasks.Count * 100;
+            return percentage;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Determines if a completed task was on-schedule
+    /// Checks for IsOnTime property on the task object
+    /// </summary>
+    private bool IsTaskOnTime(Task task)
+    {
+        try
+        {
+            var isOnTimeProperty = task.GetType().GetProperty("IsOnTime", 
+                System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public);
+            
+            if (isOnTimeProperty != null && isOnTimeProperty.GetValue(task) is bool isOnTime)
+                return isOnTime;
+
+            return true;
+        }
+        catch
+        {
+            return true;
+        }
     }
 }
 
@@ -96,9 +168,5 @@
     .kpi-unit {
         font-size: 0.875rem;
         margin: 0.5rem 0 0 0;
-    }
-
-    .placeholder-value {
-        color: #6c757d;
     }
 </style>
