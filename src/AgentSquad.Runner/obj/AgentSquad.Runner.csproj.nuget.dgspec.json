@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Agents\\principalengineer-2755981ac5ac4111af75891420f58b14\\ReportingDashboard\\src\\AgentSquad.Runner\\AgentSquad.Runner.csproj": {}
+    "C:\\Agents\\testengineer-16321fa5c48847f4901cee9bca281ef1\\ReportingDashboard\\src\\AgentSquad.Runner\\AgentSquad.Runner.csproj": {}
   },
   "projects": {
-    "C:\\Agents\\principalengineer-2755981ac5ac4111af75891420f58b14\\ReportingDashboard\\src\\AgentSquad.Runner\\AgentSquad.Runner.csproj": {
+    "C:\\Agents\\testengineer-16321fa5c48847f4901cee9bca281ef1\\ReportingDashboard\\src\\AgentSquad.Runner\\AgentSquad.Runner.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Agents\\principalengineer-2755981ac5ac4111af75891420f58b14\\ReportingDashboard\\src\\AgentSquad.Runner\\AgentSquad.Runner.csproj",
+        "projectUniqueName": "C:\\Agents\\testengineer-16321fa5c48847f4901cee9bca281ef1\\ReportingDashboard\\src\\AgentSquad.Runner\\AgentSquad.Runner.csproj",
         "projectName": "AgentSquad.Runner",
-        "projectPath": "C:\\Agents\\principalengineer-2755981ac5ac4111af75891420f58b14\\ReportingDashboard\\src\\AgentSquad.Runner\\AgentSquad.Runner.csproj",
+        "projectPath": "C:\\Agents\\testengineer-16321fa5c48847f4901cee9bca281ef1\\ReportingDashboard\\src\\AgentSquad.Runner\\AgentSquad.Runner.csproj",
         "packagesPath": "C:\\Users\\behumphr\\.nuget\\packages\\",
-        "outputPath": "C:\\Agents\\principalengineer-2755981ac5ac4111af75891420f58b14\\ReportingDashboard\\src\\AgentSquad.Runner\\obj\\",
+        "outputPath": "C:\\Agents\\testengineer-16321fa5c48847f4901cee9bca281ef1\\ReportingDashboard\\src\\AgentSquad.Runner\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

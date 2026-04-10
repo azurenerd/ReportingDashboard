@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AgentSquad.Runner")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4d83b8071ead34ec1c49e1c1bcf7e4c1c3dee97e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4840e15757bef9a304a4f6cfd2e5355c1a6961c5")]
 [assembly: System.Reflection.AssemblyProductAttribute("AgentSquad.Runner")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AgentSquad.Runner")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
