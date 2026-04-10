@@ -376,6 +376,67 @@ html, body {
     .progress-fill {
         background-color: #333 !important;
     }
+
+    /* --- High-Contrast B&W Fallbacks (print) --- */
+
+    /*
+     * Priority badges: graduated borders so P0–P3 severity
+     * is distinguishable without color (red/orange/yellow/gray).
+     * The badge text ("P0", "P1", etc.) is always visible;
+     * border weight reinforces urgency in monochrome output.
+     */
+    .priority-badge.priority-p0 {
+        border: 2px solid #000;
+        font-weight: 700;
+    }
+
+    .priority-badge.priority-p1 {
+        border: 2px solid #333;
+        font-weight: 600;
+    }
+
+    .priority-badge.priority-p2 {
+        border: 1px solid #666;
+    }
+
+    .priority-badge.priority-p3 {
+        border: 1px dashed #999;
+    }
+
+    /*
+     * Project status badge: distinct border patterns per status.
+     * Text ("On Track" / "At Risk" / "Off Track") is the primary
+     * identifier in B&W; border style provides secondary cue.
+     */
+    .status-badge.status-on-track {
+        border: 2px solid #000;
+    }
+
+    .status-badge.status-at-risk {
+        border: 2px dashed #000;
+    }
+
+    .status-badge.status-off-track {
+        border: 3px solid #000;
+        font-weight: 700;
+    }
+
+    .status-badge.status-unknown {
+        border: 1px dotted #999;
+    }
+
+    /*
+     * Timeline "Today" marker: thick solid black line so it
+     * stands out in monochrome (normally red dashed).
+     */
+    .today-marker {
+        border-left: 3px solid #000 !important;
+    }
+
+    .today-marker-label {
+        color: #000 !important;
+        font-weight: 700;
+    }
 }
 
 /* ============================================
@@ -456,4 +517,71 @@ html, body {
 
 .dashboard.print-mode .section-header.carried-over::before {
     content: "\26A0 ";
+}
+
+/* ============================================
+   High-Contrast B&W Fallbacks — Screenshot Mode
+   Graduated borders and patterns for elements
+   that rely on color in normal mode.
+   ============================================ */
+
+/*
+ * Priority badges: graduated border weight/style so P0–P3
+ * severity is distinguishable without color in screenshots.
+ * Mirrors the @media print rules for consistency.
+ */
+.dashboard.print-mode .priority-badge.priority-p0 {
+    border: 2px solid #000;
+    font-weight: 700;
+}
+
+.dashboard.print-mode .priority-badge.priority-p1 {
+    border: 2px solid #333;
+    font-weight: 600;
+}
+
+.dashboard.print-mode .priority-badge.priority-p2 {
+    border: 1px solid #666;
+}
+
+.dashboard.print-mode .priority-badge.priority-p3 {
+    border: 1px dashed #999;
+}
+
+/*
+ * Project status badge: distinct border patterns per status.
+ * "On Track" = solid, "At Risk" = dashed, "Off Track" = heavy,
+ * unknown = dotted. Text label is the primary B&W identifier;
+ * border pattern is the secondary visual cue.
+ */
+.dashboard.print-mode .status-badge.status-on-track {
+    border: 2px solid #000;
+}
+
+.dashboard.print-mode .status-badge.status-at-risk {
+    border: 2px dashed #000;
+}
+
+.dashboard.print-mode .status-badge.status-off-track {
+    border: 3px solid #000;
+    font-weight: 700;
+}
+
+.dashboard.print-mode .status-badge.status-unknown {
+    border: 1px dotted #999;
+}
+
+/*
+ * Timeline "Today" marker: thick solid black line
+ * replaces the default red dashed style for B&W fidelity.
+ * Depends on T5 (MilestoneTimeline) using .today-marker
+ * and .today-marker-label CSS classes.
+ */
+.dashboard.print-mode .today-marker {
+    border-left: 3px solid #000;
+}
+
+.dashboard.print-mode .today-marker-label {
+    color: #000;
+    font-weight: 700;
 }
