@@ -1,0 +1,24 @@
+@using AgentSquad.Runner.Models
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Milestone Timeline</h5>
+    </div>
+    <div class="card-body">
+        @if (Milestones == null || Milestones.Count == 0)
+        {
+            <p class="text-muted">No milestones available.</p>
+        }
+        else
+        {
+            <div id="milestoneChart" style="position: relative; height: 300px;">
+                <!-- Chart.js chart will be rendered here -->
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<Milestone> Milestones { get; set; } = new();
+}
