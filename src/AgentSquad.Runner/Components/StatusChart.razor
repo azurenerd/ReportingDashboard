@@ -1,0 +1,112 @@
+@using ChartJS.Blazor.BarChart
+@using ChartJS.Blazor.Common
+@inherits ComponentBase
+
+<div class="status-chart-container">
+    <div id="statusChart" style="width: 100%; max-width: 600px; height: 300px; margin: 0 auto;"></div>
+</div>
+
+<style>
+    .status-chart-container {
+        max-width: 600px;
+        height: auto;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #F5F5F5;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public (int Shipped, int InProgress, int CarriedOver) StatusCounts { get; set; }
+
+    [Inject]
+    public IJSRuntime JSRuntime { get; set; }
+
+    private (int Shipped, int InProgress, int CarriedOver) _previousCounts;
+    private bool _isInitialized = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!_isInitialized || _previousCounts != StatusCounts)
+        {
+            _previousCounts = StatusCounts;
+            
+            if (!_isInitialized)
+            {
+                await InitializeChartAsync();
+                _isInitialized = true;
+            }
+            else
+            {
+                await UpdateChartDataAsync();
+            }
+        }
+    }
+
+    private async Task InitializeChartAsync()
+    {
+        await Task.Delay(100);
+        
+        var chartData = new
+        {
+            labels = new[] { "Shipped", "In Progress", "Carried Over" },
+            datasets = new object[]
+            {
+                new
+                {
+                    label = "Work Items",
+                    data = new[] { StatusCounts.Shipped, StatusCounts.InProgress, StatusCounts.CarriedOver },
+                    backgroundColor = new[] { "#4CAF50", "#2196F3", "#FF9800" },
+                    borderColor = new[] { "#388E3C", "#1976D2", "#F57C00" },
+                    borderWidth = 1
+                }
+            }
+        };
+
+        var options = new
+        {
+            indexAxis = "x",
+            responsive = true,
+            maintainAspectRatio = true,
+            plugins = new
+            {
+                legend = new
+                {
+                    display = true,
+                    position = "top"
+                }
+            },
+            scales = new
+            {
+                y = new
+                {
+                    beginAtZero = true,
+                    max = CalculateMaxValue()
+                }
+            }
+        };
+
+        await JSRuntime.InvokeVoidAsync("initializeStatusChart", chartData, options);
+    }
+
+    private async Task UpdateChartDataAsync()
+    {
+        await Task.Delay(50);
+        
+        var newData = new[] { StatusCounts.Shipped, StatusCounts.InProgress, StatusCounts.CarriedOver };
+        var maxValue = CalculateMaxValue();
+
+        await JSRuntime.InvokeVoidAsync("updateStatusChart", newData, maxValue);
+    }
+
+    private int CalculateMaxValue()
+    {
+        var max = Math.Max(StatusCounts.Shipped, Math.Max(StatusCounts.InProgress, StatusCounts.CarriedOver));
+        return Math.Max(max + 2, 10);
+    }
+}

@@ -1,33 +1,39 @@
-window.initializeStatusChart = function(canvasId, chartData, chartOptions) {
-    const ctx = document.getElementById(canvasId);
+let statusChartInstance = null;
+
+function initializeStatusChart(chartData, options) {
+    const ctx = document.getElementById('statusChart');
     
     if (!ctx) {
-        console.error('Canvas element not found: ' + canvasId);
+        console.error('Chart canvas element not found');
         return;
     }
 
-    // Destroy existing chart if it exists
-    if (window.statusChartInstance) {
-        window.statusChartInstance.destroy();
+    if (statusChartInstance) {
+        statusChartInstance.destroy();
     }
 
-    // Create new chart
-    window.statusChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: chartData,
-        options: chartOptions
-    });
-};
+    try {
+        statusChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: chartData,
+            options: options
+        });
+    } catch (error) {
+        console.error('Error initializing status chart:', error);
+    }
+}
 
-window.updateStatusChart = function(canvasId, newData) {
-    if (!window.statusChartInstance) {
-        console.error('Chart instance not found for ' + canvasId);
+function updateStatusChart(newData, maxValue) {
+    if (!statusChartInstance) {
+        console.error('Chart not initialized');
         return;
     }
 
-    // Update chart data without full re-initialization
-    window.statusChartInstance.data.datasets[0].data = newData;
-    
-    // Re-render chart smoothly
-    window.statusChartInstance.update('none');
-};
+    try {
+        statusChartInstance.data.datasets[0].data = newData;
+        statusChartInstance.options.scales.y.max = maxValue;
+        statusChartInstance.update();
+    } catch (error) {
+        console.error('Error updating status chart:', error);
+    }
+}

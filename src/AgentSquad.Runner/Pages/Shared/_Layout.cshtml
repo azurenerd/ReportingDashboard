@@ -3,19 +3,32 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AgentSquad Dashboard</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/AgentSquad.Runner.styles.css" asp-append-version="true" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <title>@ViewData["Title"] - Executive Dashboard</title>
+    <base href="~/" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/site.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/dashboard.css" asp-append-version="true" />
 </head>
 <body>
-    @RenderBody()
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40" cx="50" cy="50"></circle>
+            <circle r="40" cx="50" cy="50"></circle>
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
 
-    @await RenderSectionAsync("Scripts", required: false)
+    <script src="_framework/blazor.server.js"></script>
+    <script src="_content/MudBlazor/MudBlazor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="js/site.js" asp-append-version="true"></script>
 </body>
 </html>
