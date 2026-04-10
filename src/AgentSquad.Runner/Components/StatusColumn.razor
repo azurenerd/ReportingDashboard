@@ -1,0 +1,14 @@
+<div class="status-column">
+    <!-- Column content -->
+</div>
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public List<WorkItem>? Items { get; set; }
+
+    [Parameter]
+    public string BadgeClass { get; set; } = "secondary";
+}

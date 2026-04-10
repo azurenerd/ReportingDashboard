@@ -1,0 +1,18 @@
+@using AgentSquad.Runner.Models
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <!-- Shipped Column -->
+    </div>
+    <div class="col-md-4">
+        <!-- In Progress Column -->
+    </div>
+    <div class="col-md-4">
+        <!-- Carried Over Column -->
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ProjectDashboard? Dashboard { get; set; }
+}
