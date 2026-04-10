@@ -1,27 +1,51 @@
 @using AgentSquad.Runner.Models
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card bg-success text-white">
+<div class="kpi-summary-container">
+    @if (IsNoDataState)
+    {
+        <div class="no-data-alert alert alert-info" role="alert">
+            <span class="alert-icon">ℹ️</span>
+            <span class="alert-text">No task data available</span>
+        </div>
+    }
+    
+    <div class="kpi-grid">
+        <!-- Shipped Card -->
+        <div class="kpi-card card">
             <div class="card-body">
-                <h6 class="card-title">Completed Tasks</h6>
-                <h3 class="mb-0">@(Tasks?.Count(t => t.Status == TaskStatus.Completed) ?? 0)</h3>
+                <div class="card-header-wrapper">
+                    <h6 class="card-title">Shipped</h6>
+                </div>
+                <div class="kpi-value-wrapper">
+                    <div class="kpi-value text-secondary">@GetShippedCount()</div>
+                </div>
+                <p class="kpi-unit text-muted">completed tasks</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card bg-warning text-dark">
+
+        <!-- In Progress Card -->
+        <div class="kpi-card card">
             <div class="card-body">
-                <h6 class="card-title">In Progress</h6>
-                <h3 class="mb-0">@(Tasks?.Count(t => t.Status == TaskStatus.InProgress) ?? 0)</h3>
+                <div class="card-header-wrapper">
+                    <h6 class="card-title">In Progress</h6>
+                </div>
+                <div class="kpi-value-wrapper">
+                    <div class="kpi-value text-secondary">@GetInProgressCount()</div>
+                </div>
+                <p class="kpi-unit text-muted">active tasks</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card bg-info text-white">
+
+        <!-- On-Time % Card -->
+        <div class="kpi-card card">
             <div class="card-body">
-                <h6 class="card-title">Carried Over</h6>
-                <h3 class="mb-0">@(Tasks?.Count(t => t.Status == TaskStatus.CarriedOver) ?? 0)</h3>
+                <div class="card-header-wrapper">
+                    <h6 class="card-title">On-Time %</h6>
+                </div>
+                <div class="kpi-value-wrapper">
+                    <div class="kpi-value @GetColorClass(GetOnTimePercentage())">@(GetOnTimePercentage().ToString("F0"))%</div>
+                </div>
+                <p class="kpi-unit text-muted">on schedule</p>
             </div>
         </div>
     </div>
@@ -29,5 +53,245 @@
 
 @code {
     [Parameter]
-    public List<ProjectTask> Tasks { get; set; } = new();
+    public List<Task> Tasks { get; set; } = new();
+
+    private bool IsNoDataState { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.CompletedTask;
+        
+        try
+        {
+            IsNoDataState = Tasks == null || Tasks.Count == 0;
+        }
+        catch (Exception ex)
+        {
+            IsNoDataState = true;
+        }
+    }
+
+    private int GetShippedCount()
+    {
+        try
+        {
+            if (Tasks == null || Tasks.Count == 0)
+                return 0;
+
+            return Tasks.Count(t => t.Status == TaskStatus.Completed);
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    private int GetInProgressCount()
+    {
+        try
+        {
+            if (Tasks == null || Tasks.Count == 0)
+                return 0;
+
+            return Tasks.Count(t => t.Status == TaskStatus.InProgress);
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    private double GetOnTimePercentage()
+    {
+        try
+        {
+            var completedTasks = Tasks?
+                .Where(t => t.Status == TaskStatus.Completed)
+                .ToList() ?? new List<Task>();
+
+            if (completedTasks.Count == 0)
+                return 0;
+
+            int onTimeCount = completedTasks
+                .Count(t => IsTaskOnTime(t));
+
+            double percentage = (double)onTimeCount / completedTasks.Count * 100;
+            return percentage;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    private bool IsTaskOnTime(Task task)
+    {
+        try
+        {
+            if (task == null)
+                return true;
+
+            var isOnTimeProperty = task.GetType().GetProperty("IsOnTime", 
+                System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public);
+            
+            if (isOnTimeProperty != null && isOnTimeProperty.GetValue(task) is bool isOnTime)
+                return isOnTime;
+
+            return true;
+        }
+        catch
+        {
+            return true;
+        }
+    }
+
+    private string GetColorClass(double percentage)
+    {
+        try
+        {
+            if (double.IsNaN(percentage) || double.IsInfinity(percentage))
+                return "text-secondary";
+
+            if (percentage >= 80)
+                return "text-success bg-light-success";
+            
+            if (percentage >= 50)
+                return "text-warning bg-light-warning";
+            
+            return "text-danger bg-light-danger";
+        }
+        catch
+        {
+            return "text-secondary";
+        }
+    }
 }
+
+<style>
+    .kpi-summary-container {
+        margin-bottom: 2rem;
+    }
+
+    .no-data-alert {
+        border: 1px solid #d1ecf1;
+        border-radius: 0.375rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        background-color: #d1ecf1;
+        color: #0c5460;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .alert-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .alert-text {
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 1023px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 767px) {
+        .kpi-grid {
+            grid-template-columns: repeat(1, 1fr);
+        }
+    }
+
+    .kpi-card {
+        border: 1px solid #e9ecef;
+        border-radius: 0.375rem;
+        transition: box-shadow 0.2s ease-in-out;
+    }
+
+    .kpi-card:hover {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .kpi-card .card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-header-wrapper {
+        margin-bottom: 0.75rem;
+    }
+
+    .kpi-card .card-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin: 0;
+        color: #6c757d;
+    }
+
+    .kpi-value-wrapper {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0.75rem 0;
+    }
+
+    .kpi-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        width: 100%;
+        text-align: center;
+    }
+
+    .kpi-value.text-success {
+        color: #198754;
+    }
+
+    .kpi-value.bg-light-success {
+        background-color: #f0f9f6;
+    }
+
+    .kpi-value.text-warning {
+        color: #ff9800;
+    }
+
+    .kpi-value.bg-light-warning {
+        background-color: #fff8f0;
+    }
+
+    .kpi-value.text-danger {
+        color: #dc3545;
+    }
+
+    .kpi-value.bg-light-danger {
+        background-color: #fef5f5;
+    }
+
+    .kpi-value.text-secondary {
+        color: #6c757d;
+        background-color: #f8f9fa;
+    }
+
+    .kpi-unit {
+        font-size: 0.875rem;
+        margin: 0;
+        color: #6c757d;
+        text-align: center;
+    }
+</style>
