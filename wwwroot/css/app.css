@@ -1,0 +1,408 @@
+:root {
+    /* Status colors */
+    --status-shipped: #28a745;
+    --status-in-progress: #007bff;
+    --status-carried-over: #fd7e14;
+    --status-at-risk: #ffc107;
+    --status-on-track: #28a745;
+    --status-off-track: #dc3545;
+    --status-completed: #28a745;
+    --status-upcoming: #6c757d;
+    --status-delayed: #dc3545;
+
+    /* Priority colors */
+    --priority-p0: #dc3545;
+    --priority-p1: #fd7e14;
+    --priority-p2: #ffc107;
+    --priority-p3: #6c757d;
+
+    /* Layout */
+    --dashboard-width: 1280px;
+    --dashboard-min-height: 900px;
+
+    /* Typography */
+    --font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-size-title: 24px;
+    --font-size-section-header: 16px;
+    --font-size-body: 13px;
+    --font-size-small: 11px;
+
+    /* Surfaces */
+    --bg-page: #f4f6f9;
+    --bg-card: #ffffff;
+    --bg-header: #1a2332;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --text-on-dark: #ffffff;
+    --border-color: #dee2e6;
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Global reset - no animations for screenshot fidelity */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    transition: none !important;
+    animation: none !important;
+}
+
+html, body {
+    height: 100%;
+    background-color: var(--bg-page);
+    font-family: var(--font-family);
+    font-size: var(--font-size-body);
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+/* Page wrapper from MainLayout */
+.page {
+    background-color: var(--bg-page);
+    min-height: 100%;
+}
+
+/* Dashboard fixed-width container */
+.dashboard {
+    width: var(--dashboard-width);
+    min-height: var(--dashboard-min-height);
+    margin: 0 auto;
+    background-color: var(--bg-page);
+    font-family: var(--font-family);
+    font-size: var(--font-size-body);
+    color: var(--text-primary);
+    overflow: hidden;
+    position: relative;
+}
+
+/* 3-column content grid for work item sections */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    padding: 16px;
+}
+
+/* Error banner */
+.error-banner {
+    background-color: #dc3545;
+    color: #ffffff;
+    padding: 12px 20px;
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Project header */
+.project-header {
+    background-color: var(--bg-header);
+    color: var(--text-on-dark);
+    padding: 16px 20px;
+}
+
+/* Milestone timeline */
+.milestone-timeline {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 20px;
+    position: relative;
+}
+
+/* Section containers */
+.section {
+    background-color: var(--bg-card);
+    border-radius: 6px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow-card);
+}
+
+.shipped-section {
+    border-top: 3px solid var(--status-shipped);
+}
+
+.in-progress-section {
+    border-top: 3px solid var(--status-in-progress);
+}
+
+.carried-over-section {
+    border-top: 3px solid var(--status-carried-over);
+}
+
+/* Section header */
+.section-header {
+    font-size: var(--font-size-section-header);
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+/* Base card styles for work items */
+.card {
+    background-color: var(--bg-card);
+    border-radius: 6px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid transparent;
+    margin-bottom: 8px;
+}
+
+.card:last-child {
+    margin-bottom: 0;
+}
+
+.card.shipped {
+    border-left-color: var(--status-shipped);
+}
+
+.card.in-progress {
+    border-left-color: var(--status-in-progress);
+}
+
+.card.carried-over {
+    border-left-color: var(--status-carried-over);
+}
+
+/* Card typography */
+.card-title {
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.card-description {
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+/* Badge base */
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    line-height: 1.4;
+    vertical-align: middle;
+}
+
+/* Priority badges */
+.priority-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.priority-p0 {
+    background-color: var(--priority-p0);
+}
+
+.priority-p1 {
+    background-color: var(--priority-p1);
+}
+
+.priority-p2 {
+    background-color: var(--priority-p2);
+    color: var(--text-primary);
+}
+
+.priority-p3 {
+    background-color: var(--priority-p3);
+}
+
+/* Category badge */
+.category-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    background-color: #e9ecef;
+    color: var(--text-primary);
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: var(--font-size-small);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-on-track {
+    background-color: var(--status-on-track);
+    color: #ffffff;
+}
+
+.status-at-risk {
+    background-color: var(--status-at-risk);
+    color: var(--text-primary);
+}
+
+.status-off-track {
+    background-color: var(--status-off-track);
+    color: #ffffff;
+}
+
+.status-unknown {
+    background-color: var(--status-upcoming);
+    color: #ffffff;
+}
+
+/* Progress bar */
+.progress-bar-container {
+    width: 100%;
+    height: 6px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 6px 0;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--status-in-progress);
+    border-radius: 3px;
+}
+
+/* Metrics bar */
+.metrics-bar {
+    display: flex;
+    gap: 16px;
+    padding: 12px 16px;
+    background-color: var(--bg-card);
+    margin: 0 16px 16px 16px;
+    border-radius: 6px;
+    box-shadow: var(--shadow-card);
+}
+
+/* Metric badge */
+.metric-badge {
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px;
+    background-color: var(--bg-card);
+}
+
+.metric-label {
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.metric-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.metric-trend {
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.trend-up {
+    color: var(--status-on-track);
+}
+
+.trend-down {
+    color: var(--status-off-track);
+}
+
+.trend-stable {
+    color: var(--text-secondary);
+}
+
+/* Carry-over reason styling */
+.carry-over-reason {
+    font-size: var(--font-size-small);
+    color: var(--status-carried-over);
+    font-style: italic;
+    margin-top: 4px;
+}
+
+.carry-over-target {
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
+}
+
+/* Override default Blazor error UI */
+#blazor-error-ui {
+    display: none;
+}
+
+/* Print-mode overrides */
+.dashboard.print-mode #blazor-error-ui,
+.dashboard.print-mode .blazor-reconnect-modal {
+    display: none !important;
+}
+
+/* Print media query */
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .dashboard {
+        width: 100%;
+        box-shadow: none;
+    }
+
+    #blazor-error-ui,
+    .blazor-error-ui {
+        display: none !important;
+    }
+
+    .error-banner {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .card {
+        box-shadow: none;
+        border: 1px solid var(--border-color);
+    }
+
+    .section {
+        box-shadow: none;
+        border: 1px solid var(--border-color);
+    }
+
+    .metrics-bar {
+        box-shadow: none;
+        border: 1px solid var(--border-color);
+    }
+
+    .project-header {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .status-badge {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .priority-badge {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .progress-bar-container,
+    .progress-bar-fill {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}
