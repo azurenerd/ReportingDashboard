@@ -2,40 +2,49 @@
 
 <div class="metrics-footer">
     <div class="container-fluid">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <div class="metric-box">
-                    <div class="metric-value">
-                        @TotalPlanned
+        @if (Dashboard?.Metrics != null)
+        {
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <div class="metric-value">
+                            @TotalPlanned
+                        </div>
+                        <h6 class="metric-label">Total Planned</h6>
                     </div>
-                    <h6 class="metric-label">Total Planned</h6>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <div class="metric-value">
+                            @Completed
+                        </div>
+                        <h6 class="metric-label">Completed</h6>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <div class="metric-value @GetColorClass(CompletionPercentage)">
+                            @FormattedCompletion%
+                        </div>
+                        <h6 class="metric-label">Completion %</h6>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <div class="metric-value @GetColorClass(HealthScore)">
+                            @FormattedHealthScore
+                        </div>
+                        <h6 class="metric-label">Health Score</h6>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="metric-box">
-                    <div class="metric-value">
-                        @Completed
-                    </div>
-                    <h6 class="metric-label">Completed</h6>
-                </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                <p class="mb-0">Dashboard metrics not available</p>
             </div>
-            <div class="col-md-3">
-                <div class="metric-box">
-                    <div class="metric-value @GetColorClass(CompletionPercentage)">
-                        @FormattedCompletion%
-                    </div>
-                    <h6 class="metric-label">Completion %</h6>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="metric-box">
-                    <div class="metric-value @GetColorClass(HealthScore)">
-                        @HealthScore.ToString("F0")
-                    </div>
-                    <h6 class="metric-label">Health Score</h6>
-                </div>
-            </div>
-        </div>
+        }
     </div>
 </div>
 
@@ -57,8 +66,27 @@
         ? CompletionPercentage.ToString("F0") 
         : "-";
 
+    private string FormattedHealthScore
+    {
+        get
+        {
+            if (Dashboard?.Metrics == null)
+                return "-";
+            
+            var score = Dashboard.Metrics.HealthScore;
+            
+            if (score < 0 || score > 100)
+                return "-";
+            
+            return score.ToString("F0");
+        }
+    }
+
     private string GetColorClass(decimal value)
     {
+        if (value < 0 || value > 100)
+            return "text-muted";
+        
         return value >= 75m ? "text-success" 
             : value >= 40m ? "text-warning" 
             : "text-danger";
