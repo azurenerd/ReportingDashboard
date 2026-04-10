@@ -1,6 +1,8 @@
+using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using AgentSquad.ReportingDashboard.Models;
 
@@ -27,6 +29,54 @@ namespace AgentSquad.ReportingDashboard.Services
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
 
+            CurrentData = new DashboardData
+            {
+                ProjectName = "Dashboard",
+                ProjectStatus = "Unknown",
+                Milestones = new List<Milestone>(),
+                ShippedItems = new List<MetricItem>(),
+                InProgressItems = new List<MetricItem>(),
+                CarryoverItems = new List<MetricItem>(),
+                LastUpdated = DateTime.UtcNow
+            };
+        }
+
+        public async Task InitializeAsync()
+        {
+            try
+            {
+                var json = File.ReadAllText(_dataFilePath);
+                var loadedData = JsonSerializer.Deserialize<DashboardData>(json, _jsonOptions);
+
+                if (loadedData != null)
+                {
+                    CurrentData = loadedData;
+                }
+                else
+                {
+                    Debug.WriteLine("DataService: Deserialized data was null; using defaults");
+                    SetDefaultData();
+                }
+            }
+            catch (FileNotFoundException ex)
+            {
+                Debug.WriteLine($"DataService: data.json not found at '{_dataFilePath}'; using defaults");
+                SetDefaultData();
+            }
+            catch (JsonException ex)
+            {
+                Debug.WriteLine($"DataService: JSON parse error - {ex.Message}; using defaults");
+                SetDefaultData();
+            }
+            catch (IOException ex)
+            {
+                Debug.WriteLine($"DataService: File access error - {ex.Message}; using defaults");
+                SetDefaultData();
+            }
+        }
+
+        private void SetDefaultData()
+        {
             CurrentData = new DashboardData
             {
                 ProjectName = "Dashboard",
