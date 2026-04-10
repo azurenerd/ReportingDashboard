@@ -1,89 +1,33 @@
 @using AgentSquad.Runner.Models
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0">Completed (@(Tasks?.Count(t => t.Status == TaskStatus.Completed) ?? 0))</h5>
-            </div>
-            <div class="card-body">
-                @if (Tasks != null && Tasks.Any(t => t.Status == TaskStatus.Completed))
-                {
-                    @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.Completed))
-                    {
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <h6 class="card-title">@task.Title</h6>
-                                <p class="card-text text-muted small">@task.Description</p>
-                                <small class="text-muted">Assigned to: @task.AssignedTo</small>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted">No completed tasks.</p>
-                }
-            </div>
+<div class="container-fluid">
+    <div class="row g-4">
+        <!-- Completed Column -->
+        <div class="col-lg-4 col-md-6 col-12">
+            <h4>Completed</h4>
+            <p class="text-muted">Column placeholder - tasks will display here</p>
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0">In Progress (@(Tasks?.Count(t => t.Status == TaskStatus.InProgress) ?? 0))</h5>
-            </div>
-            <div class="card-body">
-                @if (Tasks != null && Tasks.Any(t => t.Status == TaskStatus.InProgress))
-                {
-                    @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.InProgress))
-                    {
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <h6 class="card-title">@task.Title</h6>
-                                <p class="card-text text-muted small">@task.Description</p>
-                                <small class="text-muted">Assigned to: @task.AssignedTo</small>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted">No in-progress tasks.</p>
-                }
-            </div>
+        <!-- In Progress Column -->
+        <div class="col-lg-4 col-md-6 col-12">
+            <h4>In Progress</h4>
+            <p class="text-muted">Column placeholder - tasks will display here</p>
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">Carried Over (@(Tasks?.Count(t => t.Status == TaskStatus.CarriedOver) ?? 0))</h5>
-            </div>
-            <div class="card-body">
-                @if (Tasks != null && Tasks.Any(t => t.Status == TaskStatus.CarriedOver))
-                {
-                    @foreach (var task in Tasks.Where(t => t.Status == TaskStatus.CarriedOver))
-                    {
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <h6 class="card-title">@task.Title</h6>
-                                <p class="card-text text-muted small">@task.Description</p>
-                                <small class="text-muted">Assigned to: @task.AssignedTo</small>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted">No carried over tasks.</p>
-                }
-            </div>
+        <!-- Carried Over Column -->
+        <div class="col-lg-4 col-md-6 col-12">
+            <h4>Carried Over</h4>
+            <p class="text-muted">Column placeholder - tasks will display here</p>
         </div>
     </div>
 </div>
 
 @code {
     [Parameter]
-    public List<ProjectTask> Tasks { get; set; } = new();
+    public List<Task> Tasks { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Tasks ??= new();
+    }
 }
