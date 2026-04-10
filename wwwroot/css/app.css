@@ -247,36 +247,129 @@ html, body {
     display: none !important;
 }
 
-/* Print media query */
+/* ============================================
+   @media print — Browser Print / PDF Output
+   Activated via Ctrl+P or "Print to PDF"
+   ============================================ */
 @media print {
+    /* Reset page margins for edge-to-edge printing */
+    @page {
+        margin: 0;
+        size: landscape;
+    }
+
     body {
         margin: 0;
         padding: 0;
+        background-color: white;
     }
 
+    /* Expand dashboard to fill print page and preserve colors */
     .dashboard {
         width: 100%;
+        min-height: auto;
+        margin: 0;
         box-shadow: none;
+        overflow: visible;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 
+    /* Remove all box-shadows globally */
+    * {
+        box-shadow: none !important;
+    }
+
+    /* Hide Blazor framework UI and error banner */
     #blazor-error-ui,
-    .blazor-error-ui {
+    .blazor-error-ui,
+    .blazor-reconnect-modal,
+    [data-blazor-reconnect],
+    .error-banner {
         display: none !important;
     }
 
-    .error-banner {
-        print-color-adjust: exact;
-        -webkit-print-color-adjust: exact;
-    }
-
+    /* Preserve colors on all visual indicator elements */
     .card,
     .work-item-section,
     .metric-badge,
     .milestone-timeline,
     .project-header,
     .status-badge,
-    .priority-badge {
+    .priority-badge,
+    .progress-track,
+    .progress-fill,
+    .milestone-marker {
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
+    }
+
+    /* Cards: visible borders instead of shadows for monochrome fidelity */
+    .card {
+        border: 1px solid #999;
+    }
+
+    /* Status badges: add border so they remain visible without color */
+    .status-badge {
+        border: 1px solid #333;
+    }
+
+    /* Section left borders: increase thickness for monochrome visibility */
+    .card.shipped {
+        border-left: 5px solid #333;
+    }
+
+    .card.in-progress {
+        border-left: 5px solid #666;
+    }
+
+    .card.carried-over {
+        border-left: 5px solid #999;
+    }
+
+    /* Work item sections: visible borders */
+    .work-item-section {
+        border: 1px solid #ccc;
+    }
+
+    /* Metric badges: visible borders */
+    .metric-badge {
+        border: 1px solid #ccc;
+    }
+
+    /* Milestone markers: distinct border patterns for B&W */
+    .milestone-marker.completed {
+        background-color: #333 !important;
+        border-color: #333 !important;
+    }
+
+    .milestone-marker.in-progress {
+        background-color: white !important;
+        border: 3px solid #333 !important;
+        border-right-color: transparent !important;
+    }
+
+    .milestone-marker.upcoming {
+        background-color: white !important;
+        border: 2px dashed #666 !important;
+    }
+
+    .milestone-marker.delayed {
+        background-color: white !important;
+        border: 3px double #333 !important;
+    }
+
+    /* Trend indicators: ensure text labels are visible in print */
+    .trend-label {
+        display: inline !important;
+    }
+
+    /* Progress bars: add border for monochrome visibility */
+    .progress-track {
+        border: 1px solid #666;
+    }
+
+    .progress-fill {
+        background-color: #333 !important;
     }
 }
