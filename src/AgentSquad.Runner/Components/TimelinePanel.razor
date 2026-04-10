@@ -1,0 +1,29 @@
+@implements IAsyncDisposable
+@namespace AgentSquad.Runner.Components
+
+<div class="timeline-container">
+    @if (Dashboard?.Milestones?.Any() == true)
+    {
+        @foreach (var milestone in SortedMilestones)
+        {
+            <!-- Milestone rendering placeholder -->
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">No milestones to display</div>
+    }
+</div>
+
+@code {
+    [CascadingParameter] public ProjectDashboard? Dashboard { get; set; }
+    
+    private IEnumerable<Milestone> SortedMilestones =>
+        Dashboard?.Milestones?.OrderBy(m => m.TargetDate) ?? new List<Milestone>();
+    
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        // Placeholder for future cleanup if needed
+        await Task.CompletedTask;
+    }
+}
