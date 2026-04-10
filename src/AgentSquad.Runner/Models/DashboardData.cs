@@ -2,60 +2,79 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AgentSquad.Runner.Models;
 
-public enum WorkItemStatus
+public class DashboardData : IValidatableObject
 {
-    Shipped = 0,
-    InProgress = 1,
-    CarriedOver = 2
-}
-
-public class Project
-{
-    [Required(ErrorMessage = "Project name is required")]
-    [StringLength(256, ErrorMessage = "Project name cannot exceed 256 characters")]
-    public string Name { get; set; } = string.Empty;
-
-    [StringLength(1024, ErrorMessage = "Project description cannot exceed 1024 characters")]
-    public string? Description { get; set; }
-}
-
-public class Milestone
-{
-    [Required(ErrorMessage = "Milestone name is required")]
-    [StringLength(256, ErrorMessage = "Milestone name cannot exceed 256 characters")]
-    public string Name { get; set; } = string.Empty;
-
-    [Required(ErrorMessage = "Milestone date is required")]
-    public DateTime Date { get; set; }
-
-    [Required(ErrorMessage = "Milestone status is required")]
-    [RegularExpression(@"^(Completed|On Track|At Risk)$", 
-        ErrorMessage = "Milestone status must be one of: Completed, On Track, At Risk")]
-    public string Status { get; set; } = string.Empty;
-}
-
-public class WorkItem
-{
-    [Required(ErrorMessage = "Work item title is required")]
-    [StringLength(512, ErrorMessage = "Work item title cannot exceed 512 characters")]
-    public string Title { get; set; } = string.Empty;
-
-    [Required(ErrorMessage = "Work item status is required")]
-    [EnumDataType(typeof(WorkItemStatus), ErrorMessage = "Work item status must be Shipped, InProgress, or CarriedOver")]
-    public WorkItemStatus Status { get; set; }
-
-    [StringLength(256, ErrorMessage = "Assignee name cannot exceed 256 characters")]
-    public string? Assignee { get; set; }
-}
-
-public class DashboardData
-{
-    [Required(ErrorMessage = "Project is required")]
+    [Required(ErrorMessage = "Project is required.")]
     public Project? Project { get; set; }
 
-    [Required(ErrorMessage = "Milestones list is required")]
-    public List<Milestone> Milestones { get; set; } = [];
+    public List<Milestone> Milestones { get; set; } = new();
 
-    [Required(ErrorMessage = "Work items list is required")]
-    public List<WorkItem> WorkItems { get; set; } = [];
+    public List<WorkItem> WorkItems { get; set; } = new();
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext context)
+    {
+        if (Project == null)
+        {
+            yield return new ValidationResult("Project cannot be null.", new[] { nameof(Project) });
+            yield break;
+        }
+
+        var projectResults = ((IValidatableObject)Project).Validate(context).ToList();
+        foreach (var result in projectResults)
+        {
+            yield return result;
+        }
+
+        if (Milestones == null)
+        {
+            yield return new ValidationResult("Milestones list cannot be null; use empty list instead.", new[] { nameof(Milestones) });
+        }
+        else
+        {
+            for (int i = 0; i < Milestones.Count; i++)
+            {
+                var milestone = Milestones[i];
+                if (milestone == null)
+                {
+                    yield return new ValidationResult($"Milestone at index {i} is null.", new[] { nameof(Milestones) });
+                    continue;
+                }
+
+                var milestoneResults = ((IValidatableObject)milestone).Validate(context).ToList();
+                foreach (var result in milestoneResults)
+                {
+                    var newMemberNames = result.MemberNames.Count() > 0
+                        ? result.MemberNames.Select(m => $"{nameof(Milestones)}[{i}].{m}").ToList()
+                        : new List<string> { $"{nameof(Milestones)}[{i}]" };
+                    yield return new ValidationResult(result.ErrorMessage, newMemberNames);
+                }
+            }
+        }
+
+        if (WorkItems == null)
+        {
+            yield return new ValidationResult("WorkItems list cannot be null; use empty list instead.", new[] { nameof(WorkItems) });
+        }
+        else
+        {
+            for (int i = 0; i < WorkItems.Count; i++)
+            {
+                var workItem = WorkItems[i];
+                if (workItem == null)
+                {
+                    yield return new ValidationResult($"WorkItem at index {i} is null.", new[] { nameof(WorkItems) });
+                    continue;
+                }
+
+                var workItemResults = ((IValidatableObject)workItem).Validate(context).ToList();
+                foreach (var result in workItemResults)
+                {
+                    var newMemberNames = result.MemberNames.Count() > 0
+                        ? result.MemberNames.Select(m => $"{nameof(WorkItems)}[{i}].{m}").ToList()
+                        : new List<string> { $"{nameof(WorkItems)}[{i}]" };
+                    yield return new ValidationResult(result.ErrorMessage, newMemberNames);
+                }
+            }
+        }
+    }
 }

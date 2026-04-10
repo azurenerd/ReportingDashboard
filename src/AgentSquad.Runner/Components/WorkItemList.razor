@@ -1,58 +1,39 @@
 @using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
 
-<div class="work-item-sections">
-    @RenderWorkItemSection("Shipped", Shipped, "shipped")
-    @RenderWorkItemSection("In Progress", InProgress, "in-progress")
-    @RenderWorkItemSection("Carried Over", CarriedOver, "carried-over")
-</div>
+@if (Items == null || Items.Count == 0)
+{
+    <div class="alert alert-info">No work items in this category</div>
+}
+else
+{
+    <div class="work-items-container">
+        @foreach (var item in Items)
+        {
+            <div class="work-item-card">
+                <h4>@item.Title</h4>
+                <p><strong>Status:</strong> @GetStatusLabel(item.Status)</p>
+                @if (!string.IsNullOrEmpty(item.Assignee))
+                {
+                    <p><strong>Assignee:</strong> @item.Assignee</p>
+                }
+            </div>
+        }
+    </div>
+}
 
 @code {
     [Parameter]
-    public IReadOnlyList<WorkItem> Shipped { get; set; } = new List<WorkItem>();
+    public required IReadOnlyList<WorkItem> Items { get; set; }
 
-    [Parameter]
-    public IReadOnlyList<WorkItem> InProgress { get; set; } = new List<WorkItem>();
-
-    [Parameter]
-    public IReadOnlyList<WorkItem> CarriedOver { get; set; } = new List<WorkItem>();
-
-    private RenderFragment RenderWorkItemSection(string title, IReadOnlyList<WorkItem> items, string statusClass)
+    private string GetStatusLabel(WorkItemStatus status)
     {
-        return @<MudCard Class="work-item-section">
-            <MudCardHeader Class="@($"section-header {statusClass}")">
-                <CardHeaderContent>
-                    <div class="section-header-content">
-                        <MudText Typo="Typo.h6" Class="section-header-title">@title</MudText>
-                        <span class="section-header-count">@items.Count</span>
-                    </div>
-                </CardHeaderContent>
-            </MudCardHeader>
-            <MudCardContent>
-                @if (items.Count > 0)
-                {
-                    <ul class="work-item-list">
-                        @foreach (var item in items)
-                        {
-                            <li class="work-item">
-                                <h6 class="work-item-title">@item.Title</h6>
-                                @if (!string.IsNullOrEmpty(item.Assignee))
-                                {
-                                    <p class="assignee-text">@item.Assignee</p>
-                                }
-                            </li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    <div class="work-item-list-empty">
-                        <span class="work-item-list-empty-icon">✓</span>
-                        <MudText Typo="Typo.body2" Color="Color.TextSecondary">
-                            No items in this status
-                        </MudText>
-                    </div>
-                }
-            </MudCardContent>
-        </MudCard>;
+        return status switch
+        {
+            WorkItemStatus.Shipped => "Shipped",
+            WorkItemStatus.InProgress => "In Progress",
+            WorkItemStatus.CarriedOver => "Carried Over",
+            _ => "Unknown"
+        };
     }
 }

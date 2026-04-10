@@ -1,102 +1,89 @@
 @page "/"
-@page "/dashboard"
-@using AgentSquad.Runner.Components
 @using AgentSquad.Runner.Models
 @using AgentSquad.Runner.Services
-@implements IAsyncDisposable
+@using AgentSquad.Runner.Components
 
-@inject DashboardDataService DataService
-@inject ILogger<Dashboard> Logger
+<PageTitle>Executive Dashboard</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Lg" Class="dashboard-container">
-    @if (!DataService.HasData && !string.IsNullOrEmpty(DataService.GetLastError()))
+<div class="dashboard-container">
+    <h1>Executive Dashboard</h1>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
     {
-        <MudAlert Severity="Severity.Error" Class="dashboard-section">
-            <strong>Error Loading Dashboard</strong>
-            <p>@DataService.GetLastError()</p>
-            <p style="font-size: 12px; color: #666;">Check data.json format and try again.</p>
-        </MudAlert>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error:</strong> @_errorMessage
+            <button type="button" class="btn-close" @onclick="@(() => _errorMessage = null)"></button>
+        </div>
     }
 
-    @if (DataService.HasData)
+    @if (_isLoading)
     {
-        <MudCard Class="dashboard-section">
-            <MudCardContent>
-                <MudText Typo="Typo.h4" Class="mb-3">@(DataService.GetProject()?.Name ?? "Project Dashboard")</MudText>
-                @if (!string.IsNullOrEmpty(DataService.GetProject()?.Description))
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    }
+    else if (DataService.HasData)
+    {
+        var project = DataService.GetProject();
+        var milestones = DataService.GetMilestones();
+        var statusCounts = DataService.GetStatusCounts();
+
+        @if (project != null)
+        {
+            <div class="project-header">
+                <h2>@project.Name</h2>
+                @if (!string.IsNullOrEmpty(project.Description))
                 {
-                    <MudText Typo="Typo.body1" Color="Color.TextSecondary">
-                        @DataService.GetProject().Description
-                    </MudText>
+                    <p class="description">@project.Description</p>
                 }
-            </MudCardContent>
-        </MudCard>
+            </div>
+        }
 
-        <MilestoneTimeline Milestones="DataService.GetMilestones()" />
+        <div class="status-overview">
+            <StatusChart StatusCounts="statusCounts"></StatusChart>
+        </div>
 
-        <MudCard Class="dashboard-section">
-            <MudCardHeader>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.h5">Work Item Status</MudText>
-                </CardHeaderContent>
-            </MudCardHeader>
-            <MudCardContent>
-                <StatusChart StatusCounts="DataService.GetStatusCounts()" />
-            </MudCardContent>
-        </MudCard>
+        <div class="milestones-section">
+            <h3>Milestones</h3>
+            @if (milestones.Count == 0)
+            {
+                <p>No milestones defined</p>
+            }
+            else
+            {
+                <div class="milestones-list">
+                    @foreach (var milestone in milestones)
+                    {
+                        <div class="milestone-card">
+                            <h4>@milestone.Name</h4>
+                            <p><strong>Date:</strong> @milestone.Date.ToString("yyyy-MM-dd")</p>
+                            <p><strong>Status:</strong> @milestone.Status</p>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
 
-        <WorkItemList 
-            Shipped="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"
-            InProgress="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"
-            CarriedOver="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)" />
+        <div class="work-items-section">
+            <h3>Work Items by Status</h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>Shipped (@statusCounts.Shipped)</h4>
+                    <WorkItemList Items="DataService.GetWorkItemsByStatus(WorkItemStatus.Shipped)"></WorkItemList>
+                </div>
+                <div class="col-md-4">
+                    <h4>In Progress (@statusCounts.InProgress)</h4>
+                    <WorkItemList Items="DataService.GetWorkItemsByStatus(WorkItemStatus.InProgress)"></WorkItemList>
+                </div>
+                <div class="col-md-4">
+                    <h4>Carried Over (@statusCounts.CarriedOver)</h4>
+                    <WorkItemList Items="DataService.GetWorkItemsByStatus(WorkItemStatus.CarriedOver)"></WorkItemList>
+                </div>
+            </div>
+        </div>
     }
-    else if (DataService.HasData == false)
+    else
     {
-        <MudAlert Severity="Severity.Info" Class="dashboard-section">
-            <strong>Loading Dashboard...</strong>
-            <p>Please wait while the dashboard data is being loaded.</p>
-        </MudAlert>
+        <div class="alert alert-warning">No dashboard data available. Please check the data.json file.</div>
     }
-</MudContainer>
-
-@code {
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            DataService.OnDataChanged += OnDataChanged;
-            await Task.Delay(100);
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error initializing Dashboard component");
-        }
-    }
-
-    private void OnDataChanged()
-    {
-        try
-        {
-            InvokeAsync(() => StateHasChanged());
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error in OnDataChanged handler");
-        }
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        try
-        {
-            DataService.OnDataChanged -= OnDataChanged;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error disposing Dashboard component");
-        }
-        
-        await ValueTask.CompletedTask;
-    }
-}
+</div>

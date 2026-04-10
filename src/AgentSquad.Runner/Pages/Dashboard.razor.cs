@@ -1,35 +1,42 @@
-using AgentSquad.Runner.Models;
-using AgentSquad.Runner.Services;
 using Microsoft.AspNetCore.Components;
+using AgentSquad.Runner.Services;
 
-namespace AgentSquad.Runner.Pages
+namespace AgentSquad.Runner.Pages;
+
+public partial class Dashboard : ComponentBase, IAsyncDisposable
 {
-    public partial class Dashboard : ComponentBase, IAsyncDisposable
+    [Inject]
+    public required IDashboardDataService DataService { get; set; }
+
+    private string? _errorMessage;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
     {
-        [Inject]
-        public DashboardDataService DataService { get; set; }
-
-        protected override async Task OnInitializedAsync()
+        _isLoading = true;
+        
+        if (DataService.GetCurrentData() == null && DataService.GetLastError() != null)
         {
-            if (DataService != null)
-            {
-                DataService.OnDataChanged += OnDataChanged;
-            }
-            await base.OnInitializedAsync();
+            _errorMessage = DataService.GetLastError();
         }
 
-        private void OnDataChanged()
-        {
-            StateHasChanged();
-        }
+        DataService.OnDataChanged += OnDataChanged;
+        _isLoading = false;
+        await Task.CompletedTask;
+    }
 
-        async ValueTask IAsyncDisposable.DisposeAsync()
+    private void OnDataChanged()
+    {
+        _errorMessage = null;
+        StateHasChanged();
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (DataService != null)
         {
-            if (DataService != null)
-            {
-                DataService.OnDataChanged -= OnDataChanged;
-            }
-            await Task.CompletedTask;
+            DataService.OnDataChanged -= OnDataChanged;
         }
+        await ValueTask.CompletedTask;
     }
 }
