@@ -7,7 +7,29 @@
     @if (Items is not null && Items.Count > 0)
     {
         <div class="items-list">
-            @* Card rendering implemented in Step 2 *@
+            @foreach (var item in Items)
+            {
+                <div class="work-item-card">
+                    <div class="card-header">
+                        <span class="item-title">@item.Title</span>
+                        <div class="badges">
+                            @if (!string.IsNullOrWhiteSpace(item.Category))
+                            {
+                                <span class="badge category-badge">@item.Category</span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.Priority))
+                            {
+                                <span class="badge priority-badge priority-@(item.Priority.ToLowerInvariant())">@item.Priority</span>
+                            }
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                    {
+                        <div class="item-description">@item.Description</div>
+                    }
+                    @* Progress bar added in Step 3 *@
+                </div>
+            }
         </div>
     }
 </div>
