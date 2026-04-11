@@ -27,19 +27,25 @@ public class DashboardDataService
             }
 
             var json = await File.ReadAllTextAsync(filePath);
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
 
-            var data = JsonSerializer.Deserialize<DashboardData>(json, options);
-            if (data is null)
+            DashboardData? data;
+            try
             {
-                SetError("Failed to parse data.json: deserialization returned null.");
+                data = JsonSerializer.Deserialize<DashboardData>(json);
+            }
+            catch (JsonException ex)
+            {
+                SetError($"Failed to parse data.json: {ex.Message}");
                 return;
             }
 
-            var validationError = Validate(data);
+            if (data is null)
+            {
+                SetError("Failed to parse data.json: deserialization returned null");
+                return;
+            }
+
+            var validationError = ValidateData(data);
             if (validationError is not null)
             {
                 SetError($"data.json validation: {validationError}");
@@ -49,15 +55,11 @@ public class DashboardDataService
             Data = data;
             IsError = false;
             ErrorMessage = null;
-            _logger.LogInformation("Dashboard data loaded successfully from {Path}", filePath);
-        }
-        catch (JsonException ex)
-        {
-            SetError($"Failed to parse data.json: {ex.Message}");
+            _logger.LogInformation("Dashboard data loaded successfully from {FilePath}", filePath);
         }
         catch (Exception ex)
         {
-            SetError($"Error loading data.json: {ex.Message}");
+            SetError($"Unexpected error loading data.json: {ex.Message}");
         }
     }
 
@@ -66,31 +68,43 @@ public class DashboardDataService
         IsError = true;
         ErrorMessage = message;
         Data = null;
-        _logger.LogError("DashboardDataService error: {Message}", message);
+        _logger.LogError("DashboardDataService error: {ErrorMessage}", message);
     }
 
-    private static string? Validate(DashboardData data)
+    private static string? ValidateData(DashboardData data)
     {
         if (string.IsNullOrWhiteSpace(data.Title))
             return "title is required";
+
         if (string.IsNullOrWhiteSpace(data.Subtitle))
             return "subtitle is required";
+
         if (string.IsNullOrWhiteSpace(data.BacklogLink))
             return "backlogLink is required";
+
         if (string.IsNullOrWhiteSpace(data.CurrentMonth))
             return "currentMonth is required";
+
         if (data.Months is null || data.Months.Count == 0)
-            return "months array is required and must not be empty";
-        if (!data.Months.Any(m => m.Equals(data.CurrentMonth, StringComparison.OrdinalIgnoreCase)))
-            return $"currentMonth '{data.CurrentMonth}' must exist in months array";
-        if (string.IsNullOrWhiteSpace(data.Timeline.StartDate))
-            return "timeline.startDate is required";
-        if (string.IsNullOrWhiteSpace(data.Timeline.EndDate))
-            return "timeline.endDate is required";
-        if (string.IsNullOrWhiteSpace(data.Timeline.NowDate))
-            return "timeline.nowDate is required";
+            return "months is required and must not be empty";
+
+        if (data.Timeline is null)
+            return "timeline is required";
+
         if (data.Timeline.Tracks is null || data.Timeline.Tracks.Count == 0)
             return "timeline.tracks is required and must not be empty";
+
+        if (string.IsNullOrWhiteSpace(data.Timeline.StartDate))
+            return "timeline.startDate is required";
+
+        if (string.IsNullOrWhiteSpace(data.Timeline.EndDate))
+            return "timeline.endDate is required";
+
+        if (string.IsNullOrWhiteSpace(data.Timeline.NowDate))
+            return "timeline.nowDate is required";
+
+        if (data.Heatmap is null)
+            return "heatmap is required";
 
         return null;
     }
