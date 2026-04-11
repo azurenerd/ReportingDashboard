@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "JXwqkuu0+Z4=",
+  "dgSpecHash": "hSrzhoDeMUI=",
   "success": true,
-  "projectFilePath": "C:\\Agents\\principalengineer-c0e8d4b14842459e9f3fdb5f15b3e098\\ReportingDashboard\\tests\\ReportingDashboard.Tests\\ReportingDashboard.Tests.csproj",
+  "projectFilePath": "C:\\Agents\\testengineer-d9df48b1645e4a6ba2380b125f3a6b01\\ReportingDashboard\\tests\\ReportingDashboard.Tests\\ReportingDashboard.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\behumphr\\.nuget\\packages\\anglesharp\\1.1.1\\anglesharp.1.1.1.nupkg.sha512",
     "C:\\Users\\behumphr\\.nuget\\packages\\anglesharp.css\\1.0.0-beta.139\\anglesharp.css.1.0.0-beta.139.nupkg.sha512",
@@ -21,8 +21,8 @@
     "C:\\Users\\behumphr\\.nuget\\packages\\microsoft.aspnetcore.components.webassembly\\8.0.4\\microsoft.aspnetcore.components.webassembly.8.0.4.nupkg.sha512",
     "C:\\Users\\behumphr\\.nuget\\packages\\microsoft.aspnetcore.components.webassembly.authentication\\8.0.4\\microsoft.aspnetcore.components.webassembly.authentication.8.0.4.nupkg.sha512",
     "C:\\Users\\behumphr\\.nuget\\packages\\microsoft.aspnetcore.metadata\\8.0.4\\microsoft.aspnetcore.metadata.8.0.4.nupkg.sha512",
-    "C:\\Users\\behumphr\\.nuget\\packages\\microsoft.aspnetcore.mvc.testing\\8.0.4\\microsoft.aspnetcore.mvc.testing.8.0.4.nupkg.sha512",
-    "C:\\Users\\behumphr\\.nuget\\packages\\microsoft.aspnetcore.testhost\\8.0.4\\microsoft.aspnetcore.testhost.8.0.4.nupkg.sha512",
+    "C:\\Users\\behumphr\\.nuget\\packages\\microsoft.aspnetcore.mvc.testing\\8.0.0\\microsoft.aspnetcore.mvc.testing.8.0.0.nupkg.sha512",
+    "C:\\Users\\behumphr\\.nuget\\packages\\microsoft.aspnetcore.testhost\\8.0.0\\microsoft.aspnetcore.testhost.8.0.0.nupkg.sha512",
     "C:\\Users\\behumphr\\.nuget\\packages\\microsoft.codecoverage\\17.9.0\\microsoft.codecoverage.17.9.0.nupkg.sha512",
     "C:\\Users\\behumphr\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\8.0.0\\microsoft.extensions.caching.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\behumphr\\.nuget\\packages\\microsoft.extensions.caching.memory\\8.0.0\\microsoft.extensions.caching.memory.8.0.0.nupkg.sha512",

@@ -2,85 +2,85 @@ using System.Text.Json;
 
 namespace ReportingDashboard.Tests.Integration.Helpers;
 
+/// <summary>
+/// Helper class for generating test JSON data for integration tests.
+/// If this file already exists, this provides a known-good implementation.
+/// </summary>
 public static class TestDataHelper
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true
     };
 
-    public static object CreateValidDashboardData() => new
+    public static string CreateValidDataJsonString()
     {
-        title = "Integration Test Dashboard",
-        subtitle = "QA Team - April 2026",
-        backlogLink = "https://dev.azure.com/test/backlog",
-        currentMonth = "April",
-        months = new[] { "January", "February", "March", "April" },
-        timeline = new
+        var data = new
         {
-            startDate = "2026-01-01",
-            endDate = "2026-07-01",
-            nowDate = "2026-04-10",
-            tracks = new[]
+            title = "Integration Test Dashboard",
+            subtitle = "QA Team - April 2026",
+            backlogLink = "https://dev.azure.com/test/backlog",
+            currentMonth = "April",
+            months = new[] { "January", "February", "March", "April" },
+            timeline = new
             {
-                new
+                startDate = "2026-01-01",
+                endDate = "2026-07-01",
+                nowDate = "2026-04-10",
+                tracks = new object[]
                 {
-                    name = "M1",
-                    label = "Core Platform",
-                    color = "#4285F4",
-                    milestones = new[]
+                    new
                     {
-                        new { date = "2026-02-15", type = "poc", label = "Feb 15 PoC" },
-                        new { date = "2026-05-01", type = "production", label = "May 1 GA" }
-                    }
-                },
-                new
-                {
-                    name = "M2",
-                    label = "Data Pipeline",
-                    color = "#34A853",
-                    milestones = new[]
+                        name = "M1",
+                        label = "Core Platform",
+                        color = "#4285F4",
+                        milestones = new object[]
+                        {
+                            new { date = "2026-02-15", type = "poc", label = "Feb 15 PoC" },
+                            new { date = "2026-05-01", type = "production", label = "May 1 GA" }
+                        }
+                    },
+                    new
                     {
-                        new { date = "2026-03-01", type = "checkpoint", label = "Mar 1 Check" }
+                        name = "M2",
+                        label = "Data Pipeline",
+                        color = "#EA4335",
+                        milestones = new object[]
+                        {
+                            new { date = "2026-03-15", type = "checkpoint", label = "Mar 15 Check" }
+                        }
                     }
                 }
+            },
+            heatmap = new
+            {
+                shipped = new Dictionary<string, string[]>
+                {
+                    ["jan"] = new[] { "Auth Module", "CI Pipeline" },
+                    ["feb"] = new[] { "Dashboard v1" },
+                    ["mar"] = new[] { "API Gateway", "Logging", "Monitoring" }
+                },
+                inProgress = new Dictionary<string, string[]>
+                {
+                    ["apr"] = new[] { "Notifications", "Reports Engine" }
+                },
+                carryover = new Dictionary<string, string[]>
+                {
+                    ["mar"] = new[] { "Legacy Migration" }
+                },
+                blockers = new Dictionary<string, string[]>
+                {
+                    ["apr"] = new[] { "Vendor License" }
+                }
             }
-        },
-        heatmap = new
-        {
-            shipped = new Dictionary<string, string[]>
-            {
-                ["jan"] = new[] { "Auth Module", "CI Pipeline" },
-                ["feb"] = new[] { "Search Feature" },
-                ["apr"] = new[] { "Dashboard v1" }
-            },
-            inProgress = new Dictionary<string, string[]>
-            {
-                ["apr"] = new[] { "Analytics Engine", "Export API" }
-            },
-            carryover = new Dictionary<string, string[]>
-            {
-                ["mar"] = new[] { "Legacy Migration" }
-            },
-            blockers = new Dictionary<string, string[]>
-            {
-                ["feb"] = new[] { "Vendor License Delay" }
-            }
-        }
-    };
+        };
 
-    public static string SerializeToJson(object data) =>
-        JsonSerializer.Serialize(data, JsonOptions);
+        return JsonSerializer.Serialize(data, SerializerOptions);
+    }
 
-    public static string CreateValidDataJsonString() =>
-        SerializeToJson(CreateValidDashboardData());
-
-    public static void WriteDataJsonToDirectory(string directory, object? data = null)
+    public static string SerializeToJson(object data)
     {
-        var wwwrootDir = Path.Combine(directory, "wwwroot");
-        Directory.CreateDirectory(wwwrootDir);
-        var json = SerializeToJson(data ?? CreateValidDashboardData());
-        File.WriteAllText(Path.Combine(wwwrootDir, "data.json"), json);
+        return JsonSerializer.Serialize(data, SerializerOptions);
     }
 }

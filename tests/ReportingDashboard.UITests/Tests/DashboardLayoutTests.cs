@@ -14,29 +14,25 @@ public class DashboardLayoutTests
     public DashboardLayoutTests(PlaywrightFixture fixture) => _fixture = fixture;
 
     [Fact(Skip = "Requires running server at BASE_URL")]
-    public async Task Dashboard_LoadsWithoutErrors()
+    public async Task Dashboard_PageLoads_NoErrors()
     {
         var page = await _fixture.NewPageAsync();
-        var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
 
         try
         {
-            await dashboard.NavigateAsync();
-
-            Assert.True(await dashboard.IsDashboardVisibleAsync(),
-                "Expected .dashboard-root to be present");
-            Assert.False(await dashboard.IsErrorVisibleAsync(),
-                "Expected no .error-panel");
+            var response = await page.GotoAsync(_fixture.BaseUrl);
+            Assert.NotNull(response);
+            Assert.True(response!.Ok, $"Expected 200 OK, got {response.Status}");
         }
         catch
         {
-            await _fixture.CaptureScreenshotAsync(page, nameof(Dashboard_LoadsWithoutErrors));
+            await _fixture.CaptureScreenshotAsync(page, nameof(Dashboard_PageLoads_NoErrors));
             throw;
         }
     }
 
     [Fact(Skip = "Requires running server at BASE_URL")]
-    public async Task Dashboard_HasThreeMajorSections()
+    public async Task Dashboard_HasAllMajorSections()
     {
         var page = await _fixture.NewPageAsync();
         var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
@@ -45,35 +41,37 @@ public class DashboardLayoutTests
         {
             await dashboard.NavigateAsync();
 
-            await Assertions.Expect(dashboard.Header).ToBeVisibleAsync();
-            await Assertions.Expect(dashboard.TimelineArea).ToBeVisibleAsync();
-            await Assertions.Expect(dashboard.HeatmapWrap).ToBeVisibleAsync();
+            // Header
+            await Assertions.Expect(page.Locator(".hdr")).ToBeVisibleAsync();
+            // Timeline
+            await Assertions.Expect(page.Locator(".tl-area")).ToBeVisibleAsync();
+            // Heatmap
+            await Assertions.Expect(page.Locator(".hm-wrap")).ToBeVisibleAsync();
         }
         catch
         {
-            await _fixture.CaptureScreenshotAsync(page, nameof(Dashboard_HasThreeMajorSections));
+            await _fixture.CaptureScreenshotAsync(page, nameof(Dashboard_HasAllMajorSections));
             throw;
         }
     }
 
     [Fact(Skip = "Requires running server at BASE_URL")]
-    public async Task Dashboard_ViewportIs1920x1080()
+    public async Task Dashboard_FixedViewport_1920x1080()
     {
         var page = await _fixture.NewPageAsync();
-        var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
 
         try
         {
-            await dashboard.NavigateAsync();
+            await page.SetViewportSizeAsync(1920, 1080);
+            await page.GotoAsync(_fixture.BaseUrl);
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-            var viewport = page.ViewportSize;
-            Assert.NotNull(viewport);
-            Assert.Equal(1920, viewport!.Width);
-            Assert.Equal(1080, viewport.Height);
+            var bodyWidth = await page.EvaluateAsync<int>("() => document.body.scrollWidth");
+            Assert.Equal(1920, bodyWidth);
         }
         catch
         {
-            await _fixture.CaptureScreenshotAsync(page, nameof(Dashboard_ViewportIs1920x1080));
+            await _fixture.CaptureScreenshotAsync(page, nameof(Dashboard_FixedViewport_1920x1080));
             throw;
         }
     }

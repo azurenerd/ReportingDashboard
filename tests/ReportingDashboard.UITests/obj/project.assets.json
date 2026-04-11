@@ -1685,11 +1685,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Agents\\principalengineer-c0e8d4b14842459e9f3fdb5f15b3e098\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\ReportingDashboard.UITests.csproj",
+      "projectUniqueName": "C:\\Agents\\testengineer-d9df48b1645e4a6ba2380b125f3a6b01\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\ReportingDashboard.UITests.csproj",
       "projectName": "ReportingDashboard.UITests",
-      "projectPath": "C:\\Agents\\principalengineer-c0e8d4b14842459e9f3fdb5f15b3e098\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\ReportingDashboard.UITests.csproj",
+      "projectPath": "C:\\Agents\\testengineer-d9df48b1645e4a6ba2380b125f3a6b01\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\ReportingDashboard.UITests.csproj",
       "packagesPath": "C:\\Users\\behumphr\\.nuget\\packages\\",
-      "outputPath": "C:\\Agents\\principalengineer-c0e8d4b14842459e9f3fdb5f15b3e098\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\obj\\",
+      "outputPath": "C:\\Agents\\testengineer-d9df48b1645e4a6ba2380b125f3a6b01\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -1710,8 +1710,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Agents\\principalengineer-c0e8d4b14842459e9f3fdb5f15b3e098\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj": {
-              "projectPath": "C:\\Agents\\principalengineer-c0e8d4b14842459e9f3fdb5f15b3e098\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj"
+            "C:\\Agents\\testengineer-d9df48b1645e4a6ba2380b125f3a6b01\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj": {
+              "projectPath": "C:\\Agents\\testengineer-d9df48b1645e4a6ba2380b125f3a6b01\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj"
             }
           }
         }
