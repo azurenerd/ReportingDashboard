@@ -1,13 +1,13 @@
 <div class="error-panel">
-    <div>
+    <div class="error-panel-content">
         <div class="error-icon">⚠</div>
         <div class="error-title">Dashboard data could not be loaded</div>
-        <div class="error-details">@ErrorMessage</div>
-        <div class="error-help">Check data.json for errors and restart the application.<br />See console output for details.</div>
+        <div class="error-details">@(ErrorMessage ?? "An unknown error occurred.")</div>
+        <div class="error-help">Check data.json for errors and restart the application.</div>
+        <div class="error-help">See console output for details.</div>
     </div>
 </div>
 
 @code {
-    [Parameter]
-    public string ErrorMessage { get; set; } = string.Empty;
+    [Parameter] public string? ErrorMessage { get; set; }
 }
