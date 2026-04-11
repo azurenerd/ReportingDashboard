@@ -1,1 +1,33 @@
-@* This component has moved to Components/Sections/Header.razor *@
+@using ReportingDashboard.Models
+
+<div class="hdr">
+    <div>
+        <h1>@Data.Title
+            <a href="@Data.BacklogLink" target="_blank" rel="noopener noreferrer">📋 ADO Backlog</a>
+        </h1>
+        <div class="sub">@Data.Subtitle</div>
+    </div>
+    <div style="display:flex;gap:22px;align-items:center;font-size:12px;">
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+            <span style="display:inline-block;width:12px;height:12px;background:#F4B400;transform:rotate(45deg);"></span>
+            PoC Milestone
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+            <span style="display:inline-block;width:12px;height:12px;background:#34A853;transform:rotate(45deg);"></span>
+            Production Release
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+            <span style="display:inline-block;width:8px;height:8px;background:#999;border-radius:50%;"></span>
+            Checkpoint
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+            <span style="display:inline-block;width:2px;height:14px;background:#EA4335;"></span>
+            Now (@Data.CurrentMonth)
+        </span>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public DashboardData Data { get; set; } = default!;
+}

@@ -1,7 +1,7 @@
 {
   "title": "Privacy Automation Release Roadmap",
   "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
-  "backlogLink": "https://dev.azure.com/org/project/_backlogs",
+  "backlogLink": "https://dev.azure.com/contoso/PrivacyAutomation/_backlogs",
   "currentMonth": "Apr",
   "months": ["Jan", "Feb", "Mar", "Apr"],
   "timeline": {
@@ -15,56 +15,58 @@
         "color": "#0078D4",
         "milestones": [
           { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
+          { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
           { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
           { "date": "2026-05-01", "type": "production", "label": "May Prod" }
         ]
       },
       {
         "name": "M2",
-        "label": "Privacy Review Automation",
+        "label": "DSR Orchestrator",
         "color": "#00897B",
         "milestones": [
-          { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
-          { "date": "2026-04-10", "type": "poc", "label": "Apr 10 PoC" },
+          { "date": "2026-01-20", "type": "checkpoint", "label": "Jan 20" },
+          { "date": "2026-03-10", "type": "poc", "label": "Mar 10 PoC" },
+          { "date": "2026-04-28", "type": "checkpoint", "label": "Apr 28" },
           { "date": "2026-06-01", "type": "production", "label": "Jun Prod" }
         ]
       },
       {
         "name": "M3",
-        "label": "Compliance Dashboard",
+        "label": "Retention Policy Engine",
         "color": "#546E7A",
         "milestones": [
-          { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
-          { "date": "2026-05-15", "type": "poc", "label": "May 15 PoC" },
-          { "date": "2026-06-30", "type": "production", "label": "Jun 30 Prod" }
+          { "date": "2026-02-01", "type": "checkpoint", "label": "Feb 1" },
+          { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC" },
+          { "date": "2026-06-15", "type": "production", "label": "Jun Prod" }
         ]
       }
     ]
   },
   "heatmap": {
     "shipped": {
-      "jan": ["DSAR intake form", "Consent API v1"],
-      "feb": ["Bot scaffolding"],
-      "mar": ["MS Graph connector", "Privacy classifier v2"],
-      "apr": ["Auto-redaction pipeline"]
+      "Jan": ["Privacy SDK v2 release", "DSR intake form live"],
+      "Feb": ["Role-based access MVP", "Chatbot intent classifier"],
+      "Mar": ["Retention scanner v1", "Compliance report export", "Audit log integration"],
+      "Apr": ["DSR auto-routing"]
     },
     "inProgress": {
-      "jan": [],
-      "feb": [],
-      "mar": ["Review queue UI"],
-      "apr": ["PII scanner integration", "Admin portal MVP"]
+      "Jan": ["Chatbot NLU training"],
+      "Feb": ["DSR orchestrator design"],
+      "Mar": ["Policy engine schema"],
+      "Apr": ["Chatbot MS Role PoC", "Retention policy rules UI", "DSR SLA dashboard"]
     },
     "carryover": {
-      "jan": [],
-      "feb": [],
-      "mar": [],
-      "apr": ["Legacy data migration"]
+      "Jan": [],
+      "Feb": ["Privacy SDK docs update"],
+      "Mar": [],
+      "Apr": ["Role hierarchy mapping"]
     },
     "blockers": {
-      "jan": [],
-      "feb": [],
-      "mar": [],
-      "apr": ["Awaiting Legal sign-off"]
+      "Jan": [],
+      "Feb": [],
+      "Mar": ["AAD tenant config delay"],
+      "Apr": ["Cross-tenant auth blocked on IT"]
     }
   }
 }
