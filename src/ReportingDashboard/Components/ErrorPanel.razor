@@ -1,7 +1,15 @@
 @namespace ReportingDashboard.Components
 
 <div class="error-panel">
-    <!-- TODO: Implement centered error layout with icon, title, details, and help text -->
+    <div style="text-align: center;">
+        <div class="error-icon">⚠</div>
+        <div class="error-title">Dashboard data could not be loaded</div>
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="error-details">@ErrorMessage</div>
+        }
+        <div class="error-help">Check data.json for errors and restart the application.</div>
+    </div>
 </div>
 
 @code {
