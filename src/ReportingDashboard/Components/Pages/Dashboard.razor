@@ -1,0 +1,37 @@
+@page "/"
+@layout Layout.DashboardLayout
+@inject DashboardDataService DataService
+
+@if (DataService.IsError)
+{
+    <div class="error-panel">
+        <div style="text-align:center;">
+            <div style="font-size:48px;color:#EA4335;margin-bottom:16px;">⚠</div>
+            <div style="font-size:20px;font-weight:700;color:#333;margin-bottom:12px;">Dashboard data could not be loaded</div>
+            <div style="font-size:14px;color:#666;margin-bottom:16px;">Check data.json for errors and restart the application.</div>
+            <pre style="font-size:13px;color:#888;font-family:'Consolas','Courier New',monospace;text-align:left;display:inline-block;max-width:800px;white-space:pre-wrap;">@DataService.ErrorMessage</pre>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Header stub -->
+    <div class="hdr">
+        <div>
+            <h1 style="font-size:24px;font-weight:700;">@DataService.Data?.Title</h1>
+            <div class="sub">@DataService.Data?.Subtitle</div>
+        </div>
+        <div style="font-size:12px;color:#888;">Header placeholder</div>
+    </div>
+
+    <!-- Timeline stub -->
+    <div class="tl-area">
+        <div style="padding:16px 12px;font-size:12px;color:#888;">Timeline placeholder</div>
+    </div>
+
+    <!-- Heatmap stub -->
+    <div class="hm-wrap">
+        <div class="hm-title">MONTHLY EXECUTION HEATMAP</div>
+        <div style="padding:16px 0;font-size:12px;color:#888;">Heatmap placeholder</div>
+    </div>
+}
