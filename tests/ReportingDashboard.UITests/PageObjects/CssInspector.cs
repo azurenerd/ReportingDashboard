@@ -13,21 +13,33 @@ public class CssInspector
         _baseUrl = baseUrl.TrimEnd('/');
     }
 
-    public async Task<string> FetchAppCssAsync()
+    public async Task NavigateAsync()
     {
-        var response = await _page.APIRequest.GetAsync($"{_baseUrl}/css/app.css");
-        return await response.TextAsync();
+        await _page.GotoAsync($"{_baseUrl}/", new PageGotoOptions
+        {
+            WaitUntil = WaitUntilState.NetworkIdle,
+            Timeout = 15000
+        });
     }
 
-    public async Task<bool> CssContainsClassAsync(string className)
+    public async Task<string> GetComputedStyleAsync(string selector, string property)
     {
-        var css = await FetchAppCssAsync();
-        return css.Contains(className);
+        var el = _page.Locator(selector).First;
+        return await el.EvaluateAsync<string>($"el => getComputedStyle(el).{property}");
     }
 
-    public async Task<bool> CssContainsRootCustomPropertiesAsync()
+    public async Task<string?> GetCssCustomPropertyAsync(string propertyName)
     {
-        var css = await FetchAppCssAsync();
-        return css.Contains(":root");
+        return await _page.EvaluateAsync<string>(
+            $"() => getComputedStyle(document.documentElement).getPropertyValue('{propertyName}').trim()");
     }
+
+    public async Task<bool> CssFileLoadsAsync()
+    {
+        var cssLink = _page.Locator("link[rel='stylesheet'][href='css/app.css']");
+        var count = await cssLink.CountAsync();
+        return count > 0;
+    }
+
+    public IPage Page => _page;
 }

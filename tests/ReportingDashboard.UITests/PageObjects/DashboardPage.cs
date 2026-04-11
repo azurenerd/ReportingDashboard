@@ -28,21 +28,31 @@ public class DashboardPage
         _page.Locator("div[style*='width:1920px'][style*='height:1080px']");
 
     // Error section
-    public ILocator ErrorSection => _page.Locator(".dashboard-error");
-    public ILocator ErrorContent => _page.Locator(".dashboard-error-content");
-    public ILocator ErrorHeading => _page.Locator(".dashboard-error-content h2");
-    public ILocator ErrorMessage => _page.Locator(".dashboard-error-content p");
+    public ILocator ErrorSection => _page.Locator(".error-container");
+    public ILocator ErrorMessage => _page.Locator(".error-message");
 
     // Header section
     public ILocator Header => _page.Locator(".hdr");
     public ILocator HeaderTitle => _page.Locator(".hdr h1");
     public ILocator HeaderSubtitle => _page.Locator(".hdr .sub");
+    public ILocator HeaderLeft => _page.Locator(".hdr-left");
 
     // Timeline section
     public ILocator TimelineArea => _page.Locator(".tl-area");
+    public ILocator TimelineLabels => _page.Locator(".tl-labels");
+    public ILocator TimelineSvgBox => _page.Locator(".tl-svg-box");
 
     // Heatmap section
     public ILocator HeatmapWrap => _page.Locator(".hm-wrap");
+    public ILocator HeatmapTitle => _page.Locator(".hm-title");
+    public ILocator HeatmapGrid => _page.Locator(".hm-grid");
+    public ILocator HeatmapCorner => _page.Locator(".hm-corner");
+    public ILocator HeatmapColumnHeaders => _page.Locator(".hm-col-hdr");
+    public ILocator HeatmapRowHeaders => _page.Locator(".hm-row-hdr");
+    public ILocator HeatmapCells => _page.Locator(".hm-cell");
+    public ILocator HeatmapItems => _page.Locator(".hm-cell .it");
+    public ILocator NowBadge => _page.Locator(".now-badge");
+    public ILocator NowHeaders => _page.Locator(".now-hdr");
 
     // General
     public IPage Page => _page;
@@ -57,10 +67,5 @@ public class DashboardPage
         var count = await modal.CountAsync();
         if (count == 0) return false;
         return await modal.IsVisibleAsync();
-    }
-
-    public async Task<ViewportSize?> GetViewportAsync()
-    {
-        return _page.ViewportSize;
     }
 }

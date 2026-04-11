@@ -18,46 +18,61 @@ public class ScreenshotTests
     public async Task Dashboard_CanCaptureScreenshot()
     {
         var page = await _fixture.NewPageAsync();
-        var dashboardPage = new DashboardPage(page, _fixture.BaseUrl);
+        var dp = new DashboardPage(page, _fixture.BaseUrl);
+        await dp.NavigateAsync();
 
-        await dashboardPage.NavigateAsync();
+        // Verify screenshot capability works (key use case: PowerPoint capture)
+        await _fixture.CaptureScreenshotAsync(page, "dashboard_test");
 
-        // Verify we can take a screenshot without error
-        var screenshotsDir = Path.Combine(AppContext.BaseDirectory, "screenshots");
-        Directory.CreateDirectory(screenshotsDir);
-        var path = Path.Combine(screenshotsDir, $"dashboard_test_{DateTime.UtcNow:yyyyMMdd_HHmmss}.png");
-
-        await page.ScreenshotAsync(new PageScreenshotOptions
-        {
-            Path = path,
-            FullPage = false, // 1920x1080 viewport only
-            Type = ScreenshotType.Png
-        });
-
-        File.Exists(path).Should().BeTrue();
-        new FileInfo(path).Length.Should().BeGreaterThan(0);
-
-        // Clean up
-        File.Delete(path);
+        var screenshotDir = Path.Combine(AppContext.BaseDirectory, "screenshots");
+        var files = Directory.GetFiles(screenshotDir, "dashboard_test_*.png");
+        files.Should().NotBeEmpty("screenshot should have been saved");
     }
 
     [Fact]
-    public async Task Dashboard_ScreenshotFixtureHelper_Works()
+    public async Task Dashboard_ScreenshotDimensions_Are1920x1080()
     {
         var page = await _fixture.NewPageAsync();
-        var dashboardPage = new DashboardPage(page, _fixture.BaseUrl);
+        var dp = new DashboardPage(page, _fixture.BaseUrl);
+        await dp.NavigateAsync();
 
-        await dashboardPage.NavigateAsync();
+        // The viewport is set to 1920x1080 in the fixture
+        var viewport = page.ViewportSize;
+        viewport.Should().NotBeNull();
+        viewport!.Width.Should().Be(1920);
+        viewport.Height.Should().Be(1080);
+    }
 
-        // Use the fixture helper
-        await _fixture.CaptureScreenshotAsync(page, nameof(Dashboard_ScreenshotFixtureHelper_Works));
+    [Fact]
+    public async Task Dashboard_NoScrollbarsVisible()
+    {
+        var page = await _fixture.NewPageAsync();
+        var dp = new DashboardPage(page, _fixture.BaseUrl);
+        await dp.NavigateAsync();
 
-        var screenshotsDir = Path.Combine(AppContext.BaseDirectory, "screenshots");
-        var files = Directory.GetFiles(screenshotsDir, $"{nameof(Dashboard_ScreenshotFixtureHelper_Works)}*.png");
-        files.Should().NotBeEmpty();
+        var container = dp.MainContainer;
+        var count = await container.CountAsync();
+        if (count == 0) return;
 
-        // Clean up
-        foreach (var file in files)
-            File.Delete(file);
+        var overflow = await container.EvaluateAsync<string>(
+            "el => getComputedStyle(el).overflow");
+        overflow.Should().Be("hidden", "main container should hide overflow for clean screenshots");
+    }
+
+    [Fact]
+    public async Task Dashboard_ContainerFitsExactlyInViewport()
+    {
+        var page = await _fixture.NewPageAsync();
+        var dp = new DashboardPage(page, _fixture.BaseUrl);
+        await dp.NavigateAsync();
+
+        var container = dp.MainContainer;
+        var count = await container.CountAsync();
+        if (count == 0) return;
+
+        var box = await container.BoundingBoxAsync();
+        box.Should().NotBeNull();
+        box!.Width.Should().BeApproximately(1920, 2);
+        box.Height.Should().BeApproximately(1080, 2);
     }
 }

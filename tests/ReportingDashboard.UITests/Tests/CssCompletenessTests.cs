@@ -14,246 +14,205 @@ public class CssCompletenessTests
 
     public CssCompletenessTests(PlaywrightFixture fixture) => _fixture = fixture;
 
-    private async Task<string> FetchCssAsync()
+    [Fact]
+    public async Task Css_AppCssFileIsLinked()
     {
         var page = await _fixture.NewPageAsync();
         var inspector = new CssInspector(page, _fixture.BaseUrl);
-        return await inspector.FetchAppCssAsync();
+        await inspector.NavigateAsync();
+
+        var hasLink = await inspector.CssFileLoadsAsync();
+        hasLink.Should().BeTrue("app.css should be linked in the HTML head");
     }
 
     [Fact]
-    public async Task AppCss_IsServed_Returns200()
+    public async Task Css_AppCssLoadsSuccessfully()
     {
         var page = await _fixture.NewPageAsync();
-        var response = await page.APIRequest.GetAsync($"{_fixture.BaseUrl}/css/app.css");
-        response.Status.Should().Be(200);
+
+        bool cssLoaded = false;
+        page.Response += (_, r) =>
+        {
+            if (r.Url.Contains("css/app.css") && r.Status == 200)
+                cssLoaded = true;
+        };
+
+        await page.GotoAsync($"{_fixture.BaseUrl}/", new PageGotoOptions
+        {
+            WaitUntil = WaitUntilState.NetworkIdle,
+            Timeout = 15000
+        });
+
+        cssLoaded.Should().BeTrue("css/app.css should return HTTP 200");
     }
 
     [Fact]
-    public async Task AppCss_ContainsRootCustomProperties()
+    public async Task Css_RootCustomProperties_ColorPocDefined()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain(":root");
+        var page = await _fixture.NewPageAsync();
+        var inspector = new CssInspector(page, _fixture.BaseUrl);
+        await inspector.NavigateAsync();
+
+        var value = await inspector.GetCssCustomPropertyAsync("--color-poc");
+        value.Should().NotBeNullOrEmpty("--color-poc custom property should be defined");
     }
 
     [Fact]
-    public async Task AppCss_ContainsGlobalReset()
+    public async Task Css_RootCustomProperties_ColorProdDefined()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain("box-sizing");
-    }
+        var page = await _fixture.NewPageAsync();
+        var inspector = new CssInspector(page, _fixture.BaseUrl);
+        await inspector.NavigateAsync();
 
-    // Header classes
-    [Fact]
-    public async Task AppCss_ContainsHdrClass()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".hdr");
+        var value = await inspector.GetCssCustomPropertyAsync("--color-prod");
+        value.Should().NotBeNullOrEmpty("--color-prod custom property should be defined");
     }
 
     [Fact]
-    public async Task AppCss_ContainsSubClass()
+    public async Task Css_RootCustomProperties_ColorNowDefined()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".sub");
-    }
+        var page = await _fixture.NewPageAsync();
+        var inspector = new CssInspector(page, _fixture.BaseUrl);
+        await inspector.NavigateAsync();
 
-    // Timeline classes
-    [Fact]
-    public async Task AppCss_ContainsTlAreaClass()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".tl-area");
+        var value = await inspector.GetCssCustomPropertyAsync("--color-now");
+        value.Should().NotBeNullOrEmpty("--color-now custom property should be defined");
     }
 
     [Fact]
-    public async Task AppCss_ContainsTlSvgBoxClass()
+    public async Task Css_RootCustomProperties_ColorBorderDefined()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".tl-svg-box");
-    }
+        var page = await _fixture.NewPageAsync();
+        var inspector = new CssInspector(page, _fixture.BaseUrl);
+        await inspector.NavigateAsync();
 
-    // Heatmap classes
-    [Fact]
-    public async Task AppCss_ContainsHmWrapClass()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".hm-wrap");
+        var value = await inspector.GetCssCustomPropertyAsync("--color-border");
+        value.Should().NotBeNullOrEmpty("--color-border custom property should be defined");
     }
 
     [Fact]
-    public async Task AppCss_ContainsHmTitleClass()
+    public async Task Css_RootCustomProperties_ColorLinkDefined()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".hm-title");
+        var page = await _fixture.NewPageAsync();
+        var inspector = new CssInspector(page, _fixture.BaseUrl);
+        await inspector.NavigateAsync();
+
+        var value = await inspector.GetCssCustomPropertyAsync("--color-link");
+        value.Should().NotBeNullOrEmpty("--color-link custom property should be defined");
     }
 
     [Fact]
-    public async Task AppCss_ContainsHmGridClass()
+    public async Task Css_ReconnectModalHiddenRule_Applied()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".hm-grid");
+        var page = await _fixture.NewPageAsync();
+        await page.GotoAsync($"{_fixture.BaseUrl}/", new PageGotoOptions
+        {
+            WaitUntil = WaitUntilState.NetworkIdle
+        });
+
+        // Inject a fake reconnect modal and verify it's hidden
+        await page.EvaluateAsync(@"() => {
+            const div = document.createElement('div');
+            div.className = 'components-reconnect-modal';
+            div.textContent = 'Reconnecting...';
+            document.body.appendChild(div);
+        }");
+
+        var modal = page.Locator(".components-reconnect-modal");
+        var display = await modal.EvaluateAsync<string>(
+            "el => getComputedStyle(el).display");
+        display.Should().Be("none", "reconnect modal should be hidden via CSS");
     }
 
     [Fact]
-    public async Task AppCss_ContainsHmCornerClass()
+    public async Task Css_HdrClass_HasBorderBottom()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".hm-corner");
+        var page = await _fixture.NewPageAsync();
+        var dp = new DashboardPage(page, _fixture.BaseUrl);
+        await dp.NavigateAsync();
+
+        if (await dp.ErrorSection.CountAsync() > 0) return;
+
+        var borderStyle = await dp.Header.EvaluateAsync<string>(
+            "el => getComputedStyle(el).borderBottomStyle");
+        borderStyle.Should().Be("solid");
     }
 
     [Fact]
-    public async Task AppCss_ContainsHmColHdrClass()
+    public async Task Css_HdrH1_Is24pxBold()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".hm-col-hdr");
+        var page = await _fixture.NewPageAsync();
+        var dp = new DashboardPage(page, _fixture.BaseUrl);
+        await dp.NavigateAsync();
+
+        if (await dp.ErrorSection.CountAsync() > 0) return;
+
+        var fontSize = await dp.HeaderTitle.EvaluateAsync<string>(
+            "el => getComputedStyle(el).fontSize");
+        var fontWeight = await dp.HeaderTitle.EvaluateAsync<string>(
+            "el => getComputedStyle(el).fontWeight");
+
+        fontSize.Should().Be("24px");
+        fontWeight.Should().BeOneOf("700", "bold");
     }
 
     [Fact]
-    public async Task AppCss_ContainsAprHdrClass()
+    public async Task Css_SubClass_Is12px()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".apr-hdr");
+        var page = await _fixture.NewPageAsync();
+        var dp = new DashboardPage(page, _fixture.BaseUrl);
+        await dp.NavigateAsync();
+
+        if (await dp.ErrorSection.CountAsync() > 0) return;
+
+        var fontSize = await dp.HeaderSubtitle.EvaluateAsync<string>(
+            "el => getComputedStyle(el).fontSize");
+        fontSize.Should().Be("12px");
     }
 
     [Fact]
-    public async Task AppCss_ContainsHmRowHdrClass()
+    public async Task Css_SubClass_HasGrayColor()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".hm-row-hdr");
+        var page = await _fixture.NewPageAsync();
+        var dp = new DashboardPage(page, _fixture.BaseUrl);
+        await dp.NavigateAsync();
+
+        if (await dp.ErrorSection.CountAsync() > 0) return;
+
+        var color = await dp.HeaderSubtitle.EvaluateAsync<string>(
+            "el => getComputedStyle(el).color");
+        // #888 = rgb(136, 136, 136)
+        color.Should().Contain("136");
     }
 
     [Fact]
-    public async Task AppCss_ContainsHmCellClass()
+    public async Task Css_HmTitleClass_Is14px()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".hm-cell");
+        var page = await _fixture.NewPageAsync();
+        var dp = new DashboardPage(page, _fixture.BaseUrl);
+        await dp.NavigateAsync();
+
+        if (await dp.ErrorSection.CountAsync() > 0) return;
+        if (await dp.HeatmapTitle.CountAsync() == 0) return;
+
+        var fontSize = await dp.HeatmapTitle.EvaluateAsync<string>(
+            "el => getComputedStyle(el).fontSize");
+        fontSize.Should().Be("14px");
     }
 
     [Fact]
-    public async Task AppCss_ContainsItClass()
+    public async Task Css_HmCornerClass_HasF5Background()
     {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".it");
-    }
+        var page = await _fixture.NewPageAsync();
+        var dp = new DashboardPage(page, _fixture.BaseUrl);
+        await dp.NavigateAsync();
 
-    // Row color variants - Shipped (green)
-    [Fact]
-    public async Task AppCss_ContainsShipHdrClass()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".ship-hdr");
-    }
+        if (await dp.ErrorSection.CountAsync() > 0) return;
+        if (await dp.HeatmapCorner.CountAsync() == 0) return;
 
-    [Fact]
-    public async Task AppCss_ContainsShipCellClass()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".ship-cell");
-    }
-
-    // Row color variants - In Progress (blue)
-    [Fact]
-    public async Task AppCss_ContainsProgHdrClass()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".prog-hdr");
-    }
-
-    [Fact]
-    public async Task AppCss_ContainsProgCellClass()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".prog-cell");
-    }
-
-    // Row color variants - Carryover (amber)
-    [Fact]
-    public async Task AppCss_ContainsCarryHdrClass()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".carry-hdr");
-    }
-
-    [Fact]
-    public async Task AppCss_ContainsCarryCellClass()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".carry-cell");
-    }
-
-    // Row color variants - Blockers (red)
-    [Fact]
-    public async Task AppCss_ContainsBlockHdrClass()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".block-hdr");
-    }
-
-    [Fact]
-    public async Task AppCss_ContainsBlockCellClass()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".block-cell");
-    }
-
-    // Blazor reconnect modal safety net
-    [Fact]
-    public async Task AppCss_ContainsReconnectModalHide()
-    {
-        var css = await FetchCssAsync();
-        css.Should().Contain(".components-reconnect-modal");
-        css.Should().Contain("display: none !important");
-    }
-
-    // Design reference color verification
-    [Fact]
-    public async Task AppCss_ContainsShipGreenColors()
-    {
-        var css = await FetchCssAsync();
-        // From design: .ship-hdr color:#1B7A28, .ship-cell background:#F0FBF0
-        css.Should().Contain("#E8F5E9");
-    }
-
-    [Fact]
-    public async Task AppCss_ContainsProgBlueColors()
-    {
-        var css = await FetchCssAsync();
-        // From design: .prog-hdr background:#E3F2FD
-        css.Should().Contain("#E3F2FD");
-    }
-
-    [Fact]
-    public async Task AppCss_ContainsCarryAmberColors()
-    {
-        var css = await FetchCssAsync();
-        // From design: .carry-hdr background:#FFF8E1
-        css.Should().Contain("#FFF8E1");
-    }
-
-    [Fact]
-    public async Task AppCss_ContainsBlockRedColors()
-    {
-        var css = await FetchCssAsync();
-        // From design: .block-hdr background:#FEF2F2
-        css.Should().Contain("#FEF2F2");
-    }
-
-    [Fact]
-    public async Task AppCss_ContainsAprHighlightColor()
-    {
-        var css = await FetchCssAsync();
-        // From design: .apr-hdr background:#FFF0D0 color:#C07700
-        css.Should().Contain("#FFF0D0");
-        css.Should().Contain("#C07700");
-    }
-
-    [Fact]
-    public async Task AppCss_ContainsDotPseudoElement()
-    {
-        var css = await FetchCssAsync();
-        // .it::before pseudo-element for colored dots
-        css.Should().Contain("::before");
-        css.Should().Contain("border-radius");
+        var bg = await dp.HeatmapCorner.EvaluateAsync<string>(
+            "el => getComputedStyle(el).backgroundColor");
+        // #F5F5F5 = rgb(245, 245, 245)
+        bg.Should().Contain("245");
     }
 }

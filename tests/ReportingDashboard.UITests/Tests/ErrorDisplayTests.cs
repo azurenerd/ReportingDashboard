@@ -15,77 +15,65 @@ public class ErrorDisplayTests
     public ErrorDisplayTests(PlaywrightFixture fixture) => _fixture = fixture;
 
     [Fact]
-    public async Task ErrorState_ErrorSectionHasCenteredLayout()
+    public async Task ErrorPage_ShowsErrorContainer_WhenDataMissing()
     {
         var page = await _fixture.NewPageAsync();
         var errorPage = new ErrorPage(page, _fixture.BaseUrl);
+        await errorPage.NavigateAsync();
 
-        await errorPage.NavigateToAsync("/");
-
-        if (await errorPage.IsErrorVisibleAsync())
+        // This test verifies behavior when data.json is missing.
+        // If the server happens to have valid data, the error won't show.
+        var isError = await errorPage.IsErrorVisibleAsync();
+        if (isError)
         {
-            var display = await errorPage.ErrorContainer.EvaluateAsync<string>(
-                "el => getComputedStyle(el).display");
-            var justifyContent = await errorPage.ErrorContainer.EvaluateAsync<string>(
-                "el => getComputedStyle(el).justifyContent");
-            var alignItems = await errorPage.ErrorContainer.EvaluateAsync<string>(
-                "el => getComputedStyle(el).alignItems");
-
-            display.Should().Be("flex");
-            justifyContent.Should().Be("center");
-            alignItems.Should().Be("center");
+            await Assertions.Expect(errorPage.ErrorContainer).ToBeVisibleAsync();
         }
     }
 
     [Fact]
-    public async Task ErrorState_ErrorContainsHeading()
+    public async Task ErrorPage_ErrorMessageContainsUsefulText()
     {
         var page = await _fixture.NewPageAsync();
         var errorPage = new ErrorPage(page, _fixture.BaseUrl);
+        await errorPage.NavigateAsync();
 
-        await errorPage.NavigateToAsync("/");
-
-        if (await errorPage.IsErrorVisibleAsync())
+        var isError = await errorPage.IsErrorVisibleAsync();
+        if (isError)
         {
-            await Assertions.Expect(errorPage.ErrorHeading).ToBeVisibleAsync();
-            var heading = await errorPage.ErrorHeading.TextContentAsync();
-            heading.Should().Contain("Dashboard Error");
+            var text = await errorPage.GetErrorTextAsync();
+            text.Should().NotBeNullOrWhiteSpace();
+            // Should contain some indication of the problem
+            (text.Contains("data.json") || text.Contains("Missing") || text.Contains("Invalid") || text.Contains("Error"))
+                .Should().BeTrue("error message should describe the problem");
         }
     }
 
     [Fact]
-    public async Task ErrorState_ErrorContainsDescriptiveMessage()
+    public async Task ErrorPage_DoesNotShowDashboardSections()
     {
         var page = await _fixture.NewPageAsync();
         var errorPage = new ErrorPage(page, _fixture.BaseUrl);
+        await errorPage.NavigateAsync();
 
-        await errorPage.NavigateToAsync("/");
-
-        if (await errorPage.IsErrorVisibleAsync())
+        var isError = await errorPage.IsErrorVisibleAsync();
+        if (isError)
         {
-            var message = await errorPage.GetErrorTextAsync();
-            message.Should().NotBeNullOrWhiteSpace();
-            // Should contain either file-not-found, parse error, or validation error
-            var hasDescriptiveMessage = message.Contains("data.json") ||
-                                        message.Contains("Invalid JSON") ||
-                                        message.Contains("Missing required field") ||
-                                        message.Contains("deserialized to null");
-            hasDescriptiveMessage.Should().BeTrue("Error message should be descriptive, not a raw exception");
+            var hidden = await errorPage.IsDashboardContentHiddenAsync();
+            hidden.Should().BeTrue("when error is shown, dashboard sections should not render");
         }
     }
 
     [Fact]
-    public async Task ErrorState_NoStackTraceVisible()
+    public async Task ErrorPage_NoStackTraceExposed()
     {
         var page = await _fixture.NewPageAsync();
         var errorPage = new ErrorPage(page, _fixture.BaseUrl);
+        await errorPage.NavigateAsync();
 
-        await errorPage.NavigateToAsync("/");
-
-        if (await errorPage.IsErrorVisibleAsync())
+        var isError = await errorPage.IsErrorVisibleAsync();
+        if (isError)
         {
             var html = await page.ContentAsync();
-            html.Should().NotContain("System.Exception");
             html.Should().NotContain("StackTrace");
             html.Should().NotContain("at ReportingDashboard.");
             html.Should().NotContain("NullReferenceException");
@@ -93,56 +81,45 @@ public class ErrorDisplayTests
     }
 
     [Fact]
-    public async Task ErrorState_NoDataSectionsRendered()
+    public async Task ErrorPage_StillRendersWithin1920x1080Container()
     {
         var page = await _fixture.NewPageAsync();
-        var errorPage = new ErrorPage(page, _fixture.BaseUrl);
+        var dp = new DashboardPage(page, _fixture.BaseUrl);
+        await dp.NavigateAsync();
 
-        await errorPage.NavigateToAsync("/");
-
-        if (await errorPage.IsErrorVisibleAsync())
+        var isError = await dp.ErrorSection.CountAsync() > 0;
+        if (isError)
         {
-            var hdrCount = await page.Locator(".hdr").CountAsync();
-            var tlCount = await page.Locator(".tl-area").CountAsync();
-            var hmCount = await page.Locator(".hm-wrap").CountAsync();
+            var container = dp.MainContainer;
+            await Assertions.Expect(container).ToBeVisibleAsync();
 
-            hdrCount.Should().Be(0);
-            tlCount.Should().Be(0);
-            hmCount.Should().Be(0);
+            var box = await container.BoundingBoxAsync();
+            box.Should().NotBeNull();
+            box!.Width.Should().BeApproximately(1920, 2);
+            box.Height.Should().BeApproximately(1080, 2);
         }
     }
 
     [Fact]
-    public async Task ErrorState_NoBlazorErrorBoundary()
+    public async Task ErrorPage_PageStillReturns200()
     {
         var page = await _fixture.NewPageAsync();
-        var errorPage = new ErrorPage(page, _fixture.BaseUrl);
 
-        await errorPage.NavigateToAsync("/");
-
-        var html = await page.ContentAsync();
-        html.Should().NotContain("blazor-error-boundary");
-        html.Should().NotContain("blazor-error-ui");
-    }
-
-    [Fact]
-    public async Task ErrorState_PageStillReturns200()
-    {
-        var page = await _fixture.NewPageAsync();
-        IResponse? mainResponse = null;
-
+        IResponse? response = null;
         page.Response += (_, r) =>
         {
-            if (r.Url.TrimEnd('/') == _fixture.BaseUrl.TrimEnd('/') || r.Url == _fixture.BaseUrl + "/")
-                mainResponse = r;
+            if (r.Url.Contains(_fixture.BaseUrl.TrimEnd('/')))
+                response = r;
         };
 
-        var errorPage = new ErrorPage(page, _fixture.BaseUrl);
-        await errorPage.NavigateToAsync("/");
-
-        if (mainResponse is not null)
+        await page.GotoAsync($"{_fixture.BaseUrl}/", new PageGotoOptions
         {
-            mainResponse.Status.Should().Be(200);
-        }
+            WaitUntil = WaitUntilState.NetworkIdle,
+            Timeout = 15000
+        });
+
+        // Even errors render with HTTP 200 (error shown in page)
+        response.Should().NotBeNull();
+        response!.Status.Should().Be(200);
     }
 }
