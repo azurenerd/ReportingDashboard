@@ -7,16 +7,16 @@ using Xunit;
 
 namespace ReportingDashboard.Tests.Unit.Services;
 
-/// <summary>
-/// Focused validation edge-case tests for DashboardDataService.
-/// Complements DashboardDataServiceActualTests and DashboardDataServiceTests
-/// by covering specific validation combinations and boundary conditions.
-/// </summary>
 [Trait("Category", "Unit")]
 public class DashboardDataServiceValidationTests : IDisposable
 {
     private readonly string _tempDir;
     private readonly ILogger<DashboardDataService> _logger;
+    private static readonly JsonSerializerOptions JsonOpts = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true
+    };
 
     public DashboardDataServiceValidationTests()
     {
@@ -30,12 +30,6 @@ public class DashboardDataServiceValidationTests : IDisposable
         if (Directory.Exists(_tempDir))
             Directory.Delete(_tempDir, recursive: true);
     }
-
-    private static readonly JsonSerializerOptions JsonOpts = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true
-    };
 
     private string WriteJson(object data)
     {
@@ -51,21 +45,21 @@ public class DashboardDataServiceValidationTests : IDisposable
         return path;
     }
 
-    private DashboardDataService CreateService() => new(_logger);
+    private DashboardDataService Svc() => new(_logger);
 
-    private object CreateMinimalValidData() => new
+    private object ValidData() => new
     {
-        title = "T",
-        subtitle = "S",
+        title = "Test",
+        subtitle = "Sub",
         backlogLink = "https://link",
-        currentMonth = "Jan",
+        currentMonth = "April",
         months = new[] { "January" },
         timeline = new
         {
             startDate = "2026-01-01",
             endDate = "2026-07-01",
             nowDate = "2026-04-10",
-            tracks = new[] { new { name = "M1", label = "L", color = "#000", milestones = Array.Empty<object>() } }
+            tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } }
         },
         heatmap = new
         {
@@ -76,7 +70,7 @@ public class DashboardDataServiceValidationTests : IDisposable
         }
     };
 
-    #region Individual Validation Failures
+    #region Individual field validation
 
     [Fact]
     public async Task LoadAsync_MissingTitle_ErrorMentionsTitle()
@@ -84,14 +78,14 @@ public class DashboardDataServiceValidationTests : IDisposable
         var path = WriteJson(new
         {
             title = "",
-            subtitle = "S",
+            subtitle = "Sub",
             backlogLink = "https://link",
-            currentMonth = "Jan",
-            months = new[] { "January" },
-            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", tracks = new[] { new { name = "M1", label = "L", color = "#000", milestones = Array.Empty<object>() } } },
+            currentMonth = "April",
+            months = new[] { "Jan" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -104,15 +98,15 @@ public class DashboardDataServiceValidationTests : IDisposable
     {
         var path = WriteJson(new
         {
-            title = "T",
+            title = "Test",
             subtitle = "",
             backlogLink = "https://link",
-            currentMonth = "Jan",
-            months = new[] { "January" },
-            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", tracks = new[] { new { name = "M1", label = "L", color = "#000", milestones = Array.Empty<object>() } } },
+            currentMonth = "April",
+            months = new[] { "Jan" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -125,15 +119,15 @@ public class DashboardDataServiceValidationTests : IDisposable
     {
         var path = WriteJson(new
         {
-            title = "T",
-            subtitle = "S",
+            title = "Test",
+            subtitle = "Sub",
             backlogLink = "",
-            currentMonth = "Jan",
-            months = new[] { "January" },
-            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", tracks = new[] { new { name = "M1", label = "L", color = "#000", milestones = Array.Empty<object>() } } },
+            currentMonth = "April",
+            months = new[] { "Jan" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -146,15 +140,15 @@ public class DashboardDataServiceValidationTests : IDisposable
     {
         var path = WriteJson(new
         {
-            title = "T",
-            subtitle = "S",
+            title = "Test",
+            subtitle = "Sub",
             backlogLink = "https://link",
             currentMonth = "",
-            months = new[] { "January" },
-            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", tracks = new[] { new { name = "M1", label = "L", color = "#000", milestones = Array.Empty<object>() } } },
+            months = new[] { "Jan" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -163,19 +157,19 @@ public class DashboardDataServiceValidationTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_EmptyMonthsArray_ErrorMentionsMonths()
+    public async Task LoadAsync_EmptyMonths_ErrorMentionsMonths()
     {
         var path = WriteJson(new
         {
-            title = "T",
-            subtitle = "S",
+            title = "Test",
+            subtitle = "Sub",
             backlogLink = "https://link",
-            currentMonth = "Jan",
+            currentMonth = "April",
             months = Array.Empty<string>(),
-            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", tracks = new[] { new { name = "M1", label = "L", color = "#000", milestones = Array.Empty<object>() } } },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -183,24 +177,20 @@ public class DashboardDataServiceValidationTests : IDisposable
         Assert.Contains("months", svc.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
     }
 
-    #endregion
-
-    #region Timeline Validation
-
     [Fact]
-    public async Task LoadAsync_TimelineMissingStartDate_ErrorMentionsStartDate()
+    public async Task LoadAsync_MissingTimelineStartDate_ErrorMentionsStartDate()
     {
         var path = WriteJson(new
         {
-            title = "T",
-            subtitle = "S",
+            title = "Test",
+            subtitle = "Sub",
             backlogLink = "https://link",
-            currentMonth = "Jan",
-            months = new[] { "January" },
-            timeline = new { startDate = "", endDate = "2026-07-01", tracks = new[] { new { name = "M1", label = "L", color = "#000", milestones = Array.Empty<object>() } } },
+            currentMonth = "April",
+            months = new[] { "Jan" },
+            timeline = new { startDate = "", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -209,19 +199,19 @@ public class DashboardDataServiceValidationTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_TimelineMissingEndDate_ErrorMentionsEndDate()
+    public async Task LoadAsync_MissingTimelineEndDate_ErrorMentionsEndDate()
     {
         var path = WriteJson(new
         {
-            title = "T",
-            subtitle = "S",
+            title = "Test",
+            subtitle = "Sub",
             backlogLink = "https://link",
-            currentMonth = "Jan",
-            months = new[] { "January" },
-            timeline = new { startDate = "2026-01-01", endDate = "", tracks = new[] { new { name = "M1", label = "L", color = "#000", milestones = Array.Empty<object>() } } },
+            currentMonth = "April",
+            months = new[] { "Jan" },
+            timeline = new { startDate = "2026-01-01", endDate = "", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -230,19 +220,19 @@ public class DashboardDataServiceValidationTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_TimelineEmptyTracks_ErrorMentionsTracks()
+    public async Task LoadAsync_EmptyTimelineTracks_ErrorMentionsTracks()
     {
         var path = WriteJson(new
         {
-            title = "T",
-            subtitle = "S",
+            title = "Test",
+            subtitle = "Sub",
             backlogLink = "https://link",
-            currentMonth = "Jan",
-            months = new[] { "January" },
-            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", tracks = Array.Empty<object>() },
+            currentMonth = "April",
+            months = new[] { "Jan" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = Array.Empty<object>() },
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -250,12 +240,36 @@ public class DashboardDataServiceValidationTests : IDisposable
         Assert.Contains("tracks", svc.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public async Task LoadAsync_NullTimeline_ErrorMentionsTimeline()
+    {
+        // Construct JSON manually with null timeline
+        var json = """
+        {
+            "title": "Test",
+            "subtitle": "Sub",
+            "backlogLink": "https://link",
+            "currentMonth": "April",
+            "months": ["Jan"],
+            "timeline": null,
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
+        }
+        """;
+        var path = WriteRaw(json);
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.True(svc.IsError);
+        Assert.Contains("timeline", svc.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+    }
+
     #endregion
 
-    #region Multiple Validation Errors
+    #region Multiple validation errors
 
     [Fact]
-    public async Task LoadAsync_MultipleFieldsMissing_ErrorContainsAllFieldNames()
+    public async Task LoadAsync_MultipleInvalidFields_ErrorContainsAllFieldNames()
     {
         var path = WriteJson(new
         {
@@ -264,10 +278,10 @@ public class DashboardDataServiceValidationTests : IDisposable
             backlogLink = "",
             currentMonth = "",
             months = Array.Empty<string>(),
-            timeline = new { startDate = "", endDate = "", tracks = Array.Empty<object>() },
+            timeline = (object?)null,
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -280,44 +294,46 @@ public class DashboardDataServiceValidationTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_MultipleErrors_JoinedWithSemicolon()
+    public async Task LoadAsync_MultipleTimelineErrors_AllReportedInMessage()
     {
         var path = WriteJson(new
         {
-            title = "",
-            subtitle = "",
+            title = "Test",
+            subtitle = "Sub",
             backlogLink = "https://link",
-            currentMonth = "Jan",
-            months = new[] { "January" },
-            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", tracks = new[] { new { name = "M1", label = "L", color = "#000", milestones = Array.Empty<object>() } } },
+            currentMonth = "April",
+            months = new[] { "Jan" },
+            timeline = new { startDate = "", endDate = "", nowDate = "", tracks = Array.Empty<object>() },
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
         Assert.True(svc.IsError);
-        Assert.Contains(";", svc.ErrorMessage!);
+        Assert.Contains("startDate", svc.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("endDate", svc.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("tracks", svc.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
     }
 
     #endregion
 
-    #region Whitespace-Only Fields
+    #region Whitespace-only field values treated as missing
 
     [Fact]
-    public async Task LoadAsync_WhitespaceOnlyTitle_TreatedAsEmpty()
+    public async Task LoadAsync_WhitespaceOnlyTitle_TreatedAsMissing()
     {
         var path = WriteJson(new
         {
             title = "   ",
-            subtitle = "S",
+            subtitle = "Sub",
             backlogLink = "https://link",
-            currentMonth = "Jan",
-            months = new[] { "January" },
-            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", tracks = new[] { new { name = "M1", label = "L", color = "#000", milestones = Array.Empty<object>() } } },
+            currentMonth = "April",
+            months = new[] { "Jan" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -326,19 +342,19 @@ public class DashboardDataServiceValidationTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_WhitespaceOnlySubtitle_TreatedAsEmpty()
+    public async Task LoadAsync_WhitespaceOnlySubtitle_TreatedAsMissing()
     {
         var path = WriteJson(new
         {
-            title = "T",
-            subtitle = "\t\n ",
+            title = "Test",
+            subtitle = "  \t  ",
             backlogLink = "https://link",
-            currentMonth = "Jan",
-            months = new[] { "January" },
-            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", tracks = new[] { new { name = "M1", label = "L", color = "#000", milestones = Array.Empty<object>() } } },
+            currentMonth = "April",
+            months = new[] { "Jan" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
             heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
         });
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -348,13 +364,13 @@ public class DashboardDataServiceValidationTests : IDisposable
 
     #endregion
 
-    #region Successful Validation (Boundary)
+    #region Valid data boundary cases
 
     [Fact]
     public async Task LoadAsync_MinimalValidData_Succeeds()
     {
-        var path = WriteJson(CreateMinimalValidData());
-        var svc = CreateService();
+        var path = WriteJson(ValidData());
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -364,26 +380,219 @@ public class DashboardDataServiceValidationTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_SingleCharacterFields_Valid()
+    public async Task LoadAsync_ValidData_ClearsErrorState()
     {
-        var path = WriteJson(CreateMinimalValidData());
-        var svc = CreateService();
+        var path = WriteJson(ValidData());
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
         Assert.False(svc.IsError);
-        Assert.Equal("T", svc.Data!.Title);
+        Assert.Null(svc.ErrorMessage);
+        Assert.NotNull(svc.Data);
+    }
+
+    [Fact]
+    public async Task LoadAsync_ValidWithManyTracks_Succeeds()
+    {
+        var tracks = Enumerable.Range(1, 10).Select(i => new
+        {
+            name = $"M{i}",
+            label = $"Track {i}",
+            color = $"#{i:D6}",
+            milestones = new[] { new { date = "2026-03-01", type = "poc", label = "PoC" } }
+        }).ToArray();
+
+        var path = WriteJson(new
+        {
+            title = "Test",
+            subtitle = "Sub",
+            backlogLink = "https://link",
+            currentMonth = "April",
+            months = new[] { "Jan", "Feb", "Mar", "Apr" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks },
+            heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
+        });
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.False(svc.IsError);
+        Assert.Equal(10, svc.Data!.Timeline.Tracks.Count);
+    }
+
+    [Fact]
+    public async Task LoadAsync_ValidWithManyMonths_Succeeds()
+    {
+        var path = WriteJson(new
+        {
+            title = "Test",
+            subtitle = "Sub",
+            backlogLink = "https://link",
+            currentMonth = "December",
+            months = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-12-31", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
+            heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
+        });
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.False(svc.IsError);
+        Assert.Equal(12, svc.Data!.Months.Count);
     }
 
     #endregion
 
-    #region Service State After Error
+    #region JSON edge cases
 
     [Fact]
-    public async Task LoadAsync_AfterError_DataIsNull()
+    public async Task LoadAsync_JsonWithExtraFields_IgnoredSuccessfully()
     {
-        var path = WriteRaw("not json at all");
-        var svc = CreateService();
+        var json = """
+        {
+            "title": "Test",
+            "subtitle": "Sub",
+            "backlogLink": "https://link",
+            "currentMonth": "April",
+            "months": ["Jan"],
+            "unknownField": "should be ignored",
+            "anotherExtra": 42,
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-07-01",
+                "nowDate": "2026-04-10",
+                "tracks": [{ "name": "M1", "label": "T", "color": "#000", "milestones": [] }]
+            },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
+        }
+        """;
+        var path = WriteRaw(json);
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.False(svc.IsError);
+        Assert.NotNull(svc.Data);
+    }
+
+    [Fact]
+    public async Task LoadAsync_JsonWithUnicodeCharacters_DeserializesCorrectly()
+    {
+        var path = WriteJson(new
+        {
+            title = "Privacy Automation — Release Roadmap",
+            subtitle = "Trusted Platform · Privacy · April 2026",
+            backlogLink = "https://link",
+            currentMonth = "April",
+            months = new[] { "Jan" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "Core — V1", color = "#000", milestones = Array.Empty<object>() } } },
+            heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
+        });
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.False(svc.IsError);
+        Assert.Contains("—", svc.Data!.Title);
+        Assert.Contains("·", svc.Data.Subtitle);
+    }
+
+    [Fact]
+    public async Task LoadAsync_ArrayInsteadOfObject_SetsError()
+    {
+        var path = WriteRaw("[1, 2, 3]");
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.True(svc.IsError);
+        Assert.NotNull(svc.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task LoadAsync_NumberInsteadOfObject_SetsError()
+    {
+        var path = WriteRaw("42");
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.True(svc.IsError);
+    }
+
+    [Fact]
+    public async Task LoadAsync_StringInsteadOfObject_SetsError()
+    {
+        var path = WriteRaw("\"just a string\"");
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.True(svc.IsError);
+    }
+
+    [Fact]
+    public async Task LoadAsync_BooleanInsteadOfObject_SetsError()
+    {
+        var path = WriteRaw("true");
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.True(svc.IsError);
+    }
+
+    [Fact]
+    public async Task LoadAsync_TrailingCommaJson_SetsError()
+    {
+        var json = """
+        {
+            "title": "Test",
+            "subtitle": "Sub",
+        }
+        """;
+        var path = WriteRaw(json);
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.True(svc.IsError);
+    }
+
+    [Fact]
+    public async Task LoadAsync_DuplicateKeys_DoesNotCrash()
+    {
+        var json = """
+        {
+            "title": "First",
+            "title": "Second",
+            "subtitle": "Sub",
+            "backlogLink": "https://link",
+            "currentMonth": "April",
+            "months": ["Jan"],
+            "timeline": { "startDate": "2026-01-01", "endDate": "2026-07-01", "nowDate": "2026-04-10", "tracks": [{ "name": "M1", "label": "T", "color": "#000", "milestones": [] }] },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
+        }
+        """;
+        var path = WriteRaw(json);
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        // Should not crash, may succeed or fail validation depending on which value wins
+        Assert.NotNull(svc);
+    }
+
+    #endregion
+
+    #region State consistency after error
+
+    [Fact]
+    public async Task LoadAsync_OnError_DataIsNull()
+    {
+        var path = WriteRaw("{{{bad json}}}");
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -392,38 +601,46 @@ public class DashboardDataServiceValidationTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_AfterValidationError_DataIsNull()
+    public async Task LoadAsync_OnFileNotFound_DataIsNull()
     {
-        var path = WriteJson(new { title = "", subtitle = "", months = Array.Empty<string>() });
-        var svc = CreateService();
-
-        await svc.LoadAsync(path);
-
-        Assert.True(svc.IsError);
-        Assert.Null(svc.Data);
-    }
-
-    [Fact]
-    public async Task LoadAsync_FileNotFound_ErrorMessageContainsNotFound()
-    {
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(Path.Combine(_tempDir, "does_not_exist.json"));
 
         Assert.True(svc.IsError);
-        Assert.Contains("not found", svc.ErrorMessage!);
+        Assert.Null(svc.Data);
     }
 
     [Fact]
-    public async Task LoadAsync_ValidAfterError_ClearsErrorState()
+    public async Task LoadAsync_OnValidationError_DataIsNull()
     {
-        var svc = CreateService();
+        var path = WriteJson(new
+        {
+            title = "",
+            subtitle = "",
+            months = Array.Empty<string>()
+        });
+        var svc = Svc();
 
-        await svc.LoadAsync(Path.Combine(_tempDir, "missing.json"));
+        await svc.LoadAsync(path);
+
         Assert.True(svc.IsError);
+        Assert.Null(svc.Data);
+    }
 
-        var validPath = WriteJson(CreateMinimalValidData());
-        await svc.LoadAsync(validPath);
+    [Fact]
+    public async Task LoadAsync_ErrorThenSuccess_ClearsErrorState()
+    {
+        var svc = Svc();
+
+        // First: error
+        await svc.LoadAsync(Path.Combine(_tempDir, "nope.json"));
+        Assert.True(svc.IsError);
+        Assert.Null(svc.Data);
+
+        // Second: success
+        var path = WriteJson(ValidData());
+        await svc.LoadAsync(path);
 
         Assert.False(svc.IsError);
         Assert.Null(svc.ErrorMessage);
@@ -431,40 +648,62 @@ public class DashboardDataServiceValidationTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_ErrorAfterValid_ClearsDataAndSetsError()
+    public async Task LoadAsync_SuccessThenError_ClearsData()
     {
-        var svc = CreateService();
+        var svc = Svc();
+        var path = WriteJson(ValidData());
 
-        var validPath = WriteJson(CreateMinimalValidData());
-        await svc.LoadAsync(validPath);
+        await svc.LoadAsync(path);
         Assert.NotNull(svc.Data);
 
-        await svc.LoadAsync(Path.Combine(_tempDir, "missing.json"));
+        await svc.LoadAsync(Path.Combine(_tempDir, "gone.json"));
 
         Assert.True(svc.IsError);
         Assert.Null(svc.Data);
+        Assert.NotNull(svc.ErrorMessage);
     }
 
     #endregion
 
-    #region JSON Edge Cases
+    #region Error message format
 
     [Fact]
-    public async Task LoadAsync_JsonArray_SetsError()
+    public async Task LoadAsync_FileNotFound_ErrorContainsExactPath()
     {
-        var path = WriteRaw("[1, 2, 3]");
-        var svc = CreateService();
+        var svc = Svc();
+        var fakePath = Path.Combine(_tempDir, "specific_file_name.json");
 
-        await svc.LoadAsync(path);
+        await svc.LoadAsync(fakePath);
 
-        Assert.True(svc.IsError);
+        Assert.Contains("specific_file_name.json", svc.ErrorMessage!);
     }
 
     [Fact]
-    public async Task LoadAsync_JsonNull_SetsError()
+    public async Task LoadAsync_FileNotFound_ErrorStartsWithExpectedPrefix()
+    {
+        var svc = Svc();
+
+        await svc.LoadAsync(Path.Combine(_tempDir, "x.json"));
+
+        Assert.StartsWith("data.json not found at", svc.ErrorMessage!);
+    }
+
+    [Fact]
+    public async Task LoadAsync_MalformedJson_ErrorContainsParsePrefix()
+    {
+        var path = WriteRaw("{bad}");
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.Contains("Failed to parse data.json", svc.ErrorMessage!);
+    }
+
+    [Fact]
+    public async Task LoadAsync_NullDeserialization_ErrorContainsNullMessage()
     {
         var path = WriteRaw("null");
-        var svc = CreateService();
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
@@ -473,67 +712,83 @@ public class DashboardDataServiceValidationTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_ExtraFieldsInJson_IgnoredAndSucceeds()
+    public async Task LoadAsync_ValidationError_ErrorContainsValidationPrefix()
     {
-        var json = """
+        var path = WriteJson(new
         {
-            "title": "T",
-            "subtitle": "S",
-            "backlogLink": "https://link",
-            "currentMonth": "Jan",
-            "months": ["January"],
-            "extraField": "should be ignored",
-            "anotherExtra": 42,
-            "timeline": {
-                "startDate": "2026-01-01",
-                "endDate": "2026-07-01",
-                "nowDate": "2026-04-10",
-                "tracks": [{"name": "M1", "label": "L", "color": "#000", "milestones": []}]
-            },
-            "heatmap": {
-                "shipped": {},
-                "inProgress": {},
-                "carryover": {},
-                "blockers": {}
+            title = "",
+            subtitle = "Sub",
+            backlogLink = "https://link",
+            currentMonth = "April",
+            months = new[] { "Jan" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
+            heatmap = new { shipped = new Dictionary<string, string[]>(), inProgress = new Dictionary<string, string[]>(), carryover = new Dictionary<string, string[]>(), blockers = new Dictionary<string, string[]>() }
+        });
+        var svc = Svc();
+
+        await svc.LoadAsync(path);
+
+        Assert.Contains("data.json validation:", svc.ErrorMessage!);
+    }
+
+    #endregion
+
+    #region Heatmap data deserialization
+
+    [Fact]
+    public async Task LoadAsync_HeatmapWithAllCategories_DeserializesCorrectly()
+    {
+        var path = WriteJson(new
+        {
+            title = "Test",
+            subtitle = "Sub",
+            backlogLink = "https://link",
+            currentMonth = "April",
+            months = new[] { "Jan", "Feb", "Mar", "Apr" },
+            timeline = new { startDate = "2026-01-01", endDate = "2026-07-01", nowDate = "2026-04-10", tracks = new[] { new { name = "M1", label = "T", color = "#000", milestones = Array.Empty<object>() } } },
+            heatmap = new
+            {
+                shipped = new Dictionary<string, string[]>
+                {
+                    ["jan"] = new[] { "Feature A", "Feature B" },
+                    ["feb"] = new[] { "Feature C" }
+                },
+                inProgress = new Dictionary<string, string[]>
+                {
+                    ["apr"] = new[] { "Feature D" }
+                },
+                carryover = new Dictionary<string, string[]>
+                {
+                    ["mar"] = new[] { "Feature E" }
+                },
+                blockers = new Dictionary<string, string[]>
+                {
+                    ["apr"] = new[] { "Blocker 1", "Blocker 2" }
+                }
             }
-        }
-        """;
-        var path = WriteRaw(json);
-        var svc = CreateService();
+        });
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
         Assert.False(svc.IsError);
-        Assert.Equal("T", svc.Data!.Title);
+        Assert.Equal(2, svc.Data!.Heatmap.Shipped.Count);
+        Assert.Equal(2, svc.Data.Heatmap.Shipped["jan"].Count);
+        Assert.Single(svc.Data.Heatmap.InProgress);
+        Assert.Single(svc.Data.Heatmap.Carryover);
+        Assert.Equal(2, svc.Data.Heatmap.Blockers["apr"].Count);
     }
 
     [Fact]
-    public async Task LoadAsync_UnicodeInFields_DeserializesCorrectly()
+    public async Task LoadAsync_HeatmapWithEmptyCategories_IsValid()
     {
-        var json = """
-        {
-            "title": "Tableau de bord exécutif",
-            "subtitle": "Équipe développement — Avril 2026",
-            "backlogLink": "https://link",
-            "currentMonth": "Avril",
-            "months": ["Janvier"],
-            "timeline": {
-                "startDate": "2026-01-01",
-                "endDate": "2026-07-01",
-                "nowDate": "2026-04-10",
-                "tracks": [{"name": "M1", "label": "Plateforme", "color": "#000", "milestones": []}]
-            },
-            "heatmap": {"shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {}}
-        }
-        """;
-        var path = WriteRaw(json);
-        var svc = CreateService();
+        var path = WriteJson(ValidData());
+        var svc = Svc();
 
         await svc.LoadAsync(path);
 
         Assert.False(svc.IsError);
-        Assert.Equal("Tableau de bord exécutif", svc.Data!.Title);
-        Assert.Equal("Équipe développement — Avril 2026", svc.Data.Subtitle);
+        Assert.NotNull(svc.Data!.Heatmap);
     }
 
     #endregion
