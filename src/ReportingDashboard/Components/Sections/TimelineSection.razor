@@ -1,0 +1,24 @@
+@* Stub: TimelineSection - renders SVG timeline with milestone tracks and NOW line *@
+
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in Tracks)
+        {
+            <div class="tl-label">
+                <span class="tl-id" style="color: @track.Color">@track.Id</span>
+                <span class="tl-name">@track.Name</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        @* SVG timeline placeholder - to be implemented *@
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TimelineConfig Timeline { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public List<MilestoneTrack> Tracks { get; set; } = default!;
+}

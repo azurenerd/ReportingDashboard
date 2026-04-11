@@ -1,0 +1,16 @@
+@* Stub: DashboardHeader - renders project title, subtitle, backlog link, and legend *@
+
+<header class="hdr">
+    <div class="hdr-left">
+        <h1>@Project.Title</h1>
+        <div class="sub">@Project.Subtitle</div>
+    </div>
+    <div class="hdr-right">
+        @* Legend placeholder - to be implemented *@
+    </div>
+</header>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProjectInfo Project { get; set; } = default!;
+}

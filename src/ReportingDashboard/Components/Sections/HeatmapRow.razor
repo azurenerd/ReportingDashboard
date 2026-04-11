@@ -1,0 +1,19 @@
+@* Stub: HeatmapRow - renders a single status row (Shipped/InProgress/Carryover/Blockers) *@
+
+<div class="hm-row-hdr">@Category.Name</div>
+@foreach (var month in Months)
+{
+    var items = Category.Items.GetValueOrDefault(month, []);
+    <HeatmapCell Items="items" Month="@month" CurrentMonth="@CurrentMonth" CategoryName="@Category.Name" />
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public HeatmapCategory Category { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public List<string> Months { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string CurrentMonth { get; set; } = "";
+}

@@ -1,0 +1,20 @@
+@* Stub: HeatmapSection - renders the monthly execution heatmap grid *@
+
+<div class="hm-wrap">
+    <div class="hm-title">MONTHLY EXECUTION HEATMAP — Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid">
+        @* Grid header row placeholder *@
+        @foreach (var category in Heatmap.Categories)
+        {
+            <HeatmapRow Category="category" Months="Heatmap.Months" CurrentMonth="@CurrentMonth" />
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public HeatmapData Heatmap { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string CurrentMonth { get; set; } = "";
+}

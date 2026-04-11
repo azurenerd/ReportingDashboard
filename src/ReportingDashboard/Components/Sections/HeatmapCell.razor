@@ -1,0 +1,29 @@
+@* Stub: HeatmapCell - renders a single month/status cell with item bullets *@
+
+<div class="hm-cell @(Month == CurrentMonth ? "hm-cell-current" : "")">
+    @if (Items.Count == 0)
+    {
+        <span class="hm-empty">-</span>
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            <div class="it">@item</div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public List<string> Items { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string Month { get; set; } = "";
+
+    [Parameter, EditorRequired]
+    public string CurrentMonth { get; set; } = "";
+
+    [Parameter, EditorRequired]
+    public string CategoryName { get; set; } = "";
+}

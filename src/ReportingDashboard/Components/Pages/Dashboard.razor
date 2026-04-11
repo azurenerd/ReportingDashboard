@@ -1,0 +1,28 @@
+@page "/"
+@layout MainLayout
+@inject DashboardDataService DataService
+
+@if (_error is not null)
+{
+    <div class="error-display">
+        <p>@_error</p>
+    </div>
+}
+else if (_data is not null)
+{
+    <DashboardHeader Project="_data.Project" />
+    <TimelineSection Timeline="_data.Timeline" Tracks="_data.Tracks" />
+    <HeatmapSection Heatmap="_data.Heatmap" CurrentMonth="_data.Project.CurrentMonth" />
+}
+
+@code {
+    private DashboardData? _data;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        var (data, error) = DataService.Load();
+        _data = data;
+        _error = error;
+    }
+}
