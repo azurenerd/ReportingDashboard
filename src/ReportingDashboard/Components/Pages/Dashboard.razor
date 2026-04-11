@@ -4,28 +4,20 @@
 @rendermode RenderMode.InteractiveServer
 
 <div class="dashboard-container">
-    @if (!string.IsNullOrEmpty(_data.ErrorMessage))
+    @if (DataService.IsError)
     {
         <div class="error-banner">
-            <strong>⚠ Data Error:</strong> @_data.ErrorMessage
+            <strong>⚠ Data Error:</strong> @DataService.ErrorMessage
         </div>
+    }
+    else if (DataService.Data is not null)
+    {
+        <Header Data="@DataService.Data" />
+        <Timeline Data="@DataService.Data.Timeline" />
+        <Heatmap HeatmapData="@DataService.Data.Heatmap" Months="@(DataService.Data.Timeline?.Tracks?.FirstOrDefault()?.Milestones?.Select(m => m.Date).ToList() ?? new())" CurrentMonth="@DateTime.Now.ToString("MMM")" />
     }
     else
     {
-        <Header Data="@_data" />
-        <MonthlySummary Summary="_data.CurrentMonthSummary" />
-        <MilestoneTimeline Milestones="_data.Milestones" />
-        <ShippedItems Items="_data.Shipped" />
-        <InProgressItems Items="_data.InProgress" />
-        <CarriedOverItems Items="_data.CarriedOver" />
+        <ErrorPanel Message="Dashboard data is not available" />
     }
 </div>
-
-@code {
-    private DashboardData _data = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _data = await DataService.LoadDataAsync();
-    }
-}
