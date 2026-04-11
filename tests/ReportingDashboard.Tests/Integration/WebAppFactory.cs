@@ -1,13 +1,17 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using ReportingDashboard.Services;
 
 namespace ReportingDashboard.Tests.Integration;
 
 /// <summary>
 /// Custom WebApplicationFactory that configures a temp Data directory
 /// so tests can control the data.json file independently.
+/// Uses DashboardDataService as the entry point marker type since Program
+/// is internal (top-level statements). Any public type from the target
+/// assembly works for WebApplicationFactory.
 /// </summary>
-public class WebAppFactory : WebApplicationFactory<Program>
+public class WebAppFactory : WebApplicationFactory<DashboardDataService>
 {
     private readonly string _tempContentRoot;
 

@@ -8,7 +8,6 @@ public class PlaywrightFixture : IAsyncLifetime
     private IPlaywright? _playwright;
     private IBrowser? _browser;
 
-    public IBrowser Browser => _browser ?? throw new InvalidOperationException("Browser not initialized. Ensure IAsyncLifetime.InitializeAsync has been called.");
     public string BaseUrl { get; }
 
     public PlaywrightFixture()
@@ -20,24 +19,16 @@ public class PlaywrightFixture : IAsyncLifetime
     {
         _playwright = await Playwright.CreateAsync();
 
-        var headed = Environment.GetEnvironmentVariable("HEADED") is "1" or "true";
-
+        var headed = Environment.GetEnvironmentVariable("HEADED") == "1";
         _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
         {
-            Headless = !headed,
+            Headless = !headed
         });
-    }
-
-    public async Task DisposeAsync()
-    {
-        if (_browser is not null)
-            await _browser.DisposeAsync();
-        _playwright?.Dispose();
     }
 
     public async Task<IPage> NewPageAsync()
     {
-        var context = await Browser.NewContextAsync(new BrowserNewContextOptions
+        var context = await _browser!.NewContextAsync(new BrowserNewContextOptions
         {
             ViewportSize = new ViewportSize { Width = 1920, Height = 1080 },
             IgnoreHTTPSErrors = true
@@ -45,23 +36,20 @@ public class PlaywrightFixture : IAsyncLifetime
         return await context.NewPageAsync();
     }
 
-    public async Task CaptureScreenshotAsync(IPage page, string testName)
+    public async Task CaptureScreenshotAsync(IPage page, string name)
     {
-        var screenshotsDir = Path.Combine(AppContext.BaseDirectory, "screenshots");
-        Directory.CreateDirectory(screenshotsDir);
+        var dir = Path.Combine(AppContext.BaseDirectory, "screenshots");
+        Directory.CreateDirectory(dir);
+        var path = Path.Combine(dir, $"{name}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.png");
+        await page.ScreenshotAsync(new PageScreenshotOptions { Path = path, FullPage = true });
+    }
 
-        var safeName = string.Join("_", testName.Split(Path.GetInvalidFileNameChars()));
-        var path = Path.Combine(screenshotsDir, $"{safeName}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.png");
-
-        await page.ScreenshotAsync(new PageScreenshotOptions
-        {
-            Path = path,
-            FullPage = true
-        });
+    public async Task DisposeAsync()
+    {
+        if (_browser is not null) await _browser.DisposeAsync();
+        _playwright?.Dispose();
     }
 }
 
 [CollectionDefinition("Playwright")]
-public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture>
-{
-}
+public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }
