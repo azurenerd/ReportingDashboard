@@ -34,8 +34,8 @@ public class DashboardDataService
             if (Data is null)
             {
                 IsError = true;
-                ErrorMessage = "Failed to parse data.json: deserialization returned null";
-                _logger.LogError("Failed to parse data.json: deserialization returned null");
+                ErrorMessage = "data.json deserialized to null.";
+                _logger.LogError("data.json deserialized to null");
                 return;
             }
 
