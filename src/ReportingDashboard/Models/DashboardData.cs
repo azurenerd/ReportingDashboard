@@ -5,70 +5,70 @@ namespace ReportingDashboard.Models;
 public class DashboardData
 {
     [JsonPropertyName("title")]
-    public string Title { get; set; } = string.Empty;
+    public string Title { get; set; } = "Untitled Project";
 
     [JsonPropertyName("subtitle")]
-    public string Subtitle { get; set; } = string.Empty;
+    public string Subtitle { get; set; } = "";
 
     [JsonPropertyName("backlogLink")]
-    public string BacklogLink { get; set; } = string.Empty;
+    public string BacklogLink { get; set; } = "#";
 
     [JsonPropertyName("currentMonth")]
-    public string CurrentMonth { get; set; } = string.Empty;
+    public string CurrentMonth { get; set; } = "";
 
     [JsonPropertyName("months")]
-    public List<string> Months { get; set; } = new();
+    public List<string> Months { get; set; } = [];
 
     [JsonPropertyName("timeline")]
-    public TimelineData Timeline { get; set; } = new();
+    public TimelineData? Timeline { get; set; }
 
     [JsonPropertyName("heatmap")]
-    public HeatmapData Heatmap { get; set; } = new();
+    public HeatmapData? Heatmap { get; set; }
 
-    // Retained for backward compatibility with scaffolding components
+    [JsonIgnore]
     public string? ErrorMessage { get; set; }
 }
 
 public class TimelineData
 {
     [JsonPropertyName("startDate")]
-    public string StartDate { get; set; } = string.Empty;
+    public string StartDate { get; set; } = "";
 
     [JsonPropertyName("endDate")]
-    public string EndDate { get; set; } = string.Empty;
+    public string EndDate { get; set; } = "";
 
     [JsonPropertyName("nowDate")]
-    public string NowDate { get; set; } = string.Empty;
+    public string NowDate { get; set; } = "";
 
     [JsonPropertyName("tracks")]
-    public List<TimelineTrack> Tracks { get; set; } = new();
+    public List<TimelineTrack> Tracks { get; set; } = [];
 }
 
 public class TimelineTrack
 {
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = "";
 
-    [JsonPropertyName("label")]
-    public string Label { get; set; } = string.Empty;
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = "";
 
     [JsonPropertyName("color")]
-    public string Color { get; set; } = "#999";
+    public string Color { get; set; } = "#0078D4";
 
     [JsonPropertyName("milestones")]
-    public List<Milestone> Milestones { get; set; } = new();
+    public List<MilestoneMarker> Milestones { get; set; } = [];
 }
 
-public class Milestone
+public class MilestoneMarker
 {
     [JsonPropertyName("date")]
-    public string Date { get; set; } = string.Empty;
+    public string Date { get; set; } = "";
+
+    [JsonPropertyName("label")]
+    public string Label { get; set; } = "";
 
     [JsonPropertyName("type")]
     public string Type { get; set; } = "checkpoint";
-
-    [JsonPropertyName("label")]
-    public string Label { get; set; } = string.Empty;
 }
 
 public class HeatmapData

@@ -1,70 +1,70 @@
 {
   "title": "Privacy Automation Release Roadmap",
-  "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
-  "backlogLink": "https://dev.azure.com/org/project/_backlogs",
-  "currentMonth": "Apr",
-  "months": ["Jan", "Feb", "Mar", "Apr"],
+  "subtitle": "CXP Engineering · Privacy Automation · Apr 2026",
+  "backlogLink": "https://dev.azure.com/myorg/myproject/_backlogs",
+  "currentMonth": "Apr 2026",
+  "months": ["Jan 2026", "Feb 2026", "Mar 2026", "Apr 2026"],
   "timeline": {
     "startDate": "2026-01-01",
     "endDate": "2026-06-30",
     "nowDate": "2026-04-10",
     "tracks": [
       {
-        "name": "M1",
-        "label": "Chatbot & MS Role",
+        "id": "M1",
+        "name": "Chatbot & MS Role",
         "color": "#0078D4",
         "milestones": [
-          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
-          { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
-          { "date": "2026-05-01", "type": "production", "label": "May Prod" }
+          { "date": "2026-01-15", "label": "Jan 15 kickoff", "type": "checkpoint" },
+          { "date": "2026-03-26", "label": "Mar 26 PoC", "type": "poc" },
+          { "date": "2026-05-28", "label": "May 28 Prod", "type": "production" }
         ]
       },
       {
-        "name": "M2",
-        "label": "Privacy Review Automation",
+        "id": "M2",
+        "name": "Auto-Triage Pipeline",
         "color": "#00897B",
         "milestones": [
-          { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
-          { "date": "2026-04-10", "type": "poc", "label": "Apr 10 PoC" },
-          { "date": "2026-06-01", "type": "production", "label": "Jun Prod" }
+          { "date": "2026-02-01", "label": "Feb 1 kickoff", "type": "checkpoint" },
+          { "date": "2026-04-15", "label": "Apr 15 PoC", "type": "poc" },
+          { "date": "2026-06-15", "label": "Jun 15 Prod", "type": "production" }
         ]
       },
       {
-        "name": "M3",
-        "label": "Compliance Reporting",
+        "id": "M3",
+        "name": "Reporting Dashboard",
         "color": "#546E7A",
         "milestones": [
-          { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
-          { "date": "2026-05-15", "type": "poc", "label": "May 15 PoC" },
-          { "date": "2026-06-30", "type": "production", "label": "Jun 30 Prod" }
+          { "date": "2026-03-01", "label": "Mar 1 kickoff", "type": "checkpoint" },
+          { "date": "2026-04-01", "label": "Apr 1 PoC", "type": "poc" },
+          { "date": "2026-05-15", "label": "May 15 Prod", "type": "production" }
         ]
       }
     ]
   },
   "heatmap": {
     "shipped": {
-      "jan": ["Privacy SDK v2.1", "Consent API endpoint"],
-      "feb": ["Data mapping tool"],
-      "mar": ["Audit log export", "DSAR template engine"],
-      "apr": ["Role-based access MVP"]
+      "Jan 2026": ["DSR intake form v2", "Role sync nightly job"],
+      "Feb 2026": ["Chatbot FAQ module", "Triage rule engine v1"],
+      "Mar 2026": ["PoC demo to stakeholders", "Auto-classify PII scanner"],
+      "Apr 2026": ["Dashboard MVP live"]
     },
     "inProgress": {
-      "jan": [],
-      "feb": [],
-      "mar": ["Chatbot integration"],
-      "apr": ["MS Graph connector", "Review workflow UI"]
+      "Jan 2026": ["Chatbot NLU training"],
+      "Feb 2026": ["MS Role API integration"],
+      "Mar 2026": ["Pipeline load testing"],
+      "Apr 2026": ["Prod hardening", "SSO integration"]
     },
     "carryover": {
-      "jan": [],
-      "feb": [],
-      "mar": [],
-      "apr": ["Compliance dashboard v1"]
+      "Jan 2026": [],
+      "Feb 2026": ["DSR edge-case handling"],
+      "Mar 2026": ["Role sync retry logic"],
+      "Apr 2026": ["Triage false-positive tuning"]
     },
     "blockers": {
-      "jan": [],
-      "feb": [],
-      "mar": [],
-      "apr": ["AAD tenant config delay"]
+      "Jan 2026": [],
+      "Feb 2026": [],
+      "Mar 2026": ["ICM dependency on tenant config"],
+      "Apr 2026": ["AAD B2C sandbox access"]
     }
   }
 }
