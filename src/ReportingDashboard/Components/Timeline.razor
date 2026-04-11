@@ -1,7 +1,7 @@
-@if (Timeline is not null)
+@if (TimelineModel is not null)
 {
     <div class="tl-labels">
-        @foreach (var track in Timeline.Tracks)
+        @foreach (var track in TimelineModel.Tracks)
         {
             <div class="tl-label">
                 <span class="tl-id" style="color:@track.Color;">@track.Id</span>
@@ -11,11 +11,11 @@
     </div>
     <div class="tl-svg-box">
         @{
-            var startDate = ParseDate(Timeline.StartDate);
-            var endDate = ParseDate(Timeline.EndDate);
-            var nowDate = ParseDate(Timeline.NowDate);
+            var startDate = ParseDate(TimelineModel.StartDate);
+            var endDate = ParseDate(TimelineModel.EndDate);
+            var nowDate = ParseDate(TimelineModel.NowDate);
             var totalDays = (endDate - startDate).TotalDays;
-            var trackCount = Timeline.Tracks.Count;
+            var trackCount = TimelineModel.Tracks.Count;
             var svgWidth = 1560;
             var trackSpacing = 56;
             var firstTrackY = 42;
@@ -35,8 +35,8 @@
             {
                 <line x1="@m.X" y1="0" x2="@m.X" y2="@svgHeight"
                       stroke="#bbb" stroke-opacity="0.4" />
-                <text x="@(m.X + 5)" y="14" fill="#666"
-                      font-size="11" font-weight="600">@m.Label</text>
+                <g class="svg-text"><text x="@(m.X + 5)" y="14" fill="#666"
+                      font-size="11" font-weight="600">@m.Label</text></g>
             }
 
             @* NOW line *@
@@ -45,14 +45,14 @@
                 var nowX = DateToX(nowDate, startDate, totalDays, svgWidth);
                 <line x1="@nowX" y1="0" x2="@nowX" y2="@svgHeight"
                       stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
-                <text x="@nowX" y="@(svgHeight - 2)" fill="#EA4335"
-                      font-size="10" font-weight="700" text-anchor="middle">NOW</text>
+                <g class="svg-text"><text x="@nowX" y="@(svgHeight - 2)" fill="#EA4335"
+                      font-size="10" font-weight="700" text-anchor="middle">NOW</text></g>
             }
 
             @* Tracks *@
             @for (int i = 0; i < trackCount; i++)
             {
-                var track = Timeline.Tracks[i];
+                var track = TimelineModel.Tracks[i];
                 var y = firstTrackY + i * trackSpacing;
 
                 @* Track horizontal line *@
@@ -91,8 +91,8 @@
                         </circle>
                     }
 
-                    <text x="@x" y="@labelY" fill="#666" font-size="10"
-                          text-anchor="middle">@ms.Label</text>
+                    <g class="svg-text"><text x="@x" y="@labelY" fill="#666" font-size="10"
+                          text-anchor="middle">@ms.Label</text></g>
                 }
             }
         </svg>
@@ -100,7 +100,7 @@
 }
 
 @code {
-    [Parameter] public TimelineData? Timeline { get; set; }
+    [Parameter] public TimelineData? TimelineModel { get; set; }
 
     private static DateTime ParseDate(string date) =>
         DateTime.TryParse(date, out var d) ? d : DateTime.Now;

@@ -13,29 +13,29 @@
                 Label="✓ Shipped"
                 Months="@Months"
                 CurrentMonth="@CurrentMonth"
-                Items="@(Heatmap?.Shipped ?? new())" />
+                Items="@(HeatmapModel?.Shipped ?? new())" />
 
     <HeatmapRow Category="prog"
                 Label="▶ In Progress"
                 Months="@Months"
                 CurrentMonth="@CurrentMonth"
-                Items="@(Heatmap?.InProgress ?? new())" />
+                Items="@(HeatmapModel?.InProgress ?? new())" />
 
     <HeatmapRow Category="carry"
                 Label="⟳ Carryover"
                 Months="@Months"
                 CurrentMonth="@CurrentMonth"
-                Items="@(Heatmap?.Carryover ?? new())" />
+                Items="@(HeatmapModel?.Carryover ?? new())" />
 
     <HeatmapRow Category="block"
                 Label="✕ Blockers"
                 Months="@Months"
                 CurrentMonth="@CurrentMonth"
-                Items="@(Heatmap?.Blockers ?? new())" />
+                Items="@(HeatmapModel?.Blockers ?? new())" />
 </div>
 
 @code {
-    [Parameter] public HeatmapData? Heatmap { get; set; }
+    [Parameter] public HeatmapData? HeatmapModel { get; set; }
     [Parameter] public List<string> Months { get; set; } = new();
     [Parameter] public string CurrentMonth { get; set; } = "";
 }
