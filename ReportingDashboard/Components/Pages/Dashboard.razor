@@ -10,11 +10,29 @@
         </div>
     </div>
 }
-else
+else if (_data is not null)
 {
     <!-- DashboardHeader will render here -->
+    <div class="hdr">
+        <div>
+            <h1 style="font-size:24px;font-weight:700;margin:0;">@_data.Project.Title</h1>
+            <div class="sub">@_data.Project.Subtitle</div>
+        </div>
+    </div>
+
     <!-- TimelineSection will render here -->
+    <div class="tl-area">
+        <div style="display:flex;align-items:center;justify-content:center;width:100%;color:#888;font-size:14px;">
+            Timeline placeholder — @_data.Tracks.Count track(s) configured
+        </div>
+    </div>
+
     <!-- HeatmapSection will render here -->
+    <div class="hm-wrap">
+        <div style="display:flex;align-items:center;justify-content:center;flex:1;color:#888;font-size:14px;">
+            Heatmap placeholder — @_data.Heatmap.Categories.Count categories × @_data.Heatmap.Months.Count months
+        </div>
+    </div>
 }
 
 @code {
