@@ -1,15 +1,23 @@
-<div class="hm-row-hdr @Category-hdr">@Label</div>
+@* Row header cell with category-specific styling *@
+<div class="hm-row-hdr @CssPrefix-hdr">@CategoryLabel</div>
+
+@* One cell per month *@
 @foreach (var month in Months)
 {
-    var items = Items.TryGetValue(month, out var list) ? list : null;
-    var isCurrent = month == CurrentMonth;
-    <HeatmapCell Category="@Category" Items="@items" IsCurrent="@isCurrent" />
+    var monthKey = month.ToLowerInvariant();
+    var isCurrentMonth = month.Equals(CurrentMonth, StringComparison.OrdinalIgnoreCase);
+    Items.TryGetValue(monthKey, out var items);
+    var cellItems = items ?? new List<string>();
+
+    <HeatmapCell Items="@cellItems"
+                 CssPrefix="@CssPrefix"
+                 IsCurrentMonth="@isCurrentMonth" />
 }
 
 @code {
-    [Parameter] public string Category { get; set; } = "";
-    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string CategoryLabel { get; set; } = "";
+    [Parameter] public string CssPrefix { get; set; } = "";
+    [Parameter] public Dictionary<string, List<string>> Items { get; set; } = new();
     [Parameter] public List<string> Months { get; set; } = new();
     [Parameter] public string CurrentMonth { get; set; } = "";
-    [Parameter] public Dictionary<string, List<string>> Items { get; set; } = new();
 }
