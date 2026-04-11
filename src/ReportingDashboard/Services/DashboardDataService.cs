@@ -5,8 +5,6 @@ namespace ReportingDashboard.Services;
 
 public class DashboardDataService
 {
-    private readonly string _dataFilePath;
-    private readonly IWebHostEnvironment _env;
     private readonly ILogger<DashboardDataService> _logger;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -15,55 +13,67 @@ public class DashboardDataService
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public DashboardDataService(IWebHostEnvironment env, IConfiguration config, ILogger<DashboardDataService> logger)
+    public DashboardData? Data { get; private set; }
+    public bool IsError { get; private set; }
+    public string? ErrorMessage { get; private set; }
+
+    public DashboardDataService(ILogger<DashboardDataService> logger)
     {
-        _env = env;
         _logger = logger;
-        _dataFilePath = config.GetValue<string>("Dashboard:DataFilePath") ?? "wwwroot/data/data.json";
     }
 
-    public async Task<DashboardData> LoadDataAsync()
+    public async Task LoadAsync(string filePath)
     {
         try
         {
-            var fullPath = Path.Combine(_env.ContentRootPath, _dataFilePath);
-            if (!File.Exists(fullPath))
+            if (!File.Exists(filePath))
             {
-                _logger.LogWarning("Data file not found at {Path}", fullPath);
-                return new DashboardData
-                {
-                    ErrorMessage = $"Data file not found: {_dataFilePath}. Please create it from data.template.json."
-                };
+                _logger.LogWarning("data.json not found at {Path}", filePath);
+                IsError = true;
+                ErrorMessage = $"data.json not found at {filePath}";
+                return;
             }
 
-            var json = await File.ReadAllTextAsync(fullPath);
+            var json = await File.ReadAllTextAsync(filePath);
             var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
 
-            return data ?? new DashboardData
+            if (data is null)
             {
-                ErrorMessage = "Data file was empty or could not be parsed."
-            };
+                IsError = true;
+                ErrorMessage = "data.json was empty or could not be parsed.";
+                _logger.LogError("data.json deserialized to null");
+                return;
+            }
+
+            var errors = new List<string>();
+            if (string.IsNullOrWhiteSpace(data.Title)) errors.Add("title is required");
+            if (string.IsNullOrWhiteSpace(data.Subtitle)) errors.Add("subtitle is required");
+            if (data.Months.Count == 0) errors.Add("months array must not be empty");
+            if (data.Timeline.Tracks.Count == 0) errors.Add("timeline.tracks must not be empty");
+
+            if (errors.Count > 0)
+            {
+                IsError = true;
+                ErrorMessage = $"data.json validation: {string.Join("; ", errors)}";
+                _logger.LogWarning("data.json validation failed: {Errors}", ErrorMessage);
+                return;
+            }
+
+            Data = data;
+            IsError = false;
+            _logger.LogInformation("Dashboard data loaded successfully from {Path}", filePath);
         }
         catch (JsonException ex)
         {
-            _logger.LogError(ex, "Failed to deserialize data.json");
-            return new DashboardData
-            {
-                ErrorMessage = $"Invalid JSON in data file: {ex.Message}"
-            };
+            _logger.LogError(ex, "Failed to parse data.json");
+            IsError = true;
+            ErrorMessage = $"Failed to parse data.json: {ex.Message}";
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error loading dashboard data");
-            return new DashboardData
-            {
-                ErrorMessage = $"Error loading dashboard data: {ex.Message}"
-            };
+            IsError = true;
+            ErrorMessage = $"Error loading dashboard data: {ex.Message}";
         }
-    }
-
-    public string GetFullPath()
-    {
-        return Path.Combine(_env.ContentRootPath, _dataFilePath);
     }
 }

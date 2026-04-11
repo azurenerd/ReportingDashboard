@@ -1,51 +1,30 @@
-@namespace ReportingDashboard.Components.Sections
 @using ReportingDashboard.Models
 
 <div class="hm-wrap">
-    <div class="hm-title">Monthly Execution Heatmap &mdash; Shipped &bull; In Progress &bull; Carryover &bull; Blockers</div>
+    <div class="hm-title">MONTHLY EXECUTION HEATMAP - SHIPPED &#x2022; IN PROGRESS &#x2022; CARRYOVER &#x2022; BLOCKERS</div>
     <div class="hm-grid" style="grid-template-columns: 160px repeat(@Months.Count, 1fr); grid-template-rows: 36px repeat(4, 1fr);">
-        @* Corner cell *@
         <div class="hm-corner">STATUS</div>
-
-        @* Column headers *@
         @foreach (var month in Months)
         {
-            var isCurrent = string.Equals(month, CurrentMonth, StringComparison.OrdinalIgnoreCase);
-            <div class="hm-col-hdr @(isCurrent ? "apr-hdr" : "")">@month</div>
+            var isCurrentMonth = month.Equals(CurrentMonth, StringComparison.OrdinalIgnoreCase);
+            <div class="hm-col-hdr @(isCurrentMonth ? "cur-hdr" : "")">
+                @month @(isCurrentMonth ? "Now" : "")
+            </div>
         }
 
-        @* Shipped row *@
-        <HeatmapRow CategoryLabel="✅ Shipped"
-                    CssPrefix="ship"
-                    Items="@HeatmapData?.Shipped"
-                    Months="@Months"
-                    CurrentMonth="@CurrentMonth" />
-
-        @* In Progress row *@
-        <HeatmapRow CategoryLabel="🔵 In Progress"
-                    CssPrefix="prog"
-                    Items="@HeatmapData?.InProgress"
-                    Months="@Months"
-                    CurrentMonth="@CurrentMonth" />
-
-        @* Carryover row *@
-        <HeatmapRow CategoryLabel="🟡 Carryover"
-                    CssPrefix="carry"
-                    Items="@HeatmapData?.Carryover"
-                    Months="@Months"
-                    CurrentMonth="@CurrentMonth" />
-
-        @* Blockers row *@
-        <HeatmapRow CategoryLabel="🔴 Blockers"
-                    CssPrefix="block"
-                    Items="@HeatmapData?.Blockers"
-                    Months="@Months"
-                    CurrentMonth="@CurrentMonth" />
+        <ReportingDashboard.Components.Sections.HeatmapRow CategoryLabel="SHIPPED" CssPrefix="ship"
+                    Items="@HeatmapData.Shipped" Months="@Months" CurrentMonth="@CurrentMonth" />
+        <ReportingDashboard.Components.Sections.HeatmapRow CategoryLabel="IN PROGRESS" CssPrefix="prog"
+                    Items="@HeatmapData.InProgress" Months="@Months" CurrentMonth="@CurrentMonth" />
+        <ReportingDashboard.Components.Sections.HeatmapRow CategoryLabel="CARRYOVER" CssPrefix="carry"
+                    Items="@HeatmapData.Carryover" Months="@Months" CurrentMonth="@CurrentMonth" />
+        <ReportingDashboard.Components.Sections.HeatmapRow CategoryLabel="BLOCKERS" CssPrefix="block"
+                    Items="@HeatmapData.Blockers" Months="@Months" CurrentMonth="@CurrentMonth" />
     </div>
 </div>
 
 @code {
-    [Parameter] public HeatmapData? HeatmapData { get; set; }
+    [Parameter] public HeatmapData HeatmapData { get; set; } = default!;
     [Parameter] public List<string> Months { get; set; } = new();
-    [Parameter] public string CurrentMonth { get; set; } = "";
+    [Parameter] public string CurrentMonth { get; set; } = string.Empty;
 }

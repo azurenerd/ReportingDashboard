@@ -1,21 +1,19 @@
-@namespace ReportingDashboard.Components.Sections
-
-<div class="hm-cell @CssPrefix-cell @(IsCurrentMonth ? "apr" : "")">
-    @if (Items is not null && Items.Count > 0)
+<div class="hm-cell @(CssPrefix)-cell @(IsCurrentMonth ? "cur" : "")">
+    @if (Items.Count == 0)
     {
-        @foreach (var item in Items)
-        {
-            <div class="it">@item</div>
-        }
+        <span class="empty-cell">-</span>
     }
     else
     {
-        <span style="color:#AAA">-</span>
+        @foreach (var item in Items)
+        {
+            <div class="it @(CssPrefix)-dot">@item</div>
+        }
     }
 </div>
 
 @code {
-    [Parameter] public List<string>? Items { get; set; }
-    [Parameter] public string CssPrefix { get; set; } = "";
+    [Parameter] public List<string> Items { get; set; } = new();
+    [Parameter] public string CssPrefix { get; set; } = string.Empty;
     [Parameter] public bool IsCurrentMonth { get; set; }
 }
