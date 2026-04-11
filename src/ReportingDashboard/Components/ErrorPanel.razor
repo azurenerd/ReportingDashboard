@@ -1,18 +1,16 @@
-@namespace ReportingDashboard.Components
-
-<div class="error-panel">
-    <div style="text-align: center;">
-        <div class="error-icon">⚠</div>
-        <div class="error-title">Dashboard data could not be loaded</div>
+<div style="display:flex;align-items:center;justify-content:center;width:1920px;height:1080px;background:#FFFFFF;">
+    <div style="text-align:center;max-width:600px;">
+        <div style="font-size:48px;color:#EA4335;margin-bottom:16px;">?</div>
+        <div style="font-size:20px;font-weight:700;color:#333;margin-bottom:12px;">Dashboard data could not be loaded</div>
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {
-            <div class="error-details">@ErrorMessage</div>
+            <div style="font-size:14px;color:#666;font-family:monospace;margin-bottom:12px;padding:12px;background:#F5F5F5;border-radius:4px;text-align:left;word-break:break-word;">@ErrorMessage</div>
         }
-        <div class="error-help">Check data.json for errors and restart the application.</div>
+        <div style="font-size:12px;color:#888;">Check data.json for errors and restart the application.</div>
     </div>
 </div>
 
 @code {
     [Parameter]
-    public string ErrorMessage { get; set; }
+    public string? ErrorMessage { get; set; }
 }
