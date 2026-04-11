@@ -1,14 +1,13 @@
 <div class="error-panel">
-    <div class="error-icon">⚠</div>
-    <div class="error-title">Dashboard data could not be loaded</div>
-    @if (!string.IsNullOrEmpty(ErrorMessage))
+    <div class="error-icon">&#9888;</div>
+    <h2>Dashboard data could not be loaded</h2>
+    @if (!string.IsNullOrEmpty(Message))
     {
-        <code class="error-details">@ErrorMessage</code>
+        <p>@Message</p>
     }
-    <div class="error-help">Check data.json for errors and restart the application.</div>
+    <p class="error-hint">Check data.json for errors and restart the application.</p>
 </div>
 
 @code {
-    [Parameter]
-    public string? ErrorMessage { get; set; }
+    [Parameter] public string? Message { get; set; }
 }

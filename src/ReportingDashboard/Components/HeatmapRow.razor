@@ -1,46 +1,15 @@
-<div class="hm-row-hdr @HeaderClass">@CategoryLabel</div>
-
-@if (Months is not null)
+<div class="hm-row-hdr @Category-hdr">@Label</div>
+@foreach (var month in Months)
 {
-    @foreach (var month in Months)
-    {
-        var items = GetItemsForMonth(month);
-        <HeatmapCell Items="@items" CssPrefix="@CssPrefix" IsCurrentMonth="@CheckIsCurrentMonth(month)" />
-    }
+    var items = Items.TryGetValue(month, out var list) ? list : null;
+    var isCurrent = month == CurrentMonth;
+    <HeatmapCell Category="@Category" Items="@items" IsCurrent="@isCurrent" />
 }
 
 @code {
-    [Parameter]
-    public string CategoryLabel { get; set; } = string.Empty;
-
-    [Parameter]
-    public string CssPrefix { get; set; } = string.Empty;
-
-    [Parameter]
-    public Dictionary<string, List<string>>? Items { get; set; }
-
-    [Parameter]
-    public List<string>? Months { get; set; }
-
-    [Parameter]
-    public string CurrentMonth { get; set; } = string.Empty;
-
-    [Parameter]
-    public string CategoryKey { get; set; } = string.Empty;
-
-    private string HeaderClass => $"{CssPrefix}-hdr";
-
-    private List<string> GetItemsForMonth(string month)
-    {
-        if (Items is null)
-            return new List<string>();
-
-        var key = month.ToLowerInvariant();
-        return Items.TryGetValue(key, out var items) ? items : new List<string>();
-    }
-
-    private bool CheckIsCurrentMonth(string month)
-    {
-        return month.Equals(CurrentMonth, StringComparison.OrdinalIgnoreCase);
-    }
+    [Parameter] public string Category { get; set; } = "";
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public List<string> Months { get; set; } = new();
+    [Parameter] public string CurrentMonth { get; set; } = "";
+    [Parameter] public Dictionary<string, List<string>> Items { get; set; } = new();
 }

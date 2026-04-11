@@ -3,13 +3,24 @@
 
 @if (DataService.IsError)
 {
-    <ErrorPanel ErrorMessage="@DataService.ErrorMessage" />
+    <ErrorPanel Message="@DataService.ErrorMessage" />
 }
 else if (DataService.Data is not null)
 {
-    <Header Data="@DataService.Data" />
-    <Timeline TimelineData="@DataService.Data.Timeline" />
-    <Heatmap HeatmapData="@DataService.Data.Heatmap"
-             Months="@DataService.Data.Months"
-             CurrentMonth="@DataService.Data.CurrentMonth" />
+    var data = DataService.Data;
+    <div class="hdr">
+        <Header Title="@data.Title"
+                Subtitle="@data.Subtitle"
+                BacklogLink="@data.BacklogLink"
+                CurrentMonth="@data.CurrentMonth"
+                NowDate="@data.Timeline.NowDate" />
+    </div>
+    <div class="tl-area">
+        <Timeline Timeline="@data.Timeline" />
+    </div>
+    <div class="hm-wrap">
+        <Heatmap Heatmap="@data.Heatmap"
+                 Months="@data.Months"
+                 CurrentMonth="@data.CurrentMonth" />
+    </div>
 }

@@ -20,11 +20,11 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-// Load dashboard data before first request
-var dataService = app.Services.GetRequiredService<DashboardDataService>();
-await dataService.LoadAsync(Path.Combine(app.Environment.WebRootPath, "data.json"));
-
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+// Pre-load dashboard data before accepting requests
+var dataService = app.Services.GetRequiredService<DashboardDataService>();
+await dataService.LoadAsync();
 
 app.Run();
