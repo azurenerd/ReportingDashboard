@@ -1,19 +1,25 @@
 @page "/"
+@using Microsoft.AspNetCore.Components.Web
+@using ReportingDashboard.Models
 @inject DashboardDataService DataService
+@rendermode RenderMode.InteractiveServer
 
-@if (DataService.IsError)
+@if (!string.IsNullOrEmpty(_data.ErrorMessage))
 {
-    <ErrorPanel ErrorMessage="@DataService.ErrorMessage" />
+    <div class="error-banner">
+        <strong>⚠ Data Error:</strong> @_data.ErrorMessage
+    </div>
 }
 else
 {
-    <div class="hdr">
-        <!-- Header stub -->
-    </div>
-    <div class="tl-area">
-        <!-- Timeline stub -->
-    </div>
-    <div class="hm-wrap">
-        <!-- Heatmap stub -->
-    </div>
+    <Header Data="_data" />
+}
+
+@code {
+    private DashboardData _data = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _data = await DataService.LoadDataAsync();
+    }
 }

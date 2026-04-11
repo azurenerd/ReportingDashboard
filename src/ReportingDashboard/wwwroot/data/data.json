@@ -1,0 +1,70 @@
+{
+  "title": "Privacy Automation Release Roadmap",
+  "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
+  "backlogLink": "https://dev.azure.com/org/project/_backlogs",
+  "currentMonth": "Apr",
+  "months": ["Jan", "Feb", "Mar", "Apr"],
+  "timeline": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-06-30",
+    "nowDate": "2026-04-10",
+    "tracks": [
+      {
+        "name": "M1",
+        "label": "Chatbot & MS Role",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
+          { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
+          { "date": "2026-05-01", "type": "production", "label": "May Prod" }
+        ]
+      },
+      {
+        "name": "M2",
+        "label": "Privacy Review Automation",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
+          { "date": "2026-04-10", "type": "poc", "label": "Apr 10 PoC" },
+          { "date": "2026-06-01", "type": "production", "label": "Jun Prod" }
+        ]
+      },
+      {
+        "name": "M3",
+        "label": "Compliance Reporting",
+        "color": "#546E7A",
+        "milestones": [
+          { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
+          { "date": "2026-05-15", "type": "poc", "label": "May 15 PoC" },
+          { "date": "2026-06-30", "type": "production", "label": "Jun 30 Prod" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "shipped": {
+      "jan": ["Privacy SDK v2.1", "Consent API endpoint"],
+      "feb": ["Data mapping tool"],
+      "mar": ["Audit log export", "DSAR template engine"],
+      "apr": ["Role-based access MVP"]
+    },
+    "inProgress": {
+      "jan": [],
+      "feb": [],
+      "mar": ["Chatbot integration"],
+      "apr": ["MS Graph connector", "Review workflow UI"]
+    },
+    "carryover": {
+      "jan": [],
+      "feb": [],
+      "mar": [],
+      "apr": ["Compliance dashboard v1"]
+    },
+    "blockers": {
+      "jan": [],
+      "feb": [],
+      "mar": [],
+      "apr": ["AAD tenant config delay"]
+    }
+  }
+}
