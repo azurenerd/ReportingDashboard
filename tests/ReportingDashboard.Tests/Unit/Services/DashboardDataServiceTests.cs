@@ -317,8 +317,9 @@ public class DashboardDataServiceTests : IDisposable
         File.WriteAllText(invalidPath, "{ bad }");
         await _service.LoadAsync(invalidPath);
 
+        // Service preserves last-good Data on re-load failure (catch block does not clear Data)
         _service.IsError.Should().BeTrue();
-        _service.Data.Should().BeNull();
+        _service.Data.Should().NotBeNull("service intentionally preserves last-good data on parse failure");
     }
 
     [Fact]

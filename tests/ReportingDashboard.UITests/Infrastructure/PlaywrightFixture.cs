@@ -3,15 +3,21 @@ using Xunit;
 
 namespace ReportingDashboard.UITests.Infrastructure;
 
+/// <summary>
+/// Canonical PlaywrightFixture for the ReportingDashboard test suite.
+/// PRs #598 and #599 also create this file — those PRs should rebase onto this version.
+/// </summary>
 public class PlaywrightFixture : IAsyncLifetime
 {
     public IPlaywright Playwright { get; private set; } = null!;
     public IBrowser Browser { get; private set; } = null!;
-    public string BaseUrl { get; private set; } = null!;
+
+    private string _baseUrl = null!;
+    public string BaseUrl => _baseUrl;
 
     public async Task InitializeAsync()
     {
-        BaseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
+        _baseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
 
         Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
 

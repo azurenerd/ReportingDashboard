@@ -11,8 +11,12 @@ public class DashboardLayoutIntegrationTests : TestContext
     [Fact]
     public void DashboardLayout_RendersChildContent()
     {
+        // DashboardLayout inherits LayoutComponentBase which uses Body, not ChildContent
         var cut = RenderComponent<DashboardLayout>(p =>
-            p.AddChildContent("<div id='test-content'>Dashboard Content</div>"));
+            p.Add(c => c.Body, builder =>
+            {
+                builder.AddMarkupContent(0, "<div id='test-content'>Dashboard Content</div>");
+            }));
 
         cut.Markup.Should().Contain("test-content");
         cut.Markup.Should().Contain("Dashboard Content");
@@ -22,7 +26,10 @@ public class DashboardLayoutIntegrationTests : TestContext
     public void DashboardLayout_DoesNotIncludeNavMenu()
     {
         var cut = RenderComponent<DashboardLayout>(p =>
-            p.AddChildContent("<p>Content</p>"));
+            p.Add(c => c.Body, builder =>
+            {
+                builder.AddMarkupContent(0, "<p>Content</p>");
+            }));
 
         cut.Markup.Should().NotContain("NavMenu");
         cut.Markup.Should().NotContain("sidebar");
@@ -33,7 +40,10 @@ public class DashboardLayoutIntegrationTests : TestContext
     public void DashboardLayout_DoesNotIncludeFooter()
     {
         var cut = RenderComponent<DashboardLayout>(p =>
-            p.AddChildContent("<p>Content</p>"));
+            p.Add(c => c.Body, builder =>
+            {
+                builder.AddMarkupContent(0, "<p>Content</p>");
+            }));
 
         cut.Markup.Should().NotContain("footer");
     }
@@ -42,7 +52,10 @@ public class DashboardLayoutIntegrationTests : TestContext
     public void DashboardLayout_DoesNotIncludeDefaultBlazorChrome()
     {
         var cut = RenderComponent<DashboardLayout>(p =>
-            p.AddChildContent("<p>Content</p>"));
+            p.Add(c => c.Body, builder =>
+            {
+                builder.AddMarkupContent(0, "<p>Content</p>");
+            }));
 
         cut.Markup.Should().NotContain("top-row");
         cut.Markup.Should().NotContain("main-layout");
@@ -53,10 +66,13 @@ public class DashboardLayoutIntegrationTests : TestContext
     public void DashboardLayout_MultipleChildElements_AllRendered()
     {
         var cut = RenderComponent<DashboardLayout>(p =>
-            p.AddChildContent(
-                "<div class='hdr'>Header</div>" +
-                "<div class='tl-area'>Timeline</div>" +
-                "<div class='hm-wrap'>Heatmap</div>"));
+            p.Add(c => c.Body, builder =>
+            {
+                builder.AddMarkupContent(0,
+                    "<div class='hdr'>Header</div>" +
+                    "<div class='tl-area'>Timeline</div>" +
+                    "<div class='hm-wrap'>Heatmap</div>");
+            }));
 
         cut.Find(".hdr").TextContent.Should().Be("Header");
         cut.Find(".tl-area").TextContent.Should().Be("Timeline");
