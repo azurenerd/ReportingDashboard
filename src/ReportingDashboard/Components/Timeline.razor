@@ -32,8 +32,7 @@
             {
                 <line x1="@F(month.X)" y1="0" x2="@F(month.X)" y2="@F(SvgHeight)"
                       stroke="#bbb" stroke-opacity="0.4" />
-                <text x="@F(month.X + 5)" y="14"
-                      fill="#666" font-size="11" font-weight="600">@month.Label</text>
+                @SvgText(month.X + 5, 14, "#666", "11", "600", null, month.Label)
             }
 
             @* Track lines, milestone markers, and NOW line *@
@@ -54,8 +53,7 @@
                 var nowX = DateToX(NowDate);
                 <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="@F(SvgHeight)"
                       stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
-                <text x="@F(nowX)" y="-4"
-                      fill="#EA4335" font-size="10" font-weight="700" text-anchor="middle">NOW</text>
+                @SvgText(nowX, -4, "#EA4335", "10", "700", "middle", "NOW")
 
                 @* Milestone markers with tooltips and date labels *@
                 @for (int i = 0; i < totalTracks; i++)
@@ -79,8 +77,7 @@
                                          fill="#F4B400" filter="url(#sh)">
                                     <title>@milestone.Label - @milestone.Date</title>
                                 </polygon>
-                                <text x="@F(clampedX)" y="@F(trackY - 16)"
-                                      fill="#666" font-size="10" text-anchor="middle">@milestone.Label</text>
+                                @SvgText(clampedX, trackY - 16, "#666", "10", null, "middle", milestone.Label)
                             }
                             else if (milestone.Type == "production")
                             {
@@ -88,8 +85,7 @@
                                          fill="#34A853" filter="url(#sh)">
                                     <title>@milestone.Label - @milestone.Date</title>
                                 </polygon>
-                                <text x="@F(clampedX)" y="@F(trackY - 16)"
-                                      fill="#666" font-size="10" text-anchor="middle">@milestone.Label</text>
+                                @SvgText(clampedX, trackY - 16, "#666", "10", null, "middle", milestone.Label)
                             }
                             else if (milestone.Type == "checkpoint")
                             {
@@ -97,16 +93,14 @@
                                         fill="white" stroke="@track.Color" stroke-width="2.5">
                                     <title>@milestone.Label - @milestone.Date</title>
                                 </circle>
-                                <text x="@F(clampedX)" y="@F(trackY - 14)"
-                                      fill="#666" font-size="10" text-anchor="middle">@milestone.Label</text>
+                                @SvgText(clampedX, trackY - 14, "#666", "10", null, "middle", milestone.Label)
                             }
                             else
                             {
                                 <circle cx="@F(clampedX)" cy="@F(trackY)" r="4" fill="#999">
                                     <title>@milestone.Label - @milestone.Date</title>
                                 </circle>
-                                <text x="@F(clampedX)" y="@F(trackY - 10)"
-                                      fill="#666" font-size="10" text-anchor="middle">@milestone.Label</text>
+                                @SvgText(clampedX, trackY - 10, "#666", "10", null, "middle", milestone.Label)
                             }
                         }
                     }
@@ -118,8 +112,7 @@
                 var nowX = DateToX(NowDate);
                 <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="@F(SvgHeight)"
                       stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
-                <text x="@F(nowX)" y="-4"
-                      fill="#EA4335" font-size="10" font-weight="700" text-anchor="middle">NOW</text>
+                @SvgText(nowX, -4, "#EA4335", "10", "700", "middle", "NOW")
             }
         </svg>
     </div>
@@ -170,41 +163,36 @@
     }
 
     /// <summary>
-    /// Calculates month grid line positions at fixed 260px intervals per spec.
-    /// Labels are derived from the start date, incrementing monthly.
+    /// Renders an SVG text element as a MarkupString to avoid Razor's &lt;text&gt; directive conflict.
     /// </summary>
-    private List<MonthGridLine> GetMonthGridPositions()
+    private MarkupString SvgText(double x, double y, string fill, string fontSize, string? fontWeight, string? textAnchor, string content)
     {
-        var lines = new List<MonthGridLine>();
-        var current = new DateTime(StartDate.Year, StartDate.Month, 1);
-        int index = 0;
-
-        while (true)
-        {
-            double x = index * 260.0;
-            if (x > SvgWidth) break;
-
-            lines.Add(new MonthGridLine
-            {
-                X = x,
-                Label = current.ToString("MMM", CultureInfo.InvariantCulture)
-            });
-
-            current = current.AddMonths(1);
-            index++;
-        }
-
-        return lines;
+        var fw = fontWeight != null ? $" font-weight=\"{fontWeight}\"" : "";
+        var ta = textAnchor != null ? $" text-anchor=\"{textAnchor}\"" : "";
+        return new MarkupString($"<text x=\"{F(x)}\" y=\"{F(y)}\" fill=\"{fill}\" font-size=\"{fontSize}\"{fw}{ta}>{System.Net.WebUtility.HtmlEncode(content)}</text>");
     }
 
     /// <summary>
-    /// Format a double for SVG attribute output (invariant culture, no trailing zeros).
+    /// Formats a double as a culture-invariant string for SVG attributes.
     /// </summary>
     private static string F(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 
-    private record MonthGridLine
+    /// <summary>
+    /// Returns month grid positions with X coordinates and labels for the date range.
+    /// </summary>
+    private List<(double X, string Label)> GetMonthGridPositions()
     {
-        public double X { get; init; }
-        public string Label { get; init; } = string.Empty;
+        var positions = new List<(double X, string Label)>();
+        var current = new DateTime(StartDate.Year, StartDate.Month, 1);
+        while (current <= EndDate)
+        {
+            var x = DateToX(current);
+            if (x >= 0 && x <= SvgWidth)
+            {
+                positions.Add((x, current.ToString("MMM", CultureInfo.InvariantCulture)));
+            }
+            current = current.AddMonths(1);
+        }
+        return positions;
     }
 }

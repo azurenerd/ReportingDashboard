@@ -287,10 +287,10 @@
           }
         }
       },
-      "Microsoft.AspNetCore.Mvc.Testing/8.0.4": {
+      "Microsoft.AspNetCore.Mvc.Testing/8.0.0": {
         "type": "package",
         "dependencies": {
-          "Microsoft.AspNetCore.TestHost": "8.0.4",
+          "Microsoft.AspNetCore.TestHost": "8.0.0",
           "Microsoft.Extensions.DependencyModel": "8.0.0",
           "Microsoft.Extensions.Hosting": "8.0.0"
         },
@@ -311,7 +311,7 @@
           "buildTransitive/net8.0/Microsoft.AspNetCore.Mvc.Testing.targets": {}
         }
       },
-      "Microsoft.AspNetCore.TestHost/8.0.4": {
+      "Microsoft.AspNetCore.TestHost/8.0.0": {
         "type": "package",
         "dependencies": {
           "System.IO.Pipelines": "8.0.0"
@@ -1938,10 +1938,10 @@
         "microsoft.aspnetcore.metadata.nuspec"
       ]
     },
-    "Microsoft.AspNetCore.Mvc.Testing/8.0.4": {
-      "sha512": "e6IVsUq7zmAO/T4GGd00j1yxh6PBHF1PlQLaiFV/nM1jePH7Rbu+zVoXCRUDC2KOlHnPCym+eqFFlZkNNO2CvQ==",
+    "Microsoft.AspNetCore.Mvc.Testing/8.0.0": {
+      "sha512": "PWPgPAlRdMEkVCHHic/Yy6t37PsPsymY1WkEH0TnjTeIlYu+g8Qfw1axj/ZmNDLvhKdiUNC2E2thHrYf2s7Yhg==",
       "type": "package",
-      "path": "microsoft.aspnetcore.mvc.testing/8.0.4",
+      "path": "microsoft.aspnetcore.mvc.testing/8.0.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1951,15 +1951,15 @@
         "buildTransitive/net8.0/Microsoft.AspNetCore.Mvc.Testing.targets",
         "lib/net8.0/Microsoft.AspNetCore.Mvc.Testing.dll",
         "lib/net8.0/Microsoft.AspNetCore.Mvc.Testing.xml",
-        "microsoft.aspnetcore.mvc.testing.8.0.4.nupkg.sha512",
+        "microsoft.aspnetcore.mvc.testing.8.0.0.nupkg.sha512",
         "microsoft.aspnetcore.mvc.testing.nuspec",
         "tasks/netstandard2.0/Microsoft.AspNetCore.Mvc.Testing.Tasks.dll"
       ]
     },
-    "Microsoft.AspNetCore.TestHost/8.0.4": {
-      "sha512": "NQ5kHSo0aazGFbZ/3J2Fr/uKtOd43H3vJLoXoMY9GXUQppbfXco3zrYF9uBB7zkLsuFh9McBln1izgycYGscUA==",
+    "Microsoft.AspNetCore.TestHost/8.0.0": {
+      "sha512": "Rk6Ai9bFf1KubVY5oEbEPN5fiKWW2oeU+easjokyUqqYyTHRsXlkjFeMvwecgoXsoTfXMSwEHzJp8FCjQcyYTQ==",
       "type": "package",
-      "path": "microsoft.aspnetcore.testhost/8.0.4",
+      "path": "microsoft.aspnetcore.testhost/8.0.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1967,7 +1967,7 @@
         "THIRD-PARTY-NOTICES.TXT",
         "lib/net8.0/Microsoft.AspNetCore.TestHost.dll",
         "lib/net8.0/Microsoft.AspNetCore.TestHost.xml",
-        "microsoft.aspnetcore.testhost.8.0.4.nupkg.sha512",
+        "microsoft.aspnetcore.testhost.8.0.0.nupkg.sha512",
         "microsoft.aspnetcore.testhost.nuspec"
       ]
     },
@@ -3796,7 +3796,7 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "FluentAssertions >= 6.12.0",
-      "Microsoft.AspNetCore.Mvc.Testing >= 8.0.4",
+      "Microsoft.AspNetCore.Mvc.Testing >= 8.0.0",
       "Microsoft.NET.Test.Sdk >= 17.9.0",
       "Moq >= 4.20.70",
       "ReportingDashboard >= 1.0.0",
@@ -3812,11 +3812,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\tests\\ReportingDashboard.Tests\\ReportingDashboard.Tests.csproj",
+      "projectUniqueName": "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\tests\\ReportingDashboard.Tests\\ReportingDashboard.Tests.csproj",
       "projectName": "ReportingDashboard.Tests",
-      "projectPath": "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\tests\\ReportingDashboard.Tests\\ReportingDashboard.Tests.csproj",
+      "projectPath": "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\tests\\ReportingDashboard.Tests\\ReportingDashboard.Tests.csproj",
       "packagesPath": "C:\\Users\\behumphr\\.nuget\\packages\\",
-      "outputPath": "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\tests\\ReportingDashboard.Tests\\obj\\",
+      "outputPath": "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\tests\\ReportingDashboard.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -3837,8 +3837,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj": {
-              "projectPath": "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj"
+            "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj": {
+              "projectPath": "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj"
             }
           }
         }
@@ -3865,7 +3865,7 @@
           },
           "Microsoft.AspNetCore.Mvc.Testing": {
             "target": "Package",
-            "version": "[8.0.4, )"
+            "version": "[8.0.0, )"
           },
           "Microsoft.NET.Test.Sdk": {
             "target": "Package",

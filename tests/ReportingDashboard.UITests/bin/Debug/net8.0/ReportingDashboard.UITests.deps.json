@@ -11,7 +11,6 @@
           "FluentAssertions": "6.12.0",
           "Microsoft.NET.Test.Sdk": "17.9.0",
           "Microsoft.Playwright": "1.41.0",
-          "ReportingDashboard": "1.0.0",
           "xunit": "2.7.0"
         },
         "runtime": {
@@ -389,14 +388,6 @@
             "fileVersion": "2.7.0.0"
           }
         }
-      },
-      "ReportingDashboard/1.0.0": {
-        "runtime": {
-          "ReportingDashboard.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
-        }
       }
     }
   },
@@ -517,11 +508,6 @@
       "sha512": "sha512-bjY+crT1jOyxKagFjCMdEVzoenO2v66ru8+CK/0UaXvyG4U9Q3UTieJkbQXbi7/1yZIK1sGh01l5/jh2CwLJtQ==",
       "path": "xunit.extensibility.execution/2.7.0",
       "hashPath": "xunit.extensibility.execution.2.7.0.nupkg.sha512"
-    },
-    "ReportingDashboard/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
     }
   }
 }

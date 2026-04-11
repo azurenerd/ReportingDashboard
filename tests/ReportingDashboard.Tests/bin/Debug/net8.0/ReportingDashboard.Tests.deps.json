@@ -37,7 +37,7 @@
       "ReportingDashboard.Tests/1.0.0": {
         "dependencies": {
           "FluentAssertions": "6.12.0",
-          "Microsoft.AspNetCore.Mvc.Testing": "8.0.4",
+          "Microsoft.AspNetCore.Mvc.Testing": "8.0.0",
           "Microsoft.NET.Test.Sdk": "17.9.0",
           "Moq": "4.20.70",
           "ReportingDashboard": "1.0.0",
@@ -574,30 +574,30 @@
           }
         }
       },
-      "Microsoft.AspNetCore.Mvc.Testing/8.0.4": {
+      "Microsoft.AspNetCore.Mvc.Testing/8.0.0": {
         "dependencies": {
-          "Microsoft.AspNetCore.TestHost": "8.0.4",
+          "Microsoft.AspNetCore.TestHost": "8.0.0",
           "Microsoft.Extensions.DependencyModel": "8.0.0",
           "Microsoft.Extensions.Hosting": "8.0.0"
         },
         "runtime": {
           "lib/net8.0/Microsoft.AspNetCore.Mvc.Testing.dll": {
-            "assemblyVersion": "8.0.4.0",
-            "fileVersion": "8.0.424.17014"
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.23.53112"
           }
         },
         "compile": {
           "lib/net8.0/Microsoft.AspNetCore.Mvc.Testing.dll": {}
         }
       },
-      "Microsoft.AspNetCore.TestHost/8.0.4": {
+      "Microsoft.AspNetCore.TestHost/8.0.0": {
         "dependencies": {
           "System.IO.Pipelines": "8.0.0"
         },
         "runtime": {
           "lib/net8.0/Microsoft.AspNetCore.TestHost.dll": {
-            "assemblyVersion": "8.0.4.0",
-            "fileVersion": "8.0.424.17014"
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.23.53112"
           }
         },
         "compile": {
@@ -3279,19 +3279,19 @@
       "path": "microsoft.aspnetcore.metadata/8.0.4",
       "hashPath": "microsoft.aspnetcore.metadata.8.0.4.nupkg.sha512"
     },
-    "Microsoft.AspNetCore.Mvc.Testing/8.0.4": {
+    "Microsoft.AspNetCore.Mvc.Testing/8.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-e6IVsUq7zmAO/T4GGd00j1yxh6PBHF1PlQLaiFV/nM1jePH7Rbu+zVoXCRUDC2KOlHnPCym+eqFFlZkNNO2CvQ==",
-      "path": "microsoft.aspnetcore.mvc.testing/8.0.4",
-      "hashPath": "microsoft.aspnetcore.mvc.testing.8.0.4.nupkg.sha512"
+      "sha512": "sha512-PWPgPAlRdMEkVCHHic/Yy6t37PsPsymY1WkEH0TnjTeIlYu+g8Qfw1axj/ZmNDLvhKdiUNC2E2thHrYf2s7Yhg==",
+      "path": "microsoft.aspnetcore.mvc.testing/8.0.0",
+      "hashPath": "microsoft.aspnetcore.mvc.testing.8.0.0.nupkg.sha512"
     },
-    "Microsoft.AspNetCore.TestHost/8.0.4": {
+    "Microsoft.AspNetCore.TestHost/8.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-NQ5kHSo0aazGFbZ/3J2Fr/uKtOd43H3vJLoXoMY9GXUQppbfXco3zrYF9uBB7zkLsuFh9McBln1izgycYGscUA==",
-      "path": "microsoft.aspnetcore.testhost/8.0.4",
-      "hashPath": "microsoft.aspnetcore.testhost.8.0.4.nupkg.sha512"
+      "sha512": "sha512-Rk6Ai9bFf1KubVY5oEbEPN5fiKWW2oeU+easjokyUqqYyTHRsXlkjFeMvwecgoXsoTfXMSwEHzJp8FCjQcyYTQ==",
+      "path": "microsoft.aspnetcore.testhost/8.0.0",
+      "hashPath": "microsoft.aspnetcore.testhost.8.0.0.nupkg.sha512"
     },
     "Microsoft.CodeCoverage/17.9.0": {
       "type": "package",

@@ -11,43 +11,53 @@ public class DashboardHappyPathTests
 {
     private readonly PlaywrightFixture _fixture;
 
-    public DashboardHappyPathTests(PlaywrightFixture fixture)
+    public DashboardHappyPathTests(PlaywrightFixture fixture) => _fixture = fixture;
+
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task Dashboard_LoadsSuccessfully()
     {
-        _fixture = fixture;
+        var page = await _fixture.NewPageAsync();
+        try
+        {
+            await page.GotoAsync(_fixture.BaseUrl, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await Assertions.Expect(page.Locator("body")).ToBeVisibleAsync();
+        }
+        catch
+        {
+            await _fixture.CaptureScreenshotAsync(page, nameof(Dashboard_LoadsSuccessfully));
+            throw;
+        }
     }
 
-    [Fact(Skip = "Requires running server - run manually or in CI with server startup")]
-    public async Task Dashboard_LoadsSuccessfully_WithValidData()
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task Dashboard_HasTimelineSection()
     {
-        var page = await _fixture.CreatePageAsync();
-        var dashboard = new DashboardPage(page, _fixture.BaseUrl);
-
-        await dashboard.NavigateAsync();
-
-        Assert.True(await dashboard.HasDashboardContainerAsync());
-        Assert.False(await dashboard.HasErrorBannerAsync());
+        var page = await _fixture.NewPageAsync();
+        try
+        {
+            await page.GotoAsync(_fixture.BaseUrl, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await Assertions.Expect(page.Locator(".tl-area")).ToBeVisibleAsync();
+        }
+        catch
+        {
+            await _fixture.CaptureScreenshotAsync(page, nameof(Dashboard_HasTimelineSection));
+            throw;
+        }
     }
 
-    [Fact(Skip = "Requires running server")]
-    public async Task Dashboard_ShowsProjectTitle()
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task Dashboard_HasHeaderSection()
     {
-        var page = await _fixture.CreatePageAsync();
-        var dashboard = new DashboardPage(page, _fixture.BaseUrl);
-
-        await dashboard.NavigateAsync();
-
-        var title = await dashboard.GetTitleAsync();
-        Assert.Contains("Dashboard", title);
-    }
-
-    [Fact(Skip = "Requires running server")]
-    public async Task Dashboard_ShowsStatusBadge()
-    {
-        var page = await _fixture.CreatePageAsync();
-        var dashboard = new DashboardPage(page, _fixture.BaseUrl);
-
-        await dashboard.NavigateAsync();
-
-        Assert.True(await dashboard.StatusBadge.CountAsync() > 0);
+        var page = await _fixture.NewPageAsync();
+        try
+        {
+            await page.GotoAsync(_fixture.BaseUrl, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+            await Assertions.Expect(page.Locator(".hdr")).ToBeVisibleAsync();
+        }
+        catch
+        {
+            await _fixture.CaptureScreenshotAsync(page, nameof(Dashboard_HasHeaderSection));
+            throw;
+        }
     }
 }
