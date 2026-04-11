@@ -114,7 +114,7 @@ public class DashboardErrorPanelIntegrationTests : TestContext
     public void ErrorPanel_StandaloneRendersWithMessage()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, "Dashboard data file not found"));
+            p.Add(x => x.ErrorMessage, "Dashboard data file not found"));
 
         cut.Find(".error-panel").Should().NotBeNull();
         cut.Find("h2").TextContent.Should().Be("Dashboard data could not be loaded");
@@ -126,7 +126,7 @@ public class DashboardErrorPanelIntegrationTests : TestContext
     public void ErrorPanel_StandaloneRendersWithNullMessage()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, (string?)null));
+            p.Add(x => x.ErrorMessage, (string?)null));
 
         cut.Find(".error-panel").Should().NotBeNull();
         var paragraphs = cut.FindAll("p");

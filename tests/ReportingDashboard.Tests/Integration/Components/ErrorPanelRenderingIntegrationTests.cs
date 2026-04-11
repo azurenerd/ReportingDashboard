@@ -12,7 +12,7 @@ public class ErrorPanelRenderingIntegrationTests : TestContext
     public void ErrorPanel_RendersCompleteStructure()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, "Test error message"));
+            p.Add(x => x.ErrorMessage, "Test error message"));
 
         cut.Find(".error-panel").Should().NotBeNull();
         cut.Find(".error-icon").Should().NotBeNull();
@@ -51,7 +51,7 @@ public class ErrorPanelRenderingIntegrationTests : TestContext
         var message = "Failed to parse data.json: unexpected token at position 42";
 
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, message));
+            p.Add(x => x.ErrorMessage, message));
 
         var paragraphs = cut.FindAll("p");
         paragraphs.Should().HaveCount(2); // message + hint
@@ -62,7 +62,7 @@ public class ErrorPanelRenderingIntegrationTests : TestContext
     public void ErrorPanel_WithNullMessage_OnlyRendersHintParagraph()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, (string?)null));
+            p.Add(x => x.ErrorMessage, (string?)null));
 
         cut.FindAll("p").Should().HaveCount(1);
         cut.Find(".error-hint").Should().NotBeNull();
@@ -72,7 +72,7 @@ public class ErrorPanelRenderingIntegrationTests : TestContext
     public void ErrorPanel_WithEmptyMessage_OnlyRendersHintParagraph()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, ""));
+            p.Add(x => x.ErrorMessage, ""));
 
         cut.FindAll("p").Should().HaveCount(1);
         cut.Find(".error-hint").Should().NotBeNull();
@@ -82,7 +82,7 @@ public class ErrorPanelRenderingIntegrationTests : TestContext
     public void ErrorPanel_FileNotFoundMessage_RendersCorrectly()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, "Dashboard data file not found: /app/wwwroot/data.json. Please create wwwroot/data.json."));
+            p.Add(x => x.ErrorMessage, "Dashboard data file not found: /app/wwwroot/data.json. Please create wwwroot/data.json."));
 
         cut.Markup.Should().Contain("not found");
         cut.Markup.Should().Contain("wwwroot/data.json");
@@ -92,7 +92,7 @@ public class ErrorPanelRenderingIntegrationTests : TestContext
     public void ErrorPanel_WithHtmlInMessage_EscapesHtml()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, "<script>alert('xss')</script>"));
+            p.Add(x => x.ErrorMessage, "<script>alert('xss')</script>"));
 
         cut.Markup.Should().NotContain("<script>");
         cut.Markup.Should().Contain("&lt;script&gt;");
@@ -104,7 +104,7 @@ public class ErrorPanelRenderingIntegrationTests : TestContext
         var longMessage = string.Join(" ", Enumerable.Repeat("error detail", 50));
 
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, longMessage));
+            p.Add(x => x.ErrorMessage, longMessage));
 
         cut.Markup.Should().Contain(longMessage);
     }

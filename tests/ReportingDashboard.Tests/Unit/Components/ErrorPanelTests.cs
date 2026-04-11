@@ -29,7 +29,7 @@ public class ErrorPanelTests : TestContext
     public void ErrorPanel_WithMessage_RendersMessageText()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, "File not found: data.json"));
+            p.Add(x => x.ErrorMessage, "File not found: data.json"));
 
         cut.Markup.Should().Contain("File not found: data.json");
     }
@@ -38,7 +38,7 @@ public class ErrorPanelTests : TestContext
     public void ErrorPanel_WithNullMessage_DoesNotRenderMessageParagraph()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, (string?)null));
+            p.Add(x => x.ErrorMessage, (string?)null));
 
         var paragraphs = cut.FindAll("p");
         // Should only have the hint paragraph, not a message paragraph
@@ -50,7 +50,7 @@ public class ErrorPanelTests : TestContext
     public void ErrorPanel_WithEmptyMessage_DoesNotRenderMessageParagraph()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, ""));
+            p.Add(x => x.ErrorMessage, ""));
 
         var paragraphs = cut.FindAll("p");
         paragraphs.Should().HaveCount(1);
@@ -80,7 +80,7 @@ public class ErrorPanelTests : TestContext
         var longMessage = new string('x', 500);
 
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, longMessage));
+            p.Add(x => x.ErrorMessage, longMessage));
 
         cut.Markup.Should().Contain(longMessage);
     }
@@ -89,7 +89,7 @@ public class ErrorPanelTests : TestContext
     public void ErrorPanel_WithSpecialCharacters_RendersEncodedMessage()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, "Error: <script>alert('xss')</script>"));
+            p.Add(x => x.ErrorMessage, "Error: <script>alert('xss')</script>"));
 
         cut.Markup.Should().NotContain("<script>");
         cut.Markup.Should().Contain("&lt;script&gt;");
