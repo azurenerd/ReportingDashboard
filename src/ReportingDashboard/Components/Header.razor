@@ -1,63 +1,35 @@
-@using ReportingDashboard.Models
-@using System.Globalization
-
-<div class="hdr">
-    <div>
-        <h1 style="font-size:24px;font-weight:700;color:#111;margin:0;line-height:1.2;">
-            @Data.Title
-            @if (!string.IsNullOrEmpty(Data.BacklogLink))
-            {
-                <a href="@Data.BacklogLink" target="_blank" rel="noopener noreferrer"
-                   style="font-size:13px;font-weight:400;color:#0078D4;text-decoration:none;margin-left:12px;">&#x1F517; ADO Backlog</a>
-            }
-        </h1>
-        <div class="sub">@Data.Subtitle</div>
-    </div>
-
-    <div style="display:flex;gap:22px;align-items:center;">
-        <span style="display:flex;align-items:center;gap:6px;">
-            <span style="width:12px;height:12px;background:#F4B400;transform:rotate(45deg);display:inline-block;flex-shrink:0;"></span>
-            <span style="font-size:12px;white-space:nowrap;">PoC Milestone</span>
-        </span>
-
-        <span style="display:flex;align-items:center;gap:6px;">
-            <span style="width:12px;height:12px;background:#34A853;transform:rotate(45deg);display:inline-block;flex-shrink:0;"></span>
-            <span style="font-size:12px;white-space:nowrap;">Production Release</span>
-        </span>
-
-        <span style="display:flex;align-items:center;gap:6px;">
-            <span style="width:8px;height:8px;border-radius:50%;background:#999;display:inline-block;flex-shrink:0;"></span>
-            <span style="font-size:12px;white-space:nowrap;">Checkpoint</span>
-        </span>
-
-        <span style="display:flex;align-items:center;gap:6px;">
-            <span style="width:2px;height:14px;background:#EA4335;display:inline-block;flex-shrink:0;"></span>
-            <span style="font-size:12px;white-space:nowrap;">@NowLabel</span>
-        </span>
-    </div>
+<div class="hdr-left">
+    <h1>
+        @Title
+        @if (!string.IsNullOrEmpty(BacklogLink))
+        {
+            <a href="@BacklogLink" target="_blank" rel="noopener">&#x1F4CB; ADO Backlog</a>
+        }
+    </h1>
+    <div class="sub">@Subtitle</div>
+</div>
+<div class="hdr-right">
+    <span class="legend-item">
+        <span class="legend-diamond" style="background:#F4B400;"></span> PoC Milestone
+    </span>
+    <span class="legend-item">
+        <span class="legend-diamond" style="background:#34A853;"></span> Production Release
+    </span>
+    <span class="legend-item">
+        <span class="legend-circle"></span> Checkpoint
+    </span>
+    <span class="legend-item">
+        <span class="legend-now-bar"></span> Now (@CurrentMonth @NowYear)
+    </span>
 </div>
 
 @code {
-    [Parameter]
-    public DashboardData Data { get; set; } = default!;
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Subtitle { get; set; } = "";
+    [Parameter] public string BacklogLink { get; set; } = "";
+    [Parameter] public string CurrentMonth { get; set; } = "";
+    [Parameter] public string NowDate { get; set; } = "";
 
-    private string NowLabel
-    {
-        get
-        {
-            if (Data?.Timeline is not null
-                && !string.IsNullOrWhiteSpace(Data.Timeline.NowDate)
-                && DateTime.TryParse(Data.Timeline.NowDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
-            {
-                return $"Now ({parsed.ToString("MMMM", CultureInfo.InvariantCulture)} {parsed.Year})";
-            }
-
-            if (Data is not null && !string.IsNullOrWhiteSpace(Data.CurrentMonth))
-            {
-                return $"Now ({Data.CurrentMonth})";
-            }
-
-            return "Now";
-        }
-    }
+    private string NowYear =>
+        DateTime.TryParse(NowDate, out var d) ? d.ToString("yyyy") : "";
 }

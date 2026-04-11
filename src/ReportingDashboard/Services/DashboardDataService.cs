@@ -5,106 +5,75 @@ namespace ReportingDashboard.Services;
 
 public class DashboardDataService
 {
+    private readonly IWebHostEnvironment _env;
     private readonly ILogger<DashboardDataService> _logger;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNameCaseInsensitive = true
     };
 
-    public DashboardData? Data { get; private set; }
-    public bool IsError { get; private set; }
-    public string? ErrorMessage { get; private set; }
-
-    public DashboardDataService(ILogger<DashboardDataService> logger)
+    public DashboardDataService(IWebHostEnvironment env, ILogger<DashboardDataService> logger)
     {
+        _env = env;
         _logger = logger;
     }
 
-    public async Task LoadAsync(string filePath)
+    public virtual DashboardData? Data { get; private set; }
+    public virtual bool IsError { get; private set; }
+    public virtual string? ErrorMessage { get; private set; }
+
+    public async Task LoadAsync(string? filePath = null)
     {
-        // Reset state before each load
-        Data = null;
-        IsError = false;
-        ErrorMessage = null;
+        var path = filePath ?? Path.Combine(_env.WebRootPath, "data.json");
 
         try
         {
-            if (!File.Exists(filePath))
+            if (!File.Exists(path))
             {
-                _logger.LogError("Data file not found at {Path}", filePath);
+                _logger.LogError("Dashboard data file not found at {Path}", path);
                 IsError = true;
-                ErrorMessage = $"data.json not found at {filePath}";
+                ErrorMessage = $"Dashboard data file not found: {path}. Please create wwwroot/data.json.";
                 return;
             }
 
-            var json = await File.ReadAllTextAsync(filePath);
+            var json = await File.ReadAllTextAsync(path);
             var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
 
             if (data is null)
             {
-                _logger.LogError("data.json deserialized to null");
+                _logger.LogError("Failed to parse data.json: deserialized result was null");
                 IsError = true;
-                ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
+                ErrorMessage = "Dashboard data file was empty or could not be parsed.";
                 return;
             }
 
-            // Collect all validation errors
-            var errors = new List<string>();
-
             if (string.IsNullOrWhiteSpace(data.Title))
-                errors.Add("title is required");
-
-            if (string.IsNullOrWhiteSpace(data.Subtitle))
-                errors.Add("subtitle is required");
-
-            if (string.IsNullOrWhiteSpace(data.BacklogLink))
-                errors.Add("backlogLink is required");
-
-            if (data.Months.Count == 0)
-                errors.Add("months is required and must be non-empty");
-
-            if (string.IsNullOrWhiteSpace(data.Timeline.StartDate))
-                errors.Add("timeline.startDate is required");
-
-            if (string.IsNullOrWhiteSpace(data.Timeline.EndDate))
-                errors.Add("timeline.endDate is required");
-
-            if (string.IsNullOrWhiteSpace(data.Timeline.NowDate))
-                errors.Add("timeline.nowDate is required");
+            {
+                _logger.LogWarning("data.json is missing required field 'title'");
+            }
 
             if (data.Timeline.Tracks.Count == 0)
-                errors.Add("timeline.tracks is required and must be non-empty");
-
-            if (errors.Count > 0)
             {
-                var joined = string.Join("; ", errors);
-                var message = $"data.json validation: {joined}";
-                _logger.LogError("Validation failed: {Errors}", message);
-                IsError = true;
-                ErrorMessage = message;
-                return;
+                _logger.LogWarning("data.json contains no timeline tracks");
             }
 
             Data = data;
             IsError = false;
             ErrorMessage = null;
-            _logger.LogInformation("Dashboard data loaded successfully: {Title}", data.Title);
+            _logger.LogInformation("Dashboard data loaded successfully from {Path}", path);
         }
         catch (JsonException ex)
         {
             _logger.LogError(ex, "Failed to parse data.json: {Message}", ex.Message);
             IsError = true;
             ErrorMessage = $"Failed to parse data.json: {ex.Message}";
-            Data = null;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error loading dashboard data");
+            _logger.LogError(ex, "Unexpected error loading dashboard data: {Message}", ex.Message);
             IsError = true;
             ErrorMessage = $"Error loading dashboard data: {ex.Message}";
-            Data = null;
         }
     }
 }

@@ -1,70 +1,69 @@
 {
   "title": "Privacy Automation Release Roadmap",
-  "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
-  "backlogLink": "https://dev.azure.com/org/project/_backlogs",
+  "subtitle": "Core Platform · Privacy Engineering · April 2026",
+  "backlogLink": "https://dev.azure.com/example/project/_backlogs",
   "currentMonth": "Apr",
-  "months": ["Jan", "Feb", "Mar", "Apr"],
+  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
   "timeline": {
     "startDate": "2026-01-01",
     "endDate": "2026-06-30",
     "nowDate": "2026-04-10",
     "tracks": [
       {
-        "name": "M1",
-        "label": "Chatbot & MS Role",
+        "id": "M1",
+        "name": "Chatbot & MS Role",
         "color": "#0078D4",
         "milestones": [
-          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
-          { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
-          { "date": "2026-05-01", "type": "production", "label": "May 1 Prod" }
+          { "date": "2026-02-01", "label": "Feb Check", "type": "checkpoint" },
+          { "date": "2026-03-15", "label": "Mar 26 PoC", "type": "poc" },
+          { "date": "2026-05-15", "label": "May 26 Prod", "type": "production" }
         ]
       },
       {
-        "name": "M2",
-        "label": "DSR Pipeline v2",
+        "id": "M2",
+        "name": "Automated Scans",
         "color": "#00897B",
         "milestones": [
-          { "date": "2026-01-31", "type": "poc", "label": "Jan 31 PoC" },
-          { "date": "2026-03-15", "type": "checkpoint", "label": "Mar 15" },
-          { "date": "2026-04-30", "type": "production", "label": "Apr 30 GA" }
+          { "date": "2026-01-20", "label": "Jan Check", "type": "checkpoint" },
+          { "date": "2026-02-28", "label": "Feb 26 PoC", "type": "poc" },
+          { "date": "2026-04-30", "label": "Apr 26 Prod", "type": "production" }
         ]
       },
       {
-        "name": "M3",
-        "label": "Compliance Dashboard",
+        "id": "M3",
+        "name": "Compliance Reports",
         "color": "#546E7A",
         "milestones": [
-          { "date": "2026-03-01", "type": "poc", "label": "Mar 1 PoC" },
-          { "date": "2026-04-15", "type": "checkpoint", "label": "Apr 15" },
-          { "date": "2026-06-15", "type": "production", "label": "Jun 15 GA" }
+          { "date": "2026-03-01", "label": "Mar Check", "type": "checkpoint" },
+          { "date": "2026-04-15", "label": "Apr 26 PoC", "type": "poc" },
+          { "date": "2026-06-15", "label": "Jun 26 Prod", "type": "production" }
         ]
       }
     ]
   },
   "heatmap": {
     "shipped": {
-      "jan": ["Auth service hardening", "Token rotation script"],
-      "feb": ["DSR intake form v2", "Role mapping API"],
-      "mar": ["Chatbot PoC demo", "Pipeline monitoring alerts"],
-      "apr": ["Automated DSR acknowledgment"]
+      "Jan": ["DSR intake form v2", "Role-based access MVP"],
+      "Feb": ["Scan scheduler alpha", "Chatbot FAQ module"],
+      "Mar": ["MS Graph integration", "Auto-classification engine"],
+      "Apr": ["Scan dashboard v1"]
     },
     "inProgress": {
-      "jan": ["DSR pipeline design"],
-      "feb": ["Chatbot NLU training"],
-      "mar": ["MS Role provisioning", "Dashboard wireframes"],
-      "apr": ["DSR Pipeline v2 integration", "Compliance dashboard frontend"]
+      "Jan": ["Chatbot prototype"],
+      "Feb": ["Compliance template builder"],
+      "Mar": ["Role escalation flow"],
+      "Apr": ["Chatbot MS Role integration", "Report export API"],
+      "May": ["Compliance report generator"],
+      "Jun": ["Final UAT & hardening"]
     },
     "carryover": {
-      "jan": [],
-      "feb": ["Audit log export (from Jan)"],
-      "mar": [],
-      "apr": ["MS Role edge cases (from Mar)"]
+      "Feb": ["DSR edge-case handling"],
+      "Mar": ["Scan false-positive tuning"],
+      "Apr": ["Legacy data migration script"]
     },
     "blockers": {
-      "jan": [],
-      "feb": [],
-      "mar": ["AAD Graph API deprecation"],
-      "apr": ["Pending legal review on DSR templates"]
+      "Mar": ["MS Graph throttling limits"],
+      "Apr": ["Prod tenant access pending"]
     }
   }
 }
