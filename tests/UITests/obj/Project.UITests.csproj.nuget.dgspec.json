@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\tests\\UITests\\Project.UITests.csproj": {}
+    "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\tests\\UITests\\Project.UITests.csproj": {}
   },
   "projects": {
-    "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\tests\\UITests\\Project.UITests.csproj": {
+    "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\tests\\UITests\\Project.UITests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\tests\\UITests\\Project.UITests.csproj",
+        "projectUniqueName": "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\tests\\UITests\\Project.UITests.csproj",
         "projectName": "Project.UITests",
-        "projectPath": "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\tests\\UITests\\Project.UITests.csproj",
+        "projectPath": "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\tests\\UITests\\Project.UITests.csproj",
         "packagesPath": "C:\\Users\\behumphr\\.nuget\\packages\\",
-        "outputPath": "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\tests\\UITests\\obj\\",
+        "outputPath": "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\tests\\UITests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

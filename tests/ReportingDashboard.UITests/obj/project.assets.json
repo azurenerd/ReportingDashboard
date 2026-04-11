@@ -2,22 +2,6 @@
   "version": 3,
   "targets": {
     "net8.0": {
-      "FluentAssertions/6.12.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Configuration.ConfigurationManager": "4.4.0"
-        },
-        "compile": {
-          "lib/net6.0/FluentAssertions.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/net6.0/FluentAssertions.dll": {
-            "related": ".pdb;.xml"
-          }
-        }
-      },
       "Microsoft.Bcl.AsyncInterfaces/6.0.0": {
         "type": "package",
         "compile": {
@@ -360,20 +344,6 @@
           }
         }
       },
-      "System.Configuration.ConfigurationManager/4.4.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Security.Cryptography.ProtectedData": "4.4.0"
-        },
-        "compile": {
-          "ref/netstandard2.0/System.Configuration.ConfigurationManager.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/System.Configuration.ConfigurationManager.dll": {}
-        }
-      },
       "System.Reflection.Metadata/1.6.0": {
         "type": "package",
         "compile": {
@@ -401,23 +371,6 @@
         },
         "build": {
           "buildTransitive/netcoreapp3.1/_._": {}
-        }
-      },
-      "System.Security.Cryptography.ProtectedData/4.4.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard2.0/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll": {}
-        },
-        "runtimeTargets": {
-          "runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll": {
-            "assetType": "runtime",
-            "rid": "win"
-          }
         }
       },
       "System.Text.Encodings.Web/6.0.0": {
@@ -577,36 +530,6 @@
     }
   },
   "libraries": {
-    "FluentAssertions/6.12.0": {
-      "sha512": "ZXhHT2YwP9lajrwSKbLlFqsmCCvFJMoRSK9t7sImfnCyd0OB3MhgxdoMcVqxbq1iyxD6mD2fiackWmBb7ayiXQ==",
-      "type": "package",
-      "path": "fluentassertions/6.12.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "FluentAssertions.png",
-        "fluentassertions.6.12.0.nupkg.sha512",
-        "fluentassertions.nuspec",
-        "lib/net47/FluentAssertions.dll",
-        "lib/net47/FluentAssertions.pdb",
-        "lib/net47/FluentAssertions.xml",
-        "lib/net6.0/FluentAssertions.dll",
-        "lib/net6.0/FluentAssertions.pdb",
-        "lib/net6.0/FluentAssertions.xml",
-        "lib/netcoreapp2.1/FluentAssertions.dll",
-        "lib/netcoreapp2.1/FluentAssertions.pdb",
-        "lib/netcoreapp2.1/FluentAssertions.xml",
-        "lib/netcoreapp3.0/FluentAssertions.dll",
-        "lib/netcoreapp3.0/FluentAssertions.pdb",
-        "lib/netcoreapp3.0/FluentAssertions.xml",
-        "lib/netstandard2.0/FluentAssertions.dll",
-        "lib/netstandard2.0/FluentAssertions.pdb",
-        "lib/netstandard2.0/FluentAssertions.xml",
-        "lib/netstandard2.1/FluentAssertions.dll",
-        "lib/netstandard2.1/FluentAssertions.pdb",
-        "lib/netstandard2.1/FluentAssertions.xml"
-      ]
-    },
     "Microsoft.Bcl.AsyncInterfaces/6.0.0": {
       "sha512": "UcSjPsst+DfAdJGVDsu346FX0ci0ah+lw3WRtn18NUwEqRt70HaOQ7lI72vy3+1LxtqI3T5GWwV39rQSrCzAeg==",
       "type": "package",
@@ -1323,27 +1246,6 @@
         "version.txt"
       ]
     },
-    "System.Configuration.ConfigurationManager/4.4.0": {
-      "sha512": "gWwQv/Ug1qWJmHCmN17nAbxJYmQBM/E94QxKLksvUiiKB1Ld3Sc/eK1lgmbSjDFxkQhVuayI/cGFZhpBSodLrg==",
-      "type": "package",
-      "path": "system.configuration.configurationmanager/4.4.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/net461/System.Configuration.ConfigurationManager.dll",
-        "lib/netstandard2.0/System.Configuration.ConfigurationManager.dll",
-        "ref/net461/System.Configuration.ConfigurationManager.dll",
-        "ref/net461/System.Configuration.ConfigurationManager.xml",
-        "ref/netstandard2.0/System.Configuration.ConfigurationManager.dll",
-        "ref/netstandard2.0/System.Configuration.ConfigurationManager.xml",
-        "system.configuration.configurationmanager.4.4.0.nupkg.sha512",
-        "system.configuration.configurationmanager.nuspec",
-        "useSharedDesignerContext.txt",
-        "version.txt"
-      ]
-    },
     "System.Reflection.Metadata/1.6.0": {
       "sha512": "COC1aiAJjCoA5GBF+QKL2uLqEBew4JsCkQmoHKbN3TlOZKa2fKLz5CpiRQKDz0RsAOEGsVKqOD5bomsXq/4STQ==",
       "type": "package",
@@ -1388,47 +1290,6 @@
         "system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
         "system.runtime.compilerservices.unsafe.nuspec",
         "useSharedDesignerContext.txt"
-      ]
-    },
-    "System.Security.Cryptography.ProtectedData/4.4.0": {
-      "sha512": "cJV7ScGW7EhatRsjehfvvYVBvtiSMKgN8bOVI0bQhnF5bU7vnHVIsH49Kva7i7GWaWYvmEzkYVk1TC+gZYBEog==",
-      "type": "package",
-      "path": "system.security.cryptography.protecteddata/4.4.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/MonoAndroid10/_._",
-        "lib/MonoTouch10/_._",
-        "lib/net46/System.Security.Cryptography.ProtectedData.dll",
-        "lib/net461/System.Security.Cryptography.ProtectedData.dll",
-        "lib/netstandard1.3/System.Security.Cryptography.ProtectedData.dll",
-        "lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll",
-        "lib/xamarinios10/_._",
-        "lib/xamarinmac20/_._",
-        "lib/xamarintvos10/_._",
-        "lib/xamarinwatchos10/_._",
-        "ref/MonoAndroid10/_._",
-        "ref/MonoTouch10/_._",
-        "ref/net46/System.Security.Cryptography.ProtectedData.dll",
-        "ref/net461/System.Security.Cryptography.ProtectedData.dll",
-        "ref/net461/System.Security.Cryptography.ProtectedData.xml",
-        "ref/netstandard1.3/System.Security.Cryptography.ProtectedData.dll",
-        "ref/netstandard2.0/System.Security.Cryptography.ProtectedData.dll",
-        "ref/netstandard2.0/System.Security.Cryptography.ProtectedData.xml",
-        "ref/xamarinios10/_._",
-        "ref/xamarinmac20/_._",
-        "ref/xamarintvos10/_._",
-        "ref/xamarinwatchos10/_._",
-        "runtimes/win/lib/net46/System.Security.Cryptography.ProtectedData.dll",
-        "runtimes/win/lib/net461/System.Security.Cryptography.ProtectedData.dll",
-        "runtimes/win/lib/netstandard1.3/System.Security.Cryptography.ProtectedData.dll",
-        "runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll",
-        "system.security.cryptography.protecteddata.4.4.0.nupkg.sha512",
-        "system.security.cryptography.protecteddata.nuspec",
-        "useSharedDesignerContext.txt",
-        "version.txt"
       ]
     },
     "System.Text.Encodings.Web/6.0.0": {
@@ -1670,7 +1531,6 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "FluentAssertions >= 6.12.0",
       "Microsoft.NET.Test.Sdk >= 17.9.0",
       "Microsoft.Playwright >= 1.41.0",
       "ReportingDashboard >= 1.0.0",
@@ -1685,11 +1545,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\ReportingDashboard.UITests.csproj",
+      "projectUniqueName": "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\ReportingDashboard.UITests.csproj",
       "projectName": "ReportingDashboard.UITests",
-      "projectPath": "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\ReportingDashboard.UITests.csproj",
+      "projectPath": "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\ReportingDashboard.UITests.csproj",
       "packagesPath": "C:\\Users\\behumphr\\.nuget\\packages\\",
-      "outputPath": "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\obj\\",
+      "outputPath": "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\tests\\ReportingDashboard.UITests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -1710,8 +1570,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj": {
-              "projectPath": "C:\\Agents\\testengineer-d5a128a0e3d54d1f839b7fb8140e644a\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj"
+            "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj": {
+              "projectPath": "C:\\Agents\\testengineer-e808cdacd7d44db885765b0e39e72768\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj"
             }
           }
         }
@@ -1732,10 +1592,6 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
-          "FluentAssertions": {
-            "target": "Package",
-            "version": "[6.12.0, )"
-          },
           "Microsoft.NET.Test.Sdk": {
             "target": "Package",
             "version": "[17.9.0, )"
