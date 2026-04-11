@@ -1,4 +1,30 @@
-// DELETE THIS FILE.
-// TimelineData, TimelineTrack, and Milestone are defined in TimelineData.cs
-// on the main branch from the foundation PR (#510).
-// This file must remain empty to avoid duplicate type definitions.
+using System.Text.Json.Serialization;
+
+namespace ReportingDashboard.Models;
+
+public class TimelineTrack
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("label")]
+    public string Label { get; set; } = string.Empty;
+
+    [JsonPropertyName("color")]
+    public string Color { get; set; } = "#999";
+
+    [JsonPropertyName("milestones")]
+    public List<Milestone> Milestones { get; set; } = new();
+}
+
+public class Milestone
+{
+    [JsonPropertyName("date")]
+    public string Date { get; set; } = string.Empty;
+
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = "checkpoint";
+
+    [JsonPropertyName("label")]
+    public string Label { get; set; } = string.Empty;
+}
