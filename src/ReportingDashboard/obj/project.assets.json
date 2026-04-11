@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Agents\\testengineer-2113867dbcfb414ab1c4e00efc641464\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
+      "projectUniqueName": "C:\\Agents\\principalengineer-8a2d9daffd924af4aade9e6da224a06f\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
       "projectName": "ReportingDashboard",
-      "projectPath": "C:\\Agents\\testengineer-2113867dbcfb414ab1c4e00efc641464\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
+      "projectPath": "C:\\Agents\\principalengineer-8a2d9daffd924af4aade9e6da224a06f\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
       "packagesPath": "C:\\Users\\behumphr\\.nuget\\packages\\",
-      "outputPath": "C:\\Agents\\testengineer-2113867dbcfb414ab1c4e00efc641464\\ReportingDashboard\\src\\ReportingDashboard\\obj\\",
+      "outputPath": "C:\\Agents\\principalengineer-8a2d9daffd924af4aade9e6da224a06f\\ReportingDashboard\\src\\ReportingDashboard\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -51,7 +51,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "10.0.200"
     },
     "frameworks": {
       "net8.0": {
@@ -75,7 +75,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

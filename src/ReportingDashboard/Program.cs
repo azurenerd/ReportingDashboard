@@ -15,6 +15,11 @@ var app = builder.Build();
 var dataService = app.Services.GetRequiredService<DashboardDataService>();
 await dataService.LoadAsync(Path.Combine(app.Environment.WebRootPath, "data.json"));
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+}
+
 app.UseStaticFiles();
 app.UseAntiforgery();
 

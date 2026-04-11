@@ -2,63 +2,83 @@ using System.Text.Json.Serialization;
 
 namespace ReportingDashboard.Models;
 
-public record DashboardData
+public class DashboardData
 {
-    public ProjectInfo? Project { get; init; }
-    public List<Milestone> Milestones { get; init; } = [];
-    public List<WorkItem> Shipped { get; init; } = [];
-    public List<WorkItem> InProgress { get; init; } = [];
-    public List<WorkItem> CarriedOver { get; init; } = [];
-    public MonthSummary? CurrentMonth { get; init; }
-    public string? ErrorMessage { get; init; }
-
-    // Properties used by the pixel-precise Header.razor (architecture v2)
     [JsonPropertyName("title")]
-    public string Title { get; init; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
 
     [JsonPropertyName("subtitle")]
-    public string Subtitle { get; init; } = string.Empty;
+    public string Subtitle { get; set; } = string.Empty;
 
     [JsonPropertyName("backlogLink")]
-    public string BacklogLink { get; init; } = string.Empty;
+    public string BacklogLink { get; set; } = string.Empty;
 
     [JsonPropertyName("currentMonth")]
-    public string CurrentMonthLabel { get; init; } = string.Empty;
+    public string CurrentMonth { get; set; } = string.Empty;
 
     [JsonPropertyName("months")]
-    public List<string> Months { get; init; } = [];
+    public List<string> Months { get; set; } = new();
+
+    [JsonPropertyName("timeline")]
+    public TimelineData Timeline { get; set; } = new();
+
+    [JsonPropertyName("heatmap")]
+    public HeatmapData Heatmap { get; set; } = new();
 }
 
-public record ProjectInfo
+public class TimelineData
 {
-    public string Name { get; init; } = "Untitled Project";
-    public string? Lead { get; init; }
-    public string Status { get; init; } = "Unknown";
-    public string? LastUpdated { get; init; }
-    public string? Summary { get; init; }
+    [JsonPropertyName("startDate")]
+    public string StartDate { get; set; } = string.Empty;
+
+    [JsonPropertyName("endDate")]
+    public string EndDate { get; set; } = string.Empty;
+
+    [JsonPropertyName("nowDate")]
+    public string NowDate { get; set; } = string.Empty;
+
+    [JsonPropertyName("tracks")]
+    public List<TimelineTrack> Tracks { get; set; } = new();
 }
 
-public record Milestone
+public class TimelineTrack
 {
-    public string Title { get; init; } = "";
-    public string? TargetDate { get; init; }
-    public string Status { get; init; } = "Upcoming";
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("label")]
+    public string Label { get; set; } = string.Empty;
+
+    [JsonPropertyName("color")]
+    public string Color { get; set; } = "#999";
+
+    [JsonPropertyName("milestones")]
+    public List<Milestone> Milestones { get; set; } = new();
 }
 
-public record WorkItem
+public class Milestone
 {
-    public string Title { get; init; } = "";
-    public string? Description { get; init; }
-    public string? Category { get; init; }
-    public int PercentComplete { get; init; }
-    public string? CarryOverReason { get; init; }
+    [JsonPropertyName("date")]
+    public string Date { get; set; } = string.Empty;
+
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = "checkpoint";
+
+    [JsonPropertyName("label")]
+    public string Label { get; set; } = string.Empty;
 }
 
-public record MonthSummary
+public class HeatmapData
 {
-    public string? Month { get; init; }
-    public int TotalItems { get; init; }
-    public int CompletedItems { get; init; }
-    public int CarriedItems { get; init; }
-    public string OverallHealth { get; init; } = "Unknown";
+    [JsonPropertyName("shipped")]
+    public Dictionary<string, List<string>> Shipped { get; set; } = new();
+
+    [JsonPropertyName("inProgress")]
+    public Dictionary<string, List<string>> InProgress { get; set; } = new();
+
+    [JsonPropertyName("carryover")]
+    public Dictionary<string, List<string>> Carryover { get; set; } = new();
+
+    [JsonPropertyName("blockers")]
+    public Dictionary<string, List<string>> Blockers { get; set; } = new();
 }
