@@ -5,107 +5,65 @@ namespace ReportingDashboard.Services;
 
 public class DashboardDataService
 {
+    private readonly string _dataFilePath;
+    private readonly IWebHostEnvironment _env;
     private readonly ILogger<DashboardDataService> _logger;
 
-    public DashboardData? Data { get; private set; }
-    public bool IsError { get; private set; }
-    public string? ErrorMessage { get; private set; }
-
-    public DashboardDataService(ILogger<DashboardDataService> logger)
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
+    public DashboardDataService(IWebHostEnvironment env, IConfiguration config, ILogger<DashboardDataService> logger)
+    {
+        _env = env;
         _logger = logger;
+        _dataFilePath = config.GetValue<string>("Dashboard:DataFilePath") ?? "wwwroot/data/data.json";
     }
 
-    public async Task LoadAsync(string filePath)
+    public async Task<DashboardData> LoadDataAsync()
     {
         try
         {
-            if (!File.Exists(filePath))
+            var fullPath = Path.Combine(_env.ContentRootPath, _dataFilePath);
+            if (!File.Exists(fullPath))
             {
-                SetError($"data.json not found at {filePath}");
-                return;
+                _logger.LogWarning("Data file not found at {Path}", fullPath);
+                return new DashboardData
+                {
+                    ErrorMessage = $"Data file not found: {_dataFilePath}. Please create it from data.template.json."
+                };
             }
 
-            var json = await File.ReadAllTextAsync(filePath);
+            var json = await File.ReadAllTextAsync(fullPath);
+            var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
 
-            DashboardData? data;
-            try
+            return data ?? new DashboardData
             {
-                data = JsonSerializer.Deserialize<DashboardData>(json);
-            }
-            catch (JsonException ex)
+                ErrorMessage = "Data file was empty or could not be parsed."
+            };
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize data.json");
+            return new DashboardData
             {
-                SetError($"Failed to parse data.json: {ex.Message}");
-                return;
-            }
-
-            if (data is null)
-            {
-                SetError("Failed to parse data.json: deserialization returned null");
-                return;
-            }
-
-            var validationError = ValidateData(data);
-            if (validationError is not null)
-            {
-                SetError($"data.json validation: {validationError}");
-                return;
-            }
-
-            Data = data;
-            IsError = false;
-            ErrorMessage = null;
-            _logger.LogInformation("Dashboard data loaded successfully from {FilePath}", filePath);
+                ErrorMessage = $"Invalid JSON in data file: {ex.Message}"
+            };
         }
         catch (Exception ex)
         {
-            SetError($"Unexpected error loading data.json: {ex.Message}");
+            _logger.LogError(ex, "Unexpected error loading dashboard data");
+            return new DashboardData
+            {
+                ErrorMessage = $"Error loading dashboard data: {ex.Message}"
+            };
         }
     }
 
-    private void SetError(string message)
+    public string GetFullPath()
     {
-        IsError = true;
-        ErrorMessage = message;
-        Data = null;
-        _logger.LogError("DashboardDataService error: {ErrorMessage}", message);
-    }
-
-    private static string? ValidateData(DashboardData data)
-    {
-        if (string.IsNullOrWhiteSpace(data.Title))
-            return "title is required";
-
-        if (string.IsNullOrWhiteSpace(data.Subtitle))
-            return "subtitle is required";
-
-        if (string.IsNullOrWhiteSpace(data.BacklogLink))
-            return "backlogLink is required";
-
-        if (string.IsNullOrWhiteSpace(data.CurrentMonth))
-            return "currentMonth is required";
-
-        if (data.Months is null || data.Months.Count == 0)
-            return "months is required and must not be empty";
-
-        if (data.Timeline is null)
-            return "timeline is required";
-
-        if (data.Timeline.Tracks is null || data.Timeline.Tracks.Count == 0)
-            return "timeline.tracks is required and must not be empty";
-
-        if (string.IsNullOrWhiteSpace(data.Timeline.StartDate))
-            return "timeline.startDate is required";
-
-        if (string.IsNullOrWhiteSpace(data.Timeline.EndDate))
-            return "timeline.endDate is required";
-
-        if (string.IsNullOrWhiteSpace(data.Timeline.NowDate))
-            return "timeline.nowDate is required";
-
-        if (data.Heatmap is null)
-            return "heatmap is required";
-
-        return null;
+        return Path.Combine(_env.ContentRootPath, _dataFilePath);
     }
 }

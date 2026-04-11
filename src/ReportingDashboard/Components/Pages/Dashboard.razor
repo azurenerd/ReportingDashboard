@@ -1,19 +1,35 @@
 @page "/"
+@using Microsoft.AspNetCore.Components.Web
 @inject DashboardDataService DataService
+@rendermode RenderMode.InteractiveServer
 
-@if (DataService.IsError)
-{
-    <ErrorPanel ErrorMessage="@DataService.ErrorMessage" />
-}
-else
-{
-    <div class="hdr">
-        <!-- Header stub -->
-    </div>
-    <div class="tl-area">
-        <!-- Timeline stub -->
-    </div>
-    <div class="hm-wrap">
-        <!-- Heatmap stub -->
-    </div>
+<div class="dashboard-shell">
+    @if (!string.IsNullOrEmpty(_data.ErrorMessage))
+    {
+        <div class="error-banner">
+            <strong>⚠ Data Error:</strong> @_data.ErrorMessage
+        </div>
+    }
+    else
+    {
+        <Header Data="@_data" />
+
+        <div class="tl-area">
+            @* Timeline component placeholder — implemented by a later task *@
+        </div>
+
+        <div class="hm-wrap">
+            <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+            @* Heatmap grid placeholder — implemented by a later task *@
+        </div>
+    }
+</div>
+
+@code {
+    private DashboardData _data = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _data = await DataService.LoadDataAsync();
+    }
 }
