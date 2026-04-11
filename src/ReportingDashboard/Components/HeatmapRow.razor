@@ -1,1 +1,28 @@
-@* This component has moved to Components/Sections/HeatmapRow.razor *@
+@* HeatmapRow - renders row header and N HeatmapCell instances for a status category *@
+
+<div class="hm-row-hdr @($"{CssPrefix}-hdr")">@CategoryLabel</div>
+
+@foreach (var month in Months)
+{
+    var hasItems = Items.TryGetValue(month.ToLowerInvariant(), out var cellItems);
+    <HeatmapCell Items="@(hasItems && cellItems is not null ? cellItems : new List<string>())"
+                 CssPrefix="@CssPrefix"
+                 IsCurrentMonth="@(month.Equals(CurrentMonth, StringComparison.OrdinalIgnoreCase))" />
+}
+
+@code {
+    [Parameter]
+    public string CategoryLabel { get; set; } = string.Empty;
+
+    [Parameter]
+    public string CssPrefix { get; set; } = string.Empty;
+
+    [Parameter]
+    public Dictionary<string, List<string>> Items { get; set; } = new();
+
+    [Parameter]
+    public List<string> Months { get; set; } = new();
+
+    [Parameter]
+    public string CurrentMonth { get; set; } = string.Empty;
+}
