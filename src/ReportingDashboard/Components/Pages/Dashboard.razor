@@ -1,19 +1,202 @@
 @page "/"
 @inject DashboardDataService DataService
 
-@if (DataService.IsError)
+@if (_hasError)
 {
-    <ErrorPanel ErrorMessage="@DataService.ErrorMessage" />
-}
-else if (DataService.Data is not null)
-{
-    <div class="dashboard-root">
-        <div class="dashboard">
-            <Header Data="@DataService.Data" />
-            <Timeline TimelineData="@DataService.Data.Timeline" />
-            <Heatmap HeatmapData="@DataService.Data.Heatmap"
-                     Months="@DataService.Data.Months"
-                     CurrentMonth="@DataService.Data.CurrentMonth" />
+    <div class="error-panel">
+        <div class="error-content">
+            <div style="font-size: 48px;">⚠</div>
+            <h2>Dashboard data could not be loaded</h2>
+            <p class="error-message">@_errorMessage</p>
+            <p class="error-help">Check data.json for errors and restart the application.</p>
         </div>
     </div>
+}
+else if (_data is not null)
+{
+    <div class="dashboard">
+        @* Header Section *@
+        <div class="hdr">
+            <div>
+                <h1>
+                    @(_data.Project?.Name ?? "Executive Dashboard")
+                    @if (!string.IsNullOrEmpty(_data.Project?.Summary))
+                    {
+                        <span> </span>
+                    }
+                </h1>
+                <div class="sub">@(_data.Project?.Lead ?? "") · @(_data.CurrentMonth?.Month ?? "")</div>
+            </div>
+            <div class="legend">
+                <span class="legend-item"><span class="legend-diamond poc"></span> PoC Milestone</span>
+                <span class="legend-item"><span class="legend-diamond prod"></span> Production Release</span>
+                <span class="legend-item"><span class="legend-circle"></span> Checkpoint</span>
+                <span class="legend-item"><span class="legend-now"></span> Now</span>
+            </div>
+        </div>
+
+        @* Timeline Section *@
+        <div class="tl-area">
+            <div class="tl-labels">
+                @foreach (var (milestone, index) in _data.Milestones.Select((m, i) => (m, i)))
+                {
+                    <div class="tl-track-label">
+                        <span class="tl-track-id" style="color: @GetTrackColor(index)">M@(index + 1)</span>
+                        <span class="tl-track-name">@milestone.Title</span>
+                    </div>
+                }
+            </div>
+            <div class="tl-svg-box">
+                @* SVG timeline will be rendered by Timeline component from dependency PR #545 *@
+                <svg width="1560" height="185" overflow="visible">
+                    @* Month grid lines *@
+                    @for (int i = 0; i < 6; i++)
+                    {
+                        var x = i * 260;
+                        <line x1="@x" y1="0" x2="@x" y2="185" stroke="#bbb" stroke-opacity="0.4" />
+                    }
+                </svg>
+            </div>
+        </div>
+
+        @* Heatmap Section *@
+        <div class="hm-wrap">
+            <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+            <div class="hm-grid" style="grid-template-columns: 160px repeat(4, 1fr); grid-template-rows: 36px repeat(4, 1fr);">
+                @* Corner *@
+                <div class="hm-corner">STATUS</div>
+
+                @* Column headers — placeholder months *@
+                <div class="hm-col-hdr">Jan</div>
+                <div class="hm-col-hdr">Feb</div>
+                <div class="hm-col-hdr">Mar</div>
+                <div class="hm-col-hdr apr-hdr">Apr ★ Now</div>
+
+                @* Shipped row *@
+                <div class="hm-row-hdr ship-hdr">✅ Shipped</div>
+                @RenderShippedCells()
+
+                @* In Progress row *@
+                <div class="hm-row-hdr prog-hdr">🔄 In Progress</div>
+                @RenderInProgressCells()
+
+                @* Carryover row *@
+                <div class="hm-row-hdr carry-hdr">⏳ Carryover</div>
+                @RenderCarryoverCells()
+
+                @* Blockers row *@
+                <div class="hm-row-hdr block-hdr">🚫 Blockers</div>
+                @RenderBlockerCells()
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="error-panel">
+        <div class="error-content">
+            <div style="font-size: 48px;">⚠</div>
+            <h2>Dashboard data is not available</h2>
+            <p class="error-help">Check data.json for errors and restart the application.</p>
+        </div>
+    </div>
+}
+
+@code {
+    private DashboardData? _data;
+    private bool _hasError;
+    private string _errorMessage = string.Empty;
+
+    private static readonly string[] DefaultMonths = ["jan", "feb", "mar", "apr"];
+    private static readonly string[] TrackColors = ["#0078D4", "#00897B", "#546E7A", "#7B1FA2", "#C62828"];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _data = await DataService.LoadDataAsync();
+            if (!string.IsNullOrEmpty(_data?.ErrorMessage))
+            {
+                _hasError = true;
+                _errorMessage = _data.ErrorMessage;
+            }
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _errorMessage = ex.Message;
+        }
+    }
+
+    private static string GetTrackColor(int index) =>
+        TrackColors[index % TrackColors.Length];
+
+    private RenderFragment RenderShippedCells() => builder =>
+    {
+        RenderCategoryRow(builder, _data?.Shipped, "ship-cell");
+    };
+
+    private RenderFragment RenderInProgressCells() => builder =>
+    {
+        RenderCategoryRow(builder, _data?.InProgress, "prog-cell");
+    };
+
+    private RenderFragment RenderCarryoverCells() => builder =>
+    {
+        RenderCategoryRow(builder, _data?.CarriedOver, "carry-cell");
+    };
+
+    private RenderFragment RenderBlockerCells() => builder =>
+    {
+        RenderEmptyRow(builder, "block-cell");
+    };
+
+    private void RenderCategoryRow(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, List<WorkItem>? items, string cssPrefix)
+    {
+        foreach (var month in DefaultMonths)
+        {
+            var isApr = month == "apr";
+            var cellClass = isApr ? $"hm-cell {cssPrefix} apr" : $"hm-cell {cssPrefix}";
+
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(1, "class", cellClass);
+
+            if (items is not null && items.Count > 0)
+            {
+                foreach (var item in items)
+                {
+                    builder.OpenElement(2, "div");
+                    builder.AddAttribute(3, "class", "it");
+                    builder.AddContent(4, item.Title);
+                    builder.CloseElement();
+                }
+            }
+            else
+            {
+                builder.OpenElement(2, "div");
+                builder.AddAttribute(3, "class", "hm-empty");
+                builder.AddContent(4, "—");
+                builder.CloseElement();
+            }
+
+            builder.CloseElement();
+        }
+    }
+
+    private void RenderEmptyRow(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, string cssPrefix)
+    {
+        foreach (var month in DefaultMonths)
+        {
+            var isApr = month == "apr";
+            var cellClass = isApr ? $"hm-cell {cssPrefix} apr" : $"hm-cell {cssPrefix}";
+
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(1, "class", cellClass);
+            builder.OpenElement(2, "div");
+            builder.AddAttribute(3, "class", "hm-empty");
+            builder.AddContent(4, "—");
+            builder.CloseElement();
+            builder.CloseElement();
+        }
+    }
 }
