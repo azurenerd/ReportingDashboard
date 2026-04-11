@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Agents\\principalengineer-22429187195c4afd8617929dc8601ae9\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
+      "projectUniqueName": "C:\\Agents\\principalengineer-acbf97d8174145068c0702874de7716c\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
       "projectName": "ReportingDashboard",
-      "projectPath": "C:\\Agents\\principalengineer-22429187195c4afd8617929dc8601ae9\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
+      "projectPath": "C:\\Agents\\principalengineer-acbf97d8174145068c0702874de7716c\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
       "packagesPath": "C:\\Users\\behumphr\\.nuget\\packages\\",
-      "outputPath": "C:\\Agents\\principalengineer-22429187195c4afd8617929dc8601ae9\\ReportingDashboard\\src\\ReportingDashboard\\obj\\",
+      "outputPath": "C:\\Agents\\principalengineer-acbf97d8174145068c0702874de7716c\\ReportingDashboard\\src\\ReportingDashboard\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

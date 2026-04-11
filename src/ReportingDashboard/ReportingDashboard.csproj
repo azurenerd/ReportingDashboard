@@ -1,10 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>ReportingDashboard</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
+  <!-- Exclude duplicate component stubs that conflict with Components/Sections/ versions -->
+  <ItemGroup>
+    <Content Remove="Components\Heatmap.razor" />
+    <Content Remove="Components\HeatmapRow.razor" />
+    <Content Remove="Components\HeatmapCell.razor" />
+  </ItemGroup>
 </Project>
