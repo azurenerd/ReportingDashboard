@@ -1,4 +1,5 @@
 @using ReportingDashboard.Models
+@using System.Globalization
 
 <div class="tl-area">
     @* Left sidebar: track labels (230px fixed) *@
@@ -17,7 +18,7 @@
 
     @* Right SVG area *@
     <div class="tl-svg-box">
-        <svg width="@SvgWidth" height="@SvgHeight" overflow="visible"
+        <svg width="@F(SvgWidth)" height="@F(SvgHeight)" overflow="visible"
              xmlns="http://www.w3.org/2000/svg"
              style="font-family: 'Segoe UI', Arial, sans-serif;">
             <defs>
@@ -26,7 +27,16 @@
                 </filter>
             </defs>
 
-            @* Month grid lines, track lines, milestones, and NOW line will be rendered in subsequent steps *@
+            @* Month grid lines at 260px intervals *@
+            @foreach (var month in GetMonthGridPositions())
+            {
+                <line x1="@F(month.X)" y1="0" x2="@F(month.X)" y2="@F(SvgHeight)"
+                      stroke="#bbb" stroke-opacity="0.4" />
+                <text x="@F(month.X + 5)" y="14"
+                      fill="#666" font-size="11" font-weight="600">@month.Label</text>
+            }
+
+            @* Track lines, milestones, and NOW line will be rendered in subsequent steps *@
         </svg>
     </div>
 </div>
@@ -49,7 +59,6 @@
 
     /// <summary>
     /// Converts a date to an X-position via linear interpolation across the SVG width.
-    /// x = ((date - startDate) / (endDate - startDate)) * svgWidth
     /// </summary>
     private double DateToX(DateTime date)
     {
@@ -61,7 +70,6 @@
 
     /// <summary>
     /// Calculates the Y-position for a track based on its index and total track count.
-    /// Distributes tracks evenly with ~56px spacing.
     /// </summary>
     private double TrackToY(int trackIndex, int totalTracks)
     {
@@ -72,10 +80,48 @@
 
     /// <summary>
     /// Generates the SVG polygon points string for a diamond shape centered at (cx, cy).
-    /// Returns "cx,cy-size cx+size,cy cx,cy+size cx-size,cy"
     /// </summary>
     private string DiamondPoints(double cx, double cy, double size = 11)
     {
-        return $"{cx},{cy - size} {cx + size},{cy} {cx},{cy + size} {cx - size},{cy}";
+        return $"{F(cx)},{F(cy - size)} {F(cx + size)},{F(cy)} {F(cx)},{F(cy + size)} {F(cx - size)},{F(cy)}";
+    }
+
+    /// <summary>
+    /// Calculates month grid line positions at 260px intervals with labels derived from the date range.
+    /// </summary>
+    private List<MonthGridLine> GetMonthGridPositions()
+    {
+        var lines = new List<MonthGridLine>();
+        var current = new DateTime(StartDate.Year, StartDate.Month, 1);
+        var end = EndDate;
+        int index = 0;
+
+        while (current <= end)
+        {
+            double x = index * 260.0;
+            if (x > SvgWidth) break;
+
+            lines.Add(new MonthGridLine
+            {
+                X = x,
+                Label = current.ToString("MMM", CultureInfo.InvariantCulture)
+            });
+
+            current = current.AddMonths(1);
+            index++;
+        }
+
+        return lines;
+    }
+
+    /// <summary>
+    /// Format a double for SVG attribute output (invariant culture, no trailing zeros).
+    /// </summary>
+    private static string F(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private record MonthGridLine
+    {
+        public double X { get; init; }
+        public string Label { get; init; } = string.Empty;
     }
 }
