@@ -53,7 +53,79 @@ body {
 h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
 h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: var(--color-text); }
 
-/* Project Header */
+/* ===== Pixel-Precise Header (`.hdr`) ===== */
+.hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 44px 10px;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.hdr h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.sub {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+    font-weight: 400;
+}
+
+/* ===== Timeline Legend ===== */
+.legend {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    font-size: 12px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-diamond {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    margin: 2px;
+}
+
+.legend-diamond.poc {
+    background: #F4B400;
+}
+
+.legend-diamond.prod {
+    background: #34A853;
+}
+
+.legend-circle {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #999;
+    flex-shrink: 0;
+}
+
+.legend-bar {
+    display: inline-block;
+    width: 2px;
+    height: 14px;
+    background: #EA4335;
+    flex-shrink: 0;
+}
+
+/* ===== Project Header (v1 scaffolding) ===== */
 .project-header { border-left: 4px solid var(--color-in-progress); }
 .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
 .header-meta { display: flex; gap: 12px; align-items: center; }
@@ -168,52 +240,4 @@ h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: var(--color-
     body { background: white; }
     .dashboard-container { max-width: 100%; padding: 0; box-shadow: none; }
     .section { break-inside: avoid; border: 1px solid #ccc; }
-}
-
-/* ===== Timeline Legend ===== */
-.legend {
-    display: flex;
-    gap: 22px;
-    align-items: center;
-    font-size: 12px;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.legend-diamond {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    transform: rotate(45deg);
-    flex-shrink: 0;
-    margin: 2px;
-}
-
-.legend-diamond.poc {
-    background: #F4B400;
-}
-
-.legend-diamond.prod {
-    background: #34A853;
-}
-
-.legend-circle {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #999;
-    flex-shrink: 0;
-}
-
-.legend-bar {
-    display: inline-block;
-    width: 2px;
-    height: 14px;
-    background: #EA4335;
-    flex-shrink: 0;
 }

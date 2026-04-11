@@ -1,34 +1,35 @@
 <div class="hdr">
     <div>
-        <h1>
-            @(Data?.Title ?? "Untitled Project")
-            @if (!string.IsNullOrEmpty(Data?.BacklogLink))
+        <h1>@Data.Title
+            @if (!string.IsNullOrEmpty(Data.BacklogLink))
             {
-                <a href="@Data.BacklogLink" target="_blank" rel="noopener noreferrer">📋 ADO Backlog</a>
+                <a href="@Data.BacklogLink" target="_blank" rel="noopener noreferrer"
+                   style="font-size:14px; color:#0078D4; text-decoration:none; margin-left:12px; font-weight:400;">&#x1F517; ADO Backlog</a>
             }
         </h1>
-        <div class="sub">@(Data?.Subtitle ?? "")</div>
+        <div class="sub">@Data.Subtitle</div>
     </div>
     <div class="legend">
         <span class="legend-item">
-            <span class="legend-diamond-poc"></span> PoC Milestone
+            <span class="legend-diamond poc"></span>
+            PoC Milestone
         </span>
         <span class="legend-item">
-            <span class="legend-diamond-prod"></span> Production Release
+            <span class="legend-diamond prod"></span>
+            Production Release
         </span>
         <span class="legend-item">
-            <span class="legend-checkpoint"></span> Checkpoint
+            <span class="legend-circle"></span>
+            Checkpoint
         </span>
         <span class="legend-item">
-            <span class="legend-now"></span> Now@(NowLabel)
+            <span class="legend-bar"></span>
+            Now (@Data.CurrentMonthLabel)
         </span>
     </div>
 </div>
 
 @code {
-    [Parameter]
-    public DashboardData? Data { get; set; }
-
-    private string NowLabel =>
-        string.IsNullOrEmpty(Data?.CurrentMonth) ? "" : $" ({Data.CurrentMonth})";
+    [Parameter, EditorRequired]
+    public DashboardData Data { get; set; } = default!;
 }
