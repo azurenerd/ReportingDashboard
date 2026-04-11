@@ -1,19 +1,23 @@
-<div class="hm-cell @Category-cell @(IsCurrent ? Category + "-cur" : "")">
-    @if (Items is not null && Items.Count > 0)
+@{
+    var cellClass = $"hm-cell {CssPrefix}-cell{(IsCurrentMonth ? " apr" : "")}";
+}
+
+<div class="@cellClass">
+    @if (Items.Count > 0)
     {
         @foreach (var item in Items)
         {
-            <div class="it @Category-dot">@item</div>
+            <div class="it">@item</div>
         }
     }
     else
     {
-        <span class="empty-cell">&ndash;</span>
+        <div class="empty-cell">&ndash;</div>
     }
 </div>
 
 @code {
-    [Parameter] public string Category { get; set; } = "";
-    [Parameter] public List<string>? Items { get; set; }
-    [Parameter] public bool IsCurrent { get; set; }
+    [Parameter] public List<string> Items { get; set; } = new();
+    [Parameter] public string CssPrefix { get; set; } = "";
+    [Parameter] public bool IsCurrentMonth { get; set; }
 }
