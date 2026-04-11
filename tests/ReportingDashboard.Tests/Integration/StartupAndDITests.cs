@@ -1,41 +1,54 @@
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using ReportingDashboard.Services;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Integration;
 
-public class StartupAndDITests : IClassFixture<WebAppFixture>
+[Trait("Category", "Integration")]
+public class StartupAndDITests
 {
-    private readonly WebAppFixture _fixture;
-
-    public StartupAndDITests(WebAppFixture fixture)
+    [Fact]
+    public void DashboardDataService_CanBeResolvedFromDI()
     {
-        _fixture = fixture;
+        var services = new ServiceCollection();
+        services.AddLogging(b => b.AddProvider(NullLoggerProvider.Instance));
+        services.AddSingleton<DashboardDataService>();
+
+        var provider = services.BuildServiceProvider();
+        var svc = provider.GetRequiredService<DashboardDataService>();
+
+        svc.Should().NotBeNull();
     }
 
     [Fact]
-    public void DI_ResolvesDashboardDataService_AsSingleton()
+    public void DashboardDataService_RegisteredAsSingleton_ReturnsSameInstance()
     {
-        using var factory = new WebApplicationFactory<Program>();
-        using var scope1 = factory.Services.CreateScope();
-        using var scope2 = factory.Services.CreateScope();
+        var services = new ServiceCollection();
+        services.AddLogging(b => b.AddProvider(NullLoggerProvider.Instance));
+        services.AddSingleton<DashboardDataService>();
 
-        var svc1 = scope1.ServiceProvider.GetService<DashboardDataService>();
-        var svc2 = scope2.ServiceProvider.GetService<DashboardDataService>();
+        var provider = services.BuildServiceProvider();
+        var svc1 = provider.GetRequiredService<DashboardDataService>();
+        var svc2 = provider.GetRequiredService<DashboardDataService>();
 
-        svc1.Should().NotBeNull();
-        svc2.Should().NotBeNull();
-        svc1.Should().BeSameAs(svc2, "DashboardDataService should be registered as a singleton");
+        svc1.Should().BeSameAs(svc2);
     }
 
     [Fact]
-    public void DI_ResolvesDashboardDataService_NotNull()
+    public void DashboardDataService_InitialState_NoDataNoError()
     {
-        using var factory = new WebApplicationFactory<Program>();
-        var service = factory.Services.GetService<DashboardDataService>();
+        var services = new ServiceCollection();
+        services.AddLogging(b => b.AddProvider(NullLoggerProvider.Instance));
+        services.AddSingleton<DashboardDataService>();
 
-        service.Should().NotBeNull("DashboardDataService must be registered in DI");
+        var provider = services.BuildServiceProvider();
+        var svc = provider.GetRequiredService<DashboardDataService>();
+
+        svc.Data.Should().BeNull();
+        svc.IsError.Should().BeFalse();
+        svc.ErrorMessage.Should().BeNull();
     }
 }

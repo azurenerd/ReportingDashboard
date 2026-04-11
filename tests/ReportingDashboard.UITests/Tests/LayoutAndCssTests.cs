@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Microsoft.Playwright;
 using ReportingDashboard.UITests.Infrastructure;
 using ReportingDashboard.UITests.PageObjects;
@@ -6,49 +5,76 @@ using Xunit;
 
 namespace ReportingDashboard.UITests.Tests;
 
-[Collection(PlaywrightCollection.Name)]
+[Collection("Playwright")]
+[Trait("Category", "UI")]
 public class LayoutAndCssTests
 {
     private readonly PlaywrightFixture _fixture;
 
-    public LayoutAndCssTests(PlaywrightFixture fixture)
-    {
-        _fixture = fixture;
-    }
+    public LayoutAndCssTests(PlaywrightFixture fixture) => _fixture = fixture;
 
-    [Fact(Skip = "Requires running server")]
-    public async Task Dashboard_HasFixedMaxWidth()
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task Dashboard_FitsWithin1920x1080()
     {
-        var page = await _fixture.CreatePageAsync();
-        var dashboard = new DashboardPage(page, _fixture.BaseUrl);
+        var page = await _fixture.NewPageAsync();
+        var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
+
         await dashboard.NavigateAsync();
 
-        var container = dashboard.DashboardContainer;
-        var box = await container.BoundingBoxAsync();
-
-        box.Should().NotBeNull();
-        box!.Width.Should().BeLessOrEqualTo(1200 + 48); // max-width + padding
+        var hasHScroll = await page.EvaluateAsync<bool>(
+            "() => document.documentElement.scrollWidth > document.documentElement.clientWidth");
+        Assert.False(hasHScroll, "No horizontal scrollbar expected at 1920px");
     }
 
-    [Fact(Skip = "Requires running server")]
-    public async Task Dashboard_CssLoaded_HasCorrectBackground()
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task Header_HasFlexDisplay()
     {
-        var page = await _fixture.CreatePageAsync();
-        await page.GotoAsync(_fixture.BaseUrl, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+        var page = await _fixture.NewPageAsync();
+        var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
 
-        var bgColor = await page.EvalOnSelectorAsync<string>("body", "el => getComputedStyle(el).backgroundColor");
+        await dashboard.NavigateAsync();
 
-        bgColor.Should().NotBeNullOrEmpty();
+        var display = await dashboard.Header.EvaluateAsync<string>(
+            "el => getComputedStyle(el).display");
+        Assert.Equal("flex", display);
     }
 
-    [Fact(Skip = "Requires running server")]
-    public async Task Dashboard_ViewportIs1920x1080()
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task Header_HasBottomBorder()
     {
-        var page = await _fixture.CreatePageAsync();
-        var viewport = page.ViewportSize;
+        var page = await _fixture.NewPageAsync();
+        var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
 
-        viewport.Should().NotBeNull();
-        viewport!.Width.Should().Be(1920);
-        viewport.Height.Should().Be(1080);
+        await dashboard.NavigateAsync();
+
+        var borderStyle = await dashboard.Header.EvaluateAsync<string>(
+            "el => getComputedStyle(el).borderBottomStyle");
+        Assert.Equal("solid", borderStyle);
+    }
+
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task Heatmap_GridUsesCorrectColumnTemplate()
+    {
+        var page = await _fixture.NewPageAsync();
+        var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
+
+        await dashboard.NavigateAsync();
+
+        var style = await dashboard.HeatmapGrid.GetAttributeAsync("style") ?? "";
+        Assert.Contains("160px", style);
+        Assert.Contains("1fr", style);
+    }
+
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task Timeline_HasFafafaBackground()
+    {
+        var page = await _fixture.NewPageAsync();
+        var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
+
+        await dashboard.NavigateAsync();
+
+        var bg = await dashboard.TimelineArea.EvaluateAsync<string>(
+            "el => getComputedStyle(el).backgroundColor");
+        Assert.Contains("250", bg);
     }
 }

@@ -1,52 +1,58 @@
-using FluentAssertions;
+using Microsoft.Playwright;
 using ReportingDashboard.UITests.Infrastructure;
+using ReportingDashboard.UITests.PageObjects;
 using Xunit;
 
 namespace ReportingDashboard.UITests.Tests;
 
-[Collection(PlaywrightCollection.Name)]
+[Collection("Playwright")]
+[Trait("Category", "UI")]
 public class StaticAssetTests
 {
     private readonly PlaywrightFixture _fixture;
 
-    public StaticAssetTests(PlaywrightFixture fixture)
-    {
-        _fixture = fixture;
-    }
+    public StaticAssetTests(PlaywrightFixture fixture) => _fixture = fixture;
 
-    [Fact(Skip = "Requires running server")]
-    public async Task CssDashboard_IsAccessible()
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task CssFile_IsServed()
     {
-        var page = await _fixture.CreatePageAsync();
+        var page = await _fixture.NewPageAsync();
         var response = await page.GotoAsync($"{_fixture.BaseUrl}/css/dashboard.css");
 
-        response.Should().NotBeNull();
-        response!.Status.Should().Be(200);
+        Assert.NotNull(response);
+        Assert.True(response!.Ok, "dashboard.css should be served as a static file");
     }
 
-    [Fact(Skip = "Requires running server")]
-    public async Task CssDashboard_ContainsRequiredClasses()
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task DataJson_IsServed()
     {
-        var page = await _fixture.CreatePageAsync();
-        var response = await page.GotoAsync($"{_fixture.BaseUrl}/css/dashboard.css");
-        var content = await response!.TextAsync();
+        var page = await _fixture.NewPageAsync();
+        var response = await page.GotoAsync($"{_fixture.BaseUrl}/data.json");
 
-        content.Should().Contain(".dashboard-container");
-        content.Should().Contain(".error-banner");
-        content.Should().Contain(".section");
-        content.Should().Contain(".status-badge");
-        content.Should().Contain(".timeline-track");
-        content.Should().Contain(".work-item");
-        content.Should().Contain(".metric-card");
+        Assert.NotNull(response);
+        Assert.True(response!.Ok, "data.json should be served as a static file");
     }
 
-    [Fact(Skip = "Requires running server")]
-    public async Task BlazorServerJs_IsAccessible()
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task NoConsoleErrors_OnDashboardLoad()
     {
-        var page = await _fixture.CreatePageAsync();
-        var response = await page.GotoAsync($"{_fixture.BaseUrl}/_framework/blazor.server.js");
+        var page = await _fixture.NewPageAsync();
+        var consoleErrors = new List<string>();
 
-        response.Should().NotBeNull();
-        response!.Status.Should().Be(200);
+        page.Console += (_, msg) =>
+        {
+            if (msg.Type == "error")
+                consoleErrors.Add(msg.Text);
+        };
+
+        var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
+        await dashboard.NavigateAsync();
+        await page.WaitForTimeoutAsync(2000);
+
+        var realErrors = consoleErrors
+            .Where(e => !e.Contains("WebSocket") && !e.Contains("negotiate"))
+            .ToList();
+
+        Assert.Empty(realErrors);
     }
 }
