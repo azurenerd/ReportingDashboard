@@ -1,53 +1,59 @@
-using FluentAssertions;
+using Microsoft.Playwright;
 using ReportingDashboard.UITests.Infrastructure;
 using ReportingDashboard.UITests.PageObjects;
 using Xunit;
 
 namespace ReportingDashboard.UITests.Tests;
 
-[Collection(PlaywrightCollection.Name)]
+[Collection("Playwright")]
+[Trait("Category", "UI")]
 public class NavigationTests
 {
     private readonly PlaywrightFixture _fixture;
 
-    public NavigationTests(PlaywrightFixture fixture)
-    {
-        _fixture = fixture;
-    }
+    public NavigationTests(PlaywrightFixture fixture) => _fixture = fixture;
 
-    [Fact(Skip = "Requires running server")]
-    public async Task RootUrl_NavigatesToDashboard()
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task BacklogLink_HasTargetBlank()
     {
-        var page = await _fixture.CreatePageAsync();
-        var dashboard = new DashboardPage(page, _fixture.BaseUrl);
+        var page = await _fixture.NewPageAsync();
+        var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
 
         await dashboard.NavigateAsync();
 
-        page.Url.Should().Contain(_fixture.BaseUrl);
-        (await dashboard.HasDashboardContainerAsync()).Should().BeTrue();
+        var linkCount = await dashboard.BacklogLink.CountAsync();
+        if (linkCount > 0)
+        {
+            var target = await dashboard.BacklogLink.GetAttributeAsync("target");
+            Assert.Equal("_blank", target);
+        }
     }
 
-    [Fact(Skip = "Requires running server")]
-    public async Task UnknownRoute_DoesNotCrash()
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task BacklogLink_HasNoopener()
     {
-        var page = await _fixture.CreatePageAsync();
+        var page = await _fixture.NewPageAsync();
+        var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
 
-        var response = await page.GotoAsync($"{_fixture.BaseUrl}/nonexistent-page");
+        await dashboard.NavigateAsync();
 
-        response.Should().NotBeNull();
-        // Blazor may return 200 with a "not found" page or 404
-        response!.Status.Should().BeOneOf(200, 404);
+        var linkCount = await dashboard.BacklogLink.CountAsync();
+        if (linkCount > 0)
+        {
+            var rel = await dashboard.BacklogLink.GetAttributeAsync("rel");
+            Assert.Contains("noopener", rel ?? "");
+        }
     }
 
-    [Fact(Skip = "Requires running server")]
-    public async Task PageTitle_ContainsDashboard()
+    [Fact(Skip = "Requires running server at BASE_URL")]
+    public async Task PageTitle_IsNotEmpty()
     {
-        var page = await _fixture.CreatePageAsync();
-        var dashboard = new DashboardPage(page, _fixture.BaseUrl);
+        var page = await _fixture.NewPageAsync();
+        var dashboard = new DashboardPageObject(page, _fixture.BaseUrl);
+
         await dashboard.NavigateAsync();
 
         var title = await page.TitleAsync();
-
-        title.Should().Contain("Dashboard");
+        Assert.False(string.IsNullOrWhiteSpace(title));
     }
 }

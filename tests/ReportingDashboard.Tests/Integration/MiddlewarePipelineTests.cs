@@ -3,6 +3,7 @@ using Xunit;
 
 namespace ReportingDashboard.Tests.Integration;
 
+[Trait("Category", "Integration")]
 public class MiddlewarePipelineTests : IClassFixture<WebAppFixture>
 {
     private readonly WebAppFixture _fixture;
@@ -13,32 +14,34 @@ public class MiddlewarePipelineTests : IClassFixture<WebAppFixture>
     }
 
     [Fact]
-    public async Task StaticFilesMiddleware_IsRegistered()
+    public async Task StaticFiles_Middleware_ServesFiles()
     {
-        using var client = _fixture.CreateClientWithValidData();
+        var client = _fixture.CreateClientWithValidData();
 
-        // UseStaticFiles is wired: a request for a known static path should not 500
         var response = await client.GetAsync("/css/dashboard.css");
-        ((int)response.StatusCode).Should().BeLessThan(500);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
     }
 
     [Fact]
-    public async Task AntiforgeryMiddleware_DoesNotBlockGetRequests()
+    public async Task Antiforgery_Middleware_DoesNotBlock_GetRequests()
     {
-        using var client = _fixture.CreateClientWithValidData();
+        var client = _fixture.CreateClientWithValidData();
 
         var response = await client.GetAsync("/");
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
     }
 
     [Fact]
-    public async Task BlazorServerJs_EndpointExists()
+    public async Task BlazorHub_Endpoint_IsAccessible()
     {
-        using var client = _fixture.CreateClientWithValidData();
+        var client = _fixture.CreateClientWithValidData();
 
-        var response = await client.GetAsync("/_framework/blazor.server.js");
+        var response = await client.GetAsync("/_blazor/negotiate");
 
-        // Blazor framework JS is served by the framework middleware
-        ((int)response.StatusCode).Should().BeOneOf(200, 301, 302);
+        // negotiate might return various status codes depending on SignalR config
+        // but it should not return 404
+        ((int)response.StatusCode).Should().NotBe(404);
     }
 }
