@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Agents\\principalengineer-acbf97d8174145068c0702874de7716c\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj": {}
+    "C:\\Agents\\testengineer-2113867dbcfb414ab1c4e00efc641464\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj": {}
   },
   "projects": {
-    "C:\\Agents\\principalengineer-acbf97d8174145068c0702874de7716c\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj": {
+    "C:\\Agents\\testengineer-2113867dbcfb414ab1c4e00efc641464\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Agents\\principalengineer-acbf97d8174145068c0702874de7716c\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
+        "projectUniqueName": "C:\\Agents\\testengineer-2113867dbcfb414ab1c4e00efc641464\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
         "projectName": "ReportingDashboard",
-        "projectPath": "C:\\Agents\\principalengineer-acbf97d8174145068c0702874de7716c\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
+        "projectPath": "C:\\Agents\\testengineer-2113867dbcfb414ab1c4e00efc641464\\ReportingDashboard\\src\\ReportingDashboard\\ReportingDashboard.csproj",
         "packagesPath": "C:\\Users\\behumphr\\.nuget\\packages\\",
-        "outputPath": "C:\\Agents\\principalengineer-acbf97d8174145068c0702874de7716c\\ReportingDashboard\\src\\ReportingDashboard\\obj\\",
+        "outputPath": "C:\\Agents\\testengineer-2113867dbcfb414ab1c4e00efc641464\\ReportingDashboard\\src\\ReportingDashboard\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
