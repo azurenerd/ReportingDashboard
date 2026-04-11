@@ -1,4 +1,4 @@
-<div class="hm-cell @CssPrefix-cell @(IsCurrentMonth ? "apr" : "")">
+<div class="@CellClass">
     @if (Items is not null && Items.Count > 0)
     {
         @foreach (var item in Items)
@@ -8,12 +8,26 @@
     }
     else
     {
-        <div style="color:#AAA; text-align:center;">-</div>
+        <div style="color:#AAA;text-align:center">-</div>
     }
 </div>
 
 @code {
-    [Parameter] public List<string> Items { get; set; } = new();
-    [Parameter] public string CssPrefix { get; set; } = string.Empty;
-    [Parameter] public bool IsCurrentMonth { get; set; }
+    [Parameter]
+    public List<string>? Items { get; set; }
+
+    [Parameter]
+    public string CssPrefix { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool IsCurrentMonth { get; set; }
+
+    private string CellClass
+    {
+        get
+        {
+            var baseClass = $"hm-cell {CssPrefix}-cell";
+            return IsCurrentMonth ? $"{baseClass} apr" : baseClass;
+        }
+    }
 }
