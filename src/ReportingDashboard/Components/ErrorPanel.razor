@@ -1,18 +1,15 @@
-@namespace ReportingDashboard.Components
-
 <div class="error-panel">
-    <div style="text-align: center;">
-        <div class="error-icon">⚠</div>
-        <div class="error-title">Dashboard data could not be loaded</div>
-        @if (!string.IsNullOrEmpty(ErrorMessage))
-        {
-            <div class="error-details">@ErrorMessage</div>
-        }
-        <div class="error-help">Check data.json for errors and restart the application.</div>
-    </div>
+    <div class="error-icon">⚠️</div>
+    <h2 class="error-title">Dashboard Data Error</h2>
+    <p class="error-detail">@ErrorMessage</p>
+    <p class="error-help">
+        Check that <code>wwwroot/data.json</code> exists, contains valid JSON,
+        and includes all required fields (title, subtitle, backlogLink, currentMonth, months, timeline, heatmap).
+        Then restart the application with <code>dotnet run</code>.
+    </p>
 </div>
 
 @code {
     [Parameter]
-    public string ErrorMessage { get; set; }
+    public string ErrorMessage { get; set; } = "";
 }

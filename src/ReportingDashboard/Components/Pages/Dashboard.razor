@@ -1,5 +1,159 @@
 @page "/"
+@inject DashboardDataService DataService
+@rendermode RenderMode.InteractiveServer
 
-<div>
-    <p>Dashboard placeholder — scaffold complete.</p>
-</div>
+@if (DataService.IsError)
+{
+    <ErrorPanel ErrorMessage="@DataService.ErrorMessage" />
+}
+else if (DataService.Data is not null)
+{
+    var data = DataService.Data;
+
+    <div class="hdr">
+        <div>
+            <h1>
+                @data.Title
+                @if (!string.IsNullOrEmpty(data.BacklogLink))
+                {
+                    <a href="@data.BacklogLink" target="_blank" rel="noopener">&#x1F4CB; ADO Backlog</a>
+                }
+            </h1>
+            <div class="sub">@data.Subtitle</div>
+        </div>
+        <div class="legend">
+            <span class="legend-item">
+                <span class="lg-diamond lg-poc"></span> PoC Milestone
+            </span>
+            <span class="legend-item">
+                <span class="lg-diamond lg-prod"></span> Production Release
+            </span>
+            <span class="legend-item">
+                <span class="lg-circle"></span> Checkpoint
+            </span>
+            <span class="legend-item">
+                <span class="lg-now"></span> Now (@data.CurrentMonth)
+            </span>
+        </div>
+    </div>
+
+    <div class="tl-area">
+        <div class="tl-labels">
+            @foreach (var track in data.Timeline.Tracks)
+            {
+                <div class="tl-track-label">
+                    <span class="tl-track-id" style="color: @track.Color;">@track.Id</span>
+                    <span class="tl-track-name">@track.Label</span>
+                </div>
+            }
+        </div>
+        <div class="tl-svg-box">
+            <!-- SVG timeline will be rendered in a subsequent step -->
+            <p style="color:#999; font-size:12px; padding:16px;">Timeline placeholder — @data.Timeline.Tracks.Count track(s) loaded</p>
+        </div>
+    </div>
+
+    <div class="hm-wrap">
+        <div class="hm-title">Monthly Execution Heatmap &mdash; Shipped &bull; In Progress &bull; Carryover &bull; Blockers</div>
+        <div class="hm-grid" style="grid-template-columns: 160px repeat(@data.Months.Count, 1fr); grid-template-rows: 36px repeat(4, 1fr);">
+
+            <div class="hm-corner">STATUS</div>
+
+            @foreach (var month in data.Months)
+            {
+                var isCurrent = string.Equals(month, data.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                <div class="hm-col-hdr @(isCurrent ? "cur-month-hdr" : "")">
+                    @month @(isCurrent ? "▸ Now" : "")
+                </div>
+            }
+
+            @* Shipped row *@
+            <div class="hm-row-hdr ship-hdr">✅ SHIPPED</div>
+            @foreach (var month in data.Months)
+            {
+                var isCurrent = string.Equals(month, data.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                var items = data.Heatmap.Shipped.GetValueOrDefault(month);
+                <div class="hm-cell ship-cell @(isCurrent ? "ship-cur" : "")">
+                    @if (items is not null && items.Count > 0)
+                    {
+                        @foreach (var item in items)
+                        {
+                            <div class="it ship-it">@item</div>
+                        }
+                    }
+                    else
+                    {
+                        <span class="empty-dash">&ndash;</span>
+                    }
+                </div>
+            }
+
+            @* In Progress row *@
+            <div class="hm-row-hdr prog-hdr">🔵 IN PROGRESS</div>
+            @foreach (var month in data.Months)
+            {
+                var isCurrent = string.Equals(month, data.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                var items = data.Heatmap.InProgress.GetValueOrDefault(month);
+                <div class="hm-cell prog-cell @(isCurrent ? "prog-cur" : "")">
+                    @if (items is not null && items.Count > 0)
+                    {
+                        @foreach (var item in items)
+                        {
+                            <div class="it prog-it">@item</div>
+                        }
+                    }
+                    else
+                    {
+                        <span class="empty-dash">&ndash;</span>
+                    }
+                </div>
+            }
+
+            @* Carryover row *@
+            <div class="hm-row-hdr carry-hdr">🟡 CARRYOVER</div>
+            @foreach (var month in data.Months)
+            {
+                var isCurrent = string.Equals(month, data.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                var items = data.Heatmap.Carryover.GetValueOrDefault(month);
+                <div class="hm-cell carry-cell @(isCurrent ? "carry-cur" : "")">
+                    @if (items is not null && items.Count > 0)
+                    {
+                        @foreach (var item in items)
+                        {
+                            <div class="it carry-it">@item</div>
+                        }
+                    }
+                    else
+                    {
+                        <span class="empty-dash">&ndash;</span>
+                    }
+                </div>
+            }
+
+            @* Blockers row *@
+            <div class="hm-row-hdr block-hdr">🔴 BLOCKERS</div>
+            @foreach (var month in data.Months)
+            {
+                var isCurrent = string.Equals(month, data.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                var items = data.Heatmap.Blockers.GetValueOrDefault(month);
+                <div class="hm-cell block-cell @(isCurrent ? "block-cur" : "")">
+                    @if (items is not null && items.Count > 0)
+                    {
+                        @foreach (var item in items)
+                        {
+                            <div class="it block-it">@item</div>
+                        }
+                    }
+                    else
+                    {
+                        <span class="empty-dash">&ndash;</span>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <p style="text-align:center; padding:40px; color:#999;">Loading dashboard data&hellip;</p>
+}
