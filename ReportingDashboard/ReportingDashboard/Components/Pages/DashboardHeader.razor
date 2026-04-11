@@ -1,0 +1,9 @@
+@* TODO: Implement header with title, subtitle, backlog link, and legend (T2) *@
+<div class="hdr">
+    <div><h1>@Project.Title</h1></div>
+</div>
+
+@code {
+    [Parameter] public required ProjectInfo Project { get; set; }
+    [Parameter] public required string CurrentMonth { get; set; }
+}

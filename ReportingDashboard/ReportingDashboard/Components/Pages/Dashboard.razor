@@ -1,0 +1,29 @@
+@page "/"
+@inject DashboardDataService DataService
+
+@if (error is not null)
+{
+    <div style="display:flex;align-items:center;justify-content:center;flex:1;padding:40px;">
+        <div style="max-width:600px;text-align:center;font-size:18px;color:#EA4335;line-height:1.6;">
+            @error
+        </div>
+    </div>
+}
+else if (data is not null)
+{
+    <DashboardHeader Project="@data.Project" CurrentMonth="@data.Project.CurrentMonth" />
+    <TimelineSection Timeline="@data.Timeline" Tracks="@data.Tracks" />
+    <HeatmapSection Heatmap="@data.Heatmap" CurrentMonth="@data.Project.CurrentMonth" />
+}
+
+@code {
+    private DashboardData? data;
+    private string? error;
+
+    protected override void OnInitialized()
+    {
+        var result = DataService.Load();
+        data = result.Data;
+        error = result.Error;
+    }
+}

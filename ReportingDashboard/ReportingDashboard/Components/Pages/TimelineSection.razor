@@ -1,0 +1,7 @@
+@* TODO: Implement SVG timeline with track lanes and milestones (T3) *@
+<div class="tl-area"></div>
+
+@code {
+    [Parameter] public required TimelineConfig Timeline { get; set; }
+    [Parameter] public required List<MilestoneTrack> Tracks { get; set; }
+}
