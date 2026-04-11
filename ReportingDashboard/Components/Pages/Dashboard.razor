@@ -1,0 +1,30 @@
+@page "/"
+@inject DashboardDataService DataService
+
+@if (_error is not null)
+{
+    <div class="dashboard-error">
+        <div class="dashboard-error-content">
+            <h2>⚠ Dashboard Error</h2>
+            <p>@_error</p>
+        </div>
+    </div>
+}
+else
+{
+    <!-- DashboardHeader will render here -->
+    <!-- TimelineSection will render here -->
+    <!-- HeatmapSection will render here -->
+}
+
+@code {
+    private DashboardData? _data;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        var (data, error) = DataService.Load();
+        _data = data;
+        _error = error;
+    }
+}
