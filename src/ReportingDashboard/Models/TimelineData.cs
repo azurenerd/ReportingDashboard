@@ -29,10 +29,10 @@ public class TimelineTrack
     public string Color { get; set; } = "#999";
 
     [JsonPropertyName("milestones")]
-    public List<TimelineMilestone> Milestones { get; set; } = new();
+    public List<Milestone> Milestones { get; set; } = new();
 }
 
-public class TimelineMilestone
+public class Milestone
 {
     [JsonPropertyName("date")]
     public string Date { get; set; } = string.Empty;

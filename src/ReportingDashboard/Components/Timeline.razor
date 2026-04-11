@@ -27,7 +27,7 @@
                 </filter>
             </defs>
 
-            @* Month grid lines at 260px intervals *@
+            @* Month grid lines aligned to actual month boundaries *@
             @foreach (var month in GetMonthGridPositions())
             {
                 <line x1="@F(month.X)" y1="0" x2="@F(month.X)" y2="@F(SvgHeight)"
@@ -58,7 +58,68 @@
             <text x="@F(nowX)" y="-4"
                   fill="#EA4335" font-size="10" font-weight="700" text-anchor="middle">NOW</text>
 
-            @* Milestone markers will be rendered in subsequent steps *@
+            @* Milestone markers with tooltips and date labels *@
+            @if (TimelineData?.Tracks != null)
+            {
+                var totalTracks = TimelineData.Tracks.Count;
+                @for (int i = 0; i < totalTracks; i++)
+                {
+                    var track = TimelineData.Tracks[i];
+                    var trackY = TrackToY(i, totalTracks);
+
+                    @if (track.Milestones != null)
+                    {
+                        @foreach (var milestone in track.Milestones)
+                        {
+                            if (!DateTime.TryParse(milestone.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var milestoneDate))
+                                continue;
+
+                            var mx = DateToX(milestoneDate);
+                            var clampedX = Math.Max(0, Math.Min(mx, SvgWidth));
+
+                            @if (milestone.Type == "poc")
+                            {
+                                @* PoC milestone: gold diamond with drop shadow *@
+                                <polygon points="@DiamondPoints(clampedX, trackY)"
+                                         fill="#F4B400" filter="url(#sh)">
+                                    <title>@milestone.Label — @milestone.Date</title>
+                                </polygon>
+                                <text x="@F(clampedX)" y="@F(trackY - 16)"
+                                      fill="#666" font-size="10" text-anchor="middle">@milestone.Label</text>
+                            }
+                            else if (milestone.Type == "production")
+                            {
+                                @* Production milestone: green diamond with drop shadow *@
+                                <polygon points="@DiamondPoints(clampedX, trackY)"
+                                         fill="#34A853" filter="url(#sh)">
+                                    <title>@milestone.Label — @milestone.Date</title>
+                                </polygon>
+                                <text x="@F(clampedX)" y="@F(trackY - 16)"
+                                      fill="#666" font-size="10" text-anchor="middle">@milestone.Label</text>
+                            }
+                            else if (milestone.Type == "checkpoint")
+                            {
+                                @* Checkpoint: white circle with colored stroke *@
+                                <circle cx="@F(clampedX)" cy="@F(trackY)" r="7"
+                                        fill="white" stroke="@track.Color" stroke-width="2.5">
+                                    <title>@milestone.Label — @milestone.Date</title>
+                                </circle>
+                                <text x="@F(clampedX)" y="@F(trackY - 14)"
+                                      fill="#666" font-size="10" text-anchor="middle">@milestone.Label</text>
+                            }
+                            else
+                            {
+                                @* Small checkpoint dot *@
+                                <circle cx="@F(clampedX)" cy="@F(trackY)" r="4" fill="#999">
+                                    <title>@milestone.Label — @milestone.Date</title>
+                                </circle>
+                                <text x="@F(clampedX)" y="@F(trackY - 10)"
+                                      fill="#666" font-size="10" text-anchor="middle">@milestone.Label</text>
+                            }
+                        }
+                    }
+                }
+            }
         </svg>
     </div>
 </div>
@@ -75,9 +136,9 @@
         ? Math.Max(DefaultSvgHeight, TimelineData.Tracks.Count * TrackSpacingTarget)
         : DefaultSvgHeight;
 
-    private DateTime StartDate => DateTime.TryParse(TimelineData?.StartDate, out var d) ? d : DateTime.Today;
-    private DateTime EndDate => DateTime.TryParse(TimelineData?.EndDate, out var d) ? d : DateTime.Today.AddMonths(6);
-    private DateTime NowDate => DateTime.TryParse(TimelineData?.NowDate, out var d) ? d : DateTime.Today;
+    private DateTime StartDate => DateTime.TryParse(TimelineData?.StartDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : DateTime.Today;
+    private DateTime EndDate => DateTime.TryParse(TimelineData?.EndDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : DateTime.Today.AddMonths(6);
+    private DateTime NowDate => DateTime.TryParse(TimelineData?.NowDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : DateTime.Today;
 
     /// <summary>
     /// Converts a date to an X-position via linear interpolation across the SVG width.
@@ -92,12 +153,12 @@
 
     /// <summary>
     /// Calculates the Y-position for a track based on its index and total track count.
-    /// Distributes tracks evenly within the SVG height with ~56px spacing.
+    /// Uses actual SvgHeight so tracks distribute correctly when height expands.
     /// </summary>
     private double TrackToY(int trackIndex, int totalTracks)
     {
-        if (totalTracks <= 0) return DefaultSvgHeight / 2;
-        double spacing = DefaultSvgHeight / (totalTracks + 1);
+        if (totalTracks <= 0) return SvgHeight / 2;
+        double spacing = SvgHeight / (totalTracks + 1);
         return spacing * (trackIndex + 1);
     }
 
@@ -110,18 +171,17 @@
     }
 
     /// <summary>
-    /// Calculates month grid line positions at 260px intervals with labels derived from the date range.
+    /// Calculates month grid line positions using DateToX for alignment with the date axis.
     /// </summary>
     private List<MonthGridLine> GetMonthGridPositions()
     {
         var lines = new List<MonthGridLine>();
         var current = new DateTime(StartDate.Year, StartDate.Month, 1);
         var end = EndDate;
-        int index = 0;
 
         while (current <= end)
         {
-            double x = index * 260.0;
+            double x = DateToX(current);
             if (x > SvgWidth) break;
 
             lines.Add(new MonthGridLine
@@ -131,7 +191,6 @@
             });
 
             current = current.AddMonths(1);
-            index++;
         }
 
         return lines;
