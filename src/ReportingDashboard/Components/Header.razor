@@ -2,21 +2,41 @@
 
 <div class="hdr">
     <div>
-        <h1>@Data.Title <a href="@Data.BacklogLink" target="_blank" style="color:#0078D4;text-decoration:none;font-size:14px;font-weight:400;">📋 ADO Backlog</a></h1>
+        <h1 style="font-size:24px;font-weight:700;color:#111;margin:0;line-height:1.2;">
+            @Data.Title
+            @if (!string.IsNullOrEmpty(Data.BacklogLink))
+            {
+                <a href="@Data.BacklogLink" target="_blank" rel="noopener noreferrer"
+                   style="font-size:13px;font-weight:400;color:#0078D4;text-decoration:none;margin-left:12px;">&#x1F517; ADO Backlog</a>
+            }
+        </h1>
         <div class="sub">@Data.Subtitle</div>
     </div>
-    <div class="hdr-legend">
-        <span class="legend-item">
-            <span class="legend-diamond" style="background:#F4B400;"></span> PoC Milestone
+
+    @* Timeline Legend - right side *@
+    <div style="display:flex;gap:22px;align-items:center;">
+        @* PoC Milestone *@
+        <span style="display:flex;align-items:center;gap:6px;">
+            <span style="width:12px;height:12px;background:#F4B400;transform:rotate(45deg);display:inline-block;flex-shrink:0;"></span>
+            <span style="font-size:12px;white-space:nowrap;">PoC Milestone</span>
         </span>
-        <span class="legend-item">
-            <span class="legend-diamond" style="background:#34A853;"></span> Production Release
+
+        @* Production Release *@
+        <span style="display:flex;align-items:center;gap:6px;">
+            <span style="width:12px;height:12px;background:#34A853;transform:rotate(45deg);display:inline-block;flex-shrink:0;"></span>
+            <span style="font-size:12px;white-space:nowrap;">Production Release</span>
         </span>
-        <span class="legend-item">
-            <span class="legend-dot"></span> Checkpoint
+
+        @* Checkpoint *@
+        <span style="display:flex;align-items:center;gap:6px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#999;display:inline-block;flex-shrink:0;"></span>
+            <span style="font-size:12px;white-space:nowrap;">Checkpoint</span>
         </span>
-        <span class="legend-item">
-            <span class="legend-now"></span> Now (@Data.CurrentMonth)
+
+        @* Now line *@
+        <span style="display:flex;align-items:center;gap:6px;">
+            <span style="width:2px;height:14px;background:#EA4335;display:inline-block;flex-shrink:0;"></span>
+            <span style="font-size:12px;white-space:nowrap;">Now</span>
         </span>
     </div>
 </div>
