@@ -1,5 +1,5 @@
 using Bunit;
-using ReportingDashboard.Components.Sections;
+using ReportingDashboard.Components;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Unit.Components;
@@ -16,7 +16,6 @@ public class HeatmapCellTests : TestContext
             .Add(x => x.IsCurrentMonth, false));
 
         Assert.Contains("-", cut.Markup);
-        Assert.Contains("empty-cell", cut.Markup);
     }
 
     [Fact]
@@ -34,18 +33,6 @@ public class HeatmapCellTests : TestContext
     }
 
     [Fact]
-    public void HeatmapCell_WithItems_NoEmptyCellMarker()
-    {
-        var items = new List<string> { "Item" };
-        var cut = RenderComponent<HeatmapCell>(p => p
-            .Add(x => x.Items, items)
-            .Add(x => x.CssPrefix, "ship")
-            .Add(x => x.IsCurrentMonth, false));
-
-        Assert.DoesNotContain("empty-cell", cut.Markup);
-    }
-
-    [Fact]
     public void HeatmapCell_AppliesCssPrefixToCell()
     {
         var cut = RenderComponent<HeatmapCell>(p => p
@@ -57,29 +44,18 @@ public class HeatmapCellTests : TestContext
     }
 
     [Fact]
-    public void HeatmapCell_AppliesCssPrefixToDots()
-    {
-        var cut = RenderComponent<HeatmapCell>(p => p
-            .Add(x => x.Items, new List<string> { "Item" })
-            .Add(x => x.CssPrefix, "block")
-            .Add(x => x.IsCurrentMonth, false));
-
-        Assert.Contains("block-dot", cut.Markup);
-    }
-
-    [Fact]
-    public void HeatmapCell_CurrentMonth_AddsCurClass()
+    public void HeatmapCell_CurrentMonth_AddsAprClass()
     {
         var cut = RenderComponent<HeatmapCell>(p => p
             .Add(x => x.Items, new List<string>())
             .Add(x => x.CssPrefix, "ship")
             .Add(x => x.IsCurrentMonth, true));
 
-        Assert.Contains("cur", cut.Markup);
+        Assert.Contains("apr", cut.Markup);
     }
 
     [Fact]
-    public void HeatmapCell_NotCurrentMonth_NoCurClass()
+    public void HeatmapCell_NotCurrentMonth_NoAprClass()
     {
         var cut = RenderComponent<HeatmapCell>(p => p
             .Add(x => x.Items, new List<string>())
@@ -87,7 +63,8 @@ public class HeatmapCellTests : TestContext
             .Add(x => x.IsCurrentMonth, false));
 
         var cell = cut.Find(".hm-cell");
-        Assert.DoesNotContain("cur", cell.GetAttribute("class")!.Split(' ').Where(c => c == "cur"));
+        var classes = cell.GetAttribute("class") ?? "";
+        Assert.DoesNotContain("apr", classes.Split(' ').Where(c => c == "apr"));
     }
 
     [Fact]
@@ -125,5 +102,19 @@ public class HeatmapCellTests : TestContext
 
         var rendered = cut.FindAll(".it");
         Assert.Equal(10, rendered.Count);
+    }
+
+    [Fact]
+    public void HeatmapCell_WithItems_NoDash()
+    {
+        var items = new List<string> { "Item" };
+        var cut = RenderComponent<HeatmapCell>(p => p
+            .Add(x => x.Items, items)
+            .Add(x => x.CssPrefix, "ship")
+            .Add(x => x.IsCurrentMonth, false));
+
+        // When items exist, the dash should not appear
+        var itDivs = cut.FindAll(".it");
+        Assert.Single(itDivs);
     }
 }

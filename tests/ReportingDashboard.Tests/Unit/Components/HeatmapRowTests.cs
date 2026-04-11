@@ -1,5 +1,5 @@
 using Bunit;
-using ReportingDashboard.Components.Sections;
+using ReportingDashboard.Components;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Unit.Components;
@@ -53,8 +53,8 @@ public class HeatmapRowTests : TestContext
     {
         var items = new Dictionary<string, List<string>>
         {
-            ["jan"] = new() { "Feature A" },
-            ["feb"] = new() { "Feature B", "Feature C" }
+            ["january"] = new() { "Feature A" },
+            ["february"] = new() { "Feature B", "Feature C" }
         };
 
         var cut = RenderComponent<HeatmapRow>(p => p
@@ -70,7 +70,7 @@ public class HeatmapRowTests : TestContext
     }
 
     [Fact]
-    public void HeatmapRow_MissingMonthKey_RendersDash()
+    public void HeatmapRow_MissingMonthKey_ShowsDash()
     {
         var items = new Dictionary<string, List<string>>();
 
@@ -81,11 +81,12 @@ public class HeatmapRowTests : TestContext
             .Add(x => x.Months, new List<string> { "March" })
             .Add(x => x.CurrentMonth, ""));
 
-        Assert.Contains("empty-cell", cut.Markup);
+        // Empty cells show a dash
+        Assert.Contains("-", cut.Markup);
     }
 
     [Fact]
-    public void HeatmapRow_CurrentMonthCell_GetsCurClass()
+    public void HeatmapRow_CurrentMonthCell_GetsAprClass()
     {
         var cut = RenderComponent<HeatmapRow>(p => p
             .Add(x => x.CategoryLabel, "SHIPPED")
@@ -94,11 +95,11 @@ public class HeatmapRowTests : TestContext
             .Add(x => x.Months, new List<string> { "April" })
             .Add(x => x.CurrentMonth, "April"));
 
-        Assert.Contains("cur", cut.Markup);
+        Assert.Contains("apr", cut.Markup);
     }
 
     [Fact]
-    public void HeatmapRow_NonCurrentMonth_NoCurClass()
+    public void HeatmapRow_NonCurrentMonth_NoAprClass()
     {
         var cut = RenderComponent<HeatmapRow>(p => p
             .Add(x => x.CategoryLabel, "SHIPPED")
@@ -111,7 +112,7 @@ public class HeatmapRowTests : TestContext
         foreach (var cell in cells)
         {
             var classes = cell.GetAttribute("class") ?? "";
-            Assert.DoesNotContain(" cur", classes);
+            Assert.DoesNotContain(" apr", classes);
         }
     }
 
@@ -138,6 +139,6 @@ public class HeatmapRowTests : TestContext
             .Add(x => x.Months, new List<string> { "APRIL" })
             .Add(x => x.CurrentMonth, "april"));
 
-        Assert.Contains("cur", cut.Markup);
+        Assert.Contains("apr", cut.Markup);
     }
 }

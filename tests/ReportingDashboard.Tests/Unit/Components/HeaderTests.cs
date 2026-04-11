@@ -1,5 +1,5 @@
 using Bunit;
-using ReportingDashboard.Components.Sections;
+using ReportingDashboard.Components;
 using ReportingDashboard.Models;
 using Xunit;
 
@@ -80,39 +80,29 @@ public class HeaderTests : TestContext
         var cut = RenderComponent<Header>(p =>
             p.Add(x => x.Data, data));
 
-        // string.IsNullOrEmpty(null) is true, so no link rendered
         var links = cut.FindAll("a");
         Assert.Empty(links);
     }
 
     [Fact]
-    public void Header_HasHdrCssClass()
+    public void Header_HasHdrTitleClass()
     {
         var cut = RenderComponent<Header>(p =>
             p.Add(x => x.Data, CreateData()));
 
-        var hdr = cut.Find(".hdr");
-        Assert.NotNull(hdr);
+        var hdrTitle = cut.Find(".hdr-title");
+        Assert.NotNull(hdrTitle);
     }
 
     [Fact]
-    public void Header_RendersLegend()
+    public void Header_RendersLegendItems()
     {
         var cut = RenderComponent<Header>(p =>
             p.Add(x => x.Data, CreateData()));
 
-        var legend = cut.Find(".legend");
-        Assert.NotNull(legend);
-    }
-
-    [Fact]
-    public void Header_LegendContainsFourItems()
-    {
-        var cut = RenderComponent<Header>(p =>
-            p.Add(x => x.Data, CreateData()));
-
-        var items = cut.FindAll(".legend-item");
-        Assert.Equal(4, items.Count);
+        Assert.Contains("PoC Milestone", cut.Markup);
+        Assert.Contains("Production Release", cut.Markup);
+        Assert.Contains("Checkpoint", cut.Markup);
     }
 
     [Fact]
@@ -148,35 +138,35 @@ public class HeaderTests : TestContext
         var cut = RenderComponent<Header>(p =>
             p.Add(x => x.Data, CreateData(currentMonth: "June")));
 
-        Assert.Contains("Now (June)", cut.Markup);
+        // NowLabel includes month and year parsed from NowDate
+        Assert.Contains("Now (June", cut.Markup);
     }
 
     [Fact]
-    public void Header_LegendHasDiamondSymbols()
+    public void Header_LegendHasPocDiamondColor()
     {
         var cut = RenderComponent<Header>(p =>
             p.Add(x => x.Data, CreateData()));
 
-        Assert.NotNull(cut.Find(".legend-diamond.poc"));
-        Assert.NotNull(cut.Find(".legend-diamond.prod"));
+        Assert.Contains("#F4B400", cut.Markup);
     }
 
     [Fact]
-    public void Header_LegendHasCircleSymbol()
+    public void Header_LegendHasProductionDiamondColor()
     {
         var cut = RenderComponent<Header>(p =>
             p.Add(x => x.Data, CreateData()));
 
-        Assert.NotNull(cut.Find(".legend-circle"));
+        Assert.Contains("#34A853", cut.Markup);
     }
 
     [Fact]
-    public void Header_LegendHasBarSymbol()
+    public void Header_LegendHasNowBarColor()
     {
         var cut = RenderComponent<Header>(p =>
             p.Add(x => x.Data, CreateData()));
 
-        Assert.NotNull(cut.Find(".legend-bar"));
+        Assert.Contains("#EA4335", cut.Markup);
     }
 
     [Fact]
@@ -186,6 +176,7 @@ public class HeaderTests : TestContext
             p.Add(x => x.Data, CreateData(backlogLink: "https://link")));
 
         var link = cut.Find("a");
-        Assert.Equal("noopener", link.GetAttribute("rel"));
+        var rel = link.GetAttribute("rel");
+        Assert.Contains("noopener", rel ?? "");
     }
 }

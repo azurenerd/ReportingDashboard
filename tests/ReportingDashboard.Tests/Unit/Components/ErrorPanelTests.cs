@@ -1,5 +1,5 @@
 using Bunit;
-using ReportingDashboard.Components.Sections;
+using ReportingDashboard.Components;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Unit.Components;
@@ -71,8 +71,17 @@ public class ErrorPanelTests : TestContext
         var panel = cut.Find(".error-panel");
         Assert.NotNull(panel);
 
-        var content = cut.Find(".error-panel-content");
-        Assert.NotNull(content);
+        var icon = cut.Find(".error-icon");
+        Assert.NotNull(icon);
+
+        var title = cut.Find(".error-title");
+        Assert.NotNull(title);
+
+        var details = cut.Find(".error-details");
+        Assert.NotNull(details);
+
+        var help = cut.Find(".error-help");
+        Assert.NotNull(help);
     }
 
     [Fact]
