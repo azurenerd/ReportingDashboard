@@ -1,171 +1,131 @@
 @using System.Globalization
-@using System.Net
-@using ReportingDashboard.Models
 
-@if (TimelineData is null || TimelineData.Tracks.Count == 0)
-{
-    return;
-}
-
-<div class="tl-area" style="height:196px;background:#FAFAFA;border-bottom:2px solid #E8E8E8;display:flex;flex-direction:row;align-items:stretch;padding:6px 44px 0;">
-
-    @* ── Left sidebar: track labels ── *@
-    <div style="width:230px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-around;padding:16px 12px 16px 0;border-right:1px solid #E0E0E0;">
+<div class="tl-area">
+    <div style="width:230px; flex-shrink:0; display:flex; flex-direction:column; justify-content:space-around; padding:16px 12px 16px 0; border-right:1px solid #E0E0E0;">
         @foreach (var track in TimelineData.Tracks)
         {
             <div>
-                <span style="font-size:12px;font-weight:600;color:@track.Color;">@track.Name</span>
-                <span style="font-size:12px;font-weight:400;color:#444;margin-left:4px;">@track.Label</span>
+                <span style="font-size:12px; font-weight:600; color:@track.Color;">@track.Name</span>
+                <span style="font-size:12px; font-weight:400; color:#444; margin-left:6px;">@track.Label</span>
             </div>
         }
     </div>
+    <div class="tl-svg-box">
+        <svg width="@SvgWidth" height="@SvgHeight" style="overflow:visible;">
+            <defs>
+                <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/>
+                </filter>
+            </defs>
 
-    @* ── Right SVG area ── *@
-    <div class="tl-svg-box" style="flex:1;padding-left:12px;padding-top:6px;">
-        @((MarkupString)RenderSvg())
+            @* Month grid lines and labels *@
+            @foreach (var monthInfo in GetMonthGridLines())
+            {
+                <line x1="@F(monthInfo.X)" y1="0" x2="@F(monthInfo.X)" y2="@SvgHeight"
+                      stroke="#bbb" stroke-opacity="0.4" />
+                <text x="@F(monthInfo.X + 5)" y="14" fill="#666" font-size="11" font-weight="600">@monthInfo.Label</text>
+            }
+
+            @* Track lines and milestones *@
+            @for (int i = 0; i < TimelineData.Tracks.Count; i++)
+            {
+                var track = TimelineData.Tracks[i];
+                var y = TrackToY(i, TimelineData.Tracks.Count);
+
+                <line x1="0" y1="@F(y)" x2="@SvgWidth" y2="@F(y)"
+                      stroke="@track.Color" stroke-width="3" />
+
+                @foreach (var milestone in track.Milestones)
+                {
+                    var mx = DateToX(milestone.Date);
+                    if (mx < 0) continue;
+
+                    @if (milestone.Type == "poc")
+                    {
+                        <polygon points="@DiamondPoints(mx, y)" fill="#F4B400" filter="url(#sh)">
+                            <title>@milestone.Label</title>
+                        </polygon>
+                    }
+                    else if (milestone.Type == "production")
+                    {
+                        <polygon points="@DiamondPoints(mx, y)" fill="#34A853" filter="url(#sh)">
+                            <title>@milestone.Label</title>
+                        </polygon>
+                    }
+                    else
+                    {
+                        <circle cx="@F(mx)" cy="@F(y)" r="7" fill="white" stroke="@track.Color" stroke-width="2.5">
+                            <title>@milestone.Label</title>
+                        </circle>
+                    }
+
+                    <text x="@F(mx)" y="@F(y - 14)" text-anchor="middle" fill="#666" font-size="10">@milestone.Label</text>
+                }
+            }
+
+            @* NOW line *@
+            @if (NowX >= 0 && NowX <= SvgWidth)
+            {
+                <line x1="@F(NowX)" y1="0" x2="@F(NowX)" y2="@SvgHeight"
+                      stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+                <text x="@F(NowX)" y="@F(SvgHeight - 4)" text-anchor="middle"
+                      fill="#EA4335" font-size="10" font-weight="700">NOW</text>
+            }
+        </svg>
     </div>
 </div>
 
 @code {
-    [Parameter] public TimelineData? TimelineData { get; set; }
+    [Parameter] public TimelineData TimelineData { get; set; } = default!;
 
-    private DateTime StartDate;
-    private DateTime EndDate;
-    private DateTime NowDate;
-    private double SvgHeight;
+    private const double SvgWidth = 1560;
+    private const double SvgHeight = 185;
 
-    protected override void OnParametersSet()
+    private DateTime StartDate => DateTime.TryParse(TimelineData.StartDate, out var d) ? d : DateTime.Now;
+    private DateTime EndDate => DateTime.TryParse(TimelineData.EndDate, out var d) ? d : DateTime.Now.AddMonths(6);
+    private DateTime NowDate => DateTime.TryParse(TimelineData.NowDate, out var d) ? d : DateTime.Now;
+    private double NowX => DateToX(NowDate);
+
+    private double DateToX(string dateStr)
     {
-        if (TimelineData is null) return;
-
-        DateTime.TryParse(TimelineData.StartDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out StartDate);
-        DateTime.TryParse(TimelineData.EndDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out EndDate);
-        DateTime.TryParse(TimelineData.NowDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out NowDate);
-
-        SvgHeight = Math.Max(185, TimelineData.Tracks.Count * 56);
-    }
-
-    private string RenderSvg()
-    {
-        if (TimelineData is null) return string.Empty;
-
-        var sb = new System.Text.StringBuilder();
-        var tracks = TimelineData.Tracks;
-        var trackCount = tracks.Count;
-
-        sb.Append($"<svg width=\"1560\" height=\"{F(SvgHeight)}\" style=\"overflow:visible;\" xmlns=\"http://www.w3.org/2000/svg\">");
-
-        // Defs: drop-shadow filter
-        sb.Append("<defs>");
-        sb.Append("<filter id=\"sh\" x=\"-20%\" y=\"-20%\" width=\"140%\" height=\"140%\">");
-        sb.Append("<feDropShadow dx=\"0\" dy=\"1\" stdDeviation=\"1.5\" flood-opacity=\"0.3\" />");
-        sb.Append("</filter>");
-        sb.Append("</defs>");
-
-        // Month grid lines & labels — use DateToX for consistent positioning
-        if (EndDate > StartDate)
-        {
-            var cursor = new DateTime(StartDate.Year, StartDate.Month, 1);
-            while (cursor <= EndDate)
-            {
-                var x = DateToX(cursor);
-                var label = cursor.ToString("MMM", CultureInfo.InvariantCulture);
-                sb.Append($"<line x1=\"{F(x)}\" y1=\"0\" x2=\"{F(x)}\" y2=\"{F(SvgHeight)}\" stroke=\"#bbb\" stroke-width=\"1\" opacity=\"0.4\" />");
-                sb.Append($"<text x=\"{F(x + 5)}\" y=\"14\" fill=\"#666\" style=\"font-size:11px;font-weight:600;\">{Enc(label)}</text>");
-                cursor = cursor.AddMonths(1);
-            }
-        }
-
-        // Horizontal track lines
-        for (int t = 0; t < trackCount; t++)
-        {
-            var track = tracks[t];
-            var ty = TrackToY(t, trackCount);
-            sb.Append($"<line x1=\"0\" y1=\"{F(ty)}\" x2=\"1560\" y2=\"{F(ty)}\" stroke=\"{Enc(track.Color)}\" stroke-width=\"3\" />");
-        }
-
-        // Milestone markers
-        for (int t = 0; t < trackCount; t++)
-        {
-            var track = tracks[t];
-            var cy = TrackToY(t, trackCount);
-
-            for (int mi = 0; mi < track.Milestones.Count; mi++)
-            {
-                var ms = track.Milestones[mi];
-                if (!DateTime.TryParse(ms.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var msDate))
-                    continue;
-
-                var cx = DateToX(msDate);
-                var tooltip = Enc($"{ms.Label} ({msDate:MMM dd})");
-                var labelY = (mi % 2 == 0) ? cy - 18 : cy + 22;
-
-                switch (ms.Type?.ToLowerInvariant())
-                {
-                    case "checkpoint":
-                        sb.Append($"<g><title>{tooltip}</title>");
-                        sb.Append($"<circle cx=\"{F(cx)}\" cy=\"{F(cy)}\" r=\"7\" fill=\"white\" stroke=\"{Enc(track.Color)}\" stroke-width=\"2.5\" />");
-                        sb.Append("</g>");
-                        break;
-
-                    case "poc":
-                        sb.Append($"<g><title>{tooltip}</title>");
-                        sb.Append($"<polygon points=\"{DiamondPoints(cx, cy)}\" fill=\"#F4B400\" filter=\"url(#sh)\" />");
-                        sb.Append("</g>");
-                        break;
-
-                    case "production":
-                        sb.Append($"<g><title>{tooltip}</title>");
-                        sb.Append($"<polygon points=\"{DiamondPoints(cx, cy)}\" fill=\"#34A853\" filter=\"url(#sh)\" />");
-                        sb.Append("</g>");
-                        break;
-
-                    default:
-                        sb.Append($"<g><title>{tooltip}</title>");
-                        sb.Append($"<circle cx=\"{F(cx)}\" cy=\"{F(cy)}\" r=\"4\" fill=\"#999\" />");
-                        sb.Append("</g>");
-                        break;
-                }
-
-                sb.Append($"<text x=\"{F(cx)}\" y=\"{F(labelY)}\" fill=\"#666\" style=\"font-size:10px;\" text-anchor=\"middle\">{Enc(ms.Label)}</text>");
-            }
-        }
-
-        // NOW dashed line
-        if (NowDate > StartDate && NowDate < EndDate)
-        {
-            var nowX = DateToX(NowDate);
-            sb.Append($"<line x1=\"{F(nowX)}\" y1=\"0\" x2=\"{F(nowX)}\" y2=\"{F(SvgHeight)}\" stroke=\"#EA4335\" stroke-width=\"2\" stroke-dasharray=\"5,3\" />");
-            sb.Append($"<text x=\"{F(nowX)}\" y=\"10\" fill=\"#EA4335\" style=\"font-size:10px;font-weight:700;\" text-anchor=\"middle\">NOW</text>");
-        }
-
-        sb.Append("</svg>");
-        return sb.ToString();
+        if (!DateTime.TryParse(dateStr, out var date)) return -1;
+        return DateToX(date);
     }
 
     private double DateToX(DateTime date)
     {
-        var totalDays = (EndDate - StartDate).TotalDays;
+        double totalDays = (EndDate - StartDate).TotalDays;
         if (totalDays <= 0) return 0;
-        return ((date - StartDate).TotalDays / totalDays) * 1560;
+        double elapsed = (date - StartDate).TotalDays;
+        return (elapsed / totalDays) * SvgWidth;
     }
 
-    private static double TrackToY(int index, int count)
+    private double TrackToY(int trackIndex, int totalTracks)
     {
-        var spacing = 185.0 / (count + 1);
-        return spacing * (index + 1);
+        double spacing = SvgHeight / (totalTracks + 1);
+        return spacing * (trackIndex + 1);
     }
 
-    /// <summary>
-    /// Generates SVG polygon points for a diamond shape.
-    /// The size parameter is the full offset from center to each point tip.
-    /// </summary>
-    private static string DiamondPoints(double cx, double cy, double size = 11)
+    private string DiamondPoints(double cx, double cy, double size = 9)
     {
         return $"{F(cx)},{F(cy - size)} {F(cx + size)},{F(cy)} {F(cx)},{F(cy + size)} {F(cx - size)},{F(cy)}";
     }
 
-    private static string F(double v) => v.ToString("0.##", CultureInfo.InvariantCulture);
+    private static string F(double v) => v.ToString("F1", CultureInfo.InvariantCulture);
 
-    private static string Enc(string s) => WebUtility.HtmlEncode(s);
+    private List<(double X, string Label)> GetMonthGridLines()
+    {
+        var lines = new List<(double, string)>();
+        var current = new DateTime(StartDate.Year, StartDate.Month, 1);
+        while (current <= EndDate)
+        {
+            var x = DateToX(current);
+            if (x >= 0 && x <= SvgWidth)
+            {
+                lines.Add((x, current.ToString("MMM", CultureInfo.InvariantCulture)));
+            }
+            current = current.AddMonths(1);
+        }
+        return lines;
+    }
 }

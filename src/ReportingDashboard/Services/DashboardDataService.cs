@@ -7,14 +7,14 @@ public class DashboardDataService
 {
     private readonly ILogger<DashboardDataService> _logger;
 
+    public DashboardData? Data { get; private set; }
+    public bool IsError { get; private set; }
+    public string? ErrorMessage { get; private set; }
+
     public DashboardDataService(ILogger<DashboardDataService> logger)
     {
         _logger = logger;
     }
-
-    public DashboardData? Data { get; private set; }
-    public bool IsError { get; private set; }
-    public string? ErrorMessage { get; private set; }
 
     public async Task LoadAsync(string filePath)
     {
@@ -22,69 +22,76 @@ public class DashboardDataService
         {
             if (!File.Exists(filePath))
             {
-                IsError = true;
-                ErrorMessage = $"data.json not found at {filePath}";
-                _logger.LogError("ERROR: data.json not found at {Path}", filePath);
+                SetError($"data.json not found at {filePath}");
                 return;
             }
 
             var json = await File.ReadAllTextAsync(filePath);
             var options = new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = false,
-                AllowTrailingCommas = true,
-                ReadCommentHandling = JsonCommentHandling.Skip
+                PropertyNameCaseInsensitive = true
             };
 
-            Data = JsonSerializer.Deserialize<DashboardData>(json, options);
-
-            if (Data is null)
+            var data = JsonSerializer.Deserialize<DashboardData>(json, options);
+            if (data is null)
             {
-                IsError = true;
-                ErrorMessage = "data.json deserialized to null";
-                _logger.LogError("ERROR: data.json deserialized to null");
+                SetError("Failed to parse data.json: deserialization returned null.");
                 return;
             }
 
-            IsError = false;
-            ErrorMessage = null;
-
-            if (string.IsNullOrWhiteSpace(Data.Title))
-                _logger.LogWarning("data.json: 'title' is empty");
-
-            if (string.IsNullOrWhiteSpace(Data.Subtitle))
-                _logger.LogWarning("data.json: 'subtitle' is empty");
-
-            if (Data.Months.Count == 0)
-                _logger.LogWarning("data.json: 'months' array is empty");
-
-            if (Data.Timeline.Tracks.Count == 0)
-                _logger.LogWarning("data.json: 'timeline.tracks' array is empty");
-
-            if (Data.Heatmap.Shipped.Count == 0 &&
-                Data.Heatmap.InProgress.Count == 0 &&
-                Data.Heatmap.Carryover.Count == 0 &&
-                Data.Heatmap.Blockers.Count == 0)
+            var validationError = Validate(data);
+            if (validationError is not null)
             {
-                _logger.LogWarning("data.json: all heatmap categories are empty");
+                SetError($"data.json validation: {validationError}");
+                return;
             }
 
-            _logger.LogInformation(
-                "Dashboard data loaded: {Title}, {TrackCount} tracks, {MonthCount} months",
-                Data.Title, Data.Timeline.Tracks.Count, Data.Months.Count);
+            Data = data;
+            IsError = false;
+            ErrorMessage = null;
+            _logger.LogInformation("Dashboard data loaded successfully from {Path}", filePath);
         }
         catch (JsonException ex)
         {
-            IsError = true;
-            ErrorMessage = $"Failed to parse data.json: {ex.Message} at line {ex.LineNumber}, position {ex.BytePositionInLine}";
-            _logger.LogError("ERROR: Failed to parse data.json: {Message} at line {LineNumber}, position {BytePosition}",
-                ex.Message, ex.LineNumber, ex.BytePositionInLine);
+            SetError($"Failed to parse data.json: {ex.Message}");
         }
         catch (Exception ex)
         {
-            IsError = true;
-            ErrorMessage = $"Unexpected error loading data.json: {ex.Message}";
-            _logger.LogError(ex, "ERROR: Unexpected error loading data.json");
+            SetError($"Error loading data.json: {ex.Message}");
         }
+    }
+
+    private void SetError(string message)
+    {
+        IsError = true;
+        ErrorMessage = message;
+        Data = null;
+        _logger.LogError("DashboardDataService error: {Message}", message);
+    }
+
+    private static string? Validate(DashboardData data)
+    {
+        if (string.IsNullOrWhiteSpace(data.Title))
+            return "title is required";
+        if (string.IsNullOrWhiteSpace(data.Subtitle))
+            return "subtitle is required";
+        if (string.IsNullOrWhiteSpace(data.BacklogLink))
+            return "backlogLink is required";
+        if (string.IsNullOrWhiteSpace(data.CurrentMonth))
+            return "currentMonth is required";
+        if (data.Months is null || data.Months.Count == 0)
+            return "months array is required and must not be empty";
+        if (!data.Months.Any(m => m.Equals(data.CurrentMonth, StringComparison.OrdinalIgnoreCase)))
+            return $"currentMonth '{data.CurrentMonth}' must exist in months array";
+        if (string.IsNullOrWhiteSpace(data.Timeline.StartDate))
+            return "timeline.startDate is required";
+        if (string.IsNullOrWhiteSpace(data.Timeline.EndDate))
+            return "timeline.endDate is required";
+        if (string.IsNullOrWhiteSpace(data.Timeline.NowDate))
+            return "timeline.nowDate is required";
+        if (data.Timeline.Tracks is null || data.Timeline.Tracks.Count == 0)
+            return "timeline.tracks is required and must not be empty";
+
+        return null;
     }
 }

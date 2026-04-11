@@ -15,59 +15,56 @@
         "color": "#0078D4",
         "milestones": [
           { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
-          { "date": "2026-02-20", "type": "checkpoint", "label": "Feb 20" },
           { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
-          { "date": "2026-05-15", "type": "production", "label": "May Prod" }
+          { "date": "2026-05-01", "type": "production", "label": "May Prod" }
         ]
       },
       {
         "name": "M2",
-        "label": "PDS & Data Inventory",
+        "label": "Privacy Review Automation",
         "color": "#00897B",
         "milestones": [
-          { "date": "2026-01-08", "type": "checkpoint", "label": "Jan 8" },
-          { "date": "2026-02-05", "type": "checkpoint", "label": "Feb 5" },
-          { "date": "2026-03-10", "type": "checkpoint", "label": "Mar 10" },
-          { "date": "2026-04-18", "type": "poc", "label": "Apr 18 PoC" },
+          { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
+          { "date": "2026-04-10", "type": "poc", "label": "Apr 10 PoC" },
           { "date": "2026-06-01", "type": "production", "label": "Jun Prod" }
         ]
       },
       {
         "name": "M3",
-        "label": "Auto Review DFD",
+        "label": "Compliance Dashboard",
         "color": "#546E7A",
         "milestones": [
-          { "date": "2026-01-20", "type": "checkpoint", "label": "Jan 20" },
-          { "date": "2026-03-15", "type": "poc", "label": "Mar 15 PoC" },
-          { "date": "2026-05-30", "type": "production", "label": "May Prod" }
+          { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
+          { "date": "2026-05-15", "type": "poc", "label": "May 15 PoC" },
+          { "date": "2026-06-30", "type": "production", "label": "Jun 30 Prod" }
         ]
       }
     ]
   },
   "heatmap": {
     "shipped": {
-      "jan": ["Privacy chatbot v0.1 deployed to staging", "PDS schema v2 migration complete"],
-      "feb": ["MS Role auto-assignment pilot", "Data inventory scan for 3 services"],
-      "mar": ["Chatbot PoC demo to stakeholders", "PDS bulk-import API released", "DFD auto-review prototype"],
-      "apr": ["Chatbot integrated with Teams"]
+      "jan": ["DSAR intake form", "Consent API v1"],
+      "feb": ["Bot scaffolding"],
+      "mar": ["MS Graph connector", "Privacy classifier v2"],
+      "apr": ["Auto-redaction pipeline"]
     },
     "inProgress": {
       "jan": [],
-      "feb": ["Chatbot NLU training pipeline"],
-      "mar": ["PDS real-time sync connector", "Role-based access policy engine"],
-      "apr": ["PDS data-quality dashboard", "DFD auto-review rule engine", "Chatbot escalation workflow"]
+      "feb": [],
+      "mar": ["Review queue UI"],
+      "apr": ["PII scanner integration", "Admin portal MVP"]
     },
     "carryover": {
       "jan": [],
       "feb": [],
-      "mar": ["SSO integration for chatbot"],
-      "apr": ["SSO integration for chatbot", "Legacy PDS connector deprecation"]
+      "mar": [],
+      "apr": ["Legacy data migration"]
     },
     "blockers": {
       "jan": [],
       "feb": [],
       "mar": [],
-      "apr": ["Waiting on Legal sign-off for data retention policy"]
+      "apr": ["Awaiting Legal sign-off"]
     }
   }
 }

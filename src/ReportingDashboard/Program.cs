@@ -12,6 +12,7 @@ builder.Services.AddSingleton<DashboardDataService>();
 
 var app = builder.Build();
 
+// Load data before serving any requests
 var dataService = app.Services.GetRequiredService<DashboardDataService>();
 await dataService.LoadAsync(Path.Combine(app.Environment.WebRootPath, "data.json"));
 

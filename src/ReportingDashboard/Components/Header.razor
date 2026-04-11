@@ -1,24 +1,27 @@
-@using ReportingDashboard.Models
-
 <div class="hdr">
     <div>
-        <h1>@Data.Title <a href="@Data.BacklogLink" target="_blank">↗ ADO Backlog</a></h1>
+        <h1>@Data.Title
+            @if (!string.IsNullOrEmpty(Data.BacklogLink))
+            {
+                <a href="@Data.BacklogLink" target="_blank" rel="noopener">📋 ADO Backlog</a>
+            }
+        </h1>
         <div class="sub">@Data.Subtitle</div>
     </div>
-    <div style="display:flex; gap:22px; align-items:center;">
-        <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px;">
+    <div style="display:flex; gap:22px; align-items:center; font-size:12px;">
+        <span style="display:flex; align-items:center; gap:5px;">
             <span style="display:inline-block; width:12px; height:12px; background:#F4B400; transform:rotate(45deg);"></span>
             PoC Milestone
         </span>
-        <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px;">
+        <span style="display:flex; align-items:center; gap:5px;">
             <span style="display:inline-block; width:12px; height:12px; background:#34A853; transform:rotate(45deg);"></span>
             Production Release
         </span>
-        <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px;">
+        <span style="display:flex; align-items:center; gap:5px;">
             <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#999;"></span>
             Checkpoint
         </span>
-        <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px;">
+        <span style="display:flex; align-items:center; gap:5px;">
             <span style="display:inline-block; width:2px; height:14px; background:#EA4335;"></span>
             Now (@Data.CurrentMonth)
         </span>
@@ -26,6 +29,5 @@
 </div>
 
 @code {
-    [Parameter]
-    public DashboardData Data { get; set; } = default!;
+    [Parameter] public DashboardData Data { get; set; } = default!;
 }

@@ -1,23 +1,19 @@
-@namespace ReportingDashboard.Components
-
-<div class="hm-cell @CellClass">
-    @if (Items is null || Items.Count == 0)
-    {
-        <div style="color:#AAA;text-align:center;">-</div>
-    }
-    else
+<div class="hm-cell @CssPrefix-cell @(IsCurrentMonth ? "apr" : "")">
+    @if (Items is not null && Items.Count > 0)
     {
         @foreach (var item in Items)
         {
-            <div class="it">@item</div>
+            <div class="it @CssPrefix-it">@item</div>
         }
+    }
+    else
+    {
+        <span style="color:#AAA; display:block; text-align:center;">-</span>
     }
 </div>
 
 @code {
-    [Parameter] public List<string>? Items { get; set; }
-    [Parameter] public string CssPrefix { get; set; } = "ship";
+    [Parameter] public List<string> Items { get; set; } = new();
+    [Parameter] public string CssPrefix { get; set; } = string.Empty;
     [Parameter] public bool IsCurrentMonth { get; set; }
-
-    private string CellClass => $"{CssPrefix}-cell{(IsCurrentMonth ? " apr" : "")}";
 }
