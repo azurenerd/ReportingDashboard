@@ -1,28 +1,19 @@
-@* HeatmapCell - renders work items as bulleted list or gray dash for empty cells *@
-
-<div class="hm-cell @CellClass">
-    @if (Items is null || Items.Count == 0)
-    {
-        <div class="hm-empty">-</div>
-    }
-    else
+<div class="hm-cell @CssPrefix-cell @(IsCurrentMonth ? "apr" : "")">
+    @if (Items.Count > 0)
     {
         @foreach (var item in Items)
         {
             <div class="it">@item</div>
         }
     }
+    else
+    {
+        <span style="color:#AAA;">-</span>
+    }
 </div>
 
 @code {
-    [Parameter]
-    public List<string> Items { get; set; } = new();
-
-    [Parameter]
-    public string CssPrefix { get; set; } = string.Empty;
-
-    [Parameter]
-    public bool IsCurrentMonth { get; set; }
-
-    private string CellClass => $"{CssPrefix}-cell{(IsCurrentMonth ? " apr" : "")}";
+    [Parameter] public List<string> Items { get; set; } = new();
+    [Parameter] public string CssPrefix { get; set; } = "";
+    [Parameter] public bool IsCurrentMonth { get; set; }
 }
