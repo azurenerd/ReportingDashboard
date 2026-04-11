@@ -1,0 +1,201 @@
+{
+  "title": "Project Phoenix – Cloud Migration Platform",
+  "subtitle": "Enterprise Architecture · Cloud Infrastructure · April 2026",
+  "backlogUrl": "https://dev.azure.com/contoso/phoenix/_backlogs",
+  "timeline": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-06-30",
+    "nowDate": "2026-04-10",
+    "tracks": [
+      {
+        "id": "M1",
+        "name": "API Platform",
+        "color": "#0078D4",
+        "milestones": [
+          {
+            "date": "2026-01-15",
+            "label": "Architecture Review",
+            "type": "Checkpoint"
+          },
+          {
+            "date": "2026-02-28",
+            "label": "API Gateway PoC",
+            "type": "PoC"
+          },
+          {
+            "date": "2026-04-30",
+            "label": "API Platform GA",
+            "type": "Production"
+          }
+        ]
+      },
+      {
+        "id": "M2",
+        "name": "Data Pipeline",
+        "color": "#00897B",
+        "milestones": [
+          {
+            "date": "2026-01-20",
+            "label": "Schema Design Complete",
+            "type": "Checkpoint"
+          },
+          {
+            "date": "2026-02-10",
+            "label": "ETL Spike",
+            "type": "Dot"
+          },
+          {
+            "date": "2026-03-05",
+            "label": "CDC Testing",
+            "type": "Dot"
+          },
+          {
+            "date": "2026-03-20",
+            "label": "Streaming PoC",
+            "type": "PoC"
+          },
+          {
+            "date": "2026-05-15",
+            "label": "Pipeline Production",
+            "type": "Production"
+          }
+        ]
+      },
+      {
+        "id": "M3",
+        "name": "Identity & Auth",
+        "color": "#546E7A",
+        "milestones": [
+          {
+            "date": "2026-02-01",
+            "label": "Auth Design Review",
+            "type": "Checkpoint"
+          },
+          {
+            "date": "2026-04-10",
+            "label": "SSO Integration PoC",
+            "type": "PoC"
+          }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["January", "February", "March", "April"],
+    "currentMonth": "April",
+    "categories": [
+      {
+        "name": "Shipped",
+        "cssClass": "ship",
+        "icon": "🚀",
+        "items": {
+          "January": [
+            "Completed cloud readiness assessment",
+            "Finalized vendor selection for container registry"
+          ],
+          "February": [
+            "Deployed API gateway to staging environment",
+            "Shipped schema migration toolkit v1.0",
+            "Released internal SDK for service authentication"
+          ],
+          "March": [
+            "Migrated 12 legacy REST endpoints to new gateway",
+            "Deployed CDC change capture agent to pre-prod",
+            "Shipped Terraform modules for core networking",
+            "Released monitoring dashboard for pipeline health",
+            "Completed load testing for API Platform at 10k RPS"
+          ],
+          "April": [
+            "Deployed API rate limiting and throttling to production",
+            "Shipped real-time event streaming for order service",
+            "Released SSO integration for internal admin portal",
+            "Migrated payment service to containerized deployment",
+            "Deployed automated rollback tooling to all environments",
+            "Shipped data lineage tracking for compliance audit"
+          ]
+        }
+      },
+      {
+        "name": "In Progress",
+        "cssClass": "prog",
+        "icon": "🔄",
+        "items": {
+          "January": [
+            "Drafting API gateway architecture proposal",
+            "Setting up CI/CD pipeline templates"
+          ],
+          "February": [
+            "Building ETL framework for legacy data migration",
+            "Implementing OAuth2 token exchange flow"
+          ],
+          "March": [
+            "Developing streaming PoC with Kafka Connect",
+            "Building identity provider integration layer",
+            "Implementing API versioning strategy",
+            "Creating end-to-end integration test suite",
+            "Designing multi-region failover architecture"
+          ],
+          "April": [
+            "Finalizing API Platform GA release checklist",
+            "Building self-service onboarding portal for teams",
+            "Implementing circuit breaker patterns for external calls",
+            "Developing data pipeline monitoring alerting rules",
+            "Conducting performance tuning for streaming ingestion",
+            "Preparing production runbook for Identity & Auth"
+          ]
+        }
+      },
+      {
+        "name": "Carryover",
+        "cssClass": "carry",
+        "icon": "⚠️",
+        "items": {
+          "January": [],
+          "February": [
+            "API gateway PoC delayed one week due to vendor credential setup",
+            "Schema migration toolkit slipped from Jan to Feb"
+          ],
+          "March": [
+            "OAuth2 token exchange blocked by IdP sandbox availability",
+            "Legacy endpoint migration backlog larger than estimated",
+            "Terraform module review delayed by platform team bandwidth"
+          ],
+          "April": [
+            "Streaming PoC extended due to Kafka partition rebalancing issues",
+            "Integration test suite coverage below 80% target",
+            "Multi-region failover design review rescheduled twice",
+            "Admin portal SSO redirect loop unresolved from March",
+            "Data lineage tracker missing three upstream sources"
+          ]
+        }
+      },
+      {
+        "name": "Blockers",
+        "cssClass": "block",
+        "icon": "🚫",
+        "items": {
+          "January": [
+            "Waiting on security review approval for cloud account provisioning"
+          ],
+          "February": [
+            "Blocked on network team for VPC peering configuration",
+            "Pending legal review of data residency requirements"
+          ],
+          "March": [
+            "Waiting on security review for production key vault access",
+            "Blocked on third-party SSO provider sandbox credentials",
+            "Infrastructure team backlog delaying Kubernetes cluster upgrade",
+            "Compliance team has not signed off on PII handling procedures"
+          ],
+          "April": [
+            "Production deploy gated on SOC 2 audit evidence submission",
+            "Cross-region replication blocked by data sovereignty review",
+            "Waiting on finance approval for reserved instance commitment",
+            "External IdP rate limit increase request pending 3 weeks",
+            "Container registry migration blocked by legacy image dependencies"
+          ]
+        }
+      }
+    ]
+  }
+}

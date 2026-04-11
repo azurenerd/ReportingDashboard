@@ -1,0 +1,21 @@
+agent: PrincipalEngineer 2
+task: Sample data.json with Fictional Project Data
+complexity: Low
+status: complete
+notes: >
+  Primary deliverable: src/ReportingDashboard/wwwroot/data.json
+
+  Scaffolding files included (sln, csproj, Program.cs, Models, Blazor
+  components) because the T-676 foundation PR has not yet merged to main.
+
+  MERGE PREREQUISITE: T-676 (#676) must merge first. This PR must then
+  be rebased to drop all scaffolding files (ReportingDashboard.sln,
+  build.cmd, Program.cs, App.razor, Routes.razor, _Imports.razor,
+  Dashboard.razor stub, ReportingDashboard.csproj, Models/DashboardData.cs)
+  retaining only data.json and this .task file. The Models/DashboardData.cs
+  in this PR adds the Dot enum variant which must be carried forward
+  into T-676's version during rebase.
+
+  DEVIATION FROM ISSUE: backlogLabel field omitted because the
+  architecture's DashboardData model does not define it. The issue
+  text (#677) should be updated to reflect this.
