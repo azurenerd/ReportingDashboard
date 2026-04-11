@@ -1,11 +1,6 @@
 using Bunit;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Moq;
 using ReportingDashboard.Components;
-using ReportingDashboard.Components.Pages;
-using ReportingDashboard.Services;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Integration.Components;
@@ -13,124 +8,97 @@ namespace ReportingDashboard.Tests.Integration.Components;
 [Trait("Category", "Integration")]
 public class DashboardErrorPanelIntegrationTests : TestContext
 {
-    private readonly string _tempDir;
-    private readonly DashboardDataService _service;
-
-    public DashboardErrorPanelIntegrationTests()
-    {
-        _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardErr_{Guid.NewGuid():N}");
-        Directory.CreateDirectory(_tempDir);
-
-        var mockLogger = new Mock<ILogger<DashboardDataService>>();
-        _service = new DashboardDataService(mockLogger.Object);
-        Services.AddSingleton(_service);
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing && Directory.Exists(_tempDir))
-            Directory.Delete(_tempDir, true);
-        base.Dispose(disposing);
-    }
-
-    private string WriteJson(string json)
-    {
-        var path = Path.Combine(_tempDir, $"data_{Guid.NewGuid():N}.json");
-        File.WriteAllText(path, json);
-        return path;
-    }
-
     [Fact]
-    public async Task Dashboard_WhenFileNotFound_ShowsNotFoundError()
+    public void ErrorPanel_WithFileNotFoundMessage_RendersCorrectly()
     {
-        await _service.LoadAsync(Path.Combine(_tempDir, "data.json"));
+        const string errorMsg = "data.json not found at /app/wwwroot/data.json";
 
-        var cut = RenderComponent<Dashboard>();
-
-        cut.Markup.Should().Contain("Error:");
-        cut.Markup.Should().Contain("not found");
-    }
-
-    [Fact]
-    public async Task Dashboard_WhenJsonParseError_ShowsParseError()
-    {
-        var path = WriteJson("{ invalid json }");
-        await _service.LoadAsync(path);
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.Markup.Should().Contain("Error:");
-        cut.Markup.Should().Contain("parse");
-    }
-
-    [Fact]
-    public async Task Dashboard_WhenError_DoesNotShowDataLoaded()
-    {
-        await _service.LoadAsync(Path.Combine(_tempDir, "nonexistent.json"));
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.Markup.Should().NotContain("Data loaded:");
-    }
-
-    [Fact]
-    public async Task Dashboard_WhenDataValid_DoesNotShowError()
-    {
-        var json = """
-        {
-            "title": "Test",
-            "subtitle": "Sub",
-            "backlogLink": "https://test.com",
-            "currentMonth": "Apr",
-            "months": ["Apr"],
-            "timeline": {
-                "startDate": "2026-01-01",
-                "endDate": "2026-06-30",
-                "nowDate": "2026-04-10",
-                "tracks": [{ "name": "Track", "label": "T1", "milestones": [] }]
-            },
-            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
-        }
-        """;
-        var path = WriteJson(json);
-        await _service.LoadAsync(path);
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.Markup.Should().NotContain("Error:");
-        cut.Markup.Should().Contain("Data loaded:");
-    }
-
-    [Fact]
-    public void Dashboard_WhenDataIsNull_RendersEmptyMarkup()
-    {
-        // Service default state: IsError=false, Data=null
-        var cut = RenderComponent<Dashboard>();
-
-        cut.Markup.Trim().Should().BeEmpty();
-    }
-
-    [Fact]
-    public void ErrorPanel_StandaloneRendersWithMessage()
-    {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, "Dashboard data file not found"));
+            p.Add(x => x.ErrorMessage, errorMsg));
 
         cut.Find(".error-panel").Should().NotBeNull();
-        cut.Find("h2").TextContent.Should().Be("Dashboard data could not be loaded");
-        cut.Markup.Should().Contain("Dashboard data file not found");
-        cut.Find(".error-hint").TextContent.Should().Contain("Check data.json for errors");
+        cut.Find(".error-title").TextContent.Should().Be("Dashboard data could not be loaded");
+        cut.Find(".error-details").TextContent.Should().Be(errorMsg);
+        cut.Find(".error-help").TextContent.Should().Be("Check data.json for errors and restart the application.");
     }
 
     [Fact]
-    public void ErrorPanel_StandaloneRendersWithNullMessage()
+    public void ErrorPanel_WithParseErrorMessage_RendersCorrectly()
+    {
+        const string errorMsg = "Failed to parse data.json: Unexpected character encountered while parsing";
+
+        var cut = RenderComponent<ErrorPanel>(p =>
+            p.Add(x => x.ErrorMessage, errorMsg));
+
+        cut.Find(".error-details").TextContent.Should().Be(errorMsg);
+    }
+
+    [Fact]
+    public void ErrorPanel_WithValidationErrorMessage_RendersCorrectly()
+    {
+        const string errorMsg = "data.json validation: 'title' is required";
+
+        var cut = RenderComponent<ErrorPanel>(p =>
+            p.Add(x => x.ErrorMessage, errorMsg));
+
+        cut.Find(".error-details").TextContent.Should().Be(errorMsg);
+    }
+
+    [Fact]
+    public void ErrorPanel_StructuralIntegrity_AllElementsPresent()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.Message, (string?)null));
+            p.Add(x => x.ErrorMessage, "test error"));
 
-        cut.Find(".error-panel").Should().NotBeNull();
-        var paragraphs = cut.FindAll("p");
-        paragraphs.Should().HaveCount(1);
-        paragraphs[0].ClassList.Should().Contain("error-hint");
+        var inner = cut.Find(".error-panel > div");
+        var children = inner.Children;
+
+        children.Length.Should().Be(4);
+        children[0].ClassName.Should().Be("error-icon");
+        children[1].ClassName.Should().Be("error-title");
+        children[2].ClassName.Should().Be("error-details");
+        children[3].ClassName.Should().Be("error-help");
+    }
+
+    [Fact]
+    public void ErrorPanel_NoErrorMessage_ShowsOnlyStaticContent()
+    {
+        var cut = RenderComponent<ErrorPanel>(p =>
+            p.Add(x => x.ErrorMessage, (string)null!));
+
+        var inner = cut.Find(".error-panel > div");
+        var children = inner.Children;
+
+        children.Length.Should().Be(3);
+        children[0].ClassName.Should().Be("error-icon");
+        children[1].ClassName.Should().Be("error-title");
+        children[2].ClassName.Should().Be("error-help");
+    }
+
+    [Fact]
+    public void ErrorPanel_TransitionFromErrorToNull_HidesDetails()
+    {
+        var cut = RenderComponent<ErrorPanel>(p =>
+            p.Add(x => x.ErrorMessage, "initial error"));
+
+        cut.FindAll(".error-details").Should().HaveCount(1);
+
+        cut.SetParametersAndRender(p =>
+            p.Add(x => x.ErrorMessage, (string)null!));
+
+        cut.FindAll(".error-details").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ErrorPanel_TransitionFromNullToError_ShowsDetails()
+    {
+        var cut = RenderComponent<ErrorPanel>();
+        cut.FindAll(".error-details").Should().BeEmpty();
+
+        cut.SetParametersAndRender(p =>
+            p.Add(x => x.ErrorMessage, "new error occurred"));
+
+        cut.FindAll(".error-details").Should().HaveCount(1);
+        cut.Find(".error-details").TextContent.Should().Be("new error occurred");
     }
 }

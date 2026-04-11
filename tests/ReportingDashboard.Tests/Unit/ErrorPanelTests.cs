@@ -3,7 +3,7 @@ using FluentAssertions;
 using ReportingDashboard.Components;
 using Xunit;
 
-namespace ReportingDashboard.Tests.Unit.Components;
+namespace ReportingDashboard.Tests.Unit;
 
 [Trait("Category", "Unit")]
 public class ErrorPanelTests : TestContext
@@ -45,6 +45,7 @@ public class ErrorPanelTests : TestContext
     [Fact]
     public void Render_WithWhitespaceOnlyErrorMessage_ShowsDetailsElement()
     {
+        // string.IsNullOrEmpty returns false for whitespace-only strings
         var cut = RenderComponent<ErrorPanel>(p =>
             p.Add(x => x.ErrorMessage, "   "));
 
@@ -55,6 +56,7 @@ public class ErrorPanelTests : TestContext
     [Fact]
     public void Render_WithNoParameterSet_HidesDetailsElement()
     {
+        // Default string parameter is null
         var cut = RenderComponent<ErrorPanel>();
 
         cut.FindAll(".error-details").Should().BeEmpty();

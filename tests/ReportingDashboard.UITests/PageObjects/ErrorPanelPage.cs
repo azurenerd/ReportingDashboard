@@ -5,30 +5,66 @@ namespace ReportingDashboard.UITests.PageObjects;
 public class ErrorPanelPage
 {
     private readonly IPage _page;
+    private readonly string _baseUrl;
 
-    public ErrorPanelPage(IPage page)
+    // Selectors matching ErrorPanel.razor CSS classes
+    private const string ErrorPanelSelector = ".error-panel";
+    private const string ErrorIconSelector = ".error-icon";
+    private const string ErrorTitleSelector = ".error-title";
+    private const string ErrorDetailsSelector = ".error-details";
+    private const string ErrorHelpSelector = ".error-help";
+
+    public ErrorPanelPage(IPage page, string baseUrl)
     {
         _page = page;
+        _baseUrl = baseUrl;
     }
 
-    public ILocator Panel => _page.Locator(".error-panel");
-    public ILocator Icon => _page.Locator(".error-icon");
-    public ILocator Heading => _page.Locator(".error-panel h2");
-    public ILocator Message => _page.Locator(".error-panel p:not(.error-hint)");
-    public ILocator Hint => _page.Locator(".error-hint");
-
-    public async Task<bool> IsVisibleAsync()
+    public async Task NavigateAsync(string path = "/")
     {
-        return await Panel.IsVisibleAsync();
+        await _page.GotoAsync($"{_baseUrl}{path}", new PageGotoOptions
+        {
+            WaitUntil = WaitUntilState.NetworkIdle,
+            Timeout = 30_000
+        });
     }
 
-    public async Task<string> GetHeadingTextAsync()
+    public ILocator ErrorPanel => _page.Locator(ErrorPanelSelector);
+    public ILocator ErrorIcon => _page.Locator(ErrorIconSelector);
+    public ILocator ErrorTitle => _page.Locator(ErrorTitleSelector);
+    public ILocator ErrorDetails => _page.Locator(ErrorDetailsSelector);
+    public ILocator ErrorHelp => _page.Locator(ErrorHelpSelector);
+
+    public async Task<bool> IsErrorPanelVisibleAsync()
     {
-        return await Heading.InnerTextAsync();
+        return await ErrorPanel.CountAsync() > 0 && await ErrorPanel.IsVisibleAsync();
     }
 
-    public async Task<string> GetHintTextAsync()
+    public async Task<string> GetTitleTextAsync()
     {
-        return await Hint.InnerTextAsync();
+        return await ErrorTitle.TextContentAsync() ?? string.Empty;
+    }
+
+    public async Task<string> GetDetailsTextAsync()
+    {
+        if (await ErrorDetails.CountAsync() == 0)
+            return string.Empty;
+
+        return await ErrorDetails.TextContentAsync() ?? string.Empty;
+    }
+
+    public async Task<string> GetHelpTextAsync()
+    {
+        return await ErrorHelp.TextContentAsync() ?? string.Empty;
+    }
+
+    public async Task<string> GetIconTextAsync()
+    {
+        return await ErrorIcon.TextContentAsync() ?? string.Empty;
+    }
+
+    public async Task<bool> IsDetailsVisibleAsync()
+    {
+        return await ErrorDetails.CountAsync() > 0;
     }
 }
