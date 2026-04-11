@@ -1,13 +1,5 @@
-/* ==========================================================================
-   Executive Reporting Dashboard - Complete Stylesheet
-   Fixed 1920x1080 layout for screenshot-ready PowerPoint capture.
-   Ported from OriginalDesignConcept.html visual spec.
-   ========================================================================== */
-
-/* --------------------------------------------------------------------------
-   1. Reset & Body
-   -------------------------------------------------------------------------- */
-* {
+/* === Reset & Body === */
+*, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -17,8 +9,6 @@ body {
     width: 1920px;
     height: 1080px;
     overflow: hidden;
-    margin: 0;
-    padding: 0;
     background: #FFFFFF;
     color: #111;
     font-family: 'Segoe UI', Arial, sans-serif;
@@ -26,15 +16,23 @@ body {
     flex-direction: column;
 }
 
-/* --------------------------------------------------------------------------
-   2. Header
-   -------------------------------------------------------------------------- */
+/* === Dashboard Container === */
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+}
+
+/* === Header === */
 .hdr {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 44px 10px;
     border-bottom: 1px solid #E0E0E0;
+    flex-shrink: 0;
 }
 
 .hdr h1 {
@@ -42,13 +40,14 @@ body {
     font-weight: 700;
     color: #111;
     margin: 0;
+    line-height: 1.2;
 }
 
 .hdr a {
     color: #0078D4;
     text-decoration: none;
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 600;
 }
 
 .hdr a:hover {
@@ -61,7 +60,7 @@ body {
     margin-top: 2px;
 }
 
-/* Header legend */
+/* === Header Legend === */
 .legend {
     display: flex;
     gap: 22px;
@@ -84,13 +83,8 @@ body {
     flex-shrink: 0;
 }
 
-.legend-diamond.poc {
-    background: #F4B400;
-}
-
-.legend-diamond.prod {
-    background: #34A853;
-}
+.legend-diamond.poc { background: #F4B400; }
+.legend-diamond.prod { background: #34A853; }
 
 .legend-circle {
     width: 8px;
@@ -109,9 +103,7 @@ body {
     flex-shrink: 0;
 }
 
-/* --------------------------------------------------------------------------
-   3. Timeline
-   -------------------------------------------------------------------------- */
+/* === Timeline Area === */
 .tl-area {
     display: flex;
     align-items: stretch;
@@ -119,6 +111,7 @@ body {
     padding: 6px 44px 0;
     background: #FAFAFA;
     border-bottom: 2px solid #E8E8E8;
+    flex-shrink: 0;
 }
 
 .tl-labels {
@@ -132,15 +125,18 @@ body {
 }
 
 .tl-track-label {
-    font-size: 12px;
-    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .tl-track-id {
+    font-size: 12px;
     font-weight: 600;
 }
 
 .tl-track-name {
+    font-size: 12px;
     font-weight: 400;
     color: #444;
 }
@@ -152,9 +148,7 @@ body {
     min-width: 0;
 }
 
-/* --------------------------------------------------------------------------
-   4. Heatmap Container
-   -------------------------------------------------------------------------- */
+/* === Heatmap Container === */
 .hm-wrap {
     flex: 1;
     min-height: 0;
@@ -170,6 +164,7 @@ body {
     letter-spacing: 0.5px;
     text-transform: uppercase;
     margin-bottom: 8px;
+    flex-shrink: 0;
 }
 
 .hm-grid {
@@ -179,16 +174,13 @@ body {
     min-height: 0;
 }
 
-/* --------------------------------------------------------------------------
-   5. Heatmap Header Cells
-   -------------------------------------------------------------------------- */
+/* === Heatmap Corner Cell === */
 .hm-corner {
     background: #F5F5F5;
     font-size: 11px;
     font-weight: 700;
     color: #999;
     text-transform: uppercase;
-    letter-spacing: 0.7px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -196,6 +188,7 @@ body {
     border-bottom: 2px solid #CCC;
 }
 
+/* === Heatmap Column Headers === */
 .hm-col-hdr {
     background: #F5F5F5;
     font-size: 16px;
@@ -213,9 +206,7 @@ body {
     color: #C07700;
 }
 
-/* --------------------------------------------------------------------------
-   6. Row Headers
-   -------------------------------------------------------------------------- */
+/* === Heatmap Row Headers (base) === */
 .hm-row-hdr {
     font-size: 11px;
     font-weight: 700;
@@ -228,6 +219,7 @@ body {
     border-bottom: 1px solid #E0E0E0;
 }
 
+/* Row header per-category colors */
 .ship-hdr {
     color: #1B7A28;
     background: #E8F5E9;
@@ -248,9 +240,7 @@ body {
     background: #FEF2F2;
 }
 
-/* --------------------------------------------------------------------------
-   7. Data Cells
-   -------------------------------------------------------------------------- */
+/* === Heatmap Data Cells (base) === */
 .hm-cell {
     padding: 8px 12px;
     border-right: 1px solid #E0E0E0;
@@ -294,9 +284,7 @@ body {
     background: #FFE4E4;
 }
 
-/* --------------------------------------------------------------------------
-   8. Work Items
-   -------------------------------------------------------------------------- */
+/* === Work Items === */
 .it {
     font-size: 12px;
     color: #333;
@@ -332,66 +320,51 @@ body {
     background: #EA4335;
 }
 
-/* --------------------------------------------------------------------------
-   9. Empty Cells
-   -------------------------------------------------------------------------- */
+/* === Empty / Future Cells === */
 .hm-empty {
     color: #AAA;
     text-align: center;
-    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 14px;
 }
 
-/* --------------------------------------------------------------------------
-   10. Error Panel
-   -------------------------------------------------------------------------- */
+/* === Error Panel === */
 .error-panel {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 1920px;
     height: 1080px;
+    background: #FFFFFF;
 }
 
 .error-content {
     text-align: center;
+    max-width: 600px;
 }
 
-.error-content .error-icon {
-    font-size: 48px;
-    color: #EA4335;
-    margin-bottom: 16px;
-}
-
-.error-content .error-title {
+.error-content h2 {
     font-size: 20px;
     font-weight: 700;
     color: #333;
-    margin-bottom: 12px;
+    margin: 16px 0 8px;
 }
 
-.error-content .error-details {
+.error-content .error-message {
     font-size: 14px;
     color: #666;
     font-family: 'Consolas', 'Courier New', monospace;
-    margin-bottom: 12px;
-    max-width: 600px;
+    background: #F5F5F5;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 12px 0;
+    word-break: break-word;
 }
 
 .error-content .error-help {
     font-size: 12px;
     color: #888;
-}
-
-/* --------------------------------------------------------------------------
-   11. Dashboard Container
-   -------------------------------------------------------------------------- */
-.dashboard {
-    display: flex;
-    flex-direction: column;
-    width: 1920px;
-    height: 1080px;
-    overflow: hidden;
+    margin-top: 8px;
 }
