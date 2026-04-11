@@ -1,23 +1,27 @@
 @page "/"
-@using Microsoft.AspNetCore.Components.Web
+@using ReportingDashboard.Models
+@using ReportingDashboard.Services
 @inject DashboardDataService DataService
-@rendermode RenderMode.InteractiveServer
 
-<div class="dashboard-container">
-    @if (DataService.IsError)
-    {
-        <div class="error-banner">
-            <strong>⚠ Data Error:</strong> @DataService.ErrorMessage
-        </div>
-    }
-    else if (DataService.Data is not null)
-    {
+@if (DataService.IsError)
+{
+    <div class="error-panel">
+        <div class="error-icon">⚠</div>
+        <div class="error-title">Dashboard data could not be loaded</div>
+        <div class="error-details">@DataService.ErrorMessage</div>
+        <div class="error-help">Check data.json for errors and restart the application.</div>
+    </div>
+}
+else if (DataService.Data != null)
+{
+    <div class="dashboard-root">
         <Header Data="@DataService.Data" />
-        <Timeline Data="@DataService.Data.Timeline" />
-        <Heatmap HeatmapData="@DataService.Data.Heatmap" Months="@(DataService.Data.Timeline?.Tracks?.FirstOrDefault()?.Milestones?.Select(m => m.Date).ToList() ?? new())" CurrentMonth="@DateTime.Now.ToString("MMM")" />
-    }
-    else
-    {
-        <ErrorPanel Message="Dashboard data is not available" />
-    }
-</div>
+        @if (DataService.Data.Timeline != null)
+        {
+            <Timeline TimelineData="@DataService.Data.Timeline" />
+        }
+        <Heatmap HeatmapData="@DataService.Data.Heatmap"
+                 Months="@DataService.Data.Months"
+                 CurrentMonth="@DataService.Data.CurrentMonth" />
+    </div>
+}
