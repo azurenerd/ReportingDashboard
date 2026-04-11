@@ -7,6 +7,12 @@ public class DashboardDataService
 {
     private readonly ILogger<DashboardDataService> _logger;
 
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     public DashboardData? Data { get; private set; }
     public bool IsError { get; private set; }
     public string? ErrorMessage { get; private set; }
@@ -18,82 +24,87 @@ public class DashboardDataService
 
     public async Task LoadAsync(string filePath)
     {
+        // Reset state before each load
+        Data = null;
+        IsError = false;
+        ErrorMessage = null;
+
         try
         {
             if (!File.Exists(filePath))
             {
+                _logger.LogError("Data file not found at {Path}", filePath);
                 IsError = true;
                 ErrorMessage = $"data.json not found at {filePath}";
-                _logger.LogError("Data file not found: {Path}", filePath);
                 return;
             }
 
             var json = await File.ReadAllTextAsync(filePath);
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
+            var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
 
-            var data = JsonSerializer.Deserialize<DashboardData>(json, options);
             if (data is null)
             {
+                _logger.LogError("data.json deserialized to null");
                 IsError = true;
-                ErrorMessage = "data.json deserialized to null.";
-                _logger.LogError("Deserialized data.json was null");
+                ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
                 return;
             }
 
-            var validationError = Validate(data);
-            if (validationError is not null)
+            // Collect all validation errors
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(data.Title))
+                errors.Add("title is required");
+
+            if (string.IsNullOrWhiteSpace(data.Subtitle))
+                errors.Add("subtitle is required");
+
+            if (string.IsNullOrWhiteSpace(data.BacklogLink))
+                errors.Add("backlogLink is required");
+
+            if (data.Months.Count == 0)
+                errors.Add("months is required and must be non-empty");
+
+            if (string.IsNullOrWhiteSpace(data.Timeline.StartDate))
+                errors.Add("timeline.startDate is required");
+
+            if (string.IsNullOrWhiteSpace(data.Timeline.EndDate))
+                errors.Add("timeline.endDate is required");
+
+            if (string.IsNullOrWhiteSpace(data.Timeline.NowDate))
+                errors.Add("timeline.nowDate is required");
+
+            if (data.Timeline.Tracks.Count == 0)
+                errors.Add("timeline.tracks is required and must be non-empty");
+
+            if (errors.Count > 0)
             {
+                var joined = string.Join("; ", errors);
+                var message = $"data.json validation: {joined}";
+                _logger.LogError("Validation failed: {Errors}", message);
                 IsError = true;
-                ErrorMessage = $"data.json validation: {validationError}";
-                _logger.LogError("Validation failed: {Error}", validationError);
+                ErrorMessage = message;
                 return;
             }
 
             Data = data;
             IsError = false;
-            _logger.LogInformation("Dashboard data loaded successfully from {Path}", filePath);
+            ErrorMessage = null;
+            _logger.LogInformation("Dashboard data loaded successfully: {Title}", data.Title);
         }
         catch (JsonException ex)
         {
+            _logger.LogError(ex, "Failed to parse data.json: {Message}", ex.Message);
             IsError = true;
             ErrorMessage = $"Failed to parse data.json: {ex.Message}";
-            _logger.LogError(ex, "JSON parse error");
+            Data = null;
         }
         catch (Exception ex)
         {
-            IsError = true;
-            ErrorMessage = $"Error loading data.json: {ex.Message}";
             _logger.LogError(ex, "Unexpected error loading dashboard data");
+            IsError = true;
+            ErrorMessage = $"Error loading dashboard data: {ex.Message}";
+            Data = null;
         }
-    }
-
-    private string? Validate(DashboardData data)
-    {
-        if (string.IsNullOrWhiteSpace(data.Title))
-            return "title is required";
-        if (string.IsNullOrWhiteSpace(data.Subtitle))
-            return "subtitle is required";
-        if (data.Months is null || data.Months.Count == 0)
-            return "months array is required and must not be empty";
-        if (string.IsNullOrWhiteSpace(data.CurrentMonth))
-            return "currentMonth is required";
-        if (data.Timeline is null)
-            return "timeline is required";
-        if (string.IsNullOrWhiteSpace(data.Timeline.StartDate))
-            return "timeline.startDate is required";
-        if (string.IsNullOrWhiteSpace(data.Timeline.EndDate))
-            return "timeline.endDate is required";
-        if (data.Timeline.Tracks is null || data.Timeline.Tracks.Count == 0)
-            return "timeline.tracks must not be empty";
-        if (data.Heatmap is null)
-            return "heatmap is required";
-        if (string.IsNullOrWhiteSpace(data.BacklogLink))
-            _logger.LogWarning("backlogLink is empty in data.json");
-
-        return null;
     }
 }
