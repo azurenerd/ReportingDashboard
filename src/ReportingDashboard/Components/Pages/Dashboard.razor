@@ -12,7 +12,20 @@
 else if (_data is not null)
 {
     <div class="dashboard">
-        @* Header, timeline, and heatmap sections will be added in subsequent steps *@
+        <div class="hdr">
+            <div>
+                <h1>
+                    @_data.Title
+                    @if (!string.IsNullOrEmpty(_data.BacklogLink))
+                    {
+                        <a href="@_data.BacklogLink" target="_blank">&#x2197; ADO Backlog</a>
+                    }
+                </h1>
+                <div class="sub">@_data.Subtitle</div>
+            </div>
+        </div>
+
+        @* Timeline and heatmap sections will be added in subsequent steps *@
     </div>
 }
 
@@ -24,8 +37,9 @@ else if (_data is not null)
     {
         if (DataService.IsError)
         {
-            if (DataService.ErrorMessage.Contains("not found", StringComparison.OrdinalIgnoreCase)
-                || DataService.ErrorMessage.Contains("could not be loaded", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(DataService.ErrorMessage) ||
+                DataService.ErrorMessage.Contains("not found", StringComparison.OrdinalIgnoreCase) ||
+                DataService.ErrorMessage.Contains("could not be loaded", StringComparison.OrdinalIgnoreCase))
             {
                 _error = "Dashboard data not found. Please ensure data.json exists in the wwwroot folder.";
             }
