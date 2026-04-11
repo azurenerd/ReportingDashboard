@@ -1,1 +1,10 @@
-@namespace ReportingDashboard.Components.Deprecated
+<div class="error-panel">
+    <div class="error-icon">⚠</div>
+    <div class="error-title">Dashboard data could not be loaded</div>
+    <div class="error-details">@ErrorMessage</div>
+    <div class="error-help">Check data.json for errors and restart the application.</div>
+</div>
+
+@code {
+    [Parameter] public string? ErrorMessage { get; set; }
+}

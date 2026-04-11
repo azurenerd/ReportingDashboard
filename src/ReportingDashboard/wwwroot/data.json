@@ -1,7 +1,7 @@
 {
   "title": "Privacy Automation Release Roadmap",
-  "subtitle": "Identity & Privacy · Privacy Automation · April 2026",
-  "backlogLink": "https://dev.azure.com/example/PrivacyAutomation/_backlogs",
+  "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
+  "backlogLink": "https://dev.azure.com/org/project/_backlogs",
   "currentMonth": "Apr",
   "months": ["Jan", "Feb", "Mar", "Apr"],
   "timeline": {
@@ -14,57 +14,57 @@
         "label": "Chatbot & MS Role",
         "color": "#0078D4",
         "milestones": [
-          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12 Kickoff" },
+          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
           { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
-          { "date": "2026-05-01", "type": "production", "label": "May 1 GA" }
+          { "date": "2026-05-01", "type": "production", "label": "May Prod" }
         ]
       },
       {
         "name": "M2",
-        "label": "DSR Automation Pipeline",
+        "label": "Data Pipeline v2",
         "color": "#00897B",
         "milestones": [
-          { "date": "2026-02-05", "type": "checkpoint", "label": "Feb 5 Design" },
+          { "date": "2026-02-01", "type": "checkpoint", "label": "Feb 1" },
           { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC" },
-          { "date": "2026-06-01", "type": "production", "label": "Jun 1 GA" }
+          { "date": "2026-06-01", "type": "production", "label": "Jun Prod" }
         ]
       },
       {
         "name": "M3",
-        "label": "Compliance Reporting v2",
+        "label": "Compliance Reporting",
         "color": "#546E7A",
         "milestones": [
-          { "date": "2026-01-20", "type": "checkpoint", "label": "Jan 20 Spec" },
-          { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1 Review" },
-          { "date": "2026-05-10", "type": "poc", "label": "May 10 PoC" }
+          { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
+          { "date": "2026-05-15", "type": "poc", "label": "May 15 PoC" },
+          { "date": "2026-06-20", "type": "production", "label": "Jun 20 Prod" }
         ]
       }
     ]
   },
   "heatmap": {
     "shipped": {
-      "Jan": ["Privacy chatbot scaffolding", "DSR intake form v1"],
-      "Feb": ["MS Role integration PoC", "Compliance data model"],
-      "Mar": ["DSR pipeline PoC complete", "Chatbot NLU training", "Audit log schema"],
-      "Apr": ["Compliance report templates"]
+      "jan": ["DSR Automation v1", "Role Assignment API"],
+      "feb": ["Consent Tracking Module"],
+      "mar": ["MS Graph Integration", "Audit Log Export"],
+      "apr": ["Chatbot Beta Release"]
     },
     "inProgress": {
-      "Jan": ["DSR intake design"],
-      "Feb": ["Chatbot NLU research"],
-      "Mar": ["MS Role RBAC wiring", "Compliance UI wireframes"],
-      "Apr": ["DSR pipeline beta testing", "Chatbot prompt tuning", "Compliance UAT prep"]
+      "jan": [],
+      "feb": [],
+      "mar": ["Pipeline Refactor"],
+      "apr": ["Data Classification Engine", "Retention Policy Config"]
     },
     "carryover": {
-      "Jan": [],
-      "Feb": ["Privacy chatbot auth flow"],
-      "Mar": ["Auth flow rework"],
-      "Apr": ["MS Role edge-case fixes"]
+      "jan": [],
+      "feb": [],
+      "mar": [],
+      "apr": ["Legacy DB Migration"]
     },
     "blockers": {
-      "Jan": [],
-      "Feb": [],
-      "Mar": ["Vendor API key pending"],
-      "Apr": ["Vendor API key still pending", "Legal review sign-off"]
+      "jan": [],
+      "feb": [],
+      "mar": [],
+      "apr": ["Compliance API Rate Limits"]
     }
   }
 }

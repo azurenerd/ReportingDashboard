@@ -1,7 +1,7 @@
 @page "/"
-@using ReportingDashboard.Models
-@using ReportingDashboard.Services
+@using Microsoft.AspNetCore.Components.Web
 @inject DashboardDataService DataService
+@rendermode RenderMode.InteractiveServer
 
 @if (DataService.IsError)
 {
@@ -9,20 +9,15 @@
 }
 else if (DataService.Data is not null)
 {
-    var data = DataService.Data;
-
-    <ReportingDashboard.Components.Header Data="@data" />
-
-    <Timeline TimelineData="@data.Timeline" />
-
-    <Heatmap HeatmapData="@data.Heatmap"
-             Months="@data.Months"
-             CurrentMonth="@data.CurrentMonth" />
-}
-else
-{
-    <ErrorPanel ErrorMessage="Dashboard data is not available" />
-}
-
-@code {
+    <div class="hdr">
+        <Header Data="@DataService.Data" />
+    </div>
+    <div class="tl-area">
+        <Timeline TimelineData="@DataService.Data.Timeline" />
+    </div>
+    <div class="hm-wrap">
+        <Heatmap HeatmapData="@DataService.Data.Heatmap"
+                 Months="@DataService.Data.Months"
+                 CurrentMonth="@DataService.Data.CurrentMonth" />
+    </div>
 }

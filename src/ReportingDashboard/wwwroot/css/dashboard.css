@@ -1,162 +1,44 @@
-/* === Reset & Body === */
-*, *::before, *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
+    font-family: 'Segoe UI', Arial, sans-serif;
     width: 1920px;
     height: 1080px;
     overflow: hidden;
     background: #FFFFFF;
     color: #111;
-    font-family: 'Segoe UI', Arial, sans-serif;
     display: flex;
     flex-direction: column;
 }
 
-/* === Dashboard Container === */
-.dashboard {
-    display: flex;
-    flex-direction: column;
-    width: 1920px;
-    height: 1080px;
-    overflow: hidden;
-}
-
-/* === Header === */
+/* Header */
 .hdr {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 44px 10px;
-    border-bottom: 1px solid #E0E0E0;
     flex-shrink: 0;
 }
-
-.hdr h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #111;
-    margin: 0;
-    line-height: 1.2;
-}
-
-.hdr a {
-    color: #0078D4;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.hdr a:hover {
-    text-decoration: underline;
-}
-
 .sub {
     font-size: 12px;
     color: #888;
     margin-top: 2px;
 }
 
-/* === Header Legend === */
-.legend {
-    display: flex;
-    gap: 22px;
-    align-items: center;
-    font-size: 12px;
-    color: #444;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.legend-diamond {
-    width: 12px;
-    height: 12px;
-    transform: rotate(45deg);
-    display: inline-block;
-    flex-shrink: 0;
-}
-
-.legend-diamond.poc { background: #F4B400; }
-.legend-diamond.prod { background: #34A853; }
-
-.legend-circle {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #999;
-    display: inline-block;
-    flex-shrink: 0;
-}
-
-.legend-now {
-    width: 2px;
-    height: 14px;
-    background: #EA4335;
-    display: inline-block;
-    flex-shrink: 0;
-}
-
-/* === Timeline Area === */
+/* Timeline */
 .tl-area {
-    display: flex;
-    align-items: stretch;
-    height: 196px;
-    padding: 6px 44px 0;
-    background: #FAFAFA;
-    border-bottom: 2px solid #E8E8E8;
     flex-shrink: 0;
 }
-
-.tl-labels {
-    width: 230px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    padding: 16px 12px 16px 0;
-    border-right: 1px solid #E0E0E0;
-}
-
-.tl-track-label {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.tl-track-id {
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.tl-track-name {
-    font-size: 12px;
-    font-weight: 400;
-    color: #444;
-}
-
 .tl-svg-box {
     flex: 1;
     padding-left: 12px;
     padding-top: 6px;
-    min-width: 0;
 }
 
-/* === Heatmap Container === */
+/* Heatmap */
 .hm-wrap {
     flex: 1;
     min-height: 0;
-    padding: 10px 44px 10px;
     display: flex;
     flex-direction: column;
+    padding: 10px 44px 10px;
 }
-
 .hm-title {
     font-size: 14px;
     font-weight: 700;
@@ -164,49 +46,39 @@ body {
     letter-spacing: 0.5px;
     text-transform: uppercase;
     margin-bottom: 8px;
-    flex-shrink: 0;
 }
-
 .hm-grid {
-    display: grid;
-    border: 1px solid #E0E0E0;
     flex: 1;
     min-height: 0;
 }
-
-/* === Heatmap Corner Cell === */
 .hm-corner {
     background: #F5F5F5;
     font-size: 11px;
     font-weight: 700;
-    color: #999;
     text-transform: uppercase;
+    color: #999;
     display: flex;
     align-items: center;
     justify-content: center;
     border-right: 1px solid #E0E0E0;
     border-bottom: 2px solid #CCC;
 }
-
-/* === Heatmap Column Headers === */
 .hm-col-hdr {
     background: #F5F5F5;
     font-size: 16px;
     font-weight: 700;
-    text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
     border-right: 1px solid #E0E0E0;
     border-bottom: 2px solid #CCC;
 }
-
 .apr-hdr {
     background: #FFF0D0;
     color: #C07700;
 }
 
-/* === Heatmap Row Headers (base) === */
+/* Row Headers */
 .hm-row-hdr {
     font-size: 11px;
     font-weight: 700;
@@ -218,73 +90,28 @@ body {
     border-right: 2px solid #CCC;
     border-bottom: 1px solid #E0E0E0;
 }
+.ship-hdr { color: #1B7A28; background: #E8F5E9; }
+.prog-hdr { color: #1565C0; background: #E3F2FD; }
+.carry-hdr { color: #B45309; background: #FFF8E1; }
+.block-hdr { color: #991B1B; background: #FEF2F2; }
 
-/* Row header per-category colors */
-.ship-hdr {
-    color: #1B7A28;
-    background: #E8F5E9;
-}
-
-.prog-hdr {
-    color: #1565C0;
-    background: #E3F2FD;
-}
-
-.carry-hdr {
-    color: #B45309;
-    background: #FFF8E1;
-}
-
-.block-hdr {
-    color: #991B1B;
-    background: #FEF2F2;
-}
-
-/* === Heatmap Data Cells (base) === */
+/* Data Cells */
 .hm-cell {
     padding: 8px 12px;
     border-right: 1px solid #E0E0E0;
     border-bottom: 1px solid #E0E0E0;
     overflow: hidden;
 }
+.ship-cell { background: #F0FBF0; }
+.ship-cell.apr { background: #D8F2DA; }
+.prog-cell { background: #EEF4FE; }
+.prog-cell.apr { background: #DAE8FB; }
+.carry-cell { background: #FFFDE7; }
+.carry-cell.apr { background: #FFF0B0; }
+.block-cell { background: #FFF5F5; }
+.block-cell.apr { background: #FFE4E4; }
 
-/* Shipped cells */
-.ship-cell {
-    background: #F0FBF0;
-}
-
-.ship-cell.apr {
-    background: #D8F2DA;
-}
-
-/* In Progress cells */
-.prog-cell {
-    background: #EEF4FE;
-}
-
-.prog-cell.apr {
-    background: #DAE8FB;
-}
-
-/* Carryover cells */
-.carry-cell {
-    background: #FFFDE7;
-}
-
-.carry-cell.apr {
-    background: #FFF0B0;
-}
-
-/* Blockers cells */
-.block-cell {
-    background: #FFF5F5;
-}
-
-.block-cell.apr {
-    background: #FFE4E4;
-}
-
-/* === Work Items === */
+/* Work Items */
 .it {
     font-size: 12px;
     color: #333;
@@ -292,7 +119,6 @@ body {
     line-height: 1.35;
     position: relative;
 }
-
 .it::before {
     content: '';
     position: absolute;
@@ -302,69 +128,22 @@ body {
     height: 6px;
     border-radius: 50%;
 }
+.ship-cell .it::before { background: #34A853; }
+.prog-cell .it::before { background: #0078D4; }
+.carry-cell .it::before { background: #F4B400; }
+.block-cell .it::before { background: #EA4335; }
 
-/* Dot colors per row */
-.ship-cell .it::before {
-    background: #34A853;
-}
-
-.prog-cell .it::before {
-    background: #0078D4;
-}
-
-.carry-cell .it::before {
-    background: #F4B400;
-}
-
-.block-cell .it::before {
-    background: #EA4335;
-}
-
-/* === Empty / Future Cells === */
-.hm-empty {
-    color: #AAA;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-}
-
-/* === Error Panel === */
+/* Error Panel */
 .error-panel {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 1920px;
     height: 1080px;
-    background: #FFFFFF;
+    gap: 16px;
 }
-
-.error-content {
-    text-align: center;
-    max-width: 600px;
-}
-
-.error-content h2 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #333;
-    margin: 16px 0 8px;
-}
-
-.error-content .error-message {
-    font-size: 14px;
-    color: #666;
-    font-family: 'Consolas', 'Courier New', monospace;
-    background: #F5F5F5;
-    padding: 12px 16px;
-    border-radius: 4px;
-    margin: 12px 0;
-    word-break: break-word;
-}
-
-.error-content .error-help {
-    font-size: 12px;
-    color: #888;
-    margin-top: 8px;
-}
+.error-icon { font-size: 48px; color: #EA4335; }
+.error-title { font-size: 20px; font-weight: 700; color: #333; }
+.error-details { font-size: 14px; color: #666; font-family: monospace; }
+.error-help { font-size: 12px; color: #888; }
