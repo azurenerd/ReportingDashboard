@@ -1,18 +1,46 @@
-<div class="hm-row-hdr @CssPrefix-hdr">@CategoryLabel</div>
-@foreach (var month in Months)
-{
-    var isCurrentMonth = month.Equals(CurrentMonth, StringComparison.OrdinalIgnoreCase);
-    var monthKey = month.ToLowerInvariant();
-    var items = Items.TryGetValue(monthKey, out var list) ? list :
-                Items.TryGetValue(month, out var list2) ? list2 : new List<string>();
+<div class="hm-row-hdr @HeaderClass">@CategoryLabel</div>
 
-    <HeatmapCell Items="@items" CssPrefix="@CssPrefix" IsCurrentMonth="@isCurrentMonth" />
+@if (Months is not null)
+{
+    @foreach (var month in Months)
+    {
+        var items = GetItemsForMonth(month);
+        <HeatmapCell Items="@items" CssPrefix="@CssPrefix" IsCurrentMonth="@CheckIsCurrentMonth(month)" />
+    }
 }
 
 @code {
-    [Parameter] public string CategoryLabel { get; set; } = string.Empty;
-    [Parameter] public string CssPrefix { get; set; } = string.Empty;
-    [Parameter] public Dictionary<string, List<string>> Items { get; set; } = new();
-    [Parameter] public List<string> Months { get; set; } = new();
-    [Parameter] public string CurrentMonth { get; set; } = string.Empty;
+    [Parameter]
+    public string CategoryLabel { get; set; } = string.Empty;
+
+    [Parameter]
+    public string CssPrefix { get; set; } = string.Empty;
+
+    [Parameter]
+    public Dictionary<string, List<string>>? Items { get; set; }
+
+    [Parameter]
+    public List<string>? Months { get; set; }
+
+    [Parameter]
+    public string CurrentMonth { get; set; } = string.Empty;
+
+    [Parameter]
+    public string CategoryKey { get; set; } = string.Empty;
+
+    private string HeaderClass => $"{CssPrefix}-hdr";
+
+    private List<string> GetItemsForMonth(string month)
+    {
+        if (Items is null)
+            return new List<string>();
+
+        var key = month.ToLowerInvariant();
+        return Items.TryGetValue(key, out var items) ? items : new List<string>();
+    }
+
+    private bool CheckIsCurrentMonth(string month)
+    {
+        return month.Equals(CurrentMonth, StringComparison.OrdinalIgnoreCase);
+    }
 }
