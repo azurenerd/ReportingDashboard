@@ -1,19 +1,22 @@
-/* Executive Reporting Dashboard - Pixel-precise 1920x1080 layout */
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* === Reset & Body === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 body {
-    font-family: 'Segoe UI', Arial, sans-serif;
     width: 1920px;
     height: 1080px;
     overflow: hidden;
-    background: #FFFFFF;
+    font-family: 'Segoe UI', Arial, sans-serif;
     color: #111;
+    background: #FFFFFF;
     display: flex;
     flex-direction: column;
 }
 
-/* ============ HEADER ============ */
+/* === Header === */
 .hdr {
     display: flex;
     justify-content: space-between;
@@ -22,13 +25,14 @@ body {
     border-bottom: 1px solid #E0E0E0;
 }
 
-.hdr-left h1 {
+.hdr h1 {
     font-size: 24px;
     font-weight: 700;
     color: #111;
+    margin: 0;
 }
 
-.hdr-left h1 a {
+.hdr h1 a {
     color: #0078D4;
     text-decoration: none;
     font-size: 14px;
@@ -36,23 +40,29 @@ body {
     margin-left: 12px;
 }
 
-.hdr-left .sub {
+.hdr h1 a:hover {
+    text-decoration: underline;
+}
+
+.sub {
     font-size: 12px;
     color: #888;
     margin-top: 2px;
 }
 
-.hdr-right {
+/* === Legend === */
+.legend {
     display: flex;
     gap: 22px;
     align-items: center;
+    font-size: 12px;
+    color: #444;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
 }
 
 .legend-diamond {
@@ -60,6 +70,7 @@ body {
     height: 12px;
     transform: rotate(45deg);
     display: inline-block;
+    flex-shrink: 0;
 }
 
 .legend-circle {
@@ -68,23 +79,25 @@ body {
     border-radius: 50%;
     background: #999;
     display: inline-block;
+    flex-shrink: 0;
 }
 
-.legend-now-bar {
+.legend-now {
     width: 2px;
     height: 14px;
     background: #EA4335;
     display: inline-block;
+    flex-shrink: 0;
 }
 
-/* ============ TIMELINE AREA ============ */
+/* === Timeline Area === */
 .tl-area {
-    display: flex;
-    align-items: stretch;
     height: 196px;
-    padding: 6px 44px 0;
     background: #FAFAFA;
     border-bottom: 2px solid #E8E8E8;
+    display: flex;
+    align-items: stretch;
+    padding: 6px 44px 0;
 }
 
 .tl-labels {
@@ -97,18 +110,18 @@ body {
     border-right: 1px solid #E0E0E0;
 }
 
-.tl-label {
+.tl-track-label {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 8px;
 }
 
-.tl-id {
+.tl-track-id {
     font-size: 12px;
     font-weight: 600;
 }
 
-.tl-name {
+.tl-track-name {
     font-size: 12px;
     font-weight: 400;
     color: #444;
@@ -118,15 +131,16 @@ body {
     flex: 1;
     padding-left: 12px;
     padding-top: 6px;
+    overflow: visible;
 }
 
-/* ============ HEATMAP ============ */
+/* === Heatmap Wrapper === */
 .hm-wrap {
-    display: flex;
-    flex-direction: column;
     flex: 1;
     min-height: 0;
     padding: 10px 44px 10px;
+    display: flex;
+    flex-direction: column;
 }
 
 .hm-title {
@@ -138,6 +152,7 @@ body {
     margin-bottom: 8px;
 }
 
+/* === Heatmap Grid === */
 .hm-grid {
     display: grid;
     border: 1px solid #E0E0E0;
@@ -145,58 +160,74 @@ body {
     min-height: 0;
 }
 
-/* Corner cell */
 .hm-corner {
     background: #F5F5F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 11px;
     font-weight: 700;
-    text-transform: uppercase;
     color: #999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    text-transform: uppercase;
     border-right: 1px solid #E0E0E0;
     border-bottom: 2px solid #CCC;
 }
 
-/* Column headers */
 .hm-col-hdr {
     background: #F5F5F5;
-    font-size: 16px;
-    font-weight: 700;
-    text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
     border-right: 1px solid #E0E0E0;
     border-bottom: 2px solid #CCC;
 }
 
-.cur-month-hdr {
+.hm-col-hdr:last-child {
+    border-right: none;
+}
+
+/* Current month column header */
+.apr-hdr {
     background: #FFF0D0;
     color: #C07700;
 }
 
-/* Row headers */
+/* === Row Headers === */
 .hm-row-hdr {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.7px;
-    padding: 0 12px;
-    display: flex;
-    align-items: center;
     border-right: 2px solid #CCC;
     border-bottom: 1px solid #E0E0E0;
 }
 
-/* Row header category colors */
-.shipped-hdr  { color: #1B7A28; background: #E8F5E9; }
-.prog-hdr     { color: #1565C0; background: #E3F2FD; }
-.carry-hdr    { color: #B45309; background: #FFF8E1; }
-.block-hdr    { color: #991B1B; background: #FEF2F2; }
+.ship-hdr {
+    color: #1B7A28;
+    background: #E8F5E9;
+}
 
-/* Data cells */
+.prog-hdr {
+    color: #1565C0;
+    background: #E3F2FD;
+}
+
+.carry-hdr {
+    color: #B45309;
+    background: #FFF8E1;
+}
+
+.block-hdr {
+    color: #991B1B;
+    background: #FEF2F2;
+}
+
+/* === Data Cells === */
 .hm-cell {
     padding: 8px 12px;
     border-right: 1px solid #E0E0E0;
@@ -204,19 +235,47 @@ body {
     overflow: hidden;
 }
 
-/* Cell category colors */
-.shipped-cell { background: #F0FBF0; }
-.prog-cell    { background: #EEF4FE; }
-.carry-cell   { background: #FFFDE7; }
-.block-cell   { background: #FFF5F5; }
+.hm-cell:last-child {
+    border-right: none;
+}
 
-/* Current month cell highlights */
-.shipped-cur { background: #D8F2DA; }
-.prog-cur    { background: #DAE8FB; }
-.carry-cur   { background: #FFF0B0; }
-.block-cur   { background: #FFE4E4; }
+/* Shipped cells */
+.ship-cell {
+    background: #F0FBF0;
+}
 
-/* Work items in cells */
+.ship-cell.apr {
+    background: #D8F2DA;
+}
+
+/* In Progress cells */
+.prog-cell {
+    background: #EEF4FE;
+}
+
+.prog-cell.apr {
+    background: #DAE8FB;
+}
+
+/* Carryover cells */
+.carry-cell {
+    background: #FFFDE7;
+}
+
+.carry-cell.apr {
+    background: #FFF0B0;
+}
+
+/* Blockers cells */
+.block-cell {
+    background: #FFF5F5;
+}
+
+.block-cell.apr {
+    background: #FFE4E4;
+}
+
+/* === Work Items === */
 .it {
     font-size: 12px;
     color: #333;
@@ -227,60 +286,72 @@ body {
 
 .it::before {
     content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
     position: absolute;
     left: 0;
     top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
 }
 
-/* Dot colors per category */
-.shipped-dot::before { background: #34A853; }
-.prog-dot::before    { background: #0078D4; }
-.carry-dot::before   { background: #F4B400; }
-.block-dot::before   { background: #EA4335; }
+/* Item dot colors per row */
+.ship-cell .it::before {
+    background: #34A853;
+}
 
-/* Empty cell dash */
-.empty-cell {
+.prog-cell .it::before {
+    background: #0078D4;
+}
+
+.carry-cell .it::before {
+    background: #F4B400;
+}
+
+.block-cell .it::before {
+    background: #EA4335;
+}
+
+/* === Empty cell dash === */
+.hm-cell-empty {
     color: #AAA;
-    font-size: 14px;
-}
-
-/* ============ ERROR PANEL ============ */
-.error-panel {
+    text-align: center;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    text-align: center;
-    color: #666;
-    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* === Error Panel === */
+.error-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1920px;
+    height: 1080px;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .error-panel .error-icon {
     font-size: 48px;
-    margin-bottom: 16px;
     color: #EA4335;
 }
 
-.error-panel h2 {
+.error-panel .error-title {
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 700;
     color: #333;
-    margin-bottom: 12px;
 }
 
-.error-panel p {
+.error-panel .error-details {
     font-size: 14px;
     color: #666;
-    max-width: 480px;
-    line-height: 1.5;
+    font-family: 'Consolas', 'Courier New', monospace;
+    max-width: 800px;
+    text-align: center;
+    word-break: break-word;
 }
 
-.error-panel .error-hint {
-    margin-top: 8px;
+.error-panel .error-help {
     font-size: 12px;
-    color: #999;
+    color: #888;
 }

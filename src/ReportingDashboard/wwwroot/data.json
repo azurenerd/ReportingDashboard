@@ -1,69 +1,69 @@
 {
   "title": "Privacy Automation Release Roadmap",
-  "subtitle": "Core Platform · Privacy Engineering · April 2026",
-  "backlogLink": "https://dev.azure.com/example/project/_backlogs",
+  "subtitle": "Trusted Platform \u00b7 Privacy Automation Workstream \u00b7 April 2026",
+  "backlogLink": "https://dev.azure.com/org/project/_backlogs",
   "currentMonth": "Apr",
-  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+  "months": ["Jan", "Feb", "Mar", "Apr"],
   "timeline": {
     "startDate": "2026-01-01",
     "endDate": "2026-06-30",
     "nowDate": "2026-04-10",
     "tracks": [
       {
-        "id": "M1",
-        "name": "Chatbot & MS Role",
+        "name": "M1",
+        "label": "Chatbot & MS Role",
         "color": "#0078D4",
         "milestones": [
-          { "date": "2026-02-01", "label": "Feb Check", "type": "checkpoint" },
-          { "date": "2026-03-15", "label": "Mar 26 PoC", "type": "poc" },
-          { "date": "2026-05-15", "label": "May 26 Prod", "type": "production" }
+          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
+          { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
+          { "date": "2026-05-01", "type": "production", "label": "May Prod (TBD)" }
         ]
       },
       {
-        "id": "M2",
-        "name": "Automated Scans",
+        "name": "M2",
+        "label": "Compliance Automation",
         "color": "#00897B",
         "milestones": [
-          { "date": "2026-01-20", "label": "Jan Check", "type": "checkpoint" },
-          { "date": "2026-02-28", "label": "Feb 26 PoC", "type": "poc" },
-          { "date": "2026-04-30", "label": "Apr 26 Prod", "type": "production" }
+          { "date": "2026-02-10", "type": "checkpoint", "label": "Feb 10" },
+          { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC" },
+          { "date": "2026-06-01", "type": "production", "label": "Jun Prod" }
         ]
       },
       {
-        "id": "M3",
-        "name": "Compliance Reports",
+        "name": "M3",
+        "label": "Audit & Reporting",
         "color": "#546E7A",
         "milestones": [
-          { "date": "2026-03-01", "label": "Mar Check", "type": "checkpoint" },
-          { "date": "2026-04-15", "label": "Apr 26 PoC", "type": "poc" },
-          { "date": "2026-06-15", "label": "Jun 26 Prod", "type": "production" }
+          { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
+          { "date": "2026-05-15", "type": "production", "label": "May 15 Prod" }
         ]
       }
     ]
   },
   "heatmap": {
     "shipped": {
-      "Jan": ["DSR intake form v2", "Role-based access MVP"],
-      "Feb": ["Scan scheduler alpha", "Chatbot FAQ module"],
-      "Mar": ["MS Graph integration", "Auto-classification engine"],
-      "Apr": ["Scan dashboard v1"]
+      "jan": ["DSR Automation v1", "Role Sync Pipeline"],
+      "feb": ["Consent API Refactor", "Telemetry Dashboards", "PII Scanner v2"],
+      "mar": ["Chatbot Pilot Launch", "Compliance Report Gen"],
+      "apr": ["MS Role Integration"]
     },
     "inProgress": {
-      "Jan": ["Chatbot prototype"],
-      "Feb": ["Compliance template builder"],
-      "Mar": ["Role escalation flow"],
-      "Apr": ["Chatbot MS Role integration", "Report export API"],
-      "May": ["Compliance report generator"],
-      "Jun": ["Final UAT & hardening"]
+      "jan": [],
+      "feb": [],
+      "mar": ["Audit Trail Module"],
+      "apr": ["Privacy Vault Migration", "Data Retention Policies", "GDPR Automation"]
     },
     "carryover": {
-      "Feb": ["DSR edge-case handling"],
-      "Mar": ["Scan false-positive tuning"],
-      "Apr": ["Legacy data migration script"]
+      "jan": [],
+      "feb": [],
+      "mar": [],
+      "apr": ["Legacy PII Cleanup"]
     },
     "blockers": {
-      "Mar": ["MS Graph throttling limits"],
-      "Apr": ["Prod tenant access pending"]
+      "jan": [],
+      "feb": [],
+      "mar": [],
+      "apr": ["AAD Permission Escalation Approval"]
     }
   }
 }

@@ -1,26 +1,12 @@
 @page "/"
+@layout DashboardLayout
 @inject DashboardDataService DataService
 
 @if (DataService.IsError)
 {
-    <ErrorPanel Message="@DataService.ErrorMessage" />
+    <p>Error: @DataService.ErrorMessage</p>
 }
 else if (DataService.Data is not null)
 {
-    var data = DataService.Data;
-    <div class="hdr">
-        <Header Title="@data.Title"
-                Subtitle="@data.Subtitle"
-                BacklogLink="@data.BacklogLink"
-                CurrentMonth="@data.CurrentMonth"
-                NowDate="@data.Timeline.NowDate" />
-    </div>
-    <div class="tl-area">
-        <Timeline TimelineModel="@data.Timeline" />
-    </div>
-    <div class="hm-wrap">
-        <Heatmap HeatmapModel="@data.Heatmap"
-                 Months="@data.Months"
-                 CurrentMonth="@data.CurrentMonth" />
-    </div>
+    <p>Data loaded: @DataService.Data.Title</p>
 }
