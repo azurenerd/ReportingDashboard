@@ -26,8 +26,8 @@ public class ModelDeserializationIntegrationTests
             "nowDate": "2026-04-10",
             "tracks": [
                 {
-                    "id": "M1",
                     "name": "Chatbot Integration",
+                    "label": "M1",
                     "color": "#0078D4",
                     "milestones": [
                         { "date": "2026-01-20", "label": "Jan 20", "type": "checkpoint" },
@@ -36,8 +36,8 @@ public class ModelDeserializationIntegrationTests
                     ]
                 },
                 {
-                    "id": "M2",
                     "name": "Data Pipeline",
+                    "label": "M2",
                     "color": "#00897B",
                     "milestones": [
                         { "date": "2026-03-01", "label": "Mar 1", "type": "poc" },
@@ -45,8 +45,8 @@ public class ModelDeserializationIntegrationTests
                     ]
                 },
                 {
-                    "id": "M3",
                     "name": "Compliance Engine",
+                    "label": "M3",
                     "color": "#546E7A",
                     "milestones": [
                         { "date": "2026-02-01", "label": "Feb 1", "type": "checkpoint" },
@@ -104,15 +104,15 @@ public class ModelDeserializationIntegrationTests
 
         data.Timeline.Tracks.Should().HaveCount(3);
 
-        data.Timeline.Tracks[0].Id.Should().Be("M1");
         data.Timeline.Tracks[0].Name.Should().Be("Chatbot Integration");
+        data.Timeline.Tracks[0].Label.Should().Be("M1");
         data.Timeline.Tracks[0].Color.Should().Be("#0078D4");
         data.Timeline.Tracks[0].Milestones.Should().HaveCount(3);
 
-        data.Timeline.Tracks[1].Id.Should().Be("M2");
+        data.Timeline.Tracks[1].Name.Should().Be("Data Pipeline");
         data.Timeline.Tracks[1].Milestones.Should().HaveCount(2);
 
-        data.Timeline.Tracks[2].Id.Should().Be("M3");
+        data.Timeline.Tracks[2].Name.Should().Be("Compliance Engine");
         data.Timeline.Tracks[2].Milestones.Should().HaveCount(2);
     }
 

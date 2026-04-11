@@ -11,7 +11,6 @@ public class DashboardLayoutTests : TestContext
     [Fact]
     public void DashboardLayout_RendersChildContent()
     {
-        // DashboardLayout inherits LayoutComponentBase which uses Body, not ChildContent
         var cut = RenderComponent<DashboardLayout>(p =>
             p.Add(c => c.Body, builder =>
             {

@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ReportingDashboard.Services;
@@ -10,7 +9,6 @@ namespace ReportingDashboard.Tests.Unit.Services;
 [Trait("Category", "Unit")]
 public class DashboardDataServiceEdgeCaseTests : IDisposable
 {
-    private readonly Mock<IWebHostEnvironment> _mockEnv;
     private readonly Mock<ILogger<DashboardDataService>> _mockLogger;
     private readonly string _tempDir;
 
@@ -19,18 +17,13 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
         _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardEdge_{Guid.NewGuid():N}");
         Directory.CreateDirectory(_tempDir);
 
-        _mockEnv = new Mock<IWebHostEnvironment>();
-        _mockEnv.Setup(e => e.WebRootPath).Returns(_tempDir);
-
         _mockLogger = new Mock<ILogger<DashboardDataService>>();
     }
 
     public void Dispose()
     {
         if (Directory.Exists(_tempDir))
-        {
             Directory.Delete(_tempDir, true);
-        }
     }
 
     private string WriteFile(string name, string content)
@@ -40,12 +33,29 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
         return path;
     }
 
+    private static string GetMinimalValidJson(string title = "Test") => $$"""
+    {
+        "title": "{{title}}",
+        "subtitle": "Test Subtitle",
+        "backlogLink": "https://test.com",
+        "currentMonth": "Jan",
+        "months": ["Jan"],
+        "timeline": {
+            "startDate": "2026-01-01",
+            "endDate": "2026-06-30",
+            "nowDate": "2026-04-10",
+            "tracks": [{ "name": "Track", "label": "T1", "milestones": [] }]
+        },
+        "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
+    }
+    """;
+
     [Fact]
     public async Task LoadAsync_WhitespaceOnlyJson_SetsIsError()
     {
         var path = WriteFile("data.json", "   \n\t  ");
 
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
         await service.LoadAsync(path);
 
         service.IsError.Should().BeTrue();
@@ -55,10 +65,10 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
     public async Task LoadAsync_JsonWithBom_DeserializesCorrectly()
     {
         var bom = "\uFEFF";
-        var json = bom + """{ "title": "BOM Test" }""";
+        var json = bom + GetMinimalValidJson("BOM Test");
         var path = WriteFile("data.json", json);
 
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
         await service.LoadAsync(path);
 
         service.Data.Should().NotBeNull();
@@ -68,10 +78,25 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
     [Fact]
     public async Task LoadAsync_UnicodeContent_DeserializesCorrectly()
     {
-        var json = """{ "title": "日本語テスト", "subtitle": "Ñoño" }""";
+        var json = """
+        {
+            "title": "日本語テスト",
+            "subtitle": "Ñoño",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Jan",
+            "months": ["Jan"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [{ "name": "Track", "label": "T1", "milestones": [] }]
+            },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
+        }
+        """;
         var path = WriteFile("data.json", json);
 
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
         await service.LoadAsync(path);
 
         service.Data.Should().NotBeNull();
@@ -85,6 +110,16 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
         var json = """
         {
             "title": "Nested",
+            "subtitle": "Test Subtitle",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Jan",
+            "months": ["Jan"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [{ "name": "Track", "label": "T1", "milestones": [] }]
+            },
             "heatmap": {
                 "shipped": {
                     "jan": ["a", "b", "c"],
@@ -100,7 +135,7 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
         """;
         var path = WriteFile("data.json", json);
 
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
         await service.LoadAsync(path);
 
         service.Data!.Heatmap.Shipped.Should().HaveCount(4);
@@ -109,8 +144,9 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_OnlyTimeline_OtherFieldsGetDefaults()
+    public async Task LoadAsync_MissingRequiredFields_SetsValidationError()
     {
+        // Only timeline provided, missing title/subtitle/etc. - fails validation
         var json = """
         {
             "timeline": {
@@ -118,30 +154,43 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
                 "endDate": "2026-06-30",
                 "nowDate": "2026-04-01",
                 "tracks": [
-                    { "id": "M1", "name": "Track", "color": "#000", "milestones": [] }
+                    { "name": "Track", "label": "T1", "color": "#000", "milestones": [] }
                 ]
             }
         }
         """;
         var path = WriteFile("data.json", json);
 
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
         await service.LoadAsync(path);
 
-        service.Data.Should().NotBeNull();
-        service.Data!.Title.Should().BeEmpty();
-        service.Data.Months.Should().BeEmpty();
-        service.Data.Timeline.Tracks.Should().HaveCount(1);
+        service.IsError.Should().BeTrue();
+        service.ErrorMessage.Should().Contain("title");
     }
 
     [Fact]
     public async Task LoadAsync_VeryLongTitle_HandlesGracefully()
     {
         var longTitle = new string('A', 10000);
-        var json = $$"""{ "title": "{{longTitle}}" }""";
+        var json = $$"""
+        {
+            "title": "{{longTitle}}",
+            "subtitle": "Test Subtitle",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Jan",
+            "months": ["Jan"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [{ "name": "Track", "label": "T1", "milestones": [] }]
+            },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
+        }
+        """;
         var path = WriteFile("data.json", json);
 
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
         await service.LoadAsync(path);
 
         service.Data.Should().NotBeNull();
@@ -154,40 +203,51 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
         var json = """{ "title": 12345 }""";
         var path = WriteFile("data.json", json);
 
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
         await service.LoadAsync(path);
 
-        // System.Text.Json may throw or coerce depending on settings
-        // With PropertyNameCaseInsensitive, it should throw JsonException
         service.IsError.Should().BeTrue();
     }
 
     [Fact]
-    public async Task LoadAsync_PropertiesAreVirtual_CanBeMocked()
+    public void Constructor_InitializesCleanState()
     {
-        var mock = new Mock<DashboardDataService>(_mockEnv.Object, _mockLogger.Object);
-        mock.Setup(s => s.Data).Returns(new ReportingDashboard.Models.DashboardData { Title = "Mocked" });
-        mock.Setup(s => s.IsError).Returns(false);
+        // Properties are not virtual by design - use real instances, not mocks
+        var service = new DashboardDataService(_mockLogger.Object);
 
-        mock.Object.Data!.Title.Should().Be("Mocked");
-        mock.Object.IsError.Should().BeFalse();
+        service.Data.Should().BeNull();
+        service.IsError.Should().BeFalse();
+        service.ErrorMessage.Should().BeNull();
     }
 
     [Fact]
-    public async Task LoadAsync_JsonWithComments_SetsIsError()
+    public async Task LoadAsync_JsonWithComments_AcceptedByParser()
     {
+        // PR #595 uses ReadCommentHandling = JsonCommentHandling.Skip
         var json = """
         {
             // This is a comment
-            "title": "Test"
+            "title": "Test",
+            "subtitle": "Test Subtitle",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Jan",
+            "months": ["Jan"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [{ "name": "Track", "label": "T1", "milestones": [] }]
+            },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
         }
         """;
         var path = WriteFile("data.json", json);
 
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
         await service.LoadAsync(path);
 
-        service.IsError.Should().BeTrue();
+        service.IsError.Should().BeFalse();
+        service.Data!.Title.Should().Be("Test");
     }
 
     [Fact]
@@ -195,7 +255,7 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
     {
         var path = WriteFile("data.json", "\"just a string\"");
 
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
         await service.LoadAsync(path);
 
         service.IsError.Should().BeTrue();
@@ -206,7 +266,7 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
     {
         var path = WriteFile("data.json", "42");
 
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
         await service.LoadAsync(path);
 
         service.IsError.Should().BeTrue();
@@ -217,7 +277,7 @@ public class DashboardDataServiceEdgeCaseTests : IDisposable
     {
         var path = WriteFile("data.json", "true");
 
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
         await service.LoadAsync(path);
 
         service.IsError.Should().BeTrue();

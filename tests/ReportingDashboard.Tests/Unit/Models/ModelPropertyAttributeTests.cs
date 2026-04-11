@@ -43,8 +43,8 @@ public class ModelPropertyAttributeTests
     }
 
     [Theory]
-    [InlineData(nameof(TimelineTrack.Id), "id")]
     [InlineData(nameof(TimelineTrack.Name), "name")]
+    [InlineData(nameof(TimelineTrack.Label), "label")]
     [InlineData(nameof(TimelineTrack.Color), "color")]
     [InlineData(nameof(TimelineTrack.Milestones), "milestones")]
     public void TimelineTrack_Property_HasCorrectJsonPropertyName(string propertyName, string expectedJsonName)
@@ -58,12 +58,12 @@ public class ModelPropertyAttributeTests
     }
 
     [Theory]
-    [InlineData(nameof(MilestoneMarker.Date), "date")]
-    [InlineData(nameof(MilestoneMarker.Label), "label")]
-    [InlineData(nameof(MilestoneMarker.Type), "type")]
-    public void MilestoneMarker_Property_HasCorrectJsonPropertyName(string propertyName, string expectedJsonName)
+    [InlineData(nameof(Milestone.Date), "date")]
+    [InlineData(nameof(Milestone.Label), "label")]
+    [InlineData(nameof(Milestone.Type), "type")]
+    public void Milestone_Property_HasCorrectJsonPropertyName(string propertyName, string expectedJsonName)
     {
-        var attr = typeof(MilestoneMarker)
+        var attr = typeof(Milestone)
             .GetProperty(propertyName)!
             .GetCustomAttribute<JsonPropertyNameAttribute>();
 

@@ -36,13 +36,6 @@ public class TimelineDataDefaultsTests
     }
 
     [Fact]
-    public void TimelineTrack_DefaultConstruction_IdIsEmptyString()
-    {
-        var track = new TimelineTrack();
-        track.Id.Should().BeEmpty();
-    }
-
-    [Fact]
     public void TimelineTrack_DefaultConstruction_NameIsEmptyString()
     {
         var track = new TimelineTrack();
@@ -50,10 +43,17 @@ public class TimelineDataDefaultsTests
     }
 
     [Fact]
+    public void TimelineTrack_DefaultConstruction_LabelIsEmptyString()
+    {
+        var track = new TimelineTrack();
+        track.Label.Should().BeEmpty();
+    }
+
+    [Fact]
     public void TimelineTrack_DefaultConstruction_ColorHasDefaultValue()
     {
         var track = new TimelineTrack();
-        track.Color.Should().Be("#0078D4");
+        track.Color.Should().Be("#999");
     }
 
     [Fact]
@@ -64,24 +64,24 @@ public class TimelineDataDefaultsTests
     }
 
     [Fact]
-    public void MilestoneMarker_DefaultConstruction_DateIsEmptyString()
+    public void Milestone_DefaultConstruction_DateIsEmptyString()
     {
-        var marker = new MilestoneMarker();
-        marker.Date.Should().BeEmpty();
+        var milestone = new Milestone();
+        milestone.Date.Should().BeEmpty();
     }
 
     [Fact]
-    public void MilestoneMarker_DefaultConstruction_LabelIsEmptyString()
+    public void Milestone_DefaultConstruction_LabelIsEmptyString()
     {
-        var marker = new MilestoneMarker();
-        marker.Label.Should().BeEmpty();
+        var milestone = new Milestone();
+        milestone.Label.Should().BeEmpty();
     }
 
     [Fact]
-    public void MilestoneMarker_DefaultConstruction_TypeIsCheckpoint()
+    public void Milestone_DefaultConstruction_TypeIsCheckpoint()
     {
-        var marker = new MilestoneMarker();
-        marker.Type.Should().Be("checkpoint");
+        var milestone = new Milestone();
+        milestone.Type.Should().Be("checkpoint");
     }
 
     [Fact]
@@ -89,18 +89,18 @@ public class TimelineDataDefaultsTests
     {
         var track = new TimelineTrack
         {
-            Id = "M1",
             Name = "Chatbot",
+            Label = "M1",
             Color = "#00897B",
-            Milestones = new List<MilestoneMarker>
+            Milestones = new List<Milestone>
             {
                 new() { Date = "2026-02-15", Label = "Feb 15", Type = "poc" },
                 new() { Date = "2026-04-01", Label = "Apr 1", Type = "production" }
             }
         };
 
-        track.Id.Should().Be("M1");
         track.Name.Should().Be("Chatbot");
+        track.Label.Should().Be("M1");
         track.Color.Should().Be("#00897B");
         track.Milestones.Should().HaveCount(2);
         track.Milestones[0].Type.Should().Be("poc");

@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ReportingDashboard.Services;
@@ -10,7 +9,6 @@ namespace ReportingDashboard.Tests.Unit.Services;
 [Trait("Category", "Unit")]
 public class DashboardDataServiceTests : IDisposable
 {
-    private readonly Mock<IWebHostEnvironment> _mockEnv;
     private readonly Mock<ILogger<DashboardDataService>> _mockLogger;
     private readonly DashboardDataService _service;
     private readonly string _tempDir;
@@ -20,19 +18,14 @@ public class DashboardDataServiceTests : IDisposable
         _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardTest_{Guid.NewGuid():N}");
         Directory.CreateDirectory(_tempDir);
 
-        _mockEnv = new Mock<IWebHostEnvironment>();
-        _mockEnv.Setup(e => e.WebRootPath).Returns(_tempDir);
-
         _mockLogger = new Mock<ILogger<DashboardDataService>>();
-        _service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        _service = new DashboardDataService(_mockLogger.Object);
     }
 
     public void Dispose()
     {
         if (Directory.Exists(_tempDir))
-        {
             Directory.Delete(_tempDir, true);
-        }
     }
 
     private string WriteDataJson(string content)
@@ -55,8 +48,8 @@ public class DashboardDataServiceTests : IDisposable
             "nowDate": "2026-04-10",
             "tracks": [
                 {
-                    "id": "M1",
                     "name": "Chatbot",
+                    "label": "M1",
                     "color": "#0078D4",
                     "milestones": [
                         { "date": "2026-02-15", "label": "Feb 15", "type": "poc" }
@@ -114,7 +107,7 @@ public class DashboardDataServiceTests : IDisposable
         await _service.LoadAsync(path);
 
         _service.Data!.Timeline.Tracks.Should().HaveCount(1);
-        _service.Data.Timeline.Tracks[0].Id.Should().Be("M1");
+        _service.Data.Timeline.Tracks[0].Name.Should().Be("Chatbot");
     }
 
     [Fact]
@@ -172,14 +165,33 @@ public class DashboardDataServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_TrailingComma_SetsIsError()
+    public async Task LoadAsync_TrailingComma_AcceptedByParser()
     {
-        var path = WriteDataJson("""{ "title": "Test", }""");
+        // PR #595 sets AllowTrailingCommas = true
+        var json = """
+        {
+            "title": "Test Dashboard",
+            "subtitle": "Team - April 2026",
+            "backlogLink": "https://dev.azure.com/test",
+            "currentMonth": "Apr",
+            "months": ["Jan", "Feb", "Mar", "Apr",],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [
+                    { "name": "Track", "label": "T1", "milestones": [],},
+                ],
+            },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {}, },
+        }
+        """;
+        var path = WriteDataJson(json);
 
         await _service.LoadAsync(path);
 
-        _service.IsError.Should().BeTrue();
-        _service.ErrorMessage.Should().Contain("parse");
+        _service.IsError.Should().BeFalse();
+        _service.Data.Should().NotBeNull();
     }
 
     [Fact]
@@ -200,110 +212,96 @@ public class DashboardDataServiceTests : IDisposable
         await _service.LoadAsync(path);
 
         _service.IsError.Should().BeTrue();
-        _service.ErrorMessage.Should().Contain("empty or could not be parsed");
+        _service.ErrorMessage.Should().Contain("null");
     }
 
     [Fact]
-    public async Task LoadAsync_EmptyObjectJson_DataIsNotNull()
+    public async Task LoadAsync_EmptyObjectJson_FailsValidation()
     {
         var path = WriteDataJson("{}");
 
         await _service.LoadAsync(path);
 
-        _service.Data.Should().NotBeNull();
-        _service.IsError.Should().BeFalse();
+        // PR #595's Validate() requires non-empty title
+        _service.IsError.Should().BeTrue();
+        _service.ErrorMessage.Should().Contain("title");
     }
 
     [Fact]
-    public async Task LoadAsync_EmptyObjectJson_CollectionsAreEmpty()
-    {
-        var path = WriteDataJson("{}");
-
-        await _service.LoadAsync(path);
-
-        _service.Data!.Months.Should().BeEmpty();
-        _service.Data.Timeline.Tracks.Should().BeEmpty();
-        _service.Data.Heatmap.Shipped.Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task LoadAsync_MissingTitle_DataStillLoads()
+    public async Task LoadAsync_MissingTitle_FailsValidation()
     {
         var json = """
         {
             "subtitle": "Team - April",
+            "backlogLink": "https://test.com",
             "currentMonth": "Apr",
-            "months": ["Apr"]
+            "months": ["Apr"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-01",
+                "tracks": [{ "name": "T", "label": "T1", "milestones": [] }]
+            }
         }
         """;
         var path = WriteDataJson(json);
 
         await _service.LoadAsync(path);
 
-        _service.Data.Should().NotBeNull();
-        _service.Data!.Title.Should().BeEmpty();
+        _service.IsError.Should().BeTrue();
+        _service.ErrorMessage.Should().Contain("title");
     }
 
     [Fact]
-    public async Task LoadAsync_EmptyTitle_LogsWarning()
+    public async Task LoadAsync_EmptyTitle_SetsValidationError()
     {
-        var json = """{ "title": "" }""";
+        var json = """
+        {
+            "title": "",
+            "subtitle": "Sub",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Jan",
+            "months": ["Jan"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-01",
+                "tracks": [{ "name": "T", "label": "T1", "milestones": [] }]
+            }
+        }
+        """;
         var path = WriteDataJson(json);
 
         await _service.LoadAsync(path);
 
-        _mockLogger.Verify(
-            x => x.Log(
-                LogLevel.Warning,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("title")),
-                It.IsAny<Exception?>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
+        _service.IsError.Should().BeTrue();
+        _service.ErrorMessage.Should().Contain("title");
     }
 
     [Fact]
-    public async Task LoadAsync_NoTracks_LogsWarning()
+    public async Task LoadAsync_NoTracks_SetsValidationError()
     {
         var json = """
         {
             "title": "Test",
-            "timeline": { "tracks": [] }
+            "subtitle": "Sub",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Apr",
+            "months": ["Apr"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-01",
+                "tracks": []
+            }
         }
         """;
         var path = WriteDataJson(json);
 
         await _service.LoadAsync(path);
 
-        _mockLogger.Verify(
-            x => x.Log(
-                LogLevel.Warning,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("tracks")),
-                It.IsAny<Exception?>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task LoadAsync_DefaultPath_UsesWebRootPath()
-    {
-        WriteDataJson(GetValidJson());
-
-        await _service.LoadAsync();
-
-        _service.Data.Should().NotBeNull();
-        _service.IsError.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task LoadAsync_DefaultPath_FileNotFound_SetsIsError()
-    {
-        // Don't write any file - temp dir is empty
-        await _service.LoadAsync();
-
         _service.IsError.Should().BeTrue();
-        _service.ErrorMessage.Should().Contain("not found");
+        _service.ErrorMessage.Should().Contain("tracks");
     }
 
     [Fact]
@@ -317,9 +315,9 @@ public class DashboardDataServiceTests : IDisposable
         File.WriteAllText(invalidPath, "{ bad }");
         await _service.LoadAsync(invalidPath);
 
-        // Service preserves last-good Data on re-load failure (catch block does not clear Data)
+        // PR #595's SetError() clears Data
         _service.IsError.Should().BeTrue();
-        _service.Data.Should().NotBeNull("service intentionally preserves last-good data on parse failure");
+        _service.Data.Should().BeNull();
     }
 
     [Fact]
@@ -350,7 +348,7 @@ public class DashboardDataServiceTests : IDisposable
             x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("successfully")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Successfully")),
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
@@ -373,7 +371,16 @@ public class DashboardDataServiceTests : IDisposable
         var json = $$"""
         {
             "title": "Large Set",
+            "subtitle": "Test Subtitle",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Jan",
             "months": ["Jan"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [{ "name": "Track", "label": "T1", "milestones": [] }]
+            },
             "heatmap": {
                 "shipped": { "jan": [{{items}}] },
                 "inProgress": {},
@@ -396,7 +403,17 @@ public class DashboardDataServiceTests : IDisposable
         var json = """
         {
             "title": "Dashboard with \"quotes\" & <html>",
-            "subtitle": "Unicode: \u00e9\u00e8\u00ea"
+            "subtitle": "Unicode: \u00e9\u00e8\u00ea",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Jan",
+            "months": ["Jan"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [{ "name": "Track", "label": "T1", "milestones": [] }]
+            },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
         }
         """;
         var path = WriteDataJson(json);
@@ -414,13 +431,17 @@ public class DashboardDataServiceTests : IDisposable
         var json = """
         {
             "title": "Multi Track",
+            "subtitle": "Test Subtitle",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Apr",
+            "months": ["Jan", "Feb", "Mar", "Apr"],
             "timeline": {
                 "startDate": "2026-01-01",
                 "endDate": "2026-06-30",
                 "nowDate": "2026-04-10",
                 "tracks": [
                     {
-                        "id": "M1", "name": "Track 1", "color": "#0078D4",
+                        "name": "Track 1", "label": "M1", "color": "#0078D4",
                         "milestones": [
                             { "date": "2026-01-15", "label": "Jan 15", "type": "checkpoint" },
                             { "date": "2026-02-15", "label": "Feb 15", "type": "poc" },
@@ -428,17 +449,18 @@ public class DashboardDataServiceTests : IDisposable
                         ]
                     },
                     {
-                        "id": "M2", "name": "Track 2", "color": "#00897B",
+                        "name": "Track 2", "label": "M2", "color": "#00897B",
                         "milestones": [
                             { "date": "2026-04-01", "label": "Apr 1", "type": "production" }
                         ]
                     },
                     {
-                        "id": "M3", "name": "Track 3", "color": "#546E7A",
+                        "name": "Track 3", "label": "M3", "color": "#546E7A",
                         "milestones": []
                     }
                 ]
-            }
+            },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
         }
         """;
         var path = WriteDataJson(json);
@@ -454,7 +476,7 @@ public class DashboardDataServiceTests : IDisposable
     [Fact]
     public void Constructor_InitializesWithNoError()
     {
-        var service = new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+        var service = new DashboardDataService(_mockLogger.Object);
 
         service.Data.Should().BeNull();
         service.IsError.Should().BeFalse();

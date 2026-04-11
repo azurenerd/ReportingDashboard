@@ -1,12 +1,9 @@
 using Bunit;
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ReportingDashboard.Components;
 using ReportingDashboard.Components.Pages;
-using ReportingDashboard.Models;
 using ReportingDashboard.Services;
 using Xunit;
 
@@ -15,207 +12,180 @@ namespace ReportingDashboard.Tests.Integration.Components;
 [Trait("Category", "Integration")]
 public class DashboardDataFlowIntegrationTests : TestContext
 {
-    private static DashboardData CreateFullData() => new()
+    private readonly string _tempDir;
+    private readonly DashboardDataService _service;
+
+    public DashboardDataFlowIntegrationTests()
     {
-        Title = "Privacy Automation Roadmap",
-        Subtitle = "Trusted Platform – Privacy – April 2026",
-        BacklogLink = "https://dev.azure.com/test",
-        CurrentMonth = "Apr",
-        Months = new List<string> { "Jan", "Feb", "Mar", "Apr" },
-        Timeline = new TimelineData
-        {
-            StartDate = "2026-01-01",
-            EndDate = "2026-06-30",
-            NowDate = "2026-04-10",
-            Tracks = new List<TimelineTrack>
-            {
-                new()
+        _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardFlow_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(_tempDir);
+
+        var mockLogger = new Mock<ILogger<DashboardDataService>>();
+        _service = new DashboardDataService(mockLogger.Object);
+        Services.AddSingleton(_service);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && Directory.Exists(_tempDir))
+            Directory.Delete(_tempDir, true);
+        base.Dispose(disposing);
+    }
+
+    private string WriteJson(string json)
+    {
+        var path = Path.Combine(_tempDir, $"data_{Guid.NewGuid():N}.json");
+        File.WriteAllText(path, json);
+        return path;
+    }
+
+    private static string GetFullJson() => """
+    {
+        "title": "Privacy Automation Roadmap",
+        "subtitle": "Trusted Platform – Privacy – April 2026",
+        "backlogLink": "https://dev.azure.com/test",
+        "currentMonth": "Apr",
+        "months": ["Jan", "Feb", "Mar", "Apr"],
+        "timeline": {
+            "startDate": "2026-01-01",
+            "endDate": "2026-06-30",
+            "nowDate": "2026-04-10",
+            "tracks": [
                 {
-                    Id = "M1",
-                    Name = "Chatbot",
-                    Color = "#0078D4",
-                    Milestones = new List<MilestoneMarker>
-                    {
-                        new() { Date = "2026-02-15", Label = "Feb 15", Type = "poc" },
-                        new() { Date = "2026-04-01", Label = "Apr 1", Type = "production" }
-                    }
+                    "name": "Chatbot",
+                    "label": "M1",
+                    "color": "#0078D4",
+                    "milestones": [
+                        { "date": "2026-02-15", "label": "Feb 15", "type": "poc" },
+                        { "date": "2026-04-01", "label": "Apr 1", "type": "production" }
+                    ]
                 },
-                new()
                 {
-                    Id = "M2",
-                    Name = "Pipeline",
-                    Color = "#00897B",
-                    Milestones = new List<MilestoneMarker>
-                    {
-                        new() { Date = "2026-03-01", Label = "Mar 1", Type = "checkpoint" }
-                    }
+                    "name": "Pipeline",
+                    "label": "M2",
+                    "color": "#00897B",
+                    "milestones": [
+                        { "date": "2026-03-01", "label": "Mar 1", "type": "checkpoint" }
+                    ]
                 }
-            }
+            ]
         },
-        Heatmap = new HeatmapData
-        {
-            Shipped = new Dictionary<string, List<string>>
-            {
-                ["jan"] = new() { "SDK v2.1", "Pipeline" },
-                ["feb"] = new() { "API v3" }
+        "heatmap": {
+            "shipped": {
+                "jan": ["SDK v2.1", "Pipeline"],
+                "feb": ["API v3"]
             },
-            InProgress = new Dictionary<string, List<string>>
-            {
-                ["apr"] = new() { "Monitoring" }
+            "inProgress": {
+                "apr": ["Monitoring"]
             },
-            Carryover = new Dictionary<string, List<string>>(),
-            Blockers = new Dictionary<string, List<string>>
-            {
-                ["apr"] = new() { "Legal Review" }
+            "carryover": {},
+            "blockers": {
+                "apr": ["Legal Review"]
             }
         }
-    };
-
-    private Mock<DashboardDataService> RegisterMockService(DashboardData data)
-    {
-        var mockEnv = new Mock<IWebHostEnvironment>();
-        var mockLogger = new Mock<ILogger<DashboardDataService>>();
-        var mock = new Mock<DashboardDataService>(mockEnv.Object, mockLogger.Object);
-        mock.Setup(s => s.IsError).Returns(false);
-        mock.Setup(s => s.Data).Returns(data);
-        Services.AddSingleton(mock.Object);
-        return mock;
     }
+    """;
 
     [Fact]
-    public void Dashboard_WithValidData_RendersAllThreeSections()
+    public async Task Dashboard_WithValidData_ShowsTitle()
     {
-        RegisterMockService(CreateFullData());
+        var path = WriteJson(GetFullJson());
+        await _service.LoadAsync(path);
 
         var cut = RenderComponent<Dashboard>();
 
-        cut.FindAll(".hdr").Should().HaveCount(1);
-        cut.FindAll(".tl-area").Should().HaveCount(1);
-        cut.FindAll(".hm-wrap").Should().HaveCount(1);
+        cut.Markup.Should().Contain("Data loaded:");
+        cut.Markup.Should().Contain("Privacy Automation Roadmap");
     }
 
     [Fact]
-    public void Dashboard_WithValidData_TimelineReceivesTrackData()
+    public async Task Dashboard_WithValidData_ServiceHasCorrectTrackCount()
     {
-        RegisterMockService(CreateFullData());
+        var path = WriteJson(GetFullJson());
+        await _service.LoadAsync(path);
 
-        var cut = RenderComponent<Dashboard>();
-
-        // Timeline renders track labels
-        cut.Markup.Should().Contain("Chatbot");
-        cut.Markup.Should().Contain("Pipeline");
-        cut.Markup.Should().Contain("M1");
-        cut.Markup.Should().Contain("M2");
+        _service.Data!.Timeline.Tracks.Should().HaveCount(2);
+        _service.Data.Timeline.Tracks[0].Name.Should().Be("Chatbot");
+        _service.Data.Timeline.Tracks[1].Name.Should().Be("Pipeline");
     }
 
     [Fact]
-    public void Dashboard_WithValidData_TimelineRendersSvg()
+    public async Task Dashboard_WithValidData_ServiceHasMilestoneTypes()
     {
-        RegisterMockService(CreateFullData());
+        var path = WriteJson(GetFullJson());
+        await _service.LoadAsync(path);
 
-        var cut = RenderComponent<Dashboard>();
+        var allMilestones = _service.Data!.Timeline.Tracks
+            .SelectMany(t => t.Milestones).ToList();
 
-        cut.Find("svg").Should().NotBeNull();
+        allMilestones.Should().Contain(m => m.Type == "poc");
+        allMilestones.Should().Contain(m => m.Type == "production");
+        allMilestones.Should().Contain(m => m.Type == "checkpoint");
     }
 
     [Fact]
-    public void Dashboard_WithValidData_TimelineRendersMilestoneTypes()
+    public async Task Dashboard_WithEmptyTimeline_DoesNotCrash()
     {
-        RegisterMockService(CreateFullData());
-
-        var cut = RenderComponent<Dashboard>();
-
-        // poc = gold diamond
-        cut.Markup.Should().Contain("#F4B400");
-        // production = green diamond
-        cut.Markup.Should().Contain("#34A853");
-        // checkpoint = circle
-        cut.FindAll("circle").Should().NotBeEmpty();
-    }
-
-    [Fact]
-    public void Dashboard_WithValidData_TimelineRendersNowLine()
-    {
-        RegisterMockService(CreateFullData());
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.Markup.Should().Contain("NOW");
-        cut.Markup.Should().Contain("#EA4335");
-    }
-
-    [Fact]
-    public void Dashboard_WithEmptyTimeline_RendersWithoutCrashing()
-    {
-        var data = CreateFullData();
-        data.Timeline.Tracks.Clear();
-        RegisterMockService(data);
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.Find(".tl-area").Should().NotBeNull();
-        cut.FindAll(".tl-label").Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Dashboard_WithEmptyHeatmap_RendersWithoutCrashing()
-    {
-        var data = CreateFullData();
-        data.Heatmap = new HeatmapData();
-        data.Months = new List<string>();
-        RegisterMockService(data);
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.Find(".hm-wrap").Should().NotBeNull();
-    }
-
-    [Fact]
-    public void Dashboard_WithSingleTrack_RendersCorrectly()
-    {
-        var data = CreateFullData();
-        data.Timeline.Tracks = new List<TimelineTrack>
+        var json = """
         {
-            new()
-            {
-                Id = "ONLY",
-                Name = "Solo Track",
-                Color = "#FF0000",
-                Milestones = new List<MilestoneMarker>
-                {
-                    new() { Date = "2026-03-15", Label = "Mar 15", Type = "production" }
-                }
-            }
-        };
-        RegisterMockService(data);
+            "title": "Test",
+            "subtitle": "Sub",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Jan",
+            "months": ["Jan"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [{ "name": "T", "label": "T1", "milestones": [] }]
+            },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
+        }
+        """;
+        var path = WriteJson(json);
+        await _service.LoadAsync(path);
 
         var cut = RenderComponent<Dashboard>();
 
-        cut.FindAll(".tl-label").Should().HaveCount(1);
-        cut.Markup.Should().Contain("Solo Track");
-        cut.Markup.Should().Contain("ONLY");
+        cut.Markup.Should().Contain("Data loaded:");
     }
 
     [Fact]
-    public void Dashboard_MilestoneLabelsFlowFromDataToSvg()
+    public async Task Dashboard_WithError_ShowsErrorMessage()
     {
-        RegisterMockService(CreateFullData());
+        await _service.LoadAsync(Path.Combine(_tempDir, "nonexistent.json"));
 
         var cut = RenderComponent<Dashboard>();
 
-        cut.Markup.Should().Contain("Feb 15");
-        cut.Markup.Should().Contain("Apr 1");
-        cut.Markup.Should().Contain("Mar 1");
+        cut.Markup.Should().Contain("Error:");
+        cut.Markup.Should().NotContain("Data loaded:");
     }
 
     [Fact]
-    public void Dashboard_TrackColorsFlowFromDataToSvg()
+    public async Task Dashboard_TrackDataFlowsToService()
     {
-        RegisterMockService(CreateFullData());
+        var path = WriteJson(GetFullJson());
+        await _service.LoadAsync(path);
 
-        var cut = RenderComponent<Dashboard>();
+        _service.Data!.Timeline.Tracks[0].Label.Should().Be("M1");
+        _service.Data.Timeline.Tracks[0].Color.Should().Be("#0078D4");
+        _service.Data.Timeline.Tracks[1].Label.Should().Be("M2");
+        _service.Data.Timeline.Tracks[1].Color.Should().Be("#00897B");
+    }
 
-        cut.Markup.Should().Contain("#0078D4");
-        cut.Markup.Should().Contain("#00897B");
+    [Fact]
+    public async Task Dashboard_MilestoneLabelsFlowToService()
+    {
+        var path = WriteJson(GetFullJson());
+        await _service.LoadAsync(path);
+
+        var labels = _service.Data!.Timeline.Tracks
+            .SelectMany(t => t.Milestones)
+            .Select(m => m.Label)
+            .ToList();
+
+        labels.Should().Contain("Feb 15");
+        labels.Should().Contain("Apr 1");
+        labels.Should().Contain("Mar 1");
     }
 }

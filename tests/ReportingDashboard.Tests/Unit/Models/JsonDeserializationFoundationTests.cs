@@ -60,8 +60,8 @@ public class JsonDeserializationFoundationTests
             "nowDate": "2026-04-10",
             "tracks": [
                 {
-                    "id": "M1",
                     "name": "Chatbot",
+                    "label": "M1",
                     "color": "#0078D4",
                     "milestones": [
                         { "date": "2026-02-15", "label": "Feb 15", "type": "poc" },
@@ -69,8 +69,8 @@ public class JsonDeserializationFoundationTests
                     ]
                 },
                 {
-                    "id": "M2",
                     "name": "Pipeline",
+                    "label": "M2",
                     "color": "#00897B",
                     "milestones": [
                         { "date": "2026-03-01", "label": "Mar 1", "type": "checkpoint" }
@@ -84,8 +84,8 @@ public class JsonDeserializationFoundationTests
 
         timeline.Should().NotBeNull();
         timeline!.Tracks.Should().HaveCount(2);
-        timeline.Tracks[0].Id.Should().Be("M1");
         timeline.Tracks[0].Name.Should().Be("Chatbot");
+        timeline.Tracks[0].Label.Should().Be("M1");
         timeline.Tracks[0].Color.Should().Be("#0078D4");
         timeline.Tracks[0].Milestones.Should().HaveCount(2);
         timeline.Tracks[0].Milestones[0].Type.Should().Be("poc");
@@ -164,6 +164,7 @@ public class JsonDeserializationFoundationTests
     [Fact]
     public void Deserialize_TrailingComma_ThrowsJsonException()
     {
+        // Note: this tests default System.Text.Json behavior (no AllowTrailingCommas)
         var json = """{ "title": "Test", }""";
 
         var act = () => JsonSerializer.Deserialize<DashboardData>(json, Options);
@@ -192,7 +193,7 @@ public class JsonDeserializationFoundationTests
         }
         """;
 
-        var ms = JsonSerializer.Deserialize<MilestoneMarker>(json, Options);
+        var ms = JsonSerializer.Deserialize<Milestone>(json, Options);
         ms.Should().NotBeNull();
         ms!.Type.Should().Be("poc");
         ms.Date.Should().Be("2026-03-15");
@@ -209,7 +210,7 @@ public class JsonDeserializationFoundationTests
         }
         """;
 
-        var ms = JsonSerializer.Deserialize<MilestoneMarker>(json, Options);
+        var ms = JsonSerializer.Deserialize<Milestone>(json, Options);
         ms.Should().NotBeNull();
         ms!.Type.Should().Be("checkpoint");
     }

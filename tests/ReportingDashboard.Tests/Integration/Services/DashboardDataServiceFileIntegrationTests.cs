@@ -1,6 +1,4 @@
-using System.Text.Json;
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ReportingDashboard.Models;
@@ -13,21 +11,16 @@ namespace ReportingDashboard.Tests.Integration.Services;
 public class DashboardDataServiceFileIntegrationTests : IDisposable
 {
     private readonly string _tempDir;
-    private readonly string _webRootPath;
     private readonly DashboardDataService _service;
     private readonly Mock<ILogger<DashboardDataService>> _mockLogger;
 
     public DashboardDataServiceFileIntegrationTests()
     {
         _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardInteg_{Guid.NewGuid():N}");
-        _webRootPath = Path.Combine(_tempDir, "wwwroot");
-        Directory.CreateDirectory(_webRootPath);
-
-        var mockEnv = new Mock<IWebHostEnvironment>();
-        mockEnv.Setup(e => e.WebRootPath).Returns(_webRootPath);
+        Directory.CreateDirectory(_tempDir);
 
         _mockLogger = new Mock<ILogger<DashboardDataService>>();
-        _service = new DashboardDataService(mockEnv.Object, _mockLogger.Object);
+        _service = new DashboardDataService(_mockLogger.Object);
     }
 
     public void Dispose()
@@ -38,7 +31,7 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
 
     private string WriteDataJson(string content)
     {
-        var path = Path.Combine(_webRootPath, "data.json");
+        var path = Path.Combine(_tempDir, "data.json");
         File.WriteAllText(path, content);
         return path;
     }
@@ -56,8 +49,8 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
             "nowDate": "2026-04-10",
             "tracks": [
                 {
-                    "id": "M1",
                     "name": "Chatbot Integration",
+                    "label": "M1",
                     "color": "#0078D4",
                     "milestones": [
                         { "date": "2026-01-20", "label": "Jan 20", "type": "checkpoint" },
@@ -66,8 +59,8 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
                     ]
                 },
                 {
-                    "id": "M2",
                     "name": "Data Pipeline",
+                    "label": "M2",
                     "color": "#00897B",
                     "milestones": [
                         { "date": "2026-03-01", "label": "Mar 1", "type": "poc" },
@@ -75,8 +68,8 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
                     ]
                 },
                 {
-                    "id": "M3",
                     "name": "Compliance Engine",
+                    "label": "M3",
                     "color": "#546E7A",
                     "milestones": [
                         { "date": "2026-02-01", "label": "Feb 1", "type": "checkpoint" },
@@ -108,9 +101,9 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     [Fact]
     public async Task LoadAsync_FullSampleData_DeserializesAllTopLevelFields()
     {
-        WriteDataJson(GetFullSampleJson());
+        var path = WriteDataJson(GetFullSampleJson());
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         _service.IsError.Should().BeFalse();
         _service.Data.Should().NotBeNull();
@@ -123,9 +116,9 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     [Fact]
     public async Task LoadAsync_FullSampleData_MonthsDeserializeAsList()
     {
-        WriteDataJson(GetFullSampleJson());
+        var path = WriteDataJson(GetFullSampleJson());
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         _service.Data!.Months.Should().HaveCount(4);
         _service.Data.Months.Should().ContainInOrder("Jan", "Feb", "Mar", "Apr");
@@ -134,9 +127,9 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     [Fact]
     public async Task LoadAsync_FullSampleData_TimelineHasThreeTracks()
     {
-        WriteDataJson(GetFullSampleJson());
+        var path = WriteDataJson(GetFullSampleJson());
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         var timeline = _service.Data!.Timeline;
         timeline.StartDate.Should().Be("2026-01-01");
@@ -146,27 +139,27 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_FullSampleData_TrackIdsAndColorsCorrect()
+    public async Task LoadAsync_FullSampleData_TrackNamesAndColorsCorrect()
     {
-        WriteDataJson(GetFullSampleJson());
+        var path = WriteDataJson(GetFullSampleJson());
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         var tracks = _service.Data!.Timeline.Tracks;
-        tracks[0].Id.Should().Be("M1");
+        tracks[0].Label.Should().Be("M1");
         tracks[0].Color.Should().Be("#0078D4");
-        tracks[1].Id.Should().Be("M2");
+        tracks[1].Label.Should().Be("M2");
         tracks[1].Color.Should().Be("#00897B");
-        tracks[2].Id.Should().Be("M3");
+        tracks[2].Label.Should().Be("M3");
         tracks[2].Color.Should().Be("#546E7A");
     }
 
     [Fact]
     public async Task LoadAsync_FullSampleData_MilestonesHaveAllThreeTypes()
     {
-        WriteDataJson(GetFullSampleJson());
+        var path = WriteDataJson(GetFullSampleJson());
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         var allMilestones = _service.Data!.Timeline.Tracks
             .SelectMany(t => t.Milestones)
@@ -180,9 +173,9 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     [Fact]
     public async Task LoadAsync_FullSampleData_HeatmapShippedHasMultipleMonths()
     {
-        WriteDataJson(GetFullSampleJson());
+        var path = WriteDataJson(GetFullSampleJson());
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         var shipped = _service.Data!.Heatmap.Shipped;
         shipped.Should().ContainKey("jan");
@@ -195,9 +188,9 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     [Fact]
     public async Task LoadAsync_FullSampleData_HeatmapInProgressCorrect()
     {
-        WriteDataJson(GetFullSampleJson());
+        var path = WriteDataJson(GetFullSampleJson());
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         var inProgress = _service.Data!.Heatmap.InProgress;
         inProgress.Should().ContainKey("mar");
@@ -208,9 +201,9 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     [Fact]
     public async Task LoadAsync_FullSampleData_HeatmapCarryoverAndBlockers()
     {
-        WriteDataJson(GetFullSampleJson());
+        var path = WriteDataJson(GetFullSampleJson());
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         _service.Data!.Heatmap.Carryover.Should().ContainKey("apr");
         _service.Data.Heatmap.Carryover["apr"].Should().ContainSingle()
@@ -224,19 +217,20 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     [Fact]
     public async Task LoadAsync_FullSampleData_MissingHeatmapKeyReturnsNoEntry()
     {
-        WriteDataJson(GetFullSampleJson());
+        var path = WriteDataJson(GetFullSampleJson());
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         _service.Data!.Heatmap.Shipped.ContainsKey("may").Should().BeFalse();
         _service.Data.Heatmap.Blockers.ContainsKey("jan").Should().BeFalse();
     }
 
     [Fact]
-    public async Task LoadAsync_MissingFile_DefaultPath_SetsIsErrorWithPath()
+    public async Task LoadAsync_MissingFile_SetsIsErrorWithPath()
     {
-        // Don't create any file
-        await _service.LoadAsync();
+        var nonExistentPath = Path.Combine(_tempDir, "data.json");
+
+        await _service.LoadAsync(nonExistentPath);
 
         _service.IsError.Should().BeTrue();
         _service.ErrorMessage.Should().Contain("not found");
@@ -247,49 +241,43 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     [Fact]
     public async Task LoadAsync_MalformedJson_SetsIsErrorWithParseDetails()
     {
-        WriteDataJson("{ \"title\": \"Test\", }"); // trailing comma
+        var path = WriteDataJson("{ invalid json }");
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         _service.IsError.Should().BeTrue();
         _service.ErrorMessage.Should().Contain("parse");
     }
 
     [Fact]
-    public async Task LoadAsync_EmptyJsonObject_LoadsWithDefaults()
+    public async Task LoadAsync_EmptyObjectJson_FailsValidation()
     {
-        WriteDataJson("{}");
+        // PR #595's Validate() requires non-empty title
+        var path = WriteDataJson("{}");
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
-        _service.IsError.Should().BeFalse();
-        _service.Data.Should().NotBeNull();
-        _service.Data!.Title.Should().BeEmpty();
-        _service.Data.Months.Should().BeEmpty();
-        _service.Data.Timeline.Tracks.Should().BeEmpty();
-        _service.Data.Heatmap.Shipped.Should().BeEmpty();
-        _service.Data.Heatmap.InProgress.Should().BeEmpty();
-        _service.Data.Heatmap.Carryover.Should().BeEmpty();
-        _service.Data.Heatmap.Blockers.Should().BeEmpty();
+        _service.IsError.Should().BeTrue();
+        _service.ErrorMessage.Should().Contain("title");
     }
 
     [Fact]
     public async Task LoadAsync_NullJson_SetsIsError()
     {
-        WriteDataJson("null");
+        var path = WriteDataJson("null");
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         _service.IsError.Should().BeTrue();
-        _service.ErrorMessage.Should().Contain("empty or could not be parsed");
+        _service.ErrorMessage.Should().Contain("null");
     }
 
     [Fact]
     public async Task LoadAsync_EmptyFile_SetsIsError()
     {
-        WriteDataJson("");
+        var path = WriteDataJson("");
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         _service.IsError.Should().BeTrue();
     }
@@ -297,13 +285,16 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     [Fact]
     public async Task LoadAsync_ValidThenReload_SecondCallOverwritesState()
     {
-        WriteDataJson(GetFullSampleJson());
-        await _service.LoadAsync();
+        var path = WriteDataJson(GetFullSampleJson());
+        await _service.LoadAsync(path);
         _service.Data!.Title.Should().Be("Privacy Automation Release Roadmap");
 
-        // Overwrite with different data
-        WriteDataJson("""{ "title": "Updated Dashboard" }""");
-        await _service.LoadAsync();
+        var updatedJson = GetFullSampleJson().Replace(
+            "Privacy Automation Release Roadmap",
+            "Updated Dashboard");
+        var updatedPath = Path.Combine(_tempDir, "updated.json");
+        File.WriteAllText(updatedPath, updatedJson);
+        await _service.LoadAsync(updatedPath);
 
         _service.Data!.Title.Should().Be("Updated Dashboard");
         _service.IsError.Should().BeFalse();
@@ -312,23 +303,26 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     [Fact]
     public async Task LoadAsync_ValidThenCorrupt_SecondCallSetsError()
     {
-        WriteDataJson(GetFullSampleJson());
-        await _service.LoadAsync();
+        var path = WriteDataJson(GetFullSampleJson());
+        await _service.LoadAsync(path);
         _service.IsError.Should().BeFalse();
 
-        WriteDataJson("not json at all");
-        await _service.LoadAsync();
+        var corruptPath = Path.Combine(_tempDir, "corrupt.json");
+        File.WriteAllText(corruptPath, "not json at all");
+        await _service.LoadAsync(corruptPath);
 
         _service.IsError.Should().BeTrue();
     }
 
     [Fact]
-    public async Task LoadAsync_ExplicitPath_OverridesDefaultWebRoot()
+    public async Task LoadAsync_ExplicitPath_LoadsFromSpecifiedLocation()
     {
         var customDir = Path.Combine(_tempDir, "custom");
         Directory.CreateDirectory(customDir);
         var customPath = Path.Combine(customDir, "mydata.json");
-        File.WriteAllText(customPath, """{ "title": "Custom Path Data" }""");
+        File.WriteAllText(customPath, GetFullSampleJson().Replace(
+            "Privacy Automation Release Roadmap",
+            "Custom Path Data"));
 
         await _service.LoadAsync(customPath);
 
@@ -342,6 +336,16 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
         var json = """
         {
             "title": "Empty Arrays Test",
+            "subtitle": "Test Subtitle",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Jan",
+            "months": ["Jan"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [{ "name": "Track", "label": "T1", "milestones": [] }]
+            },
             "heatmap": {
                 "shipped": { "jan": [], "feb": [] },
                 "inProgress": {},
@@ -350,9 +354,9 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
             }
         }
         """;
-        WriteDataJson(json);
+        var path = WriteDataJson(json);
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         _service.IsError.Should().BeFalse();
         _service.Data!.Heatmap.Shipped["jan"].Should().BeEmpty();
@@ -361,63 +365,68 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_MissingTitle_LogsWarningButLoadsSuccessfully()
+    public async Task LoadAsync_MissingTitle_SetsValidationError()
     {
-        WriteDataJson("""{ "subtitle": "No title here" }""");
+        var json = """
+        {
+            "subtitle": "No title here",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Jan",
+            "months": ["Jan"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-01",
+                "tracks": [{ "name": "T", "label": "T1", "milestones": [] }]
+            }
+        }
+        """;
+        var path = WriteDataJson(json);
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
-        _service.IsError.Should().BeFalse();
-        _service.Data.Should().NotBeNull();
-        _service.Data!.Title.Should().BeEmpty();
-
-        _mockLogger.Verify(
-            x => x.Log(
-                LogLevel.Warning,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("title")),
-                It.IsAny<Exception?>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
+        _service.IsError.Should().BeTrue();
+        _service.ErrorMessage.Should().Contain("title");
     }
 
     [Fact]
-    public async Task LoadAsync_EmptyTracks_LogsWarningButLoadsSuccessfully()
+    public async Task LoadAsync_EmptyTracks_SetsValidationError()
     {
         var json = """
         {
             "title": "Test",
-            "timeline": { "startDate": "2026-01-01", "endDate": "2026-06-30", "nowDate": "2026-04-01", "tracks": [] }
+            "subtitle": "Sub",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Apr",
+            "months": ["Apr"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-01",
+                "tracks": []
+            }
         }
         """;
-        WriteDataJson(json);
+        var path = WriteDataJson(json);
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
-        _service.IsError.Should().BeFalse();
-
-        _mockLogger.Verify(
-            x => x.Log(
-                LogLevel.Warning,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("tracks")),
-                It.IsAny<Exception?>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
+        _service.IsError.Should().BeTrue();
+        _service.ErrorMessage.Should().Contain("tracks");
     }
 
     [Fact]
     public async Task LoadAsync_ValidJson_LogsSuccessMessage()
     {
-        WriteDataJson(GetFullSampleJson());
+        var path = WriteDataJson(GetFullSampleJson());
 
-        await _service.LoadAsync();
+        await _service.LoadAsync(path);
 
         _mockLogger.Verify(
             x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("successfully")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Successfully")),
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
@@ -426,7 +435,9 @@ public class DashboardDataServiceFileIntegrationTests : IDisposable
     [Fact]
     public async Task LoadAsync_FileNotFound_LogsErrorMessage()
     {
-        await _service.LoadAsync();
+        var nonExistentPath = Path.Combine(_tempDir, "missing.json");
+
+        await _service.LoadAsync(nonExistentPath);
 
         _mockLogger.Verify(
             x => x.Log(

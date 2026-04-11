@@ -1,12 +1,10 @@
 using Bunit;
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ReportingDashboard.Components;
 using ReportingDashboard.Components.Pages;
-using ReportingDashboard.Models;
 using ReportingDashboard.Services;
 using Xunit;
 
@@ -15,27 +13,108 @@ namespace ReportingDashboard.Tests.Integration.Components;
 [Trait("Category", "Integration")]
 public class DashboardErrorPanelIntegrationTests : TestContext
 {
-    private static Mock<DashboardDataService> CreateMockService(
-        bool isError,
-        string? errorMessage,
-        DashboardData? data)
+    private readonly string _tempDir;
+    private readonly DashboardDataService _service;
+
+    public DashboardErrorPanelIntegrationTests()
     {
-        var mockEnv = new Mock<IWebHostEnvironment>();
+        _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardErr_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(_tempDir);
+
         var mockLogger = new Mock<ILogger<DashboardDataService>>();
-        var mock = new Mock<DashboardDataService>(mockEnv.Object, mockLogger.Object);
-        mock.Setup(s => s.IsError).Returns(isError);
-        mock.Setup(s => s.ErrorMessage).Returns(errorMessage);
-        mock.Setup(s => s.Data).Returns(data);
-        return mock;
+        _service = new DashboardDataService(mockLogger.Object);
+        Services.AddSingleton(_service);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && Directory.Exists(_tempDir))
+            Directory.Delete(_tempDir, true);
+        base.Dispose(disposing);
+    }
+
+    private string WriteJson(string json)
+    {
+        var path = Path.Combine(_tempDir, $"data_{Guid.NewGuid():N}.json");
+        File.WriteAllText(path, json);
+        return path;
     }
 
     [Fact]
-    public void Dashboard_WhenServiceHasError_RendersErrorPanelWithMessage()
+    public async Task Dashboard_WhenFileNotFound_ShowsNotFoundError()
     {
-        var mock = CreateMockService(true, "Dashboard data file not found: /path/data.json.", null);
-        Services.AddSingleton(mock.Object);
+        await _service.LoadAsync(Path.Combine(_tempDir, "data.json"));
 
         var cut = RenderComponent<Dashboard>();
+
+        cut.Markup.Should().Contain("Error:");
+        cut.Markup.Should().Contain("not found");
+    }
+
+    [Fact]
+    public async Task Dashboard_WhenJsonParseError_ShowsParseError()
+    {
+        var path = WriteJson("{ invalid json }");
+        await _service.LoadAsync(path);
+
+        var cut = RenderComponent<Dashboard>();
+
+        cut.Markup.Should().Contain("Error:");
+        cut.Markup.Should().Contain("parse");
+    }
+
+    [Fact]
+    public async Task Dashboard_WhenError_DoesNotShowDataLoaded()
+    {
+        await _service.LoadAsync(Path.Combine(_tempDir, "nonexistent.json"));
+
+        var cut = RenderComponent<Dashboard>();
+
+        cut.Markup.Should().NotContain("Data loaded:");
+    }
+
+    [Fact]
+    public async Task Dashboard_WhenDataValid_DoesNotShowError()
+    {
+        var json = """
+        {
+            "title": "Test",
+            "subtitle": "Sub",
+            "backlogLink": "https://test.com",
+            "currentMonth": "Apr",
+            "months": ["Apr"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [{ "name": "Track", "label": "T1", "milestones": [] }]
+            },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
+        }
+        """;
+        var path = WriteJson(json);
+        await _service.LoadAsync(path);
+
+        var cut = RenderComponent<Dashboard>();
+
+        cut.Markup.Should().NotContain("Error:");
+        cut.Markup.Should().Contain("Data loaded:");
+    }
+
+    [Fact]
+    public void Dashboard_WhenDataIsNull_RendersEmptyMarkup()
+    {
+        // Service default state: IsError=false, Data=null
+        var cut = RenderComponent<Dashboard>();
+
+        cut.Markup.Trim().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ErrorPanel_StandaloneRendersWithMessage()
+    {
+        var cut = RenderComponent<ErrorPanel>(p =>
+            p.Add(x => x.Message, "Dashboard data file not found"));
 
         cut.Find(".error-panel").Should().NotBeNull();
         cut.Find("h2").TextContent.Should().Be("Dashboard data could not be loaded");
@@ -44,86 +123,14 @@ public class DashboardErrorPanelIntegrationTests : TestContext
     }
 
     [Fact]
-    public void Dashboard_WhenServiceHasJsonParseError_RendersSpecificErrorMessage()
+    public void ErrorPanel_StandaloneRendersWithNullMessage()
     {
-        var mock = CreateMockService(true, "Failed to parse data.json: '$' is an invalid start of a value.", null);
-        Services.AddSingleton(mock.Object);
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.Find(".error-panel").Should().NotBeNull();
-        cut.Markup.Should().Contain("Failed to parse data.json");
-        cut.Markup.Should().Contain("invalid start of a value");
-    }
-
-    [Fact]
-    public void Dashboard_WhenServiceHasNullErrorMessage_RendersErrorPanelWithoutMessageParagraph()
-    {
-        var mock = CreateMockService(true, null, null);
-        Services.AddSingleton(mock.Object);
-
-        var cut = RenderComponent<Dashboard>();
+        var cut = RenderComponent<ErrorPanel>(p =>
+            p.Add(x => x.Message, (string?)null));
 
         cut.Find(".error-panel").Should().NotBeNull();
         var paragraphs = cut.FindAll("p");
         paragraphs.Should().HaveCount(1);
         paragraphs[0].ClassList.Should().Contain("error-hint");
-    }
-
-    [Fact]
-    public void Dashboard_WhenServiceHasError_DoesNotRenderDashboardSections()
-    {
-        var mock = CreateMockService(true, "Some error", null);
-        Services.AddSingleton(mock.Object);
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.FindAll(".hdr").Should().BeEmpty();
-        cut.FindAll(".tl-area").Should().BeEmpty();
-        cut.FindAll(".hm-wrap").Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Dashboard_WhenServiceHasData_DoesNotRenderErrorPanel()
-    {
-        var data = new DashboardData
-        {
-            Title = "Test",
-            Subtitle = "Sub",
-            BacklogLink = "https://test.com",
-            CurrentMonth = "Apr",
-            Months = new List<string> { "Apr" },
-            Timeline = new TimelineData
-            {
-                StartDate = "2026-01-01",
-                EndDate = "2026-06-30",
-                NowDate = "2026-04-10",
-                Tracks = new List<TimelineTrack>
-                {
-                    new() { Id = "M1", Name = "Track", Color = "#000" }
-                }
-            },
-            Heatmap = new HeatmapData()
-        };
-        var mock = CreateMockService(false, null, data);
-        Services.AddSingleton(mock.Object);
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.FindAll(".error-panel").Should().BeEmpty();
-        cut.Find(".hdr").Should().NotBeNull();
-        cut.Find(".tl-area").Should().NotBeNull();
-        cut.Find(".hm-wrap").Should().NotBeNull();
-    }
-
-    [Fact]
-    public void Dashboard_WhenDataIsNull_RendersEmptyMarkup()
-    {
-        var mock = CreateMockService(false, null, null);
-        Services.AddSingleton(mock.Object);
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.Markup.Trim().Should().BeEmpty();
     }
 }
