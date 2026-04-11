@@ -1,0 +1,444 @@
+/* === CSS Reset === */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* === CSS Custom Properties === */
+:root {
+    --font-family: 'Segoe UI', Arial, sans-serif;
+
+    /* Primary / Link */
+    --color-primary: #0078D4;
+
+    /* Milestone markers */
+    --color-poc: #F4B400;
+    --color-production: #34A853;
+    --color-checkpoint: #999;
+    --color-now: #EA4335;
+
+    /* Timeline */
+    --tl-bg: #FAFAFA;
+    --tl-border: #E8E8E8;
+    --tl-label-color: #444;
+    --tl-month-color: #666;
+    --tl-divider-color: #bbb;
+
+    /* Track colors (defaults; actual colors come from data.json) */
+    --track-m1: #0078D4;
+    --track-m2: #00897B;
+    --track-m3: #546E7A;
+
+    /* Shipped row */
+    --color-shipped: #34A853;
+    --color-shipped-hdr-bg: #E8F5E9;
+    --color-shipped-hdr-text: #1B7A28;
+    --color-shipped-cell-bg: #F0FBF0;
+    --color-shipped-cell-current: #D8F2DA;
+
+    /* In Progress row */
+    --color-progress: #0078D4;
+    --color-progress-hdr-bg: #E3F2FD;
+    --color-progress-hdr-text: #1565C0;
+    --color-progress-cell-bg: #EEF4FE;
+    --color-progress-cell-current: #DAE8FB;
+
+    /* Carryover row */
+    --color-carryover: #F4B400;
+    --color-carryover-hdr-bg: #FFF8E1;
+    --color-carryover-hdr-text: #B45309;
+    --color-carryover-cell-bg: #FFFDE7;
+    --color-carryover-cell-current: #FFF0B0;
+
+    /* Blockers row */
+    --color-blocker: #EA4335;
+    --color-blocker-hdr-bg: #FEF2F2;
+    --color-blocker-hdr-text: #991B1B;
+    --color-blocker-cell-bg: #FFF5F5;
+    --color-blocker-cell-current: #FFE4E4;
+
+    /* Heatmap general */
+    --hm-border: #E0E0E0;
+    --hm-header-bg: #F5F5F5;
+    --hm-header-border: #CCC;
+    --hm-current-bg: #FFF0D0;
+    --hm-current-text: #C07700;
+}
+
+/* === Global Styles === */
+html, body {
+    font-family: var(--font-family);
+    color: #111;
+    background: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* === Error Display === */
+.error-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 40px;
+}
+
+.error-display p {
+    font-size: 18px;
+    color: var(--color-now);
+    max-width: 600px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* ============================================================
+   Section 1: Header (.hdr)
+   ============================================================ */
+.hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 44px 10px;
+    border-bottom: 1px solid #E0E0E0;
+    flex-shrink: 0;
+}
+
+.hdr h1 {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.hdr h1 a {
+    font-size: 14px;
+    font-weight: 400;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.sub {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* Legend */
+.hdr-legend {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #555;
+    white-space: nowrap;
+}
+
+.legend-diamond {
+    width: 12px;
+    height: 12px;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+}
+
+.legend-diamond.poc {
+    background: var(--color-poc);
+}
+
+.legend-diamond.prod {
+    background: var(--color-production);
+}
+
+.legend-circle {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-checkpoint);
+    flex-shrink: 0;
+}
+
+.legend-now-bar {
+    width: 2px;
+    height: 14px;
+    background: var(--color-now);
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   Section 2: Timeline Area (.tl-area)
+   ============================================================ */
+.tl-area {
+    display: flex;
+    align-items: stretch;
+    padding: 6px 44px 0;
+    flex-shrink: 0;
+    height: 196px;
+    border-bottom: 2px solid var(--tl-border);
+    background: var(--tl-bg);
+}
+
+/* Timeline labels sidebar (left) */
+.tl-labels {
+    width: 230px;
+    flex-shrink: 0;
+    border-right: 1px solid #E0E0E0;
+    padding: 16px 12px 16px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.tl-label {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.tl-id {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.tl-name {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--tl-label-color);
+}
+
+/* SVG timeline container (right) */
+.tl-svg-box {
+    flex: 1;
+    padding-left: 12px;
+    padding-top: 6px;
+    min-width: 0;
+    overflow: visible;
+}
+
+.tl-svg-box svg {
+    display: block;
+    overflow: visible;
+}
+
+/* ============================================================
+   Section 3: Heatmap (.hm-wrap)
+   ============================================================ */
+.hm-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 44px 10px;
+}
+
+.hm-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+/* Heatmap Grid */
+.hm-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    border: 1px solid var(--hm-border);
+}
+
+/* Corner cell */
+.hm-corner {
+    background: var(--hm-header-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    border-right: 1px solid var(--hm-border);
+    border-bottom: 2px solid var(--hm-header-border);
+}
+
+/* Month column headers */
+.hm-col-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    background: var(--hm-header-bg);
+    border-right: 1px solid var(--hm-border);
+    border-bottom: 2px solid var(--hm-header-border);
+}
+
+/* Current month header highlight */
+.hm-col-hdr.apr-hdr {
+    background: var(--hm-current-bg);
+    color: var(--hm-current-text);
+}
+
+/* "Now" indicator in header */
+.now-indicator {
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* Row headers (status labels) */
+.hm-row-hdr {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    border-right: 2px solid var(--hm-header-border);
+    border-bottom: 1px solid var(--hm-border);
+}
+
+/* Data cells */
+.hm-cell {
+    padding: 8px 12px;
+    border-right: 1px solid var(--hm-border);
+    border-bottom: 1px solid var(--hm-border);
+    overflow: hidden;
+}
+
+/* Cell items */
+.hm-cell .it {
+    font-size: 12px;
+    color: #333;
+    padding: 2px 0 2px 12px;
+    position: relative;
+    line-height: 1.35;
+}
+
+.hm-cell .it::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* Empty cell dash */
+.hm-empty {
+    color: #AAA;
+    font-size: 12px;
+}
+
+/* ============================================================
+   Shipped Row (ship-)
+   ============================================================ */
+.ship-hdr {
+    color: var(--color-shipped-hdr-text);
+    background: var(--color-shipped-hdr-bg);
+}
+
+.ship-cell {
+    background: var(--color-shipped-cell-bg);
+}
+
+.ship-cell.apr {
+    background: var(--color-shipped-cell-current);
+}
+
+.ship-cell .it::before {
+    background: var(--color-shipped);
+}
+
+/* ============================================================
+   In Progress Row (prog-)
+   ============================================================ */
+.prog-hdr {
+    color: var(--color-progress-hdr-text);
+    background: var(--color-progress-hdr-bg);
+}
+
+.prog-cell {
+    background: var(--color-progress-cell-bg);
+}
+
+.prog-cell.apr {
+    background: var(--color-progress-cell-current);
+}
+
+.prog-cell .it::before {
+    background: var(--color-progress);
+}
+
+/* ============================================================
+   Carryover Row (carry-)
+   ============================================================ */
+.carry-hdr {
+    color: var(--color-carryover-hdr-text);
+    background: var(--color-carryover-hdr-bg);
+}
+
+.carry-cell {
+    background: var(--color-carryover-cell-bg);
+}
+
+.carry-cell.apr {
+    background: var(--color-carryover-cell-current);
+}
+
+.carry-cell .it::before {
+    background: var(--color-carryover);
+}
+
+/* ============================================================
+   Blockers Row (block-)
+   ============================================================ */
+.block-hdr {
+    color: var(--color-blocker-hdr-text);
+    background: var(--color-blocker-hdr-bg);
+}
+
+.block-cell {
+    background: var(--color-blocker-cell-bg);
+}
+
+.block-cell.apr {
+    background: var(--color-blocker-cell-current);
+}
+
+.block-cell .it::before {
+    background: var(--color-blocker);
+}
+
+/* ============================================================
+   Safety Net: Suppress Blazor Reconnection UI
+   ============================================================ */
+.components-reconnect-modal {
+    display: none !important;
+}
+
+#components-reconnect-modal {
+    display: none !important;
+}
+
+.blazor-error-boundary {
+    display: none !important;
+}
