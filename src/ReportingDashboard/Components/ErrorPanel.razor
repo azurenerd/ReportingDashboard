@@ -1,13 +1,18 @@
+@namespace ReportingDashboard.Components
+
 <div class="error-panel">
-    <div class="error-icon">&#9888;</div>
-    <h2>Dashboard data could not be loaded</h2>
-    @if (!string.IsNullOrEmpty(Message))
-    {
-        <p>@Message</p>
-    }
-    <p class="error-hint">Check data.json for errors and restart the application.</p>
+    <div style="text-align: center;">
+        <div class="error-icon">⚠</div>
+        <div class="error-title">Dashboard data could not be loaded</div>
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="error-details">@ErrorMessage</div>
+        }
+        <div class="error-help">Check data.json for errors and restart the application.</div>
+    </div>
 </div>
 
 @code {
-    [Parameter] public string? Message { get; set; }
+    [Parameter]
+    public string ErrorMessage { get; set; }
 }
