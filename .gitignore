@@ -3,15 +3,11 @@ bin/
 obj/
 .vs/
 *.user
-publish/
 *.suo
-*.cache
-*.dbmdl
-*.jfm
-*.pfx
-*.publishsettings
-*.nupkg
-*.snupkg
+*.userosscache
+*.sln.docstates
+publish/
+out/
 
 ## Build results
 [Dd]ebug/
@@ -27,36 +23,29 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
 ## Visual Studio
 .vs/
 *.rsuser
-*.sln.docstates
-launchSettings.json.user
-
-## User-specific files
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
+launchSettings.Development.json
 
 ## Rider
 .idea/
 *.sln.iml
 
-## VS Code
-.vscode/
-
-## Publish output
-publish/
-out/
-
-## NuGet
-**/[Pp]ackages/*
-!**/[Pp]ackages/build/
-*.nupkg
-**/packages/repositories.config
-
-## OS files
+## OS
 Thumbs.db
 ehthumbs.db
 Desktop.ini

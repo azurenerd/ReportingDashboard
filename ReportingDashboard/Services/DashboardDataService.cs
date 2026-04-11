@@ -18,7 +18,7 @@ public class DashboardDataService
         try
         {
             if (!File.Exists(_path))
-                return (null, $"data.json not found at: {_path}");
+                return (null, $"data.json not found at: {_path}. Create a data.json file in the Data/ directory.");
 
             var json = File.ReadAllText(_path);
             var data = JsonSerializer.Deserialize<DashboardData>(json, _options);
@@ -27,7 +27,7 @@ public class DashboardDataService
                 return (null, "data.json deserialized to null.");
 
             var error = Validate(data);
-            return (error is null ? data : null, error);
+            return error is null ? (data, null) : (null, error);
         }
         catch (JsonException ex)
         {
@@ -51,11 +51,8 @@ public class DashboardDataService
             return "Missing required field: timeline.months";
         if (data.Timeline.NowPosition < 0.0 || data.Timeline.NowPosition > 1.0)
             return "timeline.nowPosition must be between 0.0 and 1.0";
-        if (data.Tracks is null)
-            return "Missing required field: tracks";
         if (data.Heatmap?.Categories is null)
             return "Missing required field: heatmap.categories";
-
         return null;
     }
 }
