@@ -1,67 +1,81 @@
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using ReportingDashboard.Services;
+using ReportingDashboard.Tests.Integration.Helpers;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Integration;
 
-public class DataServiceIntegrationTests : IClassFixture<WebAppFixture>
+[Trait("Category", "Integration")]
+public class DataServiceIntegrationTests : IDisposable
 {
-    private readonly WebAppFixture _fixture;
+    private readonly string _tempDir;
+    private readonly ILogger<DashboardDataService> _logger;
 
-    public DataServiceIntegrationTests(WebAppFixture fixture)
+    public DataServiceIntegrationTests()
     {
-        _fixture = fixture;
+        _tempDir = Path.Combine(Path.GetTempPath(), $"DataSvcInteg_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(_tempDir);
+        _logger = NullLoggerFactory.Instance.CreateLogger<DashboardDataService>();
+    }
+
+    public void Dispose()
+    {
+        if (Directory.Exists(_tempDir))
+            Directory.Delete(_tempDir, recursive: true);
     }
 
     [Fact]
-    public async Task DataService_LoadDataAsync_DoesNotThrow()
+    public async Task LoadAsync_ValidFile_SetsDataCorrectly()
     {
-        using var factory = new WebApplicationFactory<Program>();
-        var service = factory.Services.GetRequiredService<DashboardDataService>();
+        var path = Path.Combine(_tempDir, "data.json");
+        File.WriteAllText(path, TestDataHelper.CreateValidDataJsonString());
 
-        var data = await service.LoadDataAsync();
+        var svc = new DashboardDataService(_logger);
+        await svc.LoadAsync(path);
 
-        // With default content root (project dir), data.json may or may not exist.
-        // The key assertion is that it does not throw.
-        data.Should().NotBeNull();
+        svc.IsError.Should().BeFalse();
+        svc.Data.Should().NotBeNull();
+        svc.Data!.Title.Should().NotBeNullOrWhiteSpace();
     }
 
     [Fact]
-    public async Task DataService_LoadDataAsync_WithMissingFile_ReturnsErrorData()
+    public async Task LoadAsync_MissingFile_SetsError()
     {
-        using var factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                var tempDir = Path.Combine(Path.GetTempPath(), $"RD_DSIntTest_{Guid.NewGuid():N}");
-                Directory.CreateDirectory(tempDir);
-                builder.UseContentRoot(tempDir);
-                builder.UseSetting("Dashboard:DataFilePath", "nonexistent/data.json");
-            });
+        var svc = new DashboardDataService(_logger);
+        await svc.LoadAsync(Path.Combine(_tempDir, "nonexistent.json"));
 
-        var service = factory.Services.GetRequiredService<DashboardDataService>();
-        var data = await service.LoadDataAsync();
-
-        data.ErrorMessage.Should().NotBeNullOrEmpty();
-        data.ErrorMessage.Should().Contain("not found");
+        svc.IsError.Should().BeTrue();
+        svc.ErrorMessage.Should().Contain("not found");
     }
 
-    /// <summary>
-    /// Verifies singleton registration: resolving from two different scopes yields the same instance.
-    /// Note: synchronous — no async work needed, avoids CS1998.
-    /// </summary>
     [Fact]
-    public void LoadAsync_SingletonBehavior_SameInstanceAcrossResolves()
+    public async Task LoadAsync_MalformedJson_SetsError()
     {
-        using var factory = new WebApplicationFactory<Program>();
-        using var scope1 = factory.Services.CreateScope();
-        using var scope2 = factory.Services.CreateScope();
+        var path = Path.Combine(_tempDir, "bad.json");
+        File.WriteAllText(path, "{ broken json {{{");
 
-        var svc1 = scope1.ServiceProvider.GetRequiredService<DashboardDataService>();
-        var svc2 = scope2.ServiceProvider.GetRequiredService<DashboardDataService>();
+        var svc = new DashboardDataService(_logger);
+        await svc.LoadAsync(path);
 
-        svc1.Should().BeSameAs(svc2);
+        svc.IsError.Should().BeTrue();
+        svc.ErrorMessage.Should().Contain("parse");
+    }
+
+    [Fact]
+    public async Task LoadAsync_ErrorThenValid_Recovers()
+    {
+        var svc = new DashboardDataService(_logger);
+
+        await svc.LoadAsync(Path.Combine(_tempDir, "missing.json"));
+        svc.IsError.Should().BeTrue();
+
+        var path = Path.Combine(_tempDir, "data.json");
+        File.WriteAllText(path, TestDataHelper.CreateValidDataJsonString());
+        await svc.LoadAsync(path);
+
+        svc.IsError.Should().BeFalse();
+        svc.Data.Should().NotBeNull();
     }
 }

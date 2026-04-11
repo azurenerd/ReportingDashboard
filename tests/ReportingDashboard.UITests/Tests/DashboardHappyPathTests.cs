@@ -1,11 +1,12 @@
-using FluentAssertions;
+using Microsoft.Playwright;
 using ReportingDashboard.UITests.Infrastructure;
 using ReportingDashboard.UITests.PageObjects;
 using Xunit;
 
 namespace ReportingDashboard.UITests.Tests;
 
-[Collection(PlaywrightCollection.Name)]
+[Collection("Playwright")]
+[Trait("Category", "UI")]
 public class DashboardHappyPathTests
 {
     private readonly PlaywrightFixture _fixture;
@@ -23,8 +24,8 @@ public class DashboardHappyPathTests
 
         await dashboard.NavigateAsync();
 
-        (await dashboard.HasDashboardContainerAsync()).Should().BeTrue();
-        (await dashboard.HasErrorBannerAsync()).Should().BeFalse();
+        Assert.True(await dashboard.HasDashboardContainerAsync());
+        Assert.False(await dashboard.HasErrorBannerAsync());
     }
 
     [Fact(Skip = "Requires running server")]
@@ -36,7 +37,7 @@ public class DashboardHappyPathTests
         await dashboard.NavigateAsync();
 
         var title = await dashboard.GetTitleAsync();
-        title.Should().Contain("Dashboard");
+        Assert.Contains("Dashboard", title);
     }
 
     [Fact(Skip = "Requires running server")]
@@ -47,6 +48,6 @@ public class DashboardHappyPathTests
 
         await dashboard.NavigateAsync();
 
-        (await dashboard.StatusBadge.CountAsync()).Should().BeGreaterThan(0);
+        Assert.True(await dashboard.StatusBadge.CountAsync() > 0);
     }
 }

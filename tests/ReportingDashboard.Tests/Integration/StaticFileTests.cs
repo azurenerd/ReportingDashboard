@@ -3,6 +3,7 @@ using Xunit;
 
 namespace ReportingDashboard.Tests.Integration;
 
+[Trait("Category", "Integration")]
 public class StaticFileTests : IClassFixture<WebAppFixture>
 {
     private readonly WebAppFixture _fixture;
@@ -13,23 +14,24 @@ public class StaticFileTests : IClassFixture<WebAppFixture>
     }
 
     [Fact]
-    public async Task CssEndpoint_DoesNotReturn500()
+    public async Task CssFile_IsServedAsStaticFile()
     {
-        using var client = _fixture.CreateClientWithValidData();
+        var client = _fixture.CreateClientWithValidData();
 
         var response = await client.GetAsync("/css/dashboard.css");
 
-        // Static files may 404 from temp dir (CSS not copied), but must not 500.
-        ((int)response.StatusCode).Should().BeLessThan(500);
+        response.IsSuccessStatusCode.Should().BeTrue();
+        var contentType = response.Content.Headers.ContentType?.MediaType;
+        contentType.Should().Be("text/css");
     }
 
     [Fact]
-    public async Task NonExistentStaticFile_Returns404()
+    public async Task DataJson_IsServedAsStaticFile()
     {
-        using var client = _fixture.CreateClientWithValidData();
+        var client = _fixture.CreateClientWithValidData();
 
-        var response = await client.GetAsync("/css/nonexistent.css");
+        var response = await client.GetAsync("/data.json");
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
+        response.IsSuccessStatusCode.Should().BeTrue();
     }
 }
