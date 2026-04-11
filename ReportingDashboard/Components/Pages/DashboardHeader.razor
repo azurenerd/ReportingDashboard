@@ -1,0 +1,66 @@
+@if (Project is not null)
+{
+    <div class="hdr">
+        <div class="hdr-left">
+            <h1>
+                @Project.Title
+                <a href="@Project.BacklogUrl" target="_blank" class="backlog-link"> ADO Backlog</a>
+            </h1>
+            <div class="sub">@Project.Subtitle</div>
+        </div>
+        <div class="legend">
+            @if (Project.Legend is not null && Project.Legend.Count > 0)
+            {
+                @foreach (var item in Project.Legend)
+                {
+                    <div class="legend-item">
+                        @if (item.Type.Equals("poc", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <span class="legend-poc"></span>
+                        }
+                        else if (item.Type.Equals("production", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <span class="legend-prod"></span>
+                        }
+                        else if (item.Type.Equals("checkpoint", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <span class="legend-checkpoint"></span>
+                        }
+                        else if (item.Type.Equals("now", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <span class="legend-now"></span>
+                        }
+                        @item.Label
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="legend-item">
+                    <span class="legend-poc"></span>
+                    PoC Milestone
+                </div>
+                <div class="legend-item">
+                    <span class="legend-prod"></span>
+                    Production Release
+                </div>
+                <div class="legend-item">
+                    <span class="legend-checkpoint"></span>
+                    Checkpoint
+                </div>
+                <div class="legend-item">
+                    <span class="legend-now"></span>
+                    Now
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public ProjectInfo? Project { get; set; }
+
+    [Parameter]
+    public string CurrentMonth { get; set; } = string.Empty;
+}

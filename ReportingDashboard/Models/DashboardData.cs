@@ -1,5 +1,7 @@
 namespace ReportingDashboard.Models;
 
+using System.Text.Json.Serialization;
+
 public record DashboardData(
     ProjectInfo Project,
     TimelineConfig Timeline,
@@ -11,36 +13,45 @@ public record ProjectInfo(
     string Title,
     string Subtitle,
     string BacklogUrl,
-    string CurrentMonth
+    string CurrentMonth)
+{
+    [JsonPropertyName("legend")]
+    public List<LegendItem>? Legend { get; init; }
+}
+
+public record LegendItem(
+    [property: JsonPropertyName("label")] string Label,
+    [property: JsonPropertyName("type")] string Type,
+    [property: JsonPropertyName("color")] string Color
 );
 
 public record TimelineConfig(
-    List<string> Months,
-    double NowPosition
+    [property: JsonPropertyName("months")] List<string> Months,
+    [property: JsonPropertyName("nowPosition")] double NowPosition
 );
 
 public record MilestoneTrack(
-    string Id,
-    string Label,
-    string Color,
-    List<Milestone> Milestones
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("label")] string Label,
+    [property: JsonPropertyName("color")] string Color,
+    [property: JsonPropertyName("milestones")] List<Milestone> Milestones
 );
 
 public record Milestone(
-    string Date,
-    string Type,
-    double Position,
-    string? Label
+    [property: JsonPropertyName("date")] string Date,
+    [property: JsonPropertyName("type")] string Type,
+    [property: JsonPropertyName("position")] double Position,
+    [property: JsonPropertyName("label")] string? Label = null
 );
 
 public record HeatmapData(
-    List<string> Months,
-    List<HeatmapCategory> Categories
+    [property: JsonPropertyName("months")] List<string> Months,
+    [property: JsonPropertyName("categories")] List<HeatmapCategory> Categories
 );
 
 public record HeatmapCategory(
-    string Name,
-    string CssClass,
-    string Emoji,
-    Dictionary<string, List<string>> Items
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("cssClass")] string CssClass,
+    [property: JsonPropertyName("emoji")] string Emoji,
+    [property: JsonPropertyName("items")] Dictionary<string, List<string>> Items
 );

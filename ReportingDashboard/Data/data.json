@@ -1,0 +1,229 @@
+{
+  "project": {
+    "title": "AI Chatbot & Multi-Service Integration",
+    "subtitle": "Engineering Platform Team • AI Services Workstream • April 2026",
+    "backlogUrl": "https://dev.azure.com/contoso/project/_backlogs/backlog",
+    "currentMonth": "Apr",
+    "legend": [
+      {
+        "label": "PoC Milestone",
+        "type": "poc",
+        "color": "#F4B400"
+      },
+      {
+        "label": "Production Release",
+        "type": "production",
+        "color": "#34A853"
+      },
+      {
+        "label": "Checkpoint",
+        "type": "checkpoint",
+        "color": "#999"
+      },
+      {
+        "label": "Now",
+        "type": "now",
+        "color": "#EA4335"
+      }
+    ]
+  },
+  "timeline": {
+    "months": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun"
+    ],
+    "nowPosition": 0.52
+  },
+  "tracks": [
+    {
+      "id": "M1",
+      "label": "Chatbot & MS Role Integration",
+      "color": "#0078D4",
+      "milestones": [
+        {
+          "date": "Jan 8",
+          "type": "checkpoint",
+          "position": 0.08,
+          "label": null
+        },
+        {
+          "date": "Feb 14",
+          "type": "poc",
+          "position": 0.22,
+          "label": "PoC"
+        },
+        {
+          "date": "Apr 10",
+          "type": "production",
+          "position": 0.50,
+          "label": "Prod"
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "label": "Analytics & Monitoring Pipeline",
+      "color": "#00897B",
+      "milestones": [
+        {
+          "date": "Jan 22",
+          "type": "checkpoint",
+          "position": 0.15,
+          "label": null
+        },
+        {
+          "date": "Mar 7",
+          "type": "poc",
+          "position": 0.35,
+          "label": "PoC"
+        },
+        {
+          "date": "May 21",
+          "type": "production",
+          "position": 0.70,
+          "label": "Prod"
+        }
+      ]
+    },
+    {
+      "id": "M3",
+      "label": "Client SDKs & Documentation",
+      "color": "#546E7A",
+      "milestones": [
+        {
+          "date": "Feb 5",
+          "type": "checkpoint",
+          "position": 0.20,
+          "label": null
+        },
+        {
+          "date": "Apr 1",
+          "type": "poc",
+          "position": 0.48,
+          "label": "PoC"
+        },
+        {
+          "date": "Jun 15",
+          "type": "production",
+          "position": 0.88,
+          "label": "Prod"
+        }
+      ]
+    }
+  ],
+  "heatmap": {
+    "months": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June"
+    ],
+    "categories": [
+      {
+        "name": "Shipped",
+        "cssClass": "ship",
+        "emoji": "✓",
+        "items": {
+          "January": [
+            "Chatbot backend API scaffold",
+            "User authentication module"
+          ],
+          "February": [
+            "MS Teams connector library",
+            "Role mapping engine"
+          ],
+          "March": [
+            "Analytics data collection",
+            "Monitoring dashboard UI"
+          ],
+          "April": [
+            "Production deployment automation",
+            "Incident response playbooks"
+          ],
+          "May": [
+            "Client SDK alpha release",
+            "API documentation (v1.0)"
+          ],
+          "June": [
+            "Support portal launch",
+            "Performance tuning"
+          ]
+        }
+      },
+      {
+        "name": "In Progress",
+        "cssClass": "prog",
+        "emoji": "⟳",
+        "items": {
+          "January": [
+            "Role permission matrix design"
+          ],
+          "February": [
+            "Analytics event streaming"
+          ],
+          "March": [
+            "SDK code generation tooling"
+          ],
+          "April": [
+            "Load testing for 10K concurrent users",
+            "Multi-region failover logic"
+          ],
+          "May": [
+            "Client onboarding automation",
+            "Beta program setup"
+          ],
+          "June": []
+        }
+      },
+      {
+        "name": "Carryover",
+        "cssClass": "carry",
+        "emoji": "⟳",
+        "items": {
+          "January": [],
+          "February": [
+            "Advanced role hierarchy support"
+          ],
+          "March": [
+            "Advanced role hierarchy support",
+            "Real-time notification system"
+          ],
+          "April": [
+            "Real-time notification system",
+            "Email webhook integration"
+          ],
+          "May": [
+            "Email webhook integration",
+            "Custom domain support"
+          ],
+          "June": [
+            "Custom domain support"
+          ]
+        }
+      },
+      {
+        "name": "Blockers",
+        "cssClass": "block",
+        "emoji": "⚠",
+        "items": {
+          "January": [],
+          "February": [],
+          "March": [
+            "OAuth provider rate limiting (EXTERNAL)"
+          ],
+          "April": [
+            "Premium database license procurement"
+          ],
+          "May": [],
+          "June": []
+        }
+      }
+    ]
+  }
+}

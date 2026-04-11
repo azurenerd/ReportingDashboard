@@ -1,0 +1,44 @@
+@if (Heatmap is not null)
+{
+    <div class="hm-wrap">
+        <div class="hm-title">@GetHeatmapTitle()</div>
+        <div class="hm-grid" style="grid-template-columns: 160px repeat(@Heatmap.Months.Count, 1fr); grid-template-rows: 36px repeat(@Heatmap.Categories.Count, 1fr);">
+            <div class="hm-corner">STATUS</div>
+            @foreach (var month in Heatmap.Months)
+            {
+                var isCurrent = IsCurrentMonth(month);
+                <div class="hm-col-hdr @(isCurrent ? "current" : "")">
+                    @month
+                    @if (isCurrent)
+                    {
+                        <span class="now-indicator"> Now</span>
+                    }
+                </div>
+            }
+            @foreach (var category in Heatmap.Categories)
+            {
+                <HeatmapRow Category="category" Months="Heatmap.Months" CurrentMonth="CurrentMonth" />
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public HeatmapData? Heatmap { get; set; }
+
+    [Parameter]
+    public string CurrentMonth { get; set; } = string.Empty;
+
+    private bool IsCurrentMonth(string fullMonthName) =>
+        fullMonthName.StartsWith(CurrentMonth, StringComparison.OrdinalIgnoreCase);
+
+    private string GetHeatmapTitle()
+    {
+        if (Heatmap?.Categories is null || Heatmap.Categories.Count == 0)
+            return "Monthly Execution Heatmap";
+
+        var titleParts = Heatmap.Categories.Select(c => $"{c.Emoji} {c.Name}");
+        return $"Monthly Execution Heatmap - {string.Join(" • ", titleParts)}";
+    }
+}
