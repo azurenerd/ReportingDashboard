@@ -1,46 +1,48 @@
+using System.Text.Json.Serialization;
+
 namespace ReportingDashboard.Models;
 
 public record DashboardData(
-    ProjectInfo Project,
-    TimelineConfig Timeline,
-    List<MilestoneTrack> Tracks,
-    HeatmapData Heatmap
+    [property: JsonPropertyName("project")] ProjectInfo Project,
+    [property: JsonPropertyName("timeline")] TimelineConfig Timeline,
+    [property: JsonPropertyName("tracks")] List<MilestoneTrack> Tracks,
+    [property: JsonPropertyName("heatmap")] HeatmapData Heatmap
 );
 
 public record ProjectInfo(
-    string Title,
-    string Subtitle,
-    string BacklogUrl,
-    string CurrentMonth
+    [property: JsonPropertyName("title")] string Title,
+    [property: JsonPropertyName("subtitle")] string Subtitle,
+    [property: JsonPropertyName("backlogUrl")] string BacklogUrl,
+    [property: JsonPropertyName("currentMonth")] string CurrentMonth
 );
 
 public record TimelineConfig(
-    List<string> Months,
-    double NowPosition
+    [property: JsonPropertyName("months")] List<string> Months,
+    [property: JsonPropertyName("nowPosition")] double NowPosition
 );
 
 public record MilestoneTrack(
-    string Id,
-    string Label,
-    string Color,
-    List<Milestone> Milestones
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("label")] string Label,
+    [property: JsonPropertyName("color")] string Color,
+    [property: JsonPropertyName("milestones")] List<Milestone> Milestones
 );
 
 public record Milestone(
-    string Date,
-    string Type,
-    double Position,
-    string? Label
+    [property: JsonPropertyName("date")] string Date,
+    [property: JsonPropertyName("type")] string Type,
+    [property: JsonPropertyName("position")] double Position,
+    [property: JsonPropertyName("label")] string? Label
 );
 
 public record HeatmapData(
-    List<string> Months,
-    List<HeatmapCategory> Categories
+    [property: JsonPropertyName("months")] List<string> Months,
+    [property: JsonPropertyName("categories")] List<HeatmapCategory> Categories
 );
 
 public record HeatmapCategory(
-    string Name,
-    string CssClass,
-    string Emoji,
-    Dictionary<string, List<string>> Items
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("cssClass")] string CssClass,
+    [property: JsonPropertyName("emoji")] string Emoji,
+    [property: JsonPropertyName("items")] Dictionary<string, List<string>> Items
 );
