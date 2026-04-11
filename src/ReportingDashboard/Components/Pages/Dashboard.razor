@@ -1,19 +1,35 @@
 @page "/"
 @inject DashboardDataService DataService
 
-@if (DataService.IsError)
+@if (_data is null)
 {
-    <ErrorPanel ErrorMessage="@DataService.ErrorMessage" />
+    <ErrorPanel Message="Dashboard data could not be loaded. Check data.json for errors." />
 }
-else if (DataService.Data is not null)
+else if (!string.IsNullOrEmpty(_data.ErrorMessage))
 {
-    <div class="dashboard-root">
-        <div class="dashboard">
-            <Header Data="@DataService.Data" />
-            <Timeline TimelineData="@DataService.Data.Timeline" />
-            <Heatmap HeatmapData="@DataService.Data.Heatmap"
-                     Months="@DataService.Data.Months"
-                     CurrentMonth="@DataService.Data.CurrentMonth" />
-        </div>
+    <ErrorPanel Message="@_data.ErrorMessage" />
+}
+else
+{
+    <div class="dashboard">
+        <Header Data="@_data" />
+        <Timeline Data="@_data" />
+        <Heatmap Data="@_data" />
     </div>
+}
+
+@code {
+    private DashboardData? _data;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _data = await DataService.LoadDataAsync();
+        }
+        catch
+        {
+            _data = null;
+        }
+    }
 }
