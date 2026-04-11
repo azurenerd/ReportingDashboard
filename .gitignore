@@ -1,24 +1,64 @@
-# User-specific data file (may contain internal project names)
-src/ReportingDashboard.Web/wwwroot/data.json
-
-# Build outputs
+## .NET / Visual Studio
 bin/
 obj/
-
-# User-specific files
+publish/
+.vs/
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+nuget.exe
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+
+## Visual Studio
+.vs/
+*.rsuser
+*.sln.iml
+launchSettings.json.user
 *.DotSettings.user
 
-# IDE
-.vs/
-.vscode/
+## Rider
 .idea/
-*.swp
-*~
+*.sln.iml
 
-# Logs
-*.log
+## OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
 
-# Local app settings overrides
-appsettings.*.local.json
+## User-specific
+*.csproj.user
+*.unityproj.user
+*.tlog
+
+## Build outputs
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+## Self-contained publish output
+*.exe
+!src/**/wwwroot/**
