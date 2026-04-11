@@ -1,49 +1,27 @@
-<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 44px 10px; border-bottom:1px solid #E0E0E0;">
+@using ReportingDashboard.Models
+
+<div class="hdr">
     <div>
-        <h1 class="hdr-title" style="font-size:24px; font-weight:700; color:#111; margin:0;">
-            @Data.Title
-            @if (!string.IsNullOrWhiteSpace(Data.BacklogLink))
-            {
-                <a href="@Data.BacklogLink" target="_blank" rel="noopener noreferrer"
-                   style="color:#0078D4; text-decoration:none; font-size:14px; font-weight:400; margin-left:12px;">
-                    📋 ADO Backlog
-                </a>
-            }
-        </h1>
-        <div class="sub" style="font-size:12px; color:#888; margin-top:2px;">@Data.Subtitle</div>
+        <h1>@Data.Title <a href="@Data.BacklogLink" target="_blank" style="color:#0078D4;text-decoration:none;font-size:14px;font-weight:400;">📋 ADO Backlog</a></h1>
+        <div class="sub">@Data.Subtitle</div>
     </div>
-    <div style="display:flex; gap:22px; align-items:center; font-size:12px;">
-        <span style="display:inline-flex; align-items:center; gap:6px;">
-            <span style="display:inline-block; width:12px; height:12px; background:#F4B400; transform:rotate(45deg);"></span>
-            PoC Milestone
+    <div class="hdr-legend">
+        <span class="legend-item">
+            <span class="legend-diamond" style="background:#F4B400;"></span> PoC Milestone
         </span>
-        <span style="display:inline-flex; align-items:center; gap:6px;">
-            <span style="display:inline-block; width:12px; height:12px; background:#34A853; transform:rotate(45deg);"></span>
-            Production Release
+        <span class="legend-item">
+            <span class="legend-diamond" style="background:#34A853;"></span> Production Release
         </span>
-        <span style="display:inline-flex; align-items:center; gap:6px;">
-            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#999;"></span>
-            Checkpoint
+        <span class="legend-item">
+            <span class="legend-dot"></span> Checkpoint
         </span>
-        <span style="display:inline-flex; align-items:center; gap:6px;">
-            <span style="display:inline-block; width:2px; height:14px; background:#EA4335;"></span>
-            Now (@NowLabel)
+        <span class="legend-item">
+            <span class="legend-now"></span> Now (@Data.CurrentMonth)
         </span>
     </div>
 </div>
 
 @code {
-    [Parameter] public DashboardData Data { get; set; } = default!;
-
-    private string NowLabel
-    {
-        get
-        {
-            if (DateTime.TryParse(Data.Timeline?.NowDate, out var nowDate))
-                return $"{Data.CurrentMonth} {nowDate.Year}";
-            if (DateTime.TryParse(Data.Timeline?.StartDate, out var startDate))
-                return $"{Data.CurrentMonth} {startDate.Year}";
-            return Data.CurrentMonth;
-        }
-    }
+    [Parameter]
+    public DashboardData Data { get; set; } = default!;
 }
