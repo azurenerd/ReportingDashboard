@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "http": {
-      "commandName": "Project",
-      "applicationUrl": "http://localhost:5000",
-      "launchBrowser": false
-    }
-  }
-}
