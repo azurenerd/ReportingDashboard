@@ -25,6 +25,9 @@
     [Parameter]
     public string CurrentMonth { get; set; } = string.Empty;
 
+    [Parameter]
+    public string CategoryKey { get; set; } = string.Empty;
+
     private string HeaderClass => $"{CssPrefix}-hdr";
 
     private List<string> GetItemsForMonth(string month)
