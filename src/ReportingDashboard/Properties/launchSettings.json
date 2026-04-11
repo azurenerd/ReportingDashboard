@@ -1,9 +1,12 @@
 {
   "profiles": {
-    "http": {
+    "ReportingDashboard": {
       "commandName": "Project",
+      "launchBrowser": true,
       "applicationUrl": "http://localhost:5000",
-      "launchBrowser": false
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
     }
   }
 }

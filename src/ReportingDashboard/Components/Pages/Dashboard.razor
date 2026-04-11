@@ -1,12 +1,5 @@
 @page "/"
-@layout DashboardLayout
-@inject DashboardDataService DataService
 
-@if (DataService.IsError)
-{
-    <p>Error: @DataService.ErrorMessage</p>
-}
-else if (DataService.Data is not null)
-{
-    <p>Data loaded: @DataService.Data.Title</p>
-}
+<div>
+    <p>Dashboard placeholder — scaffold complete.</p>
+</div>

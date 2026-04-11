@@ -1,46 +1,45 @@
-## Build artifacts
+## .NET
 bin/
 obj/
-publish/
-out/
+*.user
+*.userosscache
+*.sln.docstates
 
 ## Visual Studio
 .vs/
 *.suo
-*.user
-*.userosscache
-*.sln.docstates
-*.csproj.user
+*.cache
+*.dll
+*.pdb
+*.exe
+*.obj
+*.log
+*.vspscc
+*.vssscc
+*.pidb
+*.svclog
+*.scc
 
-## User secrets
-secrets.json
+## Rider
+.idea/
 
-## App settings with real credentials
-**/appsettings.json
-**/appsettings.Development.json
-**/appsettings.Production.json
+## VS Code
+.vscode/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
 
 ## NuGet
 *.nupkg
-*.snupkg
-**/packages/
+**/packages/*
+*.nuget.props
+*.nuget.targets
 project.lock.json
-project.fragment.lock.json
-
-## SQLite databases
-*.db
-*.db-shm
-*.db-wal
-*.sqlite
-*.sqlite3
-
-## IDE / Editor
-.idea/
-*.swp
-*.swo
-*~
-.vscode/
-*.code-workspace
 
 ## OS files
 Thumbs.db
@@ -48,32 +47,11 @@ ehthumbs.db
 Desktop.ini
 .DS_Store
 
-## Logs
-*.log
-logs/
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.sln.docstates
 
-## .NET tool artifacts
-.dotnet/
-BenchmarkDotNet.Artifacts/
-
-## Test results
-TestResults/
-coverage/
-*.trx
-*.coverage
-*.coveragexml
-
-## Rider
-.idea/
-*.sln.iml
-
-## JetBrains
-_ReSharper.Caches/
-
-appsettings.OG.json
-
-# Dashboard user data - contains project-specific info, use data.template.json as reference
-src/ReportingDashboard/wwwroot/data/data.json
-
-# Keep wwwroot/data.json tracked as sample data
-!src/ReportingDashboard/wwwroot/data.json
+## Publish output
+publish/
