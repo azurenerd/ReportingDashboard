@@ -1,79 +1,24 @@
-## Build artifacts
+# User-specific data file (may contain internal project names)
+src/ReportingDashboard.Web/wwwroot/data.json
+
+# Build outputs
 bin/
 obj/
-publish/
-out/
 
-## Visual Studio
-.vs/
-*.suo
+# User-specific files
 *.user
-*.userosscache
-*.sln.docstates
-*.csproj.user
+*.suo
+*.DotSettings.user
 
-## User secrets
-secrets.json
-
-## App settings with real credentials
-**/appsettings.json
-**/appsettings.Development.json
-**/appsettings.Production.json
-
-## NuGet
-*.nupkg
-*.snupkg
-**/packages/
-project.lock.json
-project.fragment.lock.json
-
-## SQLite databases
-*.db
-*.db-shm
-*.db-wal
-*.sqlite
-*.sqlite3
-
-## IDE / Editor
+# IDE
+.vs/
+.vscode/
 .idea/
 *.swp
-*.swo
 *~
-.vscode/
-*.code-workspace
 
-## OS files
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-.DS_Store
-
-## Logs
+# Logs
 *.log
-logs/
 
-## .NET tool artifacts
-.dotnet/
-BenchmarkDotNet.Artifacts/
-
-## Test results
-TestResults/
-coverage/
-*.trx
-*.coverage
-*.coveragexml
-
-## Rider
-.idea/
-*.sln.iml
-
-## JetBrains
-_ReSharper.Caches/
-
-appsettings.OG.json
-
-# Dashboard user data - contains project-specific info, use data.template.json as reference
-src/ReportingDashboard/wwwroot/data/data.json
-
-# Keep wwwroot/data.json tracked as sample data
-!src/ReportingDashboard/wwwroot/data.json
+# Local app settings overrides
+appsettings.*.local.json
