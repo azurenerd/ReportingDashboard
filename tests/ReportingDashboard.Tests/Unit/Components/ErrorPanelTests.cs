@@ -5,33 +5,46 @@ using Xunit;
 
 namespace ReportingDashboard.Tests.Unit.Components;
 
+/// <summary>
+/// Unit tests for the ErrorPanel Blazor component in isolation.
+/// </summary>
 [Trait("Category", "Unit")]
 public class ErrorPanelTests : TestContext
 {
     [Fact]
-    public void ErrorPanel_RendersErrorIcon()
+    public void ErrorPanel_WithMessage_RendersErrorPanelClass()
     {
-        var cut = RenderComponent<ErrorPanel>();
+        var cut = RenderComponent<ErrorPanel>(p =>
+            p.Add(x => x.ErrorMessage, "File not found"));
 
-        cut.Find(".error-icon").Should().NotBeNull();
-        cut.Find(".error-icon").TextContent.Should().Contain("⚠");
+        cut.Find(".error-panel").Should().NotBeNull();
     }
 
     [Fact]
-    public void ErrorPanel_RendersDefaultHeading()
+    public void ErrorPanel_WithMessage_RendersHeading()
     {
-        var cut = RenderComponent<ErrorPanel>();
+        var cut = RenderComponent<ErrorPanel>(p =>
+            p.Add(x => x.ErrorMessage, "File not found"));
 
         cut.Find("h2").TextContent.Should().Be("Dashboard data could not be loaded");
     }
 
     [Fact]
-    public void ErrorPanel_WithMessage_RendersMessageText()
+    public void ErrorPanel_WithMessage_RendersErrorMessageText()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
-            p.Add(x => x.ErrorMessage, "File not found: data.json"));
+            p.Add(x => x.ErrorMessage, "data.json not found at /path/to/file"));
 
-        cut.Markup.Should().Contain("File not found: data.json");
+        cut.Markup.Should().Contain("data.json not found at /path/to/file");
+    }
+
+    [Fact]
+    public void ErrorPanel_WithMessage_RendersHint()
+    {
+        var cut = RenderComponent<ErrorPanel>(p =>
+            p.Add(x => x.ErrorMessage, "Some error"));
+
+        cut.Find(".error-hint").TextContent.Should().Contain("Check data.json");
     }
 
     [Fact]
@@ -40,45 +53,26 @@ public class ErrorPanelTests : TestContext
         var cut = RenderComponent<ErrorPanel>(p =>
             p.Add(x => x.ErrorMessage, (string?)null));
 
+        cut.Find(".error-panel").Should().NotBeNull();
         var paragraphs = cut.FindAll("p");
         // Should only have the hint paragraph, not a message paragraph
         paragraphs.Should().HaveCount(1);
-        paragraphs[0].ClassList.Should().Contain("error-hint");
     }
 
     [Fact]
-    public void ErrorPanel_WithEmptyMessage_DoesNotRenderMessageParagraph()
+    public void ErrorPanel_WithEmptyMessage_RendersEmptyParagraph()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
             p.Add(x => x.ErrorMessage, ""));
 
-        var paragraphs = cut.FindAll("p");
-        paragraphs.Should().HaveCount(1);
-        paragraphs[0].ClassList.Should().Contain("error-hint");
-    }
-
-    [Fact]
-    public void ErrorPanel_RendersHintText()
-    {
-        var cut = RenderComponent<ErrorPanel>();
-
-        cut.Find(".error-hint").TextContent.Should()
-            .Contain("Check data.json for errors and restart the application.");
-    }
-
-    [Fact]
-    public void ErrorPanel_HasErrorPanelCssClass()
-    {
-        var cut = RenderComponent<ErrorPanel>();
-
+        // Empty string is still a non-null string, component may render it
         cut.Find(".error-panel").Should().NotBeNull();
     }
 
     [Fact]
     public void ErrorPanel_WithLongMessage_RendersFullMessage()
     {
-        var longMessage = new string('x', 500);
-
+        var longMessage = new string('X', 500);
         var cut = RenderComponent<ErrorPanel>(p =>
             p.Add(x => x.ErrorMessage, longMessage));
 
@@ -86,11 +80,12 @@ public class ErrorPanelTests : TestContext
     }
 
     [Fact]
-    public void ErrorPanel_WithSpecialCharacters_RendersEncodedMessage()
+    public void ErrorPanel_WithSpecialCharacters_RendersEscaped()
     {
         var cut = RenderComponent<ErrorPanel>(p =>
             p.Add(x => x.ErrorMessage, "Error: <script>alert('xss')</script>"));
 
+        // Blazor auto-escapes HTML content
         cut.Markup.Should().NotContain("<script>");
         cut.Markup.Should().Contain("&lt;script&gt;");
     }

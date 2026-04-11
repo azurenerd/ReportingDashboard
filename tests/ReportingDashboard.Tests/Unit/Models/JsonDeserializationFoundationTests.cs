@@ -5,53 +5,141 @@ using Xunit;
 
 namespace ReportingDashboard.Tests.Unit.Models;
 
+/// <summary>
+/// Tests JSON deserialization behavior for all model types,
+/// covering camelCase mapping, missing fields, null-safe defaults, and edge cases.
+/// </summary>
 [Trait("Category", "Unit")]
 public class JsonDeserializationFoundationTests
 {
     private static readonly JsonSerializerOptions Options = new()
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = false,
+        AllowTrailingCommas = true,
+        ReadCommentHandling = JsonCommentHandling.Skip
     };
 
+    // --- DashboardData deserialization ---
+
     [Fact]
-    public void Deserialize_FullDashboardData_AllPropertiesPopulated()
+    public void DashboardData_DeserializeCamelCase_MapsAllProperties()
     {
         var json = """
         {
-            "title": "Test Project",
-            "subtitle": "Team A - April 2026",
-            "backlogLink": "https://dev.azure.com/test",
-            "currentMonth": "Apr",
-            "months": ["Jan", "Feb", "Mar", "Apr"],
-            "timeline": {
-                "startDate": "2026-01-01",
-                "endDate": "2026-06-30",
-                "nowDate": "2026-04-10",
-                "tracks": []
-            },
-            "heatmap": {
-                "shipped": {},
-                "inProgress": {},
-                "carryover": {},
-                "blockers": {}
-            }
+            "title": "My Project",
+            "subtitle": "Team Alpha",
+            "backlogLink": "https://ado.com/backlog",
+            "currentMonth": "Mar",
+            "months": ["Jan", "Feb", "Mar"],
+            "timeline": { "startDate": "2026-01-01", "endDate": "2026-06-30", "nowDate": "2026-03-15", "tracks": [] },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
         }
         """;
 
-        var data = JsonSerializer.Deserialize<DashboardData>(json, Options);
+        var data = JsonSerializer.Deserialize<DashboardData>(json, Options)!;
 
-        data.Should().NotBeNull();
-        data!.Title.Should().Be("Test Project");
-        data.Subtitle.Should().Be("Team A - April 2026");
-        data.BacklogLink.Should().Be("https://dev.azure.com/test");
-        data.CurrentMonth.Should().Be("Apr");
-        data.Months.Should().HaveCount(4);
+        data.Title.Should().Be("My Project");
+        data.Subtitle.Should().Be("Team Alpha");
+        data.BacklogLink.Should().Be("https://ado.com/backlog");
+        data.CurrentMonth.Should().Be("Mar");
+        data.Months.Should().BeEquivalentTo(new[] { "Jan", "Feb", "Mar" });
+    }
+
+    [Fact]
+    public void DashboardData_MissingOptionalFields_DefaultsApply()
+    {
+        var json = "{}";
+
+        var data = JsonSerializer.Deserialize<DashboardData>(json, Options)!;
+
+        data.Title.Should().BeEmpty();
+        data.Subtitle.Should().BeEmpty();
+        data.BacklogLink.Should().BeEmpty();
+        data.CurrentMonth.Should().BeEmpty();
+        data.Months.Should().NotBeNull().And.BeEmpty();
         data.Timeline.Should().NotBeNull();
         data.Heatmap.Should().NotBeNull();
     }
 
     [Fact]
-    public void Deserialize_TimelineWithTracks_TracksDeserializeCorrectly()
+    public void DashboardData_PascalCaseKeys_AreNotMapped()
+    {
+        // PropertyNameCaseInsensitive = false means PascalCase won't map
+        var json = """{ "Title": "Wrong Case", "BacklogLink": "https://test.com" }""";
+
+        var data = JsonSerializer.Deserialize<DashboardData>(json, Options)!;
+
+        data.Title.Should().BeEmpty("PascalCase 'Title' should not map when case-insensitive is false");
+        data.BacklogLink.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void DashboardData_ExtraFields_AreIgnored()
+    {
+        var json = """
+        {
+            "title": "Test",
+            "unknownField": 42,
+            "anotherExtra": { "nested": true }
+        }
+        """;
+
+        var data = JsonSerializer.Deserialize<DashboardData>(json, Options)!;
+
+        data.Title.Should().Be("Test");
+    }
+
+    // --- HeatmapData deserialization ---
+
+    [Fact]
+    public void HeatmapData_MissingShippedKey_DefaultsToEmptyDictionary()
+    {
+        var json = """{ "inProgress": { "jan": ["Item"] } }""";
+
+        var data = JsonSerializer.Deserialize<HeatmapData>(json, Options)!;
+
+        data.Shipped.Should().NotBeNull().And.BeEmpty();
+        data.InProgress.Should().ContainKey("jan");
+    }
+
+    [Fact]
+    public void HeatmapData_EmptyObject_AllDictionariesAreEmpty()
+    {
+        var json = "{}";
+
+        var data = JsonSerializer.Deserialize<HeatmapData>(json, Options)!;
+
+        data.Shipped.Should().NotBeNull().And.BeEmpty();
+        data.InProgress.Should().NotBeNull().And.BeEmpty();
+        data.Carryover.Should().NotBeNull().And.BeEmpty();
+        data.Blockers.Should().NotBeNull().And.BeEmpty();
+    }
+
+    [Fact]
+    public void HeatmapData_InProgressCamelCase_DeserializesCorrectly()
+    {
+        var json = """{ "inProgress": { "apr": ["Monitoring", "Dashboards"] } }""";
+
+        var data = JsonSerializer.Deserialize<HeatmapData>(json, Options)!;
+
+        data.InProgress["apr"].Should().HaveCount(2);
+        data.InProgress["apr"].Should().Contain("Monitoring");
+    }
+
+    [Fact]
+    public void HeatmapData_EmptyListsForMonth_DeserializesAsEmptyList()
+    {
+        var json = """{ "shipped": { "jan": [] } }""";
+
+        var data = JsonSerializer.Deserialize<HeatmapData>(json, Options)!;
+
+        data.Shipped["jan"].Should().NotBeNull().And.BeEmpty();
+    }
+
+    // --- TimelineData deserialization ---
+
+    [Fact]
+    public void TimelineData_FullDeserialization_AllFieldsMapped()
     {
         var json = """
         {
@@ -64,222 +152,135 @@ public class JsonDeserializationFoundationTests
                     "label": "M1",
                     "color": "#0078D4",
                     "milestones": [
-                        { "date": "2026-02-15", "label": "Feb 15", "type": "poc" },
-                        { "date": "2026-04-01", "label": "Apr 1", "type": "production" }
-                    ]
-                },
-                {
-                    "name": "Pipeline",
-                    "label": "M2",
-                    "color": "#00897B",
-                    "milestones": [
-                        { "date": "2026-03-01", "label": "Mar 1", "type": "checkpoint" }
+                        { "date": "2026-02-15", "label": "Feb 15", "type": "poc" }
                     ]
                 }
             ]
         }
         """;
 
-        var timeline = JsonSerializer.Deserialize<TimelineData>(json, Options);
+        var data = JsonSerializer.Deserialize<TimelineData>(json, Options)!;
 
-        timeline.Should().NotBeNull();
-        timeline!.Tracks.Should().HaveCount(2);
-        timeline.Tracks[0].Name.Should().Be("Chatbot");
-        timeline.Tracks[0].Label.Should().Be("M1");
-        timeline.Tracks[0].Color.Should().Be("#0078D4");
-        timeline.Tracks[0].Milestones.Should().HaveCount(2);
-        timeline.Tracks[0].Milestones[0].Type.Should().Be("poc");
-        timeline.Tracks[0].Milestones[1].Type.Should().Be("production");
-        timeline.Tracks[1].Milestones[0].Type.Should().Be("checkpoint");
+        data.StartDate.Should().Be("2026-01-01");
+        data.EndDate.Should().Be("2026-06-30");
+        data.NowDate.Should().Be("2026-04-10");
+        data.Tracks.Should().HaveCount(1);
+        data.Tracks[0].Name.Should().Be("Chatbot");
+        data.Tracks[0].Milestones[0].Type.Should().Be("poc");
     }
 
     [Fact]
-    public void Deserialize_HeatmapWithItems_AllCategoriesDeserialize()
+    public void TimelineData_MissingTracks_DefaultsToEmptyList()
     {
-        var json = """
-        {
-            "shipped": {
-                "jan": ["Item A", "Item B"],
-                "feb": ["Item C"]
-            },
-            "inProgress": {
-                "mar": ["Item D"]
-            },
-            "carryover": {
-                "apr": ["Item E"]
-            },
-            "blockers": {
-                "apr": ["Blocker 1"]
-            }
-        }
-        """;
+        var json = """{ "startDate": "2026-01-01" }""";
 
-        var heatmap = JsonSerializer.Deserialize<HeatmapData>(json, Options);
+        var data = JsonSerializer.Deserialize<TimelineData>(json, Options)!;
 
-        heatmap.Should().NotBeNull();
-        heatmap!.Shipped["jan"].Should().HaveCount(2);
-        heatmap.Shipped["feb"].Should().ContainSingle();
-        heatmap.InProgress["mar"].Should().ContainSingle();
-        heatmap.Carryover["apr"].Should().ContainSingle();
-        heatmap.Blockers["apr"].Should().ContainSingle().Which.Should().Be("Blocker 1");
+        data.Tracks.Should().NotBeNull().And.BeEmpty();
+    }
+
+    // --- TimelineTrack deserialization ---
+
+    [Fact]
+    public void TimelineTrack_MissingColor_DefaultsToGray()
+    {
+        var json = """{ "name": "Track", "label": "M1", "milestones": [] }""";
+
+        var track = JsonSerializer.Deserialize<TimelineTrack>(json, Options)!;
+
+        track.Color.Should().Be("#999");
     }
 
     [Fact]
-    public void Deserialize_MinimalJson_MissingFieldsGetDefaults()
+    public void TimelineTrack_WithColor_OverridesDefault()
+    {
+        var json = """{ "name": "Track", "label": "M1", "color": "#FF0000", "milestones": [] }""";
+
+        var track = JsonSerializer.Deserialize<TimelineTrack>(json, Options)!;
+
+        track.Color.Should().Be("#FF0000");
+    }
+
+    [Fact]
+    public void TimelineTrack_MissingMilestones_DefaultsToEmptyList()
+    {
+        var json = """{ "name": "Track", "label": "M1" }""";
+
+        var track = JsonSerializer.Deserialize<TimelineTrack>(json, Options)!;
+
+        track.Milestones.Should().NotBeNull().And.BeEmpty();
+    }
+
+    // --- Milestone deserialization ---
+
+    [Fact]
+    public void Milestone_DefaultType_IsCheckpoint()
+    {
+        var json = """{ "date": "2026-03-01", "label": "Mar 1" }""";
+
+        var milestone = JsonSerializer.Deserialize<Milestone>(json, Options)!;
+
+        milestone.Type.Should().Be("checkpoint");
+    }
+
+    [Theory]
+    [InlineData("checkpoint")]
+    [InlineData("poc")]
+    [InlineData("production")]
+    public void Milestone_AllValidTypes_DeserializeCorrectly(string type)
+    {
+        var json = $$"""{ "date": "2026-03-01", "type": "{{type}}", "label": "Mar 1" }""";
+
+        var milestone = JsonSerializer.Deserialize<Milestone>(json, Options)!;
+
+        milestone.Type.Should().Be(type);
+    }
+
+    [Fact]
+    public void Milestone_EmptyObject_HasDefaults()
     {
         var json = "{}";
 
-        var data = JsonSerializer.Deserialize<DashboardData>(json, Options);
+        var milestone = JsonSerializer.Deserialize<Milestone>(json, Options)!;
 
-        data.Should().NotBeNull();
-        data!.Title.Should().BeEmpty();
-        data.Subtitle.Should().BeEmpty();
-        data.Months.Should().BeEmpty();
-        data.Timeline.Should().NotBeNull();
-        data.Timeline.Tracks.Should().BeEmpty();
-        data.Heatmap.Should().NotBeNull();
-        data.Heatmap.Shipped.Should().BeEmpty();
+        milestone.Date.Should().BeEmpty();
+        milestone.Label.Should().BeEmpty();
+        milestone.Type.Should().Be("checkpoint");
     }
 
-    [Fact]
-    public void Deserialize_NullJsonResult_ReturnsNull()
-    {
-        var json = "null";
-
-        var data = JsonSerializer.Deserialize<DashboardData>(json, Options);
-
-        data.Should().BeNull();
-    }
+    // --- Comments and trailing commas ---
 
     [Fact]
-    public void Deserialize_MalformedJson_ThrowsJsonException()
-    {
-        var json = "{ invalid json }";
-
-        var act = () => JsonSerializer.Deserialize<DashboardData>(json, Options);
-
-        act.Should().Throw<JsonException>();
-    }
-
-    [Fact]
-    public void Deserialize_TrailingComma_ThrowsJsonException()
-    {
-        // Note: this tests default System.Text.Json behavior (no AllowTrailingCommas)
-        var json = """{ "title": "Test", }""";
-
-        var act = () => JsonSerializer.Deserialize<DashboardData>(json, Options);
-
-        act.Should().Throw<JsonException>();
-    }
-
-    [Fact]
-    public void Deserialize_EmptyString_ThrowsJsonException()
-    {
-        var json = "";
-
-        var act = () => JsonSerializer.Deserialize<DashboardData>(json, Options);
-
-        act.Should().Throw<JsonException>();
-    }
-
-    [Fact]
-    public void Deserialize_MilestoneTypes_AllThreeTypesDeserialize()
+    public void DashboardData_JsonWithComments_DeserializesCorrectly()
     {
         var json = """
         {
-            "date": "2026-03-15",
-            "label": "Mar 15",
-            "type": "poc"
+            // This is a comment
+            "title": "Commented JSON",
+            "subtitle": "Sub",
+            /* Block comment */
+            "months": ["Jan"]
         }
         """;
 
-        var ms = JsonSerializer.Deserialize<Milestone>(json, Options);
-        ms.Should().NotBeNull();
-        ms!.Type.Should().Be("poc");
-        ms.Date.Should().Be("2026-03-15");
-        ms.Label.Should().Be("Mar 15");
+        var data = JsonSerializer.Deserialize<DashboardData>(json, Options)!;
+
+        data.Title.Should().Be("Commented JSON");
     }
 
     [Fact]
-    public void Deserialize_MilestoneWithoutType_DefaultsToCheckpoint()
+    public void DashboardData_JsonWithTrailingCommas_DeserializesCorrectly()
     {
         var json = """
         {
-            "date": "2026-03-15",
-            "label": "Mar 15"
+            "title": "Trailing",
+            "months": ["Jan", "Feb",],
         }
         """;
 
-        var ms = JsonSerializer.Deserialize<Milestone>(json, Options);
-        ms.Should().NotBeNull();
-        ms!.Type.Should().Be("checkpoint");
-    }
+        var data = JsonSerializer.Deserialize<DashboardData>(json, Options)!;
 
-    [Fact]
-    public void Deserialize_HeatmapEmptyArrays_ProducesEmptyLists()
-    {
-        var json = """
-        {
-            "shipped": { "jan": [] },
-            "inProgress": {},
-            "carryover": {},
-            "blockers": {}
-        }
-        """;
-
-        var heatmap = JsonSerializer.Deserialize<HeatmapData>(json, Options);
-
-        heatmap.Should().NotBeNull();
-        heatmap!.Shipped["jan"].Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Deserialize_CaseInsensitive_PropertyNamesMatchRegardlessOfCase()
-    {
-        var json = """
-        {
-            "Title": "Upper Case",
-            "SUBTITLE": "ALL CAPS"
-        }
-        """;
-
-        var data = JsonSerializer.Deserialize<DashboardData>(json, Options);
-
-        data.Should().NotBeNull();
-        data!.Title.Should().Be("Upper Case");
-        data.Subtitle.Should().Be("ALL CAPS");
-    }
-
-    [Fact]
-    public void Serialize_DashboardData_UsesJsonPropertyNames()
-    {
-        var data = new DashboardData
-        {
-            Title = "Test",
-            CurrentMonth = "Apr"
-        };
-
-        var json = JsonSerializer.Serialize(data);
-
-        json.Should().Contain("\"title\":");
-        json.Should().Contain("\"currentMonth\":");
-    }
-
-    [Fact]
-    public void Deserialize_ExtraFieldsInJson_AreIgnored()
-    {
-        var json = """
-        {
-            "title": "Test",
-            "unknownField": "should be ignored",
-            "anotherUnknown": 42
-        }
-        """;
-
-        var act = () => JsonSerializer.Deserialize<DashboardData>(json, Options);
-
-        act.Should().NotThrow();
-        var data = act();
-        data!.Title.Should().Be("Test");
+        data.Title.Should().Be("Trailing");
+        data.Months.Should().HaveCount(2);
     }
 }

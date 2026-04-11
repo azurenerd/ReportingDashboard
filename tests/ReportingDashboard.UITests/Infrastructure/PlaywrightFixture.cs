@@ -3,29 +3,34 @@ using Xunit;
 
 namespace ReportingDashboard.UITests.Infrastructure;
 
-/// <summary>
-/// Canonical PlaywrightFixture for the ReportingDashboard test suite.
-/// PRs #598 and #599 also create this file — those PRs should rebase onto this version.
-/// </summary>
 public class PlaywrightFixture : IAsyncLifetime
 {
-    public IPlaywright Playwright { get; private set; } = null!;
-    public IBrowser Browser { get; private set; } = null!;
+    private IPlaywright? _playwright;
+    private IBrowser? _browser;
 
-    private string _baseUrl = null!;
-    public string BaseUrl => _baseUrl;
+    public string BaseUrl { get; } =
+        Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
+
+    public IBrowser Browser => _browser ?? throw new InvalidOperationException("Browser not initialized");
 
     public async Task InitializeAsync()
     {
-        _baseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
-
-        Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
+        _playwright = await Playwright.CreateAsync();
 
         var headed = Environment.GetEnvironmentVariable("HEADED") == "1";
-        Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+
+        _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
         {
-            Headless = !headed
+            Headless = !headed,
+            Timeout = 30000
         });
+    }
+
+    public async Task DisposeAsync()
+    {
+        if (_browser is not null)
+            await _browser.DisposeAsync();
+        _playwright?.Dispose();
     }
 
     public async Task<IPage> NewPageAsync()
@@ -40,17 +45,10 @@ public class PlaywrightFixture : IAsyncLifetime
 
     public async Task CaptureScreenshotAsync(IPage page, string name)
     {
-        var dir = Path.Combine(Directory.GetCurrentDirectory(), "screenshots");
+        var dir = Path.Combine(AppContext.BaseDirectory, "screenshots");
         Directory.CreateDirectory(dir);
-        var path = Path.Combine(dir, $"{name}_{DateTime.Now:yyyyMMdd_HHmmss}.png");
+        var path = Path.Combine(dir, $"{name}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.png");
         await page.ScreenshotAsync(new PageScreenshotOptions { Path = path, FullPage = true });
-    }
-
-    public async Task DisposeAsync()
-    {
-        if (Browser is not null)
-            await Browser.DisposeAsync();
-        Playwright?.Dispose();
     }
 }
 
