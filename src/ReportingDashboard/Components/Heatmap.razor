@@ -1,0 +1,26 @@
+@namespace ReportingDashboard.Components
+@using ReportingDashboard.Models
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap – Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid" style="grid-template-columns:160px repeat(@Months.Count,1fr);grid-template-rows:36px repeat(4,1fr);">
+        <div class="hm-corner">STATUS</div>
+        @foreach (var month in Months)
+        {
+            var isCurrentMonth = month.Equals(CurrentMonth, StringComparison.OrdinalIgnoreCase);
+            var headerClass = isCurrentMonth ? "hm-col-hdr apr-hdr" : "hm-col-hdr";
+            var label = isCurrentMonth ? $"📍 {month} – Now" : month;
+            <div class="@headerClass">@label</div>
+        }
+        <HeatmapRow CategoryLabel="✅ SHIPPED" CssPrefix="ship" Items="@HeatmapData?.Shipped" Months="@Months" CurrentMonth="@CurrentMonth" />
+        <HeatmapRow CategoryLabel="🔄 IN PROGRESS" CssPrefix="prog" Items="@HeatmapData?.InProgress" Months="@Months" CurrentMonth="@CurrentMonth" />
+        <HeatmapRow CategoryLabel="⏳ CARRYOVER" CssPrefix="carry" Items="@HeatmapData?.Carryover" Months="@Months" CurrentMonth="@CurrentMonth" />
+        <HeatmapRow CategoryLabel="🚨 BLOCKERS" CssPrefix="block" Items="@HeatmapData?.Blockers" Months="@Months" CurrentMonth="@CurrentMonth" />
+    </div>
+</div>
+
+@code {
+    [Parameter] public HeatmapData? HeatmapData { get; set; }
+    [Parameter] public List<string> Months { get; set; } = new();
+    [Parameter] public string CurrentMonth { get; set; } = "";
+}

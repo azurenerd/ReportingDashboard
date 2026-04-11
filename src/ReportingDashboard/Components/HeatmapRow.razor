@@ -1,0 +1,25 @@
+@namespace ReportingDashboard.Components
+
+<div class="hm-row-hdr @($"{CssPrefix}-hdr")">@CategoryLabel</div>
+@foreach (var month in Months)
+{
+    var monthItems = GetMonthItems(month);
+    var isCurrent = month.Equals(CurrentMonth, StringComparison.OrdinalIgnoreCase);
+    <HeatmapCell Items="@monthItems" CssPrefix="@CssPrefix" IsCurrentMonth="@isCurrent" />
+}
+
+@code {
+    [Parameter] public string CategoryLabel { get; set; } = "";
+    [Parameter] public string CssPrefix { get; set; } = "ship";
+    [Parameter] public Dictionary<string, List<string>>? Items { get; set; }
+    [Parameter] public List<string> Months { get; set; } = new();
+    [Parameter] public string CurrentMonth { get; set; } = "";
+
+    private List<string>? GetMonthItems(string month)
+    {
+        if (Items is null)
+            return null;
+
+        return Items.TryGetValue(month.ToLowerInvariant(), out var items) ? items : null;
+    }
+}
