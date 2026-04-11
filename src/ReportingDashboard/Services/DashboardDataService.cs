@@ -5,74 +5,131 @@ namespace ReportingDashboard.Services;
 
 public class DashboardDataService
 {
-    private readonly ILogger<DashboardDataService> _logger;
-
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNameCaseInsensitive = true
     };
 
-    public DashboardData? Data { get; private set; }
-    public bool IsError { get; private set; }
-    public string? ErrorMessage { get; private set; }
+    private readonly ILogger<DashboardDataService> _logger;
 
     public DashboardDataService(ILogger<DashboardDataService> logger)
     {
         _logger = logger;
     }
 
+    public DashboardData? Data { get; private set; }
+    public bool IsError { get; private set; }
+    public string? ErrorMessage { get; private set; }
+
     public async Task LoadAsync(string filePath)
     {
-        // Reset state on each load
         Data = null;
         IsError = false;
         ErrorMessage = null;
 
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            SetError("File path is null or empty");
+            return;
+        }
+
+        if (!File.Exists(filePath))
+        {
+            SetError($"data.json not found at {filePath}");
+            return;
+        }
+
+        string json;
         try
         {
-            if (!File.Exists(filePath))
+            json = await File.ReadAllTextAsync(filePath);
+        }
+        catch (IOException ex)
+        {
+            SetError($"Failed to read data.json: {ex.Message}");
+            return;
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            SetError($"Failed to read data.json (permission denied): {ex.Message}");
+            return;
+        }
+
+        DashboardData? result;
+        try
+        {
+            result = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            SetError($"Failed to parse data.json: {ex.Message}");
+            return;
+        }
+
+        if (result is null)
+        {
+            SetError("data.json deserialized to null");
+            return;
+        }
+
+        // Ensure non-null nested objects
+        result.Timeline ??= new TimelineData();
+        result.Heatmap ??= new HeatmapData();
+        result.Months ??= new List<string>();
+
+        var errors = Validate(result);
+        if (errors.Count > 0)
+        {
+            var joined = string.Join("; ", errors);
+            SetError($"data.json validation failed: {joined}");
+            return;
+        }
+
+        // Warnings for optional fields
+        if (string.IsNullOrWhiteSpace(result.BacklogLink))
+            _logger.LogWarning("data.json: backlogLink is not set");
+
+        if (string.IsNullOrWhiteSpace(result.Timeline.NowDate))
+            _logger.LogWarning("data.json: timeline.nowDate is not set");
+
+        if (result.Timeline.Tracks != null)
+        {
+            for (var i = 0; i < result.Timeline.Tracks.Count; i++)
             {
-                _logger.LogError("data.json not found at {Path}", filePath);
-                IsError = true;
-                ErrorMessage = $"data.json not found at {filePath}";
-                return;
+                var track = result.Timeline.Tracks[i];
+                if (string.IsNullOrWhiteSpace(track.Name))
+                    _logger.LogWarning("data.json: timeline.tracks[{Index}].name is empty", i);
+                if (string.IsNullOrWhiteSpace(track.Label))
+                    _logger.LogWarning("data.json: timeline.tracks[{Index}].label is empty", i);
             }
+        }
 
-            var json = await File.ReadAllTextAsync(filePath);
-            var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
+        Data = result;
+        _logger.LogInformation("Dashboard data loaded successfully: {Title}", result.Title);
+    }
 
-            if (data == null)
-            {
-                _logger.LogError("data.json deserialized to null");
-                IsError = true;
-                ErrorMessage = "data.json deserialized to null";
-                return;
-            }
+    private static List<string> Validate(DashboardData data)
+    {
+        var errors = new List<string>();
 
-            // Ensure non-null nested objects
-            data.Timeline ??= new TimelineData();
-            data.Heatmap ??= new HeatmapData();
-            data.Months ??= new List<string>();
+        if (string.IsNullOrWhiteSpace(data.Title))
+            errors.Add("title is required");
 
-            // Validate required fields per architecture Data Validation Rules
-            var errors = new List<string>();
+        if (string.IsNullOrWhiteSpace(data.Subtitle))
+            errors.Add("subtitle is required");
 
-            if (string.IsNullOrWhiteSpace(data.Title))
-                errors.Add("title is required");
+        if (string.IsNullOrWhiteSpace(data.CurrentMonth))
+            errors.Add("currentMonth is required");
 
-            if (string.IsNullOrWhiteSpace(data.Subtitle))
-                errors.Add("subtitle is required");
+        if (data.Months.Count == 0)
+            errors.Add("months must be a non-empty array");
 
-            if (string.IsNullOrWhiteSpace(data.BacklogLink))
-                errors.Add("backlogLink is required");
-
-            if (string.IsNullOrWhiteSpace(data.CurrentMonth))
-                errors.Add("currentMonth is required");
-
-            if (data.Months.Count == 0)
-                errors.Add("months array must not be empty");
-
+        if (data.Timeline is null)
+        {
+            errors.Add("timeline is required");
+        }
+        else
+        {
             if (string.IsNullOrWhiteSpace(data.Timeline.StartDate))
                 errors.Add("timeline.startDate is required");
 
@@ -80,47 +137,16 @@ public class DashboardDataService
                 errors.Add("timeline.endDate is required");
 
             if (data.Timeline.Tracks == null || data.Timeline.Tracks.Count == 0)
-                errors.Add("timeline.tracks must not be empty");
-
-            if (errors.Count > 0)
-            {
-                var message = $"data.json validation failed: {string.Join("; ", errors)}";
-                _logger.LogError("{Message}", message);
-                IsError = true;
-                ErrorMessage = message;
-                return;
-            }
-
-            // Warnings for optional fields
-            if (string.IsNullOrWhiteSpace(data.Timeline.NowDate))
-                _logger.LogWarning("data.json: timeline.nowDate is not set");
-
-            if (data.Timeline.Tracks != null)
-            {
-                for (var i = 0; i < data.Timeline.Tracks.Count; i++)
-                {
-                    var track = data.Timeline.Tracks[i];
-                    if (string.IsNullOrWhiteSpace(track.Name))
-                        _logger.LogWarning("data.json: timeline.tracks[{Index}].name is empty", i);
-                    if (string.IsNullOrWhiteSpace(track.Label))
-                        _logger.LogWarning("data.json: timeline.tracks[{Index}].label is empty", i);
-                }
-            }
-
-            Data = data;
-            _logger.LogInformation("Dashboard data loaded successfully: {Title}", data.Title);
+                errors.Add("timeline.tracks must be a non-empty array");
         }
-        catch (JsonException ex)
-        {
-            _logger.LogError(ex, "Failed to parse data.json");
-            IsError = true;
-            ErrorMessage = $"Failed to parse data.json: {ex.Message}";
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error loading data.json");
-            IsError = true;
-            ErrorMessage = $"Unexpected error loading data.json: {ex.Message}";
-        }
+
+        return errors;
+    }
+
+    private void SetError(string message)
+    {
+        IsError = true;
+        ErrorMessage = message;
+        _logger.LogError("DashboardDataService: {ErrorMessage}", message);
     }
 }
