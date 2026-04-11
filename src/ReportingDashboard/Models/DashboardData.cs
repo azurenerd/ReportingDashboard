@@ -2,86 +2,63 @@ using System.Text.Json.Serialization;
 
 namespace ReportingDashboard.Models;
 
-public class DashboardData
+public record DashboardData
 {
+    public ProjectInfo? Project { get; init; }
+    public List<Milestone> Milestones { get; init; } = [];
+    public List<WorkItem> Shipped { get; init; } = [];
+    public List<WorkItem> InProgress { get; init; } = [];
+    public List<WorkItem> CarriedOver { get; init; } = [];
+    public MonthSummary? CurrentMonth { get; init; }
+    public string? ErrorMessage { get; init; }
+
+    // Properties used by the pixel-precise Header.razor (architecture v2)
     [JsonPropertyName("title")]
-    public string Title { get; set; } = "Untitled Project";
+    public string Title { get; init; } = string.Empty;
 
     [JsonPropertyName("subtitle")]
-    public string Subtitle { get; set; } = "";
+    public string Subtitle { get; init; } = string.Empty;
 
     [JsonPropertyName("backlogLink")]
-    public string BacklogLink { get; set; } = "#";
+    public string BacklogLink { get; init; } = string.Empty;
 
     [JsonPropertyName("currentMonth")]
-    public string CurrentMonth { get; set; } = "";
+    public string CurrentMonthLabel { get; init; } = string.Empty;
 
     [JsonPropertyName("months")]
-    public List<string> Months { get; set; } = [];
-
-    [JsonPropertyName("timeline")]
-    public TimelineData? Timeline { get; set; }
-
-    [JsonPropertyName("heatmap")]
-    public HeatmapData? Heatmap { get; set; }
-
-    [JsonIgnore]
-    public string? ErrorMessage { get; set; }
+    public List<string> Months { get; init; } = [];
 }
 
-public class TimelineData
+public record ProjectInfo
 {
-    [JsonPropertyName("startDate")]
-    public string StartDate { get; set; } = "";
-
-    [JsonPropertyName("endDate")]
-    public string EndDate { get; set; } = "";
-
-    [JsonPropertyName("nowDate")]
-    public string NowDate { get; set; } = "";
-
-    [JsonPropertyName("tracks")]
-    public List<TimelineTrack> Tracks { get; set; } = [];
+    public string Name { get; init; } = "Untitled Project";
+    public string? Lead { get; init; }
+    public string Status { get; init; } = "Unknown";
+    public string? LastUpdated { get; init; }
+    public string? Summary { get; init; }
 }
 
-public class TimelineTrack
+public record Milestone
 {
-    [JsonPropertyName("id")]
-    public string Id { get; set; } = "";
-
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = "";
-
-    [JsonPropertyName("color")]
-    public string Color { get; set; } = "#0078D4";
-
-    [JsonPropertyName("milestones")]
-    public List<MilestoneMarker> Milestones { get; set; } = [];
+    public string Title { get; init; } = "";
+    public string? TargetDate { get; init; }
+    public string Status { get; init; } = "Upcoming";
 }
 
-public class MilestoneMarker
+public record WorkItem
 {
-    [JsonPropertyName("date")]
-    public string Date { get; set; } = "";
-
-    [JsonPropertyName("label")]
-    public string Label { get; set; } = "";
-
-    [JsonPropertyName("type")]
-    public string Type { get; set; } = "checkpoint";
+    public string Title { get; init; } = "";
+    public string? Description { get; init; }
+    public string? Category { get; init; }
+    public int PercentComplete { get; init; }
+    public string? CarryOverReason { get; init; }
 }
 
-public class HeatmapData
+public record MonthSummary
 {
-    [JsonPropertyName("shipped")]
-    public Dictionary<string, List<string>> Shipped { get; set; } = new();
-
-    [JsonPropertyName("inProgress")]
-    public Dictionary<string, List<string>> InProgress { get; set; } = new();
-
-    [JsonPropertyName("carryover")]
-    public Dictionary<string, List<string>> Carryover { get; set; } = new();
-
-    [JsonPropertyName("blockers")]
-    public Dictionary<string, List<string>> Blockers { get; set; } = new();
+    public string? Month { get; init; }
+    public int TotalItems { get; init; }
+    public int CompletedItems { get; init; }
+    public int CarriedItems { get; init; }
+    public string OverallHealth { get; init; } = "Unknown";
 }
