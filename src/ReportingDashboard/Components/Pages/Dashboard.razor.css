@@ -1,0 +1,23 @@
+.error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1920px;
+    height: 1080px;
+}
+
+.error-message {
+    font-size: 18px;
+    color: #666;
+    max-width: 600px;
+    text-align: center;
+}
+
+.dashboard {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+}
