@@ -1,1 +1,40 @@
-@* Placeholder - will be fully implemented in Step 4 *@
+@page "/"
+@inject DashboardDataService DataService
+
+@if (_error is not null)
+{
+    <div style="display:flex;align-items:center;justify-content:center;flex:1;min-height:0">
+        <div style="max-width:600px;padding:40px;font-size:18px;color:#EA4335;text-align:center">
+            @_error
+        </div>
+    </div>
+}
+else if (_data is not null)
+{
+    <!-- DashboardHeader -->
+    <div class="hdr">
+        <div>Header placeholder</div>
+    </div>
+
+    <!-- TimelineSection -->
+    <div class="tl-area">
+        <div>Timeline placeholder</div>
+    </div>
+
+    <!-- HeatmapSection -->
+    <div class="hm-wrap">
+        <div>Heatmap placeholder</div>
+    </div>
+}
+
+@code {
+    private DashboardData? _data;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        var (data, error) = DataService.Load();
+        _data = data;
+        _error = error;
+    }
+}
