@@ -16,55 +16,55 @@
         "milestones": [
           { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
           { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
-          { "date": "2026-05-01", "type": "production", "label": "May Prod" }
+          { "date": "2026-05-01", "type": "production", "label": "May 1 Prod" }
         ]
       },
       {
         "name": "M2",
-        "label": "Data Pipeline v2",
+        "label": "DSR Pipeline v2",
         "color": "#00897B",
         "milestones": [
-          { "date": "2026-02-01", "type": "checkpoint", "label": "Feb 1" },
-          { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC" },
-          { "date": "2026-06-01", "type": "production", "label": "Jun Prod" }
+          { "date": "2026-01-31", "type": "poc", "label": "Jan 31 PoC" },
+          { "date": "2026-03-15", "type": "checkpoint", "label": "Mar 15" },
+          { "date": "2026-04-30", "type": "production", "label": "Apr 30 GA" }
         ]
       },
       {
         "name": "M3",
-        "label": "Compliance Reporting",
+        "label": "Compliance Dashboard",
         "color": "#546E7A",
         "milestones": [
-          { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
-          { "date": "2026-05-15", "type": "poc", "label": "May 15 PoC" },
-          { "date": "2026-06-20", "type": "production", "label": "Jun 20 Prod" }
+          { "date": "2026-03-01", "type": "poc", "label": "Mar 1 PoC" },
+          { "date": "2026-04-15", "type": "checkpoint", "label": "Apr 15" },
+          { "date": "2026-06-15", "type": "production", "label": "Jun 15 GA" }
         ]
       }
     ]
   },
   "heatmap": {
     "shipped": {
-      "jan": ["DSR Automation v1", "Role Assignment API"],
-      "feb": ["Consent Tracking Module"],
-      "mar": ["MS Graph Integration", "Audit Log Export"],
-      "apr": ["Chatbot Beta Release"]
+      "jan": ["Auth service hardening", "Token rotation script"],
+      "feb": ["DSR intake form v2", "Role mapping API"],
+      "mar": ["Chatbot PoC demo", "Pipeline monitoring alerts"],
+      "apr": ["Automated DSR acknowledgment"]
     },
     "inProgress": {
-      "jan": [],
-      "feb": [],
-      "mar": ["Pipeline Refactor"],
-      "apr": ["Data Classification Engine", "Retention Policy Config"]
+      "jan": ["DSR pipeline design"],
+      "feb": ["Chatbot NLU training"],
+      "mar": ["MS Role provisioning", "Dashboard wireframes"],
+      "apr": ["DSR Pipeline v2 integration", "Compliance dashboard frontend"]
     },
     "carryover": {
       "jan": [],
-      "feb": [],
+      "feb": ["Audit log export (from Jan)"],
       "mar": [],
-      "apr": ["Legacy DB Migration"]
+      "apr": ["MS Role edge cases (from Mar)"]
     },
     "blockers": {
       "jan": [],
       "feb": [],
-      "mar": [],
-      "apr": ["Compliance API Rate Limits"]
+      "mar": ["AAD Graph API deprecation"],
+      "apr": ["Pending legal review on DSR templates"]
     }
   }
 }

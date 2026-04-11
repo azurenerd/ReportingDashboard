@@ -20,7 +20,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-// Load data before serving any requests
+// Load dashboard data before first request
 var dataService = app.Services.GetRequiredService<DashboardDataService>();
 await dataService.LoadAsync(Path.Combine(app.Environment.WebRootPath, "data.json"));
 

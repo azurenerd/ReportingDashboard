@@ -5,19 +5,19 @@ namespace ReportingDashboard.Models;
 public class DashboardData
 {
     [JsonPropertyName("title")]
-    public string Title { get; set; } = string.Empty;
+    public string Title { get; set; } = "";
 
     [JsonPropertyName("subtitle")]
-    public string Subtitle { get; set; } = string.Empty;
+    public string Subtitle { get; set; } = "";
 
     [JsonPropertyName("backlogLink")]
-    public string BacklogLink { get; set; } = string.Empty;
+    public string BacklogLink { get; set; } = "";
 
     [JsonPropertyName("currentMonth")]
-    public string CurrentMonth { get; set; } = string.Empty;
+    public string CurrentMonth { get; set; } = "";
 
     [JsonPropertyName("months")]
-    public List<string> Months { get; set; } = new();
+    public List<string> Months { get; set; } = [];
 
     [JsonPropertyName("timeline")]
     public TimelineData Timeline { get; set; } = new();
