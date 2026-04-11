@@ -1,16 +1,14 @@
-@using Microsoft.AspNetCore.Components.Web
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=1920" />
+    <title>Executive Project Dashboard</title>
     <link rel="stylesheet" href="css/dashboard.css" />
-    <title>Executive Dashboard</title>
-    <HeadOutlet @rendermode="new InteractiveServerRenderMode()" />
+    <HeadOutlet />
 </head>
 <body>
-    <Routes @rendermode="new InteractiveServerRenderMode()" />
+    <Routes />
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>

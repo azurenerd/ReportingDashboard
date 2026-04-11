@@ -1,35 +1,35 @@
-<div class="hdr-left">
-    <h1>
-        @Title
-        @if (!string.IsNullOrEmpty(BacklogLink))
-        {
-            <a href="@BacklogLink" target="_blank" rel="noopener">&#x1F4CB; ADO Backlog</a>
-        }
-    </h1>
-    <div class="sub">@Subtitle</div>
-</div>
-<div class="hdr-right">
-    <span class="legend-item">
-        <span class="legend-diamond" style="background:#F4B400;"></span> PoC Milestone
-    </span>
-    <span class="legend-item">
-        <span class="legend-diamond" style="background:#34A853;"></span> Production Release
-    </span>
-    <span class="legend-item">
-        <span class="legend-circle"></span> Checkpoint
-    </span>
-    <span class="legend-item">
-        <span class="legend-now-bar"></span> Now (@CurrentMonth @NowYear)
-    </span>
+<div class="hdr">
+    <div>
+        <h1>
+            @(Data.Project?.Name ?? "Untitled Project")
+            @if (!string.IsNullOrEmpty(Data.Project?.BacklogLink))
+            {
+                <a href="@Data.Project!.BacklogLink" target="_blank" class="ado-link">📋 ADO Backlog</a>
+            }
+        </h1>
+        <div class="sub">@(Data.Project?.Summary ?? "")</div>
+    </div>
+    <div class="legend">
+        <span class="legend-item">
+            <span class="legend-diamond legend-diamond--poc"></span>
+            PoC Milestone
+        </span>
+        <span class="legend-item">
+            <span class="legend-diamond legend-diamond--prod"></span>
+            Production Release
+        </span>
+        <span class="legend-item">
+            <span class="legend-circle"></span>
+            Checkpoint
+        </span>
+        <span class="legend-item">
+            <span class="legend-now-bar"></span>
+            @($"Now ({Data.CurrentMonth?.Month ?? ""})")
+        </span>
+    </div>
 </div>
 
 @code {
-    [Parameter] public string Title { get; set; } = "";
-    [Parameter] public string Subtitle { get; set; } = "";
-    [Parameter] public string BacklogLink { get; set; } = "";
-    [Parameter] public string CurrentMonth { get; set; } = "";
-    [Parameter] public string NowDate { get; set; } = "";
-
-    private string NowYear =>
-        DateTime.TryParse(NowDate, out var d) ? d.ToString("yyyy") : "";
+    [Parameter]
+    public DashboardData Data { get; set; } = new();
 }

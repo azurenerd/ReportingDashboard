@@ -1,27 +1,47 @@
-using System.Text.Json.Serialization;
-
 namespace ReportingDashboard.Models;
 
-public class DashboardData
+public record DashboardData
 {
-    [JsonPropertyName("title")]
-    public string Title { get; set; } = string.Empty;
+    public ProjectInfo? Project { get; init; }
+    public List<Milestone> Milestones { get; init; } = [];
+    public List<WorkItem> Shipped { get; init; } = [];
+    public List<WorkItem> InProgress { get; init; } = [];
+    public List<WorkItem> CarriedOver { get; init; } = [];
+    public MonthSummary? CurrentMonth { get; init; }
+    public string? ErrorMessage { get; init; }
+}
 
-    [JsonPropertyName("subtitle")]
-    public string Subtitle { get; set; } = string.Empty;
+public record ProjectInfo
+{
+    public string Name { get; init; } = "Untitled Project";
+    public string? Lead { get; init; }
+    public string Status { get; init; } = "Unknown";
+    public string? LastUpdated { get; init; }
+    public string? Summary { get; init; }
+    public string? BacklogLink { get; init; }
+}
 
-    [JsonPropertyName("backlogLink")]
-    public string BacklogLink { get; set; } = string.Empty;
+public record Milestone
+{
+    public string Title { get; init; } = "";
+    public string? TargetDate { get; init; }
+    public string Status { get; init; } = "Upcoming";
+}
 
-    [JsonPropertyName("currentMonth")]
-    public string CurrentMonth { get; set; } = string.Empty;
+public record WorkItem
+{
+    public string Title { get; init; } = "";
+    public string? Description { get; init; }
+    public string? Category { get; init; }
+    public int PercentComplete { get; init; }
+    public string? CarryOverReason { get; init; }
+}
 
-    [JsonPropertyName("months")]
-    public List<string> Months { get; set; } = new();
-
-    [JsonPropertyName("timeline")]
-    public TimelineData Timeline { get; set; } = new();
-
-    [JsonPropertyName("heatmap")]
-    public HeatmapData Heatmap { get; set; } = new();
+public record MonthSummary
+{
+    public string? Month { get; init; }
+    public int TotalItems { get; init; }
+    public int CompletedItems { get; init; }
+    public int CarriedItems { get; init; }
+    public string OverallHealth { get; init; } = "Unknown";
 }

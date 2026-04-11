@@ -1,12 +1,24 @@
 @page "/"
-@layout DashboardLayout
+@using Microsoft.AspNetCore.Components.Web
 @inject DashboardDataService DataService
+@rendermode RenderMode.InteractiveServer
 
-@if (DataService.IsError)
+@if (!string.IsNullOrEmpty(_data.ErrorMessage))
 {
-    <p>Error: @DataService.ErrorMessage</p>
+    <ErrorPanel ErrorMessage="@_data.ErrorMessage" />
 }
-else if (DataService.Data is not null)
+else
 {
-    <p>Data loaded: @DataService.Data.Title</p>
+    <Header Data="@_data" />
+    @* Timeline component placeholder — implemented in a separate task *@
+    @* Heatmap component placeholder — implemented in a separate task *@
+}
+
+@code {
+    private DashboardData _data = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _data = await DataService.LoadDataAsync();
+    }
 }
