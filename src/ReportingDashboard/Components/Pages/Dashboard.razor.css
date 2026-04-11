@@ -1,9 +1,13 @@
+/* Dashboard.razor scoped styles — header, legend, and error handling */
+
+/* ── Error container ── */
 .error-container {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 1920px;
     height: 1080px;
+    background: #fff;
 }
 
 .error-message {
@@ -11,17 +15,22 @@
     color: #666;
     max-width: 600px;
     text-align: center;
+    line-height: 1.5;
 }
 
+/* ── Dashboard root ── */
 .dashboard {
     width: 1920px;
     height: 1080px;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
     background: #fff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #111;
+    display: flex;
+    flex-direction: column;
 }
 
+/* ── Header ── */
 .hdr {
     display: flex;
     align-items: center;
@@ -36,18 +45,17 @@
     font-weight: 700;
     color: #111;
     margin: 0;
-    line-height: 1.2;
+    display: inline;
 }
 
-.hdr h1 a {
+.hdr a {
     color: #0078D4;
     text-decoration: none;
     font-size: 14px;
-    font-weight: 400;
-    margin-left: 12px;
+    margin-left: 10px;
 }
 
-.hdr h1 a:hover {
+.hdr a:hover {
     text-decoration: underline;
 }
 
@@ -57,12 +65,14 @@
     margin-top: 2px;
 }
 
+/* ── Legend ── */
 .legend {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 22px;
     font-size: 12px;
-    color: #555;
+    color: #666;
 }
 
 .legend-item {
@@ -73,7 +83,6 @@
 }
 
 .legend-diamond {
-    display: inline-block;
     width: 12px;
     height: 12px;
     transform: rotate(45deg);
@@ -89,16 +98,14 @@
 }
 
 .legend-circle {
-    display: inline-block;
     width: 8px;
     height: 8px;
-    background: #999;
     border-radius: 50%;
+    background: #999;
     flex-shrink: 0;
 }
 
 .legend-now-bar {
-    display: inline-block;
     width: 2px;
     height: 14px;
     background: #EA4335;

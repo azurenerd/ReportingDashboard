@@ -6,7 +6,7 @@
 @if (_error is not null)
 {
     <div class="error-container">
-        <div class="error-message">@_error</div>
+        <p class="error-message">@_error</p>
     </div>
 }
 else if (_data is not null)
@@ -16,30 +16,30 @@ else if (_data is not null)
             <div>
                 <h1>
                     @_data.Title
-                    @if (!string.IsNullOrEmpty(_data.BacklogLink))
+                    @if (!string.IsNullOrWhiteSpace(_data.BacklogLink))
                     {
-                        <a href="@_data.BacklogLink" target="_blank">&#x2197; ADO Backlog</a>
+                        <a href="@_data.BacklogLink" target="_blank" rel="noopener">&#x2197; ADO Backlog</a>
                     }
                 </h1>
                 <div class="sub">@_data.Subtitle</div>
             </div>
             <div class="legend">
-                <div class="legend-item">
+                <span class="legend-item">
                     <span class="legend-diamond legend-poc"></span> PoC Milestone
-                </div>
-                <div class="legend-item">
+                </span>
+                <span class="legend-item">
                     <span class="legend-diamond legend-prod"></span> Production Release
-                </div>
-                <div class="legend-item">
+                </span>
+                <span class="legend-item">
                     <span class="legend-circle"></span> Checkpoint
-                </div>
-                <div class="legend-item">
+                </span>
+                <span class="legend-item">
                     <span class="legend-now-bar"></span> Now
-                </div>
+                </span>
             </div>
         </div>
 
-        @* Timeline and heatmap sections will be added in subsequent steps *@
+        @* Timeline and Heatmap sections rendered by subsequent tasks *@
     </div>
 }
 
@@ -51,20 +51,22 @@ else if (_data is not null)
     {
         if (DataService.IsError)
         {
-            if (string.IsNullOrEmpty(DataService.ErrorMessage) ||
-                DataService.ErrorMessage.Contains("not found", StringComparison.OrdinalIgnoreCase) ||
-                DataService.ErrorMessage.Contains("could not be loaded", StringComparison.OrdinalIgnoreCase))
+            var msg = DataService.ErrorMessage ?? "";
+            if (msg.Contains("not found", StringComparison.OrdinalIgnoreCase))
             {
                 _error = "Dashboard data not found. Please ensure data.json exists in the wwwroot folder.";
             }
             else
             {
-                _error = $"Error reading dashboard data: {DataService.ErrorMessage}";
+                _error = $"Error reading dashboard data: {msg}";
             }
+            return;
         }
-        else
+
+        _data = DataService.Data;
+        if (_data is null)
         {
-            _data = DataService.Data;
+            _error = "Dashboard data not found. Please ensure data.json exists in the wwwroot folder.";
         }
     }
 }
