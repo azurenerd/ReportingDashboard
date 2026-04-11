@@ -1,133 +1,31 @@
 @page "/"
+@using Microsoft.AspNetCore.Components.Web
 @inject DashboardDataService DataService
+@rendermode RenderMode.InteractiveServer
 
-@if (DataService.IsError)
-{
-    <ErrorPanel ErrorMessage="@DataService.ErrorMessage" />
-}
-else if (DataService.Data is not null)
-{
-    var data = DataService.Data;
-
-    <!-- Header placeholder - will be replaced by Header.razor component in T2/T3 -->
-    <div class="hdr">
-        <div>
-            <h1>@data.Title</h1>
-            <div class="sub">@data.Subtitle</div>
+<div class="dashboard-container">
+    @if (!string.IsNullOrEmpty(_data.ErrorMessage))
+    {
+        <div class="error-banner">
+            <strong>⚠ Data Error:</strong> @_data.ErrorMessage
         </div>
-    </div>
+    }
+    else
+    {
+        <Header Data="@_data" />
+        <MonthlySummary Summary="_data.CurrentMonthSummary" />
+        <MilestoneTimeline Milestones="_data.Milestones" />
+        <ShippedItems Items="_data.Shipped" />
+        <InProgressItems Items="_data.InProgress" />
+        <CarriedOverItems Items="_data.CarriedOver" />
+    }
+</div>
 
-    <!-- Timeline placeholder - will be replaced by Timeline.razor component in T4 -->
-    <div class="tl-area">
-        <div class="tl-labels">
-            @foreach (var track in data.Timeline.Tracks)
-            {
-                <div class="tl-label">
-                    <span class="tl-id" style="color:@track.Color;">@track.Name</span>
-                    <span class="tl-name">@track.Label</span>
-                </div>
-            }
-        </div>
-        <div class="tl-svg-box">
-            <p style="color:#888; font-size:12px; padding:8px;">Timeline SVG — @data.Timeline.Tracks.Count track(s) loaded</p>
-        </div>
-    </div>
+@code {
+    private DashboardData _data = new();
 
-    <!-- Heatmap placeholder - will be replaced by Heatmap.razor, HeatmapRow.razor, HeatmapCell.razor in T5/T6 -->
-    <div class="hm-wrap">
-        <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
-        <div class="hm-grid" style="grid-template-columns: 160px repeat(@data.Months.Count, 1fr);">
-            <div class="hm-corner">STATUS</div>
-            @foreach (var month in data.Months)
-            {
-                var monthKey = month.ToLowerInvariant();
-                var isCurrentMonth = monthKey == data.CurrentMonth.ToLowerInvariant();
-                <div class="hm-col-hdr @(isCurrentMonth ? "apr-hdr" : "")">@month</div>
-            }
-
-            <div class="hm-row-hdr ship-hdr">✅ Shipped</div>
-            @foreach (var month in data.Months)
-            {
-                var monthKey = month.ToLowerInvariant();
-                var isCurrentMonth = monthKey == data.CurrentMonth.ToLowerInvariant();
-                var items = data.Heatmap.Shipped.GetValueOrDefault(monthKey, []);
-                <div class="hm-cell ship-cell @(isCurrentMonth ? "apr" : "")">
-                    @if (items.Count > 0)
-                    {
-                        @foreach (var item in items)
-                        {
-                            <div class="it ship-it">@item</div>
-                        }
-                    }
-                    else
-                    {
-                        <span class="empty-dash">-</span>
-                    }
-                </div>
-            }
-
-            <div class="hm-row-hdr prog-hdr">🔄 In Progress</div>
-            @foreach (var month in data.Months)
-            {
-                var monthKey = month.ToLowerInvariant();
-                var isCurrentMonth = monthKey == data.CurrentMonth.ToLowerInvariant();
-                var items = data.Heatmap.InProgress.GetValueOrDefault(monthKey, []);
-                <div class="hm-cell prog-cell @(isCurrentMonth ? "apr" : "")">
-                    @if (items.Count > 0)
-                    {
-                        @foreach (var item in items)
-                        {
-                            <div class="it prog-it">@item</div>
-                        }
-                    }
-                    else
-                    {
-                        <span class="empty-dash">-</span>
-                    }
-                </div>
-            }
-
-            <div class="hm-row-hdr carry-hdr">⏳ Carryover</div>
-            @foreach (var month in data.Months)
-            {
-                var monthKey = month.ToLowerInvariant();
-                var isCurrentMonth = monthKey == data.CurrentMonth.ToLowerInvariant();
-                var items = data.Heatmap.Carryover.GetValueOrDefault(monthKey, []);
-                <div class="hm-cell carry-cell @(isCurrentMonth ? "apr" : "")">
-                    @if (items.Count > 0)
-                    {
-                        @foreach (var item in items)
-                        {
-                            <div class="it carry-it">@item</div>
-                        }
-                    }
-                    else
-                    {
-                        <span class="empty-dash">-</span>
-                    }
-                </div>
-            }
-
-            <div class="hm-row-hdr block-hdr">🚫 Blockers</div>
-            @foreach (var month in data.Months)
-            {
-                var monthKey = month.ToLowerInvariant();
-                var isCurrentMonth = monthKey == data.CurrentMonth.ToLowerInvariant();
-                var items = data.Heatmap.Blockers.GetValueOrDefault(monthKey, []);
-                <div class="hm-cell block-cell @(isCurrentMonth ? "apr" : "")">
-                    @if (items.Count > 0)
-                    {
-                        @foreach (var item in items)
-                        {
-                            <div class="it block-it">@item</div>
-                        }
-                    }
-                    else
-                    {
-                        <span class="empty-dash">-</span>
-                    }
-                </div>
-            }
-        </div>
-    </div>
+    protected override async Task OnInitializedAsync()
+    {
+        _data = await DataService.LoadDataAsync();
+    }
 }
