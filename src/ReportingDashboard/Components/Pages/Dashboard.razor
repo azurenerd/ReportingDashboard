@@ -1,25 +1,19 @@
 @page "/"
 @inject DashboardDataService DataService
 
-@if (!string.IsNullOrEmpty(DataService.ErrorMessage))
+@if (DataService.IsError)
 {
-    <ErrorPanel Message="@DataService.ErrorMessage" />
+    <ErrorPanel ErrorMessage="@DataService.ErrorMessage" />
 }
 else if (DataService.Data is not null)
 {
-    <div class="dashboard">
-        <Header Data="@DataService.Data" />
-
-        <div class="tl-area">
-            <p style="padding:24px;color:#888;">Timeline placeholder – implemented in a later step.</p>
-        </div>
-
-        <div class="hm-wrap">
-            <p style="padding:24px;color:#888;">Heatmap placeholder – implemented in a later step.</p>
+    <div class="dashboard-root">
+        <div class="dashboard">
+            <Header Data="@DataService.Data" />
+            <Timeline TimelineData="@DataService.Data.Timeline" />
+            <Heatmap HeatmapData="@DataService.Data.Heatmap"
+                     Months="@DataService.Data.Months"
+                     CurrentMonth="@DataService.Data.CurrentMonth" />
         </div>
     </div>
-}
-else
-{
-    <ErrorPanel Message="Dashboard data is not available." />
 }

@@ -1,33 +1,41 @@
-@using ReportingDashboard.Models
-
 <div class="hdr">
-    <div>
-        <h1>@Data.Title
-            <a href="@Data.BacklogLink" target="_blank" rel="noopener noreferrer">📋 ADO Backlog</a>
-        </h1>
-        <div class="sub">@Data.Subtitle</div>
-    </div>
-    <div style="display:flex;gap:22px;align-items:center;font-size:12px;">
-        <span style="display:inline-flex;align-items:center;gap:5px;">
-            <span style="display:inline-block;width:12px;height:12px;background:#F4B400;transform:rotate(45deg);"></span>
-            PoC Milestone
+    <h1 class="hdr-title">
+        @Data.Title
+        @if (!string.IsNullOrEmpty(Data.BacklogLink))
+        {
+            <a href="@Data.BacklogLink" class="hdr-link" target="_blank">ADO Backlog ↗</a>
+        }
+    </h1>
+    <div class="sub">@Data.Subtitle</div>
+    <div class="legend">
+        <span class="legend-item">
+            <span class="legend-diamond legend-poc"></span> PoC Milestone
         </span>
-        <span style="display:inline-flex;align-items:center;gap:5px;">
-            <span style="display:inline-block;width:12px;height:12px;background:#34A853;transform:rotate(45deg);"></span>
-            Production Release
+        <span class="legend-item">
+            <span class="legend-diamond legend-prod"></span> Production Release
         </span>
-        <span style="display:inline-flex;align-items:center;gap:5px;">
-            <span style="display:inline-block;width:8px;height:8px;background:#999;border-radius:50%;"></span>
-            Checkpoint
+        <span class="legend-item">
+            <span class="legend-circle"></span> Checkpoint
         </span>
-        <span style="display:inline-flex;align-items:center;gap:5px;">
-            <span style="display:inline-block;width:2px;height:14px;background:#EA4335;"></span>
-            Now (@Data.CurrentMonth)
+        <span class="legend-item">
+            <span class="legend-now-line"></span> @NowLabel
         </span>
     </div>
 </div>
 
 @code {
-    [Parameter]
-    public DashboardData Data { get; set; } = default!;
+    [Parameter] public DashboardData Data { get; set; } = default!;
+
+    private string NowLabel
+    {
+        get
+        {
+            var month = Data.CurrentMonth;
+            if (Data.Timeline != null && DateTime.TryParse(Data.Timeline.NowDate, out var nowDate))
+                return $"Now ({month} {nowDate.Year})";
+            if (Data.Timeline != null && DateTime.TryParse(Data.Timeline.StartDate, out var startDate))
+                return $"Now ({month} {startDate.Year})";
+            return $"Now ({month})";
+        }
+    }
 }
