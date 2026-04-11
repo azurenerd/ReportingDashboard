@@ -1,0 +1,69 @@
+## .NET build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+## .NET artifacts
+*.dll
+*.exe
+*.pdb
+*.cache
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## NuGet
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nupkg
+**/packages/**/project.lock.json
+project.lock.json
+
+## Visual Studio
+.vs/
+*.rsuser
+*.sln.docstates
+_UpgradeReport_Files/
+[Tt]est[Rr]esult*/
+[Dd]ebugPublic/
+[Rr]eleases/
+BenchmarkDotNet.Artifacts/
+
+## Rider
+.idea/
+*.sln.iml
+
+## User-specific
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+[Tt]humbs.db
+
+## Build results
+[Ll]og/
+[Ll]ogs/
+
+## Playwright
+.playwright/
+playwright-report/
+test-results/
+
+## Node
+node_modules/
+package-lock.json
+
+## OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+## Misc
+*.tmp
+*.bak
+*.swp
+*~
