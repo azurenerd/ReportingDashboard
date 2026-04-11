@@ -1,21 +1,25 @@
 @page "/"
-@using Microsoft.AspNetCore.Components.Web
-@using ReportingDashboard.Models
-@using ReportingDashboard.Services
 @inject DashboardDataService DataService
-@rendermode RenderMode.InteractiveServer
 
-@if (DataService.IsError)
+@if (!string.IsNullOrEmpty(DataService.ErrorMessage))
 {
-    <ReportingDashboard.Components.Sections.ErrorPanel ErrorMessage="@DataService.ErrorMessage" />
+    <ErrorPanel Message="@DataService.ErrorMessage" />
 }
 else if (DataService.Data is not null)
 {
-    <div class="dashboard-root">
-        <ReportingDashboard.Components.Sections.Header Data="@DataService.Data" />
-        <ReportingDashboard.Components.Sections.Timeline TimelineData="@DataService.Data.Timeline" />
-        <ReportingDashboard.Components.Sections.Heatmap HeatmapData="@DataService.Data.Heatmap"
-                 Months="@DataService.Data.Months"
-                 CurrentMonth="@DataService.Data.CurrentMonth" />
+    <div class="dashboard">
+        <Header Data="@DataService.Data" />
+
+        <div class="tl-area">
+            <p style="padding:24px;color:#888;">Timeline placeholder – implemented in a later step.</p>
+        </div>
+
+        <div class="hm-wrap">
+            <p style="padding:24px;color:#888;">Heatmap placeholder – implemented in a later step.</p>
+        </div>
     </div>
+}
+else
+{
+    <ErrorPanel Message="Dashboard data is not available." />
 }
