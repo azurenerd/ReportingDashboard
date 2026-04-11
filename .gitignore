@@ -1,24 +1,28 @@
-## Build artifacts
+## .NET
 bin/
 obj/
 publish/
-out/
 
 ## Visual Studio
 .vs/
-*.suo
 *.user
+*.suo
 *.userosscache
 *.sln.docstates
-*.csproj.user
 
-## User secrets
-secrets.json
+## Visual Studio Code
+.vscode/
 
-## App settings with real credentials
-**/appsettings.json
-**/appsettings.Development.json
-**/appsettings.Production.json
+## Rider
+.idea/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
 
 ## NuGet
 *.nupkg
@@ -26,54 +30,10 @@ secrets.json
 **/packages/
 project.lock.json
 project.fragment.lock.json
-
-## SQLite databases
-*.db
-*.db-shm
-*.db-wal
-*.sqlite
-*.sqlite3
-
-## IDE / Editor
-.idea/
-*.swp
-*.swo
-*~
-.vscode/
-*.code-workspace
+artifacts/
 
 ## OS files
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
-
-## Logs
-*.log
-logs/
-
-## .NET tool artifacts
-.dotnet/
-BenchmarkDotNet.Artifacts/
-
-## Test results
-TestResults/
-coverage/
-*.trx
-*.coverage
-*.coveragexml
-
-## Rider
-.idea/
-*.sln.iml
-
-## JetBrains
-_ReSharper.Caches/
-
-appsettings.OG.json
-
-# Dashboard user data - contains project-specific info, use data.template.json as reference
-src/ReportingDashboard/wwwroot/data/data.json
-
-# Keep wwwroot/data.json tracked as sample data
-!src/ReportingDashboard/wwwroot/data.json
