@@ -1,0 +1,15 @@
+@using ReportingDashboard.Models
+
+<div class="hdr">
+    <div>
+        @* Left side: title and subtitle *@
+    </div>
+    <div>
+        @* Right side: legend *@
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public DashboardData Data { get; set; } = default!;
+}
