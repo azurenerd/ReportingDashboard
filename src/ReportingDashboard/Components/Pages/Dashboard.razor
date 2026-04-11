@@ -1,27 +1,15 @@
 @page "/"
-@using ReportingDashboard.Models
-@using ReportingDashboard.Services
 @inject DashboardDataService DataService
 
 @if (DataService.IsError)
 {
-    <div class="error-panel">
-        <div class="error-icon">⚠</div>
-        <div class="error-title">Dashboard data could not be loaded</div>
-        <div class="error-details">@DataService.ErrorMessage</div>
-        <div class="error-help">Check data.json for errors and restart the application.</div>
-    </div>
+    <ErrorPanel ErrorMessage="@DataService.ErrorMessage" />
 }
-else if (DataService.Data != null)
+else if (DataService.Data is not null)
 {
-    <div class="dashboard-root">
-        <Header Data="@DataService.Data" />
-        @if (DataService.Data.Timeline != null)
-        {
-            <Timeline TimelineData="@DataService.Data.Timeline" />
-        }
-        <Heatmap HeatmapData="@DataService.Data.Heatmap"
-                 Months="@DataService.Data.Months"
-                 CurrentMonth="@DataService.Data.CurrentMonth" />
-    </div>
+    <Header Data="@DataService.Data" />
+    <Timeline TimelineData="@DataService.Data.Timeline" />
+    <Heatmap HeatmapData="@DataService.Data.Heatmap"
+             Months="@DataService.Data.Months"
+             CurrentMonth="@DataService.Data.CurrentMonth" />
 }
