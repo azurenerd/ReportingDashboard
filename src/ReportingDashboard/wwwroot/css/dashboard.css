@@ -1,10 +1,414 @@
-/* Placeholder — full styles ported in Step 5 */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
+/* ============================================================
+   Executive Reporting Dashboard — dashboard.css
+   Ported from OriginalDesignConcept.html
+   Fixed 1920×1080 viewport, zero third-party dependencies
+   ============================================================ */
+
+/* --- Reset & Base --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
     width: 1920px;
     height: 1080px;
     overflow: hidden;
     font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 14px;
     color: #111;
     background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Suppress any Blazor default chrome */
+#blazor-error-ui { display: none; }
+
+/* ============================================================
+   SECTION 1: HEADER (.hdr)
+   ============================================================ */
+.hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 44px 10px;
+    border-bottom: 1px solid #E0E0E0;
+    flex-shrink: 0;
+}
+
+.hdr h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.2;
+}
+
+.hdr h1 a {
+    color: #0078D4;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    margin-left: 12px;
+}
+
+.hdr h1 a:hover {
+    text-decoration: underline;
+}
+
+.sub {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+    font-weight: 400;
+}
+
+/* --- Legend (right side of header) --- */
+.legend {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    font-size: 12px;
+    color: #444;
+    flex-shrink: 0;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.lg-diamond {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+}
+
+.lg-poc {
+    background: #F4B400;
+}
+
+.lg-prod {
+    background: #34A853;
+}
+
+.lg-circle {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #999;
+    flex-shrink: 0;
+}
+
+.lg-now {
+    display: inline-block;
+    width: 2px;
+    height: 14px;
+    background: #EA4335;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   SECTION 2: TIMELINE AREA (.tl-area)
+   ============================================================ */
+.tl-area {
+    display: flex;
+    align-items: stretch;
+    height: 196px;
+    padding: 6px 44px 0;
+    background: #FAFAFA;
+    border-bottom: 2px solid #E8E8E8;
+    flex-shrink: 0;
+}
+
+/* --- Track Labels Sidebar (left, 230px) --- */
+.tl-labels {
+    width: 230px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 16px 12px 16px 0;
+    border-right: 1px solid #E0E0E0;
+}
+
+.tl-track-label {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.tl-track-id {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.tl-track-name {
+    font-size: 12px;
+    font-weight: 400;
+    color: #444;
+}
+
+/* --- SVG Timeline Container (right, flex: 1) --- */
+.tl-svg-box {
+    flex: 1;
+    padding-left: 12px;
+    padding-top: 6px;
+    min-width: 0;
+    overflow: visible;
+}
+
+/* ============================================================
+   SECTION 3: HEATMAP (.hm-wrap)
+   ============================================================ */
+.hm-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding: 10px 44px 10px;
+}
+
+.hm-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+/* --- Heatmap CSS Grid --- */
+.hm-grid {
+    display: grid;
+    border: 1px solid #E0E0E0;
+    flex: 1;
+    min-height: 0;
+}
+
+/* --- Corner Cell --- */
+.hm-corner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F5F5F5;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #999;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #CCC;
+}
+
+/* --- Column Headers (month names) --- */
+.hm-col-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F5F5F5;
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #CCC;
+}
+
+/* Current month column header highlight */
+.cur-month-hdr {
+    background: #FFF0D0;
+    color: #C07700;
+}
+
+/* Legacy class alias for OriginalDesignConcept compatibility */
+.apr-hdr {
+    background: #FFF0D0;
+    color: #C07700;
+}
+
+/* --- Row Headers --- */
+.hm-row-hdr {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    border-right: 2px solid #CCC;
+    border-bottom: 1px solid #E0E0E0;
+    white-space: nowrap;
+}
+
+/* Shipped row header */
+.ship-hdr {
+    color: #1B7A28;
+    background: #E8F5E9;
+}
+
+/* In Progress row header */
+.prog-hdr {
+    color: #1565C0;
+    background: #E3F2FD;
+}
+
+/* Carryover row header */
+.carry-hdr {
+    color: #B45309;
+    background: #FFF8E1;
+}
+
+/* Blockers row header */
+.block-hdr {
+    color: #991B1B;
+    background: #FEF2F2;
+}
+
+/* --- Data Cells --- */
+.hm-cell {
+    padding: 8px 12px;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
+    overflow: hidden;
+}
+
+/* -- Shipped cells -- */
+.ship-cell {
+    background: #F0FBF0;
+}
+
+.ship-cur {
+    background: #D8F2DA;
+}
+
+/* -- In Progress cells -- */
+.prog-cell {
+    background: #EEF4FE;
+}
+
+.prog-cur {
+    background: #DAE8FB;
+}
+
+/* -- Carryover cells -- */
+.carry-cell {
+    background: #FFFDE7;
+}
+
+.carry-cur {
+    background: #FFF0B0;
+}
+
+/* -- Blockers cells -- */
+.block-cell {
+    background: #FFF5F5;
+}
+
+.block-cur {
+    background: #FFE4E4;
+}
+
+/* Legacy current-month modifier (OriginalDesignConcept compat) */
+.ship-cell.apr { background: #D8F2DA; }
+.prog-cell.apr { background: #DAE8FB; }
+.carry-cell.apr { background: #FFF0B0; }
+.block-cell.apr { background: #FFE4E4; }
+
+/* --- Work Items (bulleted entries) --- */
+.it {
+    position: relative;
+    font-size: 12px;
+    color: #333;
+    padding: 2px 0 2px 12px;
+    line-height: 1.35;
+}
+
+.it::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* Dot colors per category */
+.ship-it::before {
+    background: #34A853;
+}
+
+.prog-it::before {
+    background: #0078D4;
+}
+
+.carry-it::before {
+    background: #F4B400;
+}
+
+.block-it::before {
+    background: #EA4335;
+}
+
+/* --- Empty cell dash --- */
+.empty-dash {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #AAA;
+    font-size: 16px;
+}
+
+/* ============================================================
+   ERROR PANEL
+   ============================================================ */
+.error-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 1920px;
+    height: 1080px;
+    text-align: center;
+    background: #FFFFFF;
+}
+
+.error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.error-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.error-detail {
+    font-size: 14px;
+    color: #666;
+    font-family: 'Consolas', 'Courier New', monospace;
+    margin-bottom: 16px;
+    max-width: 700px;
+    line-height: 1.5;
+}
+
+.error-help {
+    font-size: 12px;
+    color: #888;
+    max-width: 600px;
+    line-height: 1.5;
+}
+
+.error-help code {
+    background: #F5F5F5;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
 }
