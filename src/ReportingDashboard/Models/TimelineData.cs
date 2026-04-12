@@ -29,10 +29,10 @@ public class TimelineTrack
     public string Color { get; set; } = "#0078D4";
 
     [JsonPropertyName("milestones")]
-    public List<Milestone> Milestones { get; set; } = new();
+    public List<MilestoneItem> Milestones { get; set; } = new();
 }
 
-public class Milestone
+public class MilestoneItem
 {
     [JsonPropertyName("date")]
     public string Date { get; set; } = "";

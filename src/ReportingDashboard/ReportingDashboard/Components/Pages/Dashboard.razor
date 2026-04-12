@@ -13,11 +13,11 @@
 }
 else if (_config is not null)
 {
-    @* ── Section 1: Header Bar ── *@
+    @* Section 1: Header Bar *@
     <div class="hdr">
         <div class="hdr-left">
             <h1>
-                @_titleBeforeLink
+                @_config.Title
                 @if (!string.IsNullOrEmpty(_config.BacklogLink))
                 {
                     <a href="@_config.BacklogLink" target="_blank">@(" ")&#x1F4CB; ADO Backlog</a>
@@ -45,26 +45,77 @@ else if (_config is not null)
         </div>
     </div>
 
-    @* ── Section 2: Timeline Area (placeholder for future implementation) ── *@
+    @* Section 2: Timeline Area *@
     <div class="tl-area">
         <div class="tl-sidebar">
-            @if (_config.Timeline.Tracks.Any())
+            @foreach (var track in _config.Timeline.Tracks)
             {
-                @foreach (var track in _config.Timeline.Tracks)
-                {
-                    <div class="tl-milestone-label">
-                        <span class="tl-ml-id" style="color:@track.Color;">@track.Id</span>
-                        <span class="tl-ml-desc">@track.Label</span>
-                    </div>
-                }
+                <div class="tl-milestone-label">
+                    <span class="tl-ml-id" style="color:@track.Color;">@track.Id</span>
+                    <span class="tl-ml-desc">@track.Label</span>
+                </div>
             }
         </div>
         <div class="tl-svg-box">
-            @* Timeline SVG will be implemented in a subsequent task *@
+            <svg width="1560" height="185" style="overflow: visible;">
+                <defs>
+                    <filter id="shadow">
+                        <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
+                    </filter>
+                </defs>
+
+                @* Month grid lines *@
+                @for (int i = 0; i < _timelineMonthCount; i++)
+                {
+                    var x = i * _monthSpacing;
+                    <line x1="@x" y1="0" x2="@x" y2="185" stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
+                    <text x="@(x + 5)" y="14" font-size="11" font-weight="600" fill="#666">@_timelineMonthLabels[i]</text>
+                }
+
+                @* Milestone track lines and events *@
+                @for (int tIdx = 0; tIdx < _config.Timeline.Tracks.Count; tIdx++)
+                {
+                    var track = _config.Timeline.Tracks[tIdx];
+                    var y = MilestoneY(tIdx);
+
+                    <line x1="0" y1="@y" x2="1560" y2="@y" stroke="@track.Color" stroke-width="3" />
+
+                    @foreach (var ms in track.Milestones)
+                    {
+                        var msDate = ParseDate(ms.Date);
+                        if (msDate.HasValue)
+                        {
+                            var cx = DateToX(msDate.Value);
+
+                            @if (ms.Type == "poc")
+                            {
+                                <polygon points="@DiamondPoints(cx, y)" fill="#F4B400" filter="url(#shadow)" />
+                            }
+                            else if (ms.Type == "production")
+                            {
+                                <polygon points="@DiamondPoints(cx, y)" fill="#34A853" filter="url(#shadow)" />
+                            }
+                            else
+                            {
+                                <circle cx="@cx" cy="@y" r="6" fill="white" stroke="@track.Color" stroke-width="2.5" />
+                            }
+
+                            <text x="@cx" y="@(y - 14)" text-anchor="middle" font-size="10" fill="#666">@ms.Label</text>
+                        }
+                    }
+                }
+
+                @* NOW line *@
+                @if (_nowLineX > 0)
+                {
+                    <line x1="@_nowLineX" y1="0" x2="@_nowLineX" y2="185" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+                    <text x="@_nowLineX" y="-4" text-anchor="middle" font-size="10" font-weight="bold" fill="#EA4335">NOW</text>
+                }
+            </svg>
         </div>
     </div>
 
-    @* ── Section 3: Heatmap Grid (placeholder for future implementation) ── *@
+    @* Section 3: Heatmap Grid *@
     <div class="hm-wrap">
         <div class="hm-title">MONTHLY EXECUTION HEATMAP &mdash; Shipped &bull; In Progress &bull; Carryover &bull; Blockers</div>
         <div class="hm-grid" style="grid-template-columns: 160px repeat(@_config.Months.Count, 1fr);">
@@ -75,8 +126,15 @@ else if (_config is not null)
 
 @code {
     private DashboardData? _config;
-    private string _titleBeforeLink = "";
     private string _nowMonthLabel = "";
+    private DateTime _timelineStart;
+    private DateTime _timelineEnd;
+    private double _nowLineX;
+    private int _timelineMonthCount;
+    private double _monthSpacing;
+    private List<string> _timelineMonthLabels = new();
+
+    private static readonly string[] MonthNames = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
     protected override void OnInitialized()
     {
@@ -84,13 +142,62 @@ else if (_config is not null)
 
         if (_config is not null)
         {
-            // Parse title: the title field contains the full project name for the h1
-            _titleBeforeLink = _config.Title;
-
-            // Compute "Now" month label from currentMonth or DateTime
             _nowMonthLabel = !string.IsNullOrEmpty(_config.CurrentMonth)
                 ? $"{_config.CurrentMonth} {DateTime.Today.Year}"
                 : DateTime.Today.ToString("MMM yyyy");
+
+            // Calculate timeline range
+            if (DateTime.TryParse(_config.Timeline.StartDate, out var start))
+                _timelineStart = start;
+            else
+                _timelineStart = new DateTime(DateTime.Today.Year, 1, 1);
+
+            if (DateTime.TryParse(_config.Timeline.EndDate, out var end))
+                _timelineEnd = end;
+            else
+                _timelineEnd = _timelineStart.AddMonths(6);
+
+            // Generate month labels for the timeline
+            _timelineMonthLabels = new List<string>();
+            var current = new DateTime(_timelineStart.Year, _timelineStart.Month, 1);
+            while (current <= _timelineEnd)
+            {
+                _timelineMonthLabels.Add(MonthNames[current.Month - 1]);
+                current = current.AddMonths(1);
+            }
+            _timelineMonthCount = _timelineMonthLabels.Count;
+            _monthSpacing = _timelineMonthCount > 0 ? 1560.0 / _timelineMonthCount : 260;
+
+            // NOW line position
+            if (DateTime.TryParse(_config.Timeline.NowDate, out var nowDate))
+                _nowLineX = DateToX(nowDate);
+            else
+                _nowLineX = DateToX(DateTime.Today);
         }
+    }
+
+    private double DateToX(DateTime date)
+    {
+        double totalDays = (_timelineEnd - _timelineStart).TotalDays;
+        if (totalDays <= 0) return 0;
+        double dayOffset = (date - _timelineStart).TotalDays;
+        return Math.Clamp(dayOffset / totalDays * 1560, 0, 1560);
+    }
+
+    private double MilestoneY(int index)
+    {
+        return 42 + (index * 56);
+    }
+
+    private string DiamondPoints(double cx, double cy, double size = 11)
+    {
+        return $"{cx},{cy - size} {cx + size},{cy} {cx},{cy + size} {cx - size},{cy}";
+    }
+
+    private DateTime? ParseDate(string dateStr)
+    {
+        if (DateTime.TryParse(dateStr, out var result))
+            return result;
+        return null;
     }
 }

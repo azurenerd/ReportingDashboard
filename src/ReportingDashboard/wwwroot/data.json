@@ -1,71 +1,70 @@
 {
-  "title": "Project Phoenix – Executive Dashboard",
+  "title": "Project Phoenix - Executive Status",
   "subtitle": "Cloud Platform Engineering · Azure Infrastructure · April 2026",
-  "backlogLink": "https://dev.azure.com/contoso/Phoenix/_backlogs",
+  "backlogLink": "https://dev.azure.com/contoso/ProjectPhoenix/_backlogs",
   "currentMonth": "Apr",
   "months": ["Jan", "Feb", "Mar", "Apr"],
   "timeline": {
     "startDate": "2026-01-01",
-    "endDate": "2026-07-01",
+    "endDate": "2026-06-30",
     "nowDate": "2026-04-12",
     "tracks": [
       {
         "id": "M1",
-        "label": "Foundation & Core APIs",
+        "label": "Core Platform Migration",
         "color": "#0078D4",
         "milestones": [
           { "date": "2026-01-15", "label": "Jan 15", "type": "checkpoint" },
-          { "date": "2026-02-20", "label": "Feb 20", "type": "poc" },
-          { "date": "2026-03-28", "label": "Mar 28", "type": "production" }
+          { "date": "2026-03-01", "label": "Mar 1", "type": "poc" },
+          { "date": "2026-05-15", "label": "May 15", "type": "production" }
         ]
       },
       {
         "id": "M2",
-        "label": "Data Pipeline & Analytics",
+        "label": "API Gateway Rollout",
         "color": "#34A853",
         "milestones": [
           { "date": "2026-02-01", "label": "Feb 1", "type": "checkpoint" },
-          { "date": "2026-03-15", "label": "Mar 15", "type": "checkpoint" },
-          { "date": "2026-04-30", "label": "Apr 30", "type": "poc" },
-          { "date": "2026-06-15", "label": "Jun 15", "type": "production" }
+          { "date": "2026-04-01", "label": "Apr 1", "type": "poc" },
+          { "date": "2026-06-01", "label": "Jun 1", "type": "production" }
         ]
       },
       {
         "id": "M3",
-        "label": "UX & Dashboard Rollout",
-        "color": "#EA4335",
+        "label": "Observability Stack",
+        "color": "#F4B400",
         "milestones": [
-          { "date": "2026-03-01", "label": "Mar 1", "type": "checkpoint" },
-          { "date": "2026-05-01", "label": "May 1", "type": "poc" },
-          { "date": "2026-06-30", "label": "Jun 30", "type": "production" }
+          { "date": "2026-02-15", "label": "Feb 15", "type": "checkpoint" },
+          { "date": "2026-03-15", "label": "Mar 15", "type": "checkpoint" },
+          { "date": "2026-05-01", "label": "May 1", "type": "poc" }
         ]
       }
     ]
   },
   "heatmap": {
     "shipped": {
-      "Jan": ["Auth service v1", "CI/CD pipeline"],
-      "Feb": ["Core API endpoints", "Logging framework"],
-      "Mar": ["Data ingestion v1", "Monitoring alerts"],
-      "Apr": ["Analytics engine beta"]
+      "Jan": ["Infra provisioning scripts", "CI/CD pipeline v1"],
+      "Feb": ["Auth service migration", "Logging framework"],
+      "Mar": ["API v2 endpoints", "Load balancer config"],
+      "Apr": ["Monitoring dashboards"]
     },
     "inProgress": {
-      "Jan": ["API design review"],
-      "Feb": ["Data pipeline proto"],
-      "Mar": ["Dashboard wireframes", "Load testing"],
-      "Apr": ["UX components", "Pipeline scaling"]
+      "Jan": ["Auth service design"],
+      "Feb": ["API gateway spike"],
+      "Mar": ["Perf testing framework"],
+      "Apr": ["Gateway canary rollout", "Alerting rules engine"]
     },
     "carryover": {
       "Jan": [],
-      "Feb": ["Schema migration"],
-      "Mar": ["Perf benchmarks"],
-      "Apr": ["Schema migration v2"]
+      "Feb": ["Legacy DNS cutover"],
+      "Mar": ["DNS cutover (vendor delay)"],
+      "Apr": []
     },
     "blockers": {
       "Jan": [],
       "Feb": [],
-      "Mar": ["Vendor API access"],
-      "Apr": ["3rd-party cert renewal"]
+      "Mar": ["Vendor cert renewal"],
+      "Apr": ["Cross-region replication approval"]
     }
   }
 }

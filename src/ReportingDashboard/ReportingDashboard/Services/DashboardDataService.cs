@@ -33,7 +33,7 @@ public class DashboardDataService
             {
                 _logger.LogError("data.json not found at {Path}", filePath);
                 IsError = true;
-                ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
+                ErrorMessage = "Dashboard data could not be loaded. data.json not found.";
                 return;
             }
 
@@ -52,7 +52,7 @@ public class DashboardDataService
             {
                 _logger.LogWarning("data.json is missing required field: title");
                 IsError = true;
-                ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
+                ErrorMessage = "Dashboard data could not be loaded. Required field 'title' is missing.";
                 return;
             }
 
@@ -62,7 +62,7 @@ public class DashboardDataService
         {
             _logger.LogError(ex, "Failed to parse data.json: {Message}", ex.Message);
             IsError = true;
-            ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
+            ErrorMessage = $"Dashboard data could not be loaded. JSON parse error: {ex.Message}";
         }
         catch (Exception ex)
         {

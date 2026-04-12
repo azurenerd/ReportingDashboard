@@ -1,9 +1,8 @@
 /* ================================================================
-   Executive Reporting Dashboard – Stylesheet
+   Executive Reporting Dashboard - Stylesheet
    Ported from OriginalDesignConcept.html visual specification
    ================================================================ */
 
-/* ── CSS Custom Properties ── */
 :root {
     --font-stack: "Segoe UI", Arial, sans-serif;
     --page-width: 1920px;
@@ -43,7 +42,6 @@
     --color-now: #EA4335;
 }
 
-/* ── Reset & Page Layout ── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -59,7 +57,7 @@ body {
 a { color: var(--color-link); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-/* ── Section 1: Header Bar (.hdr) ── */
+/* Section 1: Header Bar */
 .hdr {
     display: flex;
     align-items: center;
@@ -85,8 +83,10 @@ a:hover { text-decoration: underline; }
 .hdr h1 a {
     color: var(--color-link);
     text-decoration: none;
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 400;
+    margin-left: 8px;
+    vertical-align: middle;
 }
 
 .hdr h1 a:hover {
@@ -99,7 +99,7 @@ a:hover { text-decoration: underline; }
     margin-top: 2px;
 }
 
-/* ── Legend Row ── */
+/* Legend Row */
 .legend {
     display: flex;
     align-items: center;
@@ -128,7 +128,8 @@ a:hover { text-decoration: underline; }
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #999;
+    background: #fff;
+    border: 2px solid #999;
     flex-shrink: 0;
 }
 
@@ -140,7 +141,7 @@ a:hover { text-decoration: underline; }
     flex-shrink: 0;
 }
 
-/* ── Section 2: Timeline Area (.tl-area) ── */
+/* Section 2: Timeline Area */
 .tl-area {
     display: flex;
     align-items: stretch;
@@ -185,7 +186,7 @@ a:hover { text-decoration: underline; }
     overflow: visible;
 }
 
-/* ── Section 3: Heatmap (.hm-wrap) ── */
+/* Section 3: Heatmap */
 .hm-wrap {
     display: flex;
     flex-direction: column;
@@ -211,7 +212,6 @@ a:hover { text-decoration: underline; }
     min-height: 0;
 }
 
-/* Corner cell */
 .hm-corner {
     background: #F5F5F5;
     font-size: 11px;
@@ -225,7 +225,6 @@ a:hover { text-decoration: underline; }
     border-bottom: 2px solid var(--color-header-border);
 }
 
-/* Column headers */
 .hm-col-hdr {
     font-size: 16px;
     font-weight: 700;
@@ -243,7 +242,6 @@ a:hover { text-decoration: underline; }
     color: var(--color-cur-month-hdr-text);
 }
 
-/* Row headers */
 .hm-row-hdr {
     font-size: 11px;
     font-weight: 700;
@@ -261,7 +259,6 @@ a:hover { text-decoration: underline; }
 .carry-hdr { background: var(--color-carryover-hdr-bg); color: var(--color-carryover-hdr-text); }
 .block-hdr { background: var(--color-blocker-hdr-bg); color: var(--color-blocker-hdr-text); }
 
-/* Data cells */
 .hm-cell {
     padding: 8px 12px;
     overflow: hidden;
@@ -306,7 +303,7 @@ a:hover { text-decoration: underline; }
     font-size: 12px;
 }
 
-/* ── Error Panel ── */
+/* Error Panel */
 .error-panel {
     max-width: 600px;
     margin: 200px auto;

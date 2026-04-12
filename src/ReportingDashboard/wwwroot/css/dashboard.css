@@ -1,9 +1,7 @@
 /* ================================================================
-   Executive Reporting Dashboard – Stylesheet
-   Ported from OriginalDesignConcept.html visual specification
+   Executive Reporting Dashboard - Stylesheet
    ================================================================ */
 
-/* ── CSS Custom Properties ── */
 :root {
     --font-stack: "Segoe UI", Arial, sans-serif;
     --page-width: 1920px;
@@ -16,34 +14,9 @@
     --color-timeline-bg: #FAFAFA;
     --color-grid-border: #E0E0E0;
     --color-header-border: #CCC;
-    --color-shipped: #34A853;
-    --color-shipped-hdr-bg: #E8F5E9;
-    --color-shipped-hdr-text: #1B7A28;
-    --color-shipped-cell-bg: #F0FBF0;
-    --color-shipped-cell-cur: #D8F2DA;
-    --color-progress: #0078D4;
-    --color-progress-hdr-bg: #E3F2FD;
-    --color-progress-hdr-text: #1565C0;
-    --color-progress-cell-bg: #EEF4FE;
-    --color-progress-cell-cur: #DAE8FB;
-    --color-carryover: #F4B400;
-    --color-carryover-hdr-bg: #FFF8E1;
-    --color-carryover-hdr-text: #B45309;
-    --color-carryover-cell-bg: #FFFDE7;
-    --color-carryover-cell-cur: #FFF0B0;
-    --color-blocker: #EA4335;
-    --color-blocker-hdr-bg: #FEF2F2;
-    --color-blocker-hdr-text: #991B1B;
-    --color-blocker-cell-bg: #FFF5F5;
-    --color-blocker-cell-cur: #FFE4E4;
-    --color-cur-month-hdr-bg: #FFF0D0;
-    --color-cur-month-hdr-text: #C07700;
-    --color-poc: #F4B400;
-    --color-prod: #34A853;
     --color-now: #EA4335;
 }
 
-/* ── Reset & Page Layout ── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -59,7 +32,6 @@ body {
 a { color: var(--color-link); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-/* ── Section 1: Header Bar (.hdr) ── */
 .hdr {
     display: flex;
     align-items: center;
@@ -70,10 +42,7 @@ a:hover { text-decoration: underline; }
     background: var(--color-bg);
 }
 
-.hdr-left {
-    display: flex;
-    flex-direction: column;
-}
+.hdr-left { display: flex; flex-direction: column; }
 
 .hdr h1 {
     font-size: 24px;
@@ -91,17 +60,12 @@ a:hover { text-decoration: underline; }
     vertical-align: middle;
 }
 
-.hdr h1 a:hover {
-    text-decoration: underline;
-}
-
 .sub {
     font-size: 12px;
     color: var(--color-secondary-text);
     margin-top: 2px;
 }
 
-/* ── Legend Row ── */
 .legend {
     display: flex;
     align-items: center;
@@ -143,7 +107,6 @@ a:hover { text-decoration: underline; }
     flex-shrink: 0;
 }
 
-/* ── Section 2: Timeline Area (.tl-area) ── */
 .tl-area {
     display: flex;
     align-items: stretch;
@@ -171,15 +134,8 @@ a:hover { text-decoration: underline; }
     gap: 1px;
 }
 
-.tl-ml-id {
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.tl-ml-desc {
-    font-size: 12px;
-    color: #444;
-}
+.tl-ml-id { font-size: 12px; font-weight: 600; }
+.tl-ml-desc { font-size: 12px; color: #444; }
 
 .tl-svg-box {
     flex: 1;
@@ -188,7 +144,6 @@ a:hover { text-decoration: underline; }
     overflow: visible;
 }
 
-/* ── Section 3: Heatmap (.hm-wrap) ── */
 .hm-wrap {
     display: flex;
     flex-direction: column;
@@ -208,113 +163,16 @@ a:hover { text-decoration: underline; }
 
 .hm-grid {
     display: grid;
-    grid-template-rows: 36px repeat(4, 1fr);
     border: 1px solid var(--color-grid-border);
     flex: 1;
     min-height: 0;
 }
 
-/* Corner cell */
-.hm-corner {
-    background: #F5F5F5;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid var(--color-grid-border);
-    border-bottom: 2px solid var(--color-header-border);
-}
-
-/* Column headers */
-.hm-col-hdr {
-    font-size: 16px;
-    font-weight: 700;
-    background: #F5F5F5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid var(--color-grid-border);
-    border-bottom: 2px solid var(--color-header-border);
-    color: var(--color-primary-text);
-}
-
-.hm-col-hdr.cur-month {
-    background: var(--color-cur-month-hdr-bg);
-    color: var(--color-cur-month-hdr-text);
-}
-
-/* Row headers */
-.hm-row-hdr {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    border-right: 2px solid var(--color-header-border);
-    border-bottom: 1px solid var(--color-grid-border);
-}
-
-.ship-hdr { background: var(--color-shipped-hdr-bg); color: var(--color-shipped-hdr-text); }
-.prog-hdr { background: var(--color-progress-hdr-bg); color: var(--color-progress-hdr-text); }
-.carry-hdr { background: var(--color-carryover-hdr-bg); color: var(--color-carryover-hdr-text); }
-.block-hdr { background: var(--color-blocker-hdr-bg); color: var(--color-blocker-hdr-text); }
-
-/* Data cells */
-.hm-cell {
-    padding: 8px 12px;
-    overflow: hidden;
-    border-right: 1px solid var(--color-grid-border);
-    border-bottom: 1px solid var(--color-grid-border);
-}
-
-.ship-cell { background: var(--color-shipped-cell-bg); }
-.ship-cell.cur-month { background: var(--color-shipped-cell-cur); }
-.prog-cell { background: var(--color-progress-cell-bg); }
-.prog-cell.cur-month { background: var(--color-progress-cell-cur); }
-.carry-cell { background: var(--color-carryover-cell-bg); }
-.carry-cell.cur-month { background: var(--color-carryover-cell-cur); }
-.block-cell { background: var(--color-blocker-cell-bg); }
-.block-cell.cur-month { background: var(--color-blocker-cell-cur); }
-
-.hm-cell .it {
-    position: relative;
-    font-size: 12px;
-    color: var(--color-cell-text);
-    padding: 2px 0 2px 12px;
-    line-height: 1.35;
-}
-
-.hm-cell .it::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 7px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-
-.ship-cell .it::before { background: var(--color-shipped); }
-.prog-cell .it::before { background: var(--color-progress); }
-.carry-cell .it::before { background: var(--color-carryover); }
-.block-cell .it::before { background: var(--color-blocker); }
-
-.hm-cell .empty-dash {
-    color: #AAA;
-    font-size: 12px;
-}
-
-/* ── Error Panel ── */
 .error-panel {
     max-width: 600px;
     margin: 200px auto;
     padding: 32px;
-    border: 2px solid var(--color-blocker);
+    border: 2px solid var(--color-now);
     background: #FFF5F5;
     border-radius: 8px;
     font-family: var(--font-stack);
@@ -323,7 +181,7 @@ a:hover { text-decoration: underline; }
 .error-panel h2 {
     font-size: 20px;
     font-weight: 700;
-    color: var(--color-blocker);
+    color: var(--color-now);
     margin-bottom: 16px;
 }
 
