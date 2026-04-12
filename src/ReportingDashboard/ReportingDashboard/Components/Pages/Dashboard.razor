@@ -8,7 +8,7 @@
     <div class="error-panel">
         <h2>Dashboard Configuration Error</h2>
         <p class="error-detail">@DataService.ErrorMessage</p>
-        <p>Please check wwwroot/data/data.json and restart the application.</p>
+        <p>Please check wwwroot/data.json and restart the application.</p>
     </div>
 }
 else if (_config is not null)
@@ -17,10 +17,10 @@ else if (_config is not null)
     <div class="hdr">
         <div class="hdr-left">
             <h1>
-                @_config.Title
+                @_titleBeforeLink
                 @if (!string.IsNullOrEmpty(_config.BacklogLink))
                 {
-                    <a href="@_config.BacklogLink" target="_blank">&#x1F4CB; ADO Backlog</a>
+                    <a href="@_config.BacklogLink" target="_blank">@(" ")&#x1F4CB; ADO Backlog</a>
                 }
             </h1>
             <div class="sub">@_config.Subtitle</div>
@@ -48,12 +48,15 @@ else if (_config is not null)
     @* ── Section 2: Timeline Area (placeholder for future implementation) ── *@
     <div class="tl-area">
         <div class="tl-sidebar">
-            @foreach (var milestone in _config.Milestones)
+            @if (_config.Timeline.Tracks.Any())
             {
-                <div class="tl-milestone-label">
-                    <span class="tl-ml-id" style="color:@milestone.Color;">@milestone.Label</span>
-                    <span class="tl-ml-desc">@milestone.Description</span>
-                </div>
+                @foreach (var track in _config.Timeline.Tracks)
+                {
+                    <div class="tl-milestone-label">
+                        <span class="tl-ml-id" style="color:@track.Color;">@track.Id</span>
+                        <span class="tl-ml-desc">@track.Label</span>
+                    </div>
+                }
             }
         </div>
         <div class="tl-svg-box">
@@ -71,7 +74,8 @@ else if (_config is not null)
 }
 
 @code {
-    private DashboardConfig? _config;
+    private DashboardData? _config;
+    private string _titleBeforeLink = "";
     private string _nowMonthLabel = "";
 
     protected override void OnInitialized()
@@ -80,6 +84,10 @@ else if (_config is not null)
 
         if (_config is not null)
         {
+            // Parse title: the title field contains the full project name for the h1
+            _titleBeforeLink = _config.Title;
+
+            // Compute "Now" month label from currentMonth or DateTime
             _nowMonthLabel = !string.IsNullOrEmpty(_config.CurrentMonth)
                 ? $"{_config.CurrentMonth} {DateTime.Today.Year}"
                 : DateTime.Today.ToString("MMM yyyy");

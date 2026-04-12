@@ -13,7 +13,7 @@ public class DashboardDataService
         PropertyNameCaseInsensitive = true
     };
 
-    public DashboardConfig? Data { get; private set; }
+    public DashboardData? Data { get; private set; }
     public bool IsError { get; private set; }
     public string ErrorMessage { get; private set; } = "";
 
@@ -25,7 +25,7 @@ public class DashboardDataService
 
     public async Task LoadAsync()
     {
-        var filePath = Path.Combine(_env.WebRootPath, "data", "data.json");
+        var filePath = Path.Combine(_env.WebRootPath, "data.json");
 
         try
         {
@@ -33,18 +33,18 @@ public class DashboardDataService
             {
                 _logger.LogError("data.json not found at {Path}", filePath);
                 IsError = true;
-                ErrorMessage = $"data.json not found at expected path: {filePath}";
+                ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
                 return;
             }
 
             var json = await File.ReadAllTextAsync(filePath);
-            Data = JsonSerializer.Deserialize<DashboardConfig>(json, JsonOptions);
+            Data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
 
             if (Data is null)
             {
                 _logger.LogError("data.json deserialized to null");
                 IsError = true;
-                ErrorMessage = "data.json deserialized to null. Check file contents.";
+                ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
                 return;
             }
 
@@ -52,15 +52,7 @@ public class DashboardDataService
             {
                 _logger.LogWarning("data.json is missing required field: title");
                 IsError = true;
-                ErrorMessage = "Required field 'title' is missing from data.json.";
-                return;
-            }
-
-            if (Data.Months is null || Data.Months.Count == 0)
-            {
-                _logger.LogWarning("data.json is missing required field: months");
-                IsError = true;
-                ErrorMessage = "Required field 'months' is missing or empty in data.json.";
+                ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
                 return;
             }
 
@@ -70,13 +62,13 @@ public class DashboardDataService
         {
             _logger.LogError(ex, "Failed to parse data.json: {Message}", ex.Message);
             IsError = true;
-            ErrorMessage = $"Failed to parse data.json: {ex.Message}";
+            ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error loading data.json: {Message}", ex.Message);
             IsError = true;
-            ErrorMessage = $"Unexpected error loading data.json: {ex.Message}";
+            ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
         }
     }
 }

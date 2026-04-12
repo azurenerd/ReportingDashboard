@@ -1,0 +1,89 @@
+{
+  "title": "Project Phoenix – Executive Status",
+  "subtitle": "Cloud Platform Engineering · Azure Infrastructure · April 2026",
+  "backlogLink": "https://dev.azure.com/contoso/ProjectPhoenix/_backlogs",
+  "currentMonth": "Apr",
+  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+  "milestones": [
+    {
+      "label": "M1",
+      "description": "Chatbot & MS Role",
+      "color": "#0078D4",
+      "events": [
+        { "date": "2026-01-15", "label": "Jan 15", "type": "checkpoint" },
+        { "date": "2026-03-01", "label": "Mar 1", "type": "poc" },
+        { "date": "2026-05-15", "label": "May 15", "type": "production" }
+      ]
+    },
+    {
+      "label": "M2",
+      "description": "PDS & Data Inventory",
+      "color": "#00897B",
+      "events": [
+        { "date": "2026-02-01", "label": "Feb 1", "type": "checkpoint" },
+        { "date": "2026-04-01", "label": "Apr 1", "type": "poc" },
+        { "date": "2026-06-01", "label": "Jun 1", "type": "production" }
+      ]
+    },
+    {
+      "label": "M3",
+      "description": "Auto Review DFD",
+      "color": "#546E7A",
+      "events": [
+        { "date": "2026-02-15", "label": "Feb 15", "type": "checkpoint" },
+        { "date": "2026-03-15", "label": "Mar 15", "type": "checkpoint" },
+        { "date": "2026-05-01", "label": "May 1", "type": "poc" }
+      ]
+    }
+  ],
+  "heatmapRows": [
+    {
+      "category": "shipped",
+      "label": "Shipped",
+      "items": {
+        "Jan": ["Infra provisioning scripts", "CI/CD pipeline v1"],
+        "Feb": ["Auth service migration", "Logging framework"],
+        "Mar": ["API v2 endpoints", "Load balancer config"],
+        "Apr": ["Monitoring dashboards"],
+        "May": [],
+        "Jun": []
+      }
+    },
+    {
+      "category": "in-progress",
+      "label": "In Progress",
+      "items": {
+        "Jan": ["Auth service design"],
+        "Feb": ["API gateway spike"],
+        "Mar": ["Perf testing framework"],
+        "Apr": ["Gateway canary rollout", "Alerting rules engine"],
+        "May": [],
+        "Jun": []
+      }
+    },
+    {
+      "category": "carryover",
+      "label": "Carryover",
+      "items": {
+        "Jan": [],
+        "Feb": ["Legacy DNS cutover"],
+        "Mar": ["DNS cutover (vendor delay)"],
+        "Apr": [],
+        "May": [],
+        "Jun": []
+      }
+    },
+    {
+      "category": "blockers",
+      "label": "Blockers",
+      "items": {
+        "Jan": [],
+        "Feb": [],
+        "Mar": ["Vendor cert renewal"],
+        "Apr": ["Cross-region replication approval"],
+        "May": [],
+        "Jun": []
+      }
+    }
+  ]
+}
