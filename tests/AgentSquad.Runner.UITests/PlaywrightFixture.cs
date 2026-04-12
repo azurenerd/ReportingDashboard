@@ -3,35 +3,54 @@ using Xunit;
 
 namespace AgentSquad.Runner.UITests;
 
+/// <summary>
+/// Fixture for managing Playwright browser and page lifecycle across UI tests.
+/// Provides a shared browser context and page for all tests in the collection.
+/// </summary>
 public class PlaywrightFixture : IAsyncLifetime
 {
-    private IPlaywright? _playwright;
-    public IBrowser? Browser { get; private set; }
-    public IBrowserContext? Context { get; private set; }
+    private IBrowser? _browser;
+    private IBrowserContext? _context;
     public IPage? Page { get; private set; }
+    public string BaseUrl { get; private set; }
 
-    public string BaseUrl { get; } = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
+    public PlaywrightFixture()
+    {
+        BaseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
+    }
 
     public async Task InitializeAsync()
     {
-        _playwright = await Playwright.CreateAsync();
-        Browser = await _playwright.Chromium.LaunchAsync();
-        Context = await Browser.NewContextAsync();
-        Page = await Context.NewPageAsync();
+        var playwright = await Playwright.CreateAsync();
+        _browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true
+        });
+
+        _context = await _browser.NewContextAsync(new BrowserNewContextOptions
+        {
+            ViewportSize = new ViewportSize { Width = 1920, Height = 1080 }
+        });
+
+        Page = await _context.NewPageAsync();
     }
 
     public async Task DisposeAsync()
     {
         if (Page != null)
             await Page.CloseAsync();
-        if (Context != null)
-            await Context.CloseAsync();
-        if (Browser != null)
-            await Browser.CloseAsync();
-        _playwright?.Dispose();
+
+        if (_context != null)
+            await _context.CloseAsync();
+
+        if (_browser != null)
+            await _browser.CloseAsync();
     }
 }
 
+/// <summary>
+/// Collection definition for Playwright tests to ensure fixture is shared across tests.
+/// </summary>
 [CollectionDefinition("Playwright")]
 public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture>
 {
