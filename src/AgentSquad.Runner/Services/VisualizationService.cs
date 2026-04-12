@@ -2,12 +2,8 @@ using AgentSquad.Runner.Models;
 
 namespace AgentSquad.Runner.Services;
 
-/// <summary>
-/// Implementation of IVisualizationService for color codes, CSS classes, and SVG shapes
-/// </summary>
 public class VisualizationService : IVisualizationService
 {
-    // Color constants
     private const string ColorShippedDot = "#34A853";
     private const string ColorInProgressDot = "#0078D4";
     private const string ColorCarryoverDot = "#F4B400";
@@ -17,90 +13,110 @@ public class VisualizationService : IVisualizationService
     private const string ColorProduction = "#34A853";
     private const string ColorCheckpoint = "#999";
 
+    private const string ColorM1 = "#0078D4";
+    private const string ColorM2 = "#00897B";
+    private const string ColorM3 = "#546E7A";
+    private const string ColorNow = "#EA4335";
+
+    private readonly ILogger<VisualizationService> _logger;
+
+    public VisualizationService(ILogger<VisualizationService> logger)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
     public string GetCellClassName(string status, bool isCurrentMonth)
     {
-        var baseClass = status.ToLower() switch
+        var baseClass = status.ToLowerInvariant() switch
         {
             "shipped" => "ship-cell",
             "inprogress" => "prog-cell",
             "carryover" => "carry-cell",
             "blockers" => "block-cell",
-            _ => "cell"
+            _ => "cell-default"
         };
 
-        return isCurrentMonth ? $"{baseClass} apr" : baseClass;
-    }
-
-    public string GetDotColor(string status)
-    {
-        return status.ToLower() switch
+        if (isCurrentMonth)
         {
-            "shipped" => ColorShippedDot,
-            "inprogress" => ColorInProgressDot,
-            "carryover" => ColorCarryoverDot,
-            "blockers" => ColorBlockersDot,
-            _ => "#999999"
-        };
+            baseClass += " apr";
+        }
+
+        return baseClass;
     }
 
-    public string GetStatusHeaderClassName(string status)
+    public string GetDotColor(string status) => status.ToLowerInvariant() switch
     {
-        return status.ToLower() switch
-        {
-            "shipped" => "ship-hdr",
-            "inprogress" => "prog-hdr",
-            "carryover" => "carry-hdr",
-            "blockers" => "block-hdr",
-            _ => "hdr"
-        };
-    }
+        "shipped" => ColorShippedDot,
+        "inprogress" => ColorInProgressDot,
+        "carryover" => ColorCarryoverDot,
+        "blockers" => ColorBlockersDot,
+        _ => "#999999"
+    };
+
+    public string GetStatusHeaderClassName(string status) => status.ToLowerInvariant() switch
+    {
+        "shipped" => "ship-hdr",
+        "inprogress" => "prog-hdr",
+        "carryover" => "carry-hdr",
+        "blockers" => "block-hdr",
+        _ => "hdr-default"
+    };
 
     public string GenerateSvgDiamond(int cx, int cy, string fill, bool withFilter = true)
     {
-        var size = 12;
-        var halfSize = size / 2;
-        
-        var points = $"{cx},{cy - halfSize} {cx + halfSize},{cy} {cx},{cy + halfSize} {cx - halfSize},{cy}";
-        var filterId = withFilter ? " filter=\"url(#shadow)\"" : "";
-        
-        return $"<polygon points=\"{points}\" fill=\"{fill}\"{filterId} />";
+        var filterId = $"shadow-{cx}-{cy}";
+        var filterAttr = withFilter ? $" filter=\"url(#{filterId})\"" : "";
+
+        return $"<g><defs><filter id=\"{filterId}\" x=\"-50%\" y=\"-50%\" width=\"200%\" height=\"200%\">" +
+               $"<feDropShadow dx=\"1\" dy=\"1\" stdDeviation=\"2\" flood-opacity=\"0.3\" />" +
+               $"</filter></defs>" +
+               $"<polygon points=\"{cx},{cy - 8} {cx + 8},{cy} {cx},{cy + 8} {cx - 8},{cy}\" " +
+               $"fill=\"{fill}\"{filterAttr} /></g>";
     }
 
     public string GenerateSvgCircle(int cx, int cy, int radius, string fill, string stroke, int strokeWidth)
     {
-        return $"<circle cx=\"{cx}\" cy=\"{cy}\" r=\"{radius}\" fill=\"{fill}\" stroke=\"{stroke}\" stroke-width=\"{strokeWidth}\" />";
+        return $"<circle cx=\"{cx}\" cy=\"{cy}\" r=\"{radius}\" fill=\"{fill}\" " +
+               $"stroke=\"{stroke}\" stroke-width=\"{strokeWidth}\" />";
     }
 
     public string GenerateSvgLine(int x1, int y1, int x2, int y2, string stroke, int strokeWidth, string? dasharray = null)
     {
         var dasharrayAttr = !string.IsNullOrEmpty(dasharray) ? $" stroke-dasharray=\"{dasharray}\"" : "";
-        return $"<line x1=\"{x1}\" y1=\"{y1}\" x2=\"{x2}\" y2=\"{y2}\" stroke=\"{stroke}\" stroke-width=\"{strokeWidth}\"{dasharrayAttr} />";
+        return $"<line x1=\"{x1}\" y1=\"{y1}\" x2=\"{x2}\" y2=\"{y2}\" stroke=\"{stroke}\" " +
+               $"stroke-width=\"{strokeWidth}\"{dasharrayAttr} />";
     }
 
     public Dictionary<string, MilestoneShapeInfo> GetMilestoneShapes()
     {
         return new Dictionary<string, MilestoneShapeInfo>
         {
-            ["poc"] = new MilestoneShapeInfo
             {
-                Type = "poc",
-                Shape = "diamond",
-                Color = ColorPoC,
-                Size = 12
+                "poc", new MilestoneShapeInfo
+                {
+                    Type = "poc",
+                    Shape = "diamond",
+                    Color = ColorPoC,
+                    Size = 12
+                }
             },
-            ["release"] = new MilestoneShapeInfo
             {
-                Type = "release",
-                Shape = "diamond",
-                Color = ColorProduction,
-                Size = 12
+                "release", new MilestoneShapeInfo
+                {
+                    Type = "release",
+                    Shape = "diamond",
+                    Color = ColorProduction,
+                    Size = 12
+                }
             },
-            ["checkpoint"] = new MilestoneShapeInfo
             {
-                Type = "checkpoint",
-                Shape = "circle",
-                Color = ColorCheckpoint,
-                Size = 8
+                "checkpoint", new MilestoneShapeInfo
+                {
+                    Type = "checkpoint",
+                    Shape = "circle",
+                    Color = ColorCheckpoint,
+                    Size = 8
+                }
             }
         };
     }

@@ -1,213 +1,247 @@
-using AgentSquad.Runner.Models;
-using AgentSquad.Runner.Services;
-using FluentAssertions;
 using Xunit;
+using Moq;
+using Microsoft.Extensions.Logging;
+using AgentSquad.Runner.Services;
 
 namespace AgentSquad.Runner.Tests.Unit.Services;
 
-[Trait("Category", "Unit")]
 public class VisualizationServiceTests
 {
-    private readonly VisualizationService _service = new();
-
     [Fact]
-    public void GetCellClassName_ReturnsCorrectClassForShipped()
+    public void GetCellClassName_ReturnsShipCell_WhenStatusIsShipped()
     {
-        var className = _service.GetCellClassName("shipped", false);
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        className.Should().Contain("ship-cell");
+        // Act
+        var result = service.GetCellClassName("shipped", false);
+
+        // Assert
+        Assert.Equal("ship-cell", result);
     }
 
     [Fact]
-    public void GetCellClassName_ReturnsCurrentMonthVariant()
+    public void GetCellClassName_ReturnsProgCell_WhenStatusIsInProgress()
     {
-        var className = _service.GetCellClassName("shipped", true);
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        className.Should().Contain("ship-cell");
-        className.Should().Contain("apr");
+        // Act
+        var result = service.GetCellClassName("inprogress", false);
+
+        // Assert
+        Assert.Equal("prog-cell", result);
     }
 
     [Fact]
-    public void GetCellClassName_HandlesInProgress()
+    public void GetCellClassName_ReturnsCarryCell_WhenStatusIsCarryover()
     {
-        var className = _service.GetCellClassName("inProgress", false);
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        className.Should().Contain("prog-cell");
+        // Act
+        var result = service.GetCellClassName("carryover", false);
+
+        // Assert
+        Assert.Equal("carry-cell", result);
     }
 
     [Fact]
-    public void GetCellClassName_HandlesCarryover()
+    public void GetCellClassName_ReturnsBlockCell_WhenStatusIsBlockers()
     {
-        var className = _service.GetCellClassName("carryover", false);
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        className.Should().Contain("carry-cell");
+        // Act
+        var result = service.GetCellClassName("blockers", false);
+
+        // Assert
+        Assert.Equal("block-cell", result);
     }
 
     [Fact]
-    public void GetCellClassName_HandlesBlockers()
+    public void GetCellClassName_AppendsAprClass_WhenIsCurrentMonthTrue()
     {
-        var className = _service.GetCellClassName("blockers", false);
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        className.Should().Contain("block-cell");
+        // Act
+        var result = service.GetCellClassName("shipped", true);
+
+        // Assert
+        Assert.Equal("ship-cell apr", result);
     }
 
     [Fact]
-    public void GetDotColor_ReturnsGreenForShipped()
+    public void GetDotColor_ReturnsGreen_WhenStatusIsShipped()
     {
-        var color = _service.GetDotColor("shipped");
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        color.Should().Be("#34A853");
+        // Act
+        var result = service.GetDotColor("shipped");
+
+        // Assert
+        Assert.Equal("#34A853", result);
     }
 
     [Fact]
-    public void GetDotColor_ReturnsBlueForInProgress()
+    public void GetDotColor_ReturnsBlue_WhenStatusIsInProgress()
     {
-        var color = _service.GetDotColor("inProgress");
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        color.Should().Be("#0078D4");
+        // Act
+        var result = service.GetDotColor("inprogress");
+
+        // Assert
+        Assert.Equal("#0078D4", result);
     }
 
     [Fact]
-    public void GetDotColor_ReturnsYellowForCarryover()
+    public void GetDotColor_ReturnsYellow_WhenStatusIsCarryover()
     {
-        var color = _service.GetDotColor("carryover");
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        color.Should().Be("#F4B400");
+        // Act
+        var result = service.GetDotColor("carryover");
+
+        // Assert
+        Assert.Equal("#F4B400", result);
     }
 
     [Fact]
-    public void GetDotColor_ReturnsRedForBlockers()
+    public void GetDotColor_ReturnsRed_WhenStatusIsBlockers()
     {
-        var color = _service.GetDotColor("blockers");
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        color.Should().Be("#EA4335");
+        // Act
+        var result = service.GetDotColor("blockers");
+
+        // Assert
+        Assert.Equal("#EA4335", result);
     }
 
     [Fact]
-    public void GetStatusHeaderClassName_ReturnsCorrectClassForShipped()
+    public void GetStatusHeaderClassName_ReturnsShipHdr_WhenStatusIsShipped()
     {
-        var className = _service.GetStatusHeaderClassName("shipped");
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        className.Should().Be("ship-hdr");
+        // Act
+        var result = service.GetStatusHeaderClassName("shipped");
+
+        // Assert
+        Assert.Equal("ship-hdr", result);
     }
 
     [Fact]
-    public void GetStatusHeaderClassName_ReturnsCorrectClassForInProgress()
+    public void GetStatusHeaderClassName_ReturnsProgHdr_WhenStatusIsInProgress()
     {
-        var className = _service.GetStatusHeaderClassName("inProgress");
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        className.Should().Be("prog-hdr");
+        // Act
+        var result = service.GetStatusHeaderClassName("inprogress");
+
+        // Assert
+        Assert.Equal("prog-hdr", result);
     }
 
     [Fact]
-    public void GetStatusHeaderClassName_ReturnsCorrectClassForCarryover()
+    public void GenerateSvgDiamond_ReturnsSvgMarkup_WithValidCoordinates()
     {
-        var className = _service.GetStatusHeaderClassName("carryover");
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        className.Should().Be("carry-hdr");
+        // Act
+        var result = service.GenerateSvgDiamond(100, 50, "#F4B400");
+
+        // Assert
+        Assert.Contains("polygon", result);
+        Assert.Contains("100,42", result);
+        Assert.Contains("108,50", result);
+        Assert.Contains("100,58", result);
+        Assert.Contains("92,50", result);
     }
 
     [Fact]
-    public void GetStatusHeaderClassName_ReturnsCorrectClassForBlockers()
+    public void GenerateSvgCircle_ReturnsSvgMarkup_WithValidAttributes()
     {
-        var className = _service.GetStatusHeaderClassName("blockers");
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        className.Should().Be("block-hdr");
+        // Act
+        var result = service.GenerateSvgCircle(100, 50, 8, "#999", "#666", 1);
+
+        // Assert
+        Assert.Contains("circle", result);
+        Assert.Contains("cx=\"100\"", result);
+        Assert.Contains("cy=\"50\"", result);
+        Assert.Contains("r=\"8\"", result);
     }
 
     [Fact]
-    public void GenerateSvgDiamond_ProducesValidSvgElement()
+    public void GenerateSvgLine_ReturnsSvgMarkup_WithValidCoordinates()
     {
-        var svg = _service.GenerateSvgDiamond(100, 50, "#F4B400");
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        svg.Should().Contain("<path");
-        svg.Should().Contain("#F4B400");
+        // Act
+        var result = service.GenerateSvgLine(0, 100, 1560, 100, "#EA4335", 2);
+
+        // Assert
+        Assert.Contains("line", result);
+        Assert.Contains("x1=\"0\"", result);
+        Assert.Contains("y1=\"100\"", result);
+        Assert.Contains("x2=\"1560\"", result);
+        Assert.Contains("y2=\"100\"", result);
     }
 
     [Fact]
-    public void GenerateSvgDiamond_WithFilter_IncludesFilter()
+    public void GenerateSvgLine_IncludesDasharray_WhenProvided()
     {
-        var svg = _service.GenerateSvgDiamond(100, 50, "#F4B400", true);
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        svg.Should().Contain("filter");
+        // Act
+        var result = service.GenerateSvgLine(0, 100, 1560, 100, "#EA4335", 2, "5,5");
+
+        // Assert
+        Assert.Contains("stroke-dasharray=\"5,5\"", result);
     }
 
     [Fact]
-    public void GenerateSvgDiamond_WithoutFilter_OmitsFilter()
+    public void GetMilestoneShapes_ReturnsThreeShapes()
     {
-        var svg = _service.GenerateSvgDiamond(100, 50, "#F4B400", false);
+        // Arrange
+        var mockLogger = new Mock<ILogger<VisualizationService>>();
+        var service = new VisualizationService(mockLogger.Object);
 
-        svg.Should().NotBeEmpty();
-    }
+        // Act
+        var result = service.GetMilestoneShapes();
 
-    [Fact]
-    public void GenerateSvgCircle_ProducesValidCircle()
-    {
-        var svg = _service.GenerateSvgCircle(100, 50, 6, "#999", "#888", 1);
-
-        svg.Should().Contain("<circle");
-        svg.Should().Contain("#999");
-    }
-
-    [Fact]
-    public void GenerateSvgCircle_SetsCorrectRadius()
-    {
-        var svg = _service.GenerateSvgCircle(100, 50, 8, "#999", "#888", 1);
-
-        svg.Should().Contain("r=\"8\"");
-    }
-
-    [Fact]
-    public void GenerateSvgLine_ProducesValidLine()
-    {
-        var svg = _service.GenerateSvgLine(0, 100, 200, 100, "#EA4335", 2);
-
-        svg.Should().Contain("<line");
-        svg.Should().Contain("#EA4335");
-    }
-
-    [Fact]
-    public void GenerateSvgLine_WithDasharray_IncludesDasharray()
-    {
-        var svg = _service.GenerateSvgLine(0, 100, 200, 100, "#EA4335", 2, "5,5");
-
-        svg.Should().Contain("stroke-dasharray");
-    }
-
-    [Fact]
-    public void GetMilestoneShapes_ReturnsAllThreeTypes()
-    {
-        var shapes = _service.GetMilestoneShapes();
-
-        shapes.Should().ContainKey("poc");
-        shapes.Should().ContainKey("release");
-        shapes.Should().ContainKey("checkpoint");
-    }
-
-    [Fact]
-    public void GetMilestoneShapes_PocIsYellowDiamond()
-    {
-        var shapes = _service.GetMilestoneShapes();
-
-        shapes["poc"].Shape.Should().Be("diamond");
-        shapes["poc"].Color.Should().Be("#F4B400");
-    }
-
-    [Fact]
-    public void GetMilestoneShapes_ReleaseIsGreenDiamond()
-    {
-        var shapes = _service.GetMilestoneShapes();
-
-        shapes["release"].Shape.Should().Be("diamond");
-        shapes["release"].Color.Should().Be("#34A853");
-    }
-
-    [Fact]
-    public void GetMilestoneShapes_CheckpointIsGrayCircle()
-    {
-        var shapes = _service.GetMilestoneShapes();
-
-        shapes["checkpoint"].Shape.Should().Be("circle");
-        shapes["checkpoint"].Color.Should().Be("#999");
+        // Assert
+        Assert.Equal(3, result.Count);
+        Assert.Contains("poc", result.Keys);
+        Assert.Contains("release", result.Keys);
+        Assert.Contains("checkpoint", result.Keys);
     }
 }

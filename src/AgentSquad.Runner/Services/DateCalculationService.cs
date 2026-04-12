@@ -1,88 +1,91 @@
-using AgentSquad.Runner.Models;
 using NodaTime;
+using AgentSquad.Runner.Models;
 
 namespace AgentSquad.Runner.Services;
 
-/// <summary>
-/// Implementation of IDateCalculationService for date calculations and timeline positioning
-/// </summary>
 public class DateCalculationService : IDateCalculationService
 {
     private const int PixelsPerMonth = 260;
     private const int SvgWidth = 1560;
+    private const int MonthsInTimeline = 6;
     private readonly ILogger<DateCalculationService> _logger;
 
     public DateCalculationService(ILogger<DateCalculationService> logger)
     {
-        _logger = logger;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public List<MonthInfo> GetDisplayMonths(DateTime currentDate)
     {
-        var result = new List<MonthInfo>();
-        
-        var year = currentDate.Year;
-        var month = currentDate.Month;
-        
-        // Start from previous month
-        var startMonth = month - 1;
-        var startYear = year;
-        
+        var months = new List<MonthInfo>();
+        var currentYear = currentDate.Year;
+        var currentMonth = currentDate.Month;
+
+        var startMonth = currentMonth - 1;
+        var startYear = currentYear;
         if (startMonth < 1)
         {
             startMonth = 12;
-            startYear = year - 1;
+            startYear--;
         }
-        
+
         for (int i = 0; i < 4; i++)
         {
-            var displayMonth = startMonth + i;
-            var displayYear = startYear;
-            
-            if (displayMonth > 12)
+            var month = startMonth + i;
+            var year = startYear;
+
+            if (month > 12)
             {
-                displayMonth = displayMonth - 12;
-                displayYear = displayYear + 1;
+                month -= 12;
+                year++;
             }
-            
-            var monthName = GetMonthName(displayMonth);
-            var startDate = new DateTime(displayYear, displayMonth, 1);
-            var endDate = startDate.AddMonths(1).AddDays(-1);
-            
-            var isCurrentMonth = displayMonth == month && displayYear == year;
-            
-            var monthInfo = new MonthInfo
+
+            var startDate = new DateTime(year, month, 1);
+            var endDate = new DateTime(year, month, DateTime.DaysInMonth(year, month));
+
+            months.Add(new MonthInfo
             {
-                Name = monthName,
-                Year = displayYear,
+                Name = GetMonthName(month),
+                Year = year,
                 StartDate = startDate,
                 EndDate = endDate,
                 GridColumnIndex = i,
-                IsCurrentMonth = isCurrentMonth
-            };
-            
-            result.Add(monthInfo);
+                IsCurrentMonth = year == currentYear && month == currentMonth
+            });
         }
-        
-        return result;
+
+        _logger.LogDebug("Display months calculated for {CurrentDate}: {Months}",
+            currentDate, string.Join(", ", months.Select(m => $"{m.Name} {m.Year}")));
+
+        return months;
     }
 
     public int GetMilestoneXPosition(DateTime milestoneDate, DateTime baselineDate)
     {
         var baselineYear = baselineDate.Year;
-        var jan1 = new DateTime(baselineYear, 1, 1);
-        
-        var daysDiff = (milestoneDate - jan1).TotalDays;
-        var dayOfYear = (int)daysDiff;
-        
-        // Assuming 365 days in year, calculate month position
-        // Jan: 0-260, Feb: 260-520, Mar: 520-780, Apr: 780-1040, May: 1040-1300, Jun: 1300-1560
-        var monthIndex = dayOfYear / 30; // Approximate
-        var dayInMonth = dayOfYear % 30;
-        
-        var xPosition = (monthIndex * PixelsPerMonth) + (dayInMonth * (PixelsPerMonth / 30));
-        
-        return Math.Clamp(xPosition, 0, SvgWidth);
+        var milestoneYear = milestoneDate.Year;
+
+        if (milestoneYear != baselineYear)
+        {
+            throw new ArgumentOutOfRangeException(nameof(milestoneDate),
+                $"Milestone date {milestoneDate:yyyy-MM-dd} is outside timeline range " +
+                $"(year {baselineYear})");
+        }
+
+        var baselineYearStart = new DateTime(baselineYear, 1, 1);
+        var daysFromStart = (milestoneDate.Date - baselineYearStart).TotalDays;
+        var monthsFromStart = daysFromStart / 30.4375;
+
+        var xPosition = (int)(monthsFromStart * PixelsPerMonth);
+
+        if (xPosition < 0 || xPosition > SvgWidth)
+        {
+            throw new ArgumentOutOfRangeException(nameof(milestoneDate),
+                $"Milestone date {milestoneDate:yyyy-MM-dd} calculates to x-position {xPosition}, " +
+                $"which is outside SVG width (0-{SvgWidth})");
+        }
+
+        return xPosition;
     }
 
     public int GetNowMarkerXPosition(DateTime currentDate, DateTime baselineDate)
@@ -90,39 +93,40 @@ public class DateCalculationService : IDateCalculationService
         return GetMilestoneXPosition(currentDate, baselineDate);
     }
 
-    public bool IsCurrentMonth(string monthName, int year, DateTime currentDate)
+    public bool IsCurrentMonth(YearMonth month, DateTime currentDate)
     {
-        var currentMonthName = GetMonthName(currentDate.Month);
-        
-        return monthName.Equals(currentMonthName, StringComparison.OrdinalIgnoreCase) 
-            && year == currentDate.Year;
+        var current = new YearMonth(currentDate.Year, currentDate.Month);
+        return month == current;
     }
 
     public (int startX, int endX) GetMonthBounds(int monthIndex)
     {
+        if (monthIndex < 0 || monthIndex >= MonthsInTimeline)
+        {
+            throw new ArgumentOutOfRangeException(nameof(monthIndex),
+                $"Month index must be between 0 and {MonthsInTimeline - 1}");
+        }
+
         var startX = monthIndex * PixelsPerMonth;
         var endX = startX + PixelsPerMonth;
-        
+
         return (startX, endX);
     }
 
-    private string GetMonthName(int monthNumber)
+    private string GetMonthName(int month) => month switch
     {
-        return monthNumber switch
-        {
-            1 => "January",
-            2 => "February",
-            3 => "March",
-            4 => "April",
-            5 => "May",
-            6 => "June",
-            7 => "July",
-            8 => "August",
-            9 => "September",
-            10 => "October",
-            11 => "November",
-            12 => "December",
-            _ => string.Empty
-        };
-    }
+        1 => "January",
+        2 => "February",
+        3 => "March",
+        4 => "April",
+        5 => "May",
+        6 => "June",
+        7 => "July",
+        8 => "August",
+        9 => "September",
+        10 => "October",
+        11 => "November",
+        12 => "December",
+        _ => "Unknown"
+    };
 }

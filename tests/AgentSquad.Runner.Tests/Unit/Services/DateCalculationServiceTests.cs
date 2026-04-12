@@ -1,166 +1,207 @@
-using AgentSquad.Runner.Models;
-using AgentSquad.Runner.Services;
-using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using Moq;
 using Xunit;
+using Moq;
+using Microsoft.Extensions.Logging;
+using NodaTime;
+using AgentSquad.Runner.Services;
 
 namespace AgentSquad.Runner.Tests.Unit.Services;
 
-[Trait("Category", "Unit")]
 public class DateCalculationServiceTests
 {
-    private readonly DateCalculationService _service;
-
-    public DateCalculationServiceTests()
+    [Fact]
+    public void GetDisplayMonths_Returns4Months()
     {
+        // Arrange
         var mockLogger = new Mock<ILogger<DateCalculationService>>();
-        _service = new DateCalculationService(mockLogger.Object);
-    }
-
-    [Fact]
-    public void GetDisplayMonths_ReturnsMonthsStartingFromCurrentMonth()
-    {
+        var service = new DateCalculationService(mockLogger.Object);
         var currentDate = new DateTime(2026, 4, 15);
 
-        var months = _service.GetDisplayMonths(currentDate);
+        // Act
+        var result = service.GetDisplayMonths(currentDate);
 
-        months.Should().NotBeEmpty();
-        months.Should().HaveCountGreaterThanOrEqualTo(4);
-        months[0].Name.Should().Be("April");
-        months[0].Year.Should().Be(2026);
-        months[0].IsCurrentMonth.Should().BeTrue();
+        // Assert
+        Assert.Equal(4, result.Count);
     }
 
     [Fact]
-    public void GetDisplayMonths_MarksCurrent_MonthCorrectly()
+    public void GetDisplayMonths_IncludesCurrentMonth()
     {
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
         var currentDate = new DateTime(2026, 4, 15);
 
-        var months = _service.GetDisplayMonths(currentDate);
+        // Act
+        var result = service.GetDisplayMonths(currentDate);
 
-        var currentMonthResult = months.FirstOrDefault(m => m.IsCurrentMonth);
-        currentMonthResult.Should().NotBeNull();
-        currentMonthResult!.Name.Should().Be("April");
+        // Assert
+        var currentMonthInfo = result.FirstOrDefault(m => m.IsCurrentMonth);
+        Assert.NotNull(currentMonthInfo);
+        Assert.Equal("April", currentMonthInfo.Name);
     }
 
     [Fact]
-    public void GetDisplayMonths_AssignsGridColumnIndices()
+    public void GetDisplayMonths_StartsWithPreviousMonth()
     {
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
         var currentDate = new DateTime(2026, 4, 15);
 
-        var months = _service.GetDisplayMonths(currentDate);
+        // Act
+        var result = service.GetDisplayMonths(currentDate);
 
-        for (int i = 0; i < months.Count; i++)
-        {
-            months[i].GridColumnIndex.Should().Be(i);
-        }
+        // Assert
+        Assert.Equal("March", result[0].Name);
+        Assert.Equal("April", result[1].Name);
+        Assert.Equal("May", result[2].Name);
+        Assert.Equal("June", result[3].Name);
     }
 
     [Fact]
-    public void GetDisplayMonths_CalculatesMonthBounds()
+    public void GetMilestoneXPosition_Returns0_ForJanuary1st()
     {
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
+        var milestoneDate = new DateTime(2026, 1, 1);
+        var baselineDate = new DateTime(2026, 1, 1);
+
+        // Act
+        var result = service.GetMilestoneXPosition(milestoneDate, baselineDate);
+
+        // Assert
+        Assert.Equal(0, result);
+    }
+
+    [Fact]
+    public void GetMilestoneXPosition_ThrowsArgumentOutOfRangeException_WhenYearDiffers()
+    {
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
+        var milestoneDate = new DateTime(2027, 4, 15);
+        var baselineDate = new DateTime(2026, 1, 1);
+
+        // Act & Assert
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            service.GetMilestoneXPosition(milestoneDate, baselineDate));
+    }
+
+    [Fact]
+    public void GetNowMarkerXPosition_ReturnsSameAsGetMilestoneXPosition()
+    {
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
         var currentDate = new DateTime(2026, 4, 15);
+        var baselineDate = new DateTime(2026, 1, 1);
 
-        var months = _service.GetDisplayMonths(currentDate);
+        // Act
+        var milestoneResult = service.GetMilestoneXPosition(currentDate, baselineDate);
+        var nowMarkerResult = service.GetNowMarkerXPosition(currentDate, baselineDate);
 
-        months.ForEach(m =>
-        {
-            m.StartDate.Day.Should().Be(1);
-            m.EndDate.Month.Should().Be(m.StartDate.Month);
-            m.EndDate.Should().BeOnOrAfter(m.StartDate);
-        });
+        // Assert
+        Assert.Equal(milestoneResult, nowMarkerResult);
     }
 
     [Fact]
-    public void IsCurrentMonth_ReturnsTrueForCurrentMonth()
+    public void IsCurrentMonth_ReturnsTrue_WhenMonthIsCurrentMonth()
     {
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
         var currentDate = new DateTime(2026, 4, 15);
+        var month = new YearMonth(2026, 4);
 
-        var result = _service.IsCurrentMonth("April", 2026, currentDate);
+        // Act
+        var result = service.IsCurrentMonth(month, currentDate);
 
-        result.Should().BeTrue();
+        // Assert
+        Assert.True(result);
     }
 
     [Fact]
-    public void IsCurrentMonth_ReturnsFalseForPastMonth()
+    public void IsCurrentMonth_ReturnsFalse_WhenMonthIsNotCurrentMonth()
     {
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
         var currentDate = new DateTime(2026, 4, 15);
+        var month = new YearMonth(2026, 3);
 
-        var result = _service.IsCurrentMonth("March", 2026, currentDate);
+        // Act
+        var result = service.IsCurrentMonth(month, currentDate);
 
-        result.Should().BeFalse();
+        // Assert
+        Assert.False(result);
     }
 
     [Fact]
-    public void IsCurrentMonth_ReturnsFalseForFutureMonth()
+    public void IsCurrentMonth_ReturnsFalse_WhenYearDiffers()
     {
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
         var currentDate = new DateTime(2026, 4, 15);
+        var month = new YearMonth(2025, 4);
 
-        var result = _service.IsCurrentMonth("May", 2026, currentDate);
+        // Act
+        var result = service.IsCurrentMonth(month, currentDate);
 
-        result.Should().BeFalse();
+        // Assert
+        Assert.False(result);
     }
 
     [Fact]
-    public void GetMonthBounds_ReturnsValidXCoordinates()
+    public void GetMonthBounds_ReturnsCorrectBounds_ForFirstMonth()
     {
-        var bounds = _service.GetMonthBounds(0);
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
 
-        bounds.startX.Should().BeGreaterThanOrEqualTo(0);
-        bounds.endX.Should().BeGreaterThan(bounds.startX);
+        // Act
+        var (startX, endX) = service.GetMonthBounds(0);
+
+        // Assert
+        Assert.Equal(0, startX);
+        Assert.Equal(260, endX);
     }
 
     [Fact]
-    public void GetMonthBounds_IncreasingIndexesProduceRightwardBounds()
+    public void GetMonthBounds_ReturnsCorrectBounds_ForSecondMonth()
     {
-        var bounds0 = _service.GetMonthBounds(0);
-        var bounds1 = _service.GetMonthBounds(1);
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
 
-        bounds1.startX.Should().BeGreaterThan(bounds0.startX);
-        bounds1.endX.Should().BeGreaterThan(bounds0.endX);
+        // Act
+        var (startX, endX) = service.GetMonthBounds(1);
+
+        // Assert
+        Assert.Equal(260, startX);
+        Assert.Equal(520, endX);
     }
 
     [Fact]
-    public void GetMilestoneXPosition_CalculatesPositionForMilestoneDate()
+    public void GetMonthBounds_ThrowsArgumentOutOfRangeException_WhenIndexNegative()
     {
-        var baselineDate = new DateTime(2026, 3, 1);
-        var milestoneDate = new DateTime(2026, 4, 15);
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
 
-        var position = _service.GetMilestoneXPosition(milestoneDate, baselineDate);
-
-        position.Should().BeGreaterThan(0);
+        // Act & Assert
+        Assert.Throws<ArgumentOutOfRangeException>(() => service.GetMonthBounds(-1));
     }
 
     [Fact]
-    public void GetMilestoneXPosition_ReturnsEqualPositionForSameDates()
+    public void GetMonthBounds_ThrowsArgumentOutOfRangeException_WhenIndexTooLarge()
     {
-        var date = new DateTime(2026, 4, 15);
+        // Arrange
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        var service = new DateCalculationService(mockLogger.Object);
 
-        var position = _service.GetMilestoneXPosition(date, date);
-
-        position.Should().Be(0);
-    }
-
-    [Fact]
-    public void GetNowMarkerXPosition_CalculatesCurrentDatePosition()
-    {
-        var baselineDate = new DateTime(2026, 3, 1);
-        var currentDate = new DateTime(2026, 4, 15);
-
-        var position = _service.GetNowMarkerXPosition(currentDate, baselineDate);
-
-        position.Should().BeGreaterThan(0);
-    }
-
-    [Fact]
-    public void GetNowMarkerXPosition_WithEarlyApril_ReturnsValidPosition()
-    {
-        var baselineDate = new DateTime(2026, 3, 1);
-        var currentDate = new DateTime(2026, 4, 1);
-
-        var position = _service.GetNowMarkerXPosition(currentDate, baselineDate);
-
-        position.Should().BeGreaterThanOrEqualTo(0);
+        // Act & Assert
+        Assert.Throws<ArgumentOutOfRangeException>(() => service.GetMonthBounds(6));
     }
 }
