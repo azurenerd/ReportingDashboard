@@ -1,7 +1,8 @@
 using AgentSquad.Runner.Services;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace AgentSquad.Runner.Tests.Integration;
@@ -12,12 +13,20 @@ public class DependencyInjectionTests
     private string GetProjectPath()
     {
         var currentDirectory = Directory.GetCurrentDirectory();
-        var projectPath = Path.Combine(currentDirectory, "..", "..", "..", "src", "AgentSquad.Runner");
-        return Path.GetFullPath(projectPath);
+        var projectRoot = currentDirectory;
+        
+        while (!Directory.Exists(Path.Combine(projectRoot, "src", "AgentSquad.Runner")))
+        {
+            var parent = Directory.GetParent(projectRoot);
+            if (parent == null || parent.FullName == projectRoot)
+                break;
+            projectRoot = parent.FullName;
+        }
+        
+        return Path.Combine(projectRoot, "src", "AgentSquad.Runner");
     }
 
-    [Fact]
-    public void DIContainer_CanResolveDashboardDataService()
+    private IServiceProvider SetupServiceProvider()
     {
         var projectPath = GetProjectPath();
         var config = new ConfigurationBuilder()
@@ -26,88 +35,70 @@ public class DependencyInjectionTests
             .Build();
 
         var services = new ServiceCollection();
-        services.AddSingleton<IConfiguration>(config);
-        services.AddLogging();
-        services.AddScoped<IDashboardDataService, DashboardDataService>();
+        services.AddSingleton(config);
+        services.AddLogging(builder => builder.AddConsole());
+        services.AddSingleton<IDashboardDataService, DashboardDataService>();
+        services.AddSingleton<IDateCalculationService, DateCalculationService>();
+        services.AddSingleton<IVisualizationService, VisualizationService>();
 
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetService<IDashboardDataService>();
+        return services.BuildServiceProvider();
+    }
+
+    [Fact]
+    public void DashboardDataService_RegistersSuccessfully()
+    {
+        var provider = SetupServiceProvider();
+
+        var service = provider.GetService<IDashboardDataService>();
 
         service.Should().NotBeNull();
         service.Should().BeOfType<DashboardDataService>();
     }
 
     [Fact]
-    public void DIContainer_CanResolveDateCalculationService()
+    public void DateCalculationService_RegistersSuccessfully()
     {
-        var services = new ServiceCollection();
-        services.AddLogging();
-        services.AddScoped<IDateCalculationService, DateCalculationService>();
+        var provider = SetupServiceProvider();
 
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetService<IDateCalculationService>();
+        var service = provider.GetService<IDateCalculationService>();
 
         service.Should().NotBeNull();
         service.Should().BeOfType<DateCalculationService>();
     }
 
     [Fact]
-    public void DIContainer_CanResolveVisualizationService()
+    public void VisualizationService_RegistersSuccessfully()
     {
-        var services = new ServiceCollection();
-        services.AddScoped<IVisualizationService, VisualizationService>();
+        var provider = SetupServiceProvider();
 
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetService<IVisualizationService>();
+        var service = provider.GetService<IVisualizationService>();
 
         service.Should().NotBeNull();
         service.Should().BeOfType<VisualizationService>();
     }
 
     [Fact]
-    public void DIContainer_CanResolveAllThreeServices()
+    public void AllServices_CanBeResolvedTogether()
     {
-        var projectPath = GetProjectPath();
-        var config = new ConfigurationBuilder()
-            .SetBasePath(projectPath)
-            .AddJsonFile("appsettings.json")
-            .Build();
+        var provider = SetupServiceProvider();
 
-        var services = new ServiceCollection();
-        services.AddSingleton<IConfiguration>(config);
-        services.AddLogging();
-        services.AddScoped<IDashboardDataService, DashboardDataService>();
-        services.AddScoped<IDateCalculationService, DateCalculationService>();
-        services.AddScoped<IVisualizationService, VisualizationService>();
+        var dataService = provider.GetService<IDashboardDataService>();
+        var dateService = provider.GetService<IDateCalculationService>();
+        var vizService = provider.GetService<IVisualizationService>();
 
-        var serviceProvider = services.BuildServiceProvider();
-
-        var dashboardService = serviceProvider.GetService<IDashboardDataService>();
-        var dateService = serviceProvider.GetService<IDateCalculationService>();
-        var vizService = serviceProvider.GetService<IVisualizationService>();
-
-        dashboardService.Should().NotBeNull();
+        dataService.Should().NotBeNull();
         dateService.Should().NotBeNull();
         vizService.Should().NotBeNull();
     }
 
     [Fact]
-    public void DIContainer_ServicesAreCorrectlyScoped()
+    public void Services_RegisteredAsSingleton_ReturnSameInstance()
     {
-        var services = new ServiceCollection();
-        services.AddLogging();
-        services.AddScoped<IDateCalculationService, DateCalculationService>();
+        var provider = SetupServiceProvider();
 
-        var serviceProvider = services.BuildServiceProvider();
+        var service1 = provider.GetService<IDashboardDataService>();
+        var service2 = provider.GetService<IDashboardDataService>();
 
-        using var scope1 = serviceProvider.CreateScope();
-        var service1 = scope1.ServiceProvider.GetService<IDateCalculationService>();
-
-        using var scope2 = serviceProvider.CreateScope();
-        var service2 = scope2.ServiceProvider.GetService<IDateCalculationService>();
-
-        service1.Should().NotBeNull();
-        service2.Should().NotBeNull();
-        service1.Should().NotBe(service2);
+        service1.Should().BeSameAs(service2);
     }
 }

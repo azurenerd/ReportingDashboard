@@ -1,0 +1,72 @@
+{
+  "projectName": "Privacy Automation Release Roadmap",
+  "description": "Trusted Platform - Privacy Automation Workstream - April 2026",
+  "quarters": [
+    {
+      "month": "March",
+      "year": 2026,
+      "shipped": [
+        "Chatbot MVP",
+        "Role Templates"
+      ],
+      "inProgress": [
+        "Data Inventory",
+        "Policy Engine"
+      ],
+      "carryover": [
+        "DFD Automation"
+      ],
+      "blockers": []
+    },
+    {
+      "month": "April",
+      "year": 2026,
+      "shipped": [],
+      "inProgress": [
+        "Integration Testing"
+      ],
+      "carryover": [
+        "DFD Automation"
+      ],
+      "blockers": [
+        "Azure AD Sync Dependency"
+      ]
+    },
+    {
+      "month": "May",
+      "year": 2026,
+      "shipped": [],
+      "inProgress": [],
+      "carryover": [],
+      "blockers": []
+    },
+    {
+      "month": "June",
+      "year": 2026,
+      "shipped": [],
+      "inProgress": [],
+      "carryover": [],
+      "blockers": []
+    }
+  ],
+  "milestones": [
+    {
+      "id": "m1",
+      "label": "Chatbot & MS Role",
+      "date": "2026-01-12",
+      "type": "checkpoint"
+    },
+    {
+      "id": "m2-poc",
+      "label": "PoC Milestone",
+      "date": "2026-03-26",
+      "type": "poc"
+    },
+    {
+      "id": "m3-prod",
+      "label": "Production Release",
+      "date": "2026-04-30",
+      "type": "release"
+    }
+  ]
+}

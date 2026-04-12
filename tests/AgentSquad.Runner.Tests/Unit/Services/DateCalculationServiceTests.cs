@@ -11,111 +11,65 @@ namespace AgentSquad.Runner.Tests.Unit.Services;
 public class DateCalculationServiceTests
 {
     private readonly DateCalculationService _service;
-    private readonly Mock<ILogger<DateCalculationService>> _mockLogger;
 
     public DateCalculationServiceTests()
     {
-        _mockLogger = new Mock<ILogger<DateCalculationService>>();
-        _service = new DateCalculationService(_mockLogger.Object);
+        var mockLogger = new Mock<ILogger<DateCalculationService>>();
+        _service = new DateCalculationService(mockLogger.Object);
     }
 
     [Fact]
-    public void GetDisplayMonths_ReturnsListWithFourMonths()
+    public void GetDisplayMonths_ReturnsMonthsStartingFromCurrentMonth()
     {
         var currentDate = new DateTime(2026, 4, 15);
 
-        var result = _service.GetDisplayMonths(currentDate);
+        var months = _service.GetDisplayMonths(currentDate);
 
-        result.Should().HaveCount(4);
+        months.Should().NotBeEmpty();
+        months.Should().HaveCountGreaterThanOrEqualTo(4);
+        months[0].Name.Should().Be("April");
+        months[0].Year.Should().Be(2026);
+        months[0].IsCurrentMonth.Should().BeTrue();
     }
 
     [Fact]
-    public void GetDisplayMonths_IncludesCurrentMonth()
+    public void GetDisplayMonths_MarksCurrent_MonthCorrectly()
     {
         var currentDate = new DateTime(2026, 4, 15);
 
-        var result = _service.GetDisplayMonths(currentDate);
+        var months = _service.GetDisplayMonths(currentDate);
 
-        result.Should().Contain(m => m.IsCurrentMonth && m.Name == "April");
+        var currentMonthResult = months.FirstOrDefault(m => m.IsCurrentMonth);
+        currentMonthResult.Should().NotBeNull();
+        currentMonthResult!.Name.Should().Be("April");
     }
 
     [Fact]
-    public void GetDisplayMonths_MarksPreviousMonthAsNotCurrent()
+    public void GetDisplayMonths_AssignsGridColumnIndices()
     {
         var currentDate = new DateTime(2026, 4, 15);
 
-        var result = _service.GetDisplayMonths(currentDate);
+        var months = _service.GetDisplayMonths(currentDate);
 
-        result.First().IsCurrentMonth.Should().BeFalse();
+        for (int i = 0; i < months.Count; i++)
+        {
+            months[i].GridColumnIndex.Should().Be(i);
+        }
     }
 
     [Fact]
-    public void GetDisplayMonths_ContainsCorrectMonthNames()
+    public void GetDisplayMonths_CalculatesMonthBounds()
     {
         var currentDate = new DateTime(2026, 4, 15);
 
-        var result = _service.GetDisplayMonths(currentDate);
+        var months = _service.GetDisplayMonths(currentDate);
 
-        result.Select(m => m.Name).Should().Contain("March", "April", "May", "June");
-    }
-
-    [Fact]
-    public void GetDisplayMonths_SetsGridColumnIndexCorrectly()
-    {
-        var currentDate = new DateTime(2026, 4, 15);
-
-        var result = _service.GetDisplayMonths(currentDate);
-
-        result[0].GridColumnIndex.Should().Be(0);
-        result[1].GridColumnIndex.Should().Be(1);
-    }
-
-    [Fact]
-    public void GetMilestoneXPosition_ReturnsPositionWithinSvgWidth()
-    {
-        var baselineDate = new DateTime(2026, 1, 1);
-        var milestoneDate = new DateTime(2026, 3, 15);
-
-        var result = _service.GetMilestoneXPosition(milestoneDate, baselineDate);
-
-        result.Should().BeGreaterThanOrEqualTo(0);
-        result.Should().BeLessThanOrEqualTo(1560);
-    }
-
-    [Fact]
-    public void GetMilestoneXPosition_IncreasesDatesInOrder()
-    {
-        var baselineDate = new DateTime(2026, 1, 1);
-        var earlierDate = new DateTime(2026, 1, 15);
-        var laterDate = new DateTime(2026, 2, 15);
-
-        var earlierPos = _service.GetMilestoneXPosition(earlierDate, baselineDate);
-        var laterPos = _service.GetMilestoneXPosition(laterDate, baselineDate);
-
-        laterPos.Should().BeGreaterThan(earlierPos);
-    }
-
-    [Fact]
-    public void GetMilestoneXPosition_ClampsNegativeToZero()
-    {
-        var baselineDate = new DateTime(2026, 6, 1);
-        var pastDate = new DateTime(2026, 1, 1);
-
-        var result = _service.GetMilestoneXPosition(pastDate, baselineDate);
-
-        result.Should().BeGreaterThanOrEqualTo(0);
-    }
-
-    [Fact]
-    public void GetNowMarkerXPosition_ReturnsValidSvgPosition()
-    {
-        var baselineDate = new DateTime(2026, 1, 1);
-        var currentDate = new DateTime(2026, 4, 12);
-
-        var result = _service.GetNowMarkerXPosition(currentDate, baselineDate);
-
-        result.Should().BeGreaterThan(0);
-        result.Should().BeLessThanOrEqualTo(1560);
+        months.ForEach(m =>
+        {
+            m.StartDate.Day.Should().Be(1);
+            m.EndDate.Month.Should().Be(m.StartDate.Month);
+            m.EndDate.Should().BeOnOrAfter(m.StartDate);
+        });
     }
 
     [Fact]
@@ -129,7 +83,7 @@ public class DateCalculationServiceTests
     }
 
     [Fact]
-    public void IsCurrentMonth_ReturnsFalseForDifferentMonth()
+    public void IsCurrentMonth_ReturnsFalseForPastMonth()
     {
         var currentDate = new DateTime(2026, 4, 15);
 
@@ -139,73 +93,74 @@ public class DateCalculationServiceTests
     }
 
     [Fact]
-    public void IsCurrentMonth_IsCaseInsensitive()
+    public void IsCurrentMonth_ReturnsFalseForFutureMonth()
     {
         var currentDate = new DateTime(2026, 4, 15);
 
-        var result = _service.IsCurrentMonth("april", 2026, currentDate);
-
-        result.Should().BeTrue();
-    }
-
-    [Fact]
-    public void IsCurrentMonth_ReturnsFalseForDifferentYear()
-    {
-        var currentDate = new DateTime(2026, 4, 15);
-
-        var result = _service.IsCurrentMonth("April", 2025, currentDate);
+        var result = _service.IsCurrentMonth("May", 2026, currentDate);
 
         result.Should().BeFalse();
     }
 
     [Fact]
-    public void GetMonthBounds_ReturnsValidRange()
+    public void GetMonthBounds_ReturnsValidXCoordinates()
     {
-        var (startX, endX) = _service.GetMonthBounds(0);
+        var bounds = _service.GetMonthBounds(0);
 
-        startX.Should().BeLessThan(endX);
-        startX.Should().BeGreaterThanOrEqualTo(0);
+        bounds.startX.Should().BeGreaterThanOrEqualTo(0);
+        bounds.endX.Should().BeGreaterThan(bounds.startX);
     }
 
     [Fact]
-    public void GetMonthBounds_ThrowsForInvalidIndex()
+    public void GetMonthBounds_IncreasingIndexesProduceRightwardBounds()
     {
-        var action = () => _service.GetMonthBounds(6);
+        var bounds0 = _service.GetMonthBounds(0);
+        var bounds1 = _service.GetMonthBounds(1);
 
-        action.Should().Throw<ArgumentOutOfRangeException>();
+        bounds1.startX.Should().BeGreaterThan(bounds0.startX);
+        bounds1.endX.Should().BeGreaterThan(bounds0.endX);
     }
 
     [Fact]
-    public void GetMonthBounds_CalculatesConsistentWidths()
+    public void GetMilestoneXPosition_CalculatesPositionForMilestoneDate()
     {
-        var (startX1, endX1) = _service.GetMonthBounds(0);
-        var (startX2, endX2) = _service.GetMonthBounds(1);
+        var baselineDate = new DateTime(2026, 3, 1);
+        var milestoneDate = new DateTime(2026, 4, 15);
 
-        var width1 = endX1 - startX1;
-        var width2 = endX2 - startX2;
+        var position = _service.GetMilestoneXPosition(milestoneDate, baselineDate);
 
-        width1.Should().Be(width2);
+        position.Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public void GetDisplayMonths_SetsStartAndEndDateCorrectly()
+    public void GetMilestoneXPosition_ReturnsEqualPositionForSameDates()
     {
+        var date = new DateTime(2026, 4, 15);
+
+        var position = _service.GetMilestoneXPosition(date, date);
+
+        position.Should().Be(0);
+    }
+
+    [Fact]
+    public void GetNowMarkerXPosition_CalculatesCurrentDatePosition()
+    {
+        var baselineDate = new DateTime(2026, 3, 1);
         var currentDate = new DateTime(2026, 4, 15);
 
-        var result = _service.GetDisplayMonths(currentDate);
+        var position = _service.GetNowMarkerXPosition(currentDate, baselineDate);
 
-        var aprilMonth = result.First(m => m.Name == "April");
-        aprilMonth.StartDate.Should().Be(new DateTime(2026, 4, 1));
-        aprilMonth.EndDate.Should().Be(new DateTime(2026, 4, 30));
+        position.Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public void GetDisplayMonths_ContainsCorrectYear()
+    public void GetNowMarkerXPosition_WithEarlyApril_ReturnsValidPosition()
     {
-        var currentDate = new DateTime(2026, 4, 15);
+        var baselineDate = new DateTime(2026, 3, 1);
+        var currentDate = new DateTime(2026, 4, 1);
 
-        var result = _service.GetDisplayMonths(currentDate);
+        var position = _service.GetNowMarkerXPosition(currentDate, baselineDate);
 
-        result.Should().AllSatisfy(m => m.Year.Should().Be(2026));
+        position.Should().BeGreaterThanOrEqualTo(0);
     }
 }

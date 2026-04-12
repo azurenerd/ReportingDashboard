@@ -8,244 +8,216 @@ namespace AgentSquad.Runner.Tests.Unit.Models;
 [Trait("Category", "Unit")]
 public class ModelDeserializationTests
 {
-    private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
+    private readonly JsonSerializerOptions _options = new() { PropertyNameCaseInsensitive = false };
 
     [Fact]
-    public void ValidDashboardConfigJson_DeserializesWithoutErrors()
+    public void DashboardConfig_Deserializes_WithAllRequiredFields()
     {
         var json = """
         {
-            "projectName": "Test Project",
-            "description": "Test Description",
-            "quarters": [],
-            "milestones": []
+          "projectName": "Test Project",
+          "description": "Test Description",
+          "quarters": [
+            {
+              "month": "March",
+              "year": 2026,
+              "shipped": ["Item 1"],
+              "inProgress": ["Item 2"],
+              "carryover": ["Item 3"],
+              "blockers": ["Item 4"]
+            }
+          ],
+          "milestones": [
+            {
+              "id": "m1",
+              "label": "Milestone 1",
+              "date": "2026-03-15",
+              "type": "checkpoint"
+            }
+          ]
         }
         """;
 
-        var result = JsonSerializer.Deserialize<DashboardConfig>(json, _jsonOptions);
+        var config = JsonSerializer.Deserialize<DashboardConfig>(json, _options);
 
-        result.Should().NotBeNull();
-        result!.ProjectName.Should().Be("Test Project");
-        result.Description.Should().Be("Test Description");
-        result.Quarters.Should().BeEmpty();
-        result.Milestones.Should().BeEmpty();
+        config.Should().NotBeNull();
+        config!.ProjectName.Should().Be("Test Project");
+        config.Description.Should().Be("Test Description");
+        config.Quarters.Should().HaveCount(1);
+        config.Milestones.Should().HaveCount(1);
     }
 
     [Fact]
-    public void ValidQuarterJson_DeserializesWithAllStatusArrays()
+    public void Quarter_Deserializes_WithAllStatusArrays()
     {
         var json = """
         {
-            "month": "March",
-            "year": 2026,
-            "shipped": ["Item 1"],
-            "inProgress": ["Item 2"],
-            "carryover": ["Item 3"],
-            "blockers": ["Item 4"]
+          "month": "April",
+          "year": 2026,
+          "shipped": ["Item A", "Item B"],
+          "inProgress": ["Item C"],
+          "carryover": [],
+          "blockers": ["Item D"]
         }
         """;
 
-        var result = JsonSerializer.Deserialize<Quarter>(json, _jsonOptions);
+        var quarter = JsonSerializer.Deserialize<Quarter>(json, _options);
 
-        result.Should().NotBeNull();
-        result!.Month.Should().Be("March");
-        result.Year.Should().Be(2026);
-        result.Shipped.Should().ContainSingle(s => s == "Item 1");
-        result.InProgress.Should().ContainSingle(s => s == "Item 2");
-        result.Carryover.Should().ContainSingle(s => s == "Item 3");
-        result.Blockers.Should().ContainSingle(s => s == "Item 4");
+        quarter.Should().NotBeNull();
+        quarter!.Month.Should().Be("April");
+        quarter.Year.Should().Be(2026);
+        quarter.Shipped.Should().HaveCount(2);
+        quarter.InProgress.Should().HaveCount(1);
+        quarter.Carryover.Should().HaveCount(0);
+        quarter.Blockers.Should().HaveCount(1);
     }
 
     [Fact]
-    public void ValidMilestoneJson_DeserializesWithAllFields()
+    public void Milestone_Deserializes_WithIso8601Date()
     {
         var json = """
         {
-            "id": "m1",
-            "label": "First Milestone",
-            "date": "2026-03-15",
-            "type": "checkpoint"
+          "id": "m-poc",
+          "label": "PoC Milestone",
+          "date": "2026-03-26",
+          "type": "poc"
         }
         """;
 
-        var result = JsonSerializer.Deserialize<Milestone>(json, _jsonOptions);
+        var milestone = JsonSerializer.Deserialize<Milestone>(json, _options);
 
-        result.Should().NotBeNull();
-        result!.Id.Should().Be("m1");
-        result.Label.Should().Be("First Milestone");
-        result.Date.Should().Be("2026-03-15");
-        result.Type.Should().Be("checkpoint");
+        milestone.Should().NotBeNull();
+        milestone!.Id.Should().Be("m-poc");
+        milestone.Label.Should().Be("PoC Milestone");
+        milestone.Date.Should().Be("2026-03-26");
+        milestone.Type.Should().Be("poc");
     }
 
     [Fact]
-    public void MissingOptionalFields_DeserializeToEmptyLists()
+    public void MonthInfo_InitializesWithDefaultValues()
+    {
+        var monthInfo = new MonthInfo
+        {
+            Name = "March",
+            Year = 2026,
+            StartDate = new DateTime(2026, 3, 1),
+            EndDate = new DateTime(2026, 3, 31),
+            GridColumnIndex = 0,
+            IsCurrentMonth = false
+        };
+
+        monthInfo.Name.Should().Be("March");
+        monthInfo.Year.Should().Be(2026);
+        monthInfo.GridColumnIndex.Should().Be(0);
+        monthInfo.IsCurrentMonth.Should().BeFalse();
+    }
+
+    [Fact]
+    public void MilestoneShapeInfo_InitializesWithDiamondShape()
+    {
+        var shape = new MilestoneShapeInfo
+        {
+            Type = "poc",
+            Shape = "diamond",
+            Color = "#F4B400",
+            Size = 12
+        };
+
+        shape.Type.Should().Be("poc");
+        shape.Shape.Should().Be("diamond");
+        shape.Color.Should().Be("#F4B400");
+        shape.Size.Should().Be(12);
+    }
+
+    [Fact]
+    public void DashboardConfig_WithEmptyArrays_Deserializes()
     {
         var json = """
         {
-            "month": "April",
-            "year": 2026
+          "projectName": "Project",
+          "description": "Description",
+          "quarters": [],
+          "milestones": []
         }
         """;
 
-        var result = JsonSerializer.Deserialize<Quarter>(json, _jsonOptions);
+        var config = JsonSerializer.Deserialize<DashboardConfig>(json, _options);
 
-        result.Should().NotBeNull();
-        result!.Shipped.Should().BeEmpty();
-        result.InProgress.Should().BeEmpty();
-        result.Carryover.Should().BeEmpty();
-        result.Blockers.Should().BeEmpty();
+        config.Should().NotBeNull();
+        config!.Quarters.Should().BeEmpty();
+        config.Milestones.Should().BeEmpty();
     }
 
     [Fact]
-    public void InvalidJsonFormat_ThrowsJsonException()
+    public void Quarter_WithNullArrays_DeserializesToEmptyLists()
+    {
+        var json = """
+        {
+          "month": "May",
+          "year": 2026,
+          "shipped": null,
+          "inProgress": null,
+          "carryover": null,
+          "blockers": null
+        }
+        """;
+
+        var quarter = JsonSerializer.Deserialize<Quarter>(json, _options);
+
+        quarter.Should().NotBeNull();
+        quarter!.Shipped.Should().BeEmpty();
+        quarter.InProgress.Should().BeEmpty();
+        quarter.Carryover.Should().BeEmpty();
+        quarter.Blockers.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void InvalidJson_ThrowsJsonException()
     {
         var invalidJson = "{ invalid json }";
 
-        var action = () => JsonSerializer.Deserialize<DashboardConfig>(invalidJson, _jsonOptions);
+        var action = () => JsonSerializer.Deserialize<DashboardConfig>(invalidJson, _options);
 
         action.Should().Throw<JsonException>();
     }
 
     [Fact]
-    public void DashboardConfigWithCamelCaseProperties_DeserializesCorrectly()
+    public void DashboardConfig_WithMissingProjectName_DeserializesToEmptyString()
     {
         var json = """
         {
-            "projectName": "MyProject",
-            "description": "MyDescription",
-            "quarters": [],
-            "milestones": []
+          "description": "Desc",
+          "quarters": [],
+          "milestones": []
         }
         """;
 
-        var result = JsonSerializer.Deserialize<DashboardConfig>(json, _jsonOptions);
+        var config = JsonSerializer.Deserialize<DashboardConfig>(json, _options);
 
-        result.Should().NotBeNull();
-        result!.ProjectName.Should().Be("MyProject");
-        result.Description.Should().Be("MyDescription");
+        config.Should().NotBeNull();
+        config!.ProjectName.Should().Be(string.Empty);
     }
 
     [Fact]
-    public void QuarterWithInProgressProperty_DeserializesCorrectly()
-    {
-        var json = """
-        {
-            "month": "May",
-            "year": 2026,
-            "inProgress": ["Task A", "Task B"]
-        }
-        """;
-
-        var result = JsonSerializer.Deserialize<Quarter>(json, _jsonOptions);
-
-        result.Should().NotBeNull();
-        result!.InProgress.Should().HaveCount(2);
-        result.InProgress.Should().Contain("Task A");
-    }
-
-    [Fact]
-    public void MilestoneTypesAcceptValidStrings()
+    public void Milestone_AllTypesDeserialize()
     {
         var types = new[] { "poc", "release", "checkpoint" };
 
         foreach (var type in types)
         {
-            var json = $$"""
-            {
-                "id": "m1",
-                "label": "Test",
-                "date": "2026-03-15",
-                "type": "{{type}}"
-            }
+            var json = $$$"""
+            {{
+              "id": "m1",
+              "label": "Test",
+              "date": "2026-03-15",
+              "type": "{{{type}}}"
+            }}
             """;
 
-            var result = JsonSerializer.Deserialize<Milestone>(json, _jsonOptions);
-            result!.Type.Should().Be(type);
+            var milestone = JsonSerializer.Deserialize<Milestone>(json, _options);
+
+            milestone.Should().NotBeNull();
+            milestone!.Type.Should().Be(type);
         }
-    }
-
-    [Fact]
-    public void DashboardConfigWithManyQuarters_DeserializesList()
-    {
-        var json = """
-        {
-            "projectName": "Project",
-            "description": "Desc",
-            "quarters": [
-                { "month": "March", "year": 2026 },
-                { "month": "April", "year": 2026 },
-                { "month": "May", "year": 2026 },
-                { "month": "June", "year": 2026 }
-            ],
-            "milestones": []
-        }
-        """;
-
-        var result = JsonSerializer.Deserialize<DashboardConfig>(json, _jsonOptions);
-
-        result!.Quarters.Should().HaveCount(4);
-        result.Quarters.Should().AllSatisfy(q => q.Year.Should().Be(2026));
-    }
-
-    [Fact]
-    public void MilestoneJsonWithVariousDateFormats_DeserializesAsString()
-    {
-        var json = """
-        {
-            "id": "m1",
-            "label": "Milestone",
-            "date": "2026-03-15T14:30:00Z",
-            "type": "release"
-        }
-        """;
-
-        var result = JsonSerializer.Deserialize<Milestone>(json, _jsonOptions);
-
-        result!.Date.Should().Be("2026-03-15T14:30:00Z");
-    }
-
-    [Fact]
-    public void EmptyStringValuesPreservedInModels()
-    {
-        var json = """
-        {
-            "projectName": "",
-            "description": "",
-            "quarters": [],
-            "milestones": []
-        }
-        """;
-
-        var result = JsonSerializer.Deserialize<DashboardConfig>(json, _jsonOptions);
-
-        result!.ProjectName.Should().Be("");
-        result.Description.Should().Be("");
-    }
-
-    [Fact]
-    public void NestedQuartersDeserializeIndependently()
-    {
-        var json = """
-        {
-            "projectName": "Project",
-            "description": "Desc",
-            "quarters": [
-                {
-                    "month": "March",
-                    "year": 2026,
-                    "shipped": ["A"],
-                    "inProgress": ["B"],
-                    "carryover": [],
-                    "blockers": []
-                }
-            ],
-            "milestones": []
-        }
-        """;
-
-        var result = JsonSerializer.Deserialize<DashboardConfig>(json, _jsonOptions);
-
-        result!.Quarters[0].Shipped.Should().Contain("A");
-        result.Quarters[0].InProgress.Should().Contain("B");
     }
 }

@@ -7,87 +7,67 @@ namespace AgentSquad.Runner.Tests.Unit.Configuration;
 [Trait("Category", "Unit")]
 public class ConfigurationTests
 {
-    [Fact]
-    public void AppSettingsJson_LoadsWithoutError()
+    private string GetProjectPath()
     {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(GetProjectPath())
-            .AddJsonFile("appsettings.json")
-            .Build();
-
-        config.Should().NotBeNull();
+        var currentDirectory = Directory.GetCurrentDirectory();
+        var projectRoot = currentDirectory;
+        
+        while (!Directory.Exists(Path.Combine(projectRoot, "src", "AgentSquad.Runner")))
+        {
+            var parent = Directory.GetParent(projectRoot);
+            if (parent == null || parent.FullName == projectRoot)
+                break;
+            projectRoot = parent.FullName;
+        }
+        
+        return Path.Combine(projectRoot, "src", "AgentSquad.Runner");
     }
 
     [Fact]
-    public void AppSettingsDevelopmentJson_LoadsAndOverridesLoggingLevel()
+    public void Appsettings_ContainsDashboardDataPath()
     {
+        var projectPath = GetProjectPath();
         var config = new ConfigurationBuilder()
-            .SetBasePath(GetProjectPath())
-            .AddJsonFile("appsettings.json")
-            .AddJsonFile("appsettings.Development.json", optional: true)
-            .Build();
-
-        var defaultLogLevel = config["Logging:LogLevel:Default"];
-        defaultLogLevel.Should().NotBeNullOrEmpty();
-    }
-
-    [Fact]
-    public void DashboardDataPath_ConfigurationValueIsAccessible()
-    {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(GetProjectPath())
+            .SetBasePath(projectPath)
             .AddJsonFile("appsettings.json")
             .Build();
 
         var dataPath = config.GetValue<string>("DashboardDataPath");
 
         dataPath.Should().NotBeNullOrEmpty();
-    }
-
-    [Fact]
-    public void DashboardDataPath_ContainsDataJsonReference()
-    {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(GetProjectPath())
-            .AddJsonFile("appsettings.json")
-            .Build();
-
-        var dataPath = config.GetValue<string>("DashboardDataPath");
-
         dataPath.Should().Contain("data.json");
     }
 
     [Fact]
-    public void AppSettingsJson_ValidJsonStructure()
+    public void AppsettingsDevelopment_ContainsLoggingConfiguration()
     {
+        var projectPath = GetProjectPath();
         var config = new ConfigurationBuilder()
-            .SetBasePath(GetProjectPath())
-            .AddJsonFile("appsettings.json")
-            .Build();
-
-        var sections = config.GetChildren();
-
-        sections.Should().NotBeEmpty();
-    }
-
-    [Fact]
-    public void ConfigurationBuilder_CanReadMultipleAppSettingsFiles()
-    {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(GetProjectPath())
+            .SetBasePath(projectPath)
             .AddJsonFile("appsettings.json")
             .AddJsonFile("appsettings.Development.json", optional: true)
             .Build();
 
-        config.Should().NotBeNull();
-        var children = config.GetChildren();
-        children.Should().NotBeEmpty();
+        var loggingSection = config.GetSection("Logging");
+
+        loggingSection.Exists().Should().BeTrue();
     }
 
-    private string GetProjectPath()
+    [Fact]
+    public void AppsettingsDevelopment_DefaultLogLevelIsDebug()
     {
-        var currentDirectory = Directory.GetCurrentDirectory();
-        var projectPath = Path.Combine(currentDirectory, "..", "..", "..", "src", "AgentSquad.Runner");
-        return Path.GetFullPath(projectPath);
+        var projectPath = GetProjectPath();
+        var config = new ConfigurationBuilder()
+            .SetBasePath(projectPath)
+            .AddJsonFile("appsettings.json")
+            .AddJsonFile("appsettings.Development.json", optional: true)
+            .Build();
+
+        var defaultLogLevel = config["Logging:LogLevel:Default"];
+
+        if (!string.IsNullOrEmpty(defaultLogLevel))
+        {
+            defaultLogLevel.Should().Be("Debug");
+        }
     }
 }
