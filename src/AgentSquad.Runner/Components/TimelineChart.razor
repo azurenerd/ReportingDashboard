@@ -59,7 +59,6 @@ else
         var baselineDate = new DateTime(CurrentDate.Year, 1, 1);
         var svg = new System.Text.StringBuilder();
 
-        // SVG opening tag with defs for drop shadow
         svg.AppendLine("<svg width=\"1560\" height=\"185\" xmlns=\"http://www.w3.org/2000/svg\" class=\"timeline-svg\">");
         svg.AppendLine("<defs>");
         svg.AppendLine("<filter id=\"drop-shadow\" x=\"-50%\" y=\"-50%\" width=\"200%\" height=\"200%\">");
@@ -67,7 +66,6 @@ else
         svg.AppendLine("</filter>");
         svg.AppendLine("</defs>");
 
-        // Draw month gridlines (Jan=0, Feb=260, Mar=520, Apr=780, May=1040, Jun=1300)
         for (int month = 0; month < 6; month++)
         {
             int xPosition = month * 260;
@@ -78,7 +76,6 @@ else
             ));
         }
 
-        // Draw "Now" marker (red dashed line)
         try
         {
             var nowMarkerX = DateService.GetNowMarkerXPosition(CurrentDate, baselineDate);
@@ -97,7 +94,6 @@ else
             Logger.LogWarning(ex, "Error calculating Now marker position");
         }
 
-        // Draw milestone shapes
         if (Milestones != null && Milestones.Count > 0)
         {
             var milestoneShapes = VisualizationService.GetMilestoneShapes(
@@ -112,7 +108,6 @@ else
             }
         }
 
-        // Draw timeline baseline
         svg.AppendLine(VisualizationService.GenerateSvgLine(
             0, 90, 1560, 90,
             VisualizationConstants.ColorBorderHeavy,

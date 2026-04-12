@@ -2,52 +2,28 @@
 bin/
 obj/
 .vs/
+.vscode/
 *.user
 *.suo
-
-# Visual Studio Code
-.vscode/
-*.code-workspace
-
-# Rider
-.idea/
-*.sln.iml
+*.sln.docstates
 
 # NuGet
 *.nupkg
 *.snupkg
-packages/
 .nuget/
 
-# Logs
-logs/
-*.log
-*.txt
+# Local test results
+TestResults/
+*.trx
 
-# Temporary files
-*.tmp
-*.temp
-~$*
+# IDEs
+.idea/
+*.swp
+*.swo
 
-# Environment-specific files
-appsettings.Development.json
-appsettings.Production.json
-local.settings.json
-
-# OS-specific
+# OS
 .DS_Store
 Thumbs.db
 
-# Build artifacts
-publish/
-dist/
-
-# Test results
-TestResults/
-coverage/
-
-# Local data
-wwwroot/data/data.json
-wwwroot/lib/
-report*.json
-*.db
+# Artifacts
+*.log

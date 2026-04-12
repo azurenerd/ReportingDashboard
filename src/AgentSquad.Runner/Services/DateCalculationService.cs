@@ -1,140 +1,159 @@
-#nullable enable
-
+using NodaTime;
 using AgentSquad.Runner.Models;
+using Microsoft.Extensions.Logging;
 
 namespace AgentSquad.Runner.Services;
 
 /// <summary>
-/// Service for date and timeline calculations.
-/// Handles month boundary calculations, milestone positioning on the SVG timeline,
-/// and determination of the current month for highlighting.
+/// Service for date calculations and timeline positioning.
+/// Converts dates to SVG pixel coordinates and manages month boundaries for the dashboard timeline.
 /// </summary>
 public class DateCalculationService : IDateCalculationService
 {
-    private const int PixelsPerMonth = 260;
-    private readonly ILogger<DateCalculationService> logger;
+    /// <summary>
+    /// Pixels per month on the SVG timeline (6 months × 260px = 1560px total).
+    /// </summary>
+    public const int PixelsPerMonth = 260;
+
+    /// <summary>
+    /// Total SVG timeline width in pixels (6 months: Jan-Jun).
+    /// </summary>
+    public const int SvgWidth = 1560;
+
+    /// <summary>
+    /// Number of months displayed in the timeline window.
+    /// </summary>
+    private const int MonthsInTimeline = 6;
+
+    private readonly ILogger<DateCalculationService> _logger;
 
     public DateCalculationService(ILogger<DateCalculationService> logger)
     {
-        this.logger = logger;
+        _logger = logger;
     }
 
+    /// <summary>
+    /// Calculates the 4-month display window for the heatmap grid.
+    /// Window starts from current month - 1 and extends 3 months forward.
+    /// </summary>
+    /// <param name="currentDate">Current system date.</param>
+    /// <returns>List of 4 MonthInfo objects representing the display window.</returns>
     public List<MonthInfo> GetDisplayMonths(DateTime currentDate)
     {
-        try
+        var months = new List<MonthInfo>();
+        var currentMonth = currentDate.Month;
+        var currentYear = currentDate.Year;
+
+        var startMonth = currentMonth - 1;
+        var startYear = currentYear;
+
+        if (startMonth < 1)
         {
-            var months = new List<MonthInfo>();
-            var today = currentDate.ToUniversalTime();
-            var currentYear = today.Year;
-            var currentMonth = today.Month;
+            startMonth += 12;
+            startYear -= 1;
+        }
 
-            for (int i = -1; i < 3; i++)
+        for (int i = 0; i < 4; i++)
+        {
+            var month = startMonth + i;
+            var year = startYear;
+
+            if (month > 12)
             {
-                var targetMonth = currentMonth + i;
-                var targetYear = currentYear;
-
-                if (targetMonth < 1)
-                {
-                    targetMonth += 12;
-                    targetYear--;
-                }
-                else if (targetMonth > 12)
-                {
-                    targetMonth -= 12;
-                    targetYear++;
-                }
-
-                var monthName = new DateTime(targetYear, targetMonth, 1).ToString("MMMM");
-                var isCurrentMonth = targetYear == currentYear && targetMonth == currentMonth;
-
-                var startDate = new DateTime(targetYear, targetMonth, 1);
-                var endDate = startDate.AddMonths(1).AddDays(-1);
-
-                months.Add(new MonthInfo
-                {
-                    Name = monthName,
-                    Year = targetYear,
-                    StartDate = startDate,
-                    EndDate = endDate,
-                    GridColumnIndex = i + 1,
-                    IsCurrentMonth = isCurrentMonth
-                });
+                month -= 12;
+                year += 1;
             }
 
-            logger.LogDebug("Calculated display months: {Count} months", months.Count);
-            return months;
+            var monthStartDate = new LocalDate(year, month, 1);
+            var daysInMonth = DateTime.DaysInMonth(year, month);
+            var monthEndDate = new LocalDate(year, month, daysInMonth);
+
+            var monthInfo = new MonthInfo
+            {
+                Name = monthStartDate.ToString("MMMM", System.Globalization.CultureInfo.InvariantCulture),
+                Year = year,
+                StartDate = monthStartDate.ToDateTimeUnspecified(),
+                EndDate = monthEndDate.ToDateTimeUnspecified(),
+                GridColumnIndex = i,
+                IsCurrentMonth = year == currentYear && month == currentMonth
+            };
+
+            months.Add(monthInfo);
         }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error calculating display months");
-            throw new InvalidOperationException($"Failed to calculate display months for {currentDate:yyyy-MM-dd}", ex);
-        }
+
+        return months;
     }
 
+    /// <summary>
+    /// Converts a milestone date to its SVG x-coordinate position.
+    /// Calculates position based on days elapsed since January 1 of the timeline year.
+    /// </summary>
+    /// <param name="milestoneDate">Date of the milestone.</param>
+    /// <param name="baselineDate">Reference date (typically January 1 of the timeline year).</param>
+    /// <returns>X-coordinate in pixels (0-1560), clamped to timeline bounds.</returns>
     public int GetMilestoneXPosition(DateTime milestoneDate, DateTime baselineDate)
     {
-        try
+        var baseline = LocalDate.FromDateTime(baselineDate);
+        var milestone = LocalDate.FromDateTime(milestoneDate);
+
+        var period = Period.Between(baseline, milestone, PeriodUnits.Days);
+        var daysFromBaseline = period.Days;
+
+        const int daysInTimeline = 182;
+
+        if (daysFromBaseline < 0 || daysFromBaseline > daysInTimeline)
         {
-            var baseline = baselineDate.ToUniversalTime();
-            var milestone = milestoneDate.ToUniversalTime();
-
-            var monthDiff = (milestone.Year - baseline.Year) * 12 + (milestone.Month - baseline.Month);
-            monthDiff += milestone.Day >= 15 ? 1 : 0;
-
-            int xPosition = monthDiff * PixelsPerMonth;
-
-            if (xPosition < -100 || xPosition > 1560 + 100)
-            {
-                logger.LogWarning("Milestone date {Date} results in x-position {Position} outside typical timeline range",
-                    milestoneDate.ToString("yyyy-MM-dd"), xPosition);
-            }
-
-            return xPosition;
+            _logger.LogWarning(
+                "Milestone date {MilestoneDate} is outside expected timeline range. Days from baseline: {Days}",
+                milestoneDate.ToString("yyyy-MM-dd"),
+                daysFromBaseline);
         }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error calculating x-position for milestone date {Date}", milestoneDate.ToString("yyyy-MM-dd"));
-            throw new InvalidOperationException($"Failed to calculate x-position for {milestoneDate:yyyy-MM-dd}", ex);
-        }
+
+        var xPosition = (daysFromBaseline / (double)daysInTimeline) * SvgWidth;
+
+        return (int)Math.Max(0, Math.Min(SvgWidth, xPosition));
     }
 
+    /// <summary>
+    /// Calculates the SVG x-coordinate for the "Now" marker (current date indicator).
+    /// </summary>
+    /// <param name="currentDate">Current system date.</param>
+    /// <param name="baselineDate">Reference date (typically January 1 of the timeline year).</param>
+    /// <returns>X-coordinate in pixels (0-1560).</returns>
     public int GetNowMarkerXPosition(DateTime currentDate, DateTime baselineDate)
     {
-        try
-        {
-            var baseline = baselineDate.ToUniversalTime();
-            var today = currentDate.ToUniversalTime();
-
-            var monthDiff = (today.Year - baseline.Year) * 12 + (today.Month - baseline.Month);
-            int dayOfMonth = today.Day;
-            int daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
-
-            double monthFraction = (double)dayOfMonth / daysInMonth;
-            double xPosition = (monthDiff * PixelsPerMonth) + (PixelsPerMonth * monthFraction);
-
-            return (int)Math.Round(xPosition);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error calculating x-position for 'Now' marker");
-            throw new InvalidOperationException("Failed to calculate 'Now' marker position", ex);
-        }
+        return GetMilestoneXPosition(currentDate, baselineDate);
     }
 
-    public bool IsCurrentMonth(string monthName, int year, DateTime currentDate)
+    /// <summary>
+    /// Determines if a given year-month matches the current month.
+    /// </summary>
+    /// <param name="year">Year to check.</param>
+    /// <param name="month">Month to check (1-12).</param>
+    /// <param name="currentDate">Current system date.</param>
+    /// <returns>True if the month contains the current date.</returns>
+    public bool IsCurrentMonth(int year, int month, DateTime currentDate)
     {
-        try
-        {
-            var today = currentDate.ToUniversalTime();
-            var currentMonthName = today.ToString("MMMM");
+        return year == currentDate.Year && month == currentDate.Month;
+    }
 
-            bool isMatch = monthName.Equals(currentMonthName, StringComparison.OrdinalIgnoreCase) && year == today.Year;
-            return isMatch;
-        }
-        catch (Exception ex)
+    /// <summary>
+    /// Gets the start and end x-coordinates for a month column in the SVG timeline.
+    /// </summary>
+    /// <param name="monthIndex">Zero-based month index (0 = Jan, 5 = Jun).</param>
+    /// <returns>Tuple of (startX, endX) pixel coordinates.</returns>
+    public (int startX, int endX) GetMonthBounds(int monthIndex)
+    {
+        if (monthIndex < 0 || monthIndex >= MonthsInTimeline)
         {
-            logger.LogError(ex, "Error determining if month {Month} {Year} is current month", monthName, year);
-            return false;
+            throw new ArgumentOutOfRangeException(
+                nameof(monthIndex),
+                $"Month index must be between 0 and {MonthsInTimeline - 1}");
         }
+
+        var startX = monthIndex * PixelsPerMonth;
+        var endX = startX + PixelsPerMonth;
+
+        return (startX, endX);
     }
 }
