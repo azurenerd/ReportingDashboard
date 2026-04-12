@@ -1,0 +1,353 @@
+@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+
+html, body {
+    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #FFFFFF;
+    color: #111;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+}
+
+/* Header Section Styles */
+.hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 44px 10px;
+    border-bottom: 1px solid #E0E0E0;
+    flex-shrink: 0;
+    background-color: #FFFFFF;
+}
+
+.hdr h1 {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+    margin: 0;
+    padding: 0;
+}
+
+.hdr .sub {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 12px;
+    color: #888;
+    margin: 2px 0 0 0;
+}
+
+.hdr .legend {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 12px;
+    color: #111;
+}
+
+.legend-symbol {
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.legend-diamond {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    transform: rotate(45deg);
+}
+
+.legend-circle {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-line {
+    width: 2px;
+    height: 14px;
+    display: inline-block;
+}
+
+/* Timeline Section Styles */
+.tl-area {
+    display: flex;
+    gap: 12px;
+    height: 196px;
+    padding: 6px 44px 0;
+    border-bottom: 2px solid #E8E8E8;
+    background-color: #FAFAFA;
+    flex-shrink: 0;
+}
+
+.tl-labels {
+    width: 230px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.tl-label {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.tl-label-id {
+    font-weight: 600;
+    color: #0078D4;
+}
+
+.tl-label-desc {
+    font-weight: 400;
+    color: #444;
+}
+
+.tl-svg-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.tl-svg-box svg {
+    width: 100%;
+    height: 185px;
+}
+
+/* Heatmap Container */
+.hm-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 10px 44px 10px;
+    overflow: hidden;
+}
+
+/* Heatmap Title */
+.hm-title {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+/* Heatmap Grid Container */
+.hm-grid {
+    display: grid;
+    grid-template-columns: 160px repeat(4, 1fr);
+    grid-template-rows: 36px repeat(4, 1fr);
+    border: 1px solid #E0E0E0;
+    gap: 0;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Corner Cell (Status Label) */
+.hm-corner {
+    background-color: #F5F5F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #CCC;
+    padding: 0 12px;
+}
+
+/* Column Headers */
+.hm-col-hdr {
+    background-color: #F5F5F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #111;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #CCC;
+    text-align: center;
+}
+
+/* April Column Header Highlight */
+.apr-hdr {
+    background-color: #FFF0D0;
+    color: #C07700;
+}
+
+/* Row Headers */
+.hm-row-hdr {
+    background-color: #F5F5F5;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    border-right: 2px solid #CCC;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+/* Status-specific row header styles */
+.ship-hdr {
+    background-color: #F0FBF0;
+    color: #1B7A28;
+}
+
+.prog-hdr {
+    background-color: #EEF4FE;
+    color: #1565C0;
+}
+
+.carry-hdr {
+    background-color: #FFFDE7;
+    color: #B45309;
+}
+
+.block-hdr {
+    background-color: #FFF5F5;
+    color: #991B1B;
+}
+
+/* Data Cells */
+.hm-cell {
+    padding: 8px 12px;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+}
+
+/* Status-specific cell background colors */
+.ship-cell {
+    background-color: #E8F5E9;
+}
+
+.ship-cell.apr {
+    background-color: #F0FBF0;
+}
+
+.prog-cell {
+    background-color: #E3F2FD;
+}
+
+.prog-cell.apr {
+    background-color: #EEF4FE;
+}
+
+.carry-cell {
+    background-color: #FFF8E1;
+}
+
+.carry-cell.apr {
+    background-color: #FFFDE7;
+}
+
+.block-cell {
+    background-color: #FEF2F2;
+}
+
+.block-cell.apr {
+    background-color: #FFF5F5;
+}
+
+/* Individual Items in Cells */
+.it {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 12px;
+    color: #333;
+    padding: 2px 0 2px 12px;
+    line-height: 1.35;
+    position: relative;
+}
+
+.it::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: inherit;
+}
+
+/* Color bullets for different status types */
+.ship-cell .it::before {
+    background-color: #34A853;
+}
+
+.prog-cell .it::before {
+    background-color: #0078D4;
+}
+
+.carry-cell .it::before {
+    background-color: #F4B400;
+}
+
+.block-cell .it::before {
+    background-color: #EA4335;
+}
+
+/* Empty cell placeholder */
+.it.empty {
+    color: #AAA;
+    padding: 2px 0 2px 0;
+}
+
+.it.empty::before {
+    display: none;
+}
+
+/* Print Styles */
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: visible;
+    }
+
+    .hm-grid {
+        overflow: visible;
+    }
+
+    * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}

@@ -1,0 +1,31 @@
+@using AgentSquad.Runner.Models
+
+<div class="hm-cell @CellCssClass">
+    @if (Items != null && Items.Count > 0)
+    {
+        @foreach (var item in Items)
+        {
+            <div class="it">@item.Value</div>
+        }
+    }
+    else
+    {
+        <div class="it empty">-</div>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// CSS class(es) to apply to the cell container. Controls background color and styling per status.
+    /// Example: "ship-cell", "prog-cell", "carry-cell", "block-cell", with optional ".apr" modifier for April column.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = false)]
+    public string CellCssClass { get; set; }
+
+    /// <summary>
+    /// List of work items to display in this cell. If null or empty, renders "-" placeholder in gray.
+    /// Each item's Value property is HTML-escaped for XSS prevention.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = false)]
+    public List<StatusItem> Items { get; set; }
+}

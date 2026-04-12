@@ -1,0 +1,96 @@
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Utilities
+
+@if (ReportData != null && ReportData.StatusRows != null && ReportData.StatusRows.Count > 0)
+{
+    <div class="hm-wrap">
+        <div class="hm-title">Monthly Execution Heatmap - Shipped, In Progress, Carryover, and Blockers</div>
+        
+        <div class="hm-grid">
+            <!-- Corner cell -->
+            <div class="hm-corner">Status</div>
+            
+            <!-- Column headers (months) -->
+            @foreach (var month in _cachedMonths)
+            {
+                var isApril = month == "April";
+                var headerClass = isApril ? "hm-col-hdr apr-hdr" : "hm-col-hdr";
+                <div class="@headerClass">@month</div>
+            }
+            
+            <!-- Row headers and cells -->
+            @foreach (var statusRow in ReportData.StatusRows)
+            {
+                <!-- Row header -->
+                <div class="hm-row-hdr @statusRow.HeaderCssClass" style="color: @statusRow.HeaderColor;">
+                    @statusRow.Category
+                </div>
+                
+                <!-- Cells for each month -->
+                @foreach (var month in _cachedMonths)
+                {
+                    var itemsForCell = GetItemsForCell(statusRow, month);
+                    var cellClass = GetCellCssClass(statusRow.CellCssClass, month == "April");
+                    <HeatmapCell CellCssClass="@cellClass" Items="@itemsForCell" />
+                }
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    public ReportData ReportData { get; set; }
+
+    private List<string> _cachedMonths = new();
+
+    protected override void OnParametersSet()
+    {
+        _cachedMonths = GetMonthsFromData();
+    }
+
+    private List<string> GetMonthsFromData()
+    {
+        if (ReportData?.StatusRows == null)
+            return new List<string>();
+
+        var months = new HashSet<string>();
+        foreach (var row in ReportData.StatusRows)
+        {
+            if (row.Items != null)
+            {
+                foreach (var item in row.Items)
+                {
+                    if (!string.IsNullOrEmpty(item.Month))
+                    {
+                        months.Add(item.Month);
+                    }
+                }
+            }
+        }
+
+        var monthOrder = new[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+        var orderedMonths = months
+            .OrderBy(m => Array.IndexOf(monthOrder, m))
+            .ToList();
+
+        return orderedMonths;
+    }
+
+    private List<StatusItem> GetItemsForCell(StatusRow statusRow, string month)
+    {
+        if (statusRow?.Items == null)
+            return new List<StatusItem>();
+
+        return statusRow.Items
+            .Where(item => item.Month == month && !string.IsNullOrEmpty(item.Value))
+            .ToList();
+    }
+
+    private string GetCellCssClass(string baseClass, bool isAprilMonth)
+    {
+        if (isAprilMonth)
+            return $"{baseClass} apr";
+        return baseClass;
+    }
+}
