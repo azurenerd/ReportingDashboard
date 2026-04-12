@@ -1,0 +1,43 @@
+@using System.Globalization
+@using AgentSquad.Runner.Services
+@using AgentSquad.Runner.Models
+@inherits LayoutComponentBase
+@inject IDashboardDataService DataService
+@inject ILogger<MainLayout> Logger
+
+<div class="dashboard-container">
+    @if (_errorMessage != null)
+    {
+        <div class="error-banner">
+            <p>@_errorMessage</p>
+        </div>
+    }
+    else if (_data != null)
+    {
+        @Body
+    }
+    else
+    {
+        <div class="loading-indicator">
+            <p>Loading dashboard data...</p>
+        </div>
+    }
+</div>
+
+@code {
+    private DashboardModel? _data;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _data = await DataService.GetDashboardDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load dashboard data");
+            _errorMessage = "Unable to load dashboard data. Please check that data.json is available and properly formatted.";
+        }
+    }
+}
