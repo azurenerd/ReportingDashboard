@@ -1,0 +1,129 @@
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
+@inject IVisualizationService VisualizationService
+@inject IDateCalculationService DateService
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap - Shipped ? In Progress ? Carryover ? Blockers ?</div>
+    <div class="hm-grid">
+        <div class="hm-corner">Status</div>
+        
+        @foreach (var month in DisplayMonths)
+        {
+            string monthHeader = month.IsCurrentMonth ? $"{month.Name} ? Now" : month.Name;
+            string headerClass = month.IsCurrentMonth ? "hm-col-hdr apr-hdr" : "hm-col-hdr";
+            <div class="@headerClass">@monthHeader</div>
+        }
+
+        <div class="hm-row-hdr ship-hdr">? Shipped</div>
+        @foreach (var month in DisplayMonths)
+        {
+            var quarter = Quarters.FirstOrDefault(q => q.Month == month.Name && q.Year == month.Year);
+            string cellClass = VisualizationService.GetCellClassName("shipped", month.IsCurrentMonth);
+            <div class="hm-cell @cellClass">
+                @if (quarter?.Shipped != null && quarter.Shipped.Count > 0)
+                {
+                    @foreach (var item in quarter.Shipped.Take(4))
+                    {
+                        <div class="it">@item</div>
+                    }
+                    @if (quarter.Shipped.Count > 4)
+                    {
+                        <div class="it-empty">... +@(quarter.Shipped.Count - 4) more</div>
+                    }
+                }
+                else
+                {
+                    <div class="it-empty">-</div>
+                }
+            </div>
+        }
+
+        <div class="hm-row-hdr prog-hdr">? In Progress</div>
+        @foreach (var month in DisplayMonths)
+        {
+            var quarter = Quarters.FirstOrDefault(q => q.Month == month.Name && q.Year == month.Year);
+            string cellClass = VisualizationService.GetCellClassName("inProgress", month.IsCurrentMonth);
+            <div class="hm-cell @cellClass">
+                @if (quarter?.InProgress != null && quarter.InProgress.Count > 0)
+                {
+                    @foreach (var item in quarter.InProgress.Take(4))
+                    {
+                        <div class="it">@item</div>
+                    }
+                    @if (quarter.InProgress.Count > 4)
+                    {
+                        <div class="it-empty">... +@(quarter.InProgress.Count - 4) more</div>
+                    }
+                }
+                else
+                {
+                    <div class="it-empty">-</div>
+                }
+            </div>
+        }
+
+        <div class="hm-row-hdr carry-hdr">? Carryover</div>
+        @foreach (var month in DisplayMonths)
+        {
+            var quarter = Quarters.FirstOrDefault(q => q.Month == month.Name && q.Year == month.Year);
+            string cellClass = VisualizationService.GetCellClassName("carryover", month.IsCurrentMonth);
+            <div class="hm-cell @cellClass">
+                @if (quarter?.Carryover != null && quarter.Carryover.Count > 0)
+                {
+                    @foreach (var item in quarter.Carryover.Take(4))
+                    {
+                        <div class="it">@item</div>
+                    }
+                    @if (quarter.Carryover.Count > 4)
+                    {
+                        <div class="it-empty">... +@(quarter.Carryover.Count - 4) more</div>
+                    }
+                }
+                else
+                {
+                    <div class="it-empty">-</div>
+                }
+            </div>
+        }
+
+        <div class="hm-row-hdr block-hdr">? Blockers</div>
+        @foreach (var month in DisplayMonths)
+        {
+            var quarter = Quarters.FirstOrDefault(q => q.Month == month.Name && q.Year == month.Year);
+            string cellClass = VisualizationService.GetCellClassName("blockers", month.IsCurrentMonth);
+            <div class="hm-cell @cellClass">
+                @if (quarter?.Blockers != null && quarter.Blockers.Count > 0)
+                {
+                    @foreach (var item in quarter.Blockers.Take(4))
+                    {
+                        <div class="it">@item</div>
+                    }
+                    @if (quarter.Blockers.Count > 4)
+                    {
+                        <div class="it-empty">... +@(quarter.Blockers.Count - 4) more</div>
+                    }
+                }
+                else
+                {
+                    <div class="it-empty">-</div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<Quarter> Quarters { get; set; } = new();
+
+    [Parameter]
+    public DateTime CurrentDate { get; set; }
+
+    private List<MonthInfo> DisplayMonths { get; set; } = new();
+
+    protected override void OnParametersSet()
+    {
+        DisplayMonths = DateService.GetDisplayMonths(CurrentDate);
+    }
+}

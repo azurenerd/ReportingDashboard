@@ -1,52 +1,24 @@
-## .NET
+# Build results
 bin/
 obj/
 .vs/
+.vscode/
 *.user
 *.suo
-*.userosscache
-*.sln.docstates
-publish/
-out/
 
-## Build results
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-[Ww][Ii][Nn]32/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
-
-## NuGet
-*.nupkg
-*.snupkg
-.nuget/
-packages/
-project.lock.json
-project.fragment.lock.json
-artifacts/
-
-## Visual Studio
-.vs/
-*.rsuser
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-launchSettings.Development.json
-
-## Rider
+# IDE
 .idea/
+*.swp
 *.sln.iml
 
-## OS
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Local environment
+appsettings.Development.json
+appsettings.Production.json
