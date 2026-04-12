@@ -5,36 +5,30 @@ namespace AgentSquad.Runner.UITests;
 
 public class PlaywrightFixture : IAsyncLifetime
 {
-    private IBrowser? _browser;
+    private IPlaywright? _playwright;
+    public IBrowser? Browser { get; private set; }
+    public IBrowserContext? Context { get; private set; }
     public IPage? Page { get; private set; }
-    public string BaseUrl { get; }
 
-    public PlaywrightFixture()
-    {
-        BaseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
-    }
+    public string BaseUrl { get; } = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
 
     public async Task InitializeAsync()
     {
-        var playwright = await Playwright.CreateAsync();
-        _browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
-        {
-            Headless = true
-        });
-        Page = await _browser.NewPageAsync();
+        _playwright = await Playwright.CreateAsync();
+        Browser = await _playwright.Chromium.LaunchAsync();
+        Context = await Browser.NewContextAsync();
+        Page = await Context.NewPageAsync();
     }
 
     public async Task DisposeAsync()
     {
         if (Page != null)
-        {
             await Page.CloseAsync();
-        }
-
-        if (_browser != null)
-        {
-            await _browser.CloseAsync();
-        }
+        if (Context != null)
+            await Context.CloseAsync();
+        if (Browser != null)
+            await Browser.CloseAsync();
+        _playwright?.Dispose();
     }
 }
 

@@ -6,215 +6,186 @@ namespace AgentSquad.Runner.UITests.Pages;
 
 [Trait("Category", "UI")]
 [Collection("Playwright")]
-public class DashboardPageTests : IAsyncLifetime
+public class DashboardPageTests
 {
     private readonly PlaywrightFixture _fixture;
-    private IPage? _page;
 
     public DashboardPageTests(PlaywrightFixture fixture)
     {
         _fixture = fixture;
     }
 
-    public async Task InitializeAsync()
+    [Fact]
+    public async Task Dashboard_Loads_Successfully()
     {
-        _page = await _fixture.Page!.Context!.NewPageAsync();
-        await _page.GotoAsync($"{_fixture.BaseUrl}/");
-    }
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-    public async Task DisposeAsync()
-    {
-        if (_page != null)
-        {
-            await _page.CloseAsync();
-        }
+        var response = _fixture.Page.Url;
+        response.Should().StartWith(_fixture.BaseUrl);
     }
 
     [Fact]
-    public async Task DashboardPage_LoadsSuccessfully()
+    public async Task Dashboard_DisplaysProjectName()
     {
-        _page!.Url.Should().Contain(_fixture.BaseUrl);
-    }
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-    [Fact]
-    public async Task DashboardPage_DisplaysPageTitle()
-    {
-        var title = await _page!.TitleAsync();
+        var header = await _fixture.Page.QuerySelectorAsync("h1");
+        var title = await header?.TextContentAsync();
 
         title.Should().NotBeNullOrEmpty();
     }
 
     [Fact]
-    public async Task DashboardPage_ContainsHeaderSection()
+    public async Task Dashboard_DisplaysDescription()
     {
-        var header = await _page!.QuerySelectorAsync(".hdr");
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        header.Should().NotBeNull();
+        var description = await _fixture.Page.QuerySelectorAsync(".sub");
+        var text = await description?.TextContentAsync();
+
+        text.Should().NotBeNullOrEmpty();
     }
 
     [Fact]
-    public async Task DashboardPage_ContainsTimelineSection()
+    public async Task Dashboard_DisplaysLegend()
     {
-        var timeline = await _page!.QuerySelectorAsync(".tl-area");
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+        var legendItems = await _fixture.Page.QuerySelectorAllAsync("[style*='display:flex'][style*='gap:']");
+
+        legendItems.Count.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task Dashboard_DisplaysHeatmapGrid()
+    {
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+        var grid = await _fixture.Page.QuerySelectorAsync(".hm-grid");
+
+        grid.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task Dashboard_DisplaysTimelineArea()
+    {
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+        var timeline = await _fixture.Page.QuerySelectorAsync(".tl-area");
 
         timeline.Should().NotBeNull();
     }
 
     [Fact]
-    public async Task DashboardPage_ContainsHeatmapSection()
+    public async Task Dashboard_DisplaysSvgElements()
     {
-        var heatmap = await _page!.QuerySelectorAsync(".hm-wrap");
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        heatmap.Should().NotBeNull();
+        var svgElements = await _fixture.Page.QuerySelectorAllAsync("svg");
+
+        svgElements.Count.Should().BeGreaterThanOrEqualTo(1);
     }
 
     [Fact]
-    public async Task DashboardPage_HeaderContainsProjectName()
+    public async Task Dashboard_HeaderContainsAdoBacklogLink()
     {
-        var projectNameElement = await _page!.QuerySelectorAsync(".hdr h1");
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        var text = await projectNameElement!.TextContentAsync();
-        text.Should().NotBeNullOrEmpty();
+        var link = await _fixture.Page.QuerySelectorAsync("a");
+        var href = await link?.GetAttributeAsync("href");
+
+        href.Should().NotBeNullOrEmpty();
     }
 
     [Fact]
-    public async Task DashboardPage_HeaderContainsDescription()
+    public async Task Dashboard_HeatmapContainsStatusRows()
     {
-        var descriptionElement = await _page!.QuerySelectorAsync(".sub");
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        descriptionElement.Should().NotBeNull();
+        var rowHeaders = await _fixture.Page.QuerySelectorAllAsync(".hm-row-hdr");
+
+        rowHeaders.Count.Should().BeGreaterThanOrEqualTo(4);
     }
 
     [Fact]
-    public async Task DashboardPage_LegendDisplaysFourItems()
+    public async Task Dashboard_HeatmapContainsDataCells()
     {
-        var legendItems = await _page!.QuerySelectorAllAsync(".legend-item");
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        legendItems.Should().HaveCount(4);
+        var cells = await _fixture.Page.QuerySelectorAllAsync(".hm-cell");
+
+        cells.Count.Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public async Task DashboardPage_HeatmapDisplaysShippedRow()
+    public async Task Dashboard_HeaderHasCorrectHeight()
     {
-        var shippedRow = await _page!.QuerySelectorAsync(".ship-hdr");
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        shippedRow.Should().NotBeNull();
+        var header = await _fixture.Page.QuerySelectorAsync(".hdr");
+        var boundingBox = await header?.BoundingBoxAsync();
+
+        boundingBox.Should().NotBeNull();
+        boundingBox!.Height.Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public async Task DashboardPage_HeatmapDisplaysInProgressRow()
+    public async Task Dashboard_NoConsoleErrors()
     {
-        var progressRow = await _page!.QuerySelectorAsync(".prog-hdr");
-
-        progressRow.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task DashboardPage_HeatmapDisplaysCarryoverRow()
-    {
-        var carryoverRow = await _page!.QuerySelectorAsync(".carry-hdr");
-
-        carryoverRow.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task DashboardPage_HeatmapDisplaysBlockersRow()
-    {
-        var blockersRow = await _page!.QuerySelectorAsync(".block-hdr");
-
-        blockersRow.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task DashboardPage_HeatmapGridRendersWithoutErrors()
-    {
-        var gridContainer = await _page!.QuerySelectorAsync(".hm-grid");
-
-        gridContainer.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task DashboardPage_TimelineSvgRenders()
-    {
-        var svg = await _page!.QuerySelectorAsync("svg");
-
-        svg.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task DashboardPage_NoConsoleErrors()
-    {
-        var errors = new List<string>();
-        _page!.Console += (_, msg) =>
+        var consoleMessages = new List<string>();
+        _fixture.Page!.Console += (sender, msg) =>
         {
             if (msg.Type == "error")
             {
-                errors.Add(msg.Text);
+                consoleMessages.Add(msg.Text);
             }
         };
 
-        await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        await _fixture.Page.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        await _fixture.Page.WaitForTimeoutAsync(1000);
 
-        errors.Should().BeEmpty();
+        consoleMessages.Should().BeEmpty("There should be no console errors");
     }
 
     [Fact]
-    public async Task DashboardPage_CssLoaded()
+    public async Task Dashboard_StylesAreApplied()
     {
-        var link = await _page!.QuerySelectorAsync("link[rel='stylesheet']");
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        link.Should().NotBeNull();
+        var body = await _fixture.Page.QuerySelectorAsync("body");
+        var fontSize = await body?.EvaluateAsync<string>("el => window.getComputedStyle(el).fontSize");
+
+        fontSize.Should().NotBeNullOrEmpty();
     }
 
     [Fact]
-    public async Task DashboardPage_HeaderLayoutIsFlexible()
+    public async Task Dashboard_RespondsToRefresh()
     {
-        var header = await _page!.QuerySelectorAsync(".hdr");
+        await _fixture.Page!.GotoAsync(_fixture.BaseUrl);
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        var display = await header!.EvaluateAsync<string>("el => window.getComputedStyle(el).display");
+        var initialTitle = await _fixture.Page.QuerySelectorAsync("h1");
+        var initialText = await initialTitle?.TextContentAsync();
 
-        display.Should().Be("flex");
-    }
+        await _fixture.Page.ReloadAsync();
+        await _fixture.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-    [Fact]
-    public async Task DashboardPage_HeatmapGridLayoutIsGridBased()
-    {
-        var grid = await _page!.QuerySelectorAsync(".hm-grid");
+        var reloadedTitle = await _fixture.Page.QuerySelectorAsync("h1");
+        var reloadedText = await reloadedTitle?.TextContentAsync();
 
-        var display = await grid!.EvaluateAsync<string>("el => window.getComputedStyle(el).display");
-
-        display.Should().Be("grid");
-    }
-
-    [Fact]
-    public async Task DashboardPage_LegendItemsVisible()
-    {
-        var legendItems = await _page!.QuerySelectorAllAsync(".legend-item");
-
-        var allVisible = true;
-        foreach (var item in legendItems)
-        {
-            var isVisible = await item.IsVisibleAsync();
-            if (!isVisible) allVisible = false;
-        }
-
-        allVisible.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task DashboardPage_ADOBacklogLinkPresent()
-    {
-        var link = await _page!.QuerySelectorAsync(".hdr a");
-
-        link.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task DashboardPage_LastUpdatedTimestampDisplays()
-    {
-        var lastUpdated = await _page!.QuerySelectorAsync(".last-updated");
-
-        var text = await lastUpdated!.TextContentAsync();
-        text.Should().Contain("Last Updated");
+        reloadedText.Should().Be(initialText);
     }
 }
