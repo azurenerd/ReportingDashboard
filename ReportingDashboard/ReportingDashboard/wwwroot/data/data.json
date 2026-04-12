@@ -1,42 +1,38 @@
 {
-  "title": "Project Phoenix",
-  "subtitle": "Cloud Engineering › Platform Services › Q2 2026 Reporting Period",
-  "backlogLink": "https://dev.azure.com/contoso/ProjectPhoenix/_backlogs",
+  "title": "Project Phoenix - Executive Status",
+  "subtitle": "Cloud Platform Engineering · Azure Core · April 2026",
+  "backlogLink": "https://dev.azure.com/contoso/Phoenix/_backlogs",
   "currentMonth": "Apr",
-  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+  "months": ["Jan", "Feb", "Mar", "Apr"],
   "milestones": [
     {
       "label": "M1",
-      "description": "Chatbot & MS Role",
+      "description": "Identity & Access Mgmt",
       "color": "#0078D4",
       "events": [
-        { "date": "2026-01-15", "type": "checkpoint", "label": "Jan 15" },
-        { "date": "2026-02-20", "type": "checkpoint", "label": "Feb 20" },
-        { "date": "2026-03-10", "type": "poc", "label": "Mar 10" },
-        { "date": "2026-04-25", "type": "checkpoint", "label": "Apr 25" },
-        { "date": "2026-06-01", "type": "production", "label": "Jun 1" }
+        { "date": "2026-01-15", "label": "Jan 15", "type": "checkpoint" },
+        { "date": "2026-02-28", "label": "Feb 28", "type": "poc" },
+        { "date": "2026-04-15", "label": "Apr 15", "type": "production" }
       ]
     },
     {
       "label": "M2",
-      "description": "PDS & Data Inventory",
-      "color": "#00897B",
+      "description": "Data Pipeline v2",
+      "color": "#34A853",
       "events": [
-        { "date": "2026-01-28", "type": "checkpoint", "label": "Jan 28" },
-        { "date": "2026-03-05", "type": "poc", "label": "Mar 5" },
-        { "date": "2026-04-14", "type": "checkpoint", "label": "Apr 14" },
-        { "date": "2026-05-18", "type": "production", "label": "May 18" }
+        { "date": "2026-02-01", "label": "Feb 1", "type": "checkpoint" },
+        { "date": "2026-03-20", "label": "Mar 20", "type": "poc" },
+        { "date": "2026-05-30", "label": "May 30", "type": "production" }
       ]
     },
     {
       "label": "M3",
-      "description": "Auto Review DFD",
-      "color": "#546E7A",
+      "description": "Dashboard & Reporting",
+      "color": "#F4B400",
       "events": [
-        { "date": "2026-02-10", "type": "checkpoint", "label": "Feb 10" },
-        { "date": "2026-04-01", "type": "poc", "label": "Apr 1" },
-        { "date": "2026-05-30", "type": "checkpoint", "label": "May 30" },
-        { "date": "2026-06-20", "type": "production", "label": "Jun 20" }
+        { "date": "2026-03-01", "label": "Mar 1", "type": "checkpoint" },
+        { "date": "2026-04-10", "label": "Apr 10", "type": "poc" },
+        { "date": "2026-06-15", "label": "Jun 15", "type": "production" }
       ]
     }
   ],
@@ -45,48 +41,36 @@
       "category": "shipped",
       "label": "Shipped",
       "items": {
-        "Jan": ["Auth token service", "Role RBAC prototype", "Telemetry SDK onboard"],
-        "Feb": ["Chatbot NLU v1", "MS Role claim mapping"],
-        "Mar": ["PDS schema migration", "Data catalog API", "Chatbot intent router", "NLU accuracy tuning"],
-        "Apr": ["Auto Review parser", "DFD graph builder"],
-        "May": [],
-        "Jun": []
+        "Jan": ["Auth service scaffold", "CI/CD pipeline v1"],
+        "Feb": ["Token refresh flow", "Pipeline ingestion POC"],
+        "Mar": ["RBAC module", "Data lake connector", "Schema registry"],
+        "Apr": ["SSO integration", "Pipeline monitoring"]
       }
     },
     {
       "category": "in-progress",
       "label": "In Progress",
       "items": {
-        "Jan": ["NLU model training"],
-        "Feb": ["PDS ingestion pipeline", "Data lineage tracker"],
-        "Mar": ["Auto Review rule engine"],
-        "Apr": ["Chatbot multi-turn dialog", "MS Role elevation flow", "PDS inventory reconcile", "DFD risk scoring"],
-        "May": ["Production hardening M2", "Chatbot load testing"],
-        "Jun": ["GA readiness review"]
+        "Jan": ["OAuth2 provider research"],
+        "Feb": ["MFA integration design"],
+        "Mar": ["Dashboard wireframes", "E2E test harness"],
+        "Apr": ["Executive dashboard build", "Load test suite", "Alerting rules"]
       }
     },
     {
       "category": "carryover",
       "label": "Carryover",
       "items": {
-        "Jan": [],
-        "Feb": ["Auth token edge cases"],
-        "Mar": ["Role RBAC policy sync"],
-        "Apr": ["Data lineage gaps"],
-        "May": ["Auto Review false positives", "DFD rendering perf"],
-        "Jun": []
+        "Feb": ["Audit logging (from Jan)"],
+        "Apr": ["MFA rollout (from Mar)"]
       }
     },
     {
       "category": "blockers",
       "label": "Blockers",
       "items": {
-        "Jan": [],
-        "Feb": [],
-        "Mar": ["AAD tenant config delay"],
-        "Apr": ["PDS API rate limits", "Staging env certificate expiry"],
-        "May": [],
-        "Jun": []
+        "Mar": ["Vendor license delay"],
+        "Apr": ["Capacity approval pending"]
       }
     }
   ]

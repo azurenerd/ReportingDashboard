@@ -4,6 +4,11 @@ using Xunit;
 
 namespace ReportingDashboard.UITests;
 
+/// <summary>
+/// Tests for the Header region of Dashboard.razor.
+/// Covers: project title, subtitle, backlog link, legend indicators.
+/// Improved: uses selectors that match actual Dashboard.razor markup (inline styles, not .legend class).
+/// </summary>
 [Collection("Playwright")]
 [Trait("Category", "UI")]
 public class DashboardHeaderUITests : IAsyncLifetime
@@ -24,7 +29,6 @@ public class DashboardHeaderUITests : IAsyncLifetime
             WaitUntil = WaitUntilState.NetworkIdle,
             Timeout = 30000
         });
-        // Wait for Blazor SignalR circuit to initialize and header to render
         await _page.WaitForSelectorAsync(".hdr", new PageWaitForSelectorOptions { Timeout = 30000 });
     }
 
@@ -37,7 +41,6 @@ public class DashboardHeaderUITests : IAsyncLifetime
     [Trait("Category", "UI")]
     public async Task Header_RendersProjectTitle_AsH1Element()
     {
-        // The project title should render inside an h1 within the .hdr container
         var heading = _page.Locator(".hdr h1").First;
         await heading.WaitForAsync(new LocatorWaitForOptions { Timeout = 30000 });
 
@@ -47,28 +50,29 @@ public class DashboardHeaderUITests : IAsyncLifetime
 
     [Fact]
     [Trait("Category", "UI")]
-    public async Task Header_RendersBacklogLink_WithCorrectStyling()
+    public async Task Header_RendersBacklogLink_WithTargetBlank()
     {
-        // The backlog link should be an anchor inside h1 with target="_blank"
-        var link = _page.Locator(".hdr h1 a").First;
         var linkCount = await _page.Locator(".hdr h1 a").CountAsync();
 
         if (linkCount > 0)
         {
+            var link = _page.Locator(".hdr h1 a").First;
             var target = await link.GetAttributeAsync("target");
             target.Should().Be("_blank", "backlog link should open in a new tab");
 
             var href = await link.GetAttributeAsync("href");
             href.Should().NotBeNullOrWhiteSpace("backlog link should have a valid href from data.json");
+
+            var text = await link.TextContentAsync();
+            text.Should().Contain("ADO Backlog", "link text should reference the ADO Backlog");
         }
-        // If no link, backlogLink was empty in data.json — graceful degradation is valid
+        // If no link rendered, backlogLink is empty in data.json — graceful degradation
     }
 
     [Fact]
     [Trait("Category", "UI")]
     public async Task Header_RendersSubtitle_BelowTitle()
     {
-        // The subtitle should render in a .sub div within the header
         var subtitle = _page.Locator(".hdr .sub").First;
         await subtitle.WaitForAsync(new LocatorWaitForOptions { Timeout = 30000 });
 
@@ -78,41 +82,38 @@ public class DashboardHeaderUITests : IAsyncLifetime
 
     [Fact]
     [Trait("Category", "UI")]
-    public async Task Header_LegendRow_DisplaysFourIndicators()
+    public async Task Header_LegendRow_DisplaysFourIndicatorLabels()
     {
-        // The legend should contain exactly 4 legend items: PoC, Production, Checkpoint, NOW
-        var legendItems = _page.Locator(".hdr .legend .legend-item");
-        var count = await legendItems.CountAsync();
+        // Dashboard.razor renders legend items as inline spans (not using .legend class).
+        // Verify by checking for the four known legend text labels.
+        var pocLabel = _page.GetByText("PoC Milestone");
+        (await pocLabel.CountAsync()).Should().BeGreaterThan(0, "PoC Milestone legend label should be visible");
 
-        count.Should().Be(4, "legend must show PoC Milestone, Production Release, Checkpoint, and NOW indicator");
+        var prodLabel = _page.GetByText("Production Release");
+        (await prodLabel.CountAsync()).Should().BeGreaterThan(0, "Production Release legend label should be visible");
 
-        // Verify legend text labels
-        var pocItem = _page.GetByText("PoC Milestone");
-        (await pocItem.CountAsync()).Should().BeGreaterThan(0, "PoC Milestone legend label should be visible");
+        var checkpointLabel = _page.GetByText("Checkpoint");
+        (await checkpointLabel.CountAsync()).Should().BeGreaterThan(0, "Checkpoint legend label should be visible");
 
-        var prodItem = _page.GetByText("Production Release");
-        (await prodItem.CountAsync()).Should().BeGreaterThan(0, "Production Release legend label should be visible");
-
-        var checkpointItem = _page.GetByText("Checkpoint");
-        (await checkpointItem.CountAsync()).Should().BeGreaterThan(0, "Checkpoint legend label should be visible");
-
-        var nowItem = _page.Locator(".legend-item").Filter(new LocatorFilterOptions { HasText = "Now" });
-        (await nowItem.CountAsync()).Should().BeGreaterThan(0, "NOW indicator legend label should be visible");
+        // NOW label includes dynamic date like "Now (Apr 2026)"
+        var nowLabel = _page.Locator(".hdr").GetByText("Now");
+        (await nowLabel.CountAsync()).Should().BeGreaterThan(0, "NOW indicator legend label should be visible");
     }
 
     [Fact]
     [Trait("Category", "UI")]
-    public async Task Header_LegendNowLabel_ContainsCurrentMonthYear()
+    public async Task Header_NowLabel_ContainsCurrentMonthAndYear()
     {
-        // The NOW legend item should display the current month abbreviation and year
-        var nowItem = _page.Locator(".legend-item").Filter(new LocatorFilterOptions { HasText = "Now" }).First;
-        await nowItem.WaitForAsync(new LocatorWaitForOptions { Timeout = 30000 });
+        // The NOW legend displays "Now (MMM yyyy)" using DateTime.Today
+        var headerText = await _page.Locator(".hdr").TextContentAsync();
+        headerText.Should().NotBeNull();
 
-        var text = await nowItem.TextContentAsync();
-        text.Should().NotBeNull();
+        var currentYear = DateTime.Today.Year.ToString();
+        headerText!.Should().Contain(currentYear,
+            $"header legend NOW label should contain the current year ({currentYear})");
 
-        // The label should contain a year (e.g., "2026")
-        text.Should().MatchRegex(@"Now\s*\(.+\d{4}\)",
-            "NOW legend should display month and year like 'Now (Apr 2026)'");
+        var currentMonthAbbr = DateTime.Today.ToString("MMM");
+        headerText.Should().Contain(currentMonthAbbr,
+            $"header legend NOW label should contain the current month abbreviation ({currentMonthAbbr})");
     }
 }

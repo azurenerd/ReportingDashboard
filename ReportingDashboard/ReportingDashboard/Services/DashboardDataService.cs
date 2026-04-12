@@ -21,29 +21,12 @@ public class DashboardDataService
         var path = Path.Combine(_env.WebRootPath, "data", "data.json");
         try
         {
-            if (!File.Exists(path))
-            {
-                throw new FileNotFoundException($"Configuration file not found at: {path}");
-            }
-
             var json = await File.ReadAllTextAsync(path);
             _cachedConfig = JsonSerializer.Deserialize<DashboardConfig>(json,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            if (_cachedConfig == null)
-            {
-                throw new InvalidDataException("Deserialization returned null. Check that data.json contains a valid JSON object.");
-            }
-
-            if (string.IsNullOrWhiteSpace(_cachedConfig.Title))
-            {
-                throw new InvalidDataException("Required field 'title' is missing or empty.");
-            }
-
-            if (_cachedConfig.Months == null || _cachedConfig.Months.Count == 0)
-            {
-                throw new InvalidDataException("Required field 'months' is missing or empty.");
-            }
+            if (_cachedConfig?.Title == null || _cachedConfig?.Months == null)
+                throw new InvalidDataException("Required fields 'title' and 'months' are missing.");
 
             return _cachedConfig;
         }

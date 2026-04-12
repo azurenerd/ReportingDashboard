@@ -1,6 +1,5 @@
 /* ================================================================
-   Executive Reporting Dashboard — dashboard.css
-   Single CSS file per architecture spec.
+   Executive Reporting Dashboard - dashboard.css
    Ported from OriginalDesignConcept.html
    ================================================================ */
 
@@ -93,7 +92,6 @@ a { color: var(--color-link); text-decoration: none; }
    Section 3: Heatmap Grid
    ================================================================ */
 
-/* Wrapper — fills remaining vertical viewport space */
 .hm-wrap {
     flex: 1;
     min-height: 0;
@@ -102,7 +100,6 @@ a { color: var(--color-link); text-decoration: none; }
     padding: 10px 44px 10px;
 }
 
-/* Section title above the grid */
 .hm-title {
     font-size: 14px;
     font-weight: 700;
@@ -113,16 +110,13 @@ a { color: var(--color-link); text-decoration: none; }
     flex-shrink: 0;
 }
 
-/* CSS Grid container */
 .hm-grid {
     display: grid;
-    /* grid-template-columns and grid-template-rows set inline from Razor */
     border: 1px solid var(--color-border);
     flex: 1;
     min-height: 0;
 }
 
-/* Corner cell (top-left) */
 .hm-corner {
     background: #F5F5F5;
     font-size: 11px;
@@ -136,7 +130,6 @@ a { color: var(--color-link); text-decoration: none; }
     border-bottom: 2px solid var(--color-hdr-border);
 }
 
-/* Month column headers */
 .hm-col-hdr {
     font-size: 16px;
     font-weight: 700;
@@ -149,13 +142,11 @@ a { color: var(--color-link); text-decoration: none; }
     border-bottom: 2px solid var(--color-hdr-border);
 }
 
-/* Current-month column header highlight */
 .hm-col-hdr.cur-month-hdr {
     background: #FFF0D0;
     color: #C07700;
 }
 
-/* Row headers — common styles */
 .hm-row-hdr {
     font-size: 11px;
     font-weight: 700;
@@ -168,16 +159,11 @@ a { color: var(--color-link); text-decoration: none; }
     border-bottom: 1px solid var(--color-border);
 }
 
-/* Row header — Shipped (green) */
-.ship-hdr { background: #E8F5E9; color: #1B7A28; }
-/* Row header — In Progress (blue) */
-.prog-hdr { background: #E3F2FD; color: #1565C0; }
-/* Row header — Carryover (amber) */
+.ship-hdr  { background: #E8F5E9; color: #1B7A28; }
+.prog-hdr  { background: #E3F2FD; color: #1565C0; }
 .carry-hdr { background: #FFF8E1; color: #B45309; }
-/* Row header — Blockers (red) */
 .block-hdr { background: #FEF2F2; color: #991B1B; }
 
-/* Data cells — common styles */
 .hm-cell {
     padding: 8px 12px;
     overflow: hidden;
@@ -187,23 +173,15 @@ a { color: var(--color-link); text-decoration: none; }
     color: var(--color-cell-text);
 }
 
-/* --- Shipped cells --- */
-.ship-cell { background: #F0FBF0; }
-.ship-cur  { background: #D8F2DA; }
-
-/* --- In Progress cells --- */
-.prog-cell { background: #EEF4FE; }
-.prog-cur  { background: #DAE8FB; }
-
-/* --- Carryover cells --- */
+.ship-cell  { background: #F0FBF0; }
+.ship-cur   { background: #D8F2DA; }
+.prog-cell  { background: #EEF4FE; }
+.prog-cur   { background: #DAE8FB; }
 .carry-cell { background: #FFFDE7; }
 .carry-cur  { background: #FFF0B0; }
-
-/* --- Blocker cells --- */
 .block-cell { background: #FFF5F5; }
 .block-cur  { background: #FFE4E4; }
 
-/* Individual item lines inside cells */
 .hm-cell .it {
     position: relative;
     padding: 2px 0 2px 12px;
@@ -212,7 +190,6 @@ a { color: var(--color-link); text-decoration: none; }
     color: var(--color-cell-text);
 }
 
-/* Colored dot bullet via ::before pseudo-element */
 .hm-cell .it::before {
     content: "";
     position: absolute;
@@ -223,7 +200,6 @@ a { color: var(--color-link); text-decoration: none; }
     border-radius: 50%;
 }
 
-/* Dot colors per category */
 .ship-dot::before  { background: var(--color-shipped); }
 .prog-dot::before  { background: var(--color-progress); }
 .carry-dot::before { background: var(--color-carryover); }
