@@ -1,0 +1,333 @@
+@page "/"
+@using System.Globalization
+@using Microsoft.AspNetCore.Components.Web
+@inject DashboardDataService DataService
+@rendermode RenderMode.InteractiveServer
+
+@if (DataService.IsError)
+{
+    <div class="error-panel">
+        <h2>Dashboard Configuration Error</h2>
+        <p class="error-detail">@DataService.ErrorMessage</p>
+        <p>Please check wwwroot/data.json and restart the application.</p>
+    </div>
+}
+else if (_data is not null)
+{
+    <div class="page-root">
+        @* ── Section 1: Header Bar ── *@
+        <div class="hdr">
+            <div class="hdr-left">
+                <h1>
+                    @_data.Title
+                    @if (!string.IsNullOrEmpty(_data.BacklogLink))
+                    {
+                        <a href="@_data.BacklogLink" target="_blank"> ↗ ADO Backlog</a>
+                    }
+                </h1>
+                <div class="sub">@_data.Subtitle</div>
+            </div>
+            <div class="legend-row">
+                <span class="legend-item">
+                    <span class="legend-diamond" style="background:#F4B400;"></span> PoC Milestone
+                </span>
+                <span class="legend-item">
+                    <span class="legend-diamond" style="background:#34A853;"></span> Production Release
+                </span>
+                <span class="legend-item">
+                    <span class="legend-circle"></span> Checkpoint
+                </span>
+                <span class="legend-item">
+                    <span class="legend-now-bar"></span> Now (@_data.CurrentMonth @DateTime.Today.Year)
+                </span>
+            </div>
+        </div>
+
+        @* ── Section 2: Timeline Area ── *@
+        <div class="tl-area">
+            @* Left sidebar: milestone labels *@
+            <div class="tl-sidebar">
+                @foreach (var track in _data.Timeline.Tracks)
+                {
+                    <div class="tl-milestone-label">
+                        <span class="tl-ml-id" style="color: @track.Color;">@track.Id</span>
+                        <span class="tl-ml-desc">@track.Label</span>
+                    </div>
+                }
+            </div>
+
+            @* Right area: SVG timeline *@
+            <div class="tl-svg-box">
+                <svg width="@SvgWidth" height="@SvgHeight" style="overflow: visible;" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="dshadow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
+                        </filter>
+                    </defs>
+
+                    @* ── Month grid lines and labels ── *@
+                    @foreach (var monthInfo in _timelineMonths)
+                    {
+                        var x = MonthToX(monthInfo.Date);
+                        <line x1="@F(x)" y1="0" x2="@F(x)" y2="@SvgHeight"
+                              stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
+                        @(SvgText(F(x + 5), "14", "start", "11", "600", "#666", monthInfo.Label))
+                    }
+
+                    @* ── Milestone track lines ── *@
+                    @for (int i = 0; i < _data.Timeline.Tracks.Count; i++)
+                    {
+                        var track = _data.Timeline.Tracks[i];
+                        var y = MilestoneY(i);
+                        <line x1="0" y1="@F(y)" x2="@SvgWidth" y2="@F(y)"
+                              stroke="@track.Color" stroke-width="3" stroke-linecap="round" />
+                    }
+
+                    @* ── Event markers per track ── *@
+                    @for (int i = 0; i < _data.Timeline.Tracks.Count; i++)
+                    {
+                        var track = _data.Timeline.Tracks[i];
+                        var y = MilestoneY(i);
+
+                        @foreach (var evt in track.Milestones)
+                        {
+                            if (!DateTime.TryParse(evt.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var evtDate))
+                            {
+                                continue;
+                            }
+                            var cx = DateToX(evtDate);
+                            var labelY = y - 18;
+
+                            @switch (evt.Type?.ToLowerInvariant())
+                            {
+                                case "poc":
+                                    <polygon points="@DiamondPoints(cx, y, 11)"
+                                             fill="#F4B400" filter="url(#dshadow)" />
+                                    @(SvgText(F(cx), F(labelY), "middle", "10", "400", "#666", evt.Label))
+                                    break;
+
+                                case "production":
+                                    <polygon points="@DiamondPoints(cx, y, 11)"
+                                             fill="#34A853" filter="url(#dshadow)" />
+                                    @(SvgText(F(cx), F(labelY), "middle", "10", "400", "#666", evt.Label))
+                                    break;
+
+                                default:
+                                    <circle cx="@F(cx)" cy="@F(y)" r="6"
+                                            fill="white" stroke="@track.Color" stroke-width="2.5" />
+                                    @(SvgText(F(cx), F(labelY), "middle", "10", "400", "#666", evt.Label))
+                                    break;
+                            }
+                        }
+                    }
+
+                    @* ── NOW vertical dashed line ── *@
+                    @if (_nowX >= 0 && _nowX <= SvgWidth)
+                    {
+                        <line x1="@F(_nowX)" y1="0" x2="@F(_nowX)" y2="@SvgHeight"
+                              stroke="#EA4335" stroke-width="2"
+                              stroke-dasharray="5,3" />
+                        @(SvgText(F(_nowX), F(SvgHeight - 2), "middle", "10", "700", "#EA4335", "NOW"))
+                    }
+                </svg>
+            </div>
+        </div>
+
+        @* ── Section 3: Heatmap ── *@
+        <div class="hm-wrap">
+            <div class="hm-title">MONTHLY EXECUTION HEATMAP &mdash; Shipped &bull; In Progress &bull; Carryover &bull; Blockers</div>
+            <div class="hm-grid" style="grid-template-columns: 160px repeat(@_data.Months.Count, 1fr);">
+                @* Corner cell *@
+                <div class="hm-corner">STATUS</div>
+
+                @* Column headers *@
+                @foreach (var month in _data.Months)
+                {
+                    var isCurrent = string.Equals(month, _data.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                    <div class="hm-col-hdr @(isCurrent ? "cur-hdr" : "")">@month</div>
+                }
+
+                @* Shipped row *@
+                <div class="hm-row-hdr ship-hdr">SHIPPED</div>
+                @foreach (var month in _data.Months)
+                {
+                    var isCurrent = string.Equals(month, _data.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                    var items = _data.Heatmap.Shipped.GetValueOrDefault(month);
+                    <div class="hm-cell ship-cell @(isCurrent ? "ship-cur" : "")">
+                        @if (items is { Count: > 0 })
+                        {
+                            @foreach (var item in items)
+                            {
+                                <div class="it ship-dot">@item</div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="empty-cell">&ndash;</span>
+                        }
+                    </div>
+                }
+
+                @* In Progress row *@
+                <div class="hm-row-hdr prog-hdr">IN PROGRESS</div>
+                @foreach (var month in _data.Months)
+                {
+                    var isCurrent = string.Equals(month, _data.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                    var items = _data.Heatmap.InProgress.GetValueOrDefault(month);
+                    <div class="hm-cell prog-cell @(isCurrent ? "prog-cur" : "")">
+                        @if (items is { Count: > 0 })
+                        {
+                            @foreach (var item in items)
+                            {
+                                <div class="it prog-dot">@item</div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="empty-cell">&ndash;</span>
+                        }
+                    </div>
+                }
+
+                @* Carryover row *@
+                <div class="hm-row-hdr carry-hdr">CARRYOVER</div>
+                @foreach (var month in _data.Months)
+                {
+                    var isCurrent = string.Equals(month, _data.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                    var items = _data.Heatmap.Carryover.GetValueOrDefault(month);
+                    <div class="hm-cell carry-cell @(isCurrent ? "carry-cur" : "")">
+                        @if (items is { Count: > 0 })
+                        {
+                            @foreach (var item in items)
+                            {
+                                <div class="it carry-dot">@item</div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="empty-cell">&ndash;</span>
+                        }
+                    </div>
+                }
+
+                @* Blockers row *@
+                <div class="hm-row-hdr block-hdr">BLOCKERS</div>
+                @foreach (var month in _data.Months)
+                {
+                    var isCurrent = string.Equals(month, _data.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                    var items = _data.Heatmap.Blockers.GetValueOrDefault(month);
+                    <div class="hm-cell block-cell @(isCurrent ? "block-cur" : "")">
+                        @if (items is { Count: > 0 })
+                        {
+                            @foreach (var item in items)
+                            {
+                                <div class="it block-dot">@item</div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="empty-cell">&ndash;</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private DashboardData? _data;
+    private DateTime _timelineStart;
+    private DateTime _timelineEnd;
+    private double _nowX;
+    private List<MonthLabel> _timelineMonths = new();
+
+    private const double SvgWidth = 1560;
+    private const double SvgHeight = 185;
+
+    protected override void OnInitialized()
+    {
+        _data = DataService.Data;
+        if (_data is null) return;
+
+        if (!DateTime.TryParse(_data.Timeline.StartDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out _timelineStart))
+        {
+            _timelineStart = new DateTime(DateTime.Today.Year, 1, 1);
+        }
+
+        if (!DateTime.TryParse(_data.Timeline.EndDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out _timelineEnd))
+        {
+            _timelineEnd = _timelineStart.AddMonths(6);
+        }
+
+        _timelineMonths = BuildMonthLabels(_timelineStart, _timelineEnd);
+
+        DateTime nowDate = DateTime.Today;
+        if (!string.IsNullOrEmpty(_data.Timeline.NowDate) &&
+            DateTime.TryParse(_data.Timeline.NowDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+        {
+            nowDate = parsed;
+        }
+        _nowX = DateToX(nowDate);
+    }
+
+    private double DateToX(DateTime date)
+    {
+        double totalDays = (_timelineEnd - _timelineStart).TotalDays;
+        if (totalDays <= 0) return 0;
+        double dayOffset = (date - _timelineStart).TotalDays;
+        return Math.Clamp(dayOffset / totalDays * SvgWidth, 0, SvgWidth);
+    }
+
+    private double MonthToX(DateTime monthStart)
+    {
+        return DateToX(monthStart);
+    }
+
+    private static double MilestoneY(int index)
+    {
+        return 42 + (index * 56);
+    }
+
+    private static string DiamondPoints(double cx, double cy, double size = 11)
+    {
+        return $"{F(cx)},{F(cy - size)} {F(cx + size)},{F(cy)} {F(cx)},{F(cy + size)} {F(cx - size)},{F(cy)}";
+    }
+
+    private static string F(double value)
+    {
+        return value.ToString("0.##", CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>
+    /// Renders an SVG text element as a MarkupString to avoid Razor's reserved &lt;text&gt; tag conflict.
+    /// </summary>
+    private static MarkupString SvgText(string x, string y, string anchor, string fontSize, string fontWeight, string fill, string content)
+    {
+        var encoded = System.Net.WebUtility.HtmlEncode(content);
+        return new MarkupString(
+            $"<text x=\"{x}\" y=\"{y}\" text-anchor=\"{anchor}\" font-size=\"{fontSize}\" font-weight=\"{fontWeight}\" fill=\"{fill}\" font-family=\"Segoe UI, Arial, sans-serif\">{encoded}</text>");
+    }
+
+    private static List<MonthLabel> BuildMonthLabels(DateTime start, DateTime end)
+    {
+        var labels = new List<MonthLabel>();
+        var current = new DateTime(start.Year, start.Month, 1);
+        while (current <= end)
+        {
+            labels.Add(new MonthLabel
+            {
+                Date = current,
+                Label = current.ToString("MMM", CultureInfo.InvariantCulture)
+            });
+            current = current.AddMonths(1);
+        }
+        return labels;
+    }
+
+    private record MonthLabel
+    {
+        public DateTime Date { get; init; }
+        public string Label { get; init; } = "";
+    }
+}
