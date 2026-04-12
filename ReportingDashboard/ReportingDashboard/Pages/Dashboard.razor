@@ -12,7 +12,7 @@
 }
 else if (Config is not null)
 {
-    @* ── Header Region ── *@
+    @* — Header Region — *@
     <div class="hdr">
         <div>
             <h1>@Config.Title
@@ -39,7 +39,7 @@ else if (Config is not null)
         </div>
     </div>
 
-    @* ── Timeline Region ── *@
+    @* — Timeline Region — *@
     <div class="tl-area">
         <div class="tl-sidebar">
             @foreach (var milestone in Config.Milestones)
@@ -108,11 +108,11 @@ else if (Config is not null)
         </div>
     </div>
 
-    @* ── Heatmap Region ── *@
+    @* — Heatmap Region — *@
     <div class="hm-wrap">
         <div class="hm-title">MONTHLY EXECUTION HEATMAP &mdash; Shipped &bull; In Progress &bull; Carryover &bull; Blockers</div>
 
-        <div class="hm-grid" style="grid-template-columns: 160px repeat(@Config.Months.Count, 1fr); grid-template-rows: 36px repeat(4, 1fr);">
+        <div class="hm-grid" style="grid-template-columns: 160px repeat(@Config.Months.Count, 1fr); grid-template-rows: 36px repeat(@Config.HeatmapRows.Count, 1fr);">
 
             <div class="hm-corner">STATUS</div>
 
