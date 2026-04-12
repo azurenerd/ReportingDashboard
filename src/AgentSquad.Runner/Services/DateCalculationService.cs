@@ -1,7 +1,11 @@
 using AgentSquad.Runner.Models;
+using NodaTime;
 
 namespace AgentSquad.Runner.Services;
 
+/// <summary>
+/// Implementation of IDateCalculationService for date calculations and timeline positioning
+/// </summary>
 public class DateCalculationService : IDateCalculationService
 {
     private const int PixelsPerMonth = 260;
@@ -16,47 +20,69 @@ public class DateCalculationService : IDateCalculationService
     public List<MonthInfo> GetDisplayMonths(DateTime currentDate)
     {
         var result = new List<MonthInfo>();
-        var today = currentDate.Date;
-        var currentMonth = new DateTime(today.Year, today.Month, 1);
         
-        // Display: previous month, current month, and next 2 months
-        for (int i = -1; i < 3; i++)
+        var year = currentDate.Year;
+        var month = currentDate.Month;
+        
+        // Start from previous month
+        var startMonth = month - 1;
+        var startYear = year;
+        
+        if (startMonth < 1)
         {
-            var monthStart = currentMonth.AddMonths(i);
-            var monthEnd = monthStart.AddMonths(1).AddDays(-1);
-            var isCurrentMonth = monthStart.Year == today.Year && monthStart.Month == today.Month;
-
-            result.Add(new MonthInfo
-            {
-                Name = GetMonthName(monthStart.Month),
-                Year = monthStart.Year,
-                StartDate = monthStart,
-                EndDate = monthEnd,
-                GridColumnIndex = i + 1,
-                IsCurrentMonth = isCurrentMonth
-            });
+            startMonth = 12;
+            startYear = year - 1;
         }
-
+        
+        for (int i = 0; i < 4; i++)
+        {
+            var displayMonth = startMonth + i;
+            var displayYear = startYear;
+            
+            if (displayMonth > 12)
+            {
+                displayMonth = displayMonth - 12;
+                displayYear = displayYear + 1;
+            }
+            
+            var monthName = GetMonthName(displayMonth);
+            var startDate = new DateTime(displayYear, displayMonth, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            
+            var isCurrentMonth = displayMonth == month && displayYear == year;
+            
+            var monthInfo = new MonthInfo
+            {
+                Name = monthName,
+                Year = displayYear,
+                StartDate = startDate,
+                EndDate = endDate,
+                GridColumnIndex = i,
+                IsCurrentMonth = isCurrentMonth
+            };
+            
+            result.Add(monthInfo);
+        }
+        
         return result;
     }
 
     public int GetMilestoneXPosition(DateTime milestoneDate, DateTime baselineDate)
     {
-        try
-        {
-            var daysDifference = (milestoneDate.Date - baselineDate.Date).TotalDays;
-            
-            // 6 months = ~181 days = 1560 pixels
-            double monthProgress = daysDifference / 181.0;
-            int xPosition = (int)(monthProgress * SvgWidth);
-
-            return Math.Clamp(xPosition, 0, SvgWidth);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error calculating milestone x position for {Date}", milestoneDate);
-            return 0;
-        }
+        var baselineYear = baselineDate.Year;
+        var jan1 = new DateTime(baselineYear, 1, 1);
+        
+        var daysDiff = (milestoneDate - jan1).TotalDays;
+        var dayOfYear = (int)daysDiff;
+        
+        // Assuming 365 days in year, calculate month position
+        // Jan: 0-260, Feb: 260-520, Mar: 520-780, Apr: 780-1040, May: 1040-1300, Jun: 1300-1560
+        var monthIndex = dayOfYear / 30; // Approximate
+        var dayInMonth = dayOfYear % 30;
+        
+        var xPosition = (monthIndex * PixelsPerMonth) + (dayInMonth * (PixelsPerMonth / 30));
+        
+        return Math.Clamp(xPosition, 0, SvgWidth);
     }
 
     public int GetNowMarkerXPosition(DateTime currentDate, DateTime baselineDate)
@@ -64,20 +90,19 @@ public class DateCalculationService : IDateCalculationService
         return GetMilestoneXPosition(currentDate, baselineDate);
     }
 
-    public bool IsCurrentMonth(string month, int year, DateTime currentDate)
+    public bool IsCurrentMonth(string monthName, int year, DateTime currentDate)
     {
-        return GetMonthName(currentDate.Month).Equals(month, StringComparison.OrdinalIgnoreCase) && 
-               currentDate.Year == year;
+        var currentMonthName = GetMonthName(currentDate.Month);
+        
+        return monthName.Equals(currentMonthName, StringComparison.OrdinalIgnoreCase) 
+            && year == currentDate.Year;
     }
 
     public (int startX, int endX) GetMonthBounds(int monthIndex)
     {
-        if (monthIndex < 0 || monthIndex > 5)
-            throw new ArgumentOutOfRangeException(nameof(monthIndex), "Month index must be 0-5 (Jan-Jun)");
-
-        int startX = monthIndex * PixelsPerMonth;
-        int endX = startX + PixelsPerMonth;
-
+        var startX = monthIndex * PixelsPerMonth;
+        var endX = startX + PixelsPerMonth;
+        
         return (startX, endX);
     }
 
@@ -97,7 +122,7 @@ public class DateCalculationService : IDateCalculationService
             10 => "October",
             11 => "November",
             12 => "December",
-            _ => "Unknown"
+            _ => string.Empty
         };
     }
 }

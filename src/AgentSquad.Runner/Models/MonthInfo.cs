@@ -1,5 +1,8 @@
 namespace AgentSquad.Runner.Models;
 
+/// <summary>
+/// Calculated metadata about a month in the display timeline
+/// </summary>
 public class MonthInfo
 {
     public string Name { get; set; } = string.Empty;

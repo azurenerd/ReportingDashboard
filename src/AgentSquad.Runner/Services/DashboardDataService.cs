@@ -3,68 +3,57 @@ using AgentSquad.Runner.Models;
 
 namespace AgentSquad.Runner.Services;
 
+/// <summary>
+/// Implementation of IDashboardDataService for loading dashboard configuration from data.json
+/// </summary>
 public class DashboardDataService : IDashboardDataService
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<DashboardDataService> _logger;
     private DashboardConfig? _cachedConfig;
-    private DateTime _lastLoadTime = DateTime.UtcNow;
-    private string _dataFilePath = string.Empty;
+    private DateTime _lastLoadTime;
 
     public DashboardDataService(IConfiguration configuration, ILogger<DashboardDataService> logger)
     {
         _configuration = configuration;
         _logger = logger;
-        _dataFilePath = _configuration.GetValue<string>("DashboardDataPath") ?? "./wwwroot/data/data.json";
     }
 
     public async Task<DashboardConfig> GetDashboardConfigAsync()
     {
         try
         {
-            string fullPath = Path.Combine(AppContext.BaseDirectory, _dataFilePath);
+            var dataPath = _configuration["DashboardDataPath"] ?? "./wwwroot/data/data.json";
             
-            if (!File.Exists(fullPath))
+            if (!File.Exists(dataPath))
             {
                 throw new FileNotFoundException(
-                    $"data.json not found at path: {fullPath}. " +
-                    $"Please ensure the file exists and the path in appsettings.json is correct.");
+                    $"data.json not found at path: {dataPath}. " +
+                    "Please ensure the file exists and the path in appsettings.json is correct.");
             }
 
-            string json = await File.ReadAllTextAsync(fullPath);
-            _lastLoadTime = File.GetLastWriteTimeUtc(fullPath);
-
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-
+            var json = await File.ReadAllTextAsync(dataPath);
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            
             var config = JsonSerializer.Deserialize<DashboardConfig>(json, options);
             
             if (config == null)
             {
-                throw new InvalidOperationException("Failed to deserialize data.json");
+                throw new InvalidOperationException("Failed to deserialize dashboard configuration.");
             }
 
-            await ValidateConfigSchema(config);
             _cachedConfig = config;
-
-            _logger.LogInformation("Dashboard configuration loaded successfully from {Path}", fullPath);
+            _lastLoadTime = DateTime.UtcNow;
+            
             return config;
-        }
-        catch (FileNotFoundException ex)
-        {
-            _logger.LogError(ex, "data.json file not found");
-            throw;
         }
         catch (JsonException ex)
         {
-            _logger.LogError(ex, "Invalid JSON in data.json");
-            throw;
+            throw new JsonException($"Invalid JSON in data.json: {ex.Message}", ex);
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex, "data.json schema validation failed");
+            _logger.LogError(ex, "Error loading dashboard configuration");
             throw;
         }
     }
@@ -77,59 +66,22 @@ public class DashboardDataService : IDashboardDataService
 
     public DateTime GetLastModifiedTime()
     {
-        return _lastLoadTime;
-    }
-
-    private async Task ValidateConfigSchema(DashboardConfig config)
-    {
-        var missingFields = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(config.ProjectName))
-            missingFields.Add("projectName");
-        
-        if (string.IsNullOrWhiteSpace(config.Description))
-            missingFields.Add("description");
-        
-        if (config.Quarters == null || config.Quarters.Count == 0)
-            missingFields.Add("quarters");
-        
-        if (config.Milestones == null)
-            missingFields.Add("milestones");
-
-        if (missingFields.Count > 0)
+        try
         {
-            throw new InvalidOperationException(
-                $"data.json schema validation failed. Missing or empty required fields: {string.Join(", ", missingFields)}");
-        }
+            var dataPath = _configuration["DashboardDataPath"] ?? "./wwwroot/data/data.json";
+            
+            if (!File.Exists(dataPath))
+            {
+                return DateTime.MinValue;
+            }
 
-        foreach (var quarter in config.Quarters)
+            var fileInfo = new FileInfo(dataPath);
+            return fileInfo.LastWriteTimeUtc;
+        }
+        catch (Exception ex)
         {
-            if (string.IsNullOrWhiteSpace(quarter.Month))
-                throw new InvalidOperationException("Quarter must have a valid month name");
-            
-            if (quarter.Year < 2000 || quarter.Year > 2099)
-                throw new InvalidOperationException($"Year {quarter.Year} is outside acceptable range (2000-2099)");
+            _logger.LogError(ex, "Error getting file modification time");
+            return DateTime.MinValue;
         }
-
-        foreach (var milestone in config.Milestones)
-        {
-            if (string.IsNullOrWhiteSpace(milestone.Id))
-                throw new InvalidOperationException("Milestone must have an id");
-            
-            if (string.IsNullOrWhiteSpace(milestone.Label))
-                throw new InvalidOperationException("Milestone must have a label");
-            
-            if (string.IsNullOrWhiteSpace(milestone.Date))
-                throw new InvalidOperationException("Milestone must have a date");
-            
-            if (!DateTime.TryParse(milestone.Date, out _))
-                throw new InvalidOperationException($"Milestone date '{milestone.Date}' is not a valid ISO 8601 date");
-            
-            if (string.IsNullOrWhiteSpace(milestone.Type) || 
-                !new[] { "poc", "release", "checkpoint" }.Contains(milestone.Type.ToLower()))
-                throw new InvalidOperationException($"Milestone type '{milestone.Type}' must be 'poc', 'release', or 'checkpoint'");
-        }
-
-        await Task.CompletedTask;
     }
 }
