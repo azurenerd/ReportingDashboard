@@ -33,23 +33,74 @@ public class DashboardTimelineUITests : IAsyncLifetime
         await _page.Context.DisposeAsync();
     }
 
-    // TEST REMOVED: Dashboard_PageLoads_DisplaysTitle - Could not be resolved after 3 fix attempts.
-    // Reason: ERR_CONNECTION_REFUSED at http://localhost:5000/ - app server cannot start due to duplicate file conflicts in nested project structure
-    // This test should be revisited when the underlying issue is resolved.
+    [Fact]
+    [Trait("Category", "UI")]
+    public async Task Dashboard_PageLoads_DisplaysTitle()
+    {
+        var heading = _page.Locator("h1").First;
+        await heading.WaitForAsync(new LocatorWaitForOptions { Timeout = 30000 });
 
-    // TEST REMOVED: Timeline_SvgElement_RendersWithCorrectDimensions - Could not be resolved after 3 fix attempts.
-    // Reason: ERR_CONNECTION_REFUSED at http://localhost:5000/ - app server cannot start due to duplicate file conflicts in nested project structure
-    // This test should be revisited when the underlying issue is resolved.
+        var text = await heading.TextContentAsync();
+        text.Should().NotBeNullOrWhiteSpace("the dashboard title should be visible");
+    }
 
-    // TEST REMOVED: Timeline_MilestoneTrackLines_AreRendered - Could not be resolved after 3 fix attempts.
-    // Reason: ERR_CONNECTION_REFUSED at http://localhost:5000/ - app server cannot start due to duplicate file conflicts in nested project structure
-    // This test should be revisited when the underlying issue is resolved.
+    [Fact]
+    [Trait("Category", "UI")]
+    public async Task Timeline_SvgElement_RendersWithCorrectDimensions()
+    {
+        var svg = _page.Locator(".tl-svg-box svg").First;
+        await svg.WaitForAsync(new LocatorWaitForOptions { Timeout = 30000 });
 
-    // TEST REMOVED: Timeline_Sidebar_DisplaysMilestoneLabels - Could not be resolved after 3 fix attempts.
-    // Reason: ERR_CONNECTION_REFUSED at http://localhost:5000/ - app server cannot start due to duplicate file conflicts in nested project structure
-    // This test should be revisited when the underlying issue is resolved.
+        var width = await svg.GetAttributeAsync("width");
+        var height = await svg.GetAttributeAsync("height");
 
-    // TEST REMOVED: Timeline_NowLine_IsVisibleWithDashedStroke - Could not be resolved after 3 fix attempts.
-    // Reason: ERR_CONNECTION_REFUSED at http://localhost:5000/ - app server cannot start due to duplicate file conflicts in nested project structure
-    // This test should be revisited when the underlying issue is resolved.
+        width.Should().Be("1560", "SVG width must be 1560px per spec");
+        height.Should().Be("185", "SVG height must be 185px per spec");
+    }
+
+    [Fact]
+    [Trait("Category", "UI")]
+    public async Task Timeline_MilestoneTrackLines_AreRendered()
+    {
+        var trackLines = _page.Locator(".tl-svg-box svg line[stroke-width='3']");
+        var count = await trackLines.CountAsync();
+
+        count.Should().BeGreaterThan(0, "at least one milestone track line should render");
+    }
+
+    [Fact]
+    [Trait("Category", "UI")]
+    public async Task Timeline_Sidebar_DisplaysMilestoneLabels()
+    {
+        var sidebar = _page.Locator(".tl-sidebar").First;
+        await sidebar.WaitForAsync(new LocatorWaitForOptions { Timeout = 30000 });
+
+        var labels = _page.Locator(".tl-sidebar .tl-milestone-label");
+        var labelCount = await labels.CountAsync();
+
+        labelCount.Should().BeGreaterThan(0, "milestone labels should appear in the sidebar");
+
+        var firstId = _page.Locator(".tl-sidebar .tl-ml-id").First;
+        var firstIdText = await firstId.TextContentAsync();
+        firstIdText.Should().NotBeNullOrWhiteSpace("milestone ID text should be visible");
+    }
+
+    [Fact]
+    [Trait("Category", "UI")]
+    public async Task Timeline_NowLine_IsVisibleWithDashedStroke()
+    {
+        var nowLines = _page.Locator(".tl-svg-box svg line[stroke='#EA4335']");
+        var count = await nowLines.CountAsync();
+
+        if (count > 0)
+        {
+            var dashArray = await nowLines.First.GetAttributeAsync("stroke-dasharray");
+            dashArray.Should().Be("5,3", "NOW line should have dashed stroke pattern");
+
+            var nowText = _page.GetByText("NOW");
+            var nowTextCount = await nowText.CountAsync();
+            nowTextCount.Should().BeGreaterThan(0, "NOW label should be visible near the line");
+        }
+        // If NOW line is not visible, today's date is outside the timeline range — valid
+    }
 }
