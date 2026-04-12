@@ -1,0 +1,561 @@
+/* ============================================================================
+   GLOBAL STYLES - Executive Dashboard
+   ============================================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: #FFFFFF;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #111111;
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* ============================================================================
+   LAYOUT STRUCTURE
+   ============================================================================ */
+
+.dashboard-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #FFFFFF;
+}
+
+.dashboard-main {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================================================
+   ERROR & LOADING STATES
+   ============================================================================ */
+
+.error-banner {
+    padding: 20px 44px;
+    background: #FEF2F2;
+    border-bottom: 2px solid #EA4335;
+    color: #EA4335;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.loading-indicator {
+    padding: 40px;
+    text-align: center;
+    color: #888888;
+    font-size: 14px;
+}
+
+/* ============================================================================
+   HEADER SECTION
+   ============================================================================ */
+
+.hdr {
+    padding: 12px 44px;
+    border-bottom: 1px solid #E0E0E0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    background: #FFFFFF;
+    gap: 44px;
+}
+
+.hdr-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hdr h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111111;
+    margin: 0;
+    padding: 0;
+}
+
+.hdr h1 a {
+    color: #0078D4;
+    text-decoration: none;
+}
+
+.hdr h1 a:hover {
+    text-decoration: underline;
+}
+
+.hdr-subtitle {
+    font-size: 12px;
+    color: #888888;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+}
+
+.legend {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #111111;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.legend-icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.legend-diamond {
+    width: 12px;
+    height: 12px;
+    transform: rotate(45deg);
+    display: inline-block;
+}
+
+.legend-diamond-poc {
+    background: #F4B400;
+}
+
+.legend-diamond-prod {
+    background: #34A853;
+}
+
+.legend-circle {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    background: #999999;
+}
+
+.legend-line {
+    width: 2px;
+    height: 14px;
+    display: inline-block;
+    background: #EA4335;
+}
+
+/* ============================================================================
+   TIMELINE SECTION
+   ============================================================================ */
+
+.tl-area {
+    display: flex;
+    align-items: stretch;
+    padding: 6px 44px 0;
+    flex-shrink: 0;
+    height: 196px;
+    border-bottom: 2px solid #E8E8E8;
+    background: #FAFAFA;
+}
+
+.tl-sidebar {
+    width: 230px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 16px 12px 16px 0;
+    border-right: 1px solid #E0E0E0;
+}
+
+.tl-milestone-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tl-milestone-id {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.tl-milestone-title {
+    font-size: 12px;
+    font-weight: 400;
+    color: #444444;
+    line-height: 1.4;
+}
+
+.tl-svg-box {
+    flex: 1;
+    padding-left: 12px;
+    padding-top: 6px;
+    overflow: visible;
+}
+
+.tl-svg-box svg {
+    display: block;
+    width: 100%;
+    max-width: 1560px;
+}
+
+/* ============================================================================
+   HEATMAP SECTION
+   ============================================================================ */
+
+.hm-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 44px 10px;
+}
+
+.hm-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #888888;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.hm-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 160px repeat(4, 1fr);
+    grid-template-rows: 36px repeat(4, 1fr);
+    border: 1px solid #E0E0E0;
+    gap: 0;
+}
+
+/* Grid Cell Base Styles */
+.hm-corner,
+.hm-col-hdr,
+.hm-row-hdr,
+.hm-cell {
+    display: flex;
+    align-items: center;
+    border: 1px solid #E0E0E0;
+    overflow: hidden;
+}
+
+/* Corner Cell */
+.hm-corner {
+    background: #F5F5F5;
+    font-size: 11px;
+    font-weight: 700;
+    color: #999999;
+    text-transform: uppercase;
+    border-right: 2px solid #CCCCCC;
+    border-bottom: 2px solid #CCCCCC;
+}
+
+/* Column Headers */
+.hm-col-hdr {
+    background: #F5F5F5;
+    font-size: 16px;
+    font-weight: 700;
+    color: #111111;
+    justify-content: center;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #CCCCCC;
+}
+
+.hm-col-hdr.apr-hdr {
+    background: #FFF0D0;
+    color: #C07700;
+}
+
+/* Row Headers */
+.hm-row-hdr {
+    padding: 0 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    border-right: 2px solid #CCCCCC;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+/* Status-specific row header colors */
+.hm-row-hdr.ship-hdr {
+    background: #E8F5E9;
+    color: #1B7A28;
+}
+
+.hm-row-hdr.prog-hdr {
+    background: #E3F2FD;
+    color: #1565C0;
+}
+
+.hm-row-hdr.carry-hdr {
+    background: #FFF8E1;
+    color: #B45309;
+}
+
+.hm-row-hdr.block-hdr {
+    background: #FEF2F2;
+    color: #991B1B;
+}
+
+/* Data Cells */
+.hm-cell {
+    padding: 8px 12px;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.hm-cell:last-child {
+    border-right: none;
+}
+
+/* Status-specific cell colors (normal) */
+.hm-cell.ship-cell {
+    background: #F0FBF0;
+}
+
+.hm-cell.prog-cell {
+    background: #EEF4FE;
+}
+
+.hm-cell.carry-cell {
+    background: #FFFDE7;
+}
+
+.hm-cell.block-cell {
+    background: #FFF5F5;
+}
+
+/* Status-specific cell colors (current month highlight) */
+.hm-cell.ship-cell.apr {
+    background: #D8F2DA;
+}
+
+.hm-cell.prog-cell.apr {
+    background: #DAE8FB;
+}
+
+.hm-cell.carry-cell.apr {
+    background: #FFF0B0;
+}
+
+.hm-cell.block-cell.apr {
+    background: #FFE4E4;
+}
+
+/* Status Items */
+.it {
+    font-size: 12px;
+    color: #333333;
+    padding: 2px 0 2px 12px;
+    position: relative;
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+.it:empty {
+    color: #AAAAAA;
+}
+
+.it:empty::before {
+    content: '-';
+    position: static;
+}
+
+.it:not(:empty)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* Status-specific bullet colors */
+.ship-cell .it::before {
+    background: #34A853;
+}
+
+.prog-cell .it::before {
+    background: #0078D4;
+}
+
+.carry-cell .it::before {
+    background: #F4B400;
+}
+
+.block-cell .it::before {
+    background: #EA4335;
+}
+
+/* Empty Cell Indicator */
+.it-empty {
+    color: #AAAAAA;
+}
+
+/* ============================================================================
+   CONTROLS
+   ============================================================================ */
+
+.refresh-button {
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: #0078D4;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.refresh-button:hover {
+    background: #1084D8;
+}
+
+.refresh-button:active {
+    background: #005BA1;
+}
+
+.refresh-button:disabled {
+    background: #CCCCCC;
+    cursor: not-allowed;
+}
+
+/* ============================================================================
+   PRINT MEDIA QUERY
+   ============================================================================ */
+
+@media print {
+    .refresh-button,
+    .debug-info {
+        display: none !important;
+    }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+
+    .dashboard-container {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* ============================================================================
+   COLOR PALETTE (CSS Variables for Future Enhancement)
+   ============================================================================ */
+
+:root {
+    /* Neutrals */
+    --color-white: #FFFFFF;
+    --color-off-white: #FAFAFA;
+    --color-bg-light: #F5F5F5;
+    --color-border-light: #E0E0E0;
+    --color-border-dark: #CCCCCC;
+    --color-text-primary: #111111;
+    --color-text-secondary: #444444;
+    --color-text-tertiary: #888888;
+    --color-text-muted: #AAAAAA;
+    --color-text-error: #EA4335;
+
+    /* Status Colors - Shipped (Green) */
+    --color-shipped-dark: #1B7A28;
+    --color-shipped-header: #E8F5E9;
+    --color-shipped-cell: #F0FBF0;
+    --color-shipped-highlight: #D8F2DA;
+    --color-shipped-bullet: #34A853;
+
+    /* Status Colors - In Progress (Blue) */
+    --color-progress-dark: #1565C0;
+    --color-progress-header: #E3F2FD;
+    --color-progress-cell: #EEF4FE;
+    --color-progress-highlight: #DAE8FB;
+    --color-progress-bullet: #0078D4;
+
+    /* Status Colors - Carryover (Amber) */
+    --color-carryover-dark: #B45309;
+    --color-carryover-header: #FFF8E1;
+    --color-carryover-cell: #FFFDE7;
+    --color-carryover-highlight: #FFF0B0;
+    --color-carryover-bullet: #F4B400;
+
+    /* Status Colors - Blockers (Red) */
+    --color-blocker-dark: #991B1B;
+    --color-blocker-header: #FEF2F2;
+    --color-blocker-cell: #FFF5F5;
+    --color-blocker-highlight: #FFE4E4;
+    --color-blocker-bullet: #EA4335;
+
+    /* Milestone Colors */
+    --color-milestone-m1: #0078D4;
+    --color-milestone-m2: #00897B;
+    --color-milestone-m3: #546E7A;
+    --color-milestone-poc: #F4B400;
+    --color-milestone-prod: #34A853;
+    --color-milestone-checkpoint: #999999;
+    --color-now: #EA4335;
+
+    /* Semantic Colors */
+    --color-primary: #0078D4;
+    --color-success: #34A853;
+    --color-warning: #F4B400;
+    --color-danger: #EA4335;
+    --color-info: #0078D4;
+}
+
+/* ============================================================================
+   RESPONSIVE ADJUSTMENTS (Minimal - Fixed 1920x1080)
+   ============================================================================ */
+
+/* For smaller displays that still maintain aspect ratio */
+@media (max-width: 1920px) {
+    html, body {
+        width: 100%;
+        height: 100%;
+    }
+
+    .hdr {
+        padding: 12px 44px;
+    }
+
+    .tl-area {
+        padding: 6px 44px 0;
+    }
+
+    .hm-wrap {
+        padding: 10px 44px 10px;
+    }
+}
