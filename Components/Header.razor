@@ -1,0 +1,43 @@
+@using AgentSquad.Runner.Models
+
+@if (ReportData != null)
+{
+    <div class="hdr">
+        <div class="hdr-left">
+            <h1>@ReportData.ReportTitle</h1>
+            <div class="sub">@ReportData.Subtitle</div>
+            @if (!string.IsNullOrEmpty(ReportData.AdoBacklogUrl))
+            {
+                <a href="@ReportData.AdoBacklogUrl" target="_blank" class="ado-link">ADO Backlog</a>
+            }
+        </div>
+        <div class="hdr-legend">
+            <span class="legend-item">
+                <span class="legend-symbol poc-diamond"></span>
+                <span>PoC Milestone</span>
+            </span>
+            <span class="legend-item">
+                <span class="legend-symbol prod-diamond"></span>
+                <span>Production Release</span>
+            </span>
+            <span class="legend-item">
+                <span class="legend-symbol checkpoint-circle"></span>
+                <span>Checkpoint</span>
+            </span>
+            <span class="legend-item">
+                <span class="legend-symbol now-line"></span>
+                <span>Now (@GetCurrentMonthYear())</span>
+            </span>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    public ReportData? ReportData { get; set; }
+
+    private string GetCurrentMonthYear()
+    {
+        return DateTime.Now.ToString("MMM yyyy");
+    }
+}
