@@ -7,4 +7,12 @@
     <RootNamespace>ReportingDashboard</RootNamespace>
   </PropertyGroup>
 
+  <!-- Exclude the nested ReportingDashboard subdirectory to avoid duplicate types -->
+  <ItemGroup>
+    <Compile Remove="ReportingDashboard\**" />
+    <Content Remove="ReportingDashboard\**" />
+    <EmbeddedResource Remove="ReportingDashboard\**" />
+    <None Remove="ReportingDashboard\**" />
+  </ItemGroup>
+
 </Project>

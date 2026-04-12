@@ -8,32 +8,33 @@ public class PlaywrightCollectionDefinition : ICollectionFixture<PlaywrightFixtu
 
 public class PlaywrightFixture : IAsyncLifetime
 {
-    public IPlaywright Playwright { get; private set; } = null!;
-    public IBrowser Browser { get; private set; } = null!;
-    public string BaseUrl { get; private set; } = null!;
+    private IPlaywright _playwright = null!;
+    private IBrowser _browser = null!;
+
+    public string BaseUrl { get; } =
+        Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
 
     public async Task InitializeAsync()
     {
-        BaseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
-        Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-        Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        _playwright = await Playwright.CreateAsync();
+        _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
         {
             Headless = true
         });
     }
 
-    public async Task DisposeAsync()
-    {
-        await Browser.DisposeAsync();
-        Playwright.Dispose();
-    }
-
     public async Task<IPage> CreatePageAsync()
     {
-        var context = await Browser.NewContextAsync(new BrowserNewContextOptions
+        var context = await _browser.NewContextAsync(new BrowserNewContextOptions
         {
             ViewportSize = new ViewportSize { Width = 1920, Height = 1080 }
         });
         return await context.NewPageAsync();
+    }
+
+    public async Task DisposeAsync()
+    {
+        await _browser.DisposeAsync();
+        _playwright.Dispose();
     }
 }

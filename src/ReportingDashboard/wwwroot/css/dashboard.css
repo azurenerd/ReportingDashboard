@@ -1,64 +1,37 @@
-/* ═══════════════════════════════════════════════════════════
-   Executive Reporting Dashboard – Stylesheet
-   Fixed 1920×1080 viewport for screenshot capture
-   ═══════════════════════════════════════════════════════════ */
+/* ================================================================
+   Executive Reporting Dashboard - Stylesheet
+   ================================================================ */
 
-/* ── Reset & Page Layout ── */
+:root {
+    --font-stack: "Segoe UI", Arial, sans-serif;
+    --page-width: 1920px;
+    --page-height: 1080px;
+    --color-bg: #FFFFFF;
+    --color-primary-text: #111;
+    --color-secondary-text: #888;
+    --color-cell-text: #333;
+    --color-link: #0078D4;
+    --color-timeline-bg: #FAFAFA;
+    --color-grid-border: #E0E0E0;
+    --color-header-border: #CCC;
+    --color-now: #EA4335;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    width: 1920px;
-    height: 1080px;
+    font-family: var(--font-stack);
+    width: var(--page-width);
+    height: var(--page-height);
     overflow: hidden;
-    background: #FFFFFF;
-    color: #111;
-    -webkit-font-smoothing: antialiased;
-}
-
-a { color: #0078D4; text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-.page-root {
+    background: var(--color-bg);
     display: flex;
     flex-direction: column;
-    width: 1920px;
-    height: 1080px;
-    overflow: hidden;
 }
 
-/* ── Error Panel ── */
-.error-panel {
-    max-width: 600px;
-    margin: 200px auto;
-    padding: 32px;
-    border: 2px solid #EA4335;
-    background: #FFF5F5;
-    border-radius: 8px;
-    text-align: left;
-}
-.error-panel h2 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #EA4335;
-    margin-bottom: 12px;
-}
-.error-panel p {
-    font-size: 14px;
-    color: #333;
-    margin-bottom: 8px;
-    line-height: 1.6;
-}
-.error-detail {
-    font-family: 'Consolas', 'Courier New', monospace;
-    background: #FEE;
-    padding: 8px 12px;
-    border-radius: 4px;
-}
+a { color: var(--color-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
 
-/* ════════════════════════════════════════════════════════════
-   Section 1: Header Bar (.hdr)
-   ════════════════════════════════════════════════════════════ */
 .hdr {
     display: flex;
     align-items: center;
@@ -66,7 +39,7 @@ a:hover { text-decoration: underline; }
     padding: 12px 44px 10px;
     border-bottom: 1px solid #E0E0E0;
     flex-shrink: 0;
-    background: #FFFFFF;
+    background: var(--color-bg);
 }
 
 .hdr-left { display: flex; flex-direction: column; }
@@ -74,29 +47,31 @@ a:hover { text-decoration: underline; }
 .hdr h1 {
     font-size: 24px;
     font-weight: 700;
-    color: #111;
+    color: var(--color-primary-text);
     line-height: 1.2;
 }
 
 .hdr h1 a {
+    color: var(--color-link);
+    text-decoration: none;
     font-size: 14px;
     font-weight: 400;
-    color: #0078D4;
     margin-left: 8px;
+    vertical-align: middle;
 }
 
 .sub {
     font-size: 12px;
-    color: #888;
+    color: var(--color-secondary-text);
     margin-top: 2px;
 }
 
-.legend-row {
+.legend {
     display: flex;
     align-items: center;
     gap: 22px;
     font-size: 12px;
-    color: #111;
+    color: var(--color-primary-text);
 }
 
 .legend-item {
@@ -119,8 +94,8 @@ a:hover { text-decoration: underline; }
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    border: 2px solid #999;
     background: #fff;
+    border: 2px solid #999;
     flex-shrink: 0;
 }
 
@@ -128,24 +103,21 @@ a:hover { text-decoration: underline; }
     display: inline-block;
     width: 2px;
     height: 14px;
-    background: #EA4335;
+    background: var(--color-now);
     flex-shrink: 0;
 }
 
-/* ════════════════════════════════════════════════════════════
-   Section 2: Timeline Area (.tl-area)
-   ════════════════════════════════════════════════════════════ */
 .tl-area {
     display: flex;
     align-items: stretch;
+    width: 100%;
     height: 196px;
     flex-shrink: 0;
-    background: #FAFAFA;
+    background: var(--color-timeline-bg);
     border-bottom: 2px solid #E8E8E8;
     padding: 6px 44px 0;
 }
 
-/* ── Left sidebar: milestone labels ── */
 .tl-sidebar {
     width: 230px;
     flex-shrink: 0;
@@ -162,34 +134,16 @@ a:hover { text-decoration: underline; }
     gap: 1px;
 }
 
-.tl-ml-id {
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.3;
-}
+.tl-ml-id { font-size: 12px; font-weight: 600; }
+.tl-ml-desc { font-size: 12px; color: #444; }
 
-.tl-ml-desc {
-    font-size: 12px;
-    color: #444;
-    line-height: 1.3;
-}
-
-/* ── Right area: SVG container ── */
 .tl-svg-box {
     flex: 1;
     padding-left: 12px;
     padding-top: 6px;
-    min-width: 0;
     overflow: visible;
 }
 
-.tl-svg-box svg {
-    display: block;
-}
-
-/* ════════════════════════════════════════════════════════════
-   Section 3: Heatmap Grid (.hm-wrap)
-   ════════════════════════════════════════════════════════════ */
 .hm-wrap {
     display: flex;
     flex-direction: column;
@@ -201,7 +155,7 @@ a:hover { text-decoration: underline; }
 .hm-title {
     font-size: 14px;
     font-weight: 700;
-    color: #888;
+    color: var(--color-secondary-text);
     letter-spacing: 0.5px;
     text-transform: uppercase;
     margin-bottom: 8px;
@@ -209,104 +163,39 @@ a:hover { text-decoration: underline; }
 
 .hm-grid {
     display: grid;
-    grid-template-rows: 36px repeat(4, 1fr);
+    border: 1px solid var(--color-grid-border);
     flex: 1;
     min-height: 0;
-    border: 1px solid #E0E0E0;
 }
 
-/* ── Corner cell ── */
-.hm-corner {
-    background: #F5F5F5;
-    font-size: 11px;
+.error-panel {
+    max-width: 600px;
+    margin: 200px auto;
+    padding: 32px;
+    border: 2px solid var(--color-now);
+    background: #FFF5F5;
+    border-radius: 8px;
+    font-family: var(--font-stack);
+}
+
+.error-panel h2 {
+    font-size: 20px;
     font-weight: 700;
-    text-transform: uppercase;
-    color: #999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid #E0E0E0;
-    border-bottom: 2px solid #CCC;
+    color: var(--color-now);
+    margin-bottom: 16px;
 }
 
-/* ── Column headers ── */
-.hm-col-hdr {
-    font-size: 16px;
-    font-weight: 700;
-    color: #111;
-    background: #F5F5F5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid #E0E0E0;
-    border-bottom: 2px solid #CCC;
+.error-panel p {
+    font-size: 14px;
+    color: var(--color-cell-text);
+    margin-bottom: 12px;
+    line-height: 1.6;
 }
 
-.hm-col-hdr.cur-hdr {
-    background: #FFF0D0;
-    color: #C07700;
-}
-
-/* ── Row headers ── */
-.hm-row-hdr {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    border-right: 2px solid #CCC;
-    border-bottom: 1px solid #E0E0E0;
-}
-
-.ship-hdr  { background: #E8F5E9; color: #1B7A28; }
-.prog-hdr  { background: #E3F2FD; color: #1565C0; }
-.carry-hdr { background: #FFF8E1; color: #B45309; }
-.block-hdr { background: #FEF2F2; color: #991B1B; }
-
-/* ── Data cells ── */
-.hm-cell {
+.error-panel .error-detail {
+    font-family: "Cascadia Code", "Consolas", monospace;
+    background: #FEE;
     padding: 8px 12px;
-    overflow: hidden;
-    border-right: 1px solid #E0E0E0;
-    border-bottom: 1px solid #E0E0E0;
-}
-
-.ship-cell   { background: #F0FBF0; }
-.ship-cur    { background: #D8F2DA; }
-.prog-cell   { background: #EEF4FE; }
-.prog-cur    { background: #DAE8FB; }
-.carry-cell  { background: #FFFDE7; }
-.carry-cur   { background: #FFF0B0; }
-.block-cell  { background: #FFF5F5; }
-.block-cur   { background: #FFE4E4; }
-
-/* ── Cell items ── */
-.it {
-    position: relative;
-    font-size: 12px;
-    color: #333;
-    padding: 2px 0 2px 12px;
-    line-height: 1.35;
-}
-
-.it::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 7px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-
-.ship-dot::before  { background: #34A853; }
-.prog-dot::before  { background: #0078D4; }
-.carry-dot::before { background: #F4B400; }
-.block-dot::before { background: #EA4335; }
-
-.empty-cell {
-    color: #AAA;
-    font-size: 12px;
+    border-radius: 4px;
+    border: 1px solid #FCC;
 }

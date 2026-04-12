@@ -25,20 +25,10 @@ public class DashboardDataService
 
     public async Task LoadAsync()
     {
+        var filePath = Path.Combine(_env.WebRootPath, "data.json");
+
         try
         {
-            var webRoot = _env.WebRootPath;
-            if (string.IsNullOrEmpty(webRoot))
-            {
-                webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
-            }
-
-            var filePath = Path.Combine(webRoot, "data.json");
-            if (!File.Exists(filePath))
-            {
-                filePath = Path.Combine(webRoot, "data", "data.json");
-            }
-
             if (!File.Exists(filePath))
             {
                 _logger.LogError("data.json not found at {Path}", filePath);
@@ -58,17 +48,25 @@ public class DashboardDataService
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(Data.Title))
+            {
+                _logger.LogWarning("data.json is missing required field: title");
+                IsError = true;
+                ErrorMessage = "Dashboard data could not be loaded. Required field 'title' is missing.";
+                return;
+            }
+
             _logger.LogInformation("Dashboard data loaded successfully: {Title}", Data.Title);
         }
         catch (JsonException ex)
         {
-            _logger.LogError(ex, "Failed to parse data.json");
+            _logger.LogError(ex, "Failed to parse data.json: {Message}", ex.Message);
             IsError = true;
             ErrorMessage = $"Dashboard data could not be loaded. JSON parse error: {ex.Message}";
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error loading data.json");
+            _logger.LogError(ex, "Unexpected error loading data.json: {Message}", ex.Message);
             IsError = true;
             ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
         }
