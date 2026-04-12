@@ -1,24 +1,42 @@
 # Build results
 bin/
 obj/
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio
 .vs/
-.vscode/
 *.user
 *.suo
+*.sln.docstates
 
-# IDE
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Rider
 .idea/
-*.swp
 *.sln.iml
+
+# Build artifacts
+publish/
+PublishProfiles/
+
+# Runtime artifacts
+*.db
+*.log
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Logs
-logs/
-*.log
+# Node (if needed for future)
+node_modules/
+package-lock.json
+npm-debug.log
 
-# Local environment
-appsettings.Development.json
+# Environment-specific files (local development only)
+appsettings.Local.json
 appsettings.Production.json

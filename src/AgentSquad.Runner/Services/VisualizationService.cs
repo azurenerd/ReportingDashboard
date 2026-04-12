@@ -1,109 +1,83 @@
 using AgentSquad.Runner.Models;
 
-namespace AgentSquad.Runner.Services;
-
-public class VisualizationService : IVisualizationService
+namespace AgentSquad.Runner.Services
 {
-    private const string ColorShippedDot = "#34A853";
-    private const string ColorProgressDot = "#0078D4";
-    private const string ColorCarryoverDot = "#F4B400";
-    private const string ColorBlockersDot = "#EA4335";
-    private const string ColorPoC = "#F4B400";
-    private const string ColorRelease = "#34A853";
-    private const string ColorCheckpoint = "#999";
-
-    public string GetCellClassName(string status, bool isCurrentMonth)
+    /// <summary>
+    /// Service for color codes, CSS class names, and SVG shape generation.
+    /// Stub implementation: complete implementation deferred to subsequent PR.
+    /// </summary>
+    public class VisualizationService : IVisualizationService
     {
-        var baseClass = status.ToLower() switch
+        /// <summary>
+        /// Get CSS class name for a heatmap cell based on status type.
+        /// Stub: implementation deferred.
+        /// </summary>
+        public string GetCellClassName(string status, bool isCurrentMonth)
         {
-            "shipped" => "ship-cell",
-            "inprogress" => "prog-cell",
-            "carryover" => "carry-cell",
-            "blockers" => "block-cell",
-            _ => "ship-cell"
-        };
+            throw new NotImplementedException("Implementation deferred to service implementation PR");
+        }
 
-        return isCurrentMonth ? $"{baseClass} apr" : baseClass;
-    }
-
-    public string GetDotColor(string status)
-    {
-        return status.ToLower() switch
+        /// <summary>
+        /// Get hex color code for item indicator dot based on status type.
+        /// Stub: implementation deferred.
+        /// </summary>
+        public string GetDotColor(string status)
         {
-            "shipped" => ColorShippedDot,
-            "inprogress" => ColorProgressDot,
-            "carryover" => ColorCarryoverDot,
-            "blockers" => ColorBlockersDot,
-            _ => ColorShippedDot
-        };
-    }
+            throw new NotImplementedException("Implementation deferred to service implementation PR");
+        }
 
-    public string GetStatusHeaderClassName(string status)
-    {
-        return status.ToLower() switch
+        /// <summary>
+        /// Get CSS class name for status row header.
+        /// Stub: implementation deferred.
+        /// </summary>
+        public string GetStatusHeaderClassName(string status)
         {
-            "shipped" => "ship-hdr",
-            "inprogress" => "prog-hdr",
-            "carryover" => "carry-hdr",
-            "blockers" => "block-hdr",
-            _ => "ship-hdr"
-        };
-    }
+            throw new NotImplementedException("Implementation deferred to service implementation PR");
+        }
 
-    public string GenerateSvgDiamond(int cx, int cy, string fill, bool withFilter = true)
-    {
-        int offset = 8;
-        string filterAttr = withFilter ? " filter=\"url(#dropShadow)\"" : "";
-        
-        return $"<polygon points=\"{cx},{cy - offset} {cx + offset},{cy} {cx},{cy + offset} {cx - offset},{cy}\" " +
-               $"fill=\"{fill}\" stroke=\"none\"{filterAttr} />";
-    }
-
-    public string GenerateSvgCircle(int cx, int cy, int radius, string fill, string stroke, int strokeWidth)
-    {
-        return $"<circle cx=\"{cx}\" cy=\"{cy}\" r=\"{radius}\" fill=\"{fill}\" stroke=\"{stroke}\" stroke-width=\"{strokeWidth}\" />";
-    }
-
-    public string GenerateSvgLine(int x1, int y1, int x2, int y2, string stroke, int strokeWidth, string? dasharray = null)
-    {
-        string dasharrayAttr = !string.IsNullOrEmpty(dasharray) ? $" stroke-dasharray=\"{dasharray}\"" : "";
-        return $"<line x1=\"{x1}\" y1=\"{y1}\" x2=\"{x2}\" y2=\"{y2}\" stroke=\"{stroke}\" stroke-width=\"{strokeWidth}\"{dasharrayAttr} />";
-    }
-
-    public Dictionary<string, MilestoneShapeInfo> GetMilestoneShapes()
-    {
-        return new Dictionary<string, MilestoneShapeInfo>
+        /// <summary>
+        /// Generate SVG diamond shape (rotated square) for milestone endpoints.
+        /// Stub: implementation deferred.
+        /// </summary>
+        public string GenerateSvgDiamond(int cx, int cy, string fill, bool withFilter = true)
         {
-            {
-                "poc",
-                new MilestoneShapeInfo
-                {
-                    Type = "poc",
-                    Shape = "diamond",
-                    Color = ColorPoC,
-                    Size = 12
-                }
-            },
-            {
-                "release",
-                new MilestoneShapeInfo
-                {
-                    Type = "release",
-                    Shape = "diamond",
-                    Color = ColorRelease,
-                    Size = 12
-                }
-            },
-            {
-                "checkpoint",
-                new MilestoneShapeInfo
-                {
-                    Type = "checkpoint",
-                    Shape = "circle",
-                    Color = ColorCheckpoint,
-                    Size = 8
-                }
-            }
-        };
+            throw new NotImplementedException("Implementation deferred to service implementation PR");
+        }
+
+        /// <summary>
+        /// Generate SVG circle for milestone start/checkpoint markers.
+        /// Stub: implementation deferred.
+        /// </summary>
+        public string GenerateSvgCircle(int cx, int cy, int radius, string fill, string stroke, int strokeWidth)
+        {
+            throw new NotImplementedException("Implementation deferred to service implementation PR");
+        }
+
+        /// <summary>
+        /// Generate SVG line for milestone timelines or gridlines.
+        /// Stub: implementation deferred.
+        /// </summary>
+        public string GenerateSvgLine(int x1, int y1, int x2, int y2, string stroke, int strokeWidth, string? dasharray = null)
+        {
+            throw new NotImplementedException("Implementation deferred to service implementation PR");
+        }
+
+        /// <summary>
+        /// Get visualization metadata for all milestone types.
+        /// Stub: implementation deferred.
+        /// </summary>
+        public Dictionary<string, MilestoneShapeInfo> GetMilestoneShapes()
+        {
+            throw new NotImplementedException("Implementation deferred to service implementation PR");
+        }
+
+        /// <summary>
+        /// Get hex color for milestone type.
+        /// Stub: implementation deferred.
+        /// </summary>
+        public string GetMilestoneColor(string type)
+        {
+            throw new NotImplementedException("Implementation deferred to service implementation PR");
+        }
     }
 }

@@ -2,28 +2,39 @@ using AgentSquad.Runner.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorComponents();
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+
 builder.Services.AddScoped<IDashboardDataService, DashboardDataService>();
 builder.Services.AddScoped<IDateCalculationService, DateCalculationService>();
 builder.Services.AddScoped<IVisualizationService, VisualizationService>();
 
 builder.Services.AddLogging(config =>
 {
+    config.ClearProviders();
     config.AddConsole();
+    if (builder.Environment.IsDevelopment())
+    {
+        config.SetMinimumLevel(LogLevel.Debug);
+    }
+    else
+    {
+        config.SetMinimumLevel(LogLevel.Warning);
+    }
 });
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseAntiforgery();
-
-app.MapRazorComponents<AgentSquad.Runner.App>();
+app.UseRouting();
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
 
 app.Run();

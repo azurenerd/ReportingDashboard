@@ -1,28 +1,45 @@
 {
-  "projectName": "My Project",
-  "description": "Organization  Workstream  April 2026",
+  "projectName": "Privacy Automation Release Roadmap",
+  "description": "Trusted Platform - Privacy Automation Workstream - April 2026",
   "quarters": [
     {
       "month": "March",
       "year": 2026,
-      "shipped": ["Chatbot MVP", "Role Templates"],
-      "inProgress": ["Data Inventory", "Policy Engine"],
-      "carryover": ["DFD Automation"],
+      "shipped": [
+        "Chatbot MVP",
+        "Role Templates"
+      ],
+      "inProgress": [
+        "Data Inventory",
+        "Policy Engine"
+      ],
+      "carryover": [
+        "DFD Automation"
+      ],
       "blockers": []
     },
     {
       "month": "April",
       "year": 2026,
       "shipped": [],
-      "inProgress": ["Integration Testing"],
-      "carryover": ["DFD Automation"],
-      "blockers": ["Azure AD Sync Dependency"]
+      "inProgress": [
+        "Integration Testing",
+        "Documentation"
+      ],
+      "carryover": [
+        "DFD Automation"
+      ],
+      "blockers": [
+        "Azure AD Sync Dependency"
+      ]
     },
     {
       "month": "May",
       "year": 2026,
       "shipped": [],
-      "inProgress": [],
+      "inProgress": [
+        "Performance Optimization"
+      ],
       "carryover": [],
       "blockers": []
     },
