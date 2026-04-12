@@ -1,0 +1,91 @@
+@using AgentSquad.Runner.Models
+
+@if (ReportData?.StatusRows != null && ReportData.StatusRows.Count > 0)
+{
+    <div class="hm-wrap">
+        <div class="hm-title">Monthly Execution Heatmap - Progress by Status</div>
+        <div class="hm-grid">
+            <div class="hm-corner">Status</div>
+            <div class="hm-col-hdr">March</div>
+            <div class="hm-col-hdr apr-hdr">April (Now)</div>
+            <div class="hm-col-hdr">May</div>
+            <div class="hm-col-hdr">June</div>
+
+            @foreach (var statusRow in ReportData.StatusRows)
+            {
+                <div class="hm-row-hdr @GetStatusClass(statusRow.Status)">
+                    @GetStatusLabel(statusRow.Status)
+                </div>
+
+                @for (int monthIdx = 0; monthIdx < 4; monthIdx++)
+                {
+                    string monthKey = GetMonthKey(monthIdx);
+                    var items = statusRow.MonthlyItems.ContainsKey(monthKey) 
+                        ? statusRow.MonthlyItems[monthKey] 
+                        : new List<string>();
+
+                    <div class="hm-cell @GetStatusClass(statusRow.Status) @(monthIdx == 1 ? "apr" : "")">
+                        @if (items.Count > 0)
+                        {
+                            @foreach (var item in items)
+                            {
+                                <div class="it">@item</div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="it" style="color: #AAA;">-</div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="hm-wrap">
+        <div style="color: #999;">No status data to display</div>
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    public ReportData? ReportData { get; set; }
+
+    private string GetStatusClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "shipped" => "ship-cell",
+            "in progress" => "prog-cell",
+            "carryover" => "carry-cell",
+            "blockers" => "block-cell",
+            _ => ""
+        };
+    }
+
+    private string GetStatusLabel(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "shipped" => "✓ Shipped",
+            "in progress" => "? In Progress",
+            "carryover" => "↻ Carryover",
+            "blockers" => "✕ Blockers",
+            _ => status ?? ""
+        };
+    }
+
+    private string GetMonthKey(int monthIndex)
+    {
+        return monthIndex switch
+        {
+            0 => "March",
+            1 => "April",
+            2 => "May",
+            3 => "June",
+            _ => ""
+        };
+    }
+}

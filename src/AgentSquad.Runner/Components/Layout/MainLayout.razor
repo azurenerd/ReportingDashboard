@@ -1,0 +1,43 @@
+@using AgentSquad.Runner.Models
+@inherits LayoutComponentBase
+@inject HttpClient Http
+
+<div class="dashboard-container">
+    @if (reportData != null)
+    {
+        <CascadingValue Value="reportData">
+            <Header />
+            <Timeline />
+            <Heatmap />
+        </CascadingValue>
+    }
+    else if (errorMessage != null)
+    {
+        <div style="padding: 44px; color: #EA4335; font-size: 14px;">
+            <strong>Error loading dashboard:</strong> @errorMessage
+        </div>
+    }
+    else
+    {
+        <div style="padding: 44px; color: #999; font-size: 14px;">
+            Loading dashboard...
+        </div>
+    }
+</div>
+
+@code {
+    private ReportData? reportData;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            reportData = await Http.GetFromJsonAsync<ReportData>("data/data.json");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+}

@@ -1,8 +1,24 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentSquad.Runner", "src\AgentSquad.Runner\AgentSquad.Runner.csproj", "{556E216A-1049-48B1-ABFE-0F2AE8304FE8}"
+VisualStudioVersion = 17.0.31919.166
+MinimumVisualStudioVersion = 10.0.40219.0
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgentSquad.Runner", "src\AgentSquad.Runner\AgentSquad.Runner.csproj", "{A1C2D3E4-F5G6-H7I8-J9K0-L1M2N3O4P5Q6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{D287C89F-EA84-4C67-8F4A-BE0378EBB9B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgentSquad.Runner.Tests", "tests\AgentSquad.Runner.Tests\AgentSquad.Runner.Tests.csproj", "{B2D3E4F5-G6H7-I8J9-K0L1-M2N3O4P5Q6R7}"
 EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A1C2D3E4-F5G6-H7I8-J9K0-L1M2N3O4P5Q6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1C2D3E4-F5G6-H7I8-J9K0-L1M2N3O4P5Q6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1C2D3E4-F5G6-H7I8-J9K0-L1M2N3O4P5Q6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1C2D3E4-F5G6-H7I8-J9K0-L1M2N3O4P5Q6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2D3E4F5-G6H7-I8J9-K0L1-M2N3O4P5Q6R7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2D3E4F5-G6H7-I8J9-K0L1-M2N3O4P5Q6R7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2D3E4F5-G6H7-I8J9-K0L1-M2N3O4P5Q6R7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2D3E4F5-G6H7-I8J9-K0L1-M2N3O4P5Q6R7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 EndGlobal

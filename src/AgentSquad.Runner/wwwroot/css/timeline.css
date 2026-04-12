@@ -1,0 +1,53 @@
+.tl-area {
+    display: flex;
+    flex-direction: row;
+    height: 196px;
+    padding: 6px 44px 0;
+    border-bottom: 2px solid #E8E8E8;
+    background: #FAFAFA;
+    gap: 0;
+}
+
+.tl-legend {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 230px;
+    flex-shrink: 0;
+    padding-right: 12px;
+    border-right: 1px solid #E8E8E8;
+}
+
+.tl-leg-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tl-leg-item strong {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.tl-leg-item div {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: #444;
+}
+
+.tl-svg-box {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    overflow: visible;
+    padding: 0 12px;
+}
+
+.tl-svg-box svg {
+    width: 100%;
+    height: auto;
+    min-height: 185px;
+}

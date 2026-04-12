@@ -1,0 +1,197 @@
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
+@using System.Text
+
+@if (ReportData?.Milestones != null && ReportData.Milestones.Count > 0)
+{
+    <div class="tl-area">
+        <div class="tl-legend">
+            @foreach (var milestone in ReportData.Milestones)
+            {
+                <div class="tl-leg-item">
+                    <strong style="color: @milestone.Color; font-size: 12px; font-weight: 600;">
+                        @milestone.Id
+                    </strong>
+                    <div style="color: #444; font-size: 11px; font-weight: normal; line-height: 1.2;">
+                        @milestone.Title
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="tl-svg-box">
+            @((MarkupString)SvgMarkup)
+        </div>
+    </div>
+}
+else
+{
+    <div class="tl-area">
+        <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #999;">
+            No milestones to display
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    public ReportData? ReportData { get; set; }
+
+    [Inject]
+    public TimelineCalculationService? TimelineCalcService { get; set; }
+
+    private string SvgMarkup { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        GenerateTimelineSvg();
+    }
+
+    protected override void OnParametersSet()
+    {
+        GenerateTimelineSvg();
+    }
+
+    private void GenerateTimelineSvg()
+    {
+        if (ReportData?.Milestones == null || ReportData.Milestones.Count == 0)
+        {
+            SvgMarkup = GenerateEmptySvg();
+            return;
+        }
+
+        if (TimelineCalcService == null)
+        {
+            SvgMarkup = string.Empty;
+            return;
+        }
+
+        var sb = new StringBuilder();
+        
+        sb.AppendLine($"<svg width=\"{TimelineCalculationService.SvgWidthPx}\" height=\"{TimelineCalculationService.SvgHeightPx}\" xmlns=\"http://www.w3.org/2000/svg\" style=\"overflow: visible;\">");
+        
+        sb.AppendLine("<defs>");
+        sb.AppendLine("<filter id=\"drop-shadow\" x=\"-50%\" y=\"-50%\" width=\"200%\" height=\"200%\">");
+        sb.AppendLine("<feGaussianBlur in=\"SourceAlpha\" stdDeviation=\"3\"/>");
+        sb.AppendLine("<feOffset dx=\"2\" dy=\"2\" result=\"offsetblur\"/>");
+        sb.AppendLine("<feComponentTransfer>");
+        sb.AppendLine("<feFuncA type=\"linear\" slope=\"0.5\"/>");
+        sb.AppendLine("</feComponentTransfer>");
+        sb.AppendLine("<feMerge>");
+        sb.AppendLine("<feMergeNode/>");
+        sb.AppendLine("<feMergeNode in=\"SourceGraphic\"/>");
+        sb.AppendLine("</feMerge>");
+        sb.AppendLine("</filter>");
+        sb.AppendLine("</defs>");
+        
+        for (int i = 0; i < 6; i++)
+        {
+            int xPos = TimelineCalculationService.MonthWidthPx * i;
+            sb.AppendLine($"<line x1=\"{xPos}\" y1=\"0\" x2=\"{xPos}\" y2=\"{TimelineCalculationService.SvgHeightPx}\" stroke=\"#bbb\" opacity=\"0.4\" stroke-width=\"1\"/>");
+            
+            string monthName = TimelineCalcService.GetMonthName(i);
+            sb.AppendLine($"<text x=\"{xPos + TimelineCalculationService.MonthWidthPx / 2}\" y=\"18\" font-size=\"11\" font-weight=\"600\" fill=\"#666\" text-anchor=\"middle\">{monthName}</text>");
+        }
+        
+        for (int i = 0; i < ReportData.Milestones.Count; i++)
+        {
+            var milestone = ReportData.Milestones[i];
+            
+            if (milestone == null || string.IsNullOrEmpty(milestone.Color))
+                continue;
+            
+            int yPos = TimelineCalcService.CalculateMilestoneYPosition(i, ReportData.Milestones.Count);
+            
+            sb.AppendLine($"<line x1=\"0\" y1=\"{yPos}\" x2=\"{TimelineCalculationService.SvgWidthPx}\" y2=\"{yPos}\" stroke=\"{milestone.Color}\" stroke-width=\"3\"/>");
+            
+            if (milestone.StartDate != default)
+            {
+                int startX = TimelineCalcService.DateToPixel(milestone.StartDate);
+                sb.AppendLine($"<circle cx=\"{startX}\" cy=\"{yPos}\" r=\"7\" fill=\"white\" stroke=\"{milestone.Color}\" stroke-width=\"2.5\"/>");
+                
+                string startLabel = milestone.StartDate.ToString("MMM dd").Replace(" 0", " ");
+                sb.AppendLine($"<text x=\"{startX}\" y=\"{yPos + 25}\" font-size=\"9\" fill=\"#666\" text-anchor=\"middle\">{startLabel}</text>");
+            }
+            
+            if (milestone.Checkpoints != null)
+            {
+                foreach (var checkpoint in milestone.Checkpoints)
+                {
+                    if (checkpoint?.Date == default)
+                        continue;
+                    
+                    int cpX = TimelineCalcService.DateToPixel(checkpoint.Date);
+                    sb.AppendLine($"<circle cx=\"{cpX}\" cy=\"{yPos}\" r=\"4\" fill=\"white\" stroke=\"{milestone.Color}\" stroke-width=\"2\"/>");
+                }
+            }
+            
+            if (milestone.PocMilestone?.Date != default)
+            {
+                int pocX = TimelineCalcService.DateToPixel(milestone.PocMilestone.Date);
+                RenderDiamondMarker(sb, pocX, yPos, "#F4B400", milestone.PocMilestone.Label ?? "PoC");
+            }
+            
+            if (milestone.ProductionRelease?.Date != default)
+            {
+                int prodX = TimelineCalcService.DateToPixel(milestone.ProductionRelease.Date);
+                RenderDiamondMarker(sb, prodX, yPos, "#34A853", milestone.ProductionRelease.Label ?? "Prod");
+            }
+        }
+        
+        int nowX = TimelineCalcService.GetNowLinePosition();
+        sb.AppendLine($"<line x1=\"{nowX}\" y1=\"0\" x2=\"{nowX}\" y2=\"{TimelineCalculationService.SvgHeightPx}\" stroke=\"#EA4335\" stroke-width=\"2\" stroke-dasharray=\"5,3\"/>");
+        sb.AppendLine($"<text x=\"{nowX}\" y=\"14\" font-size=\"10\" font-weight=\"bold\" fill=\"#EA4335\" text-anchor=\"middle\">NOW</text>");
+        
+        sb.AppendLine("</svg>");
+        
+        SvgMarkup = sb.ToString();
+    }
+
+    private void RenderDiamondMarker(StringBuilder sb, int x, int y, string color, string label)
+    {
+        int size = 6;
+        
+        sb.AppendLine($"<g transform=\"translate({x}, {y})\">");
+        sb.AppendLine($"<rect x=\"{-size}\" y=\"{-size}\" width=\"{size * 2}\" height=\"{size * 2}\" fill=\"{color}\" stroke=\"{color}\" stroke-width=\"2\" transform=\"rotate(45)\" filter=\"url(#drop-shadow)\"/>");
+        sb.AppendLine("</g>");
+        
+        if (!string.IsNullOrEmpty(label))
+        {
+            sb.AppendLine($"<text x=\"{x}\" y=\"{y + 28}\" font-size=\"9\" fill=\"#666\" text-anchor=\"middle\">{HtmlEncode(label)}</text>");
+        }
+    }
+
+    private string GenerateEmptySvg()
+    {
+        if (TimelineCalcService == null)
+            return string.Empty;
+
+        var sb = new StringBuilder();
+        
+        sb.AppendLine($"<svg width=\"{TimelineCalculationService.SvgWidthPx}\" height=\"{TimelineCalculationService.SvgHeightPx}\" xmlns=\"http://www.w3.org/2000/svg\" style=\"overflow: visible;\">");
+        
+        for (int i = 0; i < 6; i++)
+        {
+            int xPos = TimelineCalculationService.MonthWidthPx * i;
+            sb.AppendLine($"<line x1=\"{xPos}\" y1=\"0\" x2=\"{xPos}\" y2=\"{TimelineCalculationService.SvgHeightPx}\" stroke=\"#bbb\" opacity=\"0.4\" stroke-width=\"1\"/>");
+            
+            string monthName = TimelineCalcService.GetMonthName(i);
+            sb.AppendLine($"<text x=\"{xPos + TimelineCalculationService.MonthWidthPx / 2}\" y=\"18\" font-size=\"11\" font-weight=\"600\" fill=\"#666\" text-anchor=\"middle\">{monthName}</text>");
+        }
+        
+        int nowX = TimelineCalcService.GetNowLinePosition();
+        sb.AppendLine($"<line x1=\"{nowX}\" y1=\"0\" x2=\"{nowX}\" y2=\"{TimelineCalculationService.SvgHeightPx}\" stroke=\"#EA4335\" stroke-width=\"2\" stroke-dasharray=\"5,3\"/>");
+        sb.AppendLine($"<text x=\"{nowX}\" y=\"14\" font-size=\"10\" font-weight=\"bold\" fill=\"#EA4335\" text-anchor=\"middle\">NOW</text>");
+        
+        sb.AppendLine("</svg>");
+        
+        return sb.ToString();
+    }
+
+    private string HtmlEncode(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+        return System.Net.WebUtility.HtmlEncode(text);
+    }
+}
