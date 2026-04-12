@@ -1,29 +1,27 @@
+#nullable enable
+
 using AgentSquad.Runner.Models;
 
 namespace AgentSquad.Runner.Services;
 
 /// <summary>
-/// Service for loading and managing dashboard configuration from data.json
+/// Service interface for loading and managing dashboard data from data.json file.
+/// Handles JSON deserialization, schema validation, and data caching.
 /// </summary>
 public interface IDashboardDataService
 {
     /// <summary>
-    /// Load and parse dashboard configuration from data.json file
+    /// Get the dashboard configuration, loading from disk if not cached.
     /// </summary>
-    /// <returns>Deserialized DashboardConfig object</returns>
-    /// <exception cref="FileNotFoundException">If data.json does not exist</exception>
-    /// <exception cref="JsonException">If JSON is invalid</exception>
-    /// <exception cref="InvalidOperationException">If schema validation fails</exception>
     Task<DashboardConfig> GetDashboardConfigAsync();
 
     /// <summary>
-    /// Refresh the cached configuration by re-reading data.json from disk
+    /// Force a refresh of the dashboard configuration from disk, clearing cache.
     /// </summary>
     Task RefreshAsync();
 
     /// <summary>
-    /// Get the last modification time of data.json file
+    /// Get the last modified time of the data.json file.
     /// </summary>
-    /// <returns>DateTime in UTC of last file modification</returns>
     DateTime GetLastModifiedTime();
 }

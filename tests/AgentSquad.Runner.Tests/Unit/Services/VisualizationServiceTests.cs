@@ -1,213 +1,215 @@
+#nullable enable
+
+using AgentSquad.Runner.Config;
 using AgentSquad.Runner.Models;
 using AgentSquad.Runner.Services;
-using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace AgentSquad.Runner.Tests.Unit.Services;
 
-[Trait("Category", "Unit")]
 public class VisualizationServiceTests
 {
-    private readonly VisualizationService _service = new();
+    private readonly ILogger<VisualizationService> mockLogger;
+    private readonly VisualizationService service;
 
-    [Fact]
-    public void GetCellClassName_ReturnsCorrectClassForShipped()
+    public VisualizationServiceTests()
     {
-        var className = _service.GetCellClassName("shipped", false);
+        var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        mockLogger = loggerFactory.CreateLogger<VisualizationService>();
+        service = new VisualizationService(mockLogger);
+    }
 
-        className.Should().Contain("ship-cell");
+    [Theory]
+    [InlineData("shipped", false, "ship-cell")]
+    [InlineData("shipped", true, "ship-cell apr")]
+    [InlineData("inProgress", false, "prog-cell")]
+    [InlineData("inProgress", true, "prog-cell apr")]
+    [InlineData("carryover", false, "carry-cell")]
+    [InlineData("carryover", true, "carry-cell apr")]
+    [InlineData("blockers", false, "block-cell")]
+    [InlineData("blockers", true, "block-cell apr")]
+    public void GetCellClassName_ReturnsCorrectCssClass(string status, bool isCurrentMonth, string expected)
+    {
+        var result = service.GetCellClassName(status, isCurrentMonth);
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData("shipped", "#34A853")]
+    [InlineData("inProgress", "#0078D4")]
+    [InlineData("carryover", "#F4B400")]
+    [InlineData("blockers", "#EA4335")]
+    public void GetDotColor_ReturnsCorrectColorForStatus(string status, string expected)
+    {
+        var result = service.GetDotColor(status);
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData("shipped", "ship-hdr")]
+    [InlineData("inProgress", "prog-hdr")]
+    [InlineData("carryover", "carry-hdr")]
+    [InlineData("blockers", "block-hdr")]
+    public void GetStatusHeaderClassName_ReturnsCorrectHeaderClass(string status, string expected)
+    {
+        var result = service.GetStatusHeaderClassName(status);
+        Assert.Equal(expected, result);
     }
 
     [Fact]
-    public void GetCellClassName_ReturnsCurrentMonthVariant()
+    public void GenerateSvgDiamond_ReturnsValidSvgPolygon()
     {
-        var className = _service.GetCellClassName("shipped", true);
+        var result = service.GenerateSvgDiamond(100, 90, "#F4B400", true);
 
-        className.Should().Contain("ship-cell");
-        className.Should().Contain("apr");
+        Assert.Contains("polygon", result);
+        Assert.Contains("100,84", result); // cy - half
+        Assert.Contains("106,90", result); // cx + half, cy
+        Assert.Contains("100,96", result); // cx, cy + half
+        Assert.Contains("94,90", result); // cx - half, cy
+        Assert.Contains("fill=\"#F4B400\"", result);
+        Assert.Contains("filter=\"url(#drop-shadow)\"", result);
     }
 
     [Fact]
-    public void GetCellClassName_HandlesInProgress()
+    public void GenerateSvgDiamond_WithoutFilter_OmitsFilterAttribute()
     {
-        var className = _service.GetCellClassName("inProgress", false);
+        var result = service.GenerateSvgDiamond(100, 90, "#34A853", false);
 
-        className.Should().Contain("prog-cell");
+        Assert.Contains("polygon", result);
+        Assert.DoesNotContain("filter", result);
     }
 
     [Fact]
-    public void GetCellClassName_HandlesCarryover()
+    public void GenerateSvgCircle_ReturnsValidSvgCircle()
     {
-        var className = _service.GetCellClassName("carryover", false);
+        var result = service.GenerateSvgCircle(100, 90, 5, "#999", "#666", 1);
 
-        className.Should().Contain("carry-cell");
+        Assert.Contains("circle", result);
+        Assert.Contains("cx=\"100\"", result);
+        Assert.Contains("cy=\"90\"", result);
+        Assert.Contains("r=\"5\"", result);
+        Assert.Contains("fill=\"#999\"", result);
+        Assert.Contains("stroke=\"#666\"", result);
+        Assert.Contains("stroke-width=\"1\"", result);
     }
 
     [Fact]
-    public void GetCellClassName_HandlesBlockers()
+    public void GenerateSvgLine_ReturnsValidSvgLine()
     {
-        var className = _service.GetCellClassName("blockers", false);
+        var result = service.GenerateSvgLine(0, 90, 1560, 90, "#CCC", 1);
 
-        className.Should().Contain("block-cell");
+        Assert.Contains("line", result);
+        Assert.Contains("x1=\"0\"", result);
+        Assert.Contains("y1=\"90\"", result);
+        Assert.Contains("x2=\"1560\"", result);
+        Assert.Contains("y2=\"90\"", result);
+        Assert.Contains("stroke=\"#CCC\"", result);
+        Assert.Contains("stroke-width=\"1\"", result);
     }
 
     [Fact]
-    public void GetDotColor_ReturnsGreenForShipped()
+    public void GenerateSvgLine_WithDasharray_IncludesDasharrayAttribute()
     {
-        var color = _service.GetDotColor("shipped");
+        var result = service.GenerateSvgLine(100, 0, 100, 185, "#EA4335", 2, "5,5");
 
-        color.Should().Be("#34A853");
+        Assert.Contains("stroke-dasharray=\"5,5\"", result);
     }
 
     [Fact]
-    public void GetDotColor_ReturnsBlueForInProgress()
+    public void GenerateSvgLine_WithoutDasharray_OmitsDasharrayAttribute()
     {
-        var color = _service.GetDotColor("inProgress");
+        var result = service.GenerateSvgLine(100, 0, 100, 185, "#EA4335", 2);
 
-        color.Should().Be("#0078D4");
+        Assert.DoesNotContain("stroke-dasharray", result);
     }
 
     [Fact]
-    public void GetDotColor_ReturnsYellowForCarryover()
+    public void GetMilestoneShapes_WithNullMilestones_ReturnsEmptyList()
     {
-        var color = _service.GetDotColor("carryover");
+        var result = service.GetMilestoneShapes(null!, new DateTime(2026, 1, 1), "#EA4335");
 
-        color.Should().Be("#F4B400");
+        Assert.Empty(result);
     }
 
     [Fact]
-    public void GetDotColor_ReturnsRedForBlockers()
+    public void GetMilestoneShapes_WithEmptyMilestones_ReturnsEmptyList()
     {
-        var color = _service.GetDotColor("blockers");
+        var result = service.GetMilestoneShapes(new List<Milestone>(), new DateTime(2026, 1, 1), "#EA4335");
 
-        color.Should().Be("#EA4335");
+        Assert.Empty(result);
     }
 
     [Fact]
-    public void GetStatusHeaderClassName_ReturnsCorrectClassForShipped()
+    public void GetMilestoneShapes_WithValidMilestones_ReturnsShapeStrings()
     {
-        var className = _service.GetStatusHeaderClassName("shipped");
+        var milestones = new List<Milestone>
+        {
+            new() { Id = "m1", Label = "PoC", Date = "2026-03-15", Type = "poc" },
+            new() { Id = "m2", Label = "Checkpoint", Date = "2026-04-01", Type = "checkpoint" },
+            new() { Id = "m3", Label = "Release", Date = "2026-06-30", Type = "release" }
+        };
 
-        className.Should().Be("ship-hdr");
+        var result = service.GetMilestoneShapes(milestones, new DateTime(2026, 1, 1), "#EA4335");
+
+        Assert.Equal(3, result.Count);
+        Assert.All(result, r => Assert.NotNull(r));
+        Assert.All(result, r => Assert.NotEmpty(r));
     }
 
     [Fact]
-    public void GetStatusHeaderClassName_ReturnsCorrectClassForInProgress()
+    public void GetMilestoneShapes_CheckpointReturnsCircle()
     {
-        var className = _service.GetStatusHeaderClassName("inProgress");
+        var milestones = new List<Milestone>
+        {
+            new() { Id = "cp1", Label = "Checkpoint", Date = "2026-04-01", Type = "checkpoint" }
+        };
 
-        className.Should().Be("prog-hdr");
+        var result = service.GetMilestoneShapes(milestones, new DateTime(2026, 1, 1), "#EA4335");
+
+        Assert.Single(result);
+        Assert.Contains("circle", result[0]);
     }
 
     [Fact]
-    public void GetStatusHeaderClassName_ReturnsCorrectClassForCarryover()
+    public void GetMilestoneShapes_PoCReturnsPolygon()
     {
-        var className = _service.GetStatusHeaderClassName("carryover");
+        var milestones = new List<Milestone>
+        {
+            new() { Id = "poc1", Label = "PoC", Date = "2026-03-15", Type = "poc" }
+        };
 
-        className.Should().Be("carry-hdr");
+        var result = service.GetMilestoneShapes(milestones, new DateTime(2026, 1, 1), "#EA4335");
+
+        Assert.Single(result);
+        Assert.Contains("polygon", result[0]);
     }
 
     [Fact]
-    public void GetStatusHeaderClassName_ReturnsCorrectClassForBlockers()
+    public void GetMilestoneShapes_ReleaseReturnsPolygon()
     {
-        var className = _service.GetStatusHeaderClassName("blockers");
+        var milestones = new List<Milestone>
+        {
+            new() { Id = "rel1", Label = "Release", Date = "2026-06-30", Type = "release" }
+        };
 
-        className.Should().Be("block-hdr");
+        var result = service.GetMilestoneShapes(milestones, new DateTime(2026, 1, 1), "#EA4335");
+
+        Assert.Single(result);
+        Assert.Contains("polygon", result[0]);
     }
 
     [Fact]
-    public void GenerateSvgDiamond_ProducesValidSvgElement()
+    public void GetMilestoneShapes_WithInvalidDate_SkipsMilestone()
     {
-        var svg = _service.GenerateSvgDiamond(100, 50, "#F4B400");
+        var milestones = new List<Milestone>
+        {
+            new() { Id = "m1", Label = "PoC", Date = "invalid-date", Type = "poc" },
+            new() { Id = "m2", Label = "Release", Date = "2026-06-30", Type = "release" }
+        };
 
-        svg.Should().Contain("<path");
-        svg.Should().Contain("#F4B400");
-    }
+        var result = service.GetMilestoneShapes(milestones, new DateTime(2026, 1, 1), "#EA4335");
 
-    [Fact]
-    public void GenerateSvgDiamond_WithFilter_IncludesFilter()
-    {
-        var svg = _service.GenerateSvgDiamond(100, 50, "#F4B400", true);
-
-        svg.Should().Contain("filter");
-    }
-
-    [Fact]
-    public void GenerateSvgDiamond_WithoutFilter_OmitsFilter()
-    {
-        var svg = _service.GenerateSvgDiamond(100, 50, "#F4B400", false);
-
-        svg.Should().NotBeEmpty();
-    }
-
-    [Fact]
-    public void GenerateSvgCircle_ProducesValidCircle()
-    {
-        var svg = _service.GenerateSvgCircle(100, 50, 6, "#999", "#888", 1);
-
-        svg.Should().Contain("<circle");
-        svg.Should().Contain("#999");
-    }
-
-    [Fact]
-    public void GenerateSvgCircle_SetsCorrectRadius()
-    {
-        var svg = _service.GenerateSvgCircle(100, 50, 8, "#999", "#888", 1);
-
-        svg.Should().Contain("r=\"8\"");
-    }
-
-    [Fact]
-    public void GenerateSvgLine_ProducesValidLine()
-    {
-        var svg = _service.GenerateSvgLine(0, 100, 200, 100, "#EA4335", 2);
-
-        svg.Should().Contain("<line");
-        svg.Should().Contain("#EA4335");
-    }
-
-    [Fact]
-    public void GenerateSvgLine_WithDasharray_IncludesDasharray()
-    {
-        var svg = _service.GenerateSvgLine(0, 100, 200, 100, "#EA4335", 2, "5,5");
-
-        svg.Should().Contain("stroke-dasharray");
-    }
-
-    [Fact]
-    public void GetMilestoneShapes_ReturnsAllThreeTypes()
-    {
-        var shapes = _service.GetMilestoneShapes();
-
-        shapes.Should().ContainKey("poc");
-        shapes.Should().ContainKey("release");
-        shapes.Should().ContainKey("checkpoint");
-    }
-
-    [Fact]
-    public void GetMilestoneShapes_PocIsYellowDiamond()
-    {
-        var shapes = _service.GetMilestoneShapes();
-
-        shapes["poc"].Shape.Should().Be("diamond");
-        shapes["poc"].Color.Should().Be("#F4B400");
-    }
-
-    [Fact]
-    public void GetMilestoneShapes_ReleaseIsGreenDiamond()
-    {
-        var shapes = _service.GetMilestoneShapes();
-
-        shapes["release"].Shape.Should().Be("diamond");
-        shapes["release"].Color.Should().Be("#34A853");
-    }
-
-    [Fact]
-    public void GetMilestoneShapes_CheckpointIsGrayCircle()
-    {
-        var shapes = _service.GetMilestoneShapes();
-
-        shapes["checkpoint"].Shape.Should().Be("circle");
-        shapes["checkpoint"].Color.Should().Be("#999");
+        Assert.Single(result);
     }
 }

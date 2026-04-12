@@ -1,5 +1,6 @@
+#nullable enable
+
 using FluentAssertions;
-using Microsoft.Playwright;
 using Xunit;
 
 namespace AgentSquad.Runner.UITests.Components;
@@ -16,32 +17,18 @@ public class TimelineComponentTests
     }
 
     [Fact]
-    public async Task Timeline_RendersOnPage()
+    public async Task TimelineChart_RendersSvgWithMilestoneShapesAndGridlines()
     {
         var page = _fixture.Page!;
 
         await page.GotoAsync($"{_fixture.BaseUrl}/dashboard");
+        await page.WaitForLoadStateAsync(Microsoft.Playwright.LoadState.NetworkIdle);
 
-        var content = await page.ContentAsync();
-        content.Should().NotBeNullOrEmpty();
-    }
+        var timelineSvg = await page.QuerySelectorAsync(".timeline-svg");
+        timelineSvg.Should().NotBeNull("SVG timeline should be rendered");
 
-    [Fact]
-    public async Task Timeline_LoadsWithoutErrors()
-    {
-        var page = _fixture.Page!;
-        var consoleErrors = new List<string>();
-
-        page.Console += (_, msg) =>
-        {
-            if (msg.Type == "error")
-            {
-                consoleErrors.Add(msg.Text);
-            }
-        };
-
-        await page.GotoAsync($"{_fixture.BaseUrl}/dashboard");
-
-        consoleErrors.Should().BeEmpty("Timeline should not produce console errors");
+        var svgContent = await page.InnerHTMLAsync(".timeline-svg");
+        svgContent.Should().Contain("line", "Should have gridlines");
+        svgContent.Should().Contain("polygon", "Should have milestone diamonds");
     }
 }

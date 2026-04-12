@@ -1,114 +1,131 @@
 @using AgentSquad.Runner.Models
 @using AgentSquad.Runner.Services
-@using System.Text
-@inject IDateCalculationService DateService
-@inject IVisualizationService VisualizationService
+@using AgentSquad.Runner.Config
 
-<div class="tl-area">
-    <div class="tl-sidebar">
-        <div class="tl-milestone-label m1">
-            M1
-            <div class="tl-milestone-label-desc">Chatbot & MS Role</div>
+@implements IAsyncDisposable
+
+@if (TimelineSvgMarkup != null)
+{
+    <div class="timeline-container">
+        <div class="timeline-labels">
+            @foreach (var milestone in Milestones ?? new List<Milestone>())
+            {
+                <div class="timeline-label">@milestone.Label</div>
+            }
         </div>
-        <div class="tl-milestone-label m2">
-            M2
-            <div class="tl-milestone-label-desc">PoC Delivery</div>
-        </div>
-        <div class="tl-milestone-label m3">
-            M3
-            <div class="tl-milestone-label-desc">Production</div>
+        <div class="timeline-svg-wrapper">
+            @((MarkupString)TimelineSvgMarkup)
         </div>
     </div>
-    <div class="tl-svg-box">
-        @((MarkupString)TimelineSvg)
-    </div>
-</div>
+}
+else
+{
+    <div class="timeline-loading">Loading timeline...</div>
+}
 
 @code {
     [Parameter]
     public List<Milestone> Milestones { get; set; } = new();
 
     [Parameter]
-    public DateTime CurrentDate { get; set; }
+    public DateTime CurrentDate { get; set; } = DateTime.Now;
 
-    private string TimelineSvg = string.Empty;
+    [Inject]
+    private IDateCalculationService DateService { get; set; } = null!;
+
+    [Inject]
+    private IVisualizationService VisualizationService { get; set; } = null!;
+
+    [Inject]
+    private ILogger<TimelineChart> Logger { get; set; } = null!;
+
+    private string? TimelineSvgMarkup;
 
     protected override void OnParametersSet()
     {
-        TimelineSvg = GenerateTimelineSvg();
+        try
+        {
+            TimelineSvgMarkup = GenerateTimelineSvg();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error generating timeline SVG");
+            TimelineSvgMarkup = "<div class=\"timeline-error\">Error loading timeline</div>";
+        }
     }
 
     private string GenerateTimelineSvg()
     {
-        var svg = new StringBuilder();
-        svg.AppendLine("<svg width=\"1560\" height=\"185\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1560 185\" preserveAspectRatio=\"none\">");
-        
+        var baselineDate = new DateTime(CurrentDate.Year, 1, 1);
+        var svg = new System.Text.StringBuilder();
+
+        // SVG opening tag with defs for drop shadow
+        svg.AppendLine("<svg width=\"1560\" height=\"185\" xmlns=\"http://www.w3.org/2000/svg\" class=\"timeline-svg\">");
         svg.AppendLine("<defs>");
-        svg.AppendLine("<filter id=\"dropShadow\" x=\"-50%\" y=\"-50%\" width=\"200%\" height=\"200%\">");
-        svg.AppendLine("<feDropShadow dx=\"2\" dy=\"2\" stdDeviation=\"2\" flood-opacity=\"0.3\"/>");
+        svg.AppendLine("<filter id=\"drop-shadow\" x=\"-50%\" y=\"-50%\" width=\"200%\" height=\"200%\">");
+        svg.AppendLine("<feDropShadow dx=\"0\" dy=\"1\" stdDeviation=\"2\" flood-opacity=\"0.3\" />");
         svg.AppendLine("</filter>");
         svg.AppendLine("</defs>");
 
-        int[] monthPositions = { 0, 260, 520, 780, 1040, 1300 };
-        string[] monthNames = { "Jan", "Feb", "Mar", "Apr", "May", "Jun" };
-
-        for (int i = 0; i < monthPositions.Length; i++)
+        // Draw month gridlines (Jan=0, Feb=260, Mar=520, Apr=780, May=1040, Jun=1300)
+        for (int month = 0; month < 6; month++)
         {
-            svg.AppendLine($"<line x1=\"{monthPositions[i]}\" y1=\"0\" x2=\"{monthPositions[i]}\" y2=\"185\" stroke=\"#bbb\" stroke-width=\"1\" opacity=\"0.4\"/>");
-            svg.AppendLine($"<text x=\"{monthPositions[i] + 10}\" y=\"15\" font-size=\"11\" font-weight=\"600\" fill=\"#666\">{monthNames[i]}</text>");
+            int xPosition = month * 260;
+            svg.AppendLine(VisualizationService.GenerateSvgLine(
+                xPosition, 0, xPosition, 185,
+                VisualizationConstants.ColorBorderLight,
+                VisualizationConstants.GridlineStrokeWidth
+            ));
         }
 
-        int nowX = 823;
-        svg.AppendLine($"<line x1=\"{nowX}\" y1=\"25\" x2=\"{nowX}\" y2=\"185\" stroke=\"#EA4335\" stroke-width=\"2\" stroke-dasharray=\"5,3\"/>");
-        svg.AppendLine($"<text x=\"{nowX - 15}\" y=\"22\" font-size=\"10\" font-weight=\"700\" fill=\"#EA4335\">NOW</text>");
-
-        int[] milestoneYPositions = { 42, 98, 154 };
-        string[] milestoneColors = { "#0078D4", "#00897B", "#546E7A" };
-
-        for (int i = 0; i < 3; i++)
+        // Draw "Now" marker (red dashed line)
+        try
         {
-            svg.AppendLine($"<line x1=\"0\" y1=\"{milestoneYPositions[i]}\" x2=\"1560\" y2=\"{milestoneYPositions[i]}\" stroke=\"{milestoneColors[i]}\" stroke-width=\"3\"/>");
-        }
-
-        var baselineDate = new DateTime(CurrentDate.Year, 1, 1);
-        
-        foreach (var milestone in Milestones)
-        {
-            if (DateTime.TryParse(milestone.Date, out var milestoneDate))
+            var nowMarkerX = DateService.GetNowMarkerXPosition(CurrentDate, baselineDate);
+            if (nowMarkerX >= 0 && nowMarkerX <= 1560)
             {
-                int xPos = DateService.GetMilestoneXPosition(milestoneDate, baselineDate);
-                var shapes = VisualizationService.GetMilestoneShapes();
+                svg.AppendLine(VisualizationService.GenerateSvgLine(
+                    nowMarkerX, 0, nowMarkerX, 185,
+                    VisualizationConstants.ColorNowMarker,
+                    VisualizationConstants.NowMarkerLineStrokeWidth,
+                    "5,5"
+                ));
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Error calculating Now marker position");
+        }
 
-                if (shapes.TryGetValue(milestone.Type.ToLower(), out var shapeInfo))
-                {
-                    int yPos = GetMilestoneYPosition(milestone.Type);
-                    
-                    if (shapeInfo.Shape == "diamond")
-                    {
-                        svg.AppendLine(VisualizationService.GenerateSvgDiamond(xPos, yPos, shapeInfo.Color, true));
-                    }
-                    else if (shapeInfo.Shape == "circle")
-                    {
-                        svg.AppendLine(VisualizationService.GenerateSvgCircle(xPos, yPos, 5, shapeInfo.Color, "#999", 1));
-                    }
+        // Draw milestone shapes
+        if (Milestones != null && Milestones.Count > 0)
+        {
+            var milestoneShapes = VisualizationService.GetMilestoneShapes(
+                Milestones,
+                baselineDate,
+                VisualizationConstants.ColorNowMarker
+            );
 
-                    svg.AppendLine($"<text x=\"{xPos - 20}\" y=\"175\" font-size=\"10\" fill=\"#666\">{milestoneDate:MMM dd}</text>");
-                }
+            foreach (var shape in milestoneShapes)
+            {
+                svg.AppendLine(shape);
             }
         }
 
+        // Draw timeline baseline
+        svg.AppendLine(VisualizationService.GenerateSvgLine(
+            0, 90, 1560, 90,
+            VisualizationConstants.ColorBorderHeavy,
+            VisualizationConstants.TimelineLineStrokeWidth
+        ));
+
         svg.AppendLine("</svg>");
+
         return svg.ToString();
     }
 
-    private int GetMilestoneYPosition(string type)
+    async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        return type.ToLower() switch
-        {
-            "poc" => 42,
-            "release" => 98,
-            "checkpoint" => 154,
-            _ => 98
-        };
+        await Task.CompletedTask;
     }
 }

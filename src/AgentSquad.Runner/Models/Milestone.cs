@@ -1,9 +1,12 @@
+#nullable enable
+
 using System.Text.Json.Serialization;
 
 namespace AgentSquad.Runner.Models;
 
 /// <summary>
-/// Represents a timeline milestone (PoC, production release, or checkpoint)
+/// Represents a milestone event on the timeline.
+/// Includes label, date, and type (PoC, production release, or checkpoint).
 /// </summary>
 public class Milestone
 {
@@ -14,8 +17,8 @@ public class Milestone
     public string Label { get; set; } = string.Empty;
 
     [JsonPropertyName("date")]
-    public string Date { get; set; } = string.Empty; // ISO 8601 format: "2026-04-30"
+    public string Date { get; set; } = string.Empty;
 
     [JsonPropertyName("type")]
-    public string Type { get; set; } = string.Empty; // "poc" | "release" | "checkpoint"
+    public string Type { get; set; } = string.Empty;
 }

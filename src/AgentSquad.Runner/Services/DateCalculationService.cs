@@ -1,128 +1,140 @@
+#nullable enable
+
 using AgentSquad.Runner.Models;
-using NodaTime;
 
 namespace AgentSquad.Runner.Services;
 
 /// <summary>
-/// Implementation of IDateCalculationService for date calculations and timeline positioning
+/// Service for date and timeline calculations.
+/// Handles month boundary calculations, milestone positioning on the SVG timeline,
+/// and determination of the current month for highlighting.
 /// </summary>
 public class DateCalculationService : IDateCalculationService
 {
     private const int PixelsPerMonth = 260;
-    private const int SvgWidth = 1560;
-    private readonly ILogger<DateCalculationService> _logger;
+    private readonly ILogger<DateCalculationService> logger;
 
     public DateCalculationService(ILogger<DateCalculationService> logger)
     {
-        _logger = logger;
+        this.logger = logger;
     }
 
     public List<MonthInfo> GetDisplayMonths(DateTime currentDate)
     {
-        var result = new List<MonthInfo>();
-        
-        var year = currentDate.Year;
-        var month = currentDate.Month;
-        
-        // Start from previous month
-        var startMonth = month - 1;
-        var startYear = year;
-        
-        if (startMonth < 1)
+        try
         {
-            startMonth = 12;
-            startYear = year - 1;
-        }
-        
-        for (int i = 0; i < 4; i++)
-        {
-            var displayMonth = startMonth + i;
-            var displayYear = startYear;
-            
-            if (displayMonth > 12)
+            var months = new List<MonthInfo>();
+            var today = currentDate.ToUniversalTime();
+            var currentYear = today.Year;
+            var currentMonth = today.Month;
+
+            for (int i = -1; i < 3; i++)
             {
-                displayMonth = displayMonth - 12;
-                displayYear = displayYear + 1;
+                var targetMonth = currentMonth + i;
+                var targetYear = currentYear;
+
+                if (targetMonth < 1)
+                {
+                    targetMonth += 12;
+                    targetYear--;
+                }
+                else if (targetMonth > 12)
+                {
+                    targetMonth -= 12;
+                    targetYear++;
+                }
+
+                var monthName = new DateTime(targetYear, targetMonth, 1).ToString("MMMM");
+                var isCurrentMonth = targetYear == currentYear && targetMonth == currentMonth;
+
+                var startDate = new DateTime(targetYear, targetMonth, 1);
+                var endDate = startDate.AddMonths(1).AddDays(-1);
+
+                months.Add(new MonthInfo
+                {
+                    Name = monthName,
+                    Year = targetYear,
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    GridColumnIndex = i + 1,
+                    IsCurrentMonth = isCurrentMonth
+                });
             }
-            
-            var monthName = GetMonthName(displayMonth);
-            var startDate = new DateTime(displayYear, displayMonth, 1);
-            var endDate = startDate.AddMonths(1).AddDays(-1);
-            
-            var isCurrentMonth = displayMonth == month && displayYear == year;
-            
-            var monthInfo = new MonthInfo
-            {
-                Name = monthName,
-                Year = displayYear,
-                StartDate = startDate,
-                EndDate = endDate,
-                GridColumnIndex = i,
-                IsCurrentMonth = isCurrentMonth
-            };
-            
-            result.Add(monthInfo);
+
+            logger.LogDebug("Calculated display months: {Count} months", months.Count);
+            return months;
         }
-        
-        return result;
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error calculating display months");
+            throw new InvalidOperationException($"Failed to calculate display months for {currentDate:yyyy-MM-dd}", ex);
+        }
     }
 
     public int GetMilestoneXPosition(DateTime milestoneDate, DateTime baselineDate)
     {
-        var baselineYear = baselineDate.Year;
-        var jan1 = new DateTime(baselineYear, 1, 1);
-        
-        var daysDiff = (milestoneDate - jan1).TotalDays;
-        var dayOfYear = (int)daysDiff;
-        
-        // Assuming 365 days in year, calculate month position
-        // Jan: 0-260, Feb: 260-520, Mar: 520-780, Apr: 780-1040, May: 1040-1300, Jun: 1300-1560
-        var monthIndex = dayOfYear / 30; // Approximate
-        var dayInMonth = dayOfYear % 30;
-        
-        var xPosition = (monthIndex * PixelsPerMonth) + (dayInMonth * (PixelsPerMonth / 30));
-        
-        return Math.Clamp(xPosition, 0, SvgWidth);
+        try
+        {
+            var baseline = baselineDate.ToUniversalTime();
+            var milestone = milestoneDate.ToUniversalTime();
+
+            var monthDiff = (milestone.Year - baseline.Year) * 12 + (milestone.Month - baseline.Month);
+            monthDiff += milestone.Day >= 15 ? 1 : 0;
+
+            int xPosition = monthDiff * PixelsPerMonth;
+
+            if (xPosition < -100 || xPosition > 1560 + 100)
+            {
+                logger.LogWarning("Milestone date {Date} results in x-position {Position} outside typical timeline range",
+                    milestoneDate.ToString("yyyy-MM-dd"), xPosition);
+            }
+
+            return xPosition;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error calculating x-position for milestone date {Date}", milestoneDate.ToString("yyyy-MM-dd"));
+            throw new InvalidOperationException($"Failed to calculate x-position for {milestoneDate:yyyy-MM-dd}", ex);
+        }
     }
 
     public int GetNowMarkerXPosition(DateTime currentDate, DateTime baselineDate)
     {
-        return GetMilestoneXPosition(currentDate, baselineDate);
+        try
+        {
+            var baseline = baselineDate.ToUniversalTime();
+            var today = currentDate.ToUniversalTime();
+
+            var monthDiff = (today.Year - baseline.Year) * 12 + (today.Month - baseline.Month);
+            int dayOfMonth = today.Day;
+            int daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
+
+            double monthFraction = (double)dayOfMonth / daysInMonth;
+            double xPosition = (monthDiff * PixelsPerMonth) + (PixelsPerMonth * monthFraction);
+
+            return (int)Math.Round(xPosition);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error calculating x-position for 'Now' marker");
+            throw new InvalidOperationException("Failed to calculate 'Now' marker position", ex);
+        }
     }
 
     public bool IsCurrentMonth(string monthName, int year, DateTime currentDate)
     {
-        var currentMonthName = GetMonthName(currentDate.Month);
-        
-        return monthName.Equals(currentMonthName, StringComparison.OrdinalIgnoreCase) 
-            && year == currentDate.Year;
-    }
-
-    public (int startX, int endX) GetMonthBounds(int monthIndex)
-    {
-        var startX = monthIndex * PixelsPerMonth;
-        var endX = startX + PixelsPerMonth;
-        
-        return (startX, endX);
-    }
-
-    private string GetMonthName(int monthNumber)
-    {
-        return monthNumber switch
+        try
         {
-            1 => "January",
-            2 => "February",
-            3 => "March",
-            4 => "April",
-            5 => "May",
-            6 => "June",
-            7 => "July",
-            8 => "August",
-            9 => "September",
-            10 => "October",
-            11 => "November",
-            12 => "December",
-            _ => string.Empty
-        };
+            var today = currentDate.ToUniversalTime();
+            var currentMonthName = today.ToString("MMMM");
+
+            bool isMatch = monthName.Equals(currentMonthName, StringComparison.OrdinalIgnoreCase) && year == today.Year;
+            return isMatch;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error determining if month {Month} {Year} is current month", monthName, year);
+            return false;
+        }
     }
 }

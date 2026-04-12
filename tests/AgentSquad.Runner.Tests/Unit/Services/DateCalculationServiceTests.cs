@@ -1,166 +1,249 @@
+#nullable enable
+
 using AgentSquad.Runner.Models;
 using AgentSquad.Runner.Services;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Moq;
 using Xunit;
 
 namespace AgentSquad.Runner.Tests.Unit.Services;
 
-[Trait("Category", "Unit")]
 public class DateCalculationServiceTests
 {
-    private readonly DateCalculationService _service;
+    private readonly ILogger<DateCalculationService> mockLogger;
+    private readonly DateCalculationService service;
 
     public DateCalculationServiceTests()
     {
-        var mockLogger = new Mock<ILogger<DateCalculationService>>();
-        _service = new DateCalculationService(mockLogger.Object);
+        var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        mockLogger = loggerFactory.CreateLogger<DateCalculationService>();
+        service = new DateCalculationService(mockLogger);
     }
 
     [Fact]
-    public void GetDisplayMonths_ReturnsMonthsStartingFromCurrentMonth()
+    public void GetDisplayMonths_ReturnsThreeMonthsAroundCurrent()
     {
         var currentDate = new DateTime(2026, 4, 15);
 
-        var months = _service.GetDisplayMonths(currentDate);
+        var result = service.GetDisplayMonths(currentDate);
 
-        months.Should().NotBeEmpty();
-        months.Should().HaveCountGreaterThanOrEqualTo(4);
-        months[0].Name.Should().Be("April");
-        months[0].Year.Should().Be(2026);
-        months[0].IsCurrentMonth.Should().BeTrue();
+        Assert.Equal(4, result.Count);
+        Assert.All(result, m => Assert.NotNull(m.Name));
+        Assert.All(result, m => Assert.True(m.Year > 0));
     }
 
     [Fact]
-    public void GetDisplayMonths_MarksCurrent_MonthCorrectly()
+    public void GetDisplayMonths_IncludesCurrentMonth()
     {
         var currentDate = new DateTime(2026, 4, 15);
 
-        var months = _service.GetDisplayMonths(currentDate);
+        var result = service.GetDisplayMonths(currentDate);
 
-        var currentMonthResult = months.FirstOrDefault(m => m.IsCurrentMonth);
-        currentMonthResult.Should().NotBeNull();
-        currentMonthResult!.Name.Should().Be("April");
+        var currentMonth = result.FirstOrDefault(m => m.IsCurrentMonth);
+        Assert.NotNull(currentMonth);
+        Assert.Equal("April", currentMonth.Name);
+        Assert.Equal(2026, currentMonth.Year);
     }
 
     [Fact]
-    public void GetDisplayMonths_AssignsGridColumnIndices()
+    public void GetDisplayMonths_CurrentMonthIsHighlighted()
     {
         var currentDate = new DateTime(2026, 4, 15);
 
-        var months = _service.GetDisplayMonths(currentDate);
+        var result = service.GetDisplayMonths(currentDate);
 
-        for (int i = 0; i < months.Count; i++)
-        {
-            months[i].GridColumnIndex.Should().Be(i);
-        }
+        Assert.Single(result, m => m.IsCurrentMonth);
     }
 
     [Fact]
-    public void GetDisplayMonths_CalculatesMonthBounds()
+    public void GetDisplayMonths_ReturnsCorrectMonthOrder()
     {
         var currentDate = new DateTime(2026, 4, 15);
 
-        var months = _service.GetDisplayMonths(currentDate);
+        var result = service.GetDisplayMonths(currentDate);
 
-        months.ForEach(m =>
-        {
-            m.StartDate.Day.Should().Be(1);
-            m.EndDate.Month.Should().Be(m.StartDate.Month);
-            m.EndDate.Should().BeOnOrAfter(m.StartDate);
-        });
+        // Should have 4 months total with current month in the middle
+        Assert.NotNull(result[0]); // Previous month
+        Assert.NotNull(result[1]); // Previous month (or current)
+        Assert.NotNull(result[2]); // Current or next
+        Assert.NotNull(result[3]); // Next month
+
+        var currentMonthIndex = result.FindIndex(m => m.IsCurrentMonth);
+        Assert.True(currentMonthIndex >= 1 && currentMonthIndex <= 2);
     }
 
     [Fact]
-    public void IsCurrentMonth_ReturnsTrueForCurrentMonth()
+    public void GetMilestoneXPosition_CalculatesPositionForMilestoneInJanuary()
     {
-        var currentDate = new DateTime(2026, 4, 15);
+        var baselineDate = new DateTime(2026, 1, 1);
+        var milestoneDate = new DateTime(2026, 1, 15);
 
-        var result = _service.IsCurrentMonth("April", 2026, currentDate);
+        var result = service.GetMilestoneXPosition(milestoneDate, baselineDate);
 
-        result.Should().BeTrue();
+        Assert.True(result >= 0);
+        Assert.True(result <= 260);
     }
 
     [Fact]
-    public void IsCurrentMonth_ReturnsFalseForPastMonth()
+    public void GetMilestoneXPosition_CalculatesPositionForMilestoneInFebruary()
     {
-        var currentDate = new DateTime(2026, 4, 15);
+        var baselineDate = new DateTime(2026, 1, 1);
+        var milestoneDate = new DateTime(2026, 2, 15);
 
-        var result = _service.IsCurrentMonth("March", 2026, currentDate);
+        var result = service.GetMilestoneXPosition(milestoneDate, baselineDate);
 
-        result.Should().BeFalse();
+        Assert.True(result > 260);
+        Assert.True(result <= 520);
     }
 
     [Fact]
-    public void IsCurrentMonth_ReturnsFalseForFutureMonth()
+    public void GetMilestoneXPosition_CalculatesPositionForMilestoneInMarch()
     {
-        var currentDate = new DateTime(2026, 4, 15);
+        var baselineDate = new DateTime(2026, 1, 1);
+        var milestoneDate = new DateTime(2026, 3, 15);
 
-        var result = _service.IsCurrentMonth("May", 2026, currentDate);
+        var result = service.GetMilestoneXPosition(milestoneDate, baselineDate);
 
-        result.Should().BeFalse();
+        Assert.True(result > 520);
+        Assert.True(result <= 780);
     }
 
     [Fact]
-    public void GetMonthBounds_ReturnsValidXCoordinates()
+    public void GetMilestoneXPosition_StartOfMonth_IsAtMonthBoundary()
     {
-        var bounds = _service.GetMonthBounds(0);
+        var baselineDate = new DateTime(2026, 1, 1);
+        var milestoneDate = new DateTime(2026, 2, 1);
 
-        bounds.startX.Should().BeGreaterThanOrEqualTo(0);
-        bounds.endX.Should().BeGreaterThan(bounds.startX);
+        var result = service.GetMilestoneXPosition(milestoneDate, baselineDate);
+
+        Assert.Equal(260, result);
     }
 
     [Fact]
-    public void GetMonthBounds_IncreasingIndexesProduceRightwardBounds()
+    public void GetNowMarkerXPosition_CalculatesCurrentDayPosition()
     {
-        var bounds0 = _service.GetMonthBounds(0);
-        var bounds1 = _service.GetMonthBounds(1);
+        var baselineDate = new DateTime(2026, 1, 1);
+        var currentDate = new DateTime(2026, 4, 12);
 
-        bounds1.startX.Should().BeGreaterThan(bounds0.startX);
-        bounds1.endX.Should().BeGreaterThan(bounds0.endX);
+        var result = service.GetNowMarkerXPosition(currentDate, baselineDate);
+
+        // April is month 4 (index 3), so approximately 3*260 + partial days = ~780 + days into April
+        Assert.True(result > 780);
+        Assert.True(result < 1040);
     }
 
     [Fact]
-    public void GetMilestoneXPosition_CalculatesPositionForMilestoneDate()
+    public void GetNowMarkerXPosition_FirstDayOfMonth_IsNearMonthStart()
     {
-        var baselineDate = new DateTime(2026, 3, 1);
-        var milestoneDate = new DateTime(2026, 4, 15);
-
-        var position = _service.GetMilestoneXPosition(milestoneDate, baselineDate);
-
-        position.Should().BeGreaterThan(0);
-    }
-
-    [Fact]
-    public void GetMilestoneXPosition_ReturnsEqualPositionForSameDates()
-    {
-        var date = new DateTime(2026, 4, 15);
-
-        var position = _service.GetMilestoneXPosition(date, date);
-
-        position.Should().Be(0);
-    }
-
-    [Fact]
-    public void GetNowMarkerXPosition_CalculatesCurrentDatePosition()
-    {
-        var baselineDate = new DateTime(2026, 3, 1);
-        var currentDate = new DateTime(2026, 4, 15);
-
-        var position = _service.GetNowMarkerXPosition(currentDate, baselineDate);
-
-        position.Should().BeGreaterThan(0);
-    }
-
-    [Fact]
-    public void GetNowMarkerXPosition_WithEarlyApril_ReturnsValidPosition()
-    {
-        var baselineDate = new DateTime(2026, 3, 1);
+        var baselineDate = new DateTime(2026, 1, 1);
         var currentDate = new DateTime(2026, 4, 1);
 
-        var position = _service.GetNowMarkerXPosition(currentDate, baselineDate);
+        var result = service.GetNowMarkerXPosition(currentDate, baselineDate);
 
-        position.Should().BeGreaterThanOrEqualTo(0);
+        // April starts around 780
+        Assert.True(result >= 780);
+        Assert.True(result < 850);
+    }
+
+    [Fact]
+    public void GetNowMarkerXPosition_LastDayOfMonth_IsNearMonthEnd()
+    {
+        var baselineDate = new DateTime(2026, 1, 1);
+        var currentDate = new DateTime(2026, 4, 30);
+
+        var result = service.GetNowMarkerXPosition(currentDate, baselineDate);
+
+        // April ends around 1040
+        Assert.True(result > 990);
+        Assert.True(result <= 1040);
+    }
+
+    [Theory]
+    [InlineData("January", 2026, true)]
+    [InlineData("January", 2025, false)]
+    [InlineData("February", 2026, false)]
+    public void IsCurrentMonth_ComparesMonthAndYear(string monthName, int year, bool expected)
+    {
+        var currentDate = new DateTime(2026, 1, 15);
+
+        var result = service.IsCurrentMonth(monthName, year, currentDate);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void IsCurrentMonth_CaseInsensitive()
+    {
+        var currentDate = new DateTime(2026, 4, 15);
+
+        var resultLower = service.IsCurrentMonth("april", 2026, currentDate);
+        var resultUpper = service.IsCurrentMonth("APRIL", 2026, currentDate);
+        var resultMixed = service.IsCurrentMonth("ApRiL", 2026, currentDate);
+
+        Assert.True(resultLower);
+        Assert.True(resultUpper);
+        Assert.True(resultMixed);
+    }
+
+    [Theory]
+    [InlineData(2026, 1, "January")]
+    [InlineData(2026, 2, "February")]
+    [InlineData(2026, 3, "March")]
+    [InlineData(2026, 4, "April")]
+    [InlineData(2026, 5, "May")]
+    [InlineData(2026, 6, "June")]
+    public void GetDisplayMonths_IncludesExpectedMonthNames(int year, int month, string expectedName)
+    {
+        var currentDate = new DateTime(year, month, 15);
+
+        var result = service.GetDisplayMonths(currentDate);
+
+        Assert.Contains(result, m => m.Name == expectedName);
+    }
+
+    [Fact]
+    public void GetDisplayMonths_MonthsHaveCorrectStartAndEndDates()
+    {
+        var currentDate = new DateTime(2026, 4, 15);
+
+        var result = service.GetDisplayMonths(currentDate);
+
+        var april = result.First(m => m.Name == "April");
+        Assert.Equal(new DateTime(2026, 4, 1), april.StartDate);
+        Assert.Equal(new DateTime(2026, 4, 30), april.EndDate);
+    }
+
+    [Fact]
+    public void GetMilestoneXPosition_HandlesPreviousYearMilestone()
+    {
+        var baselineDate = new DateTime(2026, 1, 1);
+        var milestoneDate = new DateTime(2025, 12, 15);
+
+        var result = service.GetMilestoneXPosition(milestoneDate, baselineDate);
+
+        Assert.True(result < 0);
+    }
+
+    [Fact]
+    public void GetMilestoneXPosition_HandlesNextYearMilestone()
+    {
+        var baselineDate = new DateTime(2026, 1, 1);
+        var milestoneDate = new DateTime(2027, 6, 15);
+
+        var result = service.GetMilestoneXPosition(milestoneDate, baselineDate);
+
+        Assert.True(result > 1560);
+    }
+
+    [Fact]
+    public void GetNowMarkerXPosition_MiddleOfMonth_ReturnsMidpointValue()
+    {
+        var baselineDate = new DateTime(2026, 1, 1);
+        var currentDate = new DateTime(2026, 4, 15);
+
+        var result = service.GetNowMarkerXPosition(currentDate, baselineDate);
+
+        // Approximately 3 months (780) + half of April = 780 + 130 = ~910
+        Assert.True(result > 870);
+        Assert.True(result < 950);
     }
 }

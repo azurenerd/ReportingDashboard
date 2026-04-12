@@ -1,9 +1,12 @@
+#nullable enable
+
 using System.Text.Json.Serialization;
 
 namespace AgentSquad.Runner.Models;
 
 /// <summary>
-/// Represents a single month/quarter of status data with shipped, in-progress, carryover, and blocker items
+/// Represents a quarter (month) of project status data.
+/// Contains lists of items in each status category (shipped, in progress, carryover, blockers).
 /// </summary>
 public class Quarter
 {

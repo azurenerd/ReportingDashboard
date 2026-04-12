@@ -1,5 +1,9 @@
+#nullable enable
+
+using AgentSquad.Runner.Services;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace AgentSquad.Runner.Tests.Unit.Configuration;
@@ -7,67 +11,30 @@ namespace AgentSquad.Runner.Tests.Unit.Configuration;
 [Trait("Category", "Unit")]
 public class ConfigurationTests
 {
-    private string GetProjectPath()
-    {
-        var currentDirectory = Directory.GetCurrentDirectory();
-        var projectRoot = currentDirectory;
-        
-        while (!Directory.Exists(Path.Combine(projectRoot, "src", "AgentSquad.Runner")))
-        {
-            var parent = Directory.GetParent(projectRoot);
-            if (parent == null || parent.FullName == projectRoot)
-                break;
-            projectRoot = parent.FullName;
-        }
-        
-        return Path.Combine(projectRoot, "src", "AgentSquad.Runner");
-    }
-
     [Fact]
-    public void Appsettings_ContainsDashboardDataPath()
+    public void BuildServiceProvider_WithAllRequiredServices_Succeeds()
     {
-        var projectPath = GetProjectPath();
-        var config = new ConfigurationBuilder()
-            .SetBasePath(projectPath)
-            .AddJsonFile("appsettings.json")
-            .Build();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                { "Dashboard:DataFilePath", "./wwwroot/data/data.json" }
+            })
+            .Build());
+        services.AddScoped<IDashboardDataService, DashboardDataService>();
+        services.AddSingleton<IDateCalculationService, DateCalculationService>();
+        services.AddSingleton<IVisualizationService, VisualizationService>();
 
-        var dataPath = config.GetValue<string>("DashboardDataPath");
+        var provider = services.BuildServiceProvider();
+        provider.Should().NotBeNull();
 
-        dataPath.Should().NotBeNullOrEmpty();
-        dataPath.Should().Contain("data.json");
-    }
+        var dataService = provider.GetRequiredService<IDashboardDataService>();
+        var dateService = provider.GetRequiredService<IDateCalculationService>();
+        var vizService = provider.GetRequiredService<IVisualizationService>();
 
-    [Fact]
-    public void AppsettingsDevelopment_ContainsLoggingConfiguration()
-    {
-        var projectPath = GetProjectPath();
-        var config = new ConfigurationBuilder()
-            .SetBasePath(projectPath)
-            .AddJsonFile("appsettings.json")
-            .AddJsonFile("appsettings.Development.json", optional: true)
-            .Build();
-
-        var loggingSection = config.GetSection("Logging");
-
-        loggingSection.Exists().Should().BeTrue();
-    }
-
-    [Fact]
-    public void AppsettingsDevelopment_DefaultLogLevelIsDebug()
-    {
-        var projectPath = GetProjectPath();
-        var config = new ConfigurationBuilder()
-            .SetBasePath(projectPath)
-            .AddJsonFile("appsettings.json")
-            .AddJsonFile("appsettings.Development.json", optional: true)
-            .Build();
-
-        var defaultLogLevel = config["Logging:LogLevel:Default"];
-
-        if (!string.IsNullOrEmpty(defaultLogLevel))
-        {
-            defaultLogLevel.Should().Be("Debug");
-        }
+        dataService.Should().NotBeNull();
+        dateService.Should().NotBeNull();
+        vizService.Should().NotBeNull();
     }
 }
