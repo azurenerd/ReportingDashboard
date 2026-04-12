@@ -1,0 +1,71 @@
+{
+  "title": "Project Phoenix – Executive Dashboard",
+  "subtitle": "Cloud Platform Engineering · Azure Infrastructure · April 2026",
+  "backlogLink": "https://dev.azure.com/contoso/Phoenix/_backlogs",
+  "currentMonth": "Apr",
+  "months": ["Jan", "Feb", "Mar", "Apr"],
+  "timeline": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-07-01",
+    "nowDate": "2026-04-12",
+    "tracks": [
+      {
+        "id": "M1",
+        "label": "Foundation & Core APIs",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2026-01-15", "label": "Jan 15", "type": "checkpoint" },
+          { "date": "2026-02-20", "label": "Feb 20", "type": "poc" },
+          { "date": "2026-03-28", "label": "Mar 28", "type": "production" }
+        ]
+      },
+      {
+        "id": "M2",
+        "label": "Data Pipeline & Analytics",
+        "color": "#34A853",
+        "milestones": [
+          { "date": "2026-02-01", "label": "Feb 1", "type": "checkpoint" },
+          { "date": "2026-03-15", "label": "Mar 15", "type": "checkpoint" },
+          { "date": "2026-04-30", "label": "Apr 30", "type": "poc" },
+          { "date": "2026-06-15", "label": "Jun 15", "type": "production" }
+        ]
+      },
+      {
+        "id": "M3",
+        "label": "UX & Dashboard Rollout",
+        "color": "#EA4335",
+        "milestones": [
+          { "date": "2026-03-01", "label": "Mar 1", "type": "checkpoint" },
+          { "date": "2026-05-01", "label": "May 1", "type": "poc" },
+          { "date": "2026-06-30", "label": "Jun 30", "type": "production" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "shipped": {
+      "Jan": ["Auth service v1", "CI/CD pipeline"],
+      "Feb": ["Core API endpoints", "Logging framework"],
+      "Mar": ["Data ingestion v1", "Monitoring alerts"],
+      "Apr": ["Analytics engine beta"]
+    },
+    "inProgress": {
+      "Jan": ["API design review"],
+      "Feb": ["Data pipeline proto"],
+      "Mar": ["Dashboard wireframes", "Load testing"],
+      "Apr": ["UX components", "Pipeline scaling"]
+    },
+    "carryover": {
+      "Jan": [],
+      "Feb": ["Schema migration"],
+      "Mar": ["Perf benchmarks"],
+      "Apr": ["Schema migration v2"]
+    },
+    "blockers": {
+      "Jan": [],
+      "Feb": [],
+      "Mar": ["Vendor API access"],
+      "Apr": ["3rd-party cert renewal"]
+    }
+  }
+}
