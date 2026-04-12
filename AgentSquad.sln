@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgentSquad.Runner", "src\AgentSquad.Runner\AgentSquad.Runner.csproj", "{7A0F0E8E-6F1C-4C8C-8E6A-8F1E0E8E6F1C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgentSquad.Runner.Tests", "tests\AgentSquad.Runner.Tests\AgentSquad.Runner.Tests.csproj", "{8B1F1F9F-7G2D-5D9D-9F7B-9G2F1F9F7G2D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7A0F0E8E-6F1C-4C8C-8E6A-8F1E0E8E6F1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A0F0E8E-6F1C-4C8C-8E6A-8F1E0E8E6F1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A0F0E8E-6F1C-4C8C-8E6A-8F1E0E8E6F1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A0F0E8E-6F1C-4C8C-8E6A-8F1E0E8E6F1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B1F1F9F-7G2D-5D9D-9F7B-9G2F1F9F7G2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B1F1F9F-7G2D-5D9D-9F7B-9G2F1F9F7G2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B1F1F9F-7G2D-5D9D-9F7B-9G2F1F9F7G2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B1F1F9F-7G2D-5D9D-9F7B-9G2F1F9F7G2D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,30 +1,43 @@
 using System.Text.Json;
 using AgentSquad.Runner.Models;
 
-namespace AgentSquad.Runner.Services;
-
-public class DataService : IDataService
+namespace AgentSquad.Runner.Services
 {
-    private readonly IWebHostEnvironment _env;
-
-    public DataService(IWebHostEnvironment env)
+    public class DataService : IDataService
     {
-        _env = env;
-    }
+        private readonly IWebHostEnvironment _env;
+        private readonly ILogger<DataService> _logger;
 
-    public async Task<ProjectData> LoadProjectDataAsync()
-    {
-        var dataPath = Path.Combine(_env.WebRootPath, "data", "data.json");
-
-        if (!File.Exists(dataPath))
+        public DataService(IWebHostEnvironment env, ILogger<DataService> logger)
         {
-            throw new FileNotFoundException($"Data file not found: {dataPath}");
+            _env = env;
+            _logger = logger;
         }
 
-        using var stream = new FileStream(dataPath, FileMode.Open, FileAccess.Read);
-        var projectData = await JsonSerializer.DeserializeAsync<ProjectData>(stream)
-            ?? throw new InvalidOperationException("Failed to deserialize project data");
+        public async Task<ProjectData> LoadProjectDataAsync()
+        {
+            try
+            {
+                var dataPath = Path.Combine(_env.WebRootPath, "data", "data.json");
 
-        return projectData;
+                if (!File.Exists(dataPath))
+                {
+                    _logger.LogWarning("Data file not found at {DataPath}", dataPath);
+                    throw new FileNotFoundException($"Data file not found: {dataPath}");
+                }
+
+                using var stream = new FileStream(dataPath, FileMode.Open, FileAccess.Read);
+                var projectData = await JsonSerializer.DeserializeAsync<ProjectData>(stream)
+                    ?? throw new InvalidOperationException("Failed to deserialize project data");
+
+                _logger.LogInformation("Successfully loaded project data from {DataPath}", dataPath);
+                return projectData;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading project data");
+                throw;
+            }
+        }
     }
 }

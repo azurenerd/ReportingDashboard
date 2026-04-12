@@ -1,42 +1,63 @@
 using AgentSquad.Runner.Models;
 
-namespace AgentSquad.Runner.Services;
-
-public class CalculationService : ICalculationService
+namespace AgentSquad.Runner.Services
 {
-    public ProjectCalculations CalculateMetrics(ProjectData data)
+    public class CalculationService : ICalculationService
     {
-        if (data == null)
+        private readonly ILogger<CalculationService> _logger;
+
+        public CalculationService(ILogger<CalculationService> logger)
         {
-            throw new ArgumentNullException(nameof(data));
+            _logger = logger;
         }
 
-        var shippedItems = data.WorkItems
-            .Where(w => w.Category == "Shipped")
-            .ToList();
-
-        var inProgressItems = data.WorkItems
-            .Where(w => w.Category == "InProgress")
-            .ToList();
-
-        var carriedOverItems = data.WorkItems
-            .Where(w => w.Category == "CarriedOver")
-            .ToList();
-
-        int totalStoryPoints = data.Metrics.TotalStoryPoints;
-        int completedStoryPoints = data.Metrics.CompletedStoryPoints;
-        int percentageComplete = totalStoryPoints > 0
-            ? (int)((completedStoryPoints / (double)totalStoryPoints) * 100)
-            : 0;
-
-        return new ProjectCalculations
+        public ProjectCalculations CalculateMetrics(ProjectData data)
         {
-            PercentageComplete = percentageComplete,
-            TotalStoryPoints = totalStoryPoints,
-            ShippedCount = shippedItems.Count,
-            InProgressCount = inProgressItems.Count,
-            CarriedOverCount = carriedOverItems.Count,
-            VelocityPerSprint = data.Metrics.VelocityPerSprint
-        };
+            try
+            {
+                if (data == null)
+                {
+                    throw new ArgumentNullException(nameof(data));
+                }
+
+                var shippedItems = data.WorkItems
+                    .Where(w => w.Category == "Shipped")
+                    .ToList();
+
+                var inProgressItems = data.WorkItems
+                    .Where(w => w.Category == "InProgress")
+                    .ToList();
+
+                var carriedOverItems = data.WorkItems
+                    .Where(w => w.Category == "CarriedOver")
+                    .ToList();
+
+                int totalStoryPoints = data.Metrics.TotalStoryPoints;
+                int completedStoryPoints = data.Metrics.CompletedStoryPoints;
+                int percentageComplete = totalStoryPoints > 0
+                    ? (int)((completedStoryPoints / (double)totalStoryPoints) * 100)
+                    : 0;
+
+                var calculations = new ProjectCalculations
+                {
+                    PercentageComplete = percentageComplete,
+                    TotalStoryPoints = totalStoryPoints,
+                    ShippedCount = shippedItems.Count,
+                    InProgressCount = inProgressItems.Count,
+                    CarriedOverCount = carriedOverItems.Count,
+                    VelocityPerSprint = data.Metrics.VelocityPerSprint
+                };
+
+                _logger.LogInformation("Calculated metrics: {PercentageComplete}% complete, {ShippedCount} shipped", 
+                    percentageComplete, shippedItems.Count);
+
+                return calculations;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating metrics");
+                throw;
+            }
+        }
     }
 }

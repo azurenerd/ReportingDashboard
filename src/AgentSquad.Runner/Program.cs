@@ -9,6 +9,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<IDataService, DataService>();
 builder.Services.AddScoped<ICalculationService, CalculationService>();
 
+builder.Services.AddLogging();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -25,4 +27,4 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.Run();
+await app.RunAsync();
