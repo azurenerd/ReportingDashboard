@@ -1,0 +1,72 @@
+@page "/"
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
+@inject IDataService DataService
+@inject ICalculationService CalculationService
+
+<div class="dashboard">
+    @if (isLoading)
+    {
+        <div class="loading">
+            <p>Loading project data...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-alert">
+            <p>⚠️ Unable to load project data.</p>
+            <p>@errorMessage</p>
+            <p><a href="javascript:location.reload()">Refresh page</a></p>
+        </div>
+    }
+    else if (projectData != null)
+    {
+        <div class="dashboard__container">
+            <Header Project="projectData.Project" />
+            
+            <Timeline Milestones="projectData.Milestones" />
+            
+            <MetricsPanel Calculations="calculations" />
+            
+            <StatusBoard WorkItems="projectData.WorkItems" />
+            
+            <Footer />
+        </div>
+    }
+</div>
+
+@code {
+    private ProjectData? projectData;
+    private ProjectCalculations? calculations;
+    private string errorMessage = string.Empty;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            projectData = await DataService.LoadProjectDataAsync();
+            calculations = CalculationService.CalculateMetrics(projectData);
+        }
+        catch (FileNotFoundException ex)
+        {
+            errorMessage = $"Data file not found: {ex.Message}";
+        }
+        catch (JsonException ex)
+        {
+            errorMessage = $"JSON parsing failed: {ex.Message}";
+        }
+        catch (InvalidOperationException ex)
+        {
+            errorMessage = $"Invalid data format: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

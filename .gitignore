@@ -1,52 +1,50 @@
-## .NET
-bin/
-obj/
+# Visual Studio
 .vs/
-*.user
+.vscode/
+*.sln.user
 *.suo
+*.user
 *.userosscache
 *.sln.docstates
-publish/
-out/
 
-## Build results
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-[Ww][Ii][Nn]32/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
 
-## NuGet
+# NuGet
 *.nupkg
 *.snupkg
 .nuget/
-packages/
-project.lock.json
-project.fragment.lock.json
-artifacts/
 
-## Visual Studio
-.vs/
-*.rsuser
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-launchSettings.Development.json
+# Entity Framework
+*.db
+*.db-shm
+*.db-wal
 
-## Rider
+# IDE
 .idea/
-*.sln.iml
+*.swp
+*.swo
+*~
 
-## OS
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+# OS
 .DS_Store
+Thumbs.db
+
+# Node (if used)
+node_modules/
+dist/
+npm-debug.log
+
+# Local environment files
+appsettings.Development.json
+.env
+.env.local
+
+# Session/temp files
+*.tmp
+*.log
+session-state/

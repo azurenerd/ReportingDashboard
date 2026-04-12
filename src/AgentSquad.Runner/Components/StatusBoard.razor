@@ -1,0 +1,19 @@
+@using AgentSquad.Runner.Models
+
+<section class="status-board-section">
+    <h2 class="status-board-section__title">Work Items</h2>
+    
+    <div class="status-board">
+        <StatusColumn ColumnTitle="Shipped" Items="GetItemsByCategory("Shipped")" />
+        <StatusColumn ColumnTitle="In Progress" Items="GetItemsByCategory("InProgress")" />
+        <StatusColumn ColumnTitle="Carried Over" Items="GetItemsByCategory("CarriedOver")" />
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public List<WorkItem>? WorkItems { get; set; }
+
+    private List<WorkItem> GetItemsByCategory(string category) =>
+        WorkItems?.Where(w => w.Category == category).ToList() ?? new List<WorkItem>();
+}
