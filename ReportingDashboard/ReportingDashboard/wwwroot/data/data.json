@@ -1,0 +1,81 @@
+{
+  "title": "Project Phoenix",
+  "subtitle": "Cloud Engineering · Platform Services · April 2026",
+  "backlogLink": "https://dev.azure.com/contoso/Phoenix/_backlogs",
+  "currentMonth": "Apr",
+  "months": ["Jan", "Feb", "Mar", "Apr"],
+  "milestones": [
+    {
+      "label": "M1",
+      "description": "Core Infrastructure",
+      "color": "#4285F4",
+      "events": [
+        { "date": "2026-01-15", "type": "checkpoint", "label": "Design Review" },
+        { "date": "2026-02-10", "type": "poc", "label": "PoC Complete" },
+        { "date": "2026-03-20", "type": "production", "label": "v1.0 GA" }
+      ]
+    },
+    {
+      "label": "M2",
+      "description": "API Gateway & Auth",
+      "color": "#EA4335",
+      "events": [
+        { "date": "2026-02-01", "type": "checkpoint", "label": "Kickoff" },
+        { "date": "2026-03-05", "type": "poc", "label": "PoC Demo" },
+        { "date": "2026-04-15", "type": "production", "label": "v1.0 Ship" }
+      ]
+    },
+    {
+      "label": "M3",
+      "description": "Observability & Monitoring",
+      "color": "#34A853",
+      "events": [
+        { "date": "2026-03-01", "type": "checkpoint", "label": "Spike" },
+        { "date": "2026-04-01", "type": "poc", "label": "PoC Ready" },
+        { "date": "2026-04-30", "type": "checkpoint", "label": "Review" }
+      ]
+    }
+  ],
+  "heatmapRows": [
+    {
+      "category": "shipped",
+      "label": "Shipped",
+      "items": {
+        "Jan": ["Infra scaffolding", "CI/CD pipeline"],
+        "Feb": ["Auth service v1", "Key vault integration"],
+        "Mar": ["API Gateway GA", "Load testing suite"],
+        "Apr": ["Dashboard v1"]
+      }
+    },
+    {
+      "category": "in-progress",
+      "label": "In Progress",
+      "items": {
+        "Jan": ["Auth design"],
+        "Feb": ["Gateway prototype"],
+        "Mar": ["Monitoring agents"],
+        "Apr": ["Alerting rules", "Grafana dashboards"]
+      }
+    },
+    {
+      "category": "carryover",
+      "label": "Carryover",
+      "items": {
+        "Jan": [],
+        "Feb": ["Perf benchmarks"],
+        "Mar": [],
+        "Apr": ["DR runbook"]
+      }
+    },
+    {
+      "category": "blockers",
+      "label": "Blockers",
+      "items": {
+        "Jan": [],
+        "Feb": [],
+        "Mar": ["Vendor SDK delay"],
+        "Apr": []
+      }
+    }
+  ]
+}
