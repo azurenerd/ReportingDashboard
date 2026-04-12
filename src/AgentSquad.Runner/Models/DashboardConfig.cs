@@ -2,6 +2,9 @@ using System.Text.Json.Serialization;
 
 namespace AgentSquad.Runner.Models;
 
+/// <summary>
+/// Root configuration object for the dashboard, deserialized from data.json
+/// </summary>
 public class DashboardConfig
 {
     [JsonPropertyName("projectName")]

@@ -2,6 +2,9 @@ using System.Text.Json.Serialization;
 
 namespace AgentSquad.Runner.Models;
 
+/// <summary>
+/// Represents a single month/quarter of status data with shipped, in-progress, carryover, and blocker items
+/// </summary>
 public class Quarter
 {
     [JsonPropertyName("month")]
