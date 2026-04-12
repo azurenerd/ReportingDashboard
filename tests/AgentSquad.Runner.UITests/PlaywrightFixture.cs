@@ -15,7 +15,11 @@ public class PlaywrightFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _playwright = await Playwright.CreateAsync();
-        Browser = await _playwright.Chromium.LaunchAsync();
+        Browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true,
+        });
+
         Context = await Browser.NewContextAsync();
         Page = await Context.NewPageAsync();
     }
@@ -24,10 +28,13 @@ public class PlaywrightFixture : IAsyncLifetime
     {
         if (Page != null)
             await Page.CloseAsync();
+
         if (Context != null)
             await Context.CloseAsync();
+
         if (Browser != null)
             await Browser.CloseAsync();
+
         _playwright?.Dispose();
     }
 }

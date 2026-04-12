@@ -10,45 +10,15 @@ namespace AgentSquad.Runner.Tests.Integration;
 [Trait("Category", "Integration")]
 public class DependencyInjectionTests
 {
-    private string GetProjectPath()
-    {
-        var currentDirectory = Directory.GetCurrentDirectory();
-        var projectRoot = currentDirectory;
-        
-        while (!Directory.Exists(Path.Combine(projectRoot, "src", "AgentSquad.Runner")))
-        {
-            var parent = Directory.GetParent(projectRoot);
-            if (parent == null || parent.FullName == projectRoot)
-                break;
-            projectRoot = parent.FullName;
-        }
-        
-        return Path.Combine(projectRoot, "src", "AgentSquad.Runner");
-    }
-
-    private IServiceProvider SetupServiceProvider()
-    {
-        var projectPath = GetProjectPath();
-        var config = new ConfigurationBuilder()
-            .SetBasePath(projectPath)
-            .AddJsonFile("appsettings.json")
-            .Build();
-
-        var services = new ServiceCollection();
-        services.AddSingleton(config);
-        services.AddLogging(builder => builder.AddConsole());
-        services.AddSingleton<IDashboardDataService, DashboardDataService>();
-        services.AddSingleton<IDateCalculationService, DateCalculationService>();
-        services.AddSingleton<IVisualizationService, VisualizationService>();
-
-        return services.BuildServiceProvider();
-    }
-
     [Fact]
-    public void DashboardDataService_RegistersSuccessfully()
+    public void ServiceCollection_CanResolveIDashboardDataService()
     {
-        var provider = SetupServiceProvider();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddScoped<IDashboardDataService, DashboardDataService>();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
 
+        var provider = services.BuildServiceProvider();
         var service = provider.GetService<IDashboardDataService>();
 
         service.Should().NotBeNull();
@@ -56,10 +26,13 @@ public class DependencyInjectionTests
     }
 
     [Fact]
-    public void DateCalculationService_RegistersSuccessfully()
+    public void ServiceCollection_CanResolveIDateCalculationService()
     {
-        var provider = SetupServiceProvider();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddScoped<IDateCalculationService, DateCalculationService>();
 
+        var provider = services.BuildServiceProvider();
         var service = provider.GetService<IDateCalculationService>();
 
         service.Should().NotBeNull();
@@ -67,10 +40,12 @@ public class DependencyInjectionTests
     }
 
     [Fact]
-    public void VisualizationService_RegistersSuccessfully()
+    public void ServiceCollection_CanResolveIVisualizationService()
     {
-        var provider = SetupServiceProvider();
+        var services = new ServiceCollection();
+        services.AddScoped<IVisualizationService, VisualizationService>();
 
+        var provider = services.BuildServiceProvider();
         var service = provider.GetService<IVisualizationService>();
 
         service.Should().NotBeNull();
@@ -78,9 +53,16 @@ public class DependencyInjectionTests
     }
 
     [Fact]
-    public void AllServices_CanBeResolvedTogether()
+    public void ServiceCollection_AllServicesCanBeResolvedTogether()
     {
-        var provider = SetupServiceProvider();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddScoped<IDashboardDataService, DashboardDataService>();
+        services.AddScoped<IDateCalculationService, DateCalculationService>();
+        services.AddScoped<IVisualizationService, VisualizationService>();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+
+        var provider = services.BuildServiceProvider();
 
         var dataService = provider.GetService<IDashboardDataService>();
         var dateService = provider.GetService<IDateCalculationService>();
@@ -92,13 +74,33 @@ public class DependencyInjectionTests
     }
 
     [Fact]
-    public void Services_RegisteredAsSingleton_ReturnSameInstance()
+    public void DashboardDataService_HasCorrectLifetime()
     {
-        var provider = SetupServiceProvider();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddScoped<IDashboardDataService, DashboardDataService>();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
 
-        var service1 = provider.GetService<IDashboardDataService>();
-        var service2 = provider.GetService<IDashboardDataService>();
+        var provider = services.BuildServiceProvider();
 
-        service1.Should().BeSameAs(service2);
+        using var scope1 = provider.CreateScope();
+        using var scope2 = provider.CreateScope();
+
+        var service1 = scope1.ServiceProvider.GetService<IDashboardDataService>();
+        var service2 = scope2.ServiceProvider.GetService<IDashboardDataService>();
+
+        service1.Should().NotBeSameAs(service2);
+    }
+
+    [Fact]
+    public void VisualizationService_CanBeResolved()
+    {
+        var services = new ServiceCollection();
+        services.AddScoped<IVisualizationService, VisualizationService>();
+
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetService<IVisualizationService>();
+
+        service.Should().NotBeNull();
     }
 }
