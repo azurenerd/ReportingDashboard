@@ -1,0 +1,12 @@
+@using ReportingDashboard.Layout
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(EmptyLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(EmptyLayout)">
+            <p>Page not found.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
