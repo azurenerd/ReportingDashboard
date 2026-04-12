@@ -1,7 +1,10 @@
+#nullable enable
+
 namespace AgentSquad.Runner.Models;
 
 /// <summary>
-/// Calculated metadata about a month in the display timeline
+/// Represents information about a display month on the heatmap.
+/// Used for calculating month boundaries and determining current month highlighting.
 /// </summary>
 public class MonthInfo
 {

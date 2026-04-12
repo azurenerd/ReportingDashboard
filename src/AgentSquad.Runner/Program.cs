@@ -2,34 +2,43 @@ using AgentSquad.Runner.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+// Add Blazor Server services
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
 
-// Register application services
-builder.Services.AddScoped<IDashboardDataService, DashboardDataService>();
-builder.Services.AddScoped<IDateCalculationService, DateCalculationService>();
-builder.Services.AddScoped<IVisualizationService, VisualizationService>();
+// Register application services with appropriate lifetimes
+// Scoped: One instance per HTTP request (best for data access with state)
+builder.Services.AddScoped<DashboardDataService>();
+
+// Singleton: One instance for entire application (stateless utility services)
+builder.Services.AddSingleton<IDateCalculationService, DateCalculationService>();
+builder.Services.AddSingleton<IVisualizationService, VisualizationService>();
 
 // Configure logging
-builder.Logging.AddConsole();
-builder.Logging.SetMinimumLevel(LogLevel.Warning);
+builder.Services.AddLogging(config =>
+{
+    config.ClearProviders();
+    config.AddConsole();
+    
+    var logLevel = builder.Environment.IsDevelopment() 
+        ? LogLevel.Debug 
+        : LogLevel.Warning;
+    
+    config.SetMinimumLevel(logLevel);
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Configure error handling middleware
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseAntiforgery();
 
-app.UseRouting();
-
-app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
+app.MapRazorComponents<AgentSquad.Runner.Components.App>()
+    .AddInteractiveServerRenderMode();
 
 app.Run();
