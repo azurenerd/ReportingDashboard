@@ -1,0 +1,30 @@
+@using AgentSquad.Runner.Models
+
+<div class="status-column">
+    <div class="status-column__header">
+        <h3 class="status-column__title">@ColumnTitle</h3>
+        <span class="status-column__count">(@(Items?.Count ?? 0))</span>
+    </div>
+    
+    <div class="status-column__body">
+        @if (Items == null || Items.Count == 0)
+        {
+            <p class="status-column__empty">No items</p>
+        }
+        else
+        {
+            @foreach (var item in Items)
+            {
+                <StatusCard WorkItem="item" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string ColumnTitle { get; set; } = string.Empty;
+
+    [Parameter]
+    public List<WorkItem>? Items { get; set; }
+}

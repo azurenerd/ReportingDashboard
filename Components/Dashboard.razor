@@ -1,0 +1,250 @@
+@page "/"
+@rendermode InteractiveServer
+@using AgentSquad.Runner.Models
+@using AgentSquad.Runner.Services
+@inject IReportingService ReportingService
+@inject IMilestoneService MilestoneService
+@inject IProjectDataService ProjectDataService
+@inject ILogger<Dashboard> Logger
+
+<div class="container-fluid mt-5 mb-5">
+    @if (project != null && metrics != null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-4">@project.Name</h1>
+                <p class="text-muted">
+                    <span>Start Date: @project.StartDate.ToString("MMM dd, yyyy")</span>
+                    <span class="ms-4">Target End: @project.TargetEndDate.ToString("MMM dd, yyyy")</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <div class="metrics-card">
+                    <div class="metric-value">@metrics.CompletionPercentage.ToString("F1")%</div>
+                    <div class="metric-label">Completion</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metrics-card">
+                    <div class="metric-value">@metrics.ShippedCount</div>
+                    <div class="metric-label">Shipped Items</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metrics-card">
+                    <div class="metric-value">@metrics.CarriedOverCount</div>
+                    <div class="metric-label">Carried Over</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-12">
+                <h3 class="mb-3">Milestones</h3>
+                <div style="height: 300px;">
+                    <canvas id="milestoneChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="mb-3">Work Items</h3>
+                <div class="btn-group mb-3" role="group">
+                    <button type="button" class="btn @(selectedStatusFilter == null ? "btn-primary" : "btn-outline-primary")" 
+                            @onclick="@(() => HandleStatusFilter(null))">
+                        All (@metrics.TotalWorkItems)
+                    </button>
+                    <button type="button" class="btn @(selectedStatusFilter == "New" ? "btn-primary" : "btn-outline-primary")" 
+                            @onclick="@(() => HandleStatusFilter("New"))">
+                        New (@metrics.NewCount)
+                    </button>
+                    <button type="button" class="btn @(selectedStatusFilter == "InProgress" ? "btn-primary" : "btn-outline-primary")" 
+                            @onclick="@(() => HandleStatusFilter("InProgress"))">
+                        In Progress (@metrics.InProgressCount)
+                    </button>
+                    <button type="button" class="btn @(selectedStatusFilter == "Shipped" ? "btn-primary" : "btn-outline-primary")" 
+                            @onclick="@(() => HandleStatusFilter("Shipped"))">
+                        Shipped (@metrics.ShippedCount)
+                    </button>
+                    <button type="button" class="btn @(selectedStatusFilter == "CarriedOver" ? "btn-primary" : "btn-outline-primary")" 
+                            @onclick="@(() => HandleStatusFilter("CarriedOver"))">
+                        Carried Over (@metrics.CarriedOverCount)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Owner</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (filteredWorkItems != null && filteredWorkItems.Any())
+                            {
+                                @foreach (var item in filteredWorkItems)
+                                {
+                                    <tr>
+                                        <td>@item.Title</td>
+                                        <td>
+                                            <span class="@GetStatusBadgeClass(item.Status)">
+                                                @GetStatusLabel(item.Status)
+                                            </span>
+                                        </td>
+                                        <td>@(item.OwnerName ?? "-")</td>
+                                        <td>@item.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">No work items found</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else if (loading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading dashboard...</p>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Error Loading Dashboard</h4>
+            <p>@errorMessage</p>
+        </div>
+    }
+</div>
+
+@code {
+    private Project? project;
+    private DashboardMetrics? metrics;
+    private List<Milestone> milestones = new();
+    private List<WorkItem> filteredWorkItems = new();
+    private bool loading = true;
+    private string? errorMessage;
+    private string? selectedStatusFilter;
+    private Guid? selectedMilestoneFilter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            project = await ProjectDataService.GetCurrentProjectAsync();
+            if (project == null)
+            {
+                errorMessage = "No project found. Please ensure data.json is properly configured.";
+                loading = false;
+                return;
+            }
+
+            metrics = await ReportingService.GetDashboardMetricsAsync(project.Id);
+            milestones = await MilestoneService.GetMilestonesByDateRangeAsync(project.Id);
+            filteredWorkItems = await ReportingService.GetWorkItemsAsync(project.Id);
+
+            loading = false;
+            await Task.Delay(100);
+            await JS.InvokeVoidAsync("dashboardCharts.initMilestoneChart", "milestoneChart", GetChartData());
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading dashboard");
+            errorMessage = $"Error loading dashboard: {ex.Message}";
+            loading = false;
+        }
+    }
+
+    private async Task HandleStatusFilter(string? status)
+    {
+        selectedStatusFilter = status;
+        if (project != null)
+        {
+            filteredWorkItems = await ReportingService.GetWorkItemsAsync(project.Id, status, null);
+        }
+    }
+
+    private string GetStatusBadgeClass(WorkItemStatus status)
+    {
+        return status switch
+        {
+            WorkItemStatus.New => "badge bg-info",
+            WorkItemStatus.InProgress => "badge bg-warning text-dark",
+            WorkItemStatus.Shipped => "badge bg-success",
+            WorkItemStatus.CarriedOver => "badge bg-danger",
+            _ => "badge bg-secondary"
+        };
+    }
+
+    private string GetStatusLabel(WorkItemStatus status)
+    {
+        return status switch
+        {
+            WorkItemStatus.New => "New",
+            WorkItemStatus.InProgress => "In Progress",
+            WorkItemStatus.Shipped => "Shipped",
+            WorkItemStatus.CarriedOver => "Carried Over",
+            _ => "Unknown"
+        };
+    }
+
+    private object GetChartData()
+    {
+        var labels = milestones.Select(m => m.Name).ToList();
+        var data = milestones.Select(m => m.CompletionPercentage).ToList();
+        var backgroundColors = milestones.Select(m => GetMilestoneColor(m.Status)).ToList();
+
+        return new
+        {
+            labels = labels,
+            datasets = new[]
+            {
+                new
+                {
+                    label = "Completion %",
+                    data = data,
+                    backgroundColor = backgroundColors,
+                    borderColor = backgroundColors,
+                    borderWidth = 1,
+                    borderRadius = 4,
+                    barThickness = "flex",
+                    maxBarThickness = 60
+                }
+            }
+        };
+    }
+
+    private string GetMilestoneColor(MilestoneStatus status)
+    {
+        return status switch
+        {
+            MilestoneStatus.Completed => "#28a745",
+            MilestoneStatus.InProgress => "#ffc107",
+            MilestoneStatus.Delayed => "#dc3545",
+            MilestoneStatus.Planned => "#6c757d",
+            _ => "#6c757d"
+        };
+    }
+
+    [Inject] private IJSRuntime JS { get; set; } = null!;
+}

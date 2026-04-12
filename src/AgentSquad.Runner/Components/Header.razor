@@ -1,0 +1,48 @@
+@using AgentSquad.Runner.Models
+
+@if (Project != null)
+{
+    <header class="header">
+        <div class="header__container">
+            <h1 class="header__title">@Project.Name</h1>
+            
+            <div class="header__meta">
+                <div class="header__status">
+                    <span class="header__status-badge @GetStatusClass()">
+                        @Project.Status
+                    </span>
+                </div>
+                
+                <div class="header__info">
+                    <div class="header__owner">
+                        <span class="header__label">Owner:</span>
+                        <span class="header__value">@Project.Owner</span>
+                    </div>
+                    
+                    <div class="header__dates">
+                        <span class="header__label">Timeline:</span>
+                        <span class="header__value">
+                            @Project.StartDate.ToString("MMM d, yyyy") - @Project.TargetEndDate.ToString("MMM d, yyyy")
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+}
+
+@code {
+    [Parameter]
+    public ProjectMetadata? Project { get; set; }
+
+    private string GetStatusClass()
+    {
+        return Project?.Status switch
+        {
+            "On Track" => "header__status-badge--success",
+            "At Risk" => "header__status-badge--warning",
+            "Off Track" => "header__status-badge--danger",
+            _ => "header__status-badge--default"
+        };
+    }
+}

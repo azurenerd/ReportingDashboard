@@ -1,0 +1,22 @@
+@using AgentSquad.Runner.Models
+
+<section class="metrics-panel">
+    <h2 class="metrics-panel__title">Key Metrics</h2>
+    
+    @if (Calculations != null)
+    {
+        <div class="metrics-panel__grid">
+            <MetricCard Label="Progress" Value="@Calculations.PercentageComplete" Unit="%" />
+            <MetricCard Label="Total Story Points" Value="@Calculations.TotalStoryPoints" Unit="pts" />
+            <MetricCard Label="Shipped" Value="@Calculations.ShippedCount" Unit="items" />
+            <MetricCard Label="In Progress" Value="@Calculations.InProgressCount" Unit="items" />
+            <MetricCard Label="Carried Over" Value="@Calculations.CarriedOverCount" Unit="items" />
+            <MetricCard Label="Velocity" Value="@Calculations.VelocityPerSprint.ToString("F1")" Unit="pts/sprint" />
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public ProjectCalculations? Calculations { get; set; }
+}

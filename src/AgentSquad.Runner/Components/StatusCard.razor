@@ -1,0 +1,14 @@
+@using AgentSquad.Runner.Models
+
+@if (WorkItem != null)
+{
+    <div class="status-card">
+        <h4 class="status-card__title">@WorkItem.Title</h4>
+        <div class="status-card__points">@WorkItem.StoryPoints pts</div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public WorkItem? WorkItem { get; set; }
+}

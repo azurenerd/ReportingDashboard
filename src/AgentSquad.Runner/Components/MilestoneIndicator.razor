@@ -1,0 +1,34 @@
+@using AgentSquad.Runner.Models
+
+@if (Milestone != null)
+{
+    <div class="milestone @GetMilestoneClass()">
+        <div class="milestone__icon">
+            @if (Milestone.IsCompleted)
+            {
+                <span class="milestone__checkmark">✓</span>
+            }
+            else
+            {
+                <span class="milestone__circle">●</span>
+            }
+        </div>
+        
+        <div class="milestone__content">
+            <h3 class="milestone__title">@Milestone.Title</h3>
+            <p class="milestone__date">@Milestone.DueDate.ToString("MMM d, yyyy")</p>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Milestone? Milestone { get; set; }
+
+    private string GetMilestoneClass()
+    {
+        return Milestone?.IsCompleted ?? false
+            ? "milestone--completed"
+            : "milestone--upcoming";
+    }
+}

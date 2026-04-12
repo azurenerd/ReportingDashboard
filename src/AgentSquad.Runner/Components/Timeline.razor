@@ -1,0 +1,27 @@
+@using AgentSquad.Runner.Models
+
+<section class="timeline-section">
+    <h2 class="timeline-section__title">Milestones</h2>
+    
+    @if (SortedMilestones.Count == 0)
+    {
+        <p class="timeline-empty">No milestones defined</p>
+    }
+    else
+    {
+        <div class="timeline">
+            @foreach (var milestone in SortedMilestones)
+            {
+                <MilestoneIndicator Milestone="milestone" />
+            }
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public List<Milestone>? Milestones { get; set; }
+
+    private List<Milestone> SortedMilestones =>
+        Milestones?.OrderBy(m => m.Order).ThenBy(m => m.DueDate).ToList() ?? new List<Milestone>();
+}
