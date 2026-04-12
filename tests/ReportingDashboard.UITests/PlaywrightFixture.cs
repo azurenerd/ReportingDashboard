@@ -4,7 +4,7 @@ using Xunit;
 namespace ReportingDashboard.UITests;
 
 [CollectionDefinition("Playwright")]
-public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }
+public class PlaywrightCollectionDefinition : ICollectionFixture<PlaywrightFixture> { }
 
 public class PlaywrightFixture : IAsyncLifetime
 {
@@ -27,7 +27,8 @@ public class PlaywrightFixture : IAsyncLifetime
     {
         var context = await _browser.NewContextAsync(new BrowserNewContextOptions
         {
-            ViewportSize = new ViewportSize { Width = 1920, Height = 1080 }
+            ViewportSize = new ViewportSize { Width = 1920, Height = 1080 },
+            IgnoreHTTPSErrors = true
         });
         return await context.NewPageAsync();
     }
