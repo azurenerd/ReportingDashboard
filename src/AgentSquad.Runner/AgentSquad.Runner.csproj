@@ -18,16 +18,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Components\" />
-    <Folder Include="Data\" />
-    <Folder Include="Models\" />
-    <Folder Include="Services\" />
-    <Folder Include="Layouts\" />
-    <Folder Include="Pages\" />
-    <Folder Include="wwwroot\css\" />
-    <Folder Include="wwwroot\data\" />
-    <Folder Include="wwwroot\js\" />
-  </ItemGroup>
-
 </Project>
