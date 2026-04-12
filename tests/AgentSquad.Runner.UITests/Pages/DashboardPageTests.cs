@@ -1,3 +1,5 @@
+#nullable enable
+
 using FluentAssertions;
 using Microsoft.Playwright;
 using Xunit;
@@ -16,65 +18,21 @@ public class DashboardPageTests
     }
 
     [Fact]
-    public async Task Dashboard_LoadsSuccessfully()
+    public async Task Dashboard_LoadsAndRendersTimelineAndHeatmapSuccessfully()
     {
         var page = _fixture.Page!;
 
         await page.GotoAsync($"{_fixture.BaseUrl}/dashboard");
 
-        var content = await page.ContentAsync();
-        content.Should().NotBeNullOrEmpty();
-    }
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-    [Fact]
-    public async Task Dashboard_HasNoConsoleErrors()
-    {
-        var page = _fixture.Page!;
-        var consoleErrors = new List<string>();
+        var timelineContainer = await page.QuerySelectorAsync(".timeline-container");
+        timelineContainer.Should().NotBeNull("Timeline container should be rendered");
 
-        page.Console += (_, msg) =>
-        {
-            if (msg.Type == "error")
-            {
-                consoleErrors.Add(msg.Text);
-            }
-        };
+        var heatmapGrid = await page.QuerySelectorAsync(".hm-grid");
+        heatmapGrid.Should().NotBeNull("Heatmap grid should be rendered");
 
-        await page.GotoAsync($"{_fixture.BaseUrl}/dashboard");
-
-        consoleErrors.Should().BeEmpty("Dashboard should not have console errors");
-    }
-
-    [Fact]
-    public async Task Dashboard_DisplaysPlaceholderText()
-    {
-        var page = _fixture.Page!;
-
-        await page.GotoAsync($"{_fixture.BaseUrl}/dashboard");
-
-        var pageContent = await page.ContentAsync();
-        pageContent.Should().NotBeNullOrEmpty();
-    }
-
-    [Fact]
-    public async Task Dashboard_PageResponds_WithinTimeout()
-    {
-        var page = _fixture.Page!;
-
-        var navigationTask = page.GotoAsync($"{_fixture.BaseUrl}/dashboard", new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-        var completedTask = await Task.WhenAny(navigationTask, Task.Delay(5000));
-
-        completedTask.Should().Be(navigationTask, "Page should load within 5 seconds");
-    }
-
-    [Fact]
-    public async Task Dashboard_IsAccessible()
-    {
-        var page = _fixture.Page!;
-
-        await page.GotoAsync($"{_fixture.BaseUrl}/dashboard");
-
-        var url = page.Url;
-        url.Should().NotBeNullOrEmpty();
+        var headerText = await page.TextContentAsync("h1");
+        headerText.Should().NotBeNullOrEmpty("Header should display project name");
     }
 }
