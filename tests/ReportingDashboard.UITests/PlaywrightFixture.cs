@@ -4,7 +4,7 @@ using Xunit;
 namespace ReportingDashboard.UITests;
 
 [CollectionDefinition("Playwright")]
-public class PlaywrightCollectionDefinition : ICollectionFixture<PlaywrightFixture> { }
+public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }
 
 public class PlaywrightFixture : IAsyncLifetime
 {
