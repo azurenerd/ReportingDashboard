@@ -1,155 +1,63 @@
 @page "/"
 @layout EmptyLayout
-@using ReportingDashboard.Models
-@using ReportingDashboard.Services
 @inject DashboardDataService DataService
 
-@if (!string.IsNullOrEmpty(errorMessage))
+@if (!string.IsNullOrEmpty(DataService.LoadError))
 {
-    <!-- Error Panel -->
     <div class="error-panel">
         <h2>Dashboard Configuration Error</h2>
-        <p class="error-detail">@errorMessage</p>
-        <p>Please check <strong>wwwroot/data/data.json</strong> and restart the application.</p>
+        <p>@DataService.LoadError</p>
+        <p>Please check wwwroot/data/data.json and restart the application.</p>
     </div>
 }
-else if (Config != null)
+else if (_config is not null)
 {
-    <!-- ========== SECTION 1: HEADER ========== -->
-    <div class="hdr">
-        <div class="hdr-left">
-            <h1>
-                @Config.Title
-                @if (!string.IsNullOrEmpty(Config.BacklogLink))
-                {
-                    <a href="@Config.BacklogLink" target="_blank">📋 ADO Backlog</a>
-                }
-            </h1>
-            <div class="sub">@Config.Subtitle</div>
-        </div>
-        <div class="legend">
-            <span class="legend-item">
-                <span class="legend-diamond" style="background: #F4B400;"></span> PoC Milestone
-            </span>
-            <span class="legend-item">
-                <span class="legend-diamond" style="background: #34A853;"></span> Production Release
-            </span>
-            <span class="legend-item">
-                <span class="legend-circle"></span> Checkpoint
-            </span>
-            <span class="legend-item">
-                <span class="legend-now-bar"></span> Now (@DateTime.Today.ToString("MMM yyyy"))
-            </span>
-        </div>
-    </div>
+    @* ── Header Region (implemented by #1017) ── *@
 
-    <!-- ========== SECTION 2: TIMELINE ========== -->
-    <div class="tl-area">
-        <div class="tl-sidebar">
-            @foreach (var milestone in Config.Milestones)
-            {
-                <div class="tl-milestone-label">
-                    <span class="ml-id" style="color: @milestone.Color;">@milestone.Label</span>
-                    <span class="ml-desc">@milestone.Description</span>
-                </div>
-            }
-        </div>
-        <div class="tl-svg-box">
-            <svg width="@SvgWidth" height="@SvgHeight" style="overflow: visible;">
-                <defs>
-                    <filter id="ds" x="-20%" y="-20%" width="140%" height="140%">
-                        <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
-                    </filter>
-                </defs>
+    @* ── Timeline Region (implemented by #1018) ── *@
 
-                @* Month grid lines and labels *@
-                @for (int i = 0; i < timelineMonths.Count; i++)
-                {
-                    var x = MonthGridX(i);
-                    <line x1="@F(x)" y1="0" x2="@F(x)" y2="@SvgHeight" stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
-                    <text x="@F(x + 5)" y="14" font-size="11" font-weight="600" fill="#666" font-family="Segoe UI, Arial, sans-serif">@timelineMonths[i]</text>
-                }
-
-                @* Milestone tracks *@
-                @for (int mi = 0; mi < Config.Milestones.Count; mi++)
-                {
-                    var milestone = Config.Milestones[mi];
-                    var y = MilestoneY(mi);
-                    <line x1="0" y1="@F(y)" x2="@SvgWidth" y2="@F(y)" stroke="@milestone.Color" stroke-width="3" />
-
-                    @* Events *@
-                    @foreach (var evt in milestone.Events)
-                    {
-                        if (DateTime.TryParse(evt.Date, out var evtDate))
-                        {
-                            var ex = DateToX(evtDate);
-                            @if (evt.Type == "poc")
-                            {
-                                <polygon points="@DiamondPoints(ex, y)" fill="#F4B400" filter="url(#ds)" />
-                            }
-                            else if (evt.Type == "production")
-                            {
-                                <polygon points="@DiamondPoints(ex, y)" fill="#34A853" filter="url(#ds)" />
-                            }
-                            else
-                            {
-                                <circle cx="@F(ex)" cy="@F(y)" r="6" fill="white" stroke="@(milestone.Color == "#888" ? "#888" : milestone.Color)" stroke-width="2.5" />
-                            }
-                            <text x="@F(ex)" y="@F(y - 16)" font-size="10" text-anchor="middle" fill="#666" font-family="Segoe UI, Arial, sans-serif">@evt.Label</text>
-                        }
-                    }
-                }
-
-                @* NOW line *@
-                @if (NowLineX > 0 && NowLineX < SvgWidth)
-                {
-                    <line x1="@F(NowLineX)" y1="0" x2="@F(NowLineX)" y2="@SvgHeight" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
-                    <text x="@F(NowLineX)" y="@(SvgHeight - 2)" font-size="10" font-weight="700" fill="#EA4335" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif">NOW</text>
-                }
-            </svg>
-        </div>
-    </div>
-
-    <!-- ========== SECTION 3: HEATMAP ========== -->
+    @* ── Heatmap Region ── *@
     <div class="hm-wrap">
-        <div class="hm-title">Monthly Execution Heatmap &mdash; Shipped &bull; In Progress &bull; Carryover &bull; Blockers</div>
-        <div class="hm-grid" style="grid-template-columns: 160px repeat(@Config.Months.Count, 1fr); grid-template-rows: 36px repeat(@Config.HeatmapRows.Count, 1fr);">
-            <!-- Corner -->
-            <div class="hm-corner">Category</div>
+        <div class="hm-title">MONTHLY EXECUTION HEATMAP &mdash; Shipped &bull; In Progress &bull; Carryover &bull; Blockers</div>
 
-            <!-- Column headers -->
-            @foreach (var month in Config.Months)
+        <div class="hm-grid" style="grid-template-columns: 160px repeat(@_config.Months.Count, 1fr); grid-template-rows: 36px repeat(4, 1fr);">
+
+            @* Corner cell *@
+            <div class="hm-corner">STATUS</div>
+
+            @* Column headers — one per month *@
+            @foreach (var month in _config.Months)
             {
-                var isCurrent = string.Equals(month, Config.CurrentMonth, StringComparison.OrdinalIgnoreCase);
-                <div class="hm-col-hdr @(isCurrent ? "cur-month-hdr" : "")">@month</div>
+                var isCurrentMonth = string.Equals(month, _config.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                <div class="hm-col-hdr @(isCurrentMonth ? "cur-month-hdr" : "")">@month</div>
             }
 
-            <!-- Rows -->
-            @foreach (var row in Config.HeatmapRows)
+            @* Category rows — iterate directly over HeatmapRows from DashboardConfig *@
+            @foreach (var row in _config.HeatmapRows)
             {
                 var prefix = CategoryCssPrefix(row.Category);
 
-                <!-- Row header -->
+                @* Row header *@
                 <div class="hm-row-hdr @(prefix)-hdr">@row.Label</div>
 
-                <!-- Data cells -->
-                @foreach (var month in Config.Months)
+                @* Data cells for each month *@
+                @foreach (var month in _config.Months)
                 {
-                    var isCurrent = string.Equals(month, Config.CurrentMonth, StringComparison.OrdinalIgnoreCase);
-                    var cellClass = $"hm-cell {prefix}-cell{(isCurrent ? " cur-month" : "")}";
-                    var hasItems = row.Items.TryGetValue(month, out var items) && items != null && items.Count > 0;
+                    var isCurrentMonth = string.Equals(month, _config.CurrentMonth, StringComparison.OrdinalIgnoreCase);
+                    var cellClass = $"hm-cell {prefix}-cell{(isCurrentMonth ? " " + prefix + "-cur" : "")}";
+                    var items = GetItemsForMonth(row.Items, month);
 
                     <div class="@cellClass">
-                        @if (hasItems)
+                        @if (items.Count > 0)
                         {
-                            @foreach (var item in items!)
+                            @foreach (var item in items)
                             {
-                                <div class="it">@item</div>
+                                <div class="it @(prefix)-dot">@item</div>
                             }
                         }
                         else
                         {
-                            <span class="hm-empty">&ndash;</span>
+                            <span style="color:#AAA;">-</span>
                         }
                     </div>
                 }
@@ -159,116 +67,33 @@ else if (Config != null)
 }
 
 @code {
-    private DashboardConfig? Config;
-    private string? errorMessage;
-
-    // SVG dimensions
-    private const double SvgWidth = 1560;
-    private const int SvgHeight = 185;
-
-    // Timeline date range
-    private DateTime timelineStart;
-    private DateTime timelineEnd;
-    private List<string> timelineMonths = new();
+    private DashboardConfig? _config;
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            Config = await DataService.GetDashboardConfigAsync();
-
-            if (Config == null)
-            {
-                errorMessage = DataService.LoadError ?? "Unknown error loading dashboard configuration.";
-                return;
-            }
-
-            CalculateTimelineRange();
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Failed to initialize dashboard: {ex.Message}";
-        }
+        _config = await DataService.GetDashboardConfigAsync();
     }
 
-    private void CalculateTimelineRange()
-    {
-        if (Config == null || Config.Months.Count == 0) return;
-
-        // Parse months from the config to derive timeline range
-        // Assume months are abbreviated like "Jan", "Feb", etc.
-        // Use the current year context for timeline
-        var year = DateTime.Today.Year;
-        var monthNames = Config.Months;
-
-        var firstMonth = ParseMonthAbbreviation(monthNames[0], year);
-        var lastMonth = ParseMonthAbbreviation(monthNames[^1], year);
-
-        timelineStart = new DateTime(firstMonth.Year, firstMonth.Month, 1);
-        timelineEnd = new DateTime(lastMonth.Year, lastMonth.Month, 1).AddMonths(1);
-
-        // Build timeline month labels
-        timelineMonths.Clear();
-        var current = timelineStart;
-        while (current < timelineEnd)
-        {
-            timelineMonths.Add(current.ToString("MMM"));
-            current = current.AddMonths(1);
-        }
-    }
-
-    private static DateTime ParseMonthAbbreviation(string abbr, int year)
-    {
-        var monthMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["Jan"] = 1, ["Feb"] = 2, ["Mar"] = 3, ["Apr"] = 4,
-            ["May"] = 5, ["Jun"] = 6, ["Jul"] = 7, ["Aug"] = 8,
-            ["Sep"] = 9, ["Oct"] = 10, ["Nov"] = 11, ["Dec"] = 12
-        };
-
-        if (monthMap.TryGetValue(abbr, out var month))
-        {
-            return new DateTime(year, month, 1);
-        }
-
-        return new DateTime(year, 1, 1);
-    }
-
-    private double DateToX(DateTime date)
-    {
-        double totalDays = (timelineEnd - timelineStart).TotalDays;
-        if (totalDays <= 0) return 0;
-        double dayOffset = (date - timelineStart).TotalDays;
-        return Math.Clamp(dayOffset / totalDays * SvgWidth, 0, SvgWidth);
-    }
-
-    private static double MilestoneY(int index)
-    {
-        return 42 + (index * 56);
-    }
-
-    private static string DiamondPoints(double cx, double cy, double size = 11)
-    {
-        return $"{F(cx)},{F(cy - size)} {F(cx + size)},{F(cy)} {F(cx)},{F(cy + size)} {F(cx - size)},{F(cy)}";
-    }
-
-    private double NowLineX => DateToX(DateTime.Today);
-
-    private double MonthGridX(int monthIndex)
-    {
-        if (timelineMonths.Count <= 1) return 0;
-        return (double)monthIndex / timelineMonths.Count * SvgWidth;
-    }
-
+    /// <summary>
+    /// Returns the CSS class prefix for a given heatmap category.
+    /// Used to compose row-header, cell, current-month, and dot class names.
+    /// </summary>
     private static string CategoryCssPrefix(string category) => category switch
     {
-        "shipped" => "ship",
+        "shipped"     => "ship",
         "in-progress" => "prog",
-        "carryover" => "carry",
-        "blockers" => "block",
-        _ => "ship"
+        "carryover"   => "carry",
+        "blockers"    => "block",
+        _             => "ship"
     };
 
-    // Format double for SVG attributes (invariant culture, no trailing zeros)
-    private static string F(double value) => value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    /// <summary>
+    /// Safely retrieves items for a given month from the category dictionary.
+    /// Returns an empty list when the month key is missing or the dictionary is null.
+    /// </summary>
+    private static List<string> GetItemsForMonth(Dictionary<string, List<string>>? items, string month)
+    {
+        if (items is null) return new();
+        return items.TryGetValue(month, out var list) ? list : new();
+    }
 }
