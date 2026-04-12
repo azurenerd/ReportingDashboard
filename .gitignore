@@ -1,53 +1,48 @@
 # Build results
 bin/
 obj/
-.vs/
-*.user
-*.suo
+*.dll
+*.exe
+*.pdb
+*.o
+*.a
+*.so
+*.dylib
 
-# Visual Studio Code
+# Visual Studio
+.vs/
 .vscode/
-*.code-workspace
+*.user
+*.userprefs
+*.suo
+*.sln.iml
+*.csproj.user
+*.vbproj.user
 
 # Rider
 .idea/
 *.sln.iml
 
 # NuGet
-*.nupkg
-*.snupkg
 packages/
+*.nupkg
 .nuget/
 
-# Logs
-logs/
-*.log
-*.txt
-
-# Temporary files
-*.tmp
-*.temp
-~$*
-
-# Environment-specific files
+# Local environment
 appsettings.Development.json
 appsettings.Production.json
-local.settings.json
+.env
+.env.local
+*.log
 
-# OS-specific
+# OS
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~
 
-# Build artifacts
-publish/
-dist/
-
-# Test results
-TestResults/
-coverage/
-
-# Local data
+# Application specific
 wwwroot/data/data.json
-wwwroot/lib/
-report*.json
+report.*.json
 *.db
