@@ -1,0 +1,32 @@
+@inject DashboardDataService DataService
+
+@if (DataService.Data is not null)
+{
+    <div class="section">
+        <h2>Monthly Summary — @DataService.Data.CurrentMonth</h2>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-value">@DataService.Data.Shipped.Count</span>
+                <span class="metric-label">Shipped</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value">@DataService.Data.InProgress.Count</span>
+                <span class="metric-label">In Progress</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value">@DataService.Data.CarriedOver.Count</span>
+                <span class="metric-label">Carried Over</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value">@TotalItems</span>
+                <span class="metric-label">Total Items</span>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private int TotalItems => (DataService.Data?.Shipped.Count ?? 0)
+        + (DataService.Data?.InProgress.Count ?? 0)
+        + (DataService.Data?.CarriedOver.Count ?? 0);
+}

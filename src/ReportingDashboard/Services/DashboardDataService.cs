@@ -71,4 +71,8 @@ public class DashboardDataService
             ErrorMessage = "Dashboard data could not be loaded. Check data.json for errors.";
         }
     }
+
+    public List<WorkItem> GetShippedItems() => Data?.Shipped ?? new List<WorkItem>();
+    public List<WorkItem> GetInProgressItems() => Data?.InProgress ?? new List<WorkItem>();
+    public List<WorkItem> GetCarriedOverItems() => Data?.CarriedOver ?? new List<WorkItem>();
 }

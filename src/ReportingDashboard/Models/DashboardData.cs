@@ -14,7 +14,7 @@ public class DashboardData
     public string BacklogLink { get; set; } = "";
 
     [JsonPropertyName("currentMonth")]
-    public MonthSummary CurrentMonth { get; set; } = new();
+    public string CurrentMonth { get; set; } = "";
 
     [JsonPropertyName("months")]
     public List<string> Months { get; set; } = new();
@@ -25,12 +25,6 @@ public class DashboardData
     [JsonPropertyName("heatmap")]
     public HeatmapData Heatmap { get; set; } = new();
 
-    [JsonPropertyName("project")]
-    public ProjectInfo Project { get; set; } = new();
-
-    [JsonPropertyName("milestones")]
-    public List<MilestoneItem> Milestones { get; set; } = new();
-
     [JsonPropertyName("shipped")]
     public List<WorkItem> Shipped { get; set; } = new();
 
@@ -40,6 +34,13 @@ public class DashboardData
     [JsonPropertyName("carriedOver")]
     public List<WorkItem> CarriedOver { get; set; } = new();
 
+    [JsonPropertyName("project")]
+    public ProjectInfo Project { get; set; } = new();
+
+    [JsonPropertyName("milestones")]
+    public List<MilestoneItem> Milestones { get; set; } = new();
+
+    // Computed error state (not from JSON)
     [JsonIgnore]
     public string ErrorMessage { get; set; } = "";
 }
@@ -72,22 +73,4 @@ public class MilestoneItem
 
     [JsonPropertyName("status")]
     public string Status { get; set; } = "";
-}
-
-public class MonthSummary
-{
-    [JsonPropertyName("month")]
-    public string? Month { get; set; }
-
-    [JsonPropertyName("totalItems")]
-    public int TotalItems { get; set; }
-
-    [JsonPropertyName("completedItems")]
-    public int CompletedItems { get; set; }
-
-    [JsonPropertyName("carriedItems")]
-    public int CarriedItems { get; set; }
-
-    [JsonPropertyName("overallHealth")]
-    public string? OverallHealth { get; set; }
 }

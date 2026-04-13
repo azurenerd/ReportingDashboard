@@ -16,15 +16,15 @@ public class WorkItem
     [JsonPropertyName("owner")]
     public string Owner { get; set; } = "";
 
-    [JsonPropertyName("percentComplete")]
-    public int PercentComplete { get; set; }
-
     [JsonPropertyName("status")]
     public string Status { get; set; } = "";
 
-    [JsonPropertyName("notes")]
-    public string Notes { get; set; } = "";
+    [JsonPropertyName("percentComplete")]
+    public int PercentComplete { get; set; }
 
     [JsonPropertyName("carryOverReason")]
     public string CarryOverReason { get; set; } = "";
+
+    [JsonPropertyName("notes")]
+    public string Notes { get; set; } = "";
 }

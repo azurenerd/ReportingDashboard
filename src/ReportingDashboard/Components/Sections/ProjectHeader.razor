@@ -1,0 +1,36 @@
+@inject DashboardDataService DataService
+
+@if (DataService.Data is not null)
+{
+    <div class="section project-header">
+        <div class="header-row">
+            <div>
+                <h1>@DataService.Data.Title</h1>
+                @if (!string.IsNullOrEmpty(DataService.Data.Subtitle))
+                {
+                    <p class="project-lead">@DataService.Data.Subtitle</p>
+                }
+            </div>
+            <div class="header-meta">
+                @if (!string.IsNullOrEmpty(DataService.Data.Project.Status))
+                {
+                    <span class="status-badge @GetStatusClass(DataService.Data.Project.Status)">@DataService.Data.Project.Status</span>
+                }
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(DataService.Data.Project.Summary))
+        {
+            <p class="project-summary">@DataService.Data.Project.Summary</p>
+        }
+    </div>
+}
+
+@code {
+    private static string GetStatusClass(string status) => status.ToLowerInvariant().Replace(" ", "-") switch
+    {
+        "on-track" => "status-on-track",
+        "at-risk" => "status-at-risk",
+        "behind" => "status-behind",
+        _ => "status-unknown"
+    };
+}

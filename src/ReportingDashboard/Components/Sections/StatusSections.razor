@@ -1,5 +1,4 @@
 @namespace ReportingDashboard.Components.Sections
-@using ReportingDashboard.Models
 
 <div class="status-sections">
     @RenderColumn("Shipped", "shipped", ShippedItems)
@@ -8,14 +7,9 @@
 </div>
 
 @code {
-    [Parameter]
-    public List<WorkItem> ShippedItems { get; set; } = new();
-
-    [Parameter]
-    public List<WorkItem> InProgressItems { get; set; } = new();
-
-    [Parameter]
-    public List<WorkItem> CarriedOverItems { get; set; } = new();
+    [Parameter] public List<WorkItem> ShippedItems { get; set; } = new();
+    [Parameter] public List<WorkItem> InProgressItems { get; set; } = new();
+    [Parameter] public List<WorkItem> CarriedOverItems { get; set; } = new();
 
     private RenderFragment RenderColumn(string title, string cssModifier, List<WorkItem> items) => __builder =>
     {
@@ -27,9 +21,7 @@
             <div class="status-card-list">
                 @if (items.Count == 0)
                 {
-                    <div class="status-card status-card--empty">
-                        <span class="status-card__empty-text">No @(title.ToLowerInvariant()) items</span>
-                    </div>
+                    <div class="status-card status-card--empty">No items</div>
                 }
                 else
                 {
@@ -42,11 +34,11 @@
                             </div>
                             @if (!string.IsNullOrEmpty(item.Owner))
                             {
-                                <span class="status-card__owner">@item.Owner</span>
+                                <div class="status-card__owner">@item.Owner</div>
                             }
                             @if (!string.IsNullOrEmpty(item.Notes))
                             {
-                                <p class="status-card__notes">@item.Notes</p>
+                                <div class="status-card__notes">@item.Notes</div>
                             }
                         </div>
                     }
