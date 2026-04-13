@@ -1,5 +1,6 @@
 @page "/"
 @layout EmptyLayout
+@using ReportingDashboard.Models
 @using ReportingDashboard.Services
 @inject DashboardDataService DataService
 
@@ -27,19 +28,15 @@ else if (_config is not null)
         </div>
 
         <div class="legend-row">
-            @* PoC Milestone legend *@
             <span class="legend-item">
                 <span class="legend-diamond" style="background:#F4B400;"></span>PoC Milestone
             </span>
-            @* Production Release legend *@
             <span class="legend-item">
                 <span class="legend-diamond" style="background:#34A853;"></span>Production Release
             </span>
-            @* Checkpoint legend *@
             <span class="legend-item">
                 <span class="legend-circle"></span>Checkpoint
             </span>
-            @* Now indicator legend *@
             <span class="legend-item">
                 <span class="legend-now-bar"></span>Now (@DateTime.Today.ToString("MMM yyyy"))
             </span>
