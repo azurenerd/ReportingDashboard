@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddScoped<IDashboardDataService, DashboardDataService>();
+builder.Services.AddSingleton<DashboardDataService>();
 
 var app = builder.Build();
 

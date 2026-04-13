@@ -1,10 +1,30 @@
 @page "/"
+@using ReportingDashboard.Web.Services
+@using ReportingDashboard.Web.Models
 @using ReportingDashboard.Web.Components.Sections
+@inject IDashboardDataService DataService
+@rendermode InteractiveServer
 
 <div class="dashboard-container">
-    @* Header and health summary rendered by T-1048 *@
+    @if (_data is not null)
+    {
+        <HeaderSection ProjectInfo="@_data.ProjectInfo" />
 
-    <TimelineSection />
+        <TimelineSection Milestones="@_data.Milestones" />
 
-    @* Categorized status sections (shipped, in-progress, carried-over) rendered by T-1050 *@
+        <StatusSections WorkItems="@_data.WorkItems" />
+    }
+    else
+    {
+        <p class="loading-text">Loading dashboard…</p>
+    }
 </div>
+
+@code {
+    private DashboardData? _data;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _data = await DataService.GetDashboardDataAsync();
+    }
+}
