@@ -35,6 +35,12 @@
 </section>
 
 @code {
+    // Category constants to avoid magic strings; case-insensitive matching
+    // guards against minor casing differences in data.json.
+    private const string CategoryShipped = "Shipped";
+    private const string CategoryInProgress = "InProgress";
+    private const string CategoryCarriedOver = "CarriedOver";
+
     [Parameter, EditorRequired]
     public List<WorkItem> WorkItems { get; set; } = new();
 
@@ -45,9 +51,12 @@
         var items = WorkItems ?? new List<WorkItem>();
         _sections = new List<SectionViewModel>
         {
-            new("Shipped", "#28a745", items.Where(w => w.Category == "Shipped").ToList()),
-            new("In Progress", "#007bff", items.Where(w => w.Category == "InProgress").ToList()),
-            new("Carried Over", "#fd7e14", items.Where(w => w.Category == "CarriedOver").ToList())
+            new("Shipped", "#28a745",
+                items.Where(w => string.Equals(w.Category, CategoryShipped, StringComparison.OrdinalIgnoreCase)).ToList()),
+            new("In Progress", "#007bff",
+                items.Where(w => string.Equals(w.Category, CategoryInProgress, StringComparison.OrdinalIgnoreCase)).ToList()),
+            new("Carried Over", "#fd7e14",
+                items.Where(w => string.Equals(w.Category, CategoryCarriedOver, StringComparison.OrdinalIgnoreCase)).ToList())
         };
     }
 
