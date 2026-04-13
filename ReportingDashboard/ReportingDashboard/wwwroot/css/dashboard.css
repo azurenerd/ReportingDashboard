@@ -1,80 +1,54 @@
-/* ============================================================
-   Executive Reporting Dashboard — Design System & Stylesheet
-   Ported from OriginalDesignConcept.html <style> block
-   ============================================================ */
-
-/* ----------------------------------------------------------
-   1. CSS Custom Properties (Design Tokens)
-   ---------------------------------------------------------- */
+/* === CSS Custom Properties === */
 :root {
-    /* Typography */
-    --font-primary: 'Segoe UI', Arial, sans-serif;
-
-    /* Page dimensions */
+    --font-stack: 'Segoe UI', Arial, sans-serif;
     --page-width: 1920px;
     --page-height: 1080px;
-
-    /* Core palette */
-    --color-bg: #FFFFFF;
-    --color-primary-text: #111;
-    --color-secondary-text: #888;
-    --color-cell-text: #333;
-    --color-link: #0078D4;
-    --color-timeline-bg: #FAFAFA;
-    --color-grid-border: #E0E0E0;
-    --color-header-border: #CCC;
-
-    /* Category colors */
-    --color-shipped: #34A853;
-    --color-progress: #0078D4;
-    --color-carryover: #F4B400;
-    --color-blockers: #EA4335;
-    --color-now-line: #EA4335;
-
-    /* Shipped row */
-    --color-ship-hdr-bg: #E8F5E9;
-    --color-ship-hdr-text: #1B7A28;
-    --color-ship-cell-bg: #F0FBF0;
-    --color-ship-cell-cur: #D8F2DA;
-
-    /* In Progress row */
-    --color-prog-hdr-bg: #E3F2FD;
-    --color-prog-hdr-text: #1565C0;
-    --color-prog-cell-bg: #EEF4FE;
-    --color-prog-cell-cur: #DAE8FB;
-
-    /* Carryover row */
-    --color-carry-hdr-bg: #FFF8E1;
-    --color-carry-hdr-text: #B45309;
-    --color-carry-cell-bg: #FFFDE7;
-    --color-carry-cell-cur: #FFF0B0;
-
-    /* Blockers row */
-    --color-block-hdr-bg: #FEF2F2;
-    --color-block-hdr-text: #991B1B;
-    --color-block-cell-bg: #FFF5F5;
-    --color-block-cell-cur: #FFE4E4;
-
-    /* Current month highlight */
-    --color-cur-month-bg: #FFF0D0;
-    --color-cur-month-text: #C07700;
+    --bg-white: #FFFFFF;
+    --bg-timeline: #FAFAFA;
+    --text-primary: #111;
+    --text-secondary: #888;
+    --text-cell: #333;
+    --link-blue: #0078D4;
+    --border-grid: #E0E0E0;
+    --border-header: #CCC;
+    --green-shipped: #34A853;
+    --green-hdr-bg: #E8F5E9;
+    --green-hdr-text: #1B7A28;
+    --green-cell-bg: #F0FBF0;
+    --green-cell-cur: #D8F2DA;
+    --blue-progress: #0078D4;
+    --blue-hdr-bg: #E3F2FD;
+    --blue-hdr-text: #1565C0;
+    --blue-cell-bg: #EEF4FE;
+    --blue-cell-cur: #DAE8FB;
+    --amber-carry: #F4B400;
+    --amber-hdr-bg: #FFF8E1;
+    --amber-hdr-text: #B45309;
+    --amber-cell-bg: #FFFDE7;
+    --amber-cell-cur: #FFF0B0;
+    --red-blocker: #EA4335;
+    --red-hdr-bg: #FEF2F2;
+    --red-hdr-text: #991B1B;
+    --red-cell-bg: #FFF5F5;
+    --red-cell-cur: #FFE4E4;
+    --cur-month-hdr-bg: #FFF0D0;
+    --cur-month-hdr-text: #C07700;
 }
 
-/* ----------------------------------------------------------
-   2. CSS Reset & Base Styles
-   ---------------------------------------------------------- */
-* {
+/* === Reset & Page Layout === */
+*, *::before, *::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 html, body {
     width: var(--page-width);
     height: var(--page-height);
     overflow: hidden;
-    font-family: var(--font-primary);
-    background: var(--color-bg);
+    font-family: var(--font-stack);
+    background: var(--bg-white);
+    -webkit-font-smoothing: antialiased;
 }
 
 body {
@@ -83,7 +57,7 @@ body {
 }
 
 a {
-    color: var(--color-link);
+    color: var(--link-blue);
     text-decoration: none;
 }
 
@@ -91,101 +65,61 @@ a:hover {
     text-decoration: underline;
 }
 
-/* ----------------------------------------------------------
-   3. Header Bar (.hdr)
-   ---------------------------------------------------------- */
+/* === SECTION 1: Header === */
 .hdr {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 12px 44px 10px;
-    border-bottom: 1px solid var(--color-grid-border);
+    border-bottom: 1px solid var(--border-grid);
     flex-shrink: 0;
-    background: var(--color-bg);
+    background: var(--bg-white);
 }
 
 .hdr h1 {
     font-size: 24px;
     font-weight: 700;
-    color: var(--color-primary-text);
+    color: var(--text-primary);
     line-height: 1.2;
 }
 
 .hdr h1 a {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 400;
+    margin-left: 12px;
 }
 
 .sub {
     font-size: 12px;
-    color: var(--color-secondary-text);
+    color: var(--text-secondary);
     margin-top: 2px;
 }
 
-/* Legend row */
 .legend {
     display: flex;
-    align-items: center;
     gap: 22px;
     font-size: 12px;
-    color: var(--color-primary-text);
-    flex-shrink: 0;
+    color: var(--text-primary);
+    align-items: center;
 }
 
-.legend-item {
+.leg-item {
     display: flex;
     align-items: center;
-    gap: 6px;
     white-space: nowrap;
 }
 
-.legend-diamond {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    transform: rotate(45deg);
-    flex-shrink: 0;
-}
-
-.legend-diamond.poc {
-    background: var(--color-carryover);
-}
-
-.legend-diamond.prod {
-    background: var(--color-shipped);
-}
-
-.legend-circle {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #999;
-    flex-shrink: 0;
-}
-
-.legend-now {
-    display: inline-block;
-    width: 2px;
-    height: 14px;
-    background: var(--color-now-line);
-    flex-shrink: 0;
-}
-
-/* ----------------------------------------------------------
-   4. Timeline Area (.tl-area)
-   ---------------------------------------------------------- */
+/* === SECTION 2: Timeline === */
 .tl-area {
     display: flex;
     align-items: stretch;
     height: 196px;
     flex-shrink: 0;
-    background: var(--color-timeline-bg);
+    background: var(--bg-timeline);
     border-bottom: 2px solid #E8E8E8;
     padding: 6px 44px 0;
 }
 
-/* Milestone sidebar labels */
 .tl-sidebar {
     width: 230px;
     flex-shrink: 0;
@@ -193,26 +127,25 @@ a:hover {
     flex-direction: column;
     justify-content: space-around;
     padding: 16px 12px 16px 0;
-    border-right: 1px solid var(--color-grid-border);
+    border-right: 1px solid var(--border-grid);
 }
 
-.tl-milestone-label {
+.tl-ms-label {
     display: flex;
-    flex-direction: column;
-    gap: 1px;
+    align-items: baseline;
+    gap: 8px;
 }
 
-.tl-milestone-label .ml-label {
+.tl-ms-tag {
     font-size: 12px;
     font-weight: 600;
 }
 
-.tl-milestone-label .ml-desc {
+.tl-ms-desc {
     font-size: 12px;
     color: #444;
 }
 
-/* SVG container */
 .tl-svg-box {
     flex: 1;
     padding-left: 12px;
@@ -220,13 +153,7 @@ a:hover {
     min-width: 0;
 }
 
-.tl-svg-box svg {
-    overflow: visible;
-}
-
-/* ----------------------------------------------------------
-   5. Heatmap Wrapper (.hm-wrap)
-   ---------------------------------------------------------- */
+/* === SECTION 3: Heatmap === */
 .hm-wrap {
     flex: 1;
     min-height: 0;
@@ -235,30 +162,25 @@ a:hover {
     padding: 10px 44px 10px;
 }
 
-/* Section title */
 .hm-title {
     font-size: 14px;
     font-weight: 700;
-    color: var(--color-secondary-text);
+    color: var(--text-secondary);
     letter-spacing: 0.5px;
     text-transform: uppercase;
     margin-bottom: 8px;
     flex-shrink: 0;
 }
 
-/* ----------------------------------------------------------
-   6. Heatmap Grid (.hm-grid)
-   ---------------------------------------------------------- */
 .hm-grid {
     display: grid;
-    /* grid-template-columns set inline: 160px repeat(N, 1fr) */
     grid-template-rows: 36px repeat(4, 1fr);
-    border: 1px solid var(--color-grid-border);
+    border: 1px solid var(--border-grid);
     flex: 1;
     min-height: 0;
 }
 
-/* Corner cell (top-left) */
+/* Corner cell */
 .hm-corner {
     background: #F5F5F5;
     font-size: 11px;
@@ -268,27 +190,26 @@ a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-right: 1px solid var(--color-grid-border);
-    border-bottom: 2px solid var(--color-header-border);
+    border-right: 1px solid var(--border-grid);
+    border-bottom: 2px solid var(--border-header);
 }
 
-/* Column headers (month names) */
+/* Column headers */
 .hm-col-hdr {
     font-size: 16px;
     font-weight: 700;
-    color: var(--color-primary-text);
     background: #F5F5F5;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-right: 1px solid var(--color-grid-border);
-    border-bottom: 2px solid var(--color-header-border);
+    border-right: 1px solid var(--border-grid);
+    border-bottom: 2px solid var(--border-header);
 }
 
-/* Current month column header highlight */
 .hm-col-hdr.cur-month-hdr {
-    background: var(--color-cur-month-bg);
-    color: var(--color-cur-month-text);
+    background: var(--cur-month-hdr-bg);
+    color: var(--cur-month-hdr-text);
 }
 
 /* Row headers */
@@ -299,30 +220,45 @@ a:hover {
     letter-spacing: 0.7px;
     display: flex;
     align-items: center;
-    padding: 0 12px;
-    border-right: 2px solid var(--color-header-border);
-    border-bottom: 1px solid var(--color-grid-border);
+    justify-content: center;
+    border-right: 2px solid var(--border-header);
+    border-bottom: 1px solid var(--border-grid);
+    padding: 4px 8px;
 }
+
+.ship-hdr { background: var(--green-hdr-bg); color: var(--green-hdr-text); }
+.prog-hdr { background: var(--blue-hdr-bg); color: var(--blue-hdr-text); }
+.carry-hdr { background: var(--amber-hdr-bg); color: var(--amber-hdr-text); }
+.block-hdr { background: var(--red-hdr-bg); color: var(--red-hdr-text); }
 
 /* Data cells */
 .hm-cell {
     padding: 8px 12px;
     overflow: hidden;
-    border-right: 1px solid var(--color-grid-border);
-    border-bottom: 1px solid var(--color-grid-border);
+    border-right: 1px solid var(--border-grid);
+    border-bottom: 1px solid var(--border-grid);
+    font-size: 12px;
+    color: var(--text-cell);
 }
 
-/* Individual item inside a cell */
-.hm-cell .it {
+.ship-cell { background: var(--green-cell-bg); }
+.prog-cell { background: var(--blue-cell-bg); }
+.carry-cell { background: var(--amber-cell-bg); }
+.block-cell { background: var(--red-cell-bg); }
+
+.ship-cur { background: var(--green-cell-cur); }
+.prog-cur { background: var(--blue-cell-cur); }
+.carry-cur { background: var(--amber-cell-cur); }
+.block-cur { background: var(--red-cell-cur); }
+
+/* Items in cells */
+.it {
     position: relative;
-    font-size: 12px;
-    color: var(--color-cell-text);
     padding: 2px 0 2px 12px;
     line-height: 1.35;
 }
 
-/* Colored dot bullet */
-.hm-cell .it::before {
+.it::before {
     content: '';
     position: absolute;
     left: 0;
@@ -332,126 +268,52 @@ a:hover {
     border-radius: 50%;
 }
 
-/* Empty cell dash */
-.hm-cell .empty-dash {
+.ship-dot::before { background: var(--green-shipped); }
+.prog-dot::before { background: var(--blue-progress); }
+.carry-dot::before { background: var(--amber-carry); }
+.block-dot::before { background: var(--red-blocker); }
+
+/* Empty cell placeholder */
+.empty-cell {
     color: #AAA;
     font-size: 12px;
 }
 
-/* ----------------------------------------------------------
-   7. Row Category Variants — Shipped (green)
-   ---------------------------------------------------------- */
-.ship-hdr {
-    background: var(--color-ship-hdr-bg);
-    color: var(--color-ship-hdr-text);
-}
-
-.ship-cell {
-    background: var(--color-ship-cell-bg);
-}
-
-.ship-cell.cur-month {
-    background: var(--color-ship-cell-cur);
-}
-
-.ship-cell .it::before {
-    background: var(--color-shipped);
-}
-
-/* ----------------------------------------------------------
-   8. Row Category Variants — In Progress (blue)
-   ---------------------------------------------------------- */
-.prog-hdr {
-    background: var(--color-prog-hdr-bg);
-    color: var(--color-prog-hdr-text);
-}
-
-.prog-cell {
-    background: var(--color-prog-cell-bg);
-}
-
-.prog-cell.cur-month {
-    background: var(--color-prog-cell-cur);
-}
-
-.prog-cell .it::before {
-    background: var(--color-progress);
-}
-
-/* ----------------------------------------------------------
-   9. Row Category Variants — Carryover (amber)
-   ---------------------------------------------------------- */
-.carry-hdr {
-    background: var(--color-carry-hdr-bg);
-    color: var(--color-carry-hdr-text);
-}
-
-.carry-cell {
-    background: var(--color-carry-cell-bg);
-}
-
-.carry-cell.cur-month {
-    background: var(--color-carry-cell-cur);
-}
-
-.carry-cell .it::before {
-    background: var(--color-carryover);
-}
-
-/* ----------------------------------------------------------
-   10. Row Category Variants — Blockers (red)
-   ---------------------------------------------------------- */
-.block-hdr {
-    background: var(--color-block-hdr-bg);
-    color: var(--color-block-hdr-text);
-}
-
-.block-cell {
-    background: var(--color-block-cell-bg);
-}
-
-.block-cell.cur-month {
-    background: var(--color-block-cell-cur);
-}
-
-.block-cell .it::before {
-    background: var(--color-blockers);
-}
-
-/* ----------------------------------------------------------
-   11. Error Panel
-   ---------------------------------------------------------- */
+/* === Error Panel === */
 .error-panel {
     max-width: 600px;
     margin: 200px auto;
     padding: 32px;
-    border: 2px solid var(--color-blockers);
-    background: var(--color-block-cell-bg);
+    border: 2px solid #EA4335;
+    background: #FFF5F5;
     border-radius: 8px;
-    font-family: var(--font-primary);
+    font-family: var(--font-stack);
 }
 
 .error-panel h2 {
     font-size: 20px;
-    font-weight: 700;
-    color: var(--color-blockers);
+    color: #991B1B;
     margin-bottom: 16px;
 }
 
 .error-panel p {
     font-size: 14px;
-    color: var(--color-cell-text);
-    line-height: 1.6;
+    color: #333;
     margin-bottom: 12px;
+    line-height: 1.5;
 }
 
 .error-panel .error-detail {
     font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 13px;
-    background: #FFF;
-    border: 1px solid var(--color-grid-border);
+    background: #FEE;
+    padding: 12px;
     border-radius: 4px;
-    padding: 12px 16px;
-    color: var(--color-blockers);
     word-break: break-word;
+}
+
+.error-panel code {
+    background: #F0F0F0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 13px;
 }

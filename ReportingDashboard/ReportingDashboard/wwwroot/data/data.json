@@ -1,37 +1,41 @@
 {
   "title": "Project Phoenix",
-  "subtitle": "Cloud Engineering · Platform Services · April 2026",
-  "backlogLink": "https://dev.azure.com/org/project/_backlogs",
+  "subtitle": "Cloud Platform Engineering · Intelligent Apps Division · April 2026",
+  "backlogLink": "https://dev.azure.com/contoso/ProjectPhoenix/_backlogs",
   "currentMonth": "Apr",
-  "months": ["Jan", "Feb", "Mar", "Apr"],
+  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
   "milestones": [
     {
       "label": "M1",
-      "description": "Core Platform",
-      "color": "#4285F4",
+      "description": "AI Chatbot Integration",
+      "color": "#0078D4",
       "events": [
         { "date": "2026-01-15", "type": "checkpoint", "label": "Jan 15" },
         { "date": "2026-02-20", "type": "poc", "label": "Feb 20" },
-        { "date": "2026-03-30", "type": "production", "label": "Mar 30" }
+        { "date": "2026-03-10", "type": "checkpoint", "label": "Mar 10" },
+        { "date": "2026-04-18", "type": "production", "label": "Apr 18" }
       ]
     },
     {
       "label": "M2",
-      "description": "API Gateway",
-      "color": "#34A853",
+      "description": "Platform Data Services",
+      "color": "#00897B",
       "events": [
-        { "date": "2026-02-01", "type": "checkpoint", "label": "Feb 1" },
-        { "date": "2026-03-15", "type": "poc", "label": "Mar 15" },
-        { "date": "2026-04-25", "type": "production", "label": "Apr 25" }
+        { "date": "2026-01-28", "type": "checkpoint", "label": "Jan 28" },
+        { "date": "2026-03-05", "type": "poc", "label": "Mar 5" },
+        { "date": "2026-04-25", "type": "checkpoint", "label": "Apr 25" },
+        { "date": "2026-06-12", "type": "production", "label": "Jun 12" }
       ]
     },
     {
       "label": "M3",
-      "description": "Dashboard & Reporting",
-      "color": "#EA4335",
+      "description": "Automated Review Pipeline",
+      "color": "#546E7A",
       "events": [
-        { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
-        { "date": "2026-04-10", "type": "poc", "label": "Apr 10" }
+        { "date": "2026-02-10", "type": "checkpoint", "label": "Feb 10" },
+        { "date": "2026-04-01", "type": "poc", "label": "Apr 1" },
+        { "date": "2026-05-15", "type": "checkpoint", "label": "May 15" },
+        { "date": "2026-06-30", "type": "production", "label": "Jun 30" }
       ]
     }
   ],
@@ -40,40 +44,37 @@
       "category": "shipped",
       "label": "Shipped",
       "items": {
-        "Jan": ["Auth service v1", "CI pipeline"],
-        "Feb": ["API gateway MVP", "Logging framework"],
-        "Mar": ["Dashboard prototype", "Monitoring alerts"],
-        "Apr": ["Perf optimizations"]
+        "Jan": ["Auth service v2", "SDK refresh"],
+        "Feb": ["Chatbot prototype", "Logging pipeline"],
+        "Mar": ["PDS schema v1", "Bot intent engine", "Perf tuning"],
+        "Apr": ["M1 production release", "Review API scaffold"]
       }
     },
     {
       "category": "in-progress",
       "label": "In Progress",
       "items": {
-        "Jan": ["API design"],
-        "Feb": ["Load testing"],
-        "Mar": ["Security audit"],
-        "Apr": ["E2E test suite", "Documentation"]
+        "Jan": ["Chatbot design doc"],
+        "Feb": ["PDS data modeling"],
+        "Mar": ["Review pipeline PoC"],
+        "Apr": ["PDS integration tests", "Review UI wireframes", "Bot analytics dash"]
       }
     },
     {
       "category": "carryover",
       "label": "Carryover",
       "items": {
-        "Jan": [],
-        "Feb": ["Auth edge cases"],
-        "Mar": ["API rate limiting"],
-        "Apr": ["Caching layer"]
+        "Feb": ["Auth token migration"],
+        "Mar": ["SDK docs update"],
+        "Apr": ["Load test harness"]
       }
     },
     {
       "category": "blockers",
       "label": "Blockers",
       "items": {
-        "Jan": [],
-        "Feb": [],
-        "Mar": ["Vendor SDK delay"],
-        "Apr": ["License approval"]
+        "Mar": ["Azure quota approval"],
+        "Apr": ["Vendor API access pending"]
       }
     }
   ]
