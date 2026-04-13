@@ -1,0 +1,94 @@
+@namespace ReportingDashboard.Components.Sections
+
+@if (Timeline is not null && Timeline.Tracks.Count > 0)
+{
+    <div class="section timeline-section">
+        <h2>Milestone Timeline</h2>
+
+        @foreach (var track in Timeline.Tracks)
+        {
+            var sortedMilestones = GetSortedMilestones(track);
+            if (sortedMilestones.Count == 0) continue;
+
+            <div class="timeline-track-row">
+                <span class="timeline-track-label" style="color: @track.Color;">@track.Label</span>
+                <div class="timeline-horizontal">
+                    @for (var i = 0; i < sortedMilestones.Count; i++)
+                    {
+                        var milestone = sortedMilestones[i];
+                        var statusClass = GetStatusClass(milestone);
+                        var isFirst = i == 0;
+                        var isLast = i == sortedMilestones.Count - 1;
+                        var nextStatus = !isLast ? GetStatusClass(sortedMilestones[i + 1]) : "";
+
+                        <div class="tl-node tl-@statusClass @(isFirst ? "tl-first" : "") @(isLast ? "tl-last" : "")"
+                             data-next-status="@nextStatus">
+                            <span class="tl-label">@milestone.Label</span>
+                            <div class="tl-indicator-row">
+                                @if (!isFirst)
+                                {
+                                    <div class="tl-connector tl-connector-before tl-line-@statusClass"></div>
+                                }
+                                <div class="tl-circle tl-circle-@statusClass"></div>
+                                @if (!isLast)
+                                {
+                                    <div class="tl-connector tl-connector-after tl-line-@nextStatus"></div>
+                                }
+                            </div>
+                            <span class="tl-date">@FormatDate(milestone.Date)</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Timeline.NowDate))
+        {
+            <div class="timeline-legend">
+                <span class="legend-item"><span class="legend-dot legend-completed"></span> Completed</span>
+                <span class="legend-item"><span class="legend-dot legend-inprogress"></span> In Progress</span>
+                <span class="legend-item"><span class="legend-dot legend-upcoming"></span> Upcoming</span>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public TimelineData? Timeline { get; set; }
+
+    private static List<Milestone> GetSortedMilestones(TimelineTrack track)
+    {
+        return track.Milestones
+            .OrderBy(m => ParseDate(m.Date))
+            .ToList();
+    }
+
+    private static string GetStatusClass(Milestone m)
+    {
+        return (m.Type?.ToLowerInvariant()) switch
+        {
+            "completed" or "complete" or "done" => "completed",
+            "inprogress" or "in-progress" or "in progress" or "active" or "current" => "inprogress",
+            "checkpoint" or "upcoming" or "future" or _ => "upcoming"
+        };
+    }
+
+    private static string FormatDate(string date)
+    {
+        if (DateTime.TryParse(date, out var dt))
+        {
+            return dt.ToString("MMM d, yyyy");
+        }
+        return date;
+    }
+
+    private static DateTime ParseDate(string date)
+    {
+        if (DateTime.TryParse(date, out var dt))
+        {
+            return dt;
+        }
+        return DateTime.MaxValue;
+    }
+}

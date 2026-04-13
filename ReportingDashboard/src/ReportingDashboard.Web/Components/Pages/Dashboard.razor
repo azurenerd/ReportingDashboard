@@ -1,23 +1,10 @@
 @page "/"
-@inject IDashboardDataService DataService
+@using ReportingDashboard.Web.Components.Sections
 
-@if (_isLoading)
-{
-    <div class="dashboard-loading">Loading dashboard&hellip;</div>
-}
-else
-{
-    <HeaderSection ProjectInfo="@_projectInfo" />
-}
+<div class="dashboard-container">
+    @* Header and health summary rendered by T-1048 *@
 
-@code {
-    private ProjectInfo _projectInfo = new();
-    private bool _isLoading = true;
+    <TimelineSection />
 
-    protected override async Task OnInitializedAsync()
-    {
-        var data = await DataService.GetDashboardDataAsync();
-        _projectInfo = data.ProjectInfo;
-        _isLoading = false;
-    }
-}
+    @* Categorized status sections (shipped, in-progress, carried-over) rendered by T-1050 *@
+</div>
