@@ -1,0 +1,114 @@
+@using ReportingDashboard.Web.Models
+
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var milestone in Milestones)
+        {
+            <div class="tl-label" style="color: @milestone.Color;">
+                @milestone.Name<br />
+                <span class="tl-label-desc">@milestone.Description</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="@SvgHeight" style="overflow:visible;display:block">
+            <defs>
+                <filter id="sh">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
+                </filter>
+            </defs>
+
+            @* Month grid lines and labels *@
+            @for (int i = 0; i < Months.Count; i++)
+            {
+                var x = i * MonthWidth;
+                var isCurrentMonth = Months[i] == CurrentMonth;
+                <line x1="@x" y1="0" x2="@x" y2="@SvgHeight"
+                      stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
+                <text x="@(x + 5)" y="14" fill="#666" font-size="11"
+                      font-weight="600" font-family="Segoe UI,Arial">@Months[i]</text>
+
+                @* "NOW" line for current month *@
+                @if (isCurrentMonth)
+                {
+                    var nowX = x + (MonthWidth / 6);
+                    <line x1="@nowX" y1="0" x2="@nowX" y2="@SvgHeight"
+                          stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+                    <text x="@(nowX + 4)" y="14" fill="#EA4335" font-size="10"
+                          font-weight="700" font-family="Segoe UI,Arial">NOW</text>
+                }
+            }
+
+            @* Milestone lanes *@
+            @for (int m = 0; m < Milestones.Count; m++)
+            {
+                var milestone = Milestones[m];
+                var y = LaneStartY + (m * LaneSpacing);
+
+                <line x1="0" y1="@y" x2="1560" y2="@y"
+                      stroke="@milestone.Color" stroke-width="3" />
+
+                @foreach (var evt in milestone.Events)
+                {
+                    var evtX = GetEventX(evt.Date);
+
+                    @if (evt.Type == MilestoneEventType.Checkpoint)
+                    {
+                        <circle cx="@evtX" cy="@y" r="5" fill="white"
+                                stroke="@milestone.Color" stroke-width="2.5" />
+                        <text x="@evtX" y="@(y - 14)" text-anchor="middle"
+                              fill="#666" font-size="10"
+                              font-family="Segoe UI,Arial">@evt.Label</text>
+                    }
+                    else if (evt.Type == MilestoneEventType.PoC)
+                    {
+                        var points = $"{evtX},{y - 11} {evtX + 11},{y} {evtX},{y + 11} {evtX - 11},{y}";
+                        <polygon points="@points" fill="#F4B400" filter="url(#sh)" />
+                        <text x="@evtX" y="@(y + 26)" text-anchor="middle"
+                              fill="#666" font-size="10"
+                              font-family="Segoe UI,Arial">@evt.Label</text>
+                    }
+                    else if (evt.Type == MilestoneEventType.Production)
+                    {
+                        var points = $"{evtX},{y - 11} {evtX + 11},{y} {evtX},{y + 11} {evtX - 11},{y}";
+                        <polygon points="@points" fill="#34A853" filter="url(#sh)" />
+                        <text x="@evtX" y="@(y - 14)" text-anchor="middle"
+                              fill="#666" font-size="10"
+                              font-family="Segoe UI,Arial">@evt.Label</text>
+                    }
+                }
+            }
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<Milestone> Milestones { get; set; } = new();
+    [Parameter] public List<string> Months { get; set; } = new();
+    [Parameter] public string CurrentMonth { get; set; } = string.Empty;
+
+    private int MonthWidth => Months.Count > 0 ? 1560 / Months.Count : 260;
+    private int LaneStartY => 42;
+    private int LaneSpacing => 56;
+    private int SvgHeight => LaneStartY + (Math.Max(Milestones.Count - 1, 0) * LaneSpacing) + 30;
+
+    private int GetEventX(string dateLabel)
+    {
+        // Parse month abbreviation from date label (e.g., "Jan 12", "Mar 26 PoC")
+        if (string.IsNullOrWhiteSpace(dateLabel)) return 0;
+
+        var parts = dateLabel.Split(' ');
+        if (parts.Length < 2) return 0;
+
+        var monthAbbr = parts[0];
+        int.TryParse(parts[1], out var day);
+
+        var monthIndex = Months.FindIndex(m =>
+            m.StartsWith(monthAbbr, StringComparison.OrdinalIgnoreCase));
+
+        if (monthIndex < 0) return 0;
+
+        double fraction = Math.Clamp(day / 31.0, 0, 1);
+        return (int)(monthIndex * MonthWidth + fraction * MonthWidth);
+    }
+}

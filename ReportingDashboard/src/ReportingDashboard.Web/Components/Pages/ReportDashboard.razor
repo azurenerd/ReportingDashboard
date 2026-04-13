@@ -1,0 +1,159 @@
+@page "/"
+@inject IReportDataService ReportDataService
+@rendermode InteractiveServer
+
+@if (_report is null)
+{
+    <div class="loading">Loading report data…</div>
+}
+else
+{
+    <!-- Header -->
+    <header class="hdr">
+        <div>
+            <h1>@_report.ProjectName
+                @if (!string.IsNullOrEmpty(_report.BacklogUrl))
+                {
+                    <a href="@_report.BacklogUrl" target="_blank">⧉ ADO Backlog</a>
+                }
+            </h1>
+            <div class="sub">@_report.Subtitle · @_report.ReportDate</div>
+        </div>
+        <div class="legend">
+            <span class="legend-item">
+                <span class="legend-diamond poc"></span>PoC Milestone
+            </span>
+            <span class="legend-item">
+                <span class="legend-diamond prod"></span>Production Release
+            </span>
+            <span class="legend-item">
+                <span class="legend-dot"></span>Checkpoint
+            </span>
+            <span class="legend-item">
+                <span class="legend-now-line"></span>Now (@_report.CurrentMonth)
+            </span>
+        </div>
+    </header>
+
+    <!-- Milestone Timeline -->
+    <MilestoneTimeline Milestones="_report.Milestones"
+                       Months="_report.Months"
+                       CurrentMonth="_report.CurrentMonth" />
+
+    <!-- Heatmap Grid -->
+    <div class="hm-wrap">
+        <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+        <div class="hm-grid" style="grid-template-columns: 160px repeat(@_report.Months.Count, 1fr); grid-template-rows: 36px repeat(4, 1fr);">
+            <!-- Column headers -->
+            <div class="hm-corner">Status</div>
+            @foreach (var month in _report.Months)
+            {
+                var isCurrent = month == _report.CurrentMonth;
+                <div class="hm-col-hdr @(isCurrent ? "current-hdr" : "")">
+                    @month @(isCurrent ? "◂ Now" : "")
+                </div>
+            }
+
+            <!-- Shipped row -->
+            <div class="hm-row-hdr ship-hdr">✓ Shipped</div>
+            @foreach (var month in _report.Months)
+            {
+                var isCurrent = month == _report.CurrentMonth;
+                var items = GetItemsByCategory(WorkItemCategory.Shipped, month);
+                <div class="hm-cell ship-cell @(isCurrent ? "current" : "")">
+                    @if (items.Any())
+                    {
+                        @foreach (var item in items)
+                        {
+                            <WorkItemCard Item="item" />
+                        }
+                    }
+                    else
+                    {
+                        <div class="it empty">—</div>
+                    }
+                </div>
+            }
+
+            <!-- In Progress row -->
+            <div class="hm-row-hdr prog-hdr">● In Progress</div>
+            @foreach (var month in _report.Months)
+            {
+                var isCurrent = month == _report.CurrentMonth;
+                var items = GetItemsByCategory(WorkItemCategory.InProgress, month);
+                <div class="hm-cell prog-cell @(isCurrent ? "current" : "")">
+                    @if (items.Any())
+                    {
+                        @foreach (var item in items)
+                        {
+                            <WorkItemCard Item="item" />
+                        }
+                    }
+                    else
+                    {
+                        <div class="it empty">—</div>
+                    }
+                </div>
+            }
+
+            <!-- Carryover row -->
+            <div class="hm-row-hdr carry-hdr">↩ Carryover</div>
+            @foreach (var month in _report.Months)
+            {
+                var isCurrent = month == _report.CurrentMonth;
+                var items = GetItemsByCategory(WorkItemCategory.CarriedOver, month);
+                <div class="hm-cell carry-cell @(isCurrent ? "current" : "")">
+                    @if (items.Any())
+                    {
+                        @foreach (var item in items)
+                        {
+                            <WorkItemCard Item="item" />
+                        }
+                    }
+                    else
+                    {
+                        <div class="it empty">—</div>
+                    }
+                </div>
+            }
+
+            <!-- Blockers row -->
+            <div class="hm-row-hdr block-hdr">⚠ Blockers</div>
+            @foreach (var month in _report.Months)
+            {
+                var isCurrent = month == _report.CurrentMonth;
+                var items = GetItemsByCategory(WorkItemCategory.Blocked, month);
+                <div class="hm-cell block-cell @(isCurrent ? "current" : "")">
+                    @if (items.Any())
+                    {
+                        @foreach (var item in items)
+                        {
+                            <WorkItemCard Item="item" />
+                        }
+                    }
+                    else
+                    {
+                        <div class="it empty">—</div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private ProjectReport? _report;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _report = await ReportDataService.GetReportAsync();
+    }
+
+    private List<WorkItem> GetItemsByCategory(WorkItemCategory category, string month)
+    {
+        if (_report is null) return new();
+        return _report.WorkItems
+            .Where(w => w.Category == category && w.Month.Equals(month, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+}

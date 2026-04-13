@@ -1,0 +1,73 @@
+{
+  "projectName": "Privacy Automation Release Roadmap",
+  "subtitle": "Trusted Platform · Privacy Automation Workstream",
+  "reportDate": "April 2026",
+  "executiveSummary": "Project is on track with M2 delivered and M1 approaching production.",
+  "overallStatus": "OnTrack",
+  "backlogUrl": "#",
+  "currentMonth": "April",
+  "months": ["January", "February", "March", "April", "May", "June"],
+  "milestones": [
+    {
+      "name": "M1",
+      "description": "Chatbot & MS Role",
+      "color": "#0078D4",
+      "events": [
+        { "date": "January 12", "label": "Jan 12", "type": "Checkpoint" },
+        { "date": "March 26", "label": "Mar 26 PoC", "type": "PoC" },
+        { "date": "April 30", "label": "Apr Prod (TBD)", "type": "Production" }
+      ]
+    },
+    {
+      "name": "M2",
+      "description": "PDS & Data Inventory",
+      "color": "#00897B",
+      "events": [
+        { "date": "January 1", "label": "Dec 19", "type": "Checkpoint" },
+        { "date": "February 11", "label": "Feb 11", "type": "Checkpoint" },
+        { "date": "March 20", "label": "Mar 20 PoC", "type": "PoC" },
+        { "date": "March 30", "label": "Mar 30 Prod", "type": "Production" }
+      ]
+    },
+    {
+      "name": "M3",
+      "description": "Auto Review DFD",
+      "color": "#546E7A",
+      "events": [
+        { "date": "January 5", "label": "Jan 5", "type": "Checkpoint" },
+        { "date": "March 30", "label": "Mar 30 PoC", "type": "PoC" }
+      ]
+    }
+  ],
+  "workItems": [
+    { "title": "Chatbot v1 MVP shipped", "description": "", "owner": "Team A", "status": "Complete", "category": "Shipped", "priority": "P0", "month": "March" },
+    { "title": "MS Role integration complete", "description": "", "owner": "Team A", "status": "Complete", "category": "Shipped", "priority": "P0", "month": "March" },
+    { "title": "PDS connector deployed", "description": "", "owner": "Team B", "status": "Complete", "category": "Shipped", "priority": "P1", "month": "April" },
+    { "title": "Data inventory catalog live", "description": "", "owner": "Team B", "status": "Complete", "category": "Shipped", "priority": "P1", "month": "April" },
+    { "title": "Chatbot v2 enhancements", "description": "", "owner": "Team A", "status": "Active", "category": "InProgress", "priority": "P0", "month": "March" },
+    { "title": "Role-based access policies", "description": "", "owner": "Team A", "status": "Active", "category": "InProgress", "priority": "P1", "month": "March" },
+    { "title": "Auto DFD generation engine", "description": "", "owner": "Team C", "status": "Active", "category": "InProgress", "priority": "P0", "month": "April" },
+    { "title": "Privacy review automation", "description": "", "owner": "Team C", "status": "Active", "category": "InProgress", "priority": "P1", "month": "April" },
+    { "title": "Compliance report builder", "description": "", "owner": "Team A", "status": "Planned", "category": "InProgress", "priority": "P1", "month": "May" },
+    { "title": "DFD template library", "description": "", "owner": "Team C", "status": "Planned", "category": "InProgress", "priority": "P2", "month": "May" },
+    { "title": "End-to-end testing suite", "description": "", "owner": "Team B", "status": "Planned", "category": "InProgress", "priority": "P1", "month": "June" },
+    { "title": "Data lineage tracker — carry from Feb (ETA: Apr)", "description": "", "owner": "Team B", "status": "Delayed", "category": "CarriedOver", "priority": "P1", "month": "March" },
+    { "title": "Schema validation — carry from Mar (ETA: TBD)", "description": "", "owner": "Team B", "status": "Delayed", "category": "CarriedOver", "priority": "P1", "month": "April" },
+    { "title": "API rate limiting — carry from Mar (ETA: TBD)", "description": "", "owner": "Team A", "status": "Delayed", "category": "CarriedOver", "priority": "P2", "month": "April" },
+    { "title": "Potential from Apr — TBD", "description": "", "owner": "Team C", "status": "Delayed", "category": "CarriedOver", "priority": "P2", "month": "May" },
+    { "title": "External API dependency — vendor SLA pending", "description": "", "owner": "Team A", "status": "Blocked", "category": "Blocked", "priority": "P0", "month": "April" }
+  ],
+  "statusUpdate": {
+    "date": "2026-04-10",
+    "summary": "M2 delivered on schedule. M1 PoC complete, production target under review. M3 PoC on track.",
+    "risks": [
+      "External vendor API SLA not confirmed — potential April blocker",
+      "Schema validation delayed — dependency on upstream team"
+    ],
+    "nextSteps": [
+      "Finalize M1 production date with stakeholders",
+      "Complete auto DFD generation engine sprint",
+      "Resolve vendor API blocker"
+    ]
+  }
+}

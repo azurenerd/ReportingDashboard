@@ -1,0 +1,7 @@
+@using ReportingDashboard.Web.Models
+
+<div class="it">@Item.Title</div>
+
+@code {
+    [Parameter] public WorkItem Item { get; set; } = new();
+}

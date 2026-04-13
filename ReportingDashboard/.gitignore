@@ -35,3 +35,6 @@ desktop.ini
 *.swp
 *.swo
 *~
+
+## Blazor
+wwwroot/css/bundle.css

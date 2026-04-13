@@ -1,0 +1,6 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportingDashboard.Web", "ReportingDashboard\src\ReportingDashboard.Web\ReportingDashboard.Web.csproj", "{D1151EF0-F6A4-4AB8-B06C-B2DFD261F6FD}"
+EndProject
+Global
+EndGlobal
