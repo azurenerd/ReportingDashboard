@@ -1,14 +1,16 @@
 @page "/"
-@inject DashboardDataService DataService
+@using ReportingDashboard.Web.Services
+@using ReportingDashboard.Web.Models
+@using ReportingDashboard.Web.Components.Sections
+@inject IDashboardDataService DataService
 @rendermode InteractiveServer
 
 <div class="dashboard-container">
     @if (_data is not null)
     {
-        <header class="dashboard-header">
-            <h1>@_data.ProjectInfo.ProjectName</h1>
-            <span class="reporting-period">@_data.ProjectInfo.ReportingPeriod</span>
-        </header>
+        <HeaderSection ProjectInfo="@_data.ProjectInfo" />
+
+        <TimelineSection Milestones="@_data.Milestones" />
 
         <StatusSections WorkItems="@_data.WorkItems" />
     }

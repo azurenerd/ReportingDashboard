@@ -42,11 +42,12 @@
 
     protected override void OnParametersSet()
     {
+        var items = WorkItems ?? new List<WorkItem>();
         _sections = new List<SectionViewModel>
         {
-            new("Shipped", "#28a745", WorkItems.Where(w => w.Category == "Shipped").ToList()),
-            new("In Progress", "#007bff", WorkItems.Where(w => w.Category == "InProgress").ToList()),
-            new("Carried Over", "#fd7e14", WorkItems.Where(w => w.Category == "CarriedOver").ToList())
+            new("Shipped", "#28a745", items.Where(w => w.Category == "Shipped").ToList()),
+            new("In Progress", "#007bff", items.Where(w => w.Category == "InProgress").ToList()),
+            new("Carried Over", "#fd7e14", items.Where(w => w.Category == "CarriedOver").ToList())
         };
     }
 
