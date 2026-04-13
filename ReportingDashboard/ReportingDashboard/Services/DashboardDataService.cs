@@ -4,7 +4,8 @@ namespace ReportingDashboard.Services;
 
 /// <summary>
 /// Reads and deserializes wwwroot/data/data.json.
-/// The GetDashboardConfigAsync() method body will be implemented in a subsequent PR.
+/// The GetDashboardConfigAsync() method body will be fully implemented in a subsequent PR.
+/// This stub returns null safely to avoid runtime crashes during prerendering.
 /// </summary>
 public class DashboardDataService
 {
@@ -18,6 +19,7 @@ public class DashboardDataService
 
     public Task<DashboardConfig?> GetDashboardConfigAsync()
     {
-        throw new NotImplementedException("DashboardDataService will be implemented in a subsequent PR.");
+        LoadError = "DashboardDataService is not yet implemented. Data loading will be added in a subsequent PR.";
+        return Task.FromResult<DashboardConfig?>(null);
     }
 }
