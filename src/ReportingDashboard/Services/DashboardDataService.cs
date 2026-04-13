@@ -56,12 +56,7 @@ public class DashboardDataService
                 return;
             }
 
-            _logger.LogInformation(
-                "Dashboard data loaded: {Title} — {Shipped} shipped, {InProgress} in progress, {CarriedOver} carried over",
-                Data.Title,
-                Data.Shipped.Count,
-                Data.InProgress.Count,
-                Data.CarriedOver.Count);
+            _logger.LogInformation("Dashboard data loaded successfully: {Title}", Data.Title);
         }
         catch (JsonException ex)
         {

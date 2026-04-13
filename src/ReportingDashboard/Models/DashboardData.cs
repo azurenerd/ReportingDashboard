@@ -14,7 +14,7 @@ public class DashboardData
     public string BacklogLink { get; set; } = "";
 
     [JsonPropertyName("currentMonth")]
-    public string CurrentMonth { get; set; } = "";
+    public MonthSummary CurrentMonth { get; set; } = new();
 
     [JsonPropertyName("months")]
     public List<string> Months { get; set; } = new();
@@ -25,6 +25,12 @@ public class DashboardData
     [JsonPropertyName("heatmap")]
     public HeatmapData Heatmap { get; set; } = new();
 
+    [JsonPropertyName("project")]
+    public ProjectInfo Project { get; set; } = new();
+
+    [JsonPropertyName("milestones")]
+    public List<MilestoneItem> Milestones { get; set; } = new();
+
     [JsonPropertyName("shipped")]
     public List<WorkItem> Shipped { get; set; } = new();
 
@@ -33,12 +39,6 @@ public class DashboardData
 
     [JsonPropertyName("carriedOver")]
     public List<WorkItem> CarriedOver { get; set; } = new();
-
-    [JsonPropertyName("project")]
-    public ProjectInfo Project { get; set; } = new();
-
-    [JsonPropertyName("milestones")]
-    public List<MilestoneItem> Milestones { get; set; } = new();
 
     [JsonIgnore]
     public string ErrorMessage { get; set; } = "";

@@ -12,9 +12,9 @@
     }
     else if (DataService.Data is not null)
     {
-        <ProjectHeader />
-        <MonthlySummary />
-        <MilestoneTimeline />
+        <ProjectHeader Project="DataService.Data.Project" />
+        <MonthlySummary Summary="DataService.Data.CurrentMonth" />
+        <MilestoneTimeline Milestones="DataService.Data.Milestones" />
         <StatusSections ShippedItems="DataService.Data.Shipped"
                         InProgressItems="DataService.Data.InProgress"
                         CarriedOverItems="DataService.Data.CarriedOver" />

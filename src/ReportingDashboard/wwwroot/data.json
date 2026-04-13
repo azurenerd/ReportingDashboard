@@ -2,7 +2,6 @@
   "title": "Project Phoenix – Executive Dashboard",
   "subtitle": "Q2 2026 Reporting Cycle",
   "backlogLink": "",
-  "currentMonth": "April 2026",
   "months": ["January", "February", "March", "April"],
   "project": {
     "name": "Project Phoenix",
@@ -10,6 +9,13 @@
     "status": "On Track",
     "lastUpdated": "2026-04-10",
     "summary": "Core platform migration on schedule. Three major milestones shipped this period with two workstreams progressing as planned."
+  },
+  "currentMonth": {
+    "month": "April 2026",
+    "totalItems": 9,
+    "completedItems": 4,
+    "carriedItems": 2,
+    "overallHealth": "On Track"
   },
   "milestones": [
     { "title": "Architecture Approved", "targetDate": "2026-01-15", "status": "Completed" },
