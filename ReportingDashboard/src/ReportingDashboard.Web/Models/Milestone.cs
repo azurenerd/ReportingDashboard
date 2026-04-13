@@ -6,5 +6,5 @@ public class Milestone
     public string Title { get; set; } = string.Empty;
     public string TargetDate { get; set; } = string.Empty;
     public string? CompletionDate { get; set; }
-    public string Status { get; set; } = "Upcoming";
+    public string Status { get; set; } = "Upcoming"; // Completed, InProgress, Upcoming
 }

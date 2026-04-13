@@ -9,10 +9,9 @@ builder.Services.AddSingleton<DashboardDataService>();
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-}
+// Eagerly load dashboard data at startup
+var dataService = app.Services.GetRequiredService<DashboardDataService>();
+await dataService.LoadDataAsync();
 
 app.UseStaticFiles();
 app.UseAntiforgery();

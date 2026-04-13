@@ -1,30 +1,127 @@
 @page "/"
-@using ReportingDashboard.Web.Services
-@using ReportingDashboard.Web.Models
-@using ReportingDashboard.Web.Components.Sections
-@inject IDashboardDataService DataService
-@rendermode InteractiveServer
+@inject DashboardDataService DataService
 
-<div class="dashboard-container">
-    @if (_data is not null)
-    {
-        <HeaderSection ProjectInfo="@_data.ProjectInfo" />
+<PageTitle>@DataService.Data.ProjectInfo.ProjectName</PageTitle>
 
-        <TimelineSection Milestones="@_data.Milestones" />
+<div class="dashboard-viewport">
+    <div class="dashboard-container">
 
-        <StatusSections WorkItems="@_data.WorkItems" />
-    }
-    else
-    {
-        <p class="loading-text">Loading dashboard…</p>
-    }
+        @* ── Header Section ── *@
+        <header class="header-section">
+            <div class="header-left">
+                <h1 class="project-name">@DataService.Data.ProjectInfo.ProjectName</h1>
+                <p class="reporting-period">@DataService.Data.ProjectInfo.ReportingPeriod</p>
+            </div>
+            <div class="header-right">
+                <div class="health-badge health-@DataService.Data.ProjectInfo.OverallStatus.ToLowerInvariant()">
+                    <span class="health-dot"></span>
+                    <span class="health-label">@FormatStatus(DataService.Data.ProjectInfo.OverallStatus)</span>
+                </div>
+                <p class="executive-sponsor">Sponsor: @DataService.Data.ProjectInfo.ExecutiveSponsor</p>
+            </div>
+        </header>
+
+        @* ── Summary Bar ── *@
+        <div class="summary-bar">
+            <p class="summary-text">@DataService.Data.ProjectInfo.Summary</p>
+        </div>
+
+        @* ── Timeline Section ── *@
+        <section class="timeline-section">
+            <h2 class="section-header">Milestones</h2>
+            <div class="timeline-track">
+                @foreach (var milestone in DataService.Data.Milestones)
+                {
+                    <div class="timeline-node timeline-@milestone.Status.ToLowerInvariant()">
+                        <div class="node-dot"></div>
+                        <div class="node-label">@milestone.Title</div>
+                        <div class="node-date">@milestone.TargetDate</div>
+                        @if (milestone.Status == "Completed" && milestone.CompletionDate is not null)
+                        {
+                            <div class="node-completed">✓ @milestone.CompletionDate</div>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+
+        @* ── Status Sections ── *@
+        <div class="status-columns">
+
+            @* Shipped *@
+            <section class="status-section shipped-section">
+                <h2 class="section-header">
+                    <span class="section-icon shipped-icon">✓</span>
+                    Shipped
+                    <span class="item-count">@DataService.GetShippedItems().Count</span>
+                </h2>
+                <ul class="work-item-list">
+                    @foreach (var item in DataService.GetShippedItems())
+                    {
+                        <li class="work-item">
+                            <span class="item-priority priority-@item.Priority.ToLowerInvariant()"></span>
+                            <div class="item-content">
+                                <span class="item-title">@item.Title</span>
+                                <span class="item-owner">@item.Owner</span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </section>
+
+            @* In Progress *@
+            <section class="status-section inprogress-section">
+                <h2 class="section-header">
+                    <span class="section-icon inprogress-icon">●</span>
+                    In Progress
+                    <span class="item-count">@DataService.GetInProgressItems().Count</span>
+                </h2>
+                <ul class="work-item-list">
+                    @foreach (var item in DataService.GetInProgressItems())
+                    {
+                        <li class="work-item">
+                            <span class="item-priority priority-@item.Priority.ToLowerInvariant()"></span>
+                            <div class="item-content">
+                                <span class="item-title">@item.Title</span>
+                                <span class="item-owner">@item.Owner</span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </section>
+
+            @* Carried Over *@
+            <section class="status-section carriedover-section">
+                <h2 class="section-header">
+                    <span class="section-icon carriedover-icon">⟳</span>
+                    Carried Over
+                    <span class="item-count">@DataService.GetCarriedOverItems().Count</span>
+                </h2>
+                <ul class="work-item-list">
+                    @foreach (var item in DataService.GetCarriedOverItems())
+                    {
+                        <li class="work-item">
+                            <span class="item-priority priority-@item.Priority.ToLowerInvariant()"></span>
+                            <div class="item-content">
+                                <span class="item-title">@item.Title</span>
+                                <span class="item-owner">@item.Owner</span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </section>
+
+        </div>
+
+    </div>
 </div>
 
 @code {
-    private DashboardData? _data;
-
-    protected override async Task OnInitializedAsync()
+    private static string FormatStatus(string status) => status switch
     {
-        _data = await DataService.GetDashboardDataAsync();
-    }
+        "OnTrack" => "On Track",
+        "AtRisk" => "At Risk",
+        "Blocked" => "Blocked",
+        _ => status
+    };
 }

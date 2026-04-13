@@ -1,26 +1,147 @@
 {
   "projectInfo": {
-    "projectName": "Project Helios",
-    "executiveSponsor": "Jane Martinez, VP Engineering",
-    "reportingPeriod": "Q1 2026 (Jan – Mar)",
+    "projectName": "Project Atlas — Platform Modernization",
+    "executiveSponsor": "Sarah Chen, CVP Engineering",
+    "reportingPeriod": "Q1 FY2026 (Jan – Mar 2026)",
     "overallStatus": "OnTrack",
-    "summary": "Project Helios is on track with 8 of 12 deliverables shipped. Two items carried over due to dependency delays."
+    "summary": "Platform modernization is on track. Core API migration completed ahead of schedule. Auth service rollout in progress with 70% tenant coverage. Legacy decommission shifted to Q2 due to compliance review dependency."
   },
   "milestones": [
-    { "id": "m1", "title": "Architecture Approved", "targetDate": "2026-01-15", "completionDate": "2026-01-14", "status": "Completed" },
-    { "id": "m2", "title": "Core Platform GA", "targetDate": "2026-02-28", "completionDate": "2026-02-27", "status": "Completed" },
-    { "id": "m3", "title": "API Integration Complete", "targetDate": "2026-03-15", "completionDate": null, "status": "InProgress" },
-    { "id": "m4", "title": "Public Beta Launch", "targetDate": "2026-04-30", "completionDate": null, "status": "Upcoming" }
+    {
+      "id": "ms-1",
+      "title": "API Gateway v2 Launch",
+      "targetDate": "Jan 31, 2026",
+      "completionDate": "Jan 28, 2026",
+      "status": "Completed"
+    },
+    {
+      "id": "ms-2",
+      "title": "Auth Service Migration",
+      "targetDate": "Feb 28, 2026",
+      "completionDate": "Feb 25, 2026",
+      "status": "Completed"
+    },
+    {
+      "id": "ms-3",
+      "title": "Data Pipeline Cutover",
+      "targetDate": "Mar 15, 2026",
+      "completionDate": null,
+      "status": "InProgress"
+    },
+    {
+      "id": "ms-4",
+      "title": "Perf Validation Complete",
+      "targetDate": "Mar 31, 2026",
+      "completionDate": null,
+      "status": "Upcoming"
+    },
+    {
+      "id": "ms-5",
+      "title": "Legacy Decommission",
+      "targetDate": "Apr 30, 2026",
+      "completionDate": null,
+      "status": "Upcoming"
+    }
   ],
   "workItems": [
-    { "id": "w1", "title": "Identity service migration", "description": "Migrate auth from legacy to MSAL", "category": "Shipped", "milestoneId": "m1", "owner": "Alex Chen", "priority": "High", "notes": null },
-    { "id": "w2", "title": "Data pipeline v2 rollout", "description": "New ETL pipeline for analytics", "category": "Shipped", "milestoneId": "m1", "owner": "Priya Sharma", "priority": "High", "notes": null },
-    { "id": "w3", "title": "Dashboard UI redesign", "description": "Executive dashboard refresh", "category": "Shipped", "milestoneId": "m2", "owner": "Marcus Johnson", "priority": "Medium", "notes": null },
-    { "id": "w4", "title": "Monitoring & alerting setup", "description": "Grafana + PagerDuty integration", "category": "Shipped", "milestoneId": "m2", "owner": "Sara Kim", "priority": "Medium", "notes": null },
-    { "id": "w5", "title": "API gateway configuration", "description": "Rate limiting and routing rules", "category": "InProgress", "milestoneId": "m3", "owner": "Alex Chen", "priority": "High", "notes": "75% complete, ETA next week" },
-    { "id": "w6", "title": "Partner SDK development", "description": "SDK for external integrators", "category": "InProgress", "milestoneId": "m3", "owner": "Jordan Lee", "priority": "High", "notes": "Blocked on API spec finalization" },
-    { "id": "w7", "title": "Load testing framework", "description": "Automated performance benchmarks", "category": "InProgress", "milestoneId": "m3", "owner": "Priya Sharma", "priority": "Medium", "notes": null },
-    { "id": "w8", "title": "Legacy data migration", "description": "Migrate 2M records from SQL 2012", "category": "CarriedOver", "milestoneId": "m2", "owner": "Marcus Johnson", "priority": "High", "notes": "Dependency on DBA team availability" },
-    { "id": "w9", "title": "Compliance audit remediation", "description": "SOC 2 gap closure items", "category": "CarriedOver", "milestoneId": "m2", "owner": "Sara Kim", "priority": "High", "notes": "Rescheduled to Q2 sprint 1" }
+    {
+      "id": "wi-1",
+      "title": "API Gateway v2 — production rollout",
+      "description": "Full production deployment of the new API gateway with traffic migration.",
+      "category": "Shipped",
+      "milestoneId": "ms-1",
+      "owner": "James Park",
+      "priority": "High"
+    },
+    {
+      "id": "wi-2",
+      "title": "OAuth 2.1 token service upgrade",
+      "description": "Upgraded token issuance service to OAuth 2.1 spec compliance.",
+      "category": "Shipped",
+      "milestoneId": "ms-2",
+      "owner": "Priya Sharma",
+      "priority": "High"
+    },
+    {
+      "id": "wi-3",
+      "title": "Rate limiting & throttling policies",
+      "description": "Implemented adaptive rate limiting for all public API endpoints.",
+      "category": "Shipped",
+      "milestoneId": "ms-1",
+      "owner": "Marcus Liu",
+      "priority": "Medium"
+    },
+    {
+      "id": "wi-4",
+      "title": "Tenant migration — batch 3 of 4",
+      "description": "Migrating enterprise tenants to new auth service infrastructure.",
+      "category": "Shipped",
+      "milestoneId": "ms-2",
+      "owner": "Priya Sharma",
+      "priority": "High"
+    },
+    {
+      "id": "wi-5",
+      "title": "Real-time event streaming pipeline",
+      "description": "Building the new event-driven data pipeline for real-time analytics.",
+      "category": "InProgress",
+      "milestoneId": "ms-3",
+      "owner": "Alex Rivera",
+      "priority": "High"
+    },
+    {
+      "id": "wi-6",
+      "title": "Schema validation framework",
+      "description": "Implementing contract-first schema validation across all services.",
+      "category": "InProgress",
+      "milestoneId": "ms-3",
+      "owner": "Dana Kim",
+      "priority": "Medium"
+    },
+    {
+      "id": "wi-7",
+      "title": "Tenant migration — batch 4 of 4",
+      "description": "Final batch of tenant migrations to complete auth service cutover.",
+      "category": "InProgress",
+      "milestoneId": "ms-2",
+      "owner": "Priya Sharma",
+      "priority": "High"
+    },
+    {
+      "id": "wi-8",
+      "title": "Load testing at 2x peak capacity",
+      "description": "Performance validation under sustained 2x peak load conditions.",
+      "category": "InProgress",
+      "milestoneId": "ms-4",
+      "owner": "James Park",
+      "priority": "Medium"
+    },
+    {
+      "id": "wi-9",
+      "title": "Legacy monitoring decommission",
+      "description": "Decommission legacy monitoring stack after new observability platform confirmed.",
+      "category": "CarriedOver",
+      "milestoneId": "ms-5",
+      "owner": "Marcus Liu",
+      "priority": "Low"
+    },
+    {
+      "id": "wi-10",
+      "title": "Compliance audit — data residency",
+      "description": "Regulatory review of data residency requirements blocking legacy shutdown.",
+      "category": "CarriedOver",
+      "milestoneId": "ms-5",
+      "owner": "Dana Kim",
+      "priority": "High"
+    },
+    {
+      "id": "wi-11",
+      "title": "Legacy API sunset communication",
+      "description": "Customer and partner notification plan for legacy API deprecation.",
+      "category": "CarriedOver",
+      "milestoneId": "ms-5",
+      "owner": "Alex Rivera",
+      "priority": "Medium"
+    }
   ]
 }

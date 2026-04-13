@@ -2,17 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Executive Reporting Dashboard</title>
+    <meta name="viewport" content="width=1920, initial-scale=1.0" />
     <base href="/" />
     <link rel="stylesheet" href="css/dashboard.css" />
-    <link rel="stylesheet" href="css/header.css" />
-    <link rel="stylesheet" href="css/timeline.css" />
-    <link rel="stylesheet" href="css/status-sections.css" />
     <HeadOutlet />
 </head>
 <body>
     <Routes />
-    <script src="_framework/blazor.server.js"></script>
+    <script src="_framework/blazor.server.js" suppress-error="BL9992"></script>
+    <script>
+        // Hide Blazor reconnection UI and loading indicators
+        (function() {
+            var style = document.createElement('style');
+            style.textContent = '#components-reconnect-modal,.components-reconnect-hide,.components-reconnect-show,.components-reconnect-rejected,.components-reconnect-failed,#blazor-error-ui,.loading-progress,.loading-progress-text{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}';
+            document.head.appendChild(style);
+        })();
+    </script>
 </body>
 </html>
