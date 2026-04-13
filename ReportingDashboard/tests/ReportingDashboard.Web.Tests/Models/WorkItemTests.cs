@@ -5,49 +5,61 @@ namespace ReportingDashboard.Web.Tests.Models;
 
 public class WorkItemTests
 {
+    private static readonly JsonSerializerOptions Options = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     [Fact]
     public void Deserialize_ShippedWorkItem_AllPropertiesMapped()
     {
         var json = """
         {
-            "id": "WI-101",
+            "id": 101,
             "title": "REST API v2 Endpoint Migration",
             "description": "Migrated all endpoints.",
             "category": "Shipped",
-            "milestoneId": "MS-2",
+            "milestoneId": 2,
             "owner": "Marcus Johnson",
-            "priority": "High"
+            "priority": "High",
+            "notes": "Zero-downtime migration",
+            "statusIndicator": "Done"
         }
         """;
 
-        var result = JsonSerializer.Deserialize<WorkItem>(json);
+        var result = JsonSerializer.Deserialize<WorkItem>(json, Options);
 
         Assert.NotNull(result);
-        Assert.Equal("WI-101", result.Id);
+        Assert.Equal(101, result.Id);
         Assert.Equal("Shipped", result.Category);
-        Assert.Equal("MS-2", result.MilestoneId);
+        Assert.Equal(2, result.MilestoneId);
         Assert.Equal("Marcus Johnson", result.Owner);
         Assert.Equal("High", result.Priority);
+        Assert.Equal("Zero-downtime migration", result.Notes);
+        Assert.Equal("Done", result.StatusIndicator);
     }
 
     [Fact]
-    public void Deserialize_WorkItem_NullMilestoneId_IsAllowed()
+    public void Deserialize_WorkItem_NullNotes_IsAllowed()
     {
         var json = """
         {
-            "id": "WI-999",
+            "id": 999,
             "title": "Standalone task",
-            "description": "No milestone.",
+            "description": "No notes.",
             "category": "InProgress",
-            "milestoneId": null,
+            "milestoneId": 1,
             "owner": "Test User",
-            "priority": "Low"
+            "priority": "Low",
+            "notes": null,
+            "statusIndicator": null
         }
         """;
 
-        var result = JsonSerializer.Deserialize<WorkItem>(json);
+        var result = JsonSerializer.Deserialize<WorkItem>(json, Options);
 
         Assert.NotNull(result);
-        Assert.Null(result.MilestoneId);
+        Assert.Null(result.Notes);
+        Assert.Null(result.StatusIndicator);
     }
 }

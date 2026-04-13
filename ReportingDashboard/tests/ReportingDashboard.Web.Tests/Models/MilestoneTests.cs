@@ -5,23 +5,29 @@ namespace ReportingDashboard.Web.Tests.Models;
 
 public class MilestoneTests
 {
+    private static readonly JsonSerializerOptions Options = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     [Fact]
     public void Deserialize_CompletedMilestone_IncludesCompletionDate()
     {
         var json = """
         {
-            "id": "MS-1",
+            "id": 1,
             "title": "Architecture Design Complete",
             "targetDate": "2026-01-15",
             "completionDate": "2026-01-14",
-            "status": "Completed"
+            "status": "Completed",
+            "description": "Architecture review board sign-off"
         }
         """;
 
-        var result = JsonSerializer.Deserialize<Milestone>(json);
+        var result = JsonSerializer.Deserialize<Milestone>(json, Options);
 
         Assert.NotNull(result);
-        Assert.Equal("MS-1", result.Id);
+        Assert.Equal(1, result.Id);
         Assert.Equal("2026-01-14", result.CompletionDate);
         Assert.Equal("Completed", result.Status);
     }
@@ -31,15 +37,16 @@ public class MilestoneTests
     {
         var json = """
         {
-            "id": "MS-7",
+            "id": 7,
             "title": "Production Rollout",
             "targetDate": "2026-05-01",
             "completionDate": null,
-            "status": "Upcoming"
+            "status": "Upcoming",
+            "description": "GA release"
         }
         """;
 
-        var result = JsonSerializer.Deserialize<Milestone>(json);
+        var result = JsonSerializer.Deserialize<Milestone>(json, Options);
 
         Assert.NotNull(result);
         Assert.Null(result.CompletionDate);

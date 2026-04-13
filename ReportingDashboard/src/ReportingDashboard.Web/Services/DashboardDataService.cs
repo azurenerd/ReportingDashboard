@@ -3,19 +3,20 @@ using ReportingDashboard.Web.Models;
 
 namespace ReportingDashboard.Web.Services;
 
-public class DashboardDataService
+public class DashboardDataService : IDashboardDataService
 {
-    private readonly string _dataFilePath;
+    private readonly IWebHostEnvironment _env;
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         ReadCommentHandling = JsonCommentHandling.Skip,
         AllowTrailingCommas = true
     };
 
-    public DashboardDataService(string dataFilePath)
+    public DashboardDataService(IWebHostEnvironment env)
     {
-        _dataFilePath = dataFilePath;
+        _env = env;
     }
 
     /// <summary>
@@ -24,31 +25,18 @@ public class DashboardDataService
     /// </summary>
     public async Task<DashboardData> GetDashboardDataAsync()
     {
-        if (!File.Exists(_dataFilePath))
+        var filePath = Path.Combine(_env.ContentRootPath, "Data", "data.json");
+
+        if (!File.Exists(filePath))
         {
             throw new FileNotFoundException(
-                $"Dashboard data file not found at: {_dataFilePath}");
+                $"Dashboard data file not found at: {filePath}. Ensure Data/data.json exists in the project root.");
         }
 
-        await using var stream = File.OpenRead(_dataFilePath);
+        await using var stream = File.OpenRead(filePath);
         var data = await JsonSerializer.DeserializeAsync<DashboardData>(stream, JsonOptions);
 
         return data ?? throw new InvalidOperationException(
-            "Failed to deserialize dashboard data: result was null.");
-    }
-
-    public DashboardData GetDashboardData()
-    {
-        if (!File.Exists(_dataFilePath))
-        {
-            throw new FileNotFoundException(
-                $"Dashboard data file not found at: {_dataFilePath}");
-        }
-
-        var json = File.ReadAllText(_dataFilePath);
-        var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
-
-        return data ?? throw new InvalidOperationException(
-            "Failed to deserialize dashboard data: result was null.");
+            "Failed to deserialize data.json. The file may be empty or contain invalid JSON structure.");
     }
 }

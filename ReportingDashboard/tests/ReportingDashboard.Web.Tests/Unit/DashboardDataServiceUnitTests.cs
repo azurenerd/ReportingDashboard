@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Hosting;
 using ReportingDashboard.Web.Models;
 using ReportingDashboard.Web.Services;
 
@@ -13,6 +14,7 @@ public class DashboardDataServiceUnitTests : IDisposable
     {
         _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardTests_{Guid.NewGuid():N}");
         Directory.CreateDirectory(_tempDir);
+        Directory.CreateDirectory(Path.Combine(_tempDir, "Data"));
     }
 
     public void Dispose()
@@ -21,11 +23,16 @@ public class DashboardDataServiceUnitTests : IDisposable
             Directory.Delete(_tempDir, true);
     }
 
-    private string WriteJsonFile(string json, string fileName = "data.json")
+    private DashboardDataService CreateService()
     {
-        var filePath = Path.Combine(_tempDir, fileName);
+        var env = new TestWebHostEnvironment(_tempDir);
+        return new DashboardDataService(env);
+    }
+
+    private void WriteJsonFile(string json)
+    {
+        var filePath = Path.Combine(_tempDir, "Data", "data.json");
         File.WriteAllText(filePath, json);
-        return filePath;
     }
 
     private static string BuildValidJson(
@@ -59,15 +66,12 @@ public class DashboardDataServiceUnitTests : IDisposable
     [Fact]
     public async Task GetDashboardDataAsync_ValidJson_ReturnsPopulatedData()
     {
-        // Arrange
         var json = BuildValidJson("Project Atlas", "OnTrack", milestoneCount: 3, workItemCount: 2);
-        var filePath = WriteJsonFile(json);
-        var service = new DashboardDataService(filePath);
+        WriteJsonFile(json);
+        var service = CreateService();
 
-        // Act
         var result = await service.GetDashboardDataAsync();
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotNull(result.Project);
         Assert.Equal("Project Atlas", result.Project.ProjectName);
@@ -79,24 +83,20 @@ public class DashboardDataServiceUnitTests : IDisposable
     [Fact]
     public async Task GetDashboardDataAsync_FileNotFound_ThrowsFileNotFoundException()
     {
-        // Arrange
-        var nonExistentPath = Path.Combine(_tempDir, "nonexistent.json");
-        var service = new DashboardDataService(nonExistentPath);
+        // Don't write any file
+        var service = CreateService();
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<FileNotFoundException>(
             () => service.GetDashboardDataAsync());
-        Assert.Contains(nonExistentPath, ex.Message);
+        Assert.Contains("data.json", ex.Message);
     }
 
     [Fact]
     public async Task GetDashboardDataAsync_MalformedJson_ThrowsJsonException()
     {
-        // Arrange
-        var filePath = WriteJsonFile("{ this is not valid json }}}");
-        var service = new DashboardDataService(filePath);
+        WriteJsonFile("{ this is not valid json }}}");
+        var service = CreateService();
 
-        // Act & Assert
         await Assert.ThrowsAsync<JsonException>(
             () => service.GetDashboardDataAsync());
     }
@@ -104,38 +104,30 @@ public class DashboardDataServiceUnitTests : IDisposable
     [Fact]
     public async Task GetDashboardDataAsync_NoCaching_ReflectsFileChanges()
     {
-        // Arrange
-        var filePath = WriteJsonFile(BuildValidJson("Version1"));
-        var service = new DashboardDataService(filePath);
+        WriteJsonFile(BuildValidJson("Version1"));
+        var service = CreateService();
 
-        // Act - first read
         var result1 = await service.GetDashboardDataAsync();
         Assert.Equal("Version1", result1.Project.ProjectName);
 
-        // Overwrite the file with different data
-        File.WriteAllText(filePath, BuildValidJson("Version2"));
+        WriteJsonFile(BuildValidJson("Version2"));
 
-        // Act - second read should reflect new content
         var result2 = await service.GetDashboardDataAsync();
         Assert.Equal("Version2", result2.Project.ProjectName);
     }
 
-    [Fact]
-    public void GetDashboardData_Sync_ReturnsPopulatedData()
+    private class TestWebHostEnvironment : IWebHostEnvironment
     {
-        // Arrange
-        var json = BuildValidJson("Sync Test", "AtRisk", milestoneCount: 2, workItemCount: 3);
-        var filePath = WriteJsonFile(json);
-        var service = new DashboardDataService(filePath);
+        public TestWebHostEnvironment(string contentRootPath)
+        {
+            ContentRootPath = contentRootPath;
+        }
 
-        // Act
-        var result = service.GetDashboardData();
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal("Sync Test", result.Project.ProjectName);
-        Assert.Equal("AtRisk", result.Project.OverallStatus);
-        Assert.Equal(2, result.Milestones.Count);
-        Assert.Equal(3, result.WorkItems.Count);
+        public string WebRootPath { get; set; } = string.Empty;
+        public IFileProvider WebRootFileProvider { get; set; } = null!;
+        public string ApplicationName { get; set; } = "TestApp";
+        public IFileProvider ContentRootFileProvider { get; set; } = null!;
+        public string ContentRootPath { get; set; }
+        public string EnvironmentName { get; set; } = "Development";
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using ReportingDashboard.Web.Services;
 
 namespace ReportingDashboard.Web.Tests.Services;
@@ -10,7 +11,6 @@ public class DashboardDataServiceSampleDataTests
 {
     private static string GetSampleDataPath()
     {
-        // Walk up from test bin to find the data.json in the web project
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null && dir.Name != "tests")
             dir = dir.Parent;
@@ -18,32 +18,37 @@ public class DashboardDataServiceSampleDataTests
         var root = dir?.Parent
             ?? throw new InvalidOperationException("Could not find repository root.");
 
-        return Path.Combine(root.FullName,
-            "src", "ReportingDashboard.Web", "Data", "data.json");
+        return root.FullName;
+    }
+
+    private static DashboardDataService CreateServiceForSampleData()
+    {
+        var rootPath = GetSampleDataPath();
+        var dataDir = Path.Combine(rootPath, "src", "ReportingDashboard.Web");
+        var dataFile = Path.Combine(dataDir, "Data", "data.json");
+
+        Assert.True(File.Exists(dataFile),
+            $"Sample data.json not found at expected path: {dataFile}. " +
+            "Ensure the file exists in the web project's Data directory.");
+
+        var env = new TestWebHostEnvironment(dataDir);
+        return new DashboardDataService(env);
     }
 
     [Fact]
     public async Task SampleData_DeserializesSuccessfully()
     {
-        var path = GetSampleDataPath();
-        if (!File.Exists(path))
-            return; // Skip gracefully in CI if file not present at expected path
-
-        var service = new DashboardDataService(path);
+        var service = CreateServiceForSampleData();
         var data = await service.GetDashboardDataAsync();
 
         Assert.NotNull(data);
-        Assert.Equal("Project Atlas", data.ProjectInfo.ProjectName);
+        Assert.Equal("Project Atlas", data.Project.ProjectName);
     }
 
     [Fact]
     public async Task SampleData_MeetsMilestoneCountRequirement()
     {
-        var path = GetSampleDataPath();
-        if (!File.Exists(path))
-            return;
-
-        var service = new DashboardDataService(path);
+        var service = CreateServiceForSampleData();
         var data = await service.GetDashboardDataAsync();
 
         // Spec requires 5-7 milestones
@@ -53,11 +58,7 @@ public class DashboardDataServiceSampleDataTests
     [Fact]
     public async Task SampleData_MeetsWorkItemCountRequirements()
     {
-        var path = GetSampleDataPath();
-        if (!File.Exists(path))
-            return;
-
-        var service = new DashboardDataService(path);
+        var service = CreateServiceForSampleData();
         var data = await service.GetDashboardDataAsync();
 
         var shipped = data.WorkItems.Count(w => w.Category == "Shipped");
@@ -73,11 +74,7 @@ public class DashboardDataServiceSampleDataTests
     [Fact]
     public async Task SampleData_AllWorkItemsHaveOwners()
     {
-        var path = GetSampleDataPath();
-        if (!File.Exists(path))
-            return;
-
-        var service = new DashboardDataService(path);
+        var service = CreateServiceForSampleData();
         var data = await service.GetDashboardDataAsync();
 
         Assert.All(data.WorkItems, item =>
@@ -88,15 +85,26 @@ public class DashboardDataServiceSampleDataTests
     [Fact]
     public async Task SampleData_AllMilestonesHaveValidStatus()
     {
-        var path = GetSampleDataPath();
-        if (!File.Exists(path))
-            return;
-
-        var service = new DashboardDataService(path);
+        var service = CreateServiceForSampleData();
         var data = await service.GetDashboardDataAsync();
 
         var validStatuses = new[] { "Completed", "InProgress", "Upcoming" };
         Assert.All(data.Milestones, ms =>
             Assert.Contains(ms.Status, validStatuses));
+    }
+
+    private class TestWebHostEnvironment : IWebHostEnvironment
+    {
+        public TestWebHostEnvironment(string contentRootPath)
+        {
+            ContentRootPath = contentRootPath;
+        }
+
+        public string WebRootPath { get; set; } = string.Empty;
+        public IFileProvider WebRootFileProvider { get; set; } = null!;
+        public string ApplicationName { get; set; } = "TestApp";
+        public IFileProvider ContentRootFileProvider { get; set; } = null!;
+        public string ContentRootPath { get; set; }
+        public string EnvironmentName { get; set; } = "Development";
     }
 }

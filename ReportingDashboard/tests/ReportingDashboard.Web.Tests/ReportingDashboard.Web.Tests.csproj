@@ -20,4 +20,8 @@
     <ProjectReference Include="..\..\src\ReportingDashboard.Web\ReportingDashboard.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Microsoft.Extensions.FileProviders" />
+  </ItemGroup>
+
 </Project>

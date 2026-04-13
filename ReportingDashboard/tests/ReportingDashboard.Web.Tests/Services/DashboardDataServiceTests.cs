@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using ReportingDashboard.Web.Services;
 
 namespace ReportingDashboard.Web.Tests.Services;
@@ -10,6 +11,7 @@ public class DashboardDataServiceTests : IDisposable
     {
         _tempDir = Path.Combine(Path.GetTempPath(), $"dashboard_test_{Guid.NewGuid():N}");
         Directory.CreateDirectory(_tempDir);
+        Directory.CreateDirectory(Path.Combine(_tempDir, "Data"));
     }
 
     public void Dispose()
@@ -18,120 +20,116 @@ public class DashboardDataServiceTests : IDisposable
             Directory.Delete(_tempDir, true);
     }
 
-    private string WriteTestJson(string json)
+    private DashboardDataService CreateService()
     {
-        var filePath = Path.Combine(_tempDir, "data.json");
+        var env = new TestWebHostEnvironment(_tempDir);
+        return new DashboardDataService(env);
+    }
+
+    private void WriteTestJson(string json)
+    {
+        var filePath = Path.Combine(_tempDir, "Data", "data.json");
         File.WriteAllText(filePath, json);
-        return filePath;
     }
 
     [Fact]
     public async Task GetDashboardDataAsync_ValidFile_ReturnsDeserializedData()
     {
-        var path = WriteTestJson("""
+        WriteTestJson("""
         {
-            "projectInfo": {
+            "project": {
                 "projectName": "Test Atlas",
                 "executiveSponsor": "Sponsor",
                 "reportingPeriod": "Q1 2026",
+                "lastUpdated": "2026-03-28",
                 "overallStatus": "OnTrack",
                 "summary": "All good."
             },
             "milestones": [
-                { "id": "MS-1", "title": "First", "targetDate": "2026-01-15", "completionDate": "2026-01-14", "status": "Completed" }
+                { "id": 1, "title": "First", "targetDate": "2026-01-15", "completionDate": "2026-01-14", "status": "Completed", "description": "Desc" }
             ],
             "workItems": [
-                { "id": "WI-1", "title": "Task 1", "description": "Desc", "category": "Shipped", "milestoneId": "MS-1", "owner": "Dev", "priority": "High" }
+                { "id": 101, "title": "Task 1", "description": "Desc", "category": "Shipped", "milestoneId": 1, "owner": "Dev", "priority": "High", "notes": null, "statusIndicator": "Done" }
             ]
         }
         """);
 
-        var service = new DashboardDataService(path);
+        var service = CreateService();
         var data = await service.GetDashboardDataAsync();
 
-        Assert.Equal("Test Atlas", data.ProjectInfo.ProjectName);
+        Assert.Equal("Test Atlas", data.Project.ProjectName);
         Assert.Single(data.Milestones);
         Assert.Single(data.WorkItems);
         Assert.Equal("Shipped", data.WorkItems[0].Category);
     }
 
     [Fact]
-    public void GetDashboardData_Sync_ReturnsDeserializedData()
-    {
-        var path = WriteTestJson("""
-        {
-            "projectInfo": { "projectName": "Sync Test" },
-            "milestones": [],
-            "workItems": []
-        }
-        """);
-
-        var service = new DashboardDataService(path);
-        var data = service.GetDashboardData();
-
-        Assert.Equal("Sync Test", data.ProjectInfo.ProjectName);
-    }
-
-    [Fact]
     public async Task GetDashboardDataAsync_FileNotFound_ThrowsFileNotFoundException()
     {
-        var service = new DashboardDataService(Path.Combine(_tempDir, "missing.json"));
+        // Don't write any file
+        var service = CreateService();
 
         await Assert.ThrowsAsync<FileNotFoundException>(
             () => service.GetDashboardDataAsync());
     }
 
     [Fact]
-    public void GetDashboardData_FileNotFound_ThrowsFileNotFoundException()
-    {
-        var service = new DashboardDataService(Path.Combine(_tempDir, "missing.json"));
-
-        Assert.Throws<FileNotFoundException>(() => service.GetDashboardData());
-    }
-
-    [Fact]
     public async Task GetDashboardDataAsync_ReReadsFileEachCall()
     {
-        var path = WriteTestJson("""
+        WriteTestJson("""
         {
-            "projectInfo": { "projectName": "Version 1" },
+            "project": { "projectName": "Version 1" },
             "milestones": [],
             "workItems": []
         }
         """);
 
-        var service = new DashboardDataService(path);
+        var service = CreateService();
         var first = await service.GetDashboardDataAsync();
-        Assert.Equal("Version 1", first.ProjectInfo.ProjectName);
+        Assert.Equal("Version 1", first.Project.ProjectName);
 
-        // Overwrite the file to simulate a PM edit
-        File.WriteAllText(path, """
+        WriteTestJson("""
         {
-            "projectInfo": { "projectName": "Version 2" },
+            "project": { "projectName": "Version 2" },
             "milestones": [],
             "workItems": []
         }
         """);
 
         var second = await service.GetDashboardDataAsync();
-        Assert.Equal("Version 2", second.ProjectInfo.ProjectName);
+        Assert.Equal("Version 2", second.Project.ProjectName);
     }
 
     [Fact]
     public async Task GetDashboardDataAsync_WithTrailingCommasAndComments_Succeeds()
     {
-        var path = WriteTestJson("""
+        WriteTestJson("""
         {
             // Project info
-            "projectInfo": { "projectName": "Lenient Parse", },
+            "project": { "projectName": "Lenient Parse", },
             "milestones": [],
             "workItems": [],
         }
         """);
 
-        var service = new DashboardDataService(path);
+        var service = CreateService();
         var data = await service.GetDashboardDataAsync();
 
-        Assert.Equal("Lenient Parse", data.ProjectInfo.ProjectName);
+        Assert.Equal("Lenient Parse", data.Project.ProjectName);
+    }
+
+    private class TestWebHostEnvironment : IWebHostEnvironment
+    {
+        public TestWebHostEnvironment(string contentRootPath)
+        {
+            ContentRootPath = contentRootPath;
+        }
+
+        public string WebRootPath { get; set; } = string.Empty;
+        public IFileProvider WebRootFileProvider { get; set; } = null!;
+        public string ApplicationName { get; set; } = "TestApp";
+        public IFileProvider ContentRootFileProvider { get; set; } = null!;
+        public string ContentRootPath { get; set; }
+        public string EnvironmentName { get; set; } = "Development";
     }
 }

@@ -1,5 +1,6 @@
 @page "/"
-@inject DashboardDataService DataService
+@using ReportingDashboard.Web.Services
+@inject IDashboardDataService DataService
 
 @if (_error is not null)
 {
@@ -7,10 +8,10 @@
 }
 else if (_data is not null)
 {
-    <h1>@_data.ProjectInfo.ProjectName</h1>
-    <p>@_data.ProjectInfo.ReportingPeriod — @_data.ProjectInfo.ExecutiveSponsor</p>
-    <p class="health-indicator status-@_data.ProjectInfo.OverallStatus.ToLowerInvariant()">
-        @_data.ProjectInfo.OverallStatus: @_data.ProjectInfo.Summary
+    <h1>@_data.Project.ProjectName</h1>
+    <p>@_data.Project.ReportingPeriod - @_data.Project.ExecutiveSponsor</p>
+    <p class="health-indicator status-@_data.Project.OverallStatus.ToLowerInvariant()">
+        @_data.Project.OverallStatus: @_data.Project.Summary
     </p>
 }
 
