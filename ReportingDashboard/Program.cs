@@ -1,3 +1,4 @@
+using ReportingDashboard.Components;
 using ReportingDashboard.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<IDashboardDataService, DashboardDataService>();
+builder.Services.AddSingleton<DashboardDataService>();
 
 var app = builder.Build();
 
@@ -18,7 +19,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<ReportingDashboard.Components.App>()
+app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();

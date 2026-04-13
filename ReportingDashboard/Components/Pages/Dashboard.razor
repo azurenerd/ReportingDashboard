@@ -1,155 +1,133 @@
 @page "/"
 @using ReportingDashboard.Models
 @using ReportingDashboard.Services
-@inject IDashboardDataService DataService
-@rendermode InteractiveServer
+@inject DashboardDataService DataService
+@implements IDisposable
 
-<PageTitle>Executive Reporting Dashboard</PageTitle>
-
-@if (_data is null)
+@if (_data is not null)
 {
-    <div class="loading">Loading dashboard data…</div>
-}
-else
-{
-    <div class="dashboard">
-        <!-- Project Health Summary -->
-        <header class="project-header">
-            <div class="header-left">
-                <h1 class="project-name">@_data.Project.Name</h1>
-                <span class="reporting-period">@_data.Project.ReportingPeriod</span>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>@_data.ProjectName</h1>
+            <div class="header-meta">
+                <span class="reporting-period">@_data.ReportingPeriod</span>
+                <span class="status-badge status-@_data.OverallStatus.ToLowerInvariant()">@_data.OverallStatus</span>
             </div>
-            <div class="header-right">
-                <span class="rag-badge rag-@_data.Project.RagStatus.ToLowerInvariant()">@_data.Project.RagStatus.ToUpperInvariant()</span>
-            </div>
+            <p class="executive-summary">@_data.Summary</p>
         </header>
-        <p class="executive-summary">@_data.Project.Summary</p>
 
-        <!-- Milestone Timeline -->
-        @if (_data.Milestones.Any())
-        {
-            <section class="milestones-section">
-                <h2 class="section-title">Milestone Timeline</h2>
-                <div class="timeline">
+        <section class="milestones-section">
+            <h2>Milestones</h2>
+            @if (_data.Milestones.Any())
+            {
+                <div class="milestone-timeline">
                     @foreach (var milestone in _data.Milestones)
                     {
-                        <div class="timeline-item status-@milestone.Status.ToLowerInvariant()">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <span class="milestone-title">@milestone.Title</span>
-                                <span class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</span>
-                                @if (milestone.CompletionDate.HasValue)
-                                {
-                                    <span class="milestone-completed">Completed @milestone.CompletionDate.Value.ToString("MMM dd")</span>
-                                }
-                            </div>
+                        <div class="milestone-item milestone-@milestone.Status">
+                            <span class="milestone-marker" style="background-color: @milestone.Color;"></span>
+                            <span class="milestone-name">@milestone.Name</span>
+                            <span class="milestone-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</span>
+                            <span class="milestone-status">@milestone.Status</span>
                         </div>
                     }
                 </div>
-            </section>
-        }
-
-        <!-- Work Item Sections -->
-        <div class="work-items-grid">
-            @{ var shipped = _data.WorkItems.Where(w => w.Category.Equals("shipped", StringComparison.OrdinalIgnoreCase)).ToList(); }
-            @{ var inProgress = _data.WorkItems.Where(w => w.Category.Equals("in-progress", StringComparison.OrdinalIgnoreCase)).ToList(); }
-            @{ var carriedOver = _data.WorkItems.Where(w => w.Category.Equals("carried-over", StringComparison.OrdinalIgnoreCase)).ToList(); }
-
-            @if (shipped.Any())
+            }
+            else
             {
-                <section class="work-section shipped-section">
-                    <h2 class="section-title"><span class="section-icon">✅</span> Shipped</h2>
-                    <div class="card-list">
-                        @foreach (var item in shipped)
-                        {
-                            <div class="work-card">
-                                <div class="card-header">
-                                    <span class="card-title">@item.Title</span>
-                                    <span class="card-priority priority-@item.Priority.ToLowerInvariant()">@item.Priority</span>
-                                </div>
-                                @if (!string.IsNullOrWhiteSpace(item.Description))
-                                {
-                                    <p class="card-description">@item.Description</p>
-                                }
-                                <div class="card-footer">
-                                    <span class="card-owner">@item.Owner</span>
-                                    @if (!string.IsNullOrWhiteSpace(item.Notes))
-                                    {
-                                        <span class="card-notes">@item.Notes</span>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </section>
+                <p class="empty-section">No milestones defined.</p>
+            }
+        </section>
+
+        <section class="work-items-section">
+            @if (_data.ShippedItems.Any())
+            {
+                <div class="work-category shipped-category">
+                    <h3>Shipped (@_data.ShippedItems.Count)</h3>
+                    @foreach (var item in _data.ShippedItems)
+                    {
+                        <div class="work-item-card">
+                            <strong>@item.Title</strong>
+                            <span class="work-item-owner">@item.Owner</span>
+                            <span class="work-item-priority priority-@item.Priority">@item.Priority</span>
+                        </div>
+                    }
+                </div>
             }
 
-            @if (inProgress.Any())
+            @if (_data.InProgressItems.Any())
             {
-                <section class="work-section in-progress-section">
-                    <h2 class="section-title"><span class="section-icon">🔄</span> In Progress</h2>
-                    <div class="card-list">
-                        @foreach (var item in inProgress)
-                        {
-                            <div class="work-card">
-                                <div class="card-header">
-                                    <span class="card-title">@item.Title</span>
-                                    <span class="card-priority priority-@item.Priority.ToLowerInvariant()">@item.Priority</span>
-                                </div>
-                                @if (!string.IsNullOrWhiteSpace(item.Description))
-                                {
-                                    <p class="card-description">@item.Description</p>
-                                }
-                                <div class="card-footer">
-                                    <span class="card-owner">@item.Owner</span>
-                                    @if (!string.IsNullOrWhiteSpace(item.Notes))
-                                    {
-                                        <span class="card-notes">@item.Notes</span>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </section>
+                <div class="work-category in-progress-category">
+                    <h3>In Progress (@_data.InProgressItems.Count)</h3>
+                    @foreach (var item in _data.InProgressItems)
+                    {
+                        <div class="work-item-card">
+                            <strong>@item.Title</strong>
+                            <span class="work-item-owner">@item.Owner</span>
+                            <span class="work-item-priority priority-@item.Priority">@item.Priority</span>
+                        </div>
+                    }
+                </div>
             }
 
-            @if (carriedOver.Any())
+            @if (_data.CarriedOverItems.Any())
             {
-                <section class="work-section carried-over-section">
-                    <h2 class="section-title"><span class="section-icon">⏳</span> Carried Over</h2>
-                    <div class="card-list">
-                        @foreach (var item in carriedOver)
-                        {
-                            <div class="work-card">
-                                <div class="card-header">
-                                    <span class="card-title">@item.Title</span>
-                                    <span class="card-priority priority-@item.Priority.ToLowerInvariant()">@item.Priority</span>
-                                </div>
-                                @if (!string.IsNullOrWhiteSpace(item.Description))
-                                {
-                                    <p class="card-description">@item.Description</p>
-                                }
-                                <div class="card-footer">
-                                    <span class="card-owner">@item.Owner</span>
-                                    @if (!string.IsNullOrWhiteSpace(item.Notes))
-                                    {
-                                        <span class="card-notes">@item.Notes</span>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </section>
+                <div class="work-category carried-over-category">
+                    <h3>Carried Over (@_data.CarriedOverItems.Count)</h3>
+                    @foreach (var item in _data.CarriedOverItems)
+                    {
+                        <div class="work-item-card">
+                            <strong>@item.Title</strong>
+                            <span class="work-item-owner">@item.Owner</span>
+                            <span class="work-item-priority priority-@item.Priority">@item.Priority</span>
+                        </div>
+                    }
+                </div>
             }
-        </div>
+
+            @if (_data.BlockedItems.Any())
+            {
+                <div class="work-category blocked-category">
+                    <h3>Blocked (@_data.BlockedItems.Count)</h3>
+                    @foreach (var item in _data.BlockedItems)
+                    {
+                        <div class="work-item-card">
+                            <strong>@item.Title</strong>
+                            <span class="work-item-owner">@item.Owner</span>
+                            <span class="work-item-priority priority-@item.Priority">@item.Priority</span>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+    </div>
+}
+else
+{
+    <div class="dashboard-container">
+        <p>Loading dashboard...</p>
     </div>
 }
 
 @code {
     private DashboardData? _data;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        _data = await DataService.LoadDataAsync();
+        _data = DataService.GetDashboardData();
+        DataService.DataChanged += OnDataChanged;
+    }
+
+    private void OnDataChanged()
+    {
+        InvokeAsync(() =>
+        {
+            _data = DataService.GetDashboardData();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        DataService.DataChanged -= OnDataChanged;
     }
 }

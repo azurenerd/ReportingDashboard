@@ -1,112 +1,162 @@
 {
-  "project": {
-    "name": "Project Constellation",
-    "reportingPeriod": "March 2026 — Sprint 14",
-    "ragStatus": "Green",
-    "summary": "All workstreams tracking to plan. API migration completed ahead of schedule. Mobile experience on track for April GA release."
-  },
+  "projectName": "Project Atlas - Cloud Migration Platform",
+  "teamName": "Atlas Engineering",
+  "reportingPeriod": "March 2026",
+  "overallStatus": "Amber",
+  "healthIndicator": "Amber",
+  "summary": "Core migration engine on track; API gateway integration delayed by 2 weeks due to vendor dependency.",
+  "backlogUrl": "",
   "milestones": [
     {
-      "title": "Architecture Approval",
-      "targetDate": "2026-01-15",
-      "completionDate": "2026-01-12",
-      "status": "completed"
+      "name": "Architecture Design Complete",
+      "description": "Full system architecture approved by architecture review board.",
+      "targetDate": "2026-01-15T00:00:00",
+      "completionDate": "2026-01-12T00:00:00",
+      "status": "completed",
+      "color": "#28a745",
+      "markerType": "diamond"
     },
     {
-      "title": "API v2 Migration",
-      "targetDate": "2026-02-28",
-      "completionDate": "2026-02-24",
-      "status": "completed"
+      "name": "Migration Engine v1.0",
+      "description": "Core migration engine supporting VM, container, and serverless workloads.",
+      "targetDate": "2026-02-28T00:00:00",
+      "completionDate": "2026-02-25T00:00:00",
+      "status": "completed",
+      "color": "#28a745",
+      "markerType": "diamond"
     },
     {
-      "title": "Beta Launch",
-      "targetDate": "2026-03-15",
-      "completionDate": "2026-03-15",
-      "status": "completed"
-    },
-    {
-      "title": "Performance Audit",
-      "targetDate": "2026-04-01",
+      "name": "API Gateway Integration",
+      "description": "Integration layer connecting migration engine to external partner APIs.",
+      "targetDate": "2026-03-31T00:00:00",
       "completionDate": null,
-      "status": "in-progress"
+      "status": "in-progress",
+      "color": "#fd7e14",
+      "markerType": "circle"
     },
     {
-      "title": "GA Release",
-      "targetDate": "2026-04-30",
+      "name": "Security Audit & Pen Test",
+      "description": "Third-party security assessment and penetration testing engagement.",
+      "targetDate": "2026-04-15T00:00:00",
       "completionDate": null,
-      "status": "upcoming"
+      "status": "upcoming",
+      "color": "#6c757d",
+      "markerType": "circle"
     },
     {
-      "title": "Post-Launch Review",
-      "targetDate": "2026-05-15",
+      "name": "Staging Environment Go-Live",
+      "description": "Full staging deployment with production-equivalent configuration.",
+      "targetDate": "2026-05-15T00:00:00",
       "completionDate": null,
-      "status": "upcoming"
+      "status": "upcoming",
+      "color": "#6c757d",
+      "markerType": "circle"
+    },
+    {
+      "name": "Production Launch",
+      "description": "General availability launch with customer onboarding support.",
+      "targetDate": "2026-06-30T00:00:00",
+      "completionDate": null,
+      "status": "upcoming",
+      "color": "#6c757d",
+      "markerType": "circle"
     }
   ],
-  "workItems": [
+  "shippedItems": [
     {
-      "title": "API v2 Endpoint Migration",
-      "description": "Migrated all 47 endpoints from v1 to v2 with backward compatibility layer.",
-      "category": "shipped",
-      "owner": "Jordan Kim",
-      "priority": "High",
-      "notes": "Zero downtime achieved"
+      "title": "Core Migration Engine v1.0",
+      "description": "Automated workload migration supporting VM, container, and serverless targets with rollback capability.",
+      "status": "shipped",
+      "owner": "Sarah Chen",
+      "priority": "high",
+      "month": "February 2026",
+      "notes": "Delivered 3 days ahead of schedule."
     },
     {
-      "title": "Auth Token Refresh Flow",
-      "description": "Implemented silent token refresh eliminating session timeouts.",
-      "category": "shipped",
-      "owner": "Priya Patel",
-      "priority": "High",
+      "title": "Database Schema Converter",
+      "description": "Automated schema translation between SQL Server, PostgreSQL, and MySQL with index preservation.",
+      "status": "shipped",
+      "owner": "Marcus Johnson",
+      "priority": "high",
+      "month": "February 2026",
       "notes": null
     },
     {
-      "title": "Dashboard Analytics Module",
-      "description": "New real-time analytics widgets for executive stakeholders.",
-      "category": "shipped",
-      "owner": "Alex Chen",
-      "priority": "Medium",
-      "notes": "3 widget types launched"
-    },
-    {
-      "title": "Mobile Responsive Redesign",
-      "description": "Reworking all views for mobile-first responsive layout.",
-      "category": "in-progress",
-      "owner": "Sam Rivera",
-      "priority": "High",
-      "notes": "70% complete"
-    },
-    {
-      "title": "Performance Optimization Sprint",
-      "description": "Targeting sub-200ms P95 latency on core read paths.",
-      "category": "in-progress",
-      "owner": "Jordan Kim",
-      "priority": "High",
-      "notes": "Currently at 280ms P95"
-    },
-    {
-      "title": "Accessibility Compliance (WCAG 2.1)",
-      "description": "Auditing and remediating all UI components for AA compliance.",
-      "category": "in-progress",
-      "owner": "Morgan Lee",
-      "priority": "Medium",
-      "notes": "Audit complete, fixes underway"
-    },
-    {
-      "title": "Legacy Report Export",
-      "description": "CSV export for legacy report format requested by Finance.",
-      "category": "carried-over",
+      "title": "Automated Rollback System",
+      "description": "Point-in-time rollback capability with state snapshot and dependency graph awareness.",
+      "status": "shipped",
       "owner": "Priya Patel",
-      "priority": "Low",
-      "notes": "Deprioritized for API migration"
+      "priority": "medium",
+      "month": "March 2026",
+      "notes": "Passed security review with zero findings."
     },
     {
-      "title": "SSO Integration for Partner Portal",
-      "description": "SAML-based SSO for external partner access.",
-      "category": "carried-over",
-      "owner": "Alex Chen",
-      "priority": "Medium",
-      "notes": "Blocked on vendor contract"
+      "title": "Monitoring Dashboard MVP",
+      "description": "Real-time migration status overview with progress bars and error summaries.",
+      "status": "shipped",
+      "owner": "David Kim",
+      "priority": "medium",
+      "month": "March 2026",
+      "notes": null
     }
-  ]
+  ],
+  "inProgressItems": [
+    {
+      "title": "API Gateway Integration",
+      "description": "Integration layer connecting migration engine to external partner APIs with rate limiting.",
+      "status": "in-progress",
+      "owner": "Emily Rodriguez",
+      "priority": "high",
+      "month": "March 2026",
+      "notes": "Delayed 2 weeks due to vendor API documentation gaps."
+    },
+    {
+      "title": "Load Testing Framework",
+      "description": "Automated performance testing suite simulating concurrent migration workloads.",
+      "status": "in-progress",
+      "owner": "Sarah Chen",
+      "priority": "high",
+      "month": "March 2026",
+      "notes": "Targeting 500 concurrent migrations."
+    },
+    {
+      "title": "Tenant Onboarding Wizard",
+      "description": "Step-by-step onboarding flow for new tenants with environment validation checks.",
+      "status": "in-progress",
+      "owner": "James Wilson",
+      "priority": "medium",
+      "month": "March 2026",
+      "notes": null
+    }
+  ],
+  "carriedOverItems": [
+    {
+      "title": "Custom Transformation Rules UI",
+      "description": "Visual editor for defining custom data transformation rules during migration.",
+      "status": "carried-over",
+      "owner": "Marcus Johnson",
+      "priority": "high",
+      "month": "February 2026",
+      "notes": "Blocked on UX research findings; expected resolution mid-April."
+    },
+    {
+      "title": "Multi-Region Failover",
+      "description": "Automatic failover to secondary region during migration if primary region becomes unhealthy.",
+      "status": "carried-over",
+      "owner": "Priya Patel",
+      "priority": "medium",
+      "month": "February 2026",
+      "notes": "Network topology review pending with infrastructure team."
+    },
+    {
+      "title": "Compliance Report Generator",
+      "description": "Automated generation of SOC 2 and ISO 27001 compliance artifacts post-migration.",
+      "status": "carried-over",
+      "owner": "David Kim",
+      "priority": "medium",
+      "month": "February 2026",
+      "notes": "Deprioritized to Q2 per stakeholder alignment."
+    }
+  ],
+  "blockedItems": []
 }

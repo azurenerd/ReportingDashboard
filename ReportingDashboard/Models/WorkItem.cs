@@ -1,24 +1,12 @@
-using System.Text.Json.Serialization;
-
 namespace ReportingDashboard.Models;
 
 public class WorkItem
 {
-    [JsonPropertyName("title")]
     public string Title { get; set; } = string.Empty;
-
-    [JsonPropertyName("description")]
-    public string? Description { get; set; }
-
-    [JsonPropertyName("category")]
-    public string Category { get; set; } = string.Empty;
-
-    [JsonPropertyName("owner")]
+    public string Description { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty; // shipped, in-progress, carried-over, blocked
     public string Owner { get; set; } = string.Empty;
-
-    [JsonPropertyName("priority")]
-    public string Priority { get; set; } = "Medium";
-
-    [JsonPropertyName("notes")]
+    public string Priority { get; set; } = string.Empty; // high, medium, low
+    public string Month { get; set; } = string.Empty;
     public string? Notes { get; set; }
 }

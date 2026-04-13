@@ -1,18 +1,12 @@
-using System.Text.Json.Serialization;
-
 namespace ReportingDashboard.Models;
 
 public class Milestone
 {
-    [JsonPropertyName("title")]
-    public string Title { get; set; } = string.Empty;
-
-    [JsonPropertyName("targetDate")]
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
     public DateTime TargetDate { get; set; }
-
-    [JsonPropertyName("completionDate")]
     public DateTime? CompletionDate { get; set; }
-
-    [JsonPropertyName("status")]
-    public string Status { get; set; } = "upcoming";
+    public string Status { get; set; } = string.Empty; // completed, in-progress, upcoming
+    public string Color { get; set; } = string.Empty;
+    public string MarkerType { get; set; } = string.Empty;
 }
