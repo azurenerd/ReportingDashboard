@@ -3,6 +3,8 @@
 @inject DashboardDataService DataService
 @rendermode RenderMode.InteractiveServer
 
+<PageTitle>@(DataService.Data?.Title ?? "Executive Reporting Dashboard")</PageTitle>
+
 <div class="dashboard-container">
     @if (DataService.IsError)
     {
@@ -12,11 +14,14 @@
     }
     else if (DataService.Data is not null)
     {
-        <ProjectHeader Project="DataService.Data.Project" />
-        <MonthlySummary Summary="DataService.Data.CurrentMonth" />
-        <MilestoneTimeline Milestones="DataService.Data.Milestones" />
-        <StatusSections ShippedItems="DataService.Data.Shipped"
-                        InProgressItems="DataService.Data.InProgress"
-                        CarriedOverItems="DataService.Data.CarriedOver" />
+        <HeaderSection ProjectInfo="@DataService.Data.Project" />
+        <TimelineSection Milestones="@DataService.Data.Milestones" />
+        <StatusSections ShippedItems="@DataService.Data.Shipped"
+                        InProgressItems="@DataService.Data.InProgress"
+                        CarriedOverItems="@DataService.Data.CarriedOver" />
+    }
+    else
+    {
+        <p class="loading-text">Loading...</p>
     }
 </div>
