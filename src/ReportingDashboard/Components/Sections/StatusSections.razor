@@ -1,0 +1,57 @@
+@namespace ReportingDashboard.Components.Sections
+@using ReportingDashboard.Models
+
+<div class="status-sections">
+    @RenderColumn("Shipped", "shipped", ShippedItems)
+    @RenderColumn("In Progress", "in-progress", InProgressItems)
+    @RenderColumn("Carried Over", "carried-over", CarriedOverItems)
+</div>
+
+@code {
+    [Parameter]
+    public List<WorkItem> ShippedItems { get; set; } = new();
+
+    [Parameter]
+    public List<WorkItem> InProgressItems { get; set; } = new();
+
+    [Parameter]
+    public List<WorkItem> CarriedOverItems { get; set; } = new();
+
+    private RenderFragment RenderColumn(string title, string cssModifier, List<WorkItem> items) => __builder =>
+    {
+        <div class="status-column">
+            <div class="status-header status-header--@cssModifier">
+                <span class="status-header__title">@title</span>
+                <span class="status-header__badge">@items.Count</span>
+            </div>
+            <div class="status-card-list">
+                @if (items.Count == 0)
+                {
+                    <div class="status-card status-card--empty">
+                        <span class="status-card__empty-text">No @(title.ToLowerInvariant()) items</span>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var item in items)
+                    {
+                        <div class="status-card">
+                            <div class="status-card__header">
+                                <span class="status-indicator status-indicator--@cssModifier"></span>
+                                <span class="status-card__title">@item.Title</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(item.Owner))
+                            {
+                                <span class="status-card__owner">@item.Owner</span>
+                            }
+                            @if (!string.IsNullOrEmpty(item.Notes))
+                            {
+                                <p class="status-card__notes">@item.Notes</p>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    };
+}

@@ -1,0 +1,135 @@
+{
+  "title": "Project Phoenix – Executive Dashboard",
+  "subtitle": "Q2 2026 Reporting Cycle",
+  "backlogLink": "",
+  "months": ["January", "February", "March", "April"],
+  "project": {
+    "name": "Project Phoenix",
+    "lead": "Jordan Rivera",
+    "status": "On Track",
+    "lastUpdated": "2026-04-10",
+    "summary": "Core platform migration on schedule. Three major milestones shipped this period with two workstreams progressing as planned."
+  },
+  "currentMonth": {
+    "month": "April 2026",
+    "totalItems": 9,
+    "completedItems": 4,
+    "carriedItems": 2,
+    "overallHealth": "On Track"
+  },
+  "milestones": [
+    { "title": "Architecture Approved", "targetDate": "2026-01-15", "status": "Completed" },
+    { "title": "API v2 Launch", "targetDate": "2026-03-01", "status": "Completed" },
+    { "title": "Data Migration Complete", "targetDate": "2026-04-15", "status": "In Progress" },
+    { "title": "Public Beta", "targetDate": "2026-06-01", "status": "Upcoming" },
+    { "title": "GA Release", "targetDate": "2026-08-01", "status": "Upcoming" }
+  ],
+  "timeline": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-08-31",
+    "nowDate": "2026-04-10",
+    "tracks": []
+  },
+  "heatmap": {
+    "shipped": {},
+    "inProgress": {},
+    "carryover": {},
+    "blockers": {}
+  },
+  "shipped": [
+    {
+      "title": "API v2 Endpoints",
+      "description": "All 24 REST endpoints migrated to v2 schema with backward compatibility.",
+      "category": "Backend",
+      "owner": "Alex Chen",
+      "percentComplete": 100,
+      "status": "Complete",
+      "notes": "Performance improved 35% over v1.",
+      "carryOverReason": ""
+    },
+    {
+      "title": "Auth Service Refactor",
+      "description": "Replaced legacy auth module with OAuth 2.0 / OIDC flow.",
+      "category": "Security",
+      "owner": "Maria Lopez",
+      "percentComplete": 100,
+      "status": "Complete",
+      "notes": "",
+      "carryOverReason": ""
+    },
+    {
+      "title": "CI/CD Pipeline Overhaul",
+      "description": "Migrated build pipelines to GitHub Actions with parallel test execution.",
+      "category": "Infrastructure",
+      "owner": "Sam Patel",
+      "percentComplete": 100,
+      "status": "Complete",
+      "notes": "Build time reduced from 18 min to 6 min.",
+      "carryOverReason": ""
+    },
+    {
+      "title": "Dashboard Wireframes Approved",
+      "description": "Executive reporting dashboard designs finalized and signed off.",
+      "category": "Frontend",
+      "owner": "Jordan Rivera",
+      "percentComplete": 100,
+      "status": "Complete",
+      "notes": "",
+      "carryOverReason": ""
+    }
+  ],
+  "inProgress": [
+    {
+      "title": "Data Migration Engine",
+      "description": "Building ETL pipeline for customer data migration from legacy Oracle DB.",
+      "category": "Backend",
+      "owner": "Alex Chen",
+      "percentComplete": 65,
+      "status": "On Track",
+      "notes": "Schema mapping 90% done; transform layer in progress.",
+      "carryOverReason": ""
+    },
+    {
+      "title": "Reporting Dashboard UI",
+      "description": "Blazor Server implementation of the executive reporting dashboard.",
+      "category": "Frontend",
+      "owner": "Jordan Rivera",
+      "percentComplete": 40,
+      "status": "On Track",
+      "notes": "",
+      "carryOverReason": ""
+    },
+    {
+      "title": "Load Testing Framework",
+      "description": "Setting up k6-based load testing against staging environment.",
+      "category": "QA",
+      "owner": "Sam Patel",
+      "percentComplete": 50,
+      "status": "On Track",
+      "notes": "Baseline benchmarks established.",
+      "carryOverReason": ""
+    }
+  ],
+  "carriedOver": [
+    {
+      "title": "Notification Service",
+      "description": "Real-time push notification system for status updates.",
+      "category": "Backend",
+      "owner": "Maria Lopez",
+      "percentComplete": 20,
+      "status": "Deferred",
+      "notes": "Re-scoped to Q3 due to dependency on event bus.",
+      "carryOverReason": "Blocked on event bus infrastructure — now targeting Q3."
+    },
+    {
+      "title": "Mobile Responsive Layouts",
+      "description": "Responsive CSS for tablet and mobile viewports.",
+      "category": "Frontend",
+      "owner": "Jordan Rivera",
+      "percentComplete": 10,
+      "status": "Deferred",
+      "notes": "",
+      "carryOverReason": "De-prioritized; desktop-first approach for executive audience."
+    }
+  ]
+}
