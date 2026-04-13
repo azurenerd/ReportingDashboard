@@ -1,30 +1,16 @@
-using System.Text.Json.Serialization;
-
 namespace ReportingDashboard.Web.Models;
 
 public class Milestone
 {
-    [JsonPropertyName("id")]
-    public string Id { get; set; } = string.Empty;
+    public int Id { get; set; }
 
-    [JsonPropertyName("title")]
     public string Title { get; set; } = string.Empty;
 
-    [JsonPropertyName("targetDate")]
-    public DateTime TargetDate { get; set; }
+    public string TargetDate { get; set; } = string.Empty;
 
-    [JsonPropertyName("completionDate")]
-    public DateTime? CompletionDate { get; set; }
+    public string? CompletionDate { get; set; }
 
-    [JsonPropertyName("status")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public MilestoneStatus Status { get; set; }
-}
+    public string Status { get; set; } = "Upcoming";
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum MilestoneStatus
-{
-    Completed,
-    InProgress,
-    Upcoming
+    public string Description { get; set; } = string.Empty;
 }

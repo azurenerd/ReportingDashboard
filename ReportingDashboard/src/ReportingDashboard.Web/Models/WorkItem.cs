@@ -1,36 +1,22 @@
-using System.Text.Json.Serialization;
-
 namespace ReportingDashboard.Web.Models;
 
 public class WorkItem
 {
-    [JsonPropertyName("id")]
-    public string Id { get; set; } = string.Empty;
+    public int Id { get; set; }
 
-    [JsonPropertyName("title")]
     public string Title { get; set; } = string.Empty;
 
-    [JsonPropertyName("description")]
     public string Description { get; set; } = string.Empty;
 
-    [JsonPropertyName("category")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public WorkItemCategory Category { get; set; }
+    public string Category { get; set; } = string.Empty;
 
-    [JsonPropertyName("milestoneId")]
-    public string? MilestoneId { get; set; }
+    public int MilestoneId { get; set; }
 
-    [JsonPropertyName("owner")]
     public string Owner { get; set; } = string.Empty;
 
-    [JsonPropertyName("priority")]
-    public string Priority { get; set; } = string.Empty;
-}
+    public string Priority { get; set; } = "Medium";
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum WorkItemCategory
-{
-    Shipped,
-    InProgress,
-    CarriedOver
+    public string? Notes { get; set; }
+
+    public string? StatusIndicator { get; set; }
 }
