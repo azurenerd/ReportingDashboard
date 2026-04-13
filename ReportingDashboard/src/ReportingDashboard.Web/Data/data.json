@@ -1,0 +1,170 @@
+{
+  "projectInfo": {
+    "projectName": "Project Atlas",
+    "executiveSponsor": "Sarah Chen, VP of Engineering",
+    "reportingPeriod": "Q1 2026 (Jan – Mar)",
+    "overallStatus": "OnTrack",
+    "summary": "Core platform migration is on track; 4 of 7 milestones completed with the remaining 3 on schedule for Q2."
+  },
+  "milestones": [
+    {
+      "id": "MS-1",
+      "title": "Architecture Design Complete",
+      "targetDate": "2026-01-15",
+      "completionDate": "2026-01-14",
+      "status": "Completed"
+    },
+    {
+      "id": "MS-2",
+      "title": "Core API Migration",
+      "targetDate": "2026-01-31",
+      "completionDate": "2026-02-02",
+      "status": "Completed"
+    },
+    {
+      "id": "MS-3",
+      "title": "Data Layer Modernization",
+      "targetDate": "2026-02-14",
+      "completionDate": "2026-02-13",
+      "status": "Completed"
+    },
+    {
+      "id": "MS-4",
+      "title": "Auth & Identity Integration",
+      "targetDate": "2026-02-28",
+      "completionDate": "2026-02-27",
+      "status": "Completed"
+    },
+    {
+      "id": "MS-5",
+      "title": "Frontend Component Library",
+      "targetDate": "2026-03-15",
+      "completionDate": null,
+      "status": "InProgress"
+    },
+    {
+      "id": "MS-6",
+      "title": "Performance & Load Testing",
+      "targetDate": "2026-04-15",
+      "completionDate": null,
+      "status": "InProgress"
+    },
+    {
+      "id": "MS-7",
+      "title": "Production Rollout",
+      "targetDate": "2026-05-01",
+      "completionDate": null,
+      "status": "Upcoming"
+    }
+  ],
+  "workItems": [
+    {
+      "id": "WI-101",
+      "title": "REST API v2 Endpoint Migration",
+      "description": "Migrated all 47 REST endpoints from legacy .NET Framework to .NET 8 minimal APIs with full backward compatibility.",
+      "category": "Shipped",
+      "milestoneId": "MS-2",
+      "owner": "Marcus Johnson",
+      "priority": "High"
+    },
+    {
+      "id": "WI-102",
+      "title": "Database Schema Upgrade to v3",
+      "description": "Completed schema migration for PostgreSQL including zero-downtime migration scripts and rollback procedures.",
+      "category": "Shipped",
+      "milestoneId": "MS-3",
+      "owner": "Priya Patel",
+      "priority": "High"
+    },
+    {
+      "id": "WI-103",
+      "title": "OAuth 2.0 / OIDC Provider Swap",
+      "description": "Replaced legacy SAML provider with modern OAuth 2.0 + OIDC flow supporting SSO across three identity providers.",
+      "category": "Shipped",
+      "milestoneId": "MS-4",
+      "owner": "David Kim",
+      "priority": "High"
+    },
+    {
+      "id": "WI-104",
+      "title": "CI/CD Pipeline Overhaul",
+      "description": "Rebuilt build and deployment pipelines with GitHub Actions, achieving 12-minute end-to-end deploy cycles.",
+      "category": "Shipped",
+      "milestoneId": "MS-2",
+      "owner": "Elena Rodriguez",
+      "priority": "Medium"
+    },
+    {
+      "id": "WI-105",
+      "title": "Telemetry & Observability Stack",
+      "description": "Deployed OpenTelemetry collectors with Grafana dashboards for latency, error rate, and throughput monitoring.",
+      "category": "Shipped",
+      "milestoneId": "MS-3",
+      "owner": "James Liu",
+      "priority": "Medium"
+    },
+    {
+      "id": "WI-201",
+      "title": "Shared Component Library (React)",
+      "description": "Building reusable UI component library with accessibility compliance; 18 of 25 components completed.",
+      "category": "InProgress",
+      "milestoneId": "MS-5",
+      "owner": "Aisha Thompson",
+      "priority": "High"
+    },
+    {
+      "id": "WI-202",
+      "title": "Load Test Harness Setup",
+      "description": "Configuring k6 load test suites targeting 10k concurrent users; environment provisioning 80% complete.",
+      "category": "InProgress",
+      "milestoneId": "MS-6",
+      "owner": "Marcus Johnson",
+      "priority": "High"
+    },
+    {
+      "id": "WI-203",
+      "title": "API Rate Limiting & Throttling",
+      "description": "Implementing sliding-window rate limiter with Redis backing store; unit tests passing, integration tests in progress.",
+      "category": "InProgress",
+      "milestoneId": "MS-5",
+      "owner": "David Kim",
+      "priority": "Medium"
+    },
+    {
+      "id": "WI-204",
+      "title": "Admin Portal Redesign",
+      "description": "Redesigning admin console UX based on user research findings; wireframes approved, implementation started.",
+      "category": "InProgress",
+      "milestoneId": "MS-5",
+      "owner": "Elena Rodriguez",
+      "priority": "Medium"
+    },
+    {
+      "id": "WI-301",
+      "title": "Legacy Report Engine Decommission",
+      "description": "Delayed due to unexpected downstream dependencies in finance module; new target date set for Q2.",
+      "category": "CarriedOver",
+      "milestoneId": "MS-3",
+      "owner": "Priya Patel",
+      "priority": "Medium"
+    },
+    {
+      "id": "WI-302",
+      "title": "Mobile Responsive Layouts",
+      "description": "Carried over from Q4 2025; blocked on finalization of the component library (WI-201) before responsive breakpoints can be applied.",
+      "category": "CarriedOver",
+      "milestoneId": "MS-5",
+      "owner": "Aisha Thompson",
+      "priority": "Low"
+    },
+    {
+      "id": "WI-303",
+      "title": "Third-Party Webhook Integration",
+      "description": "Deprioritized in favor of core API migration; will resume once load testing milestone is reached.",
+      "category": "CarriedOver",
+      "milestoneId": "MS-6",
+      "owner": "James Liu",
+      "priority": "Low"
+    }
+  ]
+}

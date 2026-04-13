@@ -1,133 +1,22 @@
 @page "/"
-@using ReportingDashboard.Web.Models
-@using ReportingDashboard.Web.Services
-@inject IDashboardDataService DataService
-@rendermode InteractiveServer
+@inject DashboardDataService DataService
 
-<PageTitle>Executive Reporting Dashboard</PageTitle>
-
-@if (_data is not null)
+@if (_error is not null)
 {
-    <div class="dashboard">
-        <!-- Header -->
-        <header class="dashboard-header">
-            <div class="header-left">
-                <h1 class="project-title">@_data.Project.Name</h1>
-                <p class="reporting-period">@_data.Project.ReportingPeriod</p>
-            </div>
-            <div class="header-right">
-                <div class="health-badge health-@_data.Project.Status.ToString().ToLowerInvariant()">
-                    <span class="health-dot"></span>
-                    <span class="health-label">@FormatStatus(_data.Project.Status)</span>
-                </div>
-                <p class="executive-sponsor">Sponsor: @_data.Project.ExecutiveSponsor</p>
-            </div>
-        </header>
-
-        <!-- Summary -->
-        <section class="summary-bar">
-            <p>@_data.Project.Summary</p>
-        </section>
-
-        <!-- Milestone Timeline -->
-        <section class="timeline-section">
-            <h2 class="section-title">Milestones</h2>
-            <div class="timeline">
-                @foreach (var milestone in _data.Milestones)
-                {
-                    <div class="timeline-item status-@milestone.Status.ToString().ToLowerInvariant()">
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <span class="timeline-title">@milestone.Title</span>
-                            <span class="timeline-date">@milestone.TargetDate.ToString("MMM dd, yyyy")</span>
-                            @if (milestone.CompletionDate.HasValue)
-                            {
-                                <span class="timeline-completed">✓ @milestone.CompletionDate.Value.ToString("MMM dd")</span>
-                            }
-                        </div>
-                    </div>
-                }
-            </div>
-        </section>
-
-        <!-- Status Sections -->
-        <div class="status-columns">
-            <!-- Shipped -->
-            <section class="status-section shipped">
-                <h2 class="section-title">
-                    <span class="section-icon">✅</span> Shipped
-                    <span class="item-count">@ShippedItems.Count()</span>
-                </h2>
-                <ul class="work-items">
-                    @foreach (var item in ShippedItems)
-                    {
-                        <li class="work-item">
-                            <span class="item-title">@item.Title</span>
-                            <span class="item-owner">@item.Owner</span>
-                        </li>
-                    }
-                </ul>
-            </section>
-
-            <!-- In Progress -->
-            <section class="status-section in-progress">
-                <h2 class="section-title">
-                    <span class="section-icon">🔄</span> In Progress
-                    <span class="item-count">@InProgressItems.Count()</span>
-                </h2>
-                <ul class="work-items">
-                    @foreach (var item in InProgressItems)
-                    {
-                        <li class="work-item">
-                            <span class="item-title">@item.Title</span>
-                            <span class="item-owner">@item.Owner</span>
-                        </li>
-                    }
-                </ul>
-            </section>
-
-            <!-- Carried Over -->
-            <section class="status-section carried-over">
-                <h2 class="section-title">
-                    <span class="section-icon">⚠️</span> Carried Over
-                    <span class="item-count">@CarriedOverItems.Count()</span>
-                </h2>
-                <ul class="work-items">
-                    @foreach (var item in CarriedOverItems)
-                    {
-                        <li class="work-item">
-                            <span class="item-title">@item.Title</span>
-                            <span class="item-owner">@item.Owner</span>
-                        </li>
-                    }
-                </ul>
-            </section>
-        </div>
-    </div>
+    <div class="error-banner">@_error</div>
 }
-else if (_error is not null)
+else if (_data is not null)
 {
-    <div class="error-message">
-        <p>Failed to load dashboard data: @_error</p>
-    </div>
-}
-else
-{
-    <div class="loading">Loading…</div>
+    <h1>@_data.ProjectInfo.ProjectName</h1>
+    <p>@_data.ProjectInfo.ReportingPeriod — @_data.ProjectInfo.ExecutiveSponsor</p>
+    <p class="health-indicator status-@_data.ProjectInfo.OverallStatus.ToLowerInvariant()">
+        @_data.ProjectInfo.OverallStatus: @_data.ProjectInfo.Summary
+    </p>
 }
 
 @code {
     private DashboardData? _data;
     private string? _error;
-
-    private IEnumerable<WorkItem> ShippedItems =>
-        _data?.WorkItems.Where(w => w.Category == WorkItemCategory.Shipped) ?? [];
-
-    private IEnumerable<WorkItem> InProgressItems =>
-        _data?.WorkItems.Where(w => w.Category == WorkItemCategory.InProgress) ?? [];
-
-    private IEnumerable<WorkItem> CarriedOverItems =>
-        _data?.WorkItems.Where(w => w.Category == WorkItemCategory.CarriedOver) ?? [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -140,12 +29,4 @@ else
             _error = ex.Message;
         }
     }
-
-    private static string FormatStatus(ProjectStatus status) => status switch
-    {
-        ProjectStatus.OnTrack => "On Track",
-        ProjectStatus.AtRisk => "At Risk",
-        ProjectStatus.Blocked => "Blocked",
-        _ => status.ToString()
-    };
 }

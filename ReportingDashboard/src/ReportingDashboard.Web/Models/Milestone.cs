@@ -11,20 +11,11 @@ public class Milestone
     public string Title { get; set; } = string.Empty;
 
     [JsonPropertyName("targetDate")]
-    public DateTime TargetDate { get; set; }
+    public string TargetDate { get; set; } = string.Empty;
 
     [JsonPropertyName("completionDate")]
-    public DateTime? CompletionDate { get; set; }
+    public string? CompletionDate { get; set; }
 
     [JsonPropertyName("status")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public MilestoneStatus Status { get; set; }
-}
-
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum MilestoneStatus
-{
-    Completed,
-    InProgress,
-    Upcoming
+    public string Status { get; set; } = "Upcoming";
 }

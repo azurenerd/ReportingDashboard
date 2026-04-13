@@ -1,17 +1,16 @@
-using ReportingDashboard.Web.Components;
 using ReportingDashboard.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenLocalhost(5000);
-});
-
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<IDashboardDataService, DashboardDataService>();
+builder.Services.AddScoped<DashboardDataService>(sp =>
+{
+    var env = sp.GetRequiredService<IWebHostEnvironment>();
+    var dataPath = Path.Combine(env.ContentRootPath, "Data", "data.json");
+    return new DashboardDataService(dataPath);
+});
 
 var app = builder.Build();
 
@@ -23,7 +22,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
+app.MapRazorComponents<ReportingDashboard.Web.Components.App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();

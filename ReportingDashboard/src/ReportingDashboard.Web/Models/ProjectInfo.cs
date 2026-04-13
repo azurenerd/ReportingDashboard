@@ -4,8 +4,8 @@ namespace ReportingDashboard.Web.Models;
 
 public class ProjectInfo
 {
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("projectName")]
+    public string ProjectName { get; set; } = string.Empty;
 
     [JsonPropertyName("executiveSponsor")]
     public string ExecutiveSponsor { get; set; } = string.Empty;
@@ -13,18 +13,9 @@ public class ProjectInfo
     [JsonPropertyName("reportingPeriod")]
     public string ReportingPeriod { get; set; } = string.Empty;
 
-    [JsonPropertyName("status")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public ProjectStatus Status { get; set; }
+    [JsonPropertyName("overallStatus")]
+    public string OverallStatus { get; set; } = "OnTrack";
 
     [JsonPropertyName("summary")]
     public string Summary { get; set; } = string.Empty;
-}
-
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum ProjectStatus
-{
-    OnTrack,
-    AtRisk,
-    Blocked
 }

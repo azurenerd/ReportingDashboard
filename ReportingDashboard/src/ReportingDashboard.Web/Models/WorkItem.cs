@@ -14,8 +14,7 @@ public class WorkItem
     public string Description { get; set; } = string.Empty;
 
     [JsonPropertyName("category")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public WorkItemCategory Category { get; set; }
+    public string Category { get; set; } = string.Empty;
 
     [JsonPropertyName("milestoneId")]
     public string? MilestoneId { get; set; }
@@ -24,13 +23,5 @@ public class WorkItem
     public string Owner { get; set; } = string.Empty;
 
     [JsonPropertyName("priority")]
-    public string Priority { get; set; } = string.Empty;
-}
-
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum WorkItemCategory
-{
-    Shipped,
-    InProgress,
-    CarriedOver
+    public string Priority { get; set; } = "Medium";
 }
