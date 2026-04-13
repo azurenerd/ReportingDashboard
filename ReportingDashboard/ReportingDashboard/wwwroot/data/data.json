@@ -1,38 +1,37 @@
 {
-  "title": "Project Phoenix - Executive Status",
-  "subtitle": "Cloud Platform Engineering · Azure Core · April 2026",
-  "backlogLink": "https://dev.azure.com/contoso/Phoenix/_backlogs",
+  "title": "Project Phoenix",
+  "subtitle": "Cloud Engineering · Platform Services · April 2026",
+  "backlogLink": "https://dev.azure.com/org/project/_backlogs",
   "currentMonth": "Apr",
   "months": ["Jan", "Feb", "Mar", "Apr"],
   "milestones": [
     {
       "label": "M1",
-      "description": "Identity & Access Mgmt",
-      "color": "#0078D4",
+      "description": "Core Platform",
+      "color": "#4285F4",
       "events": [
-        { "date": "2026-01-15", "label": "Jan 15", "type": "checkpoint" },
-        { "date": "2026-02-28", "label": "Feb 28", "type": "poc" },
-        { "date": "2026-04-15", "label": "Apr 15", "type": "production" }
+        { "date": "2026-01-15", "type": "checkpoint", "label": "Jan 15" },
+        { "date": "2026-02-20", "type": "poc", "label": "Feb 20" },
+        { "date": "2026-03-30", "type": "production", "label": "Mar 30" }
       ]
     },
     {
       "label": "M2",
-      "description": "Data Pipeline v2",
+      "description": "API Gateway",
       "color": "#34A853",
       "events": [
-        { "date": "2026-02-01", "label": "Feb 1", "type": "checkpoint" },
-        { "date": "2026-03-20", "label": "Mar 20", "type": "poc" },
-        { "date": "2026-05-30", "label": "May 30", "type": "production" }
+        { "date": "2026-02-01", "type": "checkpoint", "label": "Feb 1" },
+        { "date": "2026-03-15", "type": "poc", "label": "Mar 15" },
+        { "date": "2026-04-25", "type": "production", "label": "Apr 25" }
       ]
     },
     {
       "label": "M3",
       "description": "Dashboard & Reporting",
-      "color": "#F4B400",
+      "color": "#EA4335",
       "events": [
-        { "date": "2026-03-01", "label": "Mar 1", "type": "checkpoint" },
-        { "date": "2026-04-10", "label": "Apr 10", "type": "poc" },
-        { "date": "2026-06-15", "label": "Jun 15", "type": "production" }
+        { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
+        { "date": "2026-04-10", "type": "poc", "label": "Apr 10" }
       ]
     }
   ],
@@ -41,36 +40,40 @@
       "category": "shipped",
       "label": "Shipped",
       "items": {
-        "Jan": ["Auth service scaffold", "CI/CD pipeline v1"],
-        "Feb": ["Token refresh flow", "Pipeline ingestion POC"],
-        "Mar": ["RBAC module", "Data lake connector", "Schema registry"],
-        "Apr": ["SSO integration", "Pipeline monitoring"]
+        "Jan": ["Auth service v1", "CI pipeline"],
+        "Feb": ["API gateway MVP", "Logging framework"],
+        "Mar": ["Dashboard prototype", "Monitoring alerts"],
+        "Apr": ["Perf optimizations"]
       }
     },
     {
       "category": "in-progress",
       "label": "In Progress",
       "items": {
-        "Jan": ["OAuth2 provider research"],
-        "Feb": ["MFA integration design"],
-        "Mar": ["Dashboard wireframes", "E2E test harness"],
-        "Apr": ["Executive dashboard build", "Load test suite", "Alerting rules"]
+        "Jan": ["API design"],
+        "Feb": ["Load testing"],
+        "Mar": ["Security audit"],
+        "Apr": ["E2E test suite", "Documentation"]
       }
     },
     {
       "category": "carryover",
       "label": "Carryover",
       "items": {
-        "Feb": ["Audit logging (from Jan)"],
-        "Apr": ["MFA rollout (from Mar)"]
+        "Jan": [],
+        "Feb": ["Auth edge cases"],
+        "Mar": ["API rate limiting"],
+        "Apr": ["Caching layer"]
       }
     },
     {
       "category": "blockers",
       "label": "Blockers",
       "items": {
-        "Mar": ["Vendor license delay"],
-        "Apr": ["Capacity approval pending"]
+        "Jan": [],
+        "Feb": [],
+        "Mar": ["Vendor SDK delay"],
+        "Apr": ["License approval"]
       }
     }
   ]
