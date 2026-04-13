@@ -1,4 +1,5 @@
 @page "/"
+@layout EmptyLayout
 @inject DashboardDataService DataService
 @rendermode RenderMode.InteractiveServer
 
@@ -12,7 +13,37 @@
 }
 else if (_data is not null)
 {
-    @* ── Header Region (implemented by #1017) ── *@
+    @* ── Header Region ── *@
+    <div class="hdr">
+        <div>
+            <h1>@_data.Title
+                @if (!string.IsNullOrEmpty(_data.BacklogLink))
+                {
+                    <text> </text><a href="@_data.BacklogLink" target="_blank" style="color:#0078D4;text-decoration:none;font-size:24px;font-weight:700;">⧉ ADO Backlog</a>
+                }
+            </h1>
+            <div class="sub">@_data.Subtitle</div>
+        </div>
+
+        <div style="display:flex;gap:22px;align-items:center;">
+            @* PoC Milestone legend *@
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                <span style="width:12px;height:12px;background:#F4B400;transform:rotate(45deg);display:inline-block;flex-shrink:0;"></span>PoC Milestone
+            </span>
+            @* Production Release legend *@
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                <span style="width:12px;height:12px;background:#34A853;transform:rotate(45deg);display:inline-block;flex-shrink:0;"></span>Production Release
+            </span>
+            @* Checkpoint legend *@
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#999;display:inline-block;flex-shrink:0;"></span>Checkpoint
+            </span>
+            @* Now indicator legend *@
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                <span style="width:2px;height:14px;background:#EA4335;display:inline-block;flex-shrink:0;"></span>Now (@_data.CurrentMonth @DateTime.Today.Year)
+            </span>
+        </div>
+    </div>
 
     @* ── Timeline Region (implemented by #1018) ── *@
 
@@ -79,10 +110,6 @@ else if (_data is not null)
         }
     }
 
-    /// <summary>
-    /// Maps the flat HeatmapData dictionaries into an ordered list of row descriptors
-    /// so the grid can iterate uniformly over all four categories.
-    /// </summary>
     private static List<HeatmapRowInfo> BuildHeatmapRows(HeatmapData heatmap)
     {
         return new List<HeatmapRowInfo>
@@ -94,10 +121,6 @@ else if (_data is not null)
         };
     }
 
-    /// <summary>
-    /// Returns the CSS class prefix for a given heatmap category.
-    /// Used to compose row-header, cell, current-month, and dot class names.
-    /// </summary>
     private static string CategoryCssPrefix(string category) => category switch
     {
         "shipped"     => "ship",
@@ -107,10 +130,6 @@ else if (_data is not null)
         _             => "ship"
     };
 
-    /// <summary>
-    /// Safely retrieves items for a given month from the category dictionary.
-    /// Returns an empty list when the month key is missing or the dictionary is null.
-    /// </summary>
     private static List<string> GetItemsForMonth(Dictionary<string, List<string>>? items, string month)
     {
         if (items is null) return new();
