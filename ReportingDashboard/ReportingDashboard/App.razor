@@ -1,13 +1,9 @@
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(EmptyLayout)" />
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.EmptyLayout)" />
     </Found>
     <NotFound>
-        <LayoutView Layout="@typeof(EmptyLayout)">
-            <div style="text-align:center; margin-top:200px; font-family:'Segoe UI',Arial,sans-serif; color:#888;">
-                <h2>Page Not Found</h2>
-                <p>The requested page does not exist.</p>
-            </div>
-        </LayoutView>
+        <PageTitle>Not Found</PageTitle>
+        <p>Sorry, there's nothing at this address.</p>
     </NotFound>
 </Router>

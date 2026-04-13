@@ -1,82 +1,195 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
 using Moq;
 using ReportingDashboard.Services;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Unit;
 
-public class DashboardDataServiceTests
+public class DashboardDataServiceTests : IDisposable
 {
     private readonly Mock<IWebHostEnvironment> _mockEnv;
-    private readonly Mock<ILogger<DashboardDataService>> _mockLogger;
+    private readonly string _tempDir;
+    private readonly string _dataDir;
 
     public DashboardDataServiceTests()
     {
+        _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardTests_{Guid.NewGuid():N}");
+        _dataDir = Path.Combine(_tempDir, "data");
+        Directory.CreateDirectory(_dataDir);
+
         _mockEnv = new Mock<IWebHostEnvironment>();
-        _mockEnv.Setup(e => e.WebRootPath).Returns("/fake/wwwroot");
-        _mockEnv.Setup(e => e.ContentRootPath).Returns("/fake");
-        _mockLogger = new Mock<ILogger<DashboardDataService>>();
+        _mockEnv.Setup(e => e.WebRootPath).Returns(_tempDir);
     }
 
-    private DashboardDataService CreateService() =>
-        new DashboardDataService(_mockEnv.Object, _mockLogger.Object);
+    public void Dispose()
+    {
+        if (Directory.Exists(_tempDir))
+            Directory.Delete(_tempDir, recursive: true);
+    }
+
+    private DashboardDataService CreateService() => new(_mockEnv.Object);
+
+    private void WriteDataJson(string json)
+    {
+        File.WriteAllText(Path.Combine(_dataDir, "data.json"), json);
+    }
+
+    private static string ValidJson => """
+        {
+            "title": "Project Phoenix",
+            "subtitle": "Cloud Engineering",
+            "backlogLink": "https://dev.azure.com/contoso",
+            "currentMonth": "Apr",
+            "months": ["Jan","Feb","Mar","Apr","May","Jun"],
+            "milestones": [],
+            "heatmapRows": []
+        }
+        """;
 
     [Trait("Category", "Unit")]
     [Fact]
-    public void Constructor_AcceptsRequiredDependencies_WithoutThrowing()
+    public async Task GetDashboardConfigAsync_ValidJson_ReturnsConfig()
     {
-        // Act
+        WriteDataJson(ValidJson);
         var service = CreateService();
 
-        // Assert
-        service.Should().NotBeNull();
+        var result = await service.GetDashboardConfigAsync();
+
+        result.Should().NotBeNull();
+        result!.Title.Should().Be("Project Phoenix");
+        result.Months.Should().HaveCount(6);
+        service.LoadError.Should().BeNull();
     }
 
     [Trait("Category", "Unit")]
     [Fact]
-    public void Constructor_WithNullEnvironment_DoesNotThrow()
+    public async Task GetDashboardConfigAsync_CalledTwice_ReturnsCachedInstance()
     {
-        // The constructor does not validate null arguments.
-        // Verify it accepts null without throwing.
-        var service = new DashboardDataService(null!, _mockLogger.Object);
-        service.Should().NotBeNull();
-    }
-
-    [Trait("Category", "Unit")]
-    [Fact]
-    public void Constructor_WithNullLogger_DoesNotThrow()
-    {
-        // The constructor does not validate null arguments.
-        // Verify it accepts null without throwing.
-        var service = new DashboardDataService(_mockEnv.Object, null!);
-        service.Should().NotBeNull();
-    }
-
-    [Trait("Category", "Unit")]
-    [Fact]
-    public void Service_IsInstantiable_WithMockedDependencies()
-    {
-        // Arrange & Act
+        WriteDataJson(ValidJson);
         var service = CreateService();
 
-        // Assert
-        service.Should().NotBeNull();
-        service.Should().BeOfType<DashboardDataService>();
+        var first = await service.GetDashboardConfigAsync();
+        var second = await service.GetDashboardConfigAsync();
+
+        second.Should().BeSameAs(first, "second call should return the cached reference");
     }
 
     [Trait("Category", "Unit")]
     [Fact]
-    public void Service_CanBeCreatedMultipleTimes_Independently()
+    public async Task GetDashboardConfigAsync_MissingFile_ReturnsNullWithLoadError()
     {
-        // Act
-        var service1 = CreateService();
-        var service2 = CreateService();
+        // Do not write any file — data.json does not exist
+        var service = CreateService();
 
-        // Assert
-        service1.Should().NotBeNull();
-        service2.Should().NotBeNull();
-        service1.Should().NotBeSameAs(service2);
+        var result = await service.GetDashboardConfigAsync();
+
+        result.Should().BeNull();
+        service.LoadError.Should().NotBeNull();
+        service.LoadError.Should().Contain("Failed to load data.json");
+    }
+
+    [Trait("Category", "Unit")]
+    [Fact]
+    public async Task GetDashboardConfigAsync_MalformedJson_ReturnsNullWithParsingError()
+    {
+        WriteDataJson("{ invalid json !!!");
+        var service = CreateService();
+
+        var result = await service.GetDashboardConfigAsync();
+
+        result.Should().BeNull();
+        service.LoadError.Should().NotBeNull();
+        service.LoadError.Should().Contain("Failed to load data.json");
+    }
+
+    [Trait("Category", "Unit")]
+    [Fact]
+    public async Task GetDashboardConfigAsync_MissingTitle_ReturnsNullWithValidationError()
+    {
+        var json = """
+            {
+                "title": "",
+                "months": ["Jan","Feb"]
+            }
+            """;
+        WriteDataJson(json);
+        var service = CreateService();
+
+        var result = await service.GetDashboardConfigAsync();
+
+        result.Should().BeNull();
+        service.LoadError.Should().Contain("Required field 'title'");
+    }
+
+    [Trait("Category", "Unit")]
+    [Fact]
+    public async Task GetDashboardConfigAsync_EmptyMonths_ReturnsNullWithValidationError()
+    {
+        var json = """
+            {
+                "title": "Valid Title",
+                "months": []
+            }
+            """;
+        WriteDataJson(json);
+        var service = CreateService();
+
+        var result = await service.GetDashboardConfigAsync();
+
+        result.Should().BeNull();
+        service.LoadError.Should().Contain("Required field 'months'");
+    }
+
+    [Trait("Category", "Unit")]
+    [Fact]
+    public async Task GetDashboardConfigAsync_EmptyOptionalArrays_LoadsSuccessfully()
+    {
+        WriteDataJson(ValidJson); // milestones: [], heatmapRows: [] are present but empty
+        var service = CreateService();
+
+        var result = await service.GetDashboardConfigAsync();
+
+        result.Should().NotBeNull();
+        result!.Milestones.Should().NotBeNull().And.BeEmpty();
+        result.HeatmapRows.Should().NotBeNull().And.BeEmpty();
+        service.LoadError.Should().BeNull();
+    }
+
+    [Trait("Category", "Unit")]
+    [Fact]
+    public async Task GetDashboardConfigAsync_CaseInsensitiveDeserialization_Works()
+    {
+        var json = """
+            {
+                "Title": "Phoenix Upper",
+                "Months": ["Jan","Feb","Mar"]
+            }
+            """;
+        WriteDataJson(json);
+        var service = CreateService();
+
+        var result = await service.GetDashboardConfigAsync();
+
+        result.Should().NotBeNull();
+        result!.Title.Should().Be("Phoenix Upper");
+    }
+
+    [Trait("Category", "Unit")]
+    [Fact]
+    public async Task GetDashboardConfigAsync_FailureNotCached_AllowsRetry()
+    {
+        // First call: file missing → failure
+        var service = CreateService();
+        var first = await service.GetDashboardConfigAsync();
+        first.Should().BeNull();
+        service.LoadError.Should().NotBeNull();
+
+        // Now create the file and retry
+        WriteDataJson(ValidJson);
+        var second = await service.GetDashboardConfigAsync();
+
+        second.Should().NotBeNull("failure should not be cached; retry should succeed");
+        service.LoadError.Should().BeNull();
     }
 }
