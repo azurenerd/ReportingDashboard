@@ -2,37 +2,36 @@
 bin/
 obj/
 *.user
-*.suo
 *.userosscache
 *.sln.docstates
-*.userprefs
+*.suo
+
+## Visual Studio
 .vs/
-project.lock.json
-*.nuget.props
-*.nuget.targets
+launchSettings.json.user
 
 ## Build results
 [Dd]ebug/
 [Rr]elease/
 x64/
 x86/
-[Ww][Ii][Nn]32/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
+build/
 bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
 
 ## NuGet
 *.nupkg
-*.snupkg
-.nuget/
-nuget.exe
+**/packages/*
+project.lock.json
+project.fragment.lock.json
+artifacts/
 
 ## OS
-Thumbs.db
-ehthumbs.db
-Desktop.ini
 .DS_Store
+Thumbs.db
+desktop.ini
+
+## IDE
+.idea/
+*.swp
+*.swo
+*~
