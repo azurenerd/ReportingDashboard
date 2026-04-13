@@ -1,39 +1,30 @@
-/* Executive Reporting Dashboard — base styles */
-:root {
-    --color-green: #2e7d32;
-    --color-yellow: #f9a825;
-    --color-red: #c62828;
-    --color-bg: #ffffff;
-    --color-text: #1a1a1a;
-    --font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+/* ============================================================
+   Dashboard Global Styles - Executive Reporting Dashboard
+   Screenshot-friendly: fits 1920x1080 viewport
+   ============================================================ */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-    font-family: var(--font-family);
-    background: var(--color-bg);
-    color: var(--color-text);
-    padding: 2rem 3rem;
+html, body {
+    height: 100%;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #1a1f36;
+    background-color: #f4f6fb;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-h1 { font-size: 1.75rem; font-weight: 600; margin-bottom: 0.25rem; }
-
-.health-indicator {
-    display: inline-block;
-    padding: 0.35rem 1rem;
-    border-radius: 4px;
-    font-weight: 600;
-    margin-top: 0.5rem;
-}
-
-.status-ontrack  { background: var(--color-green); color: #fff; }
-.status-atrisk   { background: var(--color-yellow); color: #000; }
-.status-blocked   { background: var(--color-red); color: #fff; }
-
-.error-banner {
-    background: #fce4ec;
-    color: var(--color-red);
-    padding: 1rem;
-    border-radius: 4px;
+.dashboard-viewport {
+    width: 100%;
+    min-height: 100vh;
+    max-width: 1920px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
 }
