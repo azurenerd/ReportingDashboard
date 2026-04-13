@@ -1,79 +1,186 @@
-/* ================================================================
-   Executive Reporting Dashboard - dashboard.css
-   Ported from OriginalDesignConcept.html
-   ================================================================ */
+/* Executive Reporting Dashboard - Design System
+   Ported from OriginalDesignConcept.html */
 
-/* ---------- CSS Custom Properties ---------- */
 :root {
-    --font-stack: "Segoe UI", Arial, Helvetica, sans-serif;
-    --page-width: 1920px;
-    --page-height: 1080px;
-    --color-bg: #FFFFFF;
-    --color-text: #111;
-    --color-text-secondary: #888;
-    --color-cell-text: #333;
-    --color-link: #0078D4;
-    --color-tl-bg: #FAFAFA;
-    --color-border: #E0E0E0;
-    --color-hdr-border: #CCC;
-    --color-shipped: #34A853;
-    --color-progress: #0078D4;
-    --color-carryover: #F4B400;
-    --color-blocker: #EA4335;
-    --color-now: #EA4335;
+    /* Page */
+    --page-bg: #FFFFFF;
+    --primary-text: #111;
+    --secondary-text: #888;
+    --cell-text: #333;
+    --muted-text: #AAA;
+
+    /* Links */
+    --link-blue: #0078D4;
+
+    /* Layout */
+    --timeline-bg: #FAFAFA;
+    --grid-border: #E0E0E0;
+    --header-border: #CCC;
+    --timeline-border: #E8E8E8;
+
+    /* Shipped (Green) */
+    --shipped-green: #34A853;
+    --shipped-hdr-bg: #E8F5E9;
+    --shipped-hdr-text: #1B7A28;
+    --shipped-cell-bg: #F0FBF0;
+    --shipped-cell-cur: #D8F2DA;
+
+    /* In Progress (Blue) */
+    --progress-blue: #0078D4;
+    --progress-hdr-bg: #E3F2FD;
+    --progress-hdr-text: #1565C0;
+    --progress-cell-bg: #EEF4FE;
+    --progress-cell-cur: #DAE8FB;
+
+    /* Carryover (Amber) */
+    --carry-amber: #F4B400;
+    --carry-hdr-bg: #FFF8E1;
+    --carry-hdr-text: #B45309;
+    --carry-cell-bg: #FFFDE7;
+    --carry-cell-cur: #FFF0B0;
+
+    /* Blockers (Red) */
+    --blocker-red: #EA4335;
+    --blocker-hdr-bg: #FEF2F2;
+    --blocker-hdr-text: #991B1B;
+    --blocker-cell-bg: #FFF5F5;
+    --blocker-cell-cur: #FFE4E4;
+
+    /* Current Month Highlight */
+    --cur-month-hdr-bg: #FFF0D0;
+    --cur-month-hdr-text: #C07700;
+
+    /* Timeline Markers */
+    --poc-gold: #F4B400;
+    --prod-green: #34A853;
+    --checkpoint-gray: #999;
+    --now-red: #EA4335;
+
+    /* Typography */
+    --font-stack: 'Segoe UI', Arial, sans-serif;
 }
 
-/* ---------- Reset & Page Layout ---------- */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
+/* Page Layout - Fixed 1920x1080 for screenshot capture */
 body {
     font-family: var(--font-stack);
-    width: var(--page-width);
-    height: var(--page-height);
+    width: 1920px;
+    height: 1080px;
     overflow: hidden;
-    background: var(--color-bg);
+    background: var(--page-bg);
     display: flex;
     flex-direction: column;
 }
 
-a { color: var(--color-link); text-decoration: none; }
-
-/* ---------- Error Panel ---------- */
-.error-panel {
-    max-width: 600px;
-    margin: 200px auto;
-    padding: 32px;
-    border: 2px solid var(--color-blocker);
-    background: #FFF5F5;
-    border-radius: 8px;
-    font-family: var(--font-stack);
+a {
+    color: var(--link-blue);
+    text-decoration: none;
 }
-.error-panel h2 { font-size: 20px; color: var(--color-blocker); margin-bottom: 12px; }
-.error-panel p { font-size: 14px; color: var(--color-cell-text); margin-bottom: 8px; font-family: monospace; }
 
-/* ---------- Section 1: Header Bar ---------- */
+a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   SECTION 1: HEADER BAR (.hdr)
+   ============================================ */
+
 .hdr {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 12px 44px 10px;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--grid-border);
     flex-shrink: 0;
-    background: var(--color-bg);
+    background: var(--page-bg);
 }
-.hdr h1 { font-size: 24px; font-weight: 700; color: var(--color-text); }
-.sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
 
-/* ---------- Section 2: Timeline Area ---------- */
+.hdr-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.hdr h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-text);
+    line-height: 1.2;
+}
+
+.hdr h1 a {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--link-blue);
+    text-decoration: none;
+    margin-left: 12px;
+}
+
+.sub {
+    font-size: 12px;
+    color: var(--secondary-text);
+    margin-top: 2px;
+}
+
+.legend-row {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    font-size: 12px;
+    color: var(--primary-text);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.legend-diamond {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+}
+
+.legend-circle {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--checkpoint-gray);
+    flex-shrink: 0;
+}
+
+.legend-now-bar {
+    display: inline-block;
+    width: 2px;
+    height: 14px;
+    background: var(--now-red);
+    flex-shrink: 0;
+}
+
+/* ============================================
+   SECTION 2: TIMELINE AREA (.tl-area)
+   ============================================ */
+
 .tl-area {
     display: flex;
     align-items: stretch;
     height: 196px;
     flex-shrink: 0;
-    background: var(--color-tl-bg);
-    border-bottom: 2px solid #E8E8E8;
+    background: var(--timeline-bg);
+    border-bottom: 2px solid var(--timeline-border);
     padding: 6px 44px 0;
 }
+
 .tl-sidebar {
     width: 230px;
     flex-shrink: 0;
@@ -81,16 +188,34 @@ a { color: var(--color-link); text-decoration: none; }
     flex-direction: column;
     justify-content: space-around;
     padding: 16px 12px 16px 0;
-    border-right: 1px solid var(--color-border);
+    border-right: 1px solid var(--grid-border);
 }
-.tl-ms { display: flex; flex-direction: column; gap: 1px; }
-.tl-ms-lbl { font-size: 12px; font-weight: 600; }
-.tl-ms-desc { font-size: 12px; color: #444; }
-.tl-svg-box { flex: 1; padding-left: 12px; padding-top: 6px; overflow: visible; }
 
-/* ================================================================
-   Section 3: Heatmap Grid
-   ================================================================ */
+.tl-ms-label {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.tl-ms-code {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.tl-ms-desc {
+    font-size: 12px;
+    color: #444;
+}
+
+.tl-svg-box {
+    flex: 1;
+    padding-left: 12px;
+    padding-top: 6px;
+}
+
+/* ============================================
+   SECTION 3: HEATMAP GRID (.hm-wrap)
+   ============================================ */
 
 .hm-wrap {
     flex: 1;
@@ -103,20 +228,21 @@ a { color: var(--color-link); text-decoration: none; }
 .hm-title {
     font-size: 14px;
     font-weight: 700;
-    color: var(--color-text-secondary);
+    color: var(--secondary-text);
     letter-spacing: 0.5px;
     text-transform: uppercase;
     margin-bottom: 8px;
-    flex-shrink: 0;
 }
 
 .hm-grid {
     display: grid;
-    border: 1px solid var(--color-border);
+    grid-template-rows: 36px repeat(4, 1fr);
+    border: 1px solid var(--grid-border);
     flex: 1;
     min-height: 0;
 }
 
+/* Corner cell */
 .hm-corner {
     background: #F5F5F5;
     font-size: 11px;
@@ -126,27 +252,29 @@ a { color: var(--color-link); text-decoration: none; }
     display: flex;
     align-items: center;
     justify-content: center;
-    border-right: 1px solid var(--color-border);
-    border-bottom: 2px solid var(--color-hdr-border);
+    border-right: 1px solid var(--grid-border);
+    border-bottom: 2px solid var(--header-border);
 }
 
+/* Column headers */
 .hm-col-hdr {
     font-size: 16px;
     font-weight: 700;
-    color: var(--color-text);
     background: #F5F5F5;
+    color: var(--primary-text);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-right: 1px solid var(--color-border);
-    border-bottom: 2px solid var(--color-hdr-border);
+    border-right: 1px solid var(--grid-border);
+    border-bottom: 2px solid var(--header-border);
 }
 
-.hm-col-hdr.cur-month-hdr {
-    background: #FFF0D0;
-    color: #C07700;
+.hm-col-hdr.cur-hdr {
+    background: var(--cur-month-hdr-bg);
+    color: var(--cur-month-hdr-text);
 }
 
+/* Row headers */
 .hm-row-hdr {
     font-size: 11px;
     font-weight: 700;
@@ -154,44 +282,60 @@ a { color: var(--color-link); text-decoration: none; }
     letter-spacing: 0.7px;
     display: flex;
     align-items: center;
-    padding: 0 12px;
-    border-right: 2px solid var(--color-hdr-border);
-    border-bottom: 1px solid var(--color-border);
+    padding: 8px 12px;
+    border-right: 2px solid var(--header-border);
+    border-bottom: 1px solid var(--grid-border);
 }
 
-.ship-hdr  { background: #E8F5E9; color: #1B7A28; }
-.prog-hdr  { background: #E3F2FD; color: #1565C0; }
-.carry-hdr { background: #FFF8E1; color: #B45309; }
-.block-hdr { background: #FEF2F2; color: #991B1B; }
+.ship-hdr {
+    background: var(--shipped-hdr-bg);
+    color: var(--shipped-hdr-text);
+}
 
+.prog-hdr {
+    background: var(--progress-hdr-bg);
+    color: var(--progress-hdr-text);
+}
+
+.carry-hdr {
+    background: var(--carry-hdr-bg);
+    color: var(--carry-hdr-text);
+}
+
+.block-hdr {
+    background: var(--blocker-hdr-bg);
+    color: var(--blocker-hdr-text);
+}
+
+/* Data cells */
 .hm-cell {
     padding: 8px 12px;
     overflow: hidden;
-    border-right: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--grid-border);
+    border-bottom: 1px solid var(--grid-border);
     font-size: 12px;
-    color: var(--color-cell-text);
+    color: var(--cell-text);
 }
 
-.ship-cell  { background: #F0FBF0; }
-.ship-cur   { background: #D8F2DA; }
-.prog-cell  { background: #EEF4FE; }
-.prog-cur   { background: #DAE8FB; }
-.carry-cell { background: #FFFDE7; }
-.carry-cur  { background: #FFF0B0; }
-.block-cell { background: #FFF5F5; }
-.block-cur  { background: #FFE4E4; }
+.ship-cell { background: var(--shipped-cell-bg); }
+.prog-cell { background: var(--progress-cell-bg); }
+.carry-cell { background: var(--carry-cell-bg); }
+.block-cell { background: var(--blocker-cell-bg); }
 
-.hm-cell .it {
+.ship-cur { background: var(--shipped-cell-cur); }
+.prog-cur { background: var(--progress-cell-cur); }
+.carry-cur { background: var(--carry-cell-cur); }
+.block-cur { background: var(--blocker-cell-cur); }
+
+/* Item bullets */
+.it {
     position: relative;
     padding: 2px 0 2px 12px;
     line-height: 1.35;
-    font-size: 12px;
-    color: var(--color-cell-text);
 }
 
-.hm-cell .it::before {
-    content: "";
+.it::before {
+    content: '';
     position: absolute;
     left: 0;
     top: 7px;
@@ -200,12 +344,46 @@ a { color: var(--color-link); text-decoration: none; }
     border-radius: 50%;
 }
 
-.ship-dot::before  { background: var(--color-shipped); }
-.prog-dot::before  { background: var(--color-progress); }
-.carry-dot::before { background: var(--color-carryover); }
-.block-dot::before { background: var(--color-blocker); }
+.ship-dot::before { background: var(--shipped-green); }
+.prog-dot::before { background: var(--progress-blue); }
+.carry-dot::before { background: var(--carry-amber); }
+.block-dot::before { background: var(--blocker-red); }
 
-/* ---------- Print / Utility ---------- */
-@media print {
-    body { overflow: visible; }
+/* ============================================
+   ERROR PANEL
+   ============================================ */
+
+.error-panel {
+    max-width: 600px;
+    margin: 200px auto;
+    padding: 32px;
+    border: 2px solid var(--blocker-red);
+    background: var(--blocker-cell-bg);
+    border-radius: 8px;
+    font-family: var(--font-stack);
+}
+
+.error-panel h2 {
+    color: var(--blocker-hdr-text);
+    font-size: 20px;
+    margin-bottom: 16px;
+}
+
+.error-panel p {
+    color: var(--cell-text);
+    font-size: 14px;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.error-panel .error-detail {
+    font-family: 'Consolas', 'Courier New', monospace;
+    background: #FFF;
+    padding: 12px;
+    border: 1px solid var(--grid-border);
+    border-radius: 4px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--blocker-red);
+    word-break: break-word;
 }
