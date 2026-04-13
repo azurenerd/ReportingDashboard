@@ -1,0 +1,22 @@
+@page "/"
+@using Microsoft.AspNetCore.Components.Web
+@inject DashboardDataService DataService
+@rendermode RenderMode.InteractiveServer
+
+<div class="dashboard-container">
+    @if (DataService.IsError)
+    {
+        <div class="error-banner">
+            <strong>⚠ Data Error:</strong> @DataService.ErrorMessage
+        </div>
+    }
+    else if (DataService.Data is not null)
+    {
+        <ProjectHeader />
+        <MonthlySummary />
+        <MilestoneTimeline />
+        <StatusSections ShippedItems="DataService.Data.Shipped"
+                        InProgressItems="DataService.Data.InProgress"
+                        CarriedOverItems="DataService.Data.CarriedOver" />
+    }
+</div>
