@@ -1,87 +1,26 @@
 {
   "projectInfo": {
-    "projectName": "Project Quantum Leap",
-    "executiveSponsor": "Sarah Chen, VP of Engineering",
+    "projectName": "Project Helios",
+    "executiveSponsor": "Jane Martinez, VP Engineering",
     "reportingPeriod": "Q1 2026 (Jan – Mar)",
-    "lastUpdated": "2026-04-10",
     "overallStatus": "OnTrack",
-    "summary": "All critical milestones on schedule. Platform migration 92% complete with GA targeted for April 30."
+    "summary": "Project Helios is on track with 8 of 12 deliverables shipped. Two items carried over due to dependency delays."
   },
   "milestones": [
-    {
-      "id": "ms-1",
-      "title": "Architecture Approved",
-      "targetDate": "2026-01-15",
-      "completionDate": "2026-01-14",
-      "status": "Completed"
-    },
-    {
-      "id": "ms-2",
-      "title": "Core API GA",
-      "targetDate": "2026-02-28",
-      "completionDate": "2026-02-27",
-      "status": "Completed"
-    },
-    {
-      "id": "ms-3",
-      "title": "Platform Migration",
-      "targetDate": "2026-04-30",
-      "completionDate": null,
-      "status": "InProgress"
-    },
-    {
-      "id": "ms-4",
-      "title": "Public Preview",
-      "targetDate": "2026-06-15",
-      "completionDate": null,
-      "status": "Upcoming"
-    }
+    { "id": "m1", "title": "Architecture Approved", "targetDate": "2026-01-15", "completionDate": "2026-01-14", "status": "Completed" },
+    { "id": "m2", "title": "Core Platform GA", "targetDate": "2026-02-28", "completionDate": "2026-02-27", "status": "Completed" },
+    { "id": "m3", "title": "API Integration Complete", "targetDate": "2026-03-15", "completionDate": null, "status": "InProgress" },
+    { "id": "m4", "title": "Public Beta Launch", "targetDate": "2026-04-30", "completionDate": null, "status": "Upcoming" }
   ],
   "workItems": [
-    {
-      "id": "wi-1",
-      "title": "Core API v2 endpoints",
-      "description": "Shipped all 14 REST endpoints for the Core API v2 surface.",
-      "category": "Shipped",
-      "milestoneId": "ms-2",
-      "owner": "Alex Kim",
-      "priority": "High"
-    },
-    {
-      "id": "wi-2",
-      "title": "Authentication service refactor",
-      "description": "Migrated auth from legacy ADAL to MSAL with zero downtime.",
-      "category": "Shipped",
-      "milestoneId": "ms-2",
-      "owner": "Priya Patel",
-      "priority": "High"
-    },
-    {
-      "id": "wi-3",
-      "title": "Data pipeline modernization",
-      "description": "Replacing legacy ETL with event-driven architecture.",
-      "category": "InProgress",
-      "milestoneId": "ms-3",
-      "owner": "Jordan Lee",
-      "priority": "High"
-    },
-    {
-      "id": "wi-4",
-      "title": "Dashboard UI redesign",
-      "description": "New executive-facing dashboard with real-time metrics.",
-      "category": "InProgress",
-      "milestoneId": "ms-3",
-      "owner": "Maria Santos",
-      "priority": "Medium"
-    },
-    {
-      "id": "wi-5",
-      "title": "Legacy database decommission",
-      "description": "Deferred to Q2 due to dependency on pipeline migration completion.",
-      "category": "CarriedOver",
-      "milestoneId": "ms-3",
-      "owner": "Chris Nguyen",
-      "priority": "Medium"
-    }
+    { "id": "w1", "title": "Identity service migration", "description": "Migrate auth from legacy to MSAL", "category": "Shipped", "milestoneId": "m1", "owner": "Alex Chen", "priority": "High", "notes": null },
+    { "id": "w2", "title": "Data pipeline v2 rollout", "description": "New ETL pipeline for analytics", "category": "Shipped", "milestoneId": "m1", "owner": "Priya Sharma", "priority": "High", "notes": null },
+    { "id": "w3", "title": "Dashboard UI redesign", "description": "Executive dashboard refresh", "category": "Shipped", "milestoneId": "m2", "owner": "Marcus Johnson", "priority": "Medium", "notes": null },
+    { "id": "w4", "title": "Monitoring & alerting setup", "description": "Grafana + PagerDuty integration", "category": "Shipped", "milestoneId": "m2", "owner": "Sara Kim", "priority": "Medium", "notes": null },
+    { "id": "w5", "title": "API gateway configuration", "description": "Rate limiting and routing rules", "category": "InProgress", "milestoneId": "m3", "owner": "Alex Chen", "priority": "High", "notes": "75% complete, ETA next week" },
+    { "id": "w6", "title": "Partner SDK development", "description": "SDK for external integrators", "category": "InProgress", "milestoneId": "m3", "owner": "Jordan Lee", "priority": "High", "notes": "Blocked on API spec finalization" },
+    { "id": "w7", "title": "Load testing framework", "description": "Automated performance benchmarks", "category": "InProgress", "milestoneId": "m3", "owner": "Priya Sharma", "priority": "Medium", "notes": null },
+    { "id": "w8", "title": "Legacy data migration", "description": "Migrate 2M records from SQL 2012", "category": "CarriedOver", "milestoneId": "m2", "owner": "Marcus Johnson", "priority": "High", "notes": "Dependency on DBA team availability" },
+    { "id": "w9", "title": "Compliance audit remediation", "description": "SOC 2 gap closure items", "category": "CarriedOver", "milestoneId": "m2", "owner": "Sara Kim", "priority": "High", "notes": "Rescheduled to Q2 sprint 1" }
   ]
 }

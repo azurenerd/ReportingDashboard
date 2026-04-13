@@ -1,0 +1,54 @@
+@namespace ReportingDashboard.Web.Components.Sections
+
+<section class="status-sections">
+    @foreach (var section in _sections)
+    {
+        <div class="status-column">
+            <div class="status-header" style="background-color: @section.Color;">
+                <span class="status-header-title">@section.Label</span>
+                <span class="status-header-badge">@section.Items.Count</span>
+            </div>
+            <div class="status-card-list">
+                @foreach (var item in section.Items)
+                {
+                    <div class="status-card">
+                        <div class="status-card-top">
+                            <span class="status-dot" style="background-color: @section.Color;" title="@section.Label"></span>
+                            <span class="status-card-title">@item.Title</span>
+                        </div>
+                        <span class="status-card-owner">@item.Owner</span>
+                        @if (!string.IsNullOrWhiteSpace(item.Notes))
+                        {
+                            <span class="status-card-notes">@item.Notes</span>
+                        }
+                    </div>
+                }
+                @if (section.Items.Count == 0)
+                {
+                    <div class="status-card status-card--empty">
+                        <span class="status-card-notes">No items</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public List<WorkItem> WorkItems { get; set; } = new();
+
+    private List<SectionViewModel> _sections = new();
+
+    protected override void OnParametersSet()
+    {
+        _sections = new List<SectionViewModel>
+        {
+            new("Shipped", "#28a745", WorkItems.Where(w => w.Category == "Shipped").ToList()),
+            new("In Progress", "#007bff", WorkItems.Where(w => w.Category == "InProgress").ToList()),
+            new("Carried Over", "#fd7e14", WorkItems.Where(w => w.Category == "CarriedOver").ToList())
+        };
+    }
+
+    private sealed record SectionViewModel(string Label, string Color, List<WorkItem> Items);
+}
