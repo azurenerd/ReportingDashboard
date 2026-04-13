@@ -4,19 +4,32 @@
 @rendermode RenderMode.InteractiveServer
 
 <div class="dashboard-container">
-    @if (DataService.IsError)
+    @if (DataService.IsError || _data is null)
     {
         <div class="error-banner">
             <strong>⚠ Data Error:</strong> @DataService.ErrorMessage
         </div>
     }
-    else if (DataService.Data is not null)
+    else
     {
-        <ProjectHeader Project="DataService.Data.Project" />
-        <MonthlySummary Summary="DataService.Data.CurrentMonth" />
-        <MilestoneTimeline Milestones="DataService.Data.Milestones" />
-        <StatusSections ShippedItems="@DataService.Data.Shipped"
-                        InProgressItems="@DataService.Data.InProgress"
-                        CarriedOverItems="@DataService.Data.CarriedOver" />
+        <ProjectHeader Project="_data.Project" />
+        <MonthlySummary Summary="_data.CurrentMonth" />
+        <MilestoneTimeline Milestones="_data.Milestones" />
+        <StatusSections ShippedItems="@_data.Shipped"
+                        InProgressItems="@_data.InProgress"
+                        CarriedOverItems="@_data.CarriedOver" />
+        <ShippedItems Items="_data.Shipped" />
+        <InProgressItems Items="_data.InProgress" />
+        <CarriedOverItems Items="_data.CarriedOver" />
     }
 </div>
+
+@code {
+    private DashboardData? _data;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await DataService.LoadAsync();
+        _data = DataService.Data;
+    }
+}

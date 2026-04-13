@@ -130,7 +130,7 @@
     background: #fd7e14;
 }
 
-/* Owner line in muted gray */
+/* Owner/category line in muted gray */
 .status-card__owner {
     font-size: 0.85rem;
     color: #6c757d;
@@ -138,7 +138,7 @@
     line-height: 1.4;
 }
 
-/* Optional notes */
+/* Optional notes / description */
 .status-card__notes {
     font-size: 0.8rem;
     color: var(--color-text-secondary, #616161);

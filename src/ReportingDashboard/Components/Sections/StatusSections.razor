@@ -32,13 +32,13 @@
                                 <span class="status-indicator status-indicator--@cssModifier"></span>
                                 <span class="status-card__title">@item.Title</span>
                             </div>
-                            @if (!string.IsNullOrEmpty(item.Owner))
+                            @if (!string.IsNullOrEmpty(item.Category))
                             {
-                                <div class="status-card__owner">@item.Owner</div>
+                                <div class="status-card__owner">@item.Category</div>
                             }
-                            @if (!string.IsNullOrEmpty(item.Notes))
+                            @if (!string.IsNullOrEmpty(item.Description))
                             {
-                                <div class="status-card__notes">@item.Notes</div>
+                                <div class="status-card__notes">@item.Description</div>
                             }
                         </div>
                     }
