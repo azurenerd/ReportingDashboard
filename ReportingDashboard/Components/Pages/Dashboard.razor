@@ -13,16 +13,8 @@
 else
 {
     <div class="dashboard">
-        <!-- Project Health Summary -->
-        <header class="project-header">
-            <div class="header-left">
-                <h1 class="project-name">@_data.Project.Name</h1>
-                <span class="reporting-period">@_data.Project.ReportingPeriod</span>
-            </div>
-            <div class="header-right">
-                <span class="rag-badge rag-@_data.Project.RagStatus.ToLowerInvariant()">@_data.Project.RagStatus.ToUpperInvariant()</span>
-            </div>
-        </header>
+        <!-- Project Health Summary Header -->
+        <ProjectHealthSummary Data="@_data" />
         <p class="executive-summary">@_data.Project.Summary</p>
 
         <!-- Milestone Timeline -->
