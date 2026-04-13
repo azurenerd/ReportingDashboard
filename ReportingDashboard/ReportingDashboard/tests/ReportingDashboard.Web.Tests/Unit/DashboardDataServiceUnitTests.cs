@@ -29,9 +29,9 @@ public class DashboardDataServiceUnitTests : IDisposable
     }
 
     /// <summary>
-    /// Builds valid JSON matching the architecture's data model with integer IDs,
-    /// camelCase property names, and all fields including notes, statusIndicator,
-    /// and lastUpdated as defined in the T1 models and PR description Step 1.
+    /// Builds valid JSON matching the actual data.json structure used in the project.
+    /// Uses string IDs and the "projectInfo" root key to match the real schema.
+    /// Includes notes and statusIndicator fields on work items.
     /// </summary>
     private static string BuildValidJson(
         string projectName = "Test Project",
