@@ -1,33 +1,23 @@
 @page "/"
-@using ReportingDashboard.Web.Services
 @inject IDashboardDataService DataService
 
-@if (_error is not null)
+@if (_isLoading)
 {
-    <div class="error-banner">@_error</div>
+    <div class="dashboard-loading">Loading dashboard&hellip;</div>
 }
-else if (_data is not null)
+else
 {
-    <h1>@_data.Project.ProjectName</h1>
-    <p>@_data.Project.ReportingPeriod - @_data.Project.ExecutiveSponsor</p>
-    <p class="health-indicator status-@_data.Project.OverallStatus.ToLowerInvariant()">
-        @_data.Project.OverallStatus: @_data.Project.Summary
-    </p>
+    <HeaderSection ProjectInfo="@_projectInfo" />
 }
 
 @code {
-    private DashboardData? _data;
-    private string? _error;
+    private ProjectInfo _projectInfo = new();
+    private bool _isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            _data = await DataService.GetDashboardDataAsync();
-        }
-        catch (Exception ex)
-        {
-            _error = ex.Message;
-        }
+        var data = await DataService.GetDashboardDataAsync();
+        _projectInfo = data.ProjectInfo;
+        _isLoading = false;
     }
 }

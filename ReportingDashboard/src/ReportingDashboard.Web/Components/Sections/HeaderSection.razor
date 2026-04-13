@@ -1,0 +1,61 @@
+@namespace ReportingDashboard.Web.Components.Sections
+
+<header class="header-section">
+    <div class="header-content">
+        <div class="header-left">
+            <h1 class="project-name">@ProjectInfo.ProjectName</h1>
+            <div class="header-meta">
+                <span class="meta-item">
+                    <span class="meta-label">Reporting Period:</span>
+                    <span class="meta-value">@ProjectInfo.ReportingPeriod</span>
+                </span>
+                @if (!string.IsNullOrWhiteSpace(ProjectInfo.LastUpdated))
+                {
+                    <span class="meta-divider">|</span>
+                    <span class="meta-item">
+                        <span class="meta-label">Last Updated:</span>
+                        <span class="meta-value">@ProjectInfo.LastUpdated</span>
+                    </span>
+                }
+                @if (!string.IsNullOrWhiteSpace(ProjectInfo.ExecutiveSponsor))
+                {
+                    <span class="meta-divider">|</span>
+                    <span class="meta-item">
+                        <span class="meta-label">Executive Sponsor:</span>
+                        <span class="meta-value">@ProjectInfo.ExecutiveSponsor</span>
+                    </span>
+                }
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="rag-badge @RagCssClass">@RagLabel</span>
+        </div>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(ProjectInfo.Summary))
+    {
+        <div class="health-summary">
+            <span class="health-summary-text">@ProjectInfo.Summary</span>
+        </div>
+    }
+</header>
+
+@code {
+    [Parameter]
+    public ProjectInfo ProjectInfo { get; set; } = new();
+
+    private string RagCssClass => ProjectInfo.OverallStatus?.ToLowerInvariant() switch
+    {
+        "ontrack" => "rag-green",
+        "atrisk" => "rag-amber",
+        "blocked" => "rag-red",
+        _ => "rag-unknown"
+    };
+
+    private string RagLabel => ProjectInfo.OverallStatus?.ToLowerInvariant() switch
+    {
+        "ontrack" => "On Track",
+        "atrisk" => "At Risk",
+        "blocked" => "Blocked",
+        _ => "Unknown"
+    };
+}

@@ -1,129 +1,87 @@
 {
-  "project": {
-    "name": "Project Constellation",
-    "executiveSponsor": "Sarah Chen, CVP Engineering",
-    "reportingPeriod": "Q1 2026 — Sprint Review (Apr 10, 2026)",
-    "status": "OnTrack",
-    "summary": "Platform migration is 85% complete. Core services have been fully migrated; remaining work involves telemetry integration and partner SDK updates. No blocking issues at this time."
+  "projectInfo": {
+    "projectName": "Project Quantum Leap",
+    "executiveSponsor": "Sarah Chen, VP of Engineering",
+    "reportingPeriod": "Q1 2026 (Jan – Mar)",
+    "lastUpdated": "2026-04-10",
+    "overallStatus": "OnTrack",
+    "summary": "All critical milestones on schedule. Platform migration 92% complete with GA targeted for April 30."
   },
   "milestones": [
     {
-      "id": "m1",
+      "id": "ms-1",
       "title": "Architecture Approved",
       "targetDate": "2026-01-15",
       "completionDate": "2026-01-14",
       "status": "Completed"
     },
     {
-      "id": "m2",
-      "title": "Core Services Migrated",
+      "id": "ms-2",
+      "title": "Core API GA",
       "targetDate": "2026-02-28",
-      "completionDate": "2026-02-26",
+      "completionDate": "2026-02-27",
       "status": "Completed"
     },
     {
-      "id": "m3",
-      "title": "Telemetry Integration",
-      "targetDate": "2026-04-15",
+      "id": "ms-3",
+      "title": "Platform Migration",
+      "targetDate": "2026-04-30",
       "completionDate": null,
       "status": "InProgress"
     },
     {
-      "id": "m4",
-      "title": "Partner SDK Release",
-      "targetDate": "2026-05-30",
-      "completionDate": null,
-      "status": "Upcoming"
-    },
-    {
-      "id": "m5",
-      "title": "GA Launch",
-      "targetDate": "2026-06-30",
+      "id": "ms-4",
+      "title": "Public Preview",
+      "targetDate": "2026-06-15",
       "completionDate": null,
       "status": "Upcoming"
     }
   ],
   "workItems": [
     {
-      "id": "w1",
-      "title": "Identity service migration",
-      "description": "Migrated identity service to new platform with zero downtime.",
+      "id": "wi-1",
+      "title": "Core API v2 endpoints",
+      "description": "Shipped all 14 REST endpoints for the Core API v2 surface.",
       "category": "Shipped",
-      "milestoneId": "m2",
+      "milestoneId": "ms-2",
       "owner": "Alex Kim",
-      "priority": "P0"
+      "priority": "High"
     },
     {
-      "id": "w2",
-      "title": "Data pipeline v2 deployment",
-      "description": "Deployed new data pipeline with 3x throughput improvement.",
+      "id": "wi-2",
+      "title": "Authentication service refactor",
+      "description": "Migrated auth from legacy ADAL to MSAL with zero downtime.",
       "category": "Shipped",
-      "milestoneId": "m2",
+      "milestoneId": "ms-2",
+      "owner": "Priya Patel",
+      "priority": "High"
+    },
+    {
+      "id": "wi-3",
+      "title": "Data pipeline modernization",
+      "description": "Replacing legacy ETL with event-driven architecture.",
+      "category": "InProgress",
+      "milestoneId": "ms-3",
       "owner": "Jordan Lee",
-      "priority": "P0"
+      "priority": "High"
     },
     {
-      "id": "w3",
-      "title": "API gateway configuration",
-      "description": "Configured API gateway routing for all migrated services.",
-      "category": "Shipped",
-      "milestoneId": "m2",
-      "owner": "Priya Patel",
-      "priority": "P1"
-    },
-    {
-      "id": "w4",
-      "title": "Load testing baseline",
-      "description": "Established performance baselines for migrated services.",
-      "category": "Shipped",
-      "milestoneId": "m2",
-      "owner": "Marcus Brown",
-      "priority": "P1"
-    },
-    {
-      "id": "w5",
-      "title": "Telemetry SDK integration",
-      "description": "Integrating new telemetry SDK across all platform services.",
+      "id": "wi-4",
+      "title": "Dashboard UI redesign",
+      "description": "New executive-facing dashboard with real-time metrics.",
       "category": "InProgress",
-      "milestoneId": "m3",
-      "owner": "Jordan Lee",
-      "priority": "P0"
+      "milestoneId": "ms-3",
+      "owner": "Maria Santos",
+      "priority": "Medium"
     },
     {
-      "id": "w6",
-      "title": "Dashboard metrics rollout",
-      "description": "Building executive metrics dashboard with real-time data.",
-      "category": "InProgress",
-      "milestoneId": "m3",
-      "owner": "Priya Patel",
-      "priority": "P1"
-    },
-    {
-      "id": "w7",
-      "title": "Alert rule migration",
-      "description": "Migrating existing alert rules to new monitoring platform.",
-      "category": "InProgress",
-      "milestoneId": "m3",
-      "owner": "Alex Kim",
-      "priority": "P1"
-    },
-    {
-      "id": "w8",
-      "title": "Legacy auth decommission",
-      "description": "Decommissioning legacy authentication endpoints.",
+      "id": "wi-5",
+      "title": "Legacy database decommission",
+      "description": "Deferred to Q2 due to dependency on pipeline migration completion.",
       "category": "CarriedOver",
-      "milestoneId": "m2",
-      "owner": "Marcus Brown",
-      "priority": "P2"
-    },
-    {
-      "id": "w9",
-      "title": "Partner onboarding docs",
-      "description": "Documentation for partner SDK integration delayed by scope change.",
-      "category": "CarriedOver",
-      "milestoneId": "m4",
-      "owner": "Priya Patel",
-      "priority": "P2"
+      "milestoneId": "ms-3",
+      "owner": "Chris Nguyen",
+      "priority": "Medium"
     }
   ]
 }
