@@ -41,107 +41,97 @@ else
             </section>
         }
 
-        <!-- Work Item Sections -->
-        <div class="work-items-grid">
-            @{ var shipped = _data.WorkItems.Where(w => w.Category.Equals("shipped", StringComparison.OrdinalIgnoreCase)).ToList(); }
-            @{ var inProgress = _data.WorkItems.Where(w => w.Category.Equals("in-progress", StringComparison.OrdinalIgnoreCase)).ToList(); }
-            @{ var carriedOver = _data.WorkItems.Where(w => w.Category.Equals("carried-over", StringComparison.OrdinalIgnoreCase)).ToList(); }
-
-            @if (shipped.Any())
-            {
-                <section class="work-section shipped-section">
-                    <h2 class="section-title"><span class="section-icon">✅</span> Shipped</h2>
-                    <div class="card-list">
-                        @foreach (var item in shipped)
-                        {
-                            <div class="work-card">
-                                <div class="card-header">
-                                    <span class="card-title">@item.Title</span>
-                                    <span class="card-priority priority-@item.Priority.ToLowerInvariant()">@item.Priority</span>
-                                </div>
-                                @if (!string.IsNullOrWhiteSpace(item.Description))
-                                {
-                                    <p class="card-description">@item.Description</p>
-                                }
-                                <div class="card-footer">
-                                    <span class="card-owner">@item.Owner</span>
-                                    @if (!string.IsNullOrWhiteSpace(item.Notes))
-                                    {
-                                        <span class="card-notes">@item.Notes</span>
-                                    }
-                                </div>
-                            </div>
-                        }
+        <!-- Work Items Heatmap Grid -->
+        <div class="hm-wrap">
+            <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover</div>
+            <div class="hm-grid" style="grid-template-columns: 160px repeat(@_months.Count, 1fr); grid-template-rows: 36px repeat(3, 1fr);">
+                <!-- Header row -->
+                <div class="hm-corner">Status</div>
+                @for (int i = 0; i < _months.Count; i++)
+                {
+                    var isActive = i == _activeMonthIndex;
+                    var hdrClass = "hm-col-hdr" + (isActive ? " hm-col-hdr-active" : "");
+                    <div class="@hdrClass">
+                        @_months[i]@(isActive ? " ◂ Now" : "")
                     </div>
-                </section>
-            }
+                }
 
-            @if (inProgress.Any())
-            {
-                <section class="work-section in-progress-section">
-                    <h2 class="section-title"><span class="section-icon">🔄</span> In Progress</h2>
-                    <div class="card-list">
-                        @foreach (var item in inProgress)
-                        {
-                            <div class="work-card">
-                                <div class="card-header">
-                                    <span class="card-title">@item.Title</span>
-                                    <span class="card-priority priority-@item.Priority.ToLowerInvariant()">@item.Priority</span>
-                                </div>
-                                @if (!string.IsNullOrWhiteSpace(item.Description))
-                                {
-                                    <p class="card-description">@item.Description</p>
-                                }
-                                <div class="card-footer">
-                                    <span class="card-owner">@item.Owner</span>
-                                    @if (!string.IsNullOrWhiteSpace(item.Notes))
-                                    {
-                                        <span class="card-notes">@item.Notes</span>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </section>
-            }
+                <!-- Shipped row -->
+                <WorkItemSection
+                    Title="Shipped"
+                    Icon="✓"
+                    HeaderCssClass="ship-hdr"
+                    CellCssClass="ship-cell"
+                    ActiveCellCssClass="hm-cell-active"
+                    Items="@_shipped"
+                    Months="@_months"
+                    ActiveMonthIndex="@_activeMonthIndex" />
 
-            @if (carriedOver.Any())
-            {
-                <section class="work-section carried-over-section">
-                    <h2 class="section-title"><span class="section-icon">⏳</span> Carried Over</h2>
-                    <div class="card-list">
-                        @foreach (var item in carriedOver)
-                        {
-                            <div class="work-card">
-                                <div class="card-header">
-                                    <span class="card-title">@item.Title</span>
-                                    <span class="card-priority priority-@item.Priority.ToLowerInvariant()">@item.Priority</span>
-                                </div>
-                                @if (!string.IsNullOrWhiteSpace(item.Description))
-                                {
-                                    <p class="card-description">@item.Description</p>
-                                }
-                                <div class="card-footer">
-                                    <span class="card-owner">@item.Owner</span>
-                                    @if (!string.IsNullOrWhiteSpace(item.Notes))
-                                    {
-                                        <span class="card-notes">@item.Notes</span>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </section>
-            }
+                <!-- In Progress row -->
+                <WorkItemSection
+                    Title="In Progress"
+                    Icon="●"
+                    HeaderCssClass="prog-hdr"
+                    CellCssClass="prog-cell"
+                    ActiveCellCssClass="hm-cell-active"
+                    Items="@_inProgress"
+                    Months="@_months"
+                    ActiveMonthIndex="@_activeMonthIndex" />
+
+                <!-- Carried Over row -->
+                <WorkItemSection
+                    Title="Carryover"
+                    Icon="↩"
+                    HeaderCssClass="carry-hdr"
+                    CellCssClass="carry-cell"
+                    ActiveCellCssClass="hm-cell-active"
+                    Items="@_carriedOver"
+                    Months="@_months"
+                    ActiveMonthIndex="@_activeMonthIndex" />
+            </div>
         </div>
     </div>
 }
 
 @code {
     private DashboardData? _data;
+    private List<WorkItem> _shipped = new();
+    private List<WorkItem> _inProgress = new();
+    private List<WorkItem> _carriedOver = new();
+    private List<string> _months = new();
+    private int _activeMonthIndex;
 
     protected override async Task OnInitializedAsync()
     {
         _data = await DataService.LoadDataAsync();
+
+        if (_data is not null)
+        {
+            _shipped = _data.WorkItems
+                .Where(w => w.Category.Equals("shipped", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            _inProgress = _data.WorkItems
+                .Where(w => w.Category.Equals("in-progress", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            _carriedOver = _data.WorkItems
+                .Where(w => w.Category.Equals("carried-over", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            BuildMonthColumns();
+        }
+    }
+
+    private void BuildMonthColumns()
+    {
+        // Derive a 4-month window centered on the current reporting period
+        var now = DateTime.Now;
+        var startMonth = new DateTime(now.Year, now.Month, 1).AddMonths(-1);
+
+        _months = Enumerable.Range(0, 4)
+            .Select(i => startMonth.AddMonths(i).ToString("MMMM"))
+            .ToList();
+
+        // Active month is index 1 (current month, second column)
+        _activeMonthIndex = 1;
     }
 }

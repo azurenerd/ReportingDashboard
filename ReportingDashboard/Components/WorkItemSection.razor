@@ -1,0 +1,97 @@
+@namespace ReportingDashboard.Components
+@using ReportingDashboard.Models
+
+@* 
+    WorkItemSection renders one category row within the heatmap grid.
+    It outputs grid-child elements directly (no wrapper) so the parent
+    .hm-grid CSS grid lays them out correctly.
+    
+    Usage: place inside a .hm-grid container after the header row.
+    Three instances are expected: Shipped, In Progress, Carried Over.
+*@
+
+@if (Items is not null)
+{
+    <div class="hm-row-hdr @HeaderCssClass">@Icon @Title</div>
+
+    @for (int i = 0; i < Months.Count; i++)
+    {
+        var monthItems = GetItemsForMonth(i);
+        var isActive = i == ActiveMonthIndex;
+        var isLast = i == Months.Count - 1;
+        var cellClass = $"hm-cell {CellCssClass}" +
+                        (isActive ? $" {ActiveCellCssClass}" : "") +
+                        (isLast ? " hm-cell-last" : "");
+
+        <div class="@cellClass">
+            @if (monthItems.Any())
+            {
+                @foreach (var item in monthItems)
+                {
+                    <div class="it">@item.Title</div>
+                }
+            }
+            else
+            {
+                <div class="it hm-empty">&mdash;</div>
+            }
+        </div>
+    }
+}
+
+@code {
+    /// <summary>Category display title, e.g. "Shipped"</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>Icon prefix for the row header, e.g. "✓" or "●" or "↩"</summary>
+    [Parameter]
+    public string Icon { get; set; } = string.Empty;
+
+    /// <summary>CSS class for the row header, e.g. "ship-hdr"</summary>
+    [Parameter, EditorRequired]
+    public string HeaderCssClass { get; set; } = string.Empty;
+
+    /// <summary>CSS class for data cells, e.g. "ship-cell"</summary>
+    [Parameter, EditorRequired]
+    public string CellCssClass { get; set; } = string.Empty;
+
+    /// <summary>Extra CSS class applied to the active month cell, e.g. "apr"</summary>
+    [Parameter]
+    public string ActiveCellCssClass { get; set; } = string.Empty;
+
+    /// <summary>Work items filtered to this category</summary>
+    [Parameter, EditorRequired]
+    public List<WorkItem> Items { get; set; } = new();
+
+    /// <summary>Ordered list of month column labels</summary>
+    [Parameter, EditorRequired]
+    public List<string> Months { get; set; } = new();
+
+    /// <summary>Zero-based index of the "current" / active month column</summary>
+    [Parameter]
+    public int ActiveMonthIndex { get; set; } = -1;
+
+    /// <summary>
+    /// Optional dictionary mapping month index → items for that month.
+    /// When null, all items are placed in the ActiveMonthIndex column.
+    /// </summary>
+    [Parameter]
+    public Dictionary<int, List<WorkItem>>? MonthItemMap { get; set; }
+
+    private List<WorkItem> GetItemsForMonth(int monthIndex)
+    {
+        if (MonthItemMap is not null && MonthItemMap.TryGetValue(monthIndex, out var mapped))
+        {
+            return mapped;
+        }
+
+        // Default: place all items in the active month column
+        if (monthIndex == ActiveMonthIndex)
+        {
+            return Items;
+        }
+
+        return new List<WorkItem>();
+    }
+}
