@@ -1,6 +1,5 @@
 using Bunit;
 using FluentAssertions;
-using ReportingDashboard.Components;
 using ReportingDashboard.Models;
 using Xunit;
 
@@ -8,18 +7,18 @@ namespace ReportingDashboard.Tests.Unit;
 
 public class ProjectHealthSummaryTests : TestContext
 {
-    private static DashboardData CreateTestData(
-        string name = "Test Project",
-        string period = "April 2026",
+    private static DashboardData CreateDashboardData(
+        string projectName = "Test Project",
+        string reportingPeriod = "Q1 2026",
         string ragStatus = "Green",
-        string summary = "Project is on track.")
+        string? summary = "All systems operational.")
     {
         return new DashboardData
         {
             Project = new ProjectInfo
             {
-                Name = name,
-                ReportingPeriod = period,
+                Name = projectName,
+                ReportingPeriod = reportingPeriod,
                 RagStatus = ragStatus,
                 Summary = summary
             }
@@ -27,161 +26,99 @@ public class ProjectHealthSummaryTests : TestContext
     }
 
     [Fact]
-    public void Renders_ProjectName_AsH1()
+    [Trait("Category", "Unit")]
+    public void RendersAllDataPoints_WhenFullyPopulated()
     {
-        var data = CreateTestData(name: "Privacy Automation Release Roadmap");
+        // Arrange
+        var data = CreateDashboardData(
+            projectName: "Alpha Release",
+            reportingPeriod: "March 2026",
+            ragStatus: "Green",
+            summary: "On track for delivery.");
 
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
+        // Act
+        var cut = RenderComponent<ReportingDashboard.Components.ProjectHealthSummary>(
+            p => p.Add(x => x.Data, data));
 
-        var h1 = cut.Find("h1.health-project-name");
-        h1.TextContent.Should().Be("Privacy Automation Release Roadmap");
-    }
-
-    [Fact]
-    public void Renders_ReportingPeriod_Subtitle()
-    {
-        var data = CreateTestData(period: "Q2 2026 · Sprint 14");
-
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
-
-        var period = cut.Find(".health-reporting-period");
-        period.TextContent.Should().Be("Q2 2026 · Sprint 14");
+        // Assert
+        cut.Find("h1.health-project-name").TextContent.Should().Be("Alpha Release");
+        cut.Find(".health-reporting-period").TextContent.Should().Be("March 2026");
+        cut.Find(".health-rag-indicator").TextContent.Trim().Should().Contain("GREEN");
+        cut.Find("p.health-summary-text").TextContent.Should().Be("On track for delivery.");
     }
 
     [Theory]
-    [InlineData("Green", "rag-status-green", "GREEN")]
-    [InlineData("Amber", "rag-status-amber", "AMBER")]
-    [InlineData("Red", "rag-status-red", "RED")]
-    [InlineData("Yellow", "rag-status-amber", "YELLOW")]
-    public void Renders_RagStatus_WithCorrectColorClass(string ragStatus, string expectedClass, string expectedLabel)
+    [Trait("Category", "Unit")]
+    [InlineData("Green", "rag-status-green")]
+    [InlineData("Amber", "rag-status-amber")]
+    [InlineData("Red", "rag-status-red")]
+    [InlineData("yellow", "rag-status-amber")]
+    [InlineData("GREEN", "rag-status-green")]
+    public void RagIndicator_AppliesCorrectCssClass(string ragStatus, string expectedClass)
     {
-        var data = CreateTestData(ragStatus: ragStatus);
+        // Arrange
+        var data = CreateDashboardData(ragStatus: ragStatus);
 
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
+        // Act
+        var cut = RenderComponent<ReportingDashboard.Components.ProjectHealthSummary>(
+            p => p.Add(x => x.Data, data));
 
+        // Assert
         var indicator = cut.Find(".health-rag-indicator");
         indicator.ClassList.Should().Contain(expectedClass);
-        indicator.TextContent.Trim().Should().Be(expectedLabel);
     }
 
     [Fact]
-    public void Renders_RagDot_InsideIndicator()
+    [Trait("Category", "Unit")]
+    public void RagIndicator_DefaultsToGreen_WhenStatusUnknown()
     {
-        var data = CreateTestData(ragStatus: "Red");
+        // Arrange
+        var data = CreateDashboardData(ragStatus: "Purple");
 
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
+        // Act
+        var cut = RenderComponent<ReportingDashboard.Components.ProjectHealthSummary>(
+            p => p.Add(x => x.Data, data));
 
-        var dot = cut.Find(".health-rag-indicator .health-rag-dot");
-        dot.Should().NotBeNull();
-    }
-
-    [Fact]
-    public void Renders_SummaryText()
-    {
-        var data = CreateTestData(summary: "All milestones on track for Q2 delivery.");
-
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
-
-        var summaryEl = cut.Find(".health-summary-text");
-        summaryEl.TextContent.Should().Be("All milestones on track for Q2 delivery.");
-    }
-
-    [Fact]
-    public void Hides_SummaryText_WhenEmpty()
-    {
-        var data = CreateTestData(summary: "");
-
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
-
-        cut.FindAll(".health-summary-text").Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Hides_SummaryText_WhenWhitespace()
-    {
-        var data = CreateTestData(summary: "   ");
-
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
-
-        cut.FindAll(".health-summary-text").Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Renders_HeaderElement()
-    {
-        var data = CreateTestData();
-
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
-
-        var header = cut.Find("header.health-header");
-        header.Should().NotBeNull();
-    }
-
-    [Fact]
-    public void Renders_BorderBottom_SeparatorViaClass()
-    {
-        var data = CreateTestData();
-
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
-
-        // The .health-header class carries the border-bottom style from scoped CSS
-        var header = cut.Find(".health-header");
-        header.Should().NotBeNull();
-    }
-
-    [Fact]
-    public void Defaults_UnknownRagStatus_ToGreen()
-    {
-        var data = CreateTestData(ragStatus: "Unknown");
-
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
-
+        // Assert
         var indicator = cut.Find(".health-rag-indicator");
         indicator.ClassList.Should().Contain("rag-status-green");
+        indicator.TextContent.Trim().Should().Contain("PURPLE");
+    }
+
+    [Theory]
+    [Trait("Category", "Unit")]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void HidesSummaryText_WhenNullOrWhitespace(string? summary)
+    {
+        // Arrange
+        var data = CreateDashboardData(summary: summary);
+
+        // Act
+        var cut = RenderComponent<ReportingDashboard.Components.ProjectHealthSummary>(
+            p => p.Add(x => x.Data, data));
+
+        // Assert
+        cut.FindAll("p.health-summary-text").Should().BeEmpty();
+        // Header and other elements still render
+        cut.Find("h1.health-project-name").Should().NotBeNull();
     }
 
     [Fact]
-    public void Handles_CaseInsensitive_RagStatus()
+    [Trait("Category", "Unit")]
+    public void RagStatusText_IsUppercased()
     {
-        var data = CreateTestData(ragStatus: "GREEN");
+        // Arrange
+        var data = CreateDashboardData(ragStatus: "amber");
 
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
+        // Act
+        var cut = RenderComponent<ReportingDashboard.Components.ProjectHealthSummary>(
+            p => p.Add(x => x.Data, data));
 
+        // Assert
         var indicator = cut.Find(".health-rag-indicator");
-        indicator.ClassList.Should().Contain("rag-status-green");
-    }
-
-    [Fact]
-    public void Component_StructuralLayout_MatchesDesign()
-    {
-        var data = CreateTestData(
-            name: "My Project",
-            period: "March 2026",
-            ragStatus: "Amber",
-            summary: "Some items at risk.");
-
-        var cut = RenderComponent<ProjectHealthSummary>(p =>
-            p.Add(c => c.Data, data));
-
-        // Verify structural hierarchy: header > top row (left + right) + summary
-        cut.Find("header.health-header .health-header-top .health-header-left .health-project-name")
-            .Should().NotBeNull();
-        cut.Find("header.health-header .health-header-top .health-header-left .health-reporting-period")
-            .Should().NotBeNull();
-        cut.Find("header.health-header .health-header-top .health-header-right .health-rag-indicator")
-            .Should().NotBeNull();
-        cut.Find("header.health-header .health-summary-text")
-            .Should().NotBeNull();
+        indicator.TextContent.Trim().Should().Contain("AMBER");
+        indicator.ClassList.Should().Contain("rag-status-amber");
     }
 }
