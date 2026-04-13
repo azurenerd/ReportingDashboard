@@ -15,6 +15,7 @@ else
     <div class="dashboard">
         <!-- Project Health Summary Header -->
         <ProjectHealthSummary Data="@_data" />
+        <p class="executive-summary">@_data.Project.Summary</p>
 
         <!-- Milestone Timeline -->
         @if (_data.Milestones.Any())

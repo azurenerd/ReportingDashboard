@@ -1,21 +1,27 @@
 @namespace ReportingDashboard.Components
 
 <header class="health-header">
-    <div class="health-header-top">
-        <div class="health-header-left">
-            <h1 class="health-project-name">@Data.Project.Name</h1>
-            <div class="health-reporting-period">@Data.Project.ReportingPeriod</div>
-        </div>
-        <div class="health-header-right">
-            <span class="health-rag-indicator @GetRagCssClass()">
-                <span class="health-rag-dot"></span>
-                @Data.Project.RagStatus.ToUpperInvariant()
-            </span>
-        </div>
-    </div>
-    @if (!string.IsNullOrWhiteSpace(Data.Project.Summary))
+    @if (Data?.Project is not null)
     {
-        <p class="health-summary-text">@Data.Project.Summary</p>
+        <div class="health-header-top">
+            <div class="health-header-left">
+                <h1 class="health-project-name">@Data.Project.Name</h1>
+                @if (!string.IsNullOrWhiteSpace(Data.Project.ReportingPeriod))
+                {
+                    <div class="health-reporting-period">@Data.Project.ReportingPeriod</div>
+                }
+            </div>
+            <div class="health-header-right">
+                <span class="health-rag-indicator @GetRagCssClass()">
+                    <span class="health-rag-dot"></span>
+                    @((Data.Project.RagStatus ?? "Green").ToUpperInvariant())
+                </span>
+            </div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Data.Project.Summary))
+        {
+            <p class="health-summary-text">@Data.Project.Summary</p>
+        }
     }
 </header>
 
@@ -25,7 +31,7 @@
 
     private string GetRagCssClass()
     {
-        return Data.Project.RagStatus?.Trim().ToLowerInvariant() switch
+        return Data?.Project?.RagStatus?.Trim().ToLowerInvariant() switch
         {
             "green" => "rag-status-green",
             "amber" or "yellow" => "rag-status-amber",
