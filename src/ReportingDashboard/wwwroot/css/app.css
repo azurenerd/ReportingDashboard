@@ -48,20 +48,18 @@
     box-sizing: border-box;
 }
 
-html, body {
+body {
     width: 1920px;
     height: 1080px;
     overflow: hidden;
     background: #FFFFFF;
     font-family: var(--font-family);
     color: var(--color-text);
+    display: flex;
+    flex-direction: column;
 }
 
 a {
     color: var(--color-link);
     text-decoration: none;
-}
-
-#blazor-error-ui {
-    display: none;
 }

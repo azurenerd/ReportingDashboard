@@ -1,7 +1,7 @@
+using Xunit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Xunit;
 using ReportingDashboard.Models;
 using ReportingDashboard.Services;
 

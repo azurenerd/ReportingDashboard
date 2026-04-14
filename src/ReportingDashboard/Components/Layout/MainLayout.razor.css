@@ -1,8 +1,10 @@
-.page-shell {
+.page-wrapper {
     width: 1920px;
     height: 1080px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     background: #FFFFFF;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #111;
 }

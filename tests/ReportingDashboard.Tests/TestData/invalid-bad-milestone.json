@@ -1,27 +1,27 @@
 {
-    "title": "Bad Milestone Project",
-    "subtitle": "Test Org · Test Workstream",
-    "backlogUrl": "https://dev.azure.com/test",
-    "currentDate": "2026-01-15",
-    "months": ["Jan", "Feb", "Mar"],
-    "currentMonthIndex": 0,
-    "timelineStart": "2026-01-01",
-    "timelineEnd": "2026-04-01",
-    "milestones": [
-        {
-            "id": "M1",
-            "label": "M1",
-            "description": "Core Feature",
-            "color": "not-a-hex-color",
-            "markers": [
-                { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" }
-            ]
-        }
-    ],
-    "categories": [
-        { "name": "Shipped", "key": "shipped", "items": {} },
-        { "name": "In Progress", "key": "inProgress", "items": {} },
-        { "name": "Carryover", "key": "carryover", "items": {} },
-        { "name": "Blockers", "key": "blockers", "items": {} }
-    ]
+  "title": "Test Project",
+  "subtitle": "Test Org · Test Workstream · April 2026",
+  "backlogUrl": "https://dev.azure.com/test/backlog",
+  "currentDate": "2026-04-14",
+  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+  "currentMonthIndex": 3,
+  "timelineStart": "2026-01-01",
+  "timelineEnd": "2026-06-30",
+  "milestones": [
+    {
+      "id": "M1",
+      "label": "M1",
+      "description": "Core Platform",
+      "color": "not-a-color",
+      "markers": [
+        { "date": "2026-03-15", "type": "invalidtype", "label": "Mar 15" }
+      ]
+    }
+  ],
+  "categories": [
+    { "name": "Shipped", "key": "shipped", "items": {} },
+    { "name": "In Progress", "key": "inProgress", "items": {} },
+    { "name": "Carryover", "key": "carryover", "items": {} },
+    { "name": "Blockers", "key": "blockers", "items": {} }
+  ]
 }
