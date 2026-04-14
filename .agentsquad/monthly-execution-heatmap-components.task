@@ -1,4 +1,4 @@
-agent: PrincipalEngineer
+agent: PrincipalEngineer 3
 task: Monthly Execution Heatmap Components
-complexity: High
+complexity: Medium
 status: in-progress
