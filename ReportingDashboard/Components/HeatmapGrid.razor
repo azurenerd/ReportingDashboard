@@ -11,7 +11,7 @@
         {
             var isCurrent = IsCurrentMonth(month);
             <div class="hm-col-hdr @(isCurrent ? "apr-hdr" : "")">
-                @month@(isCurrent ? " ⚡ Now" : "")
+                @month@(isCurrent ? " ⬆ Now" : "")
             </div>
         }
 
@@ -53,7 +53,7 @@
     {
         new RowConfig("shipped",    "✅", "SHIPPED",      "ship-hdr",  "ship-cell"),
         new RowConfig("inProgress", "🔄", "IN PROGRESS",  "prog-hdr",  "prog-cell"),
-        new RowConfig("carryover",  "⏩", "CARRYOVER",    "carry-hdr", "carry-cell"),
+        new RowConfig("carryover",  "📋", "CARRYOVER",    "carry-hdr", "carry-cell"),
         new RowConfig("blockers",   "🚫", "BLOCKERS",     "block-hdr", "block-cell"),
     };
 
@@ -90,7 +90,6 @@
         if (dict.TryGetValue(month, out var items))
             return items ?? new List<string>();
 
-        // Try case-insensitive match
         foreach (var kvp in dict)
         {
             if (string.Equals(kvp.Key, month, StringComparison.OrdinalIgnoreCase))
