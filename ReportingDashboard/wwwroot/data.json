@@ -16,7 +16,7 @@
                 { "date": "2026-01-15", "label": "Jan 15", "type": "checkpoint" },
                 { "date": "2026-02-20", "label": "Feb 20", "type": "checkpoint-small" },
                 { "date": "2026-03-20", "label": "Mar 20 PoC", "type": "poc" },
-                { "date": "2026-05-01", "label": "May Prod", "type": "production" }
+                { "date": "2026-05-01", "label": "May 1 Prod", "type": "production" }
             ]
         },
         {
@@ -24,9 +24,10 @@
             "description": "Data Pipeline",
             "color": "#00897B",
             "events": [
-                { "date": "2026-01-20", "label": "Jan 20", "type": "checkpoint-small" },
                 { "date": "2026-02-10", "label": "Feb 10", "type": "checkpoint" },
-                { "date": "2026-04-15", "label": "Apr 15 PoC", "type": "poc" }
+                { "date": "2026-03-15", "label": "Mar 15", "type": "checkpoint-small" },
+                { "date": "2026-04-15", "label": "Apr 15 PoC", "type": "poc" },
+                { "date": "2026-06-01", "label": "Jun 1 Prod", "type": "production" }
             ]
         },
         {
@@ -34,8 +35,8 @@
             "description": "Reporting Engine",
             "color": "#546E7A",
             "events": [
-                { "date": "2026-02-01", "label": "Feb 1", "type": "checkpoint-small" },
                 { "date": "2026-03-01", "label": "Mar 1", "type": "checkpoint" },
+                { "date": "2026-04-10", "label": "Apr 10", "type": "checkpoint-small" },
                 { "date": "2026-05-15", "label": "May 15 Prod", "type": "production" }
             ]
         }
