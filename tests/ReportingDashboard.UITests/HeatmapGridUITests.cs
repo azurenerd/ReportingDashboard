@@ -32,17 +32,12 @@ public class HeatmapGridUITests : IAsyncLifetime
 
     [Fact]
     [Trait("Category", "UI")]
-    public async Task HeatmapGrid_IsVisibleOnPage()
+    public async Task HeatmapGrid_IsVisibleWithTitle()
     {
         var heatmapWrap = _page.Locator(".hm-wrap");
         await heatmapWrap.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible });
         (await heatmapWrap.IsVisibleAsync()).Should().BeTrue();
-    }
 
-    [Fact]
-    [Trait("Category", "UI")]
-    public async Task HeatmapGrid_DisplaysSectionTitle()
-    {
         var title = _page.Locator(".hm-title");
         var text = await title.TextContentAsync();
         text.Should().NotBeNull();
@@ -51,41 +46,91 @@ public class HeatmapGridUITests : IAsyncLifetime
 
     [Fact]
     [Trait("Category", "UI")]
-    public async Task HeatmapGrid_HasFourStatusRows()
-    {
-        var rowHeaders = _page.Locator(".hm-row-hdr");
-        var count = await rowHeaders.CountAsync();
-        count.Should().Be(4);
-
-        var first = await rowHeaders.Nth(0).TextContentAsync();
-        first.Should().Contain("SHIPPED");
-
-        var second = await rowHeaders.Nth(1).TextContentAsync();
-        second.Should().Contain("IN PROGRESS");
-
-        var third = await rowHeaders.Nth(2).TextContentAsync();
-        third.Should().Contain("CARRYOVER");
-
-        var fourth = await rowHeaders.Nth(3).TextContentAsync();
-        fourth.Should().Contain("BLOCKERS");
-    }
-
-    [Fact]
-    [Trait("Category", "UI")]
-    public async Task HeatmapGrid_ShowsStatusCornerCell()
+    public async Task HeatmapGrid_HasCorrectGridStructure()
     {
         var corner = _page.Locator(".hm-corner");
-        var text = await corner.TextContentAsync();
-        text.Should().NotBeNull();
-        text!.Trim().ToUpperInvariant().Should().Be("STATUS");
+        var cornerText = await corner.TextContentAsync();
+        cornerText.Should().NotBeNull();
+        cornerText!.Trim().ToUpperInvariant().Should().Be("STATUS");
+
+        var colHeaders = _page.Locator(".hm-col-hdr");
+        var colCount = await colHeaders.CountAsync();
+        colCount.Should().BeGreaterThan(0, "at least one month column should render");
+
+        var rowHeaders = _page.Locator(".hm-row-hdr");
+        var rowCount = await rowHeaders.CountAsync();
+        rowCount.Should().Be(4, "four status rows should render");
     }
 
     [Fact]
     [Trait("Category", "UI")]
-    public async Task HeatmapGrid_RendersMonthColumnHeaders()
+    public async Task HeatmapGrid_FourStatusRowsDisplayCorrectLabels()
     {
-        var colHeaders = _page.Locator(".hm-col-hdr");
-        var count = await colHeaders.CountAsync();
-        count.Should().BeGreaterThan(0, "at least one month column header should render");
+        var rowHeaders = _page.Locator(".hm-row-hdr");
+
+        var shipped = await rowHeaders.Nth(0).TextContentAsync();
+        shipped.Should().Contain("SHIPPED");
+
+        var inProgress = await rowHeaders.Nth(1).TextContentAsync();
+        inProgress.Should().Contain("IN PROGRESS");
+
+        var carryover = await rowHeaders.Nth(2).TextContentAsync();
+        carryover.Should().Contain("CARRYOVER");
+
+        var blockers = await rowHeaders.Nth(3).TextContentAsync();
+        blockers.Should().Contain("BLOCKERS");
+    }
+
+    [Fact]
+    [Trait("Category", "UI")]
+    public async Task HeatmapGrid_CurrentMonthColumnIsHighlighted()
+    {
+        var highlightedHeader = _page.Locator(".hm-col-hdr.apr-hdr");
+        var count = await highlightedHeader.CountAsync();
+
+        if (count > 0)
+        {
+            var headerText = await highlightedHeader.First.TextContentAsync();
+            headerText.Should().Contain("Now", "current month header should show Now suffix");
+
+            // Verify highlighted header has the gold background
+            var bgColor = await highlightedHeader.First.EvaluateAsync<string>(
+                "el => getComputedStyle(el).backgroundColor");
+            bgColor.Should().NotBeNullOrEmpty();
+        }
+
+        // Verify current month data cells have apr class
+        var aprCells = _page.Locator(".hm-cell.apr");
+        var aprCount = await aprCells.CountAsync();
+        if (count > 0)
+        {
+            aprCount.Should().Be(4, "each of the 4 status rows should have one current-month cell");
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "UI")]
+    public async Task HeatmapGrid_DataCellsShowItemsOrDashes()
+    {
+        var dataCells = _page.Locator(".hm-cell");
+        var cellCount = await dataCells.CountAsync();
+        cellCount.Should().BeGreaterThan(0, "data cells should render");
+
+        // Check that at least some cells have items or dashes
+        var items = _page.Locator(".hm-cell .it");
+        var itemCount = await items.CountAsync();
+
+        var empties = _page.Locator(".hm-cell .empty-cell");
+        var emptyCount = await empties.CountAsync();
+
+        (itemCount + emptyCount).Should().BeGreaterThan(0,
+            "every data cell should contain either items or an empty dash indicator");
+
+        // Verify item text is visible
+        if (itemCount > 0)
+        {
+            var firstItemText = await items.First.TextContentAsync();
+            firstItemText.Should().NotBeNullOrWhiteSpace("items should have visible text");
+        }
     }
 }

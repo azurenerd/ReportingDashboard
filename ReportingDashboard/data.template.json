@@ -1,33 +1,74 @@
 {
-  "title": "Your Project Title – Executive Roadmap",
-  "subtitle": "Organization › Workstream › Month Year",
+  "_comment": "Executive Reporting Dashboard - Data Template",
+  "_schema": {
+    "title": "string - Dashboard title displayed in the header (required)",
+    "subtitle": "string - Organization context line below the title (required)",
+    "backlogUrl": "string - URL for the ADO Backlog link in the header (optional)",
+    "currentDate": "string - ISO date YYYY-MM-DD for the NOW indicator position (required)",
+    "months": "array of strings - 3-letter month abbreviations in chronological order, supports 3-8 items",
+    "tracks": "array of track objects - 1-5 milestone tracks for the timeline",
+    "tracks[].id": "string - Short identifier e.g. M1, M2",
+    "tracks[].label": "string - Track description shown in the sidebar",
+    "tracks[].color": "string - Hex color for the track line and markers e.g. #0078D4",
+    "tracks[].milestones": "array of milestone objects",
+    "tracks[].milestones[].date": "string - ISO date YYYY-MM-DD for marker position",
+    "tracks[].milestones[].type": "string - Checkpoint | PoC | Production",
+    "tracks[].milestones[].label": "string - Text label displayed near the marker",
+    "statusRows": "object containing four status categories",
+    "statusRows.shipped": "Dictionary of month abbrev to array of item strings",
+    "statusRows.inProgress": "Dictionary of month abbrev to array of item strings",
+    "statusRows.carryover": "Dictionary of month abbrev to array of item strings",
+    "statusRows.blockers": "Dictionary of month abbrev to array of item strings"
+  },
+  "title": "Project Name – Executive Dashboard",
+  "subtitle": "Organization · Workstream · Month Year",
   "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
   "currentDate": "2026-04-14",
   "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
   "tracks": [
     {
       "id": "M1",
-      "label": "Milestone Track 1 Name",
+      "label": "Milestone Track 1",
       "color": "#0078D4",
       "milestones": [
-        { "date": "2026-01-15", "type": "Checkpoint", "label": "Jan 15" },
-        { "date": "2026-03-01", "type": "PoC", "label": "Mar 1 PoC" },
-        { "date": "2026-05-01", "type": "Production", "label": "May 1 Prod" }
+        { "date": "2026-02-15", "type": "Checkpoint", "label": "Feb 15 Check" },
+        { "date": "2026-04-01", "type": "PoC", "label": "Apr 1 PoC" },
+        { "date": "2026-06-01", "type": "Production", "label": "Jun 1 GA" }
       ]
     }
   ],
   "statusRows": {
     "shipped": {
-      "Jan": ["Completed item 1", "Completed item 2"]
+      "Jan": ["Completed item 1", "Completed item 2"],
+      "Feb": ["Completed item 3"],
+      "Mar": [],
+      "Apr": [],
+      "May": [],
+      "Jun": []
     },
     "inProgress": {
-      "Feb": ["Active work item"]
+      "Jan": [],
+      "Feb": ["Active work item 1"],
+      "Mar": ["Active work item 2"],
+      "Apr": [],
+      "May": [],
+      "Jun": []
     },
     "carryover": {
-      "Mar": ["Carried over item"]
+      "Jan": [],
+      "Feb": [],
+      "Mar": [],
+      "Apr": ["Delayed item from prior month"],
+      "May": [],
+      "Jun": []
     },
     "blockers": {
-      "Apr": ["Blocking issue"]
+      "Jan": [],
+      "Feb": [],
+      "Mar": [],
+      "Apr": ["Blocking issue description"],
+      "May": [],
+      "Jun": []
     }
   }
 }
