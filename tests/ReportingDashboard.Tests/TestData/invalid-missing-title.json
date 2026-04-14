@@ -1,26 +1,25 @@
 {
-    "subtitle": "Org · Workstream · Jan 2026",
-    "backlogUrl": "https://dev.azure.com/org/project",
-    "currentDate": "2026-01-15",
-    "months": ["Jan"],
-    "currentMonthIndex": 0,
-    "timelineStart": "2026-01-01",
-    "timelineEnd": "2026-03-31",
-    "milestones": [
-        {
-            "id": "M1",
-            "label": "M1",
-            "description": "Core Feature",
-            "color": "#0078D4",
-            "markers": [
-                { "date": "2026-01-15", "type": "checkpoint", "label": "Jan 15" }
-            ]
-        }
-    ],
-    "categories": [
-        { "name": "Shipped", "key": "shipped", "items": { "Jan": [] } },
-        { "name": "In Progress", "key": "inProgress", "items": { "Jan": [] } },
-        { "name": "Carryover", "key": "carryover", "items": { "Jan": [] } },
-        { "name": "Blockers", "key": "blockers", "items": { "Jan": [] } }
-    ]
+  "title": "",
+  "subtitle": "Test Org",
+  "backlogUrl": "https://example.com",
+  "currentDate": "2026-01-01",
+  "months": ["Jan"],
+  "currentMonthIndex": 0,
+  "timelineStart": "2026-01-01",
+  "timelineEnd": "2026-06-30",
+  "milestones": [
+    {
+      "id": "M1",
+      "label": "M1",
+      "description": "Test",
+      "color": "#0078D4",
+      "markers": []
+    }
+  ],
+  "categories": [
+    { "name": "Shipped", "key": "shipped", "items": {} },
+    { "name": "In Progress", "key": "inProgress", "items": {} },
+    { "name": "Carryover", "key": "carryover", "items": {} },
+    { "name": "Blockers", "key": "blockers", "items": {} }
+  ]
 }

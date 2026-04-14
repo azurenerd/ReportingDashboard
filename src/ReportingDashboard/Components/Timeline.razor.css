@@ -20,7 +20,13 @@
 
 .tl-label {
     font-size: 12px;
+    font-weight: 600;
     line-height: 1.4;
+}
+
+.tl-label-desc {
+    font-weight: 400;
+    color: var(--color-text-secondary);
 }
 
 .tl-svg-box {

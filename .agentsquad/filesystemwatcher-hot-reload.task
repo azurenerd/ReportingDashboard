@@ -1,0 +1,4 @@
+agent: PrincipalEngineer 3
+task: FileSystemWatcher Hot Reload
+complexity: Medium
+status: in-progress

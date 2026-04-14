@@ -1,10 +1,9 @@
-@* Stub component - full implementation in a subsequent PR *@
-<div class="hm-cell @CategoryKey-cell @(IsCurrentMonth ? "current" : "")">
-    @if (Items is not null && Items.Count > 0)
+<div class="@GetCellClass()">
+    @if (Items != null && Items.Count > 0)
     {
         @foreach (var item in Items)
         {
-            <div class="it">@item</div>
+            <div class="it @GetBulletClass()">@item</div>
         }
     }
     else
@@ -14,12 +13,29 @@
 </div>
 
 @code {
-    [Parameter]
-    public List<string> Items { get; set; } = new();
+    [Parameter] public List<string> Items { get; set; } = new();
+    [Parameter] public string CategoryKey { get; set; } = string.Empty;
+    [Parameter] public bool IsCurrentMonth { get; set; }
 
-    [Parameter]
-    public string CategoryKey { get; set; } = string.Empty;
+    private string GetCellClass()
+    {
+        var baseClass = CategoryKey switch
+        {
+            "shipped" => "ship-cell",
+            "inProgress" => "prog-cell",
+            "carryover" => "carry-cell",
+            "blockers" => "block-cell",
+            _ => "cell"
+        };
+        return IsCurrentMonth ? $"{baseClass} current" : baseClass;
+    }
 
-    [Parameter]
-    public bool IsCurrentMonth { get; set; }
+    private string GetBulletClass() => CategoryKey switch
+    {
+        "shipped" => "dot-shipped",
+        "inProgress" => "dot-progress",
+        "carryover" => "dot-carryover",
+        "blockers" => "dot-blockers",
+        _ => ""
+    };
 }
