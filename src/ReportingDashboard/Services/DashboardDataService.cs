@@ -5,7 +5,7 @@ using ReportingDashboard.Models;
 
 namespace ReportingDashboard.Services;
 
-public class DashboardDataService : IDisposable
+public partial class DashboardDataService : IDisposable
 {
     private readonly string _contentRoot;
     private readonly ConcurrentDictionary<string, DashboardData> _cache = new();
@@ -17,7 +17,12 @@ public class DashboardDataService : IDisposable
     private readonly object _debounceTimerLock = new();
     private bool _disposed;
 
-    private static readonly Regex ValidProjectName = new(@"^[a-zA-Z0-9_-]+$", RegexOptions.Compiled);
+    [GeneratedRegex(@"^[a-zA-Z0-9_-]+$")]
+    private static partial Regex ValidProjectNameRegex();
+
+    [GeneratedRegex(@"^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")]
+    private static partial Regex ValidHexColorRegex();
+
     private static readonly string[] ValidMarkerTypes =
         { "checkpoint", "poc", "production", "smallCheckpoint" };
     private static readonly string[] ValidCategoryKeys =
@@ -33,7 +38,11 @@ public class DashboardDataService : IDisposable
     {
         _contentRoot = env.ContentRootPath;
         _logger = logger;
-        _jsonOptions = new JsonSerializerOptions();
+        _jsonOptions = new JsonSerializerOptions
+        {
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        };
     }
 
     /// <summary>
@@ -124,7 +133,7 @@ public class DashboardDataService : IDisposable
         }
         catch (IOException ex)
         {
-            // File may be locked mid-write by the editor — retry once after 100ms
+            // File may be locked mid-write by the editor - retry once after 100ms
             _logger.LogDebug(ex, "IOException on first reload attempt, retrying in 100ms");
             try
             {
@@ -178,7 +187,7 @@ public class DashboardDataService : IDisposable
             }
             catch (DashboardDataException)
             {
-                // Project file not found or invalid — skip (it will be re-validated on GetData)
+                // Project file not found or invalid - skip (it will be re-validated on GetData)
             }
         }
     }
@@ -203,7 +212,7 @@ public class DashboardDataService : IDisposable
         var json = File.ReadAllText(path);
         var data = JsonSerializer.Deserialize<DashboardData>(json, _jsonOptions)
             ?? throw new DashboardDataException($"Failed to deserialize {path}");
-        Validate(data, path);
+        Validate(data, path, _logger);
         return data;
     }
 
@@ -217,7 +226,7 @@ public class DashboardDataService : IDisposable
             return defaultPath;
         }
 
-        if (!ValidProjectName.IsMatch(projectName))
+        if (!ValidProjectNameRegex().IsMatch(projectName))
             throw new DashboardDataException(
                 $"Invalid project name: '{projectName}'. " +
                 "Only alphanumeric characters, hyphens, and underscores are allowed.");
@@ -234,7 +243,7 @@ public class DashboardDataService : IDisposable
             $"Project '{projectName}' not found. Searched: {primary}, {secondary}");
     }
 
-    private void Validate(DashboardData data, string filePath)
+    internal static void Validate(DashboardData data, string filePath, ILogger? logger = null)
     {
         if (string.IsNullOrWhiteSpace(data.Title))
             throw new DashboardDataException($"'title' is required in {filePath}");
@@ -259,7 +268,7 @@ public class DashboardDataService : IDisposable
         foreach (var milestone in data.Milestones)
         {
             if (string.IsNullOrWhiteSpace(milestone.Color) ||
-                !Regex.IsMatch(milestone.Color, @"^#[0-9A-Fa-f]{6}$"))
+                !ValidHexColorRegex().IsMatch(milestone.Color))
             {
                 throw new DashboardDataException(
                     $"Milestone '{milestone.Id}' has invalid color '{milestone.Color}' in {filePath}");
@@ -286,7 +295,7 @@ public class DashboardDataService : IDisposable
             foreach (var itemKey in category.Items.Keys)
             {
                 if (!data.Months.Contains(itemKey))
-                    _logger.LogWarning(
+                    logger?.LogWarning(
                         "Category '{CategoryKey}' has items for month '{Month}' " +
                         "which is not in the months array",
                         category.Key, itemKey);

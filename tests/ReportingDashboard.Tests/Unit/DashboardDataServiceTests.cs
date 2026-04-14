@@ -1,35 +1,16 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using ReportingDashboard.Models;
 using ReportingDashboard.Services;
+using ReportingDashboard.Tests.Helpers;
 
 namespace ReportingDashboard.Tests.Unit;
-
-internal class FakeWebHostEnvironment : IWebHostEnvironment
-{
-    public string ContentRootPath { get; set; } = string.Empty;
-    public string WebRootPath { get; set; } = string.Empty;
-    public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
-    public IFileProvider WebRootFileProvider { get; set; } = new NullFileProvider();
-    public string EnvironmentName { get; set; } = "Testing";
-    public string ApplicationName { get; set; } = "ReportingDashboard";
-}
-
-internal class FakeLogger<T> : ILogger<T>
-{
-    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
-    public bool IsEnabled(LogLevel logLevel) => true;
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) { }
-}
 
 [Trait("Category", "Unit")]
 public class DashboardDataServiceTests : IDisposable
 {
     private readonly string _tempDir;
-    private readonly FakeWebHostEnvironment _env;
-    private readonly FakeLogger<DashboardDataService> _logger;
+    private readonly TestWebHostEnvironment _env;
+    private readonly TestLogger<DashboardDataService> _logger;
 
     private static readonly string ValidJson = """
     {
@@ -66,8 +47,8 @@ public class DashboardDataServiceTests : IDisposable
         _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardTests_{Guid.NewGuid():N}");
         Directory.CreateDirectory(_tempDir);
 
-        _env = new FakeWebHostEnvironment { ContentRootPath = _tempDir };
-        _logger = new FakeLogger<DashboardDataService>();
+        _env = new TestWebHostEnvironment { ContentRootPath = _tempDir };
+        _logger = new TestLogger<DashboardDataService>();
     }
 
     public void Dispose()
