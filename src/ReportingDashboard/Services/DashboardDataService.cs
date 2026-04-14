@@ -12,7 +12,6 @@ public partial class DashboardDataService : IDisposable
     private readonly FileSystemWatcher _watcher;
     private readonly ILogger<DashboardDataService> _logger;
     private Timer? _debounceTimer;
-    private bool _disposed;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -21,18 +20,14 @@ public partial class DashboardDataService : IDisposable
         AllowTrailingCommas = true
     };
 
-    private static readonly HashSet<string> ValidMarkerTypes = new(StringComparer.Ordinal)
-    {
-        "checkpoint", "poc", "production", "smallCheckpoint"
-    };
-
-    private static readonly HashSet<string> ValidCategoryKeys = new(StringComparer.Ordinal)
-    {
-        "shipped", "inProgress", "carryover", "blockers"
-    };
+    private static readonly string[] ValidMarkerTypes = { "checkpoint", "poc", "production", "smallCheckpoint" };
+    private static readonly string[] ValidCategoryKeys = { "shipped", "inProgress", "carryover", "blockers" };
 
     [GeneratedRegex(@"^[a-zA-Z0-9_-]+$")]
     private static partial Regex ValidProjectNameRegex();
+
+    [GeneratedRegex(@"^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")]
+    private static partial Regex HexColorRegex();
 
     public event Action? OnDataChanged;
 
@@ -41,39 +36,38 @@ public partial class DashboardDataService : IDisposable
         _contentRoot = env.ContentRootPath;
         _logger = logger;
 
-        _watcher = new FileSystemWatcher(_contentRoot, "data*.json")
+        _watcher = new FileSystemWatcher(_contentRoot)
         {
-            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
-            EnableRaisingEvents = true
+            Filter = "*.json",
+            IncludeSubdirectories = true,
+            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
+            EnableRaisingEvents = false
         };
-
         _watcher.Changed += OnFileChanged;
         _watcher.Renamed += OnFileChanged;
-        _watcher.Created += OnFileChanged;
     }
 
     /// <summary>
-    /// Validates that the default data.json is loadable at startup.
+    /// Attempts to load and validate the default data.json at startup.
+    /// If the file does not exist, logs a warning and continues without throwing.
+    /// The FileSystemWatcher is always started so hot-reload works once data.json appears.
     /// </summary>
     public void Initialize()
     {
         var defaultPath = Path.Combine(_contentRoot, "data.json");
-        if (!File.Exists(defaultPath))
-        {
-            _logger.LogWarning("Default data.json not found at {Path}. Dashboard will show an error until a data file is provided.", defaultPath);
-            return;
-        }
-
-        try
+        if (File.Exists(defaultPath))
         {
             var data = LoadAndValidate(string.Empty);
             _cache[string.Empty] = data;
-            _logger.LogInformation("Successfully loaded default data.json: \"{Title}\"", data.Title);
+            _logger.LogInformation("Dashboard data loaded from {Path}", defaultPath);
         }
-        catch (DashboardDataException ex)
+        else
         {
-            _logger.LogError("Failed to load default data.json: {Message}", ex.Message);
+            _logger.LogWarning("Default data.json not found at {Path}. Dashboard will show an error until the file is created.", defaultPath);
         }
+
+        _watcher.EnableRaisingEvents = true;
+        _logger.LogInformation("FileSystemWatcher started on {Path}", _contentRoot);
     }
 
     public DashboardData GetData(string? projectName = null)
@@ -85,8 +79,8 @@ public partial class DashboardDataService : IDisposable
     private DashboardData LoadAndValidate(string projectName)
     {
         var path = ResolveFilePath(projectName);
-        string json;
 
+        string json;
         try
         {
             json = File.ReadAllText(path);
@@ -97,14 +91,14 @@ public partial class DashboardDataService : IDisposable
         }
         catch (IOException ex)
         {
-            throw new DashboardDataException($"Failed to read dashboard data file: {path} - {ex.Message}", ex);
+            throw new DashboardDataException($"Failed to read dashboard data file: {path}", ex);
         }
 
         DashboardData data;
         try
         {
             data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions)
-                ?? throw new DashboardDataException($"Failed to deserialize {path}: file is empty or contains 'null'");
+                ?? throw new DashboardDataException($"Failed to deserialize {path}: result was null");
         }
         catch (JsonException ex)
         {
@@ -133,63 +127,43 @@ public partial class DashboardDataService : IDisposable
             $"Project '{projectName}' not found. Searched: {primary}, {secondary}");
     }
 
-    private void Validate(DashboardData data, string filePath)
+    internal static void Validate(DashboardData data, string filepath)
     {
         if (string.IsNullOrWhiteSpace(data.Title))
-            throw new DashboardDataException($"'title' is required in {filePath}");
+            throw new DashboardDataException($"'title' is required in {filepath}");
 
         if (data.Months == null || data.Months.Count < 1 || data.Months.Count > 12)
-            throw new DashboardDataException($"'months' must contain 1-12 entries in {filePath}");
+            throw new DashboardDataException($"'months' must contain 1-12 entries in {filepath}");
 
         if (data.CurrentMonthIndex < 0 || data.CurrentMonthIndex >= data.Months.Count)
             throw new DashboardDataException(
-                $"'currentMonthIndex' ({data.CurrentMonthIndex}) is out of range for {data.Months.Count} months in {filePath}");
+                $"'currentMonthIndex' ({data.CurrentMonthIndex}) is out of range for {data.Months.Count} months in {filepath}");
 
         if (data.TimelineStart >= data.TimelineEnd)
-            throw new DashboardDataException($"'timelineStart' must be before 'timelineEnd' in {filePath}");
+            throw new DashboardDataException($"'timelineStart' must be before 'timelineEnd' in {filepath}");
 
         if (data.Milestones == null || data.Milestones.Count < 1 || data.Milestones.Count > 5)
-            throw new DashboardDataException($"'milestones' must contain 1-5 entries in {filePath}");
+            throw new DashboardDataException($"'milestones' must contain 1-5 entries in {filepath}");
 
         foreach (var milestone in data.Milestones)
         {
-            if (string.IsNullOrWhiteSpace(milestone.Id))
-                throw new DashboardDataException($"Milestone is missing 'id' in {filePath}");
+            if (!string.IsNullOrEmpty(milestone.Color) && !HexColorRegex().IsMatch(milestone.Color))
+                throw new DashboardDataException($"Milestone '{milestone.Id}' has invalid color '{milestone.Color}' in {filepath}");
 
-            if (string.IsNullOrWhiteSpace(milestone.Color) || !milestone.Color.StartsWith('#'))
-                throw new DashboardDataException($"Milestone '{milestone.Id}' has invalid color '{milestone.Color}' in {filePath}");
-
-            if (milestone.Markers != null)
+            foreach (var marker in milestone.Markers)
             {
-                foreach (var marker in milestone.Markers)
-                {
-                    if (!ValidMarkerTypes.Contains(marker.Type))
-                        throw new DashboardDataException(
-                            $"Marker type '{marker.Type}' is not recognized in milestone '{milestone.Id}'. Valid types: {string.Join(", ", ValidMarkerTypes)}");
-                }
+                if (!ValidMarkerTypes.Contains(marker.Type))
+                    throw new DashboardDataException($"Marker type '{marker.Type}' is not recognized in milestone '{milestone.Id}' in {filepath}");
             }
         }
 
         if (data.Categories == null || data.Categories.Count != 4)
-            throw new DashboardDataException($"'categories' must contain exactly 4 entries in {filePath}");
+            throw new DashboardDataException($"'categories' must contain exactly 4 entries in {filepath}");
 
         foreach (var category in data.Categories)
         {
             if (!ValidCategoryKeys.Contains(category.Key))
-                throw new DashboardDataException(
-                    $"Category key '{category.Key}' is not recognized. Valid keys: {string.Join(", ", ValidCategoryKeys)}");
-
-            if (category.Items != null)
-            {
-                foreach (var kvp in category.Items)
-                {
-                    if (!data.Months.Contains(kvp.Key))
-                        _logger.LogWarning("Category '{Key}' has items for month '{Month}' which is not in the months array", category.Key, kvp.Key);
-
-                    if (kvp.Value.Count > 8)
-                        _logger.LogWarning("Warning: {Category}/{Month} has {Count} items; cells support up to 8 without overflow", category.Key, kvp.Key, kvp.Value.Count);
-                }
-            }
+                throw new DashboardDataException($"Category key '{category.Key}' is not recognized in {filepath}");
         }
     }
 
@@ -198,7 +172,7 @@ public partial class DashboardDataService : IDisposable
         _debounceTimer?.Dispose();
         _debounceTimer = new Timer(_ =>
         {
-            _logger.LogInformation("Detected change in {FileName}, reloading data...", e.Name);
+            _logger.LogInformation("Data file changed: {Name}. Clearing cache.", e.Name);
             _cache.Clear();
             try
             {
@@ -213,9 +187,6 @@ public partial class DashboardDataService : IDisposable
 
     public void Dispose()
     {
-        if (_disposed) return;
-        _disposed = true;
-        _watcher.EnableRaisingEvents = false;
         _watcher.Dispose();
         _debounceTimer?.Dispose();
     }

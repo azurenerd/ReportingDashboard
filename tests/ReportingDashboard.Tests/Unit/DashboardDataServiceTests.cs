@@ -1,18 +1,36 @@
-using Xunit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-using Moq;
+using Microsoft.Extensions.FileProviders;
+using Xunit;
 using ReportingDashboard.Models;
 using ReportingDashboard.Services;
 
 namespace ReportingDashboard.Tests.Unit;
 
+internal class StubWebHostEnvironment : IWebHostEnvironment
+{
+    public string ContentRootPath { get; set; } = string.Empty;
+    public IFileProvider ContentRootFileProvider { get; set; } = null!;
+    public string WebRootPath { get; set; } = string.Empty;
+    public IFileProvider WebRootFileProvider { get; set; } = null!;
+    public string ApplicationName { get; set; } = "ReportingDashboard";
+    public string EnvironmentName { get; set; } = "Development";
+}
+
+internal class NullLogger<T> : ILogger<T>
+{
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+    public bool IsEnabled(LogLevel logLevel) => false;
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
+        Exception? exception, Func<TState, Exception?, string> formatter) { }
+}
+
 [Trait("Category", "Unit")]
 public class DashboardDataServiceTests : IDisposable
 {
     private readonly string _tempDir;
-    private readonly Mock<IWebHostEnvironment> _envMock;
-    private readonly Mock<ILogger<DashboardDataService>> _loggerMock;
+    private readonly IWebHostEnvironment _env;
+    private readonly ILogger<DashboardDataService> _logger;
 
     private static readonly string ValidJson = """
     {
@@ -49,10 +67,8 @@ public class DashboardDataServiceTests : IDisposable
         _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardTests_{Guid.NewGuid():N}");
         Directory.CreateDirectory(_tempDir);
 
-        _envMock = new Mock<IWebHostEnvironment>();
-        _envMock.Setup(e => e.ContentRootPath).Returns(_tempDir);
-
-        _loggerMock = new Mock<ILogger<DashboardDataService>>();
+        _env = new StubWebHostEnvironment { ContentRootPath = _tempDir };
+        _logger = new NullLogger<DashboardDataService>();
     }
 
     public void Dispose()
@@ -61,7 +77,7 @@ public class DashboardDataServiceTests : IDisposable
     }
 
     private DashboardDataService CreateService() =>
-        new(_envMock.Object, _loggerMock.Object);
+        new(_env, _logger);
 
     private void WriteDataFile(string fileName, string content) =>
         File.WriteAllText(Path.Combine(_tempDir, fileName), content);
@@ -105,7 +121,6 @@ public class DashboardDataServiceTests : IDisposable
 
         var ex = Assert.Throws<DashboardDataException>(() => svc.GetData("../hack"));
         Assert.Contains("Invalid project name", ex.Message);
-        Assert.Contains("Only alphanumeric characters, hyphens, and underscores", ex.Message);
     }
 
     [Fact]

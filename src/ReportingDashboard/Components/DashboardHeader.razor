@@ -2,34 +2,31 @@
     <div class="hdr-left">
         <h1>
             @Data.Title
-            @if (!string.IsNullOrEmpty(Data.BacklogUrl))
-            {
-                <a href="@Data.BacklogUrl" target="_blank" class="backlog-link">📋 ADO Backlog</a>
-            }
+            <a href="@Data.BacklogUrl" target="_blank" rel="noopener noreferrer">📋 ADO Backlog</a>
         </h1>
         <div class="sub">@Data.Subtitle</div>
     </div>
     <div class="legend">
-        <span class="legend-item">
-            <span class="legend-diamond poc-diamond"></span>
+        <span class="leg-item">
+            <span class="diamond poc"></span>
             PoC Milestone
         </span>
-        <span class="legend-item">
-            <span class="legend-diamond prod-diamond"></span>
+        <span class="leg-item">
+            <span class="diamond prod"></span>
             Production Release
         </span>
-        <span class="legend-item">
-            <span class="legend-circle"></span>
+        <span class="leg-item">
+            <span class="dot chk"></span>
             Checkpoint
         </span>
-        <span class="legend-item">
-            <span class="legend-now-bar"></span>
-            Now line
+        <span class="leg-item">
+            <span class="bar now"></span>
+            Now
         </span>
     </div>
 </header>
 
 @code {
     [Parameter]
-    public required DashboardData Data { get; set; }
+    public DashboardData Data { get; set; } = default!;
 }

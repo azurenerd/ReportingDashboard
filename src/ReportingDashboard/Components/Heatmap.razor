@@ -1,47 +1,36 @@
+@* Stub component - full implementation in a subsequent PR *@
 <div class="hm-wrap">
     <div class="hm-title">MONTHLY EXECUTION HEATMAP – SHIPPED · IN PROGRESS · CARRYOVER · BLOCKERS</div>
     <div class="hm-grid" style="grid-template-columns: 160px repeat(@Months.Count, 1fr);">
-        @* Corner cell *@
         <div class="hm-corner">STATUS</div>
-
-        @* Column headers *@
-        @for (int i = 0; i < Months.Count; i++)
+        @for (var i = 0; i < Months.Count; i++)
         {
-            var isCurrentMonth = i == CurrentMonthIndex;
-            <div class="hm-col-hdr @(isCurrentMonth ? "current-month-hdr" : "")">
-                @Months[i]@(isCurrentMonth ? " ▸ Now" : "")
+            var isCurrent = i == CurrentMonthIndex;
+            <div class="hm-col-hdr @(isCurrent ? "current" : "")">
+                @Months[i]@(isCurrent ? " ▸ Now" : "")
             </div>
         }
-
-        @* Category rows *@
         @foreach (var category in Categories)
         {
-            <div class="hm-row-hdr @GetRowHeaderClass(category.Key)">@category.Name</div>
-
-            @for (int i = 0; i < Months.Count; i++)
+            <div class="hm-row-hdr @(category.Key)-hdr">@category.Name.ToUpperInvariant()</div>
+            @for (var i = 0; i < Months.Count; i++)
             {
                 var month = Months[i];
-                var isCurrentMonth = i == CurrentMonthIndex;
+                var isCurrent = i == CurrentMonthIndex;
                 var items = category.Items.TryGetValue(month, out var list) ? list : new List<string>();
-                <HeatmapCell Items="@items"
-                             CategoryKey="@category.Key"
-                             IsCurrentMonth="@isCurrentMonth" />
+                <HeatmapCell Items="@items" CategoryKey="@category.Key" IsCurrentMonth="@isCurrent" />
             }
         }
     </div>
 </div>
 
 @code {
-    [Parameter] public required List<HeatmapCategory> Categories { get; set; }
-    [Parameter] public required List<string> Months { get; set; }
-    [Parameter] public int CurrentMonthIndex { get; set; }
+    [Parameter]
+    public List<HeatmapCategory> Categories { get; set; } = new();
 
-    private static string GetRowHeaderClass(string key) => key switch
-    {
-        "shipped" => "ship-hdr",
-        "inProgress" => "prog-hdr",
-        "carryover" => "carry-hdr",
-        "blockers" => "block-hdr",
-        _ => ""
-    };
+    [Parameter]
+    public List<string> Months { get; set; } = new();
+
+    [Parameter]
+    public int CurrentMonthIndex { get; set; }
 }

@@ -1,22 +1,18 @@
-.ship-cell,
-.prog-cell,
-.carry-cell,
-.block-cell,
-.cell {
+.hm-cell {
     padding: 8px 12px;
     border-right: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
     overflow: hidden;
 }
 
-.ship-cell { background: var(--color-shipped-bg); }
-.ship-cell.current { background: var(--color-shipped-bg-current); }
-.prog-cell { background: var(--color-progress-bg); }
-.prog-cell.current { background: var(--color-progress-bg-current); }
-.carry-cell { background: var(--color-carryover-bg); }
-.carry-cell.current { background: var(--color-carryover-bg-current); }
-.block-cell { background: var(--color-blockers-bg); }
-.block-cell.current { background: var(--color-blockers-bg-current); }
+.shipped-cell { background: var(--color-shipped-bg); }
+.shipped-cell.current { background: var(--color-shipped-bg-current); }
+.inProgress-cell { background: var(--color-progress-bg); }
+.inProgress-cell.current { background: var(--color-progress-bg-current); }
+.carryover-cell { background: var(--color-carryover-bg); }
+.carryover-cell.current { background: var(--color-carryover-bg-current); }
+.blockers-cell { background: var(--color-blockers-bg); }
+.blockers-cell.current { background: var(--color-blockers-bg-current); }
 
 .it {
     font-size: 12px;
@@ -36,10 +32,10 @@
     border-radius: 50%;
 }
 
-.bullet-shipped::before { background: var(--color-shipped); }
-.bullet-progress::before { background: var(--color-progress); }
-.bullet-carryover::before { background: var(--color-carryover); }
-.bullet-blockers::before { background: var(--color-blockers); }
+.shipped-cell .it::before { background: var(--color-shipped); }
+.inProgress-cell .it::before { background: var(--color-progress); }
+.carryover-cell .it::before { background: var(--color-carryover); }
+.blockers-cell .it::before { background: var(--color-blockers); }
 
 .empty {
     color: #AAA;
