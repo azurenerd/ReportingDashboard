@@ -48,7 +48,7 @@
     box-sizing: border-box;
 }
 
-html, body {
+body {
     width: 1920px;
     height: 1080px;
     overflow: hidden;

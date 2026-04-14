@@ -9,7 +9,7 @@
         <div class="error-icon">⚠</div>
         <h2>Dashboard Error</h2>
         <p>@_error</p>
-        <p class="error-hint">Check your data.json file and reload the page.</p>
+        <p class="error-hint">Check your data.json file and try again.</p>
     </div>
 }
 else if (_data is not null)
@@ -18,24 +18,26 @@ else if (_data is not null)
     <Timeline Milestones="@_data.Milestones"
               TimelineStart="@_data.TimelineStart"
               TimelineEnd="@_data.TimelineEnd"
-              CurrentDate="@_data.CurrentDate" />
+              CurrentDate="@_data.CurrentDate"
+              Months="@_data.Months" />
     <Heatmap Categories="@_data.Categories"
              Months="@_data.Months"
              CurrentMonthIndex="@_data.CurrentMonthIndex" />
 }
 
 @code {
-    [SupplyParameterFromQuery]
-    public string? Project { get; set; }
-
     private DashboardData? _data;
     private string? _error;
 
     protected override void OnInitialized()
     {
+        var uri = new Uri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        var project = query["project"];
+
         try
         {
-            _data = DataService.GetData(Project);
+            _data = DataService.GetData(project);
             DataService.OnDataChanged += HandleDataChanged;
         }
         catch (DashboardDataException ex)
@@ -48,15 +50,23 @@ else if (_data is not null)
     {
         try
         {
-            _data = DataService.GetData(Project);
+            var uri = new Uri(Navigation.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var project = query["project"];
+            _data = DataService.GetData(project);
             _error = null;
+            await InvokeAsync(StateHasChanged);
         }
         catch (DashboardDataException ex)
         {
             _error = ex.Message;
             _data = null;
+            await InvokeAsync(StateHasChanged);
         }
-        await InvokeAsync(StateHasChanged);
+        catch (Exception)
+        {
+            // Retain current display state on unexpected errors
+        }
     }
 
     public void Dispose()

@@ -1,36 +1,16 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.FileProviders;
 using Xunit;
 using ReportingDashboard.Models;
 using ReportingDashboard.Services;
+using ReportingDashboard.Tests.Helpers;
 
 namespace ReportingDashboard.Tests.Unit;
-
-internal class StubWebHostEnvironment : IWebHostEnvironment
-{
-    public string ContentRootPath { get; set; } = string.Empty;
-    public IFileProvider ContentRootFileProvider { get; set; } = null!;
-    public string WebRootPath { get; set; } = string.Empty;
-    public IFileProvider WebRootFileProvider { get; set; } = null!;
-    public string ApplicationName { get; set; } = "ReportingDashboard";
-    public string EnvironmentName { get; set; } = "Development";
-}
-
-internal class NullLogger<T> : ILogger<T>
-{
-    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
-    public bool IsEnabled(LogLevel logLevel) => false;
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
-        Exception? exception, Func<TState, Exception?, string> formatter) { }
-}
 
 [Trait("Category", "Unit")]
 public class DashboardDataServiceTests : IDisposable
 {
     private readonly string _tempDir;
-    private readonly IWebHostEnvironment _env;
-    private readonly ILogger<DashboardDataService> _logger;
+    private readonly TestWebHostEnvironment _env;
+    private readonly TestLogger<DashboardDataService> _logger;
 
     private static readonly string ValidJson = """
     {
@@ -67,8 +47,8 @@ public class DashboardDataServiceTests : IDisposable
         _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardTests_{Guid.NewGuid():N}");
         Directory.CreateDirectory(_tempDir);
 
-        _env = new StubWebHostEnvironment { ContentRootPath = _tempDir };
-        _logger = new NullLogger<DashboardDataService>();
+        _env = new TestWebHostEnvironment { ContentRootPath = _tempDir };
+        _logger = new TestLogger<DashboardDataService>();
     }
 
     public void Dispose()
@@ -121,6 +101,7 @@ public class DashboardDataServiceTests : IDisposable
 
         var ex = Assert.Throws<DashboardDataException>(() => svc.GetData("../hack"));
         Assert.Contains("Invalid project name", ex.Message);
+        Assert.Contains("Only alphanumeric characters, hyphens, and underscores", ex.Message);
     }
 
     [Fact]
