@@ -1,55 +1,38 @@
+@namespace ReportingDashboard.Components
 @using ReportingDashboard.Models
 
 <div class="hm-wrap">
-    <div class="hm-title">Monthly Execution Heatmap - Shipped · In Progress · Carryover · Blockers</div>
-    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Data.Months.Count, 1fr); grid-template-rows: 36px repeat(4, 1fr);">
-
-        @* === Header Row === *@
+    <div class="hm-title">MONTHLY EXECUTION HEATMAP — SHIPPED · IN PROGRESS · CARRYOVER · BLOCKERS</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Data.Months.Count, 1fr);">
+        @* Header row *@
         <div class="hm-corner">STATUS</div>
-        @for (var i = 0; i < Data.Months.Count; i++)
+        @foreach (var month in Data.Months)
         {
-            var month = Data.Months[i];
-            var isCurrentMonth = string.Equals(month, _currentMonthAbbrev, StringComparison.OrdinalIgnoreCase);
-            var isLast = i == Data.Months.Count - 1;
-            var hdrClass = "hm-col-hdr" + (isCurrentMonth ? " apr-hdr" : "");
-            var borderStyle = isLast ? "border-right:none;" : "";
-
-            <div class="@hdrClass" style="@borderStyle">
-                @if (isCurrentMonth)
-                {
-                    @month<span>&nbsp;☀ Now</span>
-                }
-                else
-                {
-                    @month
-                }
+            var isCurrent = IsCurrentMonth(month);
+            <div class="hm-col-hdr @(isCurrent ? "apr-hdr" : "")">
+                @month@(isCurrent ? " ★ Now" : "")
             </div>
         }
 
-        @* === Status Rows (Shipped, In Progress, Carryover, Blockers) === *@
+        @* Status rows *@
         @foreach (var row in _rows)
         {
-            <div class="hm-row-hdr @row.HdrClass">@row.Label</div>
-            @for (var i = 0; i < Data.Months.Count; i++)
+            <div class="hm-row-hdr @row.HdrClass">@row.Prefix @row.Title</div>
+            @foreach (var month in Data.Months)
             {
-                var month = Data.Months[i];
-                var isCurrentMonth = string.Equals(month, _currentMonthAbbrev, StringComparison.OrdinalIgnoreCase);
-                var isLast = i == Data.Months.Count - 1;
-                var cellClass = "hm-cell " + row.CellClass + (isCurrentMonth ? " apr" : "");
-                var borderStyle = isLast ? "border-right:none;" : "";
-                var items = GetItems(row.GetItems(Data.StatusRows), month);
-
-                <div class="@cellClass" style="@borderStyle">
-                    @if (items.Count == 0)
-                    {
-                        <span class="empty-cell">-</span>
-                    }
-                    else
+                var items = GetItems(row.Key, month);
+                var isCurrent = IsCurrentMonth(month);
+                <div class="hm-cell @row.CellClass @(isCurrent ? "apr" : "")">
+                    @if (items is not null && items.Count > 0)
                     {
                         @foreach (var item in items)
                         {
                             <div class="it">@item</div>
                         }
+                    }
+                    else
+                    {
+                        <span style="color:#AAA;">-</span>
                     }
                 </div>
             }
@@ -58,55 +41,47 @@
 </div>
 
 @code {
-    [Parameter]
-    public DashboardData Data { get; set; } = default!;
+    [Parameter] public DashboardData Data { get; set; } = default!;
 
-    private string _currentMonthAbbrev = string.Empty;
+    private record RowConfig(string Key, string Prefix, string Title, string HdrClass, string CellClass);
 
-    private record StatusRowConfig(
-        string Label,
-        string HdrClass,
-        string CellClass,
-        Func<StatusRowsModel, Dictionary<string, List<string>>?> GetItems);
-
-    private static readonly StatusRowConfig[] _rows =
+    private static readonly RowConfig[] _rows = new[]
     {
-        new("✅ SHIPPED",      "ship-hdr",  "ship-cell",  sr => sr.Shipped),
-        new("🔄 IN PROGRESS",  "prog-hdr",  "prog-cell",  sr => sr.InProgress),
-        new("⚠️ CARRYOVER",    "carry-hdr", "carry-cell", sr => sr.Carryover),
-        new("🚫 BLOCKERS",     "block-hdr", "block-cell", sr => sr.Blockers),
+        new RowConfig("shipped",    "✅", "SHIPPED",     "ship-hdr",  "ship-cell"),
+        new RowConfig("inProgress", "🔄", "IN PROGRESS", "prog-hdr",  "prog-cell"),
+        new RowConfig("carryover",  "📦", "CARRYOVER",   "carry-hdr", "carry-cell"),
+        new RowConfig("blockers",   "🚫", "BLOCKERS",    "block-hdr", "block-cell"),
     };
 
-    private static readonly string[] MonthAbbreviations =
-    {
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    };
+    private string? _currentMonthAbbrev;
 
     protected override void OnParametersSet()
     {
-        _currentMonthAbbrev = string.Empty;
-
-        if (!string.IsNullOrEmpty(Data.CurrentDate) &&
-            DateOnly.TryParse(Data.CurrentDate, out var parsedDate))
+        _currentMonthAbbrev = null;
+        if (!string.IsNullOrEmpty(Data.CurrentDate) && DateOnly.TryParse(Data.CurrentDate, out var cd))
         {
-            var abbrev = MonthAbbreviations[parsedDate.Month - 1];
-
-            if (Data.Months.Contains(abbrev, StringComparer.OrdinalIgnoreCase))
-            {
-                _currentMonthAbbrev = abbrev;
-            }
+            _currentMonthAbbrev = cd.ToString("MMM", System.Globalization.CultureInfo.InvariantCulture);
         }
     }
 
-    private static List<string> GetItems(Dictionary<string, List<string>>? dict, string month)
+    private bool IsCurrentMonth(string month)
     {
-        if (dict is null)
-            return new List<string>();
+        return string.Equals(month, _currentMonthAbbrev, StringComparison.OrdinalIgnoreCase);
+    }
 
-        if (dict.TryGetValue(month, out var items) && items is { Count: > 0 })
+    private List<string>? GetItems(string key, string month)
+    {
+        if (Data.StatusRows is null) return null;
+        var dict = key switch
+        {
+            "shipped" => Data.StatusRows.Shipped,
+            "inProgress" => Data.StatusRows.InProgress,
+            "carryover" => Data.StatusRows.Carryover,
+            "blockers" => Data.StatusRows.Blockers,
+            _ => null
+        };
+        if (dict is not null && dict.TryGetValue(month, out var items))
             return items;
-
-        return new List<string>();
+        return null;
     }
 }

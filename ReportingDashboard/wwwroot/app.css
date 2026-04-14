@@ -1,10 +1,4 @@
-/* ===================================================================
-   Executive Reporting Dashboard - Global Styles
-   Ported from OriginalDesignConcept.html
-   =================================================================== */
-
 :root {
-    /* Status colors */
     --shipped-color: #34A853;
     --shipped-bg: #F0FBF0;
     --shipped-bg-current: #D8F2DA;
@@ -29,37 +23,35 @@
     --blockers-hdr-bg: #FEF2F2;
     --blockers-hdr-text: #991B1B;
 
-    /* Milestone markers */
     --poc-color: #F4B400;
     --production-color: #34A853;
     --checkpoint-color: #999;
     --now-color: #EA4335;
 
-    /* Layout */
     --current-month-hdr-bg: #FFF0D0;
     --current-month-hdr-text: #C07700;
     --border-color: #E0E0E0;
     --border-heavy: #CCC;
 }
 
-/* ---- Base / Body ---- */
-html, body {
+*, *::before, *::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    color: #111;
-    background: #FFFFFF;
+}
+
+html, body {
     width: 1920px;
     height: 1080px;
     overflow: hidden;
-}
-
-body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #111;
+    background: #FFFFFF;
     display: flex;
     flex-direction: column;
 }
 
-/* ---- Header ---- */
+/* Header */
 .hdr {
     display: flex;
     align-items: center;
@@ -69,20 +61,22 @@ body {
     flex-shrink: 0;
 }
 
-.hdr h1 {
+.hdr-title {
     font-size: 24px;
     font-weight: 700;
     margin: 0;
+    line-height: 1.2;
 }
 
-.hdr h1 a {
+.hdr-link {
+    font-size: 14px;
+    font-weight: 400;
     color: #0078D4;
     text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
+    margin-left: 12px;
 }
 
-.hdr h1 a:hover {
+.hdr-link:hover {
     text-decoration: underline;
 }
 
@@ -94,15 +88,16 @@ body {
 
 .legend {
     display: flex;
-    gap: 22px;
     align-items: center;
-    font-size: 12px;
+    gap: 22px;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
     gap: 6px;
+    font-size: 12px;
+    color: #555;
 }
 
 .legend-diamond {
@@ -116,24 +111,26 @@ body {
     width: 8px;
     height: 8px;
     border-radius: 50%;
+    background: #999;
     flex-shrink: 0;
 }
 
-.legend-bar {
+.legend-now-bar {
     width: 2px;
     height: 14px;
+    background: #EA4335;
     flex-shrink: 0;
 }
 
-/* ---- Timeline Area ---- */
+/* Timeline */
 .tl-area {
     display: flex;
     align-items: stretch;
-    padding: 6px 44px 0;
     height: 196px;
     flex-shrink: 0;
-    border-bottom: 2px solid #E8E8E8;
     background: #FAFAFA;
+    border-bottom: 2px solid #E8E8E8;
+    padding: 6px 44px 0;
 }
 
 .tl-sidebar {
@@ -148,13 +145,9 @@ body {
 
 .tl-track-label {
     font-size: 12px;
-    font-weight: 600;
     line-height: 1.4;
-}
-
-.tl-track-name {
-    font-weight: 400;
-    color: #444;
+    display: flex;
+    flex-direction: column;
 }
 
 .tl-svg-box {
@@ -163,27 +156,7 @@ body {
     padding-top: 6px;
 }
 
-/* ---- Error display ---- */
-.error-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 1920px;
-    height: 1080px;
-    font-family: 'Segoe UI', Arial, sans-serif;
-}
-
-.error-display > div {
-    text-align: center;
-    color: #991B1B;
-    max-width: 800px;
-}
-
-/* ===================================================================
-   Heatmap Grid Styles
-   =================================================================== */
-
-/* Outer wrapper — fills remaining vertical space below the timeline */
+/* Heatmap */
 .hm-wrap {
     flex: 1;
     min-height: 0;
@@ -192,25 +165,23 @@ body {
     padding: 10px 44px 10px;
 }
 
-/* Section title */
 .hm-title {
     font-size: 14px;
     font-weight: 700;
     color: #888;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
+    text-transform: uppercase;
     margin-bottom: 8px;
 }
 
-/* CSS Grid container */
 .hm-grid {
     display: grid;
+    grid-template-rows: 36px repeat(4, 1fr);
     border: 1px solid var(--border-color);
     flex: 1;
     min-height: 0;
 }
 
-/* Corner cell ("STATUS") */
 .hm-corner {
     background: #F5F5F5;
     font-size: 11px;
@@ -224,7 +195,6 @@ body {
     border-bottom: 2px solid var(--border-heavy);
 }
 
-/* Month column headers */
 .hm-col-hdr {
     background: #F5F5F5;
     font-size: 16px;
@@ -236,47 +206,30 @@ body {
     border-bottom: 2px solid var(--border-heavy);
 }
 
-/* Current month header highlight */
-.hm-col-hdr.apr-hdr {
-    background: var(--current-month-hdr-bg);
+.apr-hdr {
+    background: var(--current-month-hdr-bg) !important;
     color: var(--current-month-hdr-text);
 }
 
-/* ---- Row headers (shared base) ---- */
+/* Row headers */
 .hm-row-hdr {
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.7px;
-    padding: 0 12px;
     display: flex;
     align-items: center;
+    padding: 0 12px;
     border-right: 2px solid var(--border-heavy);
     border-bottom: 1px solid var(--border-color);
 }
 
-/* Row-specific header colors */
-.hm-row-hdr.ship-hdr {
-    background: var(--shipped-hdr-bg);
-    color: var(--shipped-hdr-text);
-}
+.ship-hdr { background: var(--shipped-hdr-bg); color: var(--shipped-hdr-text); }
+.prog-hdr { background: var(--progress-hdr-bg); color: var(--progress-hdr-text); }
+.carry-hdr { background: var(--carryover-hdr-bg); color: var(--carryover-hdr-text); }
+.block-hdr { background: var(--blockers-hdr-bg); color: var(--blockers-hdr-text); }
 
-.hm-row-hdr.prog-hdr {
-    background: var(--progress-hdr-bg);
-    color: var(--progress-hdr-text);
-}
-
-.hm-row-hdr.carry-hdr {
-    background: var(--carryover-hdr-bg);
-    color: var(--carryover-hdr-text);
-}
-
-.hm-row-hdr.block-hdr {
-    background: var(--blockers-hdr-bg);
-    color: var(--blockers-hdr-text);
-}
-
-/* ---- Data cells (shared base) ---- */
+/* Data cells */
 .hm-cell {
     padding: 8px 12px;
     border-right: 1px solid var(--border-color);
@@ -284,41 +237,17 @@ body {
     overflow: hidden;
 }
 
-/* Row-specific cell backgrounds */
-.hm-cell.ship-cell {
-    background: var(--shipped-bg);
-}
+.ship-cell { background: var(--shipped-bg); }
+.prog-cell { background: var(--progress-bg); }
+.carry-cell { background: var(--carryover-bg); }
+.block-cell { background: var(--blockers-bg); }
 
-.hm-cell.prog-cell {
-    background: var(--progress-bg);
-}
+.ship-cell.apr { background: var(--shipped-bg-current); }
+.prog-cell.apr { background: var(--progress-bg-current); }
+.carry-cell.apr { background: var(--carryover-bg-current); }
+.block-cell.apr { background: var(--blockers-bg-current); }
 
-.hm-cell.carry-cell {
-    background: var(--carryover-bg);
-}
-
-.hm-cell.block-cell {
-    background: var(--blockers-bg);
-}
-
-/* Current-month cell highlights (darker tint) */
-.hm-cell.ship-cell.apr {
-    background: var(--shipped-bg-current);
-}
-
-.hm-cell.prog-cell.apr {
-    background: var(--progress-bg-current);
-}
-
-.hm-cell.carry-cell.apr {
-    background: var(--carryover-bg-current);
-}
-
-.hm-cell.block-cell.apr {
-    background: var(--blockers-bg-current);
-}
-
-/* ---- Item text with bullet ---- */
+/* Items */
 .it {
     font-size: 12px;
     color: #333;
@@ -337,24 +266,17 @@ body {
     border-radius: 50%;
 }
 
-/* Row-specific bullet colors */
-.ship-cell .it::before {
-    background: var(--shipped-color);
-}
+.ship-cell .it::before { background: var(--shipped-color); }
+.prog-cell .it::before { background: var(--progress-color); }
+.carry-cell .it::before { background: var(--carryover-color); }
+.block-cell .it::before { background: var(--blockers-color); }
 
-.prog-cell .it::before {
-    background: var(--progress-color);
-}
-
-.carry-cell .it::before {
-    background: var(--carryover-color);
-}
-
-.block-cell .it::before {
-    background: var(--blockers-color);
-}
-
-/* Empty cell dash */
-.empty-cell {
-    color: #AAA;
+/* Error display */
+.error-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1920px;
+    height: 1080px;
+    font-family: 'Segoe UI', Arial, sans-serif;
 }

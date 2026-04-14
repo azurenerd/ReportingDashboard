@@ -1,0 +1,4 @@
+agent: PrincipalEngineer
+task: Build milestone timeline SVG component
+complexity: High
+status: in-progress
