@@ -1,14 +1,15 @@
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Hosting;
 
 namespace ReportingDashboard.Tests.Integration;
 
 public class WebAppFixture : IDisposable
 {
-    private readonly List<string> _tempDirs = new();
-
     public WebApplicationFactory<Program> Factory { get; }
     public HttpClient Client { get; }
+
+    private readonly List<IDisposable> _disposables = new();
+    private readonly List<string> _tempDirs = new();
 
     public WebAppFixture()
     {
@@ -18,94 +19,68 @@ public class WebAppFixture : IDisposable
 
     public HttpClient CreateClientWithValidData()
     {
-        var tempDir = CreateTempWebRoot();
-        var wwwroot = Path.Combine(tempDir, "wwwroot");
-        Directory.CreateDirectory(wwwroot);
-        var cssDir = Path.Combine(wwwroot, "css");
-        Directory.CreateDirectory(cssDir);
-        File.WriteAllText(Path.Combine(cssDir, "dashboard.css"), "/* test css */");
-        File.WriteAllText(Path.Combine(wwwroot, "data.json"), """
-        {
-            "title": "Test Project",
-            "subtitle": "Team A · Stream B · April 2026",
-            "backlogLink": "https://dev.azure.com/test",
-            "currentMonth": "Apr",
-            "months": ["Jan", "Feb", "Mar", "Apr"],
-            "timeline": {
-                "startDate": "2026-01-01",
-                "endDate": "2026-06-30",
-                "nowDate": "2026-04-10",
-                "tracks": [{
-                    "name": "M1",
-                    "label": "Core",
-                    "color": "#4285F4",
-                    "milestones": [
-                        { "date": "2026-02-14", "type": "poc", "label": "PoC" }
-                    ]
-                }]
-            },
-            "heatmap": {
-                "shipped": {},
-                "inProgress": {},
-                "carryover": {},
-                "blockers": {}
-            }
-        }
-        """);
-
-        var factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.UseWebRoot(wwwroot);
-            });
-        return factory.CreateClient();
+        // Default factory uses the real project wwwroot which contains data.json
+        var client = Factory.CreateClient();
+        _disposables.Add(client);
+        return client;
     }
 
     public HttpClient CreateClientWithMissingData()
     {
-        var tempDir = CreateTempWebRoot();
-        var wwwroot = Path.Combine(tempDir, "wwwroot");
-        Directory.CreateDirectory(wwwroot);
-        // No data.json file
+        var tempDir = Path.Combine(Path.GetTempPath(), $"WebAppTest_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        var wwwrootDir = Path.Combine(tempDir, "wwwroot");
+        Directory.CreateDirectory(wwwrootDir);
+        _tempDirs.Add(tempDir);
 
-        var factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.UseWebRoot(wwwroot);
-            });
-        return factory.CreateClient();
+        var factory = Factory.WithWebHostBuilder(builder =>
+        {
+            builder.UseWebRoot(wwwrootDir);
+        });
+        _disposables.Add(factory);
+
+        var client = factory.CreateClient();
+        _disposables.Add(client);
+        return client;
     }
 
     public HttpClient CreateClientWithMalformedData()
     {
-        var tempDir = CreateTempWebRoot();
-        var wwwroot = Path.Combine(tempDir, "wwwroot");
-        Directory.CreateDirectory(wwwroot);
-        File.WriteAllText(Path.Combine(wwwroot, "data.json"), "{ not valid json }}}");
+        var tempDir = Path.Combine(Path.GetTempPath(), $"WebAppTest_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        var wwwrootDir = Path.Combine(tempDir, "wwwroot");
+        Directory.CreateDirectory(wwwrootDir);
+        File.WriteAllText(Path.Combine(wwwrootDir, "data.json"), "{ this is not valid json !!! }");
+        _tempDirs.Add(tempDir);
 
-        var factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.UseWebRoot(wwwroot);
-            });
-        return factory.CreateClient();
-    }
+        var factory = Factory.WithWebHostBuilder(builder =>
+        {
+            builder.UseWebRoot(wwwrootDir);
+        });
+        _disposables.Add(factory);
 
-    private string CreateTempWebRoot()
-    {
-        var dir = Path.Combine(Path.GetTempPath(), $"RD_Test_{Guid.NewGuid():N}");
-        Directory.CreateDirectory(dir);
-        _tempDirs.Add(dir);
-        return dir;
+        var client = factory.CreateClient();
+        _disposables.Add(client);
+        return client;
     }
 
     public void Dispose()
     {
+        foreach (var d in _disposables)
+        {
+            try { d.Dispose(); } catch { }
+        }
         Client.Dispose();
         Factory.Dispose();
+
         foreach (var dir in _tempDirs)
         {
-            try { Directory.Delete(dir, true); } catch { }
+            try
+            {
+                if (Directory.Exists(dir))
+                    Directory.Delete(dir, recursive: true);
+            }
+            catch { }
         }
     }
 }
