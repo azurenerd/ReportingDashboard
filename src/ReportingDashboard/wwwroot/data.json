@@ -4,6 +4,7 @@
   "subtitle": "Platform Engineering – Atlas Workstream – April 2026",
   "backlogUrl": "https://dev.azure.com/contoso/Atlas/_backlogs",
   "nowDateOverride": null,
+  "currentMonthOverride": null,
   "timeline": {
     "startDate": "2026-01-01",
     "endDate": "2026-07-01",
@@ -66,8 +67,8 @@
         "cssClass": "prog",
         "months": [
           { "month": "Jan", "items": ["Chatbot NLU training", "PDS connector framework"] },
-          { "month": "Feb", "items": ["MS Role integration"] },
-          { "month": "Mar", "items": ["Auto Review rule engine"] },
+          { "month": "Feb", "items": ["MS Role integration", "Identity provider mapping"] },
+          { "month": "Mar", "items": ["Auto Review rule engine", "DFD template library"] },
           { "month": "Apr", "items": ["DFD generator", "Data lineage mapper", "Review approval flow", "Compliance audit tracker"] }
         ]
       },
