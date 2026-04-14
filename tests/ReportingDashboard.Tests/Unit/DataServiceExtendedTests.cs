@@ -9,10 +9,11 @@ using Xunit;
 namespace ReportingDashboard.Tests.Unit;
 
 /// <summary>
-/// Tests for DataService code paths NOT covered by the existing DataServiceTests:
-/// - GetEffectiveDate with invalid override format (fallback)
-/// - Live reload via FileSystemWatcher (updates data, preserves last-known-good)
-/// - OnDataChanged event fires on reload
+/// Extended tests for DataService covering:
+/// - GetCurrentMonthName with and without override
+/// - GetEffectiveDate with invalid format (fallback)
+/// - Live reload via FileSystemWatcher
+/// - OnDataChanged event firing
 /// </summary>
 [Trait("Category", "Unit")]
 public class DataServiceExtendedTests : IDisposable
@@ -38,7 +39,8 @@ public class DataServiceExtendedTests : IDisposable
 
     private static string CreateValidJson(
         string title = "Test Dashboard",
-        string? nowDateOverride = null)
+        string? nowDateOverride = null,
+        string? currentMonthOverride = null)
     {
         var data = new
         {
@@ -47,6 +49,7 @@ public class DataServiceExtendedTests : IDisposable
             subtitle = "Test Subtitle",
             backlogUrl = "https://example.com",
             nowDateOverride,
+            currentMonthOverride,
             timeline = new
             {
                 startDate = "2026-01-01",
@@ -92,23 +95,23 @@ public class DataServiceExtendedTests : IDisposable
     }
 
     [Fact]
-    public void GetEffectiveDate_WithNowDateOverride_ReturnsParsedDate()
+    public void GetCurrentMonthName_WithOverride_ReturnsOverrideValue()
     {
-        WriteDataJson(CreateValidJson(nowDateOverride: "2026-06-15"));
+        WriteDataJson(CreateValidJson(currentMonthOverride: "Feb"));
 
         using var service = new DataService(_envMock.Object);
 
-        service.GetEffectiveDate().Should().Be(new DateOnly(2026, 6, 15));
+        service.GetCurrentMonthName().Should().Be("Feb");
     }
 
     [Fact]
-    public void GetEffectiveDate_WithoutOverride_DerivesFromSystemDate()
+    public void GetCurrentMonthName_WithoutOverride_DerivesFromEffectiveDate()
     {
-        WriteDataJson(CreateValidJson(nowDateOverride: null));
+        WriteDataJson(CreateValidJson(nowDateOverride: "2026-06-15", currentMonthOverride: null));
 
         using var service = new DataService(_envMock.Object);
 
-        service.GetEffectiveDate().Should().Be(DateOnly.FromDateTime(DateTime.Today));
+        service.GetCurrentMonthName().Should().Be("Jun");
     }
 
     [Fact]
@@ -128,11 +131,13 @@ public class DataServiceExtendedTests : IDisposable
         using var service = new DataService(_envMock.Object);
         service.GetData()!.Title.Should().Be("Original Title");
 
-        // Overwrite the file to trigger FileSystemWatcher
+        var tcs = new TaskCompletionSource<bool>();
+        service.OnDataChanged += () => tcs.TrySetResult(true);
+
         WriteDataJson(CreateValidJson("Updated Title"));
 
-        // Wait for debounce (500ms) + margin
-        await Task.Delay(1500);
+        var completed = await Task.WhenAny(tcs.Task, Task.Delay(3000));
+        completed.Should().Be(tcs.Task, "OnDataChanged should fire after file modification");
 
         service.GetData()!.Title.Should().Be("Updated Title");
         service.GetError().Should().BeNull();
@@ -145,15 +150,47 @@ public class DataServiceExtendedTests : IDisposable
         using var service = new DataService(_envMock.Object);
         service.GetData()!.Title.Should().Be("Good Data");
 
-        // Overwrite with malformed JSON
+        var tcs = new TaskCompletionSource<bool>();
+        service.OnDataChanged += () => tcs.TrySetResult(true);
+
         WriteDataJson("{ broken json !!!");
 
-        // Wait for debounce + margin
-        await Task.Delay(1500);
+        var completed = await Task.WhenAny(tcs.Task, Task.Delay(3000));
+        completed.Should().Be(tcs.Task, "OnDataChanged should fire even on parse error");
 
-        // Last-known-good data should be preserved
         service.GetData().Should().NotBeNull();
         service.GetData()!.Title.Should().Be("Good Data");
         service.GetError().Should().Contain("invalid JSON");
+    }
+
+    [Fact]
+    public async Task LiveReload_OnDataChangedEvent_FiresOnEveryReload()
+    {
+        WriteDataJson(CreateValidJson("Initial"));
+        using var service = new DataService(_envMock.Object);
+
+        var fireCount = 0;
+        service.OnDataChanged += () => Interlocked.Increment(ref fireCount);
+
+        // First change
+        WriteDataJson(CreateValidJson("Change 1"));
+        await Task.Delay(1500);
+
+        // Second change
+        WriteDataJson(CreateValidJson("Change 2"));
+        await Task.Delay(1500);
+
+        fireCount.Should().BeGreaterThanOrEqualTo(2, "OnDataChanged should fire for each file modification");
+    }
+
+    [Fact]
+    public void Dispose_StopsFileWatcher()
+    {
+        WriteDataJson(CreateValidJson());
+        var service = new DataService(_envMock.Object);
+
+        // Should not throw
+        service.Dispose();
+        service.Dispose(); // Double-dispose safety
     }
 }

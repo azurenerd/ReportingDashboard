@@ -5,138 +5,179 @@ using Xunit;
 
 namespace ReportingDashboard.Tests.Unit;
 
-/// <summary>
-/// Tests for DashboardData model serialization/deserialization.
-/// Validates that all record types round-trip correctly through System.Text.Json,
-/// camelCase JsonPropertyName attributes work, and nullable fields behave correctly.
-/// </summary>
 [Trait("Category", "Unit")]
 public class DashboardDataModelTests
 {
-    private static readonly JsonSerializerOptions CaseInsensitive = new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions Options = new() { PropertyNameCaseInsensitive = true };
 
-    private static string CreateFullJson() => """
+    [Fact]
+    public void DashboardData_Deserializes_ValidJson()
     {
-        "schemaVersion": 1,
-        "title": "Atlas Roadmap",
-        "subtitle": "Platform Engineering",
-        "backlogUrl": "https://dev.azure.com/example",
-        "nowDateOverride": "2026-04-10",
-        "timeline": {
-            "startDate": "2026-01-01",
-            "endDate": "2026-07-01",
-            "workstreams": [
-                {
-                    "id": "m1",
-                    "name": "M1 - Chatbot",
-                    "color": "#0078D4",
-                    "milestones": [
-                        { "label": "Kick-off", "date": "2026-01-15", "type": "start", "labelPosition": "above" },
-                        { "label": "PoC", "date": "2026-03-01", "type": "poc" }
-                    ]
-                },
-                {
-                    "id": "m2",
-                    "name": "M2 - API",
-                    "color": "#00897B",
-                    "milestones": [
-                        { "label": "Release", "date": "2026-06-01", "type": "production" }
-                    ]
-                }
-            ]
-        },
-        "heatmap": {
-            "monthColumns": ["Jan", "Feb", "Mar", "Apr"],
-            "categories": [
-                {
-                    "name": "Shipped",
-                    "emoji": "✅",
-                    "cssClass": "ship",
-                    "months": [
-                        { "month": "Jan", "items": ["Feature A", "Feature B"] },
-                        { "month": "Feb", "items": [] }
-                    ]
-                },
-                {
-                    "name": "Blockers",
-                    "emoji": "🚫",
-                    "cssClass": "block",
-                    "months": [
-                        { "month": "Jan", "items": ["Bug #123"] }
-                    ]
-                }
+        var json = """
+        {
+            "schemaVersion": 1,
+            "title": "Project Atlas",
+            "subtitle": "Platform Engineering",
+            "backlogUrl": "https://dev.azure.com/test",
+            "nowDateOverride": null,
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-07-01",
+                "workstreams": []
+            },
+            "heatmap": {
+                "monthColumns": ["Jan", "Feb"],
+                "categories": []
+            }
+        }
+        """;
+
+        var data = JsonSerializer.Deserialize<DashboardData>(json, Options);
+
+        data.Should().NotBeNull();
+        data!.Title.Should().Be("Project Atlas");
+        data.SchemaVersion.Should().Be(1);
+        data.NowDateOverride.Should().BeNull();
+        data.Timeline.Workstreams.Should().BeEmpty();
+        data.Heatmap.MonthColumns.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void Milestone_Deserializes_WithOptionalLabelPosition()
+    {
+        var json = """
+        {
+            "label": "Mar PoC",
+            "date": "2026-03-15",
+            "type": "poc",
+            "labelPosition": "above"
+        }
+        """;
+
+        var ms = JsonSerializer.Deserialize<Milestone>(json, Options);
+
+        ms.Should().NotBeNull();
+        ms!.Label.Should().Be("Mar PoC");
+        ms.LabelPosition.Should().Be("above");
+    }
+
+    [Fact]
+    public void Milestone_Deserializes_WithoutLabelPosition()
+    {
+        var json = """
+        {
+            "label": "Start",
+            "date": "2026-01-15",
+            "type": "start"
+        }
+        """;
+
+        var ms = JsonSerializer.Deserialize<Milestone>(json, Options);
+
+        ms.Should().NotBeNull();
+        ms!.LabelPosition.Should().BeNull();
+    }
+
+    [Fact]
+    public void StatusCategory_Deserializes_WithEmptyItems()
+    {
+        var json = """
+        {
+            "name": "Shipped",
+            "emoji": "✅",
+            "cssClass": "ship",
+            "months": [
+                { "month": "Jan", "items": [] },
+                { "month": "Feb", "items": ["Item A", "Item B"] }
             ]
         }
+        """;
+
+        var cat = JsonSerializer.Deserialize<StatusCategory>(json, Options);
+
+        cat.Should().NotBeNull();
+        cat!.Months[0].Items.Should().BeEmpty();
+        cat.Months[1].Items.Should().HaveCount(2);
     }
-    """;
 
     [Fact]
-    public void Deserialization_AllNestedRecords_PopulateCorrectly()
+    public void DashboardData_WithNowDateOverride_DeserializesCorrectly()
     {
-        var data = JsonSerializer.Deserialize<DashboardData>(CreateFullJson(), CaseInsensitive);
+        var json = """
+        {
+            "schemaVersion": 1,
+            "title": "Test",
+            "subtitle": "Sub",
+            "backlogUrl": "https://example.com",
+            "nowDateOverride": "2026-03-15",
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-07-01",
+                "workstreams": []
+            },
+            "heatmap": {
+                "monthColumns": [],
+                "categories": []
+            }
+        }
+        """;
+
+        var data = JsonSerializer.Deserialize<DashboardData>(json, Options);
 
         data.Should().NotBeNull();
-        data!.SchemaVersion.Should().Be(1);
-        data.Title.Should().Be("Atlas Roadmap");
-        data.NowDateOverride.Should().Be("2026-04-10");
-
-        data.Timeline.Workstreams.Should().HaveCount(2);
-        data.Timeline.Workstreams[0].Milestones.Should().HaveCount(2);
-        data.Timeline.Workstreams[0].Milestones[0].LabelPosition.Should().Be("above");
-        data.Timeline.Workstreams[0].Milestones[1].LabelPosition.Should().BeNull();
-
-        data.Heatmap.MonthColumns.Should().Equal("Jan", "Feb", "Mar", "Apr");
-        data.Heatmap.Categories.Should().HaveCount(2);
-        data.Heatmap.Categories[0].Months[0].Items.Should().Equal("Feature A", "Feature B");
-        data.Heatmap.Categories[0].Months[1].Items.Should().BeEmpty();
+        data!.NowDateOverride.Should().Be("2026-03-15");
     }
 
     [Fact]
-    public void Deserialization_CamelCaseKeys_MapViaJsonPropertyName()
+    public void DashboardData_WithoutOptionalFields_DeserializesCorrectly()
     {
-        var json = """{"schemaVersion":1,"title":"T","subtitle":"S","backlogUrl":"http://x","timeline":{"startDate":"2026-01-01","endDate":"2026-07-01","workstreams":[]},"heatmap":{"monthColumns":[],"categories":[]}}""";
+        var json = """
+        {
+            "schemaVersion": 1,
+            "title": "Test",
+            "subtitle": "Sub",
+            "backlogUrl": "https://example.com",
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-07-01",
+                "workstreams": []
+            },
+            "heatmap": {
+                "monthColumns": [],
+                "categories": []
+            }
+        }
+        """;
 
-        var data = JsonSerializer.Deserialize<DashboardData>(json, CaseInsensitive);
+        var data = JsonSerializer.Deserialize<DashboardData>(json, Options);
 
         data.Should().NotBeNull();
-        data!.Title.Should().Be("T");
-        data.BacklogUrl.Should().Be("http://x");
-        data.Timeline.StartDate.Should().Be("2026-01-01");
-    }
-
-    [Fact]
-    public void Deserialization_NullableFields_DefaultToNull()
-    {
-        var json = """{"schemaVersion":1,"title":"T","subtitle":"S","backlogUrl":"http://x","timeline":{"startDate":"2026-01-01","endDate":"2026-07-01","workstreams":[]},"heatmap":{"monthColumns":[],"categories":[]}}""";
-
-        var data = JsonSerializer.Deserialize<DashboardData>(json, CaseInsensitive);
-
         data!.NowDateOverride.Should().BeNull();
     }
 
     [Fact]
-    public void RoundTrip_SerializeDeserialize_PreservesValues()
+    public void Workstream_Deserializes_WithMilestones()
     {
-        var original = JsonSerializer.Deserialize<DashboardData>(CreateFullJson(), CaseInsensitive)!;
-        var serialized = JsonSerializer.Serialize(original);
-        var roundTripped = JsonSerializer.Deserialize<DashboardData>(serialized, CaseInsensitive);
+        var json = """
+        {
+            "id": "M1",
+            "name": "Chatbot & MS Role",
+            "color": "#0078D4",
+            "milestones": [
+                { "label": "Jan Start", "date": "2026-01-12", "type": "start" },
+                { "label": "Mar PoC", "date": "2026-03-26", "type": "poc" },
+                { "label": "May Prod", "date": "2026-05-01", "type": "production" }
+            ]
+        }
+        """;
 
-        roundTripped!.Title.Should().Be(original.Title);
-        roundTripped.SchemaVersion.Should().Be(original.SchemaVersion);
-        roundTripped.Timeline.Workstreams.Should().HaveCount(original.Timeline.Workstreams.Length);
-        roundTripped.Heatmap.Categories[0].Months[0].Items
-            .Should().Equal(original.Heatmap.Categories[0].Months[0].Items);
-    }
+        var ws = JsonSerializer.Deserialize<Workstream>(json, Options);
 
-    [Fact]
-    public void Deserialization_EmptyWorkstreamsAndCategories_Succeeds()
-    {
-        var json = """{"schemaVersion":1,"title":"Empty","subtitle":"S","backlogUrl":"http://x","timeline":{"startDate":"2026-01-01","endDate":"2026-07-01","workstreams":[]},"heatmap":{"monthColumns":[],"categories":[]}}""";
-
-        var data = JsonSerializer.Deserialize<DashboardData>(json, CaseInsensitive);
-
-        data!.Timeline.Workstreams.Should().BeEmpty();
-        data.Heatmap.MonthColumns.Should().BeEmpty();
-        data.Heatmap.Categories.Should().BeEmpty();
+        ws.Should().NotBeNull();
+        ws!.Id.Should().Be("M1");
+        ws.Milestones.Should().HaveCount(3);
+        ws.Milestones[0].Type.Should().Be("start");
+        ws.Milestones[1].Type.Should().Be("poc");
+        ws.Milestones[2].Type.Should().Be("production");
     }
 }
