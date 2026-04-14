@@ -1,5 +1,3 @@
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using ReportingDashboard.Services;
 using Xunit;
@@ -16,26 +14,23 @@ public class StartupAndDITests : IClassFixture<WebAppFixture>
     }
 
     [Fact]
-    public void DI_ResolvesDashboardDataService_AsSingleton()
+    public void DI_Resolves_DashboardDataService_AsSingleton()
     {
-        using var factory = new WebApplicationFactory<Program>();
-        using var scope1 = factory.Services.CreateScope();
-        using var scope2 = factory.Services.CreateScope();
+        using var scope1 = _fixture.Factory.Services.CreateScope();
+        using var scope2 = _fixture.Factory.Services.CreateScope();
 
-        var svc1 = scope1.ServiceProvider.GetService<DashboardDataService>();
-        var svc2 = scope2.ServiceProvider.GetService<DashboardDataService>();
+        var service1 = scope1.ServiceProvider.GetRequiredService<DashboardDataService>();
+        var service2 = scope2.ServiceProvider.GetRequiredService<DashboardDataService>();
 
-        svc1.Should().NotBeNull();
-        svc2.Should().NotBeNull();
-        svc1.Should().BeSameAs(svc2, "DashboardDataService should be registered as a singleton");
+        Assert.Same(service1, service2);
     }
 
     [Fact]
-    public void DI_ResolvesDashboardDataService_NotNull()
+    public void DI_Resolves_DashboardDataService_WithDataLoaded()
     {
-        using var factory = new WebApplicationFactory<Program>();
-        var service = factory.Services.GetService<DashboardDataService>();
+        var service = _fixture.Factory.Services.GetRequiredService<DashboardDataService>();
 
-        service.Should().NotBeNull("DashboardDataService must be registered in DI");
+        // Data should be loaded (or error set) since LoadAsync runs before app.Run()
+        Assert.True(service.Data is not null || service.IsError);
     }
 }

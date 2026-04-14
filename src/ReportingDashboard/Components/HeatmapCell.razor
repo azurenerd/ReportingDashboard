@@ -1,18 +1,11 @@
-@{
-    var cellClass = $"hm-cell {CssPrefix}-cell{(IsCurrentMonth ? " apr" : "")}";
-}
-
-<div class="@cellClass">
-    @if (Items is not null && Items.Count > 0)
+@* HeatmapCell component — full styling in T6 *@
+<div class="@CssPrefix-cell" style="padding:6px 8px; font-size:11px; border-bottom:1px solid #E0E0E0; border-right:1px solid #E0E0E0; background:@(IsCurrentMonth ? "#F5F9FF" : "transparent");">
+    @if (Items is not null)
     {
         @foreach (var item in Items)
         {
-            <div class="it @($"{CssPrefix}-it")">@item</div>
+            <div style="margin-bottom:2px;">@item</div>
         }
-    }
-    else
-    {
-        <div style="color:#AAA; text-align:center;">-</div>
     }
 </div>
 

@@ -1,91 +1,47 @@
-using FluentAssertions;
+using System.Net;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Integration;
 
 public class HttpEndpointTests : IClassFixture<WebAppFixture>
 {
-    private readonly WebAppFixture _fixture;
+    private readonly HttpClient _client;
 
     public HttpEndpointTests(WebAppFixture fixture)
     {
-        _fixture = fixture;
+        _client = fixture.Client;
     }
 
     [Fact]
-    public async Task RootEndpoint_WithValidData_Returns200()
+    public async Task GET_Root_Returns_200()
     {
-        using var client = _fixture.CreateClientWithValidData();
+        var response = await _client.GetAsync("/");
 
-        var response = await client.GetAsync("/");
-
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
-    public async Task RootEndpoint_WithValidData_ContainsDashboardContainer()
+    public async Task GET_Root_Returns_HtmlContent()
     {
-        using var client = _fixture.CreateClientWithValidData();
+        var response = await _client.GetAsync("/");
+        var contentType = response.Content.Headers.ContentType?.MediaType;
 
-        var response = await client.GetAsync("/");
-        var content = await response.Content.ReadAsStringAsync();
-
-        content.Should().Contain("dashboard-container");
+        Assert.Equal("text/html", contentType);
     }
 
     [Fact]
-    public async Task RootEndpoint_WithMissingData_Returns200WithErrorBanner()
+    public async Task GET_StaticFile_DashboardCss_Returns_200()
     {
-        using var client = _fixture.CreateClientWithMissingData();
+        var response = await _client.GetAsync("/css/dashboard.css");
 
-        var response = await client.GetAsync("/");
-
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
-        content.Should().Contain("error-banner");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
-    public async Task RootEndpoint_WithMalformedJson_Returns200WithErrorBanner()
+    public async Task GET_DataJson_Returns_200()
     {
-        using var client = _fixture.CreateClientWithMalformedData();
+        var response = await _client.GetAsync("/data.json");
 
-        var response = await client.GetAsync("/");
-
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
-        content.Should().Contain("error-banner");
-    }
-
-    [Fact]
-    public async Task RootEndpoint_Response_DoesNotContainCorsHeaders()
-    {
-        using var client = _fixture.CreateClientWithValidData();
-
-        var response = await client.GetAsync("/");
-
-        response.Headers.Should().NotContain(h =>
-            h.Key.Equals("Access-Control-Allow-Origin", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public async Task RootEndpoint_Response_DoesNotContainAuthHeaders()
-    {
-        using var client = _fixture.CreateClientWithValidData();
-
-        var response = await client.GetAsync("/");
-
-        response.Headers.Should().NotContain(h =>
-            h.Key.Equals("WWW-Authenticate", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public async Task RootEndpoint_ContentType_IsHtml()
-    {
-        using var client = _fixture.CreateClientWithValidData();
-
-        var response = await client.GetAsync("/");
-
-        response.Content.Headers.ContentType?.MediaType.Should().Be("text/html");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 }

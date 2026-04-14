@@ -2,10 +2,6 @@ using Microsoft.Playwright;
 
 namespace ReportingDashboard.UITests.PageObjects;
 
-/// <summary>
-/// Page Object for the main dashboard view.
-/// Encapsulates selectors and interactions for the executive reporting dashboard.
-/// </summary>
 public class DashboardPage
 {
     private readonly IPage _page;
@@ -14,62 +10,39 @@ public class DashboardPage
     public DashboardPage(IPage page, string baseUrl)
     {
         _page = page;
-        _baseUrl = baseUrl.TrimEnd('/');
+        _baseUrl = baseUrl;
     }
 
-    // Navigation
-    public async Task<IResponse?> NavigateAsync()
-    {
-        return await _page.GotoAsync(_baseUrl, new PageGotoOptions
-        {
-            WaitUntil = WaitUntilState.NetworkIdle
-        });
-    }
-
-    // Header selectors
+    // Selectors
     public ILocator Header => _page.Locator(".hdr");
     public ILocator Title => _page.Locator("h1");
     public ILocator Subtitle => _page.Locator(".sub");
-    public ILocator BacklogLink => _page.Locator("a[target='_blank']");
-
-    // Timeline selectors
     public ILocator TimelineArea => _page.Locator(".tl-area");
-    public ILocator TimelineSvg => _page.Locator(".tl-svg-box svg");
-    public ILocator TrackLabels => _page.Locator(".tl-area div").First;
-
-    // Heatmap selectors
-    public ILocator HeatmapWrapper => _page.Locator(".hm-wrap");
-    public ILocator HeatmapTitle => _page.Locator(".hm-title");
+    public ILocator HeatmapWrap => _page.Locator(".hm-wrap");
     public ILocator HeatmapGrid => _page.Locator(".hm-grid");
-    public ILocator HeatmapCorner => _page.Locator(".hm-corner");
-    public ILocator ColumnHeaders => _page.Locator(".hm-col-hdr");
-    public ILocator RowHeaders => _page.Locator(".hm-row-hdr");
-    public ILocator DataCells => _page.Locator(".hm-cell");
+    public ILocator DashboardContainer => _page.Locator(".dashboard");
+    public ILocator ErrorBanner => _page.Locator(".error-panel");
+    public ILocator StatusBadge => _page.Locator(".status-badge");
 
-    // Status row selectors
-    public ILocator ShippedHeader => _page.Locator(".ship-hdr");
-    public ILocator InProgressHeader => _page.Locator(".prog-hdr");
-    public ILocator CarryoverHeader => _page.Locator(".carry-hdr");
-    public ILocator BlockersHeader => _page.Locator(".block-hdr");
-
-    // General queries
-    public async Task<string> GetTitleTextAsync()
+    public async Task NavigateAsync()
     {
-        return await Title.TextContentAsync() ?? string.Empty;
+        await _page.GotoAsync(_baseUrl);
+        await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
 
-    public async Task<string> GetSubtitleTextAsync()
+    public async Task<bool> HasDashboardContainerAsync()
     {
-        return await Subtitle.TextContentAsync() ?? string.Empty;
+        return await DashboardContainer.CountAsync() > 0;
     }
 
-    public async Task<bool> IsFullyLoadedAsync()
+    public async Task<bool> HasErrorBannerAsync()
     {
-        // Check that key sections exist
-        var hasHeader = await Header.CountAsync() > 0;
-        var hasTimeline = await TimelineArea.CountAsync() > 0;
-        var hasHeatmap = await HeatmapWrapper.CountAsync() > 0;
-        return hasHeader && hasTimeline && hasHeatmap;
+        return await ErrorBanner.CountAsync() > 0;
+    }
+
+    public async Task<string> GetTitleAsync()
+    {
+        return await Title.InnerTextAsync();
     }
 
     public async Task<byte[]> TakeScreenshotAsync()

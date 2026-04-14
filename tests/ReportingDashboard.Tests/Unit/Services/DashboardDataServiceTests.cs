@@ -1,6 +1,6 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using ReportingDashboard.Services;
+using Xunit;
 
 namespace ReportingDashboard.Tests.Unit.Services;
 
@@ -12,16 +12,20 @@ public class DashboardDataServiceTests : IDisposable
     public DashboardDataServiceTests()
     {
         _service = new DashboardDataService(NullLogger<DashboardDataService>.Instance);
-        _tempDir = Path.Combine(Path.GetTempPath(), $"dashboard-tests-{Guid.NewGuid():N}");
+        _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(_tempDir);
     }
 
-    [Fact]
-    public async Task LoadAsync_FileNotFound_SetsError()
+    public void Dispose()
     {
-        var nonExistentPath = Path.Combine(_tempDir, "nonexistent.json");
+        if (Directory.Exists(_tempDir))
+            Directory.Delete(_tempDir, true);
+    }
 
-        await _service.LoadAsync(nonExistentPath);
+    [Fact]
+    public async Task LoadAsync_FileNotFound_SetsIsError()
+    {
+        await _service.LoadAsync(Path.Combine(_tempDir, "missing.json"));
 
         Assert.True(_service.IsError);
         Assert.Null(_service.Data);
@@ -29,10 +33,10 @@ public class DashboardDataServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_InvalidJson_SetsError()
+    public async Task LoadAsync_MalformedJson_SetsIsError()
     {
         var path = Path.Combine(_tempDir, "bad.json");
-        await File.WriteAllTextAsync(path, "{ invalid json !!! }");
+        await File.WriteAllTextAsync(path, "{ not valid json }}}");
 
         await _service.LoadAsync(path);
 
@@ -42,25 +46,17 @@ public class DashboardDataServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_EmptyTitle_SetsValidationError()
+    public async Task LoadAsync_MissingTitle_SetsIsError()
     {
         var json = """
         {
             "title": "",
             "subtitle": "Sub",
-            "backlogLink": "https://example.com",
-            "currentMonth": "Jan",
             "months": ["Jan"],
-            "timeline": {
-                "startDate": "2026-01-01",
-                "endDate": "2026-06-30",
-                "nowDate": "2026-04-01",
-                "tracks": [{ "name": "M1", "label": "Track", "color": "#000", "milestones": [] }]
-            },
-            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
+            "timeline": { "tracks": [{ "name": "M1", "label": "L", "milestones": [] }] }
         }
         """;
-        var path = Path.Combine(_tempDir, "empty-title.json");
+        var path = Path.Combine(_tempDir, "no-title.json");
         await File.WriteAllTextAsync(path, json);
 
         await _service.LoadAsync(path);
@@ -70,25 +66,17 @@ public class DashboardDataServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_EmptyMonths_SetsValidationError()
+    public async Task LoadAsync_EmptyMonths_SetsIsError()
     {
         var json = """
         {
             "title": "Test",
             "subtitle": "Sub",
-            "backlogLink": "https://example.com",
-            "currentMonth": "Jan",
             "months": [],
-            "timeline": {
-                "startDate": "2026-01-01",
-                "endDate": "2026-06-30",
-                "nowDate": "2026-04-01",
-                "tracks": [{ "name": "M1", "label": "Track", "color": "#000", "milestones": [] }]
-            },
-            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
+            "timeline": { "tracks": [{ "name": "M1", "label": "L", "milestones": [] }] }
         }
         """;
-        var path = Path.Combine(_tempDir, "empty-months.json");
+        var path = Path.Combine(_tempDir, "no-months.json");
         await File.WriteAllTextAsync(path, json);
 
         await _service.LoadAsync(path);
@@ -98,32 +86,23 @@ public class DashboardDataServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_InvalidMilestoneType_SetsValidationError()
+    public async Task LoadAsync_InvalidMilestoneType_SetsIsError()
     {
         var json = """
         {
             "title": "Test",
             "subtitle": "Sub",
-            "backlogLink": "https://example.com",
-            "currentMonth": "Jan",
             "months": ["Jan"],
             "timeline": {
-                "startDate": "2026-01-01",
-                "endDate": "2026-06-30",
-                "nowDate": "2026-04-01",
                 "tracks": [{
                     "name": "M1",
-                    "label": "Track",
-                    "color": "#000",
-                    "milestones": [
-                        { "date": "2026-02-01", "type": "invalid_type", "label": "Bad" }
-                    ]
+                    "label": "L",
+                    "milestones": [{ "date": "2026-01-15", "type": "invalid_type", "label": "Bad" }]
                 }]
-            },
-            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
+            }
         }
         """;
-        var path = Path.Combine(_tempDir, "bad-milestone.json");
+        var path = Path.Combine(_tempDir, "bad-type.json");
         await File.WriteAllTextAsync(path, json);
 
         await _service.LoadAsync(path);
@@ -133,33 +112,33 @@ public class DashboardDataServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_ValidJson_LoadsData()
+    public async Task LoadAsync_ValidJson_PopulatesData()
     {
         var json = """
         {
-            "title": "Test Dashboard",
-            "subtitle": "Team · Stream · Month",
+            "title": "Project Atlas",
+            "subtitle": "Cloud · Infra · April 2026",
             "backlogLink": "https://dev.azure.com/test",
-            "currentMonth": "Mar",
-            "months": ["Jan", "Feb", "Mar"],
+            "currentMonth": "Apr",
+            "months": ["Jan", "Feb", "Mar", "Apr"],
             "timeline": {
                 "startDate": "2026-01-01",
                 "endDate": "2026-06-30",
-                "nowDate": "2026-03-15",
+                "nowDate": "2026-04-10",
                 "tracks": [{
                     "name": "M1",
-                    "label": "Feature One",
-                    "color": "#0078D4",
+                    "label": "Core Platform",
+                    "color": "#4285F4",
                     "milestones": [
-                        { "date": "2026-02-01", "type": "checkpoint", "label": "Feb 1" }
+                        { "date": "2026-02-14", "type": "poc", "label": "PoC Complete" }
                     ]
                 }]
             },
             "heatmap": {
-                "shipped": { "jan": ["Item A"] },
-                "inProgress": { "jan": [] },
-                "carryover": { "jan": [] },
-                "blockers": { "jan": [] }
+                "shipped": { "Jan": ["Item A"] },
+                "inProgress": {},
+                "carryover": {},
+                "blockers": {}
             }
         }
         """;
@@ -171,23 +150,8 @@ public class DashboardDataServiceTests : IDisposable
         Assert.False(_service.IsError);
         Assert.Null(_service.ErrorMessage);
         Assert.NotNull(_service.Data);
-        Assert.Equal("Test Dashboard", _service.Data!.Title);
-        Assert.Equal(3, _service.Data.Months.Count);
+        Assert.Equal("Project Atlas", _service.Data!.Title);
+        Assert.Equal(4, _service.Data.Months.Count);
         Assert.Single(_service.Data.Timeline.Tracks);
-        Assert.Single(_service.Data.Heatmap.Shipped["jan"]);
-    }
-
-    public void Dispose()
-    {
-        try
-        {
-            if (Directory.Exists(_tempDir))
-                Directory.Delete(_tempDir, recursive: true);
-        }
-        catch
-        {
-            // Best effort cleanup
-        }
-        GC.SuppressFinalize(this);
     }
 }

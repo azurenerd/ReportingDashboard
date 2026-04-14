@@ -1,13 +1,11 @@
-<div class="error-panel">
-    <div class="error-panel-content">
-        <div class="error-icon">⚠</div>
-        <div class="error-title">Dashboard data could not be loaded</div>
-        <div class="error-details">@(ErrorMessage ?? "An unknown error occurred.")</div>
-        <div class="error-help">Check data.json for errors and restart the application.</div>
-        <div class="error-help">See console output for details.</div>
+<div class="error-panel" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; padding:80px;">
+    <div style="background:#FDE8E8; border:1px solid #F5C6C6; border-left:4px solid #EA4335; border-radius:6px; padding:32px 48px; max-width:720px; text-align:center;">
+        <h2 style="color:#C62828; margin-bottom:12px; font-size:20px;">⚠ Dashboard Error</h2>
+        <p class="error-message" style="color:#333; font-size:14px; line-height:1.6; margin-bottom:16px;">@ErrorMessage</p>
+        <p class="error-help" style="color:#666; font-size:13px;">Check that <code>wwwroot/data.json</code> exists and contains valid JSON matching the expected schema.</p>
     </div>
 </div>
 
 @code {
-    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public string ErrorMessage { get; set; } = "";
 }

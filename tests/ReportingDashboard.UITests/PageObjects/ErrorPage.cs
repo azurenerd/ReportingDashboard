@@ -2,10 +2,6 @@ using Microsoft.Playwright;
 
 namespace ReportingDashboard.UITests.PageObjects;
 
-/// <summary>
-/// Page Object for the error state view.
-/// Displayed when data.json is missing, malformed, or fails validation.
-/// </summary>
 public class ErrorPage
 {
     private readonly IPage _page;
@@ -14,40 +10,27 @@ public class ErrorPage
     public ErrorPage(IPage page, string baseUrl)
     {
         _page = page;
-        _baseUrl = baseUrl.TrimEnd('/');
+        _baseUrl = baseUrl;
     }
 
-    public async Task<IResponse?> NavigateAsync()
-    {
-        return await _page.GotoAsync(_baseUrl, new PageGotoOptions
-        {
-            WaitUntil = WaitUntilState.NetworkIdle
-        });
-    }
-
+    // Selectors
     public ILocator ErrorPanel => _page.Locator(".error-panel");
-    public ILocator ErrorIcon => _page.Locator(".error-icon");
-    public ILocator ErrorTitle => _page.Locator(".error-title");
-    public ILocator ErrorDetails => _page.Locator(".error-details");
+    public ILocator ErrorMessage => _page.Locator(".error-message");
     public ILocator ErrorHelp => _page.Locator(".error-help");
 
-    public async Task<bool> IsErrorPanelVisibleAsync()
+    public async Task NavigateAsync()
     {
-        return await ErrorPanel.IsVisibleAsync();
+        await _page.GotoAsync(_baseUrl);
+        await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
 
-    public async Task<string> GetErrorMessageAsync()
+    public async Task<bool> IsErrorVisibleAsync()
     {
-        return await ErrorDetails.TextContentAsync() ?? string.Empty;
+        return await ErrorPanel.CountAsync() > 0;
     }
 
-    public async Task<string> GetErrorHelpAsync()
+    public async Task<string> GetErrorTextAsync()
     {
-        return await ErrorHelp.TextContentAsync() ?? string.Empty;
-    }
-
-    public async Task<string> GetErrorTitleAsync()
-    {
-        return await ErrorTitle.TextContentAsync() ?? string.Empty;
+        return await ErrorPanel.InnerTextAsync();
     }
 }
