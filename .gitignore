@@ -1,14 +1,31 @@
-## .NET Build Artifacts
+## .NET build output
 bin/
 obj/
+publish/
+
+## User secrets
+appsettings.Development.json
+
+# Real project data (use data.template.json as starting point)
+ReportingDashboard/data.json
+
+## IDE and editor files
+.vs/
+.vscode/
 *.user
 *.suo
-.vs/
+*.sln.docstates
 
-## IDE
-.idea/
-*.swp
-*~
+## OS files
+Thumbs.db
+.DS_Store
 
-## Project data file (may contain real project names)
-ReportingDashboard/data.json
+## NuGet
+*.nupkg
+packages/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
