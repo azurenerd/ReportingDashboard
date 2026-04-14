@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "title": "Project Atlas Release Roadmap",
-  "subtitle": "Platform Engineering \u2013 Atlas Workstream \u2013 April 2026",
+  "subtitle": "Platform Engineering – Atlas Workstream – April 2026",
   "backlogUrl": "https://dev.azure.com/contoso/Atlas/_backlogs",
   "nowDateOverride": null,
   "timeline": {
@@ -51,7 +51,7 @@
     "categories": [
       {
         "name": "Shipped",
-        "emoji": "\u2705",
+        "emoji": "✅",
         "cssClass": "ship",
         "months": [
           { "month": "Jan", "items": ["Auth module v2", "Config migration tool"] },
@@ -62,7 +62,7 @@
       },
       {
         "name": "In Progress",
-        "emoji": "\ud83d\udd35",
+        "emoji": "🔵",
         "cssClass": "prog",
         "months": [
           { "month": "Jan", "items": ["Chatbot NLU training", "PDS connector framework"] },
@@ -73,7 +73,7 @@
       },
       {
         "name": "Carryover",
-        "emoji": "\ud83d\udfe1",
+        "emoji": "🟡",
         "cssClass": "carry",
         "months": [
           { "month": "Jan", "items": [] },
@@ -84,12 +84,12 @@
       },
       {
         "name": "Blockers",
-        "emoji": "\ud83d\udd34",
+        "emoji": "🔴",
         "cssClass": "block",
         "months": [
           { "month": "Jan", "items": [] },
-          { "month": "Feb", "items": ["API rate limit investigation"] },
-          { "month": "Mar", "items": ["Waiting on InfoSec review"] },
+          { "month": "Feb", "items": ["API rate limit investigation", "Waiting on InfoSec review"] },
+          { "month": "Mar", "items": [] },
           { "month": "Apr", "items": ["AAD tenant config pending", "Prod subscription quota"] }
         ]
       }
