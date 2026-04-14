@@ -16,11 +16,7 @@ public record DashboardData(
     public string Title { get; init; } = Title ?? "Untitled Dashboard";
     public string[] Months { get; init; } = Months ?? Array.Empty<string>();
     public MilestoneTrack[] MilestoneTracks { get; init; } = MilestoneTracks ?? Array.Empty<MilestoneTrack>();
-    public HeatmapData Heatmap { get; init; } = Heatmap ?? new HeatmapData(
-        new HeatmapRow(new Dictionary<string, string[]>()),
-        new HeatmapRow(new Dictionary<string, string[]>()),
-        new HeatmapRow(new Dictionary<string, string[]>()),
-        new HeatmapRow(new Dictionary<string, string[]>()));
+    public HeatmapData Heatmap { get; init; } = Heatmap ?? new HeatmapData(new HeatmapRow(new()), new HeatmapRow(new()), new HeatmapRow(new()), new HeatmapRow(new()));
 
     public DateOnly EffectiveTimelineStart => TimelineStart ?? new DateOnly(CurrentDate.Year, 1, 1);
     public DateOnly EffectiveTimelineEnd => TimelineEnd ?? new DateOnly(CurrentDate.Year, 6, 30);
@@ -49,17 +45,17 @@ public record HeatmapData(
     HeatmapRow Blockers
 )
 {
-    public HeatmapRow Shipped { get; init; } = Shipped ?? new HeatmapRow(new Dictionary<string, string[]>());
-    public HeatmapRow InProgress { get; init; } = InProgress ?? new HeatmapRow(new Dictionary<string, string[]>());
-    public HeatmapRow Carryover { get; init; } = Carryover ?? new HeatmapRow(new Dictionary<string, string[]>());
-    public HeatmapRow Blockers { get; init; } = Blockers ?? new HeatmapRow(new Dictionary<string, string[]>());
+    public HeatmapRow Shipped { get; init; } = Shipped ?? new HeatmapRow(new());
+    public HeatmapRow InProgress { get; init; } = InProgress ?? new HeatmapRow(new());
+    public HeatmapRow Carryover { get; init; } = Carryover ?? new HeatmapRow(new());
+    public HeatmapRow Blockers { get; init; } = Blockers ?? new HeatmapRow(new());
 }
 
 public record HeatmapRow(
     Dictionary<string, string[]> Items
 )
 {
-    public Dictionary<string, string[]> Items { get; init; } = Items ?? new Dictionary<string, string[]>();
+    public Dictionary<string, string[]> Items { get; init; } = Items ?? new();
 
     public string[] GetItems(string month) =>
         Items.TryGetValue(month, out var list) ? list : Array.Empty<string>();

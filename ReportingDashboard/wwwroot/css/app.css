@@ -20,7 +20,6 @@ a {
     text-decoration: none;
 }
 
-/* Auto-scale for smaller viewports */
 @media (max-width: 1919px) {
     body {
         transform: scale(calc(100vw / 1920));
@@ -28,7 +27,6 @@ a {
     }
 }
 
-/* Print-friendly: hide Blazor reconnection UI */
 @media print {
     #blazor-error-ui,
     .blazor-reconnect-modal {
