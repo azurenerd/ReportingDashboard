@@ -4,6 +4,7 @@
   "subtitle": "Platform Engineering – Atlas Workstream – April 2026",
   "backlogUrl": "https://dev.azure.com/contoso/Atlas/_backlogs",
   "nowDateOverride": null,
+  "currentMonthOverride": null,
   "timeline": {
     "startDate": "2026-01-01",
     "endDate": "2026-07-01",
@@ -51,7 +52,7 @@
     "categories": [
       {
         "name": "Shipped",
-        "emoji": "✅",
+        "emoji": "🟢",
         "cssClass": "ship",
         "months": [
           { "month": "Jan", "items": ["Auth module v2", "Config migration tool"] },
