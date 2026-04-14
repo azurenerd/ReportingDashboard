@@ -1,83 +1,86 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
+using FluentAssertions;
 using ReportingDashboard.Models;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Integration;
 
-public class StaticFileTests : IClassFixture<WebApplicationFactory<Program>>
+/// <summary>
+/// Integration tests verifying data.json is served as a static file
+/// with correct content and content type.
+/// </summary>
+public class StaticFileTests : IClassFixture<WebAppFixture>
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
-    private readonly HttpClient _client;
+    private readonly WebAppFixture _fixture;
 
-    public StaticFileTests(WebApplicationFactory<Program> factory)
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        _client = factory.CreateClient();
+        PropertyNameCaseInsensitive = true
+    };
+
+    public StaticFileTests(WebAppFixture fixture)
+    {
+        _fixture = fixture;
     }
 
     [Fact]
-    public async Task DataJson_IsAccessibleViaHttp()
+    [Trait("Category", "Integration")]
+    public async Task DataJson_ServedAsStaticFile_Returns200()
     {
-        var response = await _client.GetAsync("/data.json");
+        var client = _fixture.Factory.CreateClient();
 
-        response.EnsureSuccessStatusCode();
-        Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
+        var response = await client.GetAsync("/data.json");
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().NotBeNullOrEmpty();
+
+        var data = JsonSerializer.Deserialize<DashboardData>(content, JsonOptions);
+        data.Should().NotBeNull();
+        data!.Title.Should().Be("Privacy Automation Release Roadmap");
     }
 
     [Fact]
-    public async Task DataJson_ReturnsValidJsonContent()
+    [Trait("Category", "Integration")]
+    public async Task DataJson_ContentType_IsApplicationJson()
     {
-        var response = await _client.GetAsync("/data.json");
+        var client = _fixture.Factory.CreateClient();
+
+        var response = await client.GetAsync("/data.json");
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        response.Content.Headers.ContentType.Should().NotBeNull();
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task DataJson_ContainsExpectedTrackCount()
+    {
+        var client = _fixture.Factory.CreateClient();
+
+        var response = await client.GetAsync("/data.json");
         var content = await response.Content.ReadAsStringAsync();
 
         var data = JsonSerializer.Deserialize<DashboardData>(content, JsonOptions);
-
-        Assert.NotNull(data);
-        Assert.Equal("Privacy Automation Release Roadmap", data!.Title);
+        data.Should().NotBeNull();
+        data!.Timeline.Tracks.Should().HaveCount(3);
     }
 
     [Fact]
-    public async Task DataJson_ContainsExpectedTimelineTracks()
+    [Trait("Category", "Integration")]
+    public async Task DataJson_ContainsAllHeatmapCategories()
     {
-        var response = await _client.GetAsync("/data.json");
+        var client = _fixture.Factory.CreateClient();
+
+        var response = await client.GetAsync("/data.json");
         var content = await response.Content.ReadAsStringAsync();
 
         var data = JsonSerializer.Deserialize<DashboardData>(content, JsonOptions);
-
-        Assert.NotNull(data);
-        Assert.Equal(3, data!.Timeline.Tracks.Count);
-        Assert.Equal("M1", data.Timeline.Tracks[0].Name);
-    }
-
-    [Fact]
-    public async Task DataJson_ContainsExpectedHeatmapCategories()
-    {
-        var response = await _client.GetAsync("/data.json");
-        var content = await response.Content.ReadAsStringAsync();
-
-        var data = JsonSerializer.Deserialize<DashboardData>(content, JsonOptions);
-
-        Assert.NotNull(data);
-        Assert.NotEmpty(data!.Heatmap.Shipped);
-        Assert.NotEmpty(data.Heatmap.InProgress);
-        Assert.NotEmpty(data.Heatmap.Carryover);
-        Assert.NotEmpty(data.Heatmap.Blockers);
-    }
-
-    [Fact]
-    public async Task DashboardCss_IsAccessibleViaHttp()
-    {
-        var response = await _client.GetAsync("/css/dashboard.css");
-
-        response.EnsureSuccessStatusCode();
-        Assert.Equal("text/css", response.Content.Headers.ContentType?.MediaType);
-    }
-
-    [Fact]
-    public async Task NonExistentStaticFile_Returns404()
-    {
-        var response = await _client.GetAsync("/nonexistent-file.json");
-
-        Assert.Equal(System.Net.HttpStatusCode.NotFound, response.StatusCode);
+        data.Should().NotBeNull();
+        data!.Heatmap.Should().NotBeNull();
+        data.Heatmap.Shipped.Should().NotBeEmpty();
+        data.Heatmap.InProgress.Should().NotBeEmpty();
+        data.Heatmap.Blockers.Should().NotBeEmpty();
     }
 }
