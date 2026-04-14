@@ -1,106 +1,354 @@
-:root {
-    --color-ms-blue: #0078D4;
-    --color-poc: #F4B400;
-    --color-production: #34A853;
-    --color-checkpoint: #999;
-    --color-now: #EA4335;
-    --color-border: #E0E0E0;
-    --color-bg: #FFFFFF;
-    --color-bg-alt: #FAFAFA;
-    --color-text: #212121;
-    --color-text-secondary: #616161;
-    --font-stack: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+/* === Reset === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
+/* === Body - Fixed 1920x1080 screenshot-ready viewport === */
 body {
-    font-family: var(--font-stack);
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--color-text);
-    background: var(--color-bg);
-    overflow: hidden;
-}
-
-.dashboard {
     width: 1920px;
     height: 1080px;
-    margin: 0 auto;
-    background: var(--color-bg);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #FFFFFF;
+    color: #111;
 }
 
-/* Header */
+/* === Links === */
+a {
+    color: #0078D4;
+    text-decoration: none;
+}
+
+/* === Header === */
 .hdr {
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--color-border);
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+    padding: 12px 44px 10px;
+    border-bottom: 1px solid #E0E0E0;
 }
 
-.hdr h1 { font-size: 24px; font-weight: 700; }
-.hdr .sub { font-size: 12px; color: #888; margin-top: 4px; }
+.hdr h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+}
 
-/* Timeline */
-.tl-area {
-    height: 196px;
-    background: var(--color-bg-alt);
+.hdr h1 a {
+    font-size: 15px;
+    font-weight: 400;
+    margin-left: 12px;
+}
+
+.sub {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* === Legend === */
+.legend {
     display: flex;
-    border-bottom: 1px solid var(--color-border);
+    gap: 22px;
+    align-items: center;
+    font-size: 12px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lg-diamond {
+    width: 12px;
+    height: 12px;
+    transform: rotate(45deg);
+    display: inline-block;
+}
+
+.lg-poc {
+    background: #F4B400;
+}
+
+.lg-prod {
+    background: #34A853;
+}
+
+.lg-chk {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #999;
+    display: inline-block;
+}
+
+.lg-now {
+    width: 2px;
+    height: 14px;
+    background: #EA4335;
+    display: inline-block;
+}
+
+/* === Timeline Area === */
+.tl-area {
+    display: flex;
+    align-items: stretch;
+    height: 196px;
+    padding: 6px 44px 0;
+    background: #FAFAFA;
+    border-bottom: 2px solid #E8E8E8;
+}
+
+.tl-labels {
+    width: 230px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 16px 12px 16px 0;
+    border-right: 1px solid #E0E0E0;
+}
+
+.tl-track-label {
+    font-size: 12px;
+}
+
+.tl-track-id {
+    font-weight: 600;
+}
+
+.tl-track-name {
+    font-weight: 400;
+    color: #444;
 }
 
 .tl-svg-box {
     flex: 1;
-    position: relative;
+    padding-left: 12px;
+    padding-top: 6px;
+}
+
+/* === Heatmap Wrapper === */
+.hm-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 44px 10px;
+}
+
+.hm-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+/* === Heatmap Grid === */
+.hm-grid {
+    display: grid;
+    border: 1px solid #E0E0E0;
+    flex: 1;
+    min-height: 0;
+}
+
+/* === Corner Cell === */
+.hm-corner {
+    background: #F5F5F5;
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #CCC;
+}
+
+/* === Column Headers === */
+.hm-col-hdr {
+    background: #F5F5F5;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #CCC;
+}
+
+.apr-hdr {
+    background: #FFF0D0;
+    color: #C07700;
+}
+
+/* === Row Headers === */
+.hm-row-hdr {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    border-right: 2px solid #CCC;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.ship-hdr {
+    color: #1B7A28;
+    background: #E8F5E9;
+}
+
+.prog-hdr {
+    color: #1565C0;
+    background: #E3F2FD;
+}
+
+.carry-hdr {
+    color: #B45309;
+    background: #FFF8E1;
+}
+
+.block-hdr {
+    color: #991B1B;
+    background: #FEF2F2;
+}
+
+/* === Data Cells === */
+.hm-cell {
+    padding: 8px 12px;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
     overflow: hidden;
 }
 
-/* Heatmap */
-.hm-wrap { padding: 16px 24px; }
-.hm-title {
+/* === Work Items === */
+.it {
     font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #444;
-    margin-bottom: 12px;
+    color: #333;
+    padding: 2px 0 2px 12px;
+    line-height: 1.35;
+    position: relative;
 }
 
-.hm-grid { border: 1px solid var(--color-border); }
-.hm-corner {
-    background: #F5F5F5;
-    padding: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    border-bottom: 1px solid var(--color-border);
-    border-right: 1px solid var(--color-border);
+.it::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
 }
 
-.hm-col-hdr {
-    background: #F5F5F5;
-    padding: 8px;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 600;
-    border-bottom: 1px solid var(--color-border);
-    border-right: 1px solid var(--color-border);
+/* === Cell Themes - Shipped (green) === */
+.ship-cell {
+    background: #F0FBF0;
 }
 
-.apr-hdr { background: #E3F2FD !important; }
+.ship-cell.apr {
+    background: #D8F2DA;
+}
 
-/* Error panel */
+.ship-cell .it::before {
+    background: #34A853;
+}
+
+/* === Cell Themes - In Progress (blue) === */
+.prog-cell {
+    background: #EEF4FE;
+}
+
+.prog-cell.apr {
+    background: #DAE8FB;
+}
+
+.prog-cell .it::before {
+    background: #0078D4;
+}
+
+/* === Cell Themes - Carryover (amber) === */
+.carry-cell {
+    background: #FFFDE7;
+}
+
+.carry-cell.apr {
+    background: #FFF0B0;
+}
+
+.carry-cell .it::before {
+    background: #F4B400;
+}
+
+/* === Cell Themes - Blockers (red) === */
+.block-cell {
+    background: #FFF5F5;
+}
+
+.block-cell.apr {
+    background: #FFE4E4;
+}
+
+.block-cell .it::before {
+    background: #EA4335;
+}
+
+/* === Empty Cell Dash === */
+.empty-cell {
+    color: #AAA;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+/* === Error Panel === */
 .error-panel {
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFFFFF;
+}
+
+.error-inner {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 80px;
+    gap: 16px;
 }
 
-/* Print styles */
-@media print {
-    body { overflow: visible; }
-    .dashboard { width: 100%; height: auto; }
+.error-icon {
+    font-size: 48px;
+    color: #EA4335;
+}
+
+.error-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+}
+
+.error-details {
+    font-size: 14px;
+    color: #666;
+    font-family: 'Consolas', 'Courier New', monospace;
+    max-width: 800px;
+    text-align: center;
+    word-break: break-word;
+}
+
+.error-help {
+    font-size: 12px;
+    color: #888;
 }

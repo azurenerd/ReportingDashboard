@@ -1,16 +1,28 @@
-@* HeatmapCell component — full styling in T6 *@
-<div class="@CssPrefix-cell" style="padding:6px 8px; font-size:11px; border-bottom:1px solid #E0E0E0; border-right:1px solid #E0E0E0; background:@(IsCurrentMonth ? "#F5F9FF" : "transparent");">
-    @if (Items is not null)
-    {
+@{
+    var cellClass = $"hm-cell {CssPrefix}-cell{(IsCurrentMonth ? " apr" : "")}";
+}
+
+@if (Items.Count == 0)
+{
+    <div class="@cellClass empty-cell">&ndash;</div>
+}
+else
+{
+    <div class="@cellClass">
         @foreach (var item in Items)
         {
-            <div style="margin-bottom:2px;">@item</div>
+            <div class="it">@item</div>
         }
-    }
-</div>
+    </div>
+}
 
 @code {
-    [Parameter] public List<string>? Items { get; set; }
-    [Parameter] public string CssPrefix { get; set; } = "";
-    [Parameter] public bool IsCurrentMonth { get; set; }
+    [Parameter]
+    public List<string> Items { get; set; } = default!;
+
+    [Parameter]
+    public string CssPrefix { get; set; } = default!;
+
+    [Parameter]
+    public bool IsCurrentMonth { get; set; }
 }

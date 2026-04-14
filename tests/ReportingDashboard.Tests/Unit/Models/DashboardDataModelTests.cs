@@ -5,10 +5,6 @@ using Xunit;
 
 namespace ReportingDashboard.Tests.Unit.Models;
 
-/// <summary>
-/// Tests the actual DashboardData, TimelineData, HeatmapData models
-/// from the PR #1171 source code (JsonPropertyName attributes, defaults, round-trips).
-/// </summary>
 public class DashboardDataModelTests
 {
     [Fact]
@@ -38,7 +34,7 @@ public class DashboardDataModelTests
         var json = """
         {
             "title": "Q2 Dashboard",
-            "subtitle": "Engineering · Core Platform · April 2026",
+            "subtitle": "Engineering - Core Platform - April 2026",
             "backlogLink": "https://dev.azure.com/project",
             "currentMonth": "Apr",
             "months": ["Jan","Feb","Mar","Apr"],

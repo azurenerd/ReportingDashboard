@@ -19,7 +19,6 @@ public class WebAppFixture : IDisposable
 
     public HttpClient CreateClientWithValidData()
     {
-        // Default factory uses the real project wwwroot which contains data.json
         var client = Factory.CreateClient();
         _disposables.Add(client);
         return client;

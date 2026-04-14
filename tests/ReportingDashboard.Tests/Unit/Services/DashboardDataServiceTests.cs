@@ -1,16 +1,10 @@
-using System.Text.Json;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using ReportingDashboard.Services;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Unit.Services;
 
-/// <summary>
-/// Tests the actual DashboardDataService from PR #1171 source code.
-/// Constructor takes ILogger&lt;DashboardDataService&gt;; LoadAsync takes a file path string.
-/// </summary>
 public class DashboardDataServiceTests : IDisposable
 {
     private readonly string _tempDir;
@@ -42,7 +36,7 @@ public class DashboardDataServiceTests : IDisposable
     private static string BuildValidJson() => """
         {
             "title": "Test Dashboard",
-            "subtitle": "Team · Workstream · April",
+            "subtitle": "Team - Workstream - April",
             "backlogLink": "https://example.com",
             "currentMonth": "Apr",
             "months": ["Jan","Feb","Mar","Apr"],
@@ -122,8 +116,16 @@ public class DashboardDataServiceTests : IDisposable
         {
             "title": "",
             "subtitle": "Has subtitle",
+            "backlogLink": "https://example.com",
+            "currentMonth": "Apr",
             "months": ["Jan"],
-            "timeline": { "tracks": [{ "name": "M1", "milestones": [] }] }
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [{ "name": "M1", "label": "T1", "color": "#000", "milestones": [] }]
+            },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
         }
         """;
         var path = WriteJson(json);
@@ -132,24 +134,27 @@ public class DashboardDataServiceTests : IDisposable
         await svc.LoadAsync(path);
 
         svc.IsError.Should().BeTrue();
-        svc.ErrorMessage.Should().Contain("'title' is required");
+        svc.ErrorMessage.Should().Contain("title is required");
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task LoadAsync_InvalidMilestoneType_ValidationError()
+    public async Task LoadAsync_EmptyTracks_ValidationError()
     {
         var json = """
         {
             "title": "Dashboard",
             "subtitle": "Sub",
+            "backlogLink": "https://example.com",
+            "currentMonth": "Apr",
             "months": ["Jan"],
             "timeline": {
-                "tracks": [{
-                    "name": "M1",
-                    "milestones": [{ "date": "2026-01-01", "type": "invalid_type", "label": "Bad" }]
-                }]
-            }
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": []
+            },
+            "heatmap": { "shipped": {}, "inProgress": {}, "carryover": {}, "blockers": {} }
         }
         """;
         var path = WriteJson(json);
@@ -158,9 +163,6 @@ public class DashboardDataServiceTests : IDisposable
         await svc.LoadAsync(path);
 
         svc.IsError.Should().BeTrue();
-        svc.ErrorMessage.Should().Contain("milestone type 'invalid_type' is not valid");
-        svc.ErrorMessage.Should().Contain("checkpoint");
-        svc.ErrorMessage.Should().Contain("poc");
-        svc.ErrorMessage.Should().Contain("production");
+        svc.ErrorMessage.Should().Contain("tracks must not be empty");
     }
 }

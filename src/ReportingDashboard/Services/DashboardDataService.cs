@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
 using ReportingDashboard.Models;
 
 namespace ReportingDashboard.Services;
@@ -7,8 +6,6 @@ namespace ReportingDashboard.Services;
 public class DashboardDataService
 {
     private readonly ILogger<DashboardDataService> _logger;
-
-    private static readonly string[] ValidMilestoneTypes = { "checkpoint", "poc", "production" };
 
     public DashboardData? Data { get; private set; }
     public bool IsError { get; private set; }
@@ -25,83 +22,78 @@ public class DashboardDataService
         {
             if (!File.Exists(filePath))
             {
-                SetError($"data.json not found at {filePath}");
+                var msg = $"data.json not found at {filePath}";
+                _logger.LogError("{Message}", msg);
+                IsError = true;
+                ErrorMessage = msg;
                 return;
             }
 
             var json = await File.ReadAllTextAsync(filePath);
-
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-
-            DashboardData? data;
-            try
-            {
-                data = JsonSerializer.Deserialize<DashboardData>(json, options);
-            }
-            catch (JsonException ex)
-            {
-                SetError($"Failed to parse data.json: {ex.Message}");
-                return;
-            }
+            var data = JsonSerializer.Deserialize<DashboardData>(json);
 
             if (data is null)
             {
-                SetError("Failed to parse data.json: deserialization returned null");
+                var msg = "Failed to parse data.json: deserialization returned null";
+                _logger.LogError("{Message}", msg);
+                IsError = true;
+                ErrorMessage = msg;
                 return;
             }
 
-            var validationError = Validate(data);
-            if (validationError is not null)
+            var validationErrors = ValidateData(data);
+            if (validationErrors.Count > 0)
             {
-                SetError(validationError);
+                var msg = $"data.json validation: {string.Join("; ", validationErrors)}";
+                _logger.LogError("{Message}", msg);
+                IsError = true;
+                ErrorMessage = msg;
                 return;
             }
 
             Data = data;
             IsError = false;
-            ErrorMessage = null;
-            _logger.LogInformation("Successfully loaded dashboard data from {Path}", filePath);
+            _logger.LogInformation("Dashboard data loaded successfully from {Path}", filePath);
+        }
+        catch (JsonException ex)
+        {
+            var msg = $"Failed to parse data.json: {ex.Message}";
+            _logger.LogError(ex, "{Message}", msg);
+            IsError = true;
+            ErrorMessage = msg;
         }
         catch (Exception ex)
         {
-            SetError($"Failed to load data.json: {ex.Message}");
+            var msg = $"Error loading data.json: {ex.Message}";
+            _logger.LogError(ex, "{Message}", msg);
+            IsError = true;
+            ErrorMessage = msg;
         }
     }
 
-    private string? Validate(DashboardData data)
+    private static List<string> ValidateData(DashboardData data)
     {
+        var errors = new List<string>();
+
         if (string.IsNullOrWhiteSpace(data.Title))
-            return "data.json validation: 'title' is required";
-
+            errors.Add("title is required");
         if (string.IsNullOrWhiteSpace(data.Subtitle))
-            return "data.json validation: 'subtitle' is required";
-
+            errors.Add("subtitle is required");
+        if (string.IsNullOrWhiteSpace(data.BacklogLink))
+            errors.Add("backlogLink is required");
+        if (string.IsNullOrWhiteSpace(data.CurrentMonth))
+            errors.Add("currentMonth is required");
         if (data.Months.Count == 0)
-            return "data.json validation: 'months' must not be empty";
-
+            errors.Add("months array must not be empty");
         if (data.Timeline.Tracks.Count == 0)
-            return "data.json validation: 'timeline.tracks' must not be empty";
+            errors.Add("timeline.tracks must not be empty");
+        if (string.IsNullOrWhiteSpace(data.Timeline.StartDate))
+            errors.Add("timeline.startDate is required");
+        if (string.IsNullOrWhiteSpace(data.Timeline.EndDate))
+            errors.Add("timeline.endDate is required");
+        if (string.IsNullOrWhiteSpace(data.Timeline.NowDate))
+            errors.Add("timeline.nowDate is required");
 
-        foreach (var track in data.Timeline.Tracks)
-        {
-            foreach (var milestone in track.Milestones)
-            {
-                if (!ValidMilestoneTypes.Contains(milestone.Type))
-                    return $"data.json validation: milestone type '{milestone.Type}' is not valid. Must be one of: {string.Join(", ", ValidMilestoneTypes)}";
-            }
-        }
-
-        return null;
-    }
-
-    private void SetError(string message)
-    {
-        IsError = true;
-        ErrorMessage = message;
-        Data = null;
-        _logger.LogError("DashboardDataService error: {Message}", message);
+        return errors;
     }
 }
