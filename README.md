@@ -1,6 +1,6 @@
 # Executive Reporting Dashboard
 
-A single-page Blazor Server (.NET 8) dashboard that renders a pixel-perfect 1920×1080 project roadmap visualization — optimized for PowerPoint screenshot capture. All content is driven by a single `data.json` configuration file.
+A single-page Blazor Server (.NET 8) dashboard that renders a pixel-perfect 1920×1080 project roadmap visualization — optimized for PowerPoint screenshot capture. All content is driven by a single `data.json` configuration file. No authentication, no database, no external dependencies.
 
 ![.NET 8](https://img.shields.io/badge/.NET-8.0-blue)
 ![Blazor Server](https://img.shields.io/badge/Blazor-Server-purple)
