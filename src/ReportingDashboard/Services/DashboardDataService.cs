@@ -61,6 +61,7 @@ public partial class DashboardDataService : IDisposable
 
         GetData(null);
         _logger.LogInformation("Dashboard data loaded successfully from {Path}", defaultPath);
+        _logger.LogInformation("File watcher initialized for {Path}", _contentRoot);
     }
 
     public DashboardData GetData(string? projectName = null)
@@ -109,6 +110,58 @@ public partial class DashboardDataService : IDisposable
 
         throw new DashboardDataException(
             $"Project '{projectName}' not found. Searched: {primary}, {secondary}");
+    }
+
+    /// <summary>
+    /// Clears the cache and re-validates the default data file. If the reload succeeds,
+    /// raises OnDataChanged. If it fails (parse error, validation error, IOException),
+    /// retains the existing cached data and logs a warning.
+    /// </summary>
+    internal void ExecuteReload()
+    {
+        try
+        {
+            // Pre-validate by attempting to load the default data file
+            var path = Path.Combine(_contentRoot, "data.json");
+            var json = File.ReadAllText(path);
+            var data = JsonSerializer.Deserialize<DashboardData>(json, _jsonOptions)
+                ?? throw new DashboardDataException($"Failed to deserialize {path}");
+            Validate(data, path);
+
+            // Validation passed — clear cache and raise event
+            _cache.Clear();
+            _logger.LogInformation("Dashboard data reloaded successfully");
+            OnDataChanged?.Invoke();
+        }
+        catch (IOException ex)
+        {
+            _logger.LogDebug("IOException on first reload attempt: {Message}", ex.Message);
+
+            // Retry once after a short delay
+            try
+            {
+                Thread.Sleep(200);
+                var path = Path.Combine(_contentRoot, "data.json");
+                var json = File.ReadAllText(path);
+                var data = JsonSerializer.Deserialize<DashboardData>(json, _jsonOptions)
+                    ?? throw new DashboardDataException($"Failed to deserialize {path}");
+                Validate(data, path);
+
+                _cache.Clear();
+                _logger.LogInformation("Dashboard data reloaded successfully on retry");
+                OnDataChanged?.Invoke();
+            }
+            catch (Exception retryEx)
+            {
+                _logger.LogWarning(retryEx,
+                    "Failed to reload data after file change, retry failed, retaining cached data");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Failed to reload data after file change, retaining cached data");
+        }
     }
 
     private void Validate(DashboardData data, string filePath)
@@ -171,9 +224,8 @@ public partial class DashboardDataService : IDisposable
         _debounceTimer?.Dispose();
         _debounceTimer = new Timer(_ =>
         {
-            _logger.LogInformation("Data file changed: {File}, clearing cache", e.Name);
-            _cache.Clear();
-            OnDataChanged?.Invoke();
+            _logger.LogInformation("Data file changed: {File}, reloading", e.Name);
+            ExecuteReload();
         }, null, 300, Timeout.Infinite);
     }
 
