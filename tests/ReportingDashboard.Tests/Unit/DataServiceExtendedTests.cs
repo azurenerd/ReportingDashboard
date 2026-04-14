@@ -10,7 +10,6 @@ namespace ReportingDashboard.Tests.Unit;
 
 /// <summary>
 /// Tests for DataService code paths NOT covered by the existing DataServiceTests:
-/// - GetCurrentMonthName (with and without override)
 /// - GetEffectiveDate with invalid override format (fallback)
 /// - Live reload via FileSystemWatcher (updates data, preserves last-known-good)
 /// - OnDataChanged event fires on reload
@@ -39,8 +38,7 @@ public class DataServiceExtendedTests : IDisposable
 
     private static string CreateValidJson(
         string title = "Test Dashboard",
-        string? nowDateOverride = null,
-        string? currentMonthOverride = null)
+        string? nowDateOverride = null)
     {
         var data = new
         {
@@ -49,7 +47,6 @@ public class DataServiceExtendedTests : IDisposable
             subtitle = "Test Subtitle",
             backlogUrl = "https://example.com",
             nowDateOverride,
-            currentMonthOverride,
             timeline = new
             {
                 startDate = "2026-01-01",
@@ -95,24 +92,23 @@ public class DataServiceExtendedTests : IDisposable
     }
 
     [Fact]
-    public void GetCurrentMonthName_WithOverride_ReturnsOverrideValue()
+    public void GetEffectiveDate_WithNowDateOverride_ReturnsParsedDate()
     {
-        WriteDataJson(CreateValidJson(currentMonthOverride: "Feb"));
+        WriteDataJson(CreateValidJson(nowDateOverride: "2026-06-15"));
 
         using var service = new DataService(_envMock.Object);
 
-        service.GetCurrentMonthName().Should().Be("Feb");
+        service.GetEffectiveDate().Should().Be(new DateOnly(2026, 6, 15));
     }
 
     [Fact]
-    public void GetCurrentMonthName_WithoutOverride_DerivesFromEffectiveDate()
+    public void GetEffectiveDate_WithoutOverride_DerivesFromSystemDate()
     {
-        // nowDateOverride = "2026-06-15" => effective month = "Jun"
-        WriteDataJson(CreateValidJson(nowDateOverride: "2026-06-15", currentMonthOverride: null));
+        WriteDataJson(CreateValidJson(nowDateOverride: null));
 
         using var service = new DataService(_envMock.Object);
 
-        service.GetCurrentMonthName().Should().Be("Jun");
+        service.GetEffectiveDate().Should().Be(DateOnly.FromDateTime(DateTime.Today));
     }
 
     [Fact]

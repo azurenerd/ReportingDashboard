@@ -22,7 +22,6 @@ public class DashboardDataModelTests
         "subtitle": "Platform Engineering",
         "backlogUrl": "https://dev.azure.com/example",
         "nowDateOverride": "2026-04-10",
-        "currentMonthOverride": "Apr",
         "timeline": {
             "startDate": "2026-01-01",
             "endDate": "2026-07-01",
@@ -60,7 +59,7 @@ public class DashboardDataModelTests
                 },
                 {
                     "name": "Blockers",
-                    "emoji": "🔴",
+                    "emoji": "🚫",
                     "cssClass": "block",
                     "months": [
                         { "month": "Jan", "items": ["Bug #123"] }
@@ -80,7 +79,6 @@ public class DashboardDataModelTests
         data!.SchemaVersion.Should().Be(1);
         data.Title.Should().Be("Atlas Roadmap");
         data.NowDateOverride.Should().Be("2026-04-10");
-        data.CurrentMonthOverride.Should().Be("Apr");
 
         data.Timeline.Workstreams.Should().HaveCount(2);
         data.Timeline.Workstreams[0].Milestones.Should().HaveCount(2);
@@ -114,7 +112,6 @@ public class DashboardDataModelTests
         var data = JsonSerializer.Deserialize<DashboardData>(json, CaseInsensitive);
 
         data!.NowDateOverride.Should().BeNull();
-        data.CurrentMonthOverride.Should().BeNull();
     }
 
     [Fact]
