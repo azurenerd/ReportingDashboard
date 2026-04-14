@@ -1,3 +1,4 @@
+using ReportingDashboard.Components;
 using ReportingDashboard.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +11,7 @@ var app = builder.Build();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-app.MapRazorComponents<ReportingDashboard.Components.App>()
+app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();

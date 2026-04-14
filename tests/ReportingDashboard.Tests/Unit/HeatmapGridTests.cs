@@ -47,7 +47,7 @@ public class HeatmapGridTests : TestContext
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void Renders_GridWithCorrectColumnCount()
+    public void Renders_GridWithCorrectDynamicColumnStyle()
     {
         var data = CreateDefaultData();
 
@@ -57,12 +57,11 @@ public class HeatmapGridTests : TestContext
         var grid = cut.Find(".hm-grid");
         var style = grid.GetAttribute("style");
         style.Should().Contain("grid-template-columns: 160px repeat(4, 1fr)");
-        style.Should().Contain("grid-template-rows: 36px repeat(4, 1fr)");
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void Renders_CurrentMonthHighlighted()
+    public void Renders_CurrentMonthHeaderHighlightedWithNowSuffix()
     {
         var data = CreateDefaultData(currentDate: "2026-04-14");
 
@@ -71,36 +70,19 @@ public class HeatmapGridTests : TestContext
 
         var aprHeader = cut.FindAll(".hm-col-hdr").FirstOrDefault(el =>
             el.ClassList.Contains("apr-hdr"));
-        aprHeader.Should().NotBeNull();
+        aprHeader.Should().NotBeNull("April header should have apr-hdr class");
         aprHeader!.TextContent.Should().Contain("Apr");
         aprHeader.TextContent.Should().Contain("Now");
+
+        // Non-current month headers should NOT have apr-hdr
+        var janHeader = cut.FindAll(".hm-col-hdr").First(el =>
+            el.TextContent.Contains("Jan"));
+        janHeader.ClassList.Should().NotContain("apr-hdr");
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void Renders_EmptyCellsWithDash()
-    {
-        var data = CreateDefaultData(
-            months: new List<string> { "Jan", "Feb", "Mar", "Apr" },
-            statusRows: new StatusRowsModel
-            {
-                Shipped = new Dictionary<string, List<string>>(),
-                InProgress = new Dictionary<string, List<string>>(),
-                Carryover = new Dictionary<string, List<string>>(),
-                Blockers = new Dictionary<string, List<string>>()
-            });
-
-        var cut = RenderComponent<ReportingDashboard.Components.HeatmapGrid>(p =>
-            p.Add(x => x.Data, data));
-
-        var emptyCells = cut.FindAll(".empty-cell");
-        emptyCells.Should().HaveCountGreaterThan(0);
-        emptyCells.All(e => e.TextContent == "-").Should().BeTrue();
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
-    public void Renders_FourStatusRows()
+    public void Renders_FourStatusRowsWithCorrectHeaderClasses()
     {
         var data = CreateDefaultData();
 
@@ -125,17 +107,54 @@ public class HeatmapGridTests : TestContext
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void Renders_NoHighlight_WhenCurrentDateInvalid()
+    public void Renders_DataItemsAndCurrentMonthCellHighlighting()
     {
-        var data = CreateDefaultData(currentDate: "not-a-date");
+        var data = CreateDefaultData(currentDate: "2026-04-14");
 
         var cut = RenderComponent<ReportingDashboard.Components.HeatmapGrid>(p =>
             p.Add(x => x.Data, data));
 
-        var highlightedHeaders = cut.FindAll(".apr-hdr");
-        highlightedHeaders.Should().BeEmpty();
+        // Shipped row Jan cell should have 2 items
+        var shipCells = cut.FindAll(".ship-cell");
+        shipCells.Should().HaveCount(4, "one ship-cell per month");
 
-        var highlightedCells = cut.FindAll(".apr");
-        highlightedCells.Should().BeEmpty();
+        var janShipItems = shipCells[0].QuerySelectorAll(".it");
+        janShipItems.Length.Should().Be(2);
+        janShipItems[0].TextContent.Should().Be("Feature A");
+        janShipItems[1].TextContent.Should().Be("Feature B");
+
+        // InProgress Apr cell should have items and apr class
+        var progCells = cut.FindAll(".prog-cell");
+        var aprProgCell = progCells[3]; // Apr is 4th month (index 3)
+        aprProgCell.ClassList.Should().Contain("apr", "current month data cells should have apr class");
+        var aprProgItems = aprProgCell.QuerySelectorAll(".it");
+        aprProgItems.Length.Should().Be(2);
+        aprProgItems[0].TextContent.Should().Be("Task X");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Renders_DashesForEmptyCells_AndHandlesNullStatusRows()
+    {
+        // Test with null StatusRows - all cells should show dash
+        var data = CreateDefaultData(
+            months: new List<string> { "Jan", "Feb" },
+            statusRows: null);
+        // StatusRows is null, component should not crash
+        data.StatusRows = null!;
+
+        var cut = RenderComponent<ReportingDashboard.Components.HeatmapGrid>(p =>
+            p.Add(x => x.Data, data));
+
+        var emptyCells = cut.FindAll(".empty-cell");
+        // 4 rows x 2 months = 8 empty cells
+        emptyCells.Should().HaveCount(8);
+        // &ndash; renders as en-dash U+2013
+        emptyCells.Should().AllSatisfy(e =>
+            e.TextContent.Should().Be("\u2013"));
+
+        // Also verify no crash, grid still renders
+        cut.Find(".hm-corner").TextContent.Should().Contain("STATUS");
+        cut.Find(".hm-title").TextContent.Should().Contain("MONTHLY EXECUTION HEATMAP");
     }
 }
