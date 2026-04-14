@@ -1,20 +1,22 @@
-<div class="hm-row-hdr @CssPrefix-hdr">@CategoryLabel</div>
-
+<div class="hm-row-hdr @($"{CssPrefix}-hdr")">@CategoryLabel</div>
 @foreach (var month in Months)
 {
-    var monthKey = month.ToLowerInvariant();
-    var items = Items.TryGetValue(monthKey, out var list) ? list : new List<string>();
-    var isCurrentMonth = month.Equals(CurrentMonth, StringComparison.OrdinalIgnoreCase);
-
-    <HeatmapCell Items="@items"
+    <HeatmapCell Items="@GetMonthItems(month)"
                  CssPrefix="@CssPrefix"
-                 IsCurrentMonth="@isCurrentMonth" />
+                 IsCurrentMonth="@(string.Equals(month, CurrentMonth, StringComparison.OrdinalIgnoreCase))" />
 }
 
 @code {
-    [Parameter] public string CategoryLabel { get; set; } = string.Empty;
-    [Parameter] public string CssPrefix { get; set; } = string.Empty;
-    [Parameter] public Dictionary<string, List<string>> Items { get; set; } = default!;
-    [Parameter] public List<string> Months { get; set; } = default!;
-    [Parameter] public string CurrentMonth { get; set; } = string.Empty;
+    [Parameter] public string CategoryLabel { get; set; } = "";
+    [Parameter] public string CssPrefix { get; set; } = "";
+    [Parameter] public Dictionary<string, List<string>>? Items { get; set; }
+    [Parameter] public List<string> Months { get; set; } = new();
+    [Parameter] public string CurrentMonth { get; set; } = "";
+
+    private List<string>? GetMonthItems(string month)
+    {
+        if (Items is null) return null;
+        var key = month.ToLowerInvariant();
+        return Items.TryGetValue(key, out var items) ? items : null;
+    }
 }

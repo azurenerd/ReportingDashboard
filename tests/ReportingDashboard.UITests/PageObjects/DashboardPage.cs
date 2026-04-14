@@ -2,6 +2,10 @@ using Microsoft.Playwright;
 
 namespace ReportingDashboard.UITests.PageObjects;
 
+/// <summary>
+/// Page Object for the main dashboard view.
+/// Encapsulates selectors and interactions for the executive reporting dashboard.
+/// </summary>
 public class DashboardPage
 {
     private readonly IPage _page;
@@ -10,51 +14,70 @@ public class DashboardPage
     public DashboardPage(IPage page, string baseUrl)
     {
         _page = page;
-        _baseUrl = baseUrl;
+        _baseUrl = baseUrl.TrimEnd('/');
     }
 
-    public async Task NavigateAsync()
+    // Navigation
+    public async Task<IResponse?> NavigateAsync()
     {
-        await _page.GotoAsync(_baseUrl, new PageGotoOptions
+        return await _page.GotoAsync(_baseUrl, new PageGotoOptions
         {
-            WaitUntil = WaitUntilState.NetworkIdle,
-            Timeout = 30_000
+            WaitUntil = WaitUntilState.NetworkIdle
         });
     }
 
-    public ILocator DashboardContainer => _page.Locator(".dashboard-container");
-    public ILocator ErrorBanner => _page.Locator(".error-banner");
-    public ILocator ProjectHeader => _page.Locator(".section.project-header");
+    // Header selectors
+    public ILocator Header => _page.Locator(".hdr");
+    public ILocator Title => _page.Locator("h1");
+    public ILocator Subtitle => _page.Locator(".sub");
+    public ILocator BacklogLink => _page.Locator("a[target='_blank']");
 
-    /// <summary>
-    /// Forward-looking locator: requires Timeline component from issue #512.
-    /// Will only match once <c>MilestoneTimeline.razor</c> renders <c>.tl-area</c>.
-    /// </summary>
+    // Timeline selectors
     public ILocator TimelineArea => _page.Locator(".tl-area");
+    public ILocator TimelineSvg => _page.Locator(".tl-svg-box svg");
+    public ILocator TrackLabels => _page.Locator(".tl-area div").First;
 
-    /// <summary>
-    /// Forward-looking locator: requires Heatmap component from issue #513.
-    /// Will only match once <c>Heatmap.razor</c> renders <c>.hm-wrap</c>.
-    /// </summary>
-    public ILocator HeatmapWrap => _page.Locator(".hm-wrap");
+    // Heatmap selectors
+    public ILocator HeatmapWrapper => _page.Locator(".hm-wrap");
+    public ILocator HeatmapTitle => _page.Locator(".hm-title");
+    public ILocator HeatmapGrid => _page.Locator(".hm-grid");
+    public ILocator HeatmapCorner => _page.Locator(".hm-corner");
+    public ILocator ColumnHeaders => _page.Locator(".hm-col-hdr");
+    public ILocator RowHeaders => _page.Locator(".hm-row-hdr");
+    public ILocator DataCells => _page.Locator(".hm-cell");
 
-    public ILocator StatusBadge => _page.Locator(".status-badge");
-    public ILocator MetricsGrid => _page.Locator(".metrics-grid");
-    public ILocator MilestoneTimeline => _page.Locator(".timeline-track");
-    public ILocator WorkItems => _page.Locator(".work-item");
+    // Status row selectors
+    public ILocator ShippedHeader => _page.Locator(".ship-hdr");
+    public ILocator InProgressHeader => _page.Locator(".prog-hdr");
+    public ILocator CarryoverHeader => _page.Locator(".carry-hdr");
+    public ILocator BlockersHeader => _page.Locator(".block-hdr");
 
-    public async Task<string> GetTitleAsync()
+    // General queries
+    public async Task<string> GetTitleTextAsync()
     {
-        return await _page.TitleAsync();
+        return await Title.TextContentAsync() ?? string.Empty;
     }
 
-    public async Task<bool> HasErrorBannerAsync()
+    public async Task<string> GetSubtitleTextAsync()
     {
-        return await ErrorBanner.CountAsync() > 0;
+        return await Subtitle.TextContentAsync() ?? string.Empty;
     }
 
-    public async Task<bool> HasDashboardContainerAsync()
+    public async Task<bool> IsFullyLoadedAsync()
     {
-        return await DashboardContainer.CountAsync() > 0;
+        // Check that key sections exist
+        var hasHeader = await Header.CountAsync() > 0;
+        var hasTimeline = await TimelineArea.CountAsync() > 0;
+        var hasHeatmap = await HeatmapWrapper.CountAsync() > 0;
+        return hasHeader && hasTimeline && hasHeatmap;
+    }
+
+    public async Task<byte[]> TakeScreenshotAsync()
+    {
+        return await _page.ScreenshotAsync(new PageScreenshotOptions
+        {
+            FullPage = true,
+            Type = ScreenshotType.Png
+        });
     }
 }
