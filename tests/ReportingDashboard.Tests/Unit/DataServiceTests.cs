@@ -33,7 +33,6 @@ public class DataServiceTests : IDisposable
     private static string CreateValidJson(
         string title = "Test Dashboard",
         string? nowDateOverride = null,
-        string? currentMonthOverride = null,
         int schemaVersion = 1)
     {
         var data = new
@@ -43,7 +42,6 @@ public class DataServiceTests : IDisposable
             subtitle = "Test Subtitle",
             backlogUrl = "https://example.com",
             nowDateOverride,
-            currentMonthOverride,
             timeline = new
             {
                 startDate = "2026-01-01",
@@ -90,9 +88,7 @@ public class DataServiceTests : IDisposable
         File.WriteAllText(Path.Combine(_wwwrootDir, "data.json"), content);
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Valid JSON loading
-    // ──────────────────────────────────────────────────────────────
+    // ─── Valid JSON loading ───
 
     [Fact]
     public void ValidJson_LoadsCorrectly()
@@ -137,9 +133,7 @@ public class DataServiceTests : IDisposable
         data.Heatmap.Categories[0].Months[1].Items.Should().BeEmpty();
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Missing file
-    // ──────────────────────────────────────────────────────────────
+    // ─── Missing file ───
 
     [Fact]
     public void MissingFile_ReturnsError()
@@ -158,9 +152,7 @@ public class DataServiceTests : IDisposable
         service.GetError().Should().Contain("wwwroot");
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Malformed JSON
-    // ──────────────────────────────────────────────────────────────
+    // ─── Malformed JSON ───
 
     [Fact]
     public void MalformedJson_ReturnsError()
@@ -195,9 +187,7 @@ public class DataServiceTests : IDisposable
         service.GetError().Should().Contain("invalid JSON");
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Schema version validation
-    // ──────────────────────────────────────────────────────────────
+    // ─── Schema version validation ───
 
     [Fact]
     public void SchemaVersionMismatch_ReturnsError()
@@ -221,9 +211,7 @@ public class DataServiceTests : IDisposable
         service.GetError().Should().Contain("expected 1");
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Effective date (nowDateOverride)
-    // ──────────────────────────────────────────────────────────────
+    // ─── Effective date (nowDateOverride) ───
 
     [Fact]
     public void GetEffectiveDate_WithOverride_ReturnsParsedDate()
@@ -267,54 +255,7 @@ public class DataServiceTests : IDisposable
         service.GetEffectiveDate().Should().Be(DateOnly.FromDateTime(DateTime.Today));
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Current month (currentMonthOverride)
-    // ──────────────────────────────────────────────────────────────
-
-    [Fact]
-    public void GetCurrentMonthName_WithOverride_ReturnsOverride()
-    {
-        WriteDataJson(CreateValidJson(currentMonthOverride: "Feb"));
-
-        using var service = new DataService(_envMock.Object);
-
-        service.GetCurrentMonthName().Should().Be("Feb");
-    }
-
-    [Fact]
-    public void GetCurrentMonthName_WithNowDateOverride_DerivesFromOverride()
-    {
-        WriteDataJson(CreateValidJson(nowDateOverride: "2026-06-15"));
-
-        using var service = new DataService(_envMock.Object);
-
-        service.GetCurrentMonthName().Should().Be("Jun");
-    }
-
-    [Fact]
-    public void GetCurrentMonthName_WithBothOverrides_PrefersCurrentMonthOverride()
-    {
-        WriteDataJson(CreateValidJson(nowDateOverride: "2026-06-15", currentMonthOverride: "Mar"));
-
-        using var service = new DataService(_envMock.Object);
-
-        service.GetCurrentMonthName().Should().Be("Mar");
-    }
-
-    [Fact]
-    public void GetCurrentMonthName_WithoutOverrides_ReturnsCurrentMonth()
-    {
-        WriteDataJson(CreateValidJson());
-
-        using var service = new DataService(_envMock.Object);
-
-        var expected = DateOnly.FromDateTime(DateTime.Today).ToString("MMM");
-        service.GetCurrentMonthName().Should().Be(expected);
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    // Thread safety: concurrent reads do not throw
-    // ──────────────────────────────────────────────────────────────
+    // ─── Thread safety: concurrent reads do not throw ───
 
     [Fact]
     public void ConcurrentReads_DoNotThrow()
@@ -328,15 +269,12 @@ public class DataServiceTests : IDisposable
             service.GetData();
             service.GetError();
             service.GetEffectiveDate();
-            service.GetCurrentMonthName();
         }));
 
         Task.WaitAll(tasks.ToArray());
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // File change triggers reload
-    // ──────────────────────────────────────────────────────────────
+    // ─── File change triggers reload ───
 
     [Fact]
     public async Task FileChange_TriggersReload()
@@ -406,9 +344,7 @@ public class DataServiceTests : IDisposable
         service.GetError().Should().BeNull();
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // Missing required fields
-    // ──────────────────────────────────────────────────────────────
+    // ─── Missing required fields ───
 
     [Fact]
     public void MissingRequiredField_ReturnsError()

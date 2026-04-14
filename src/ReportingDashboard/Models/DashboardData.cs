@@ -22,19 +22,8 @@ public record DashboardData
     [JsonPropertyName("heatmap")]
     public required HeatmapConfig Heatmap { get; init; }
 
-    /// <summary>
-    /// ISO date string (e.g. "2026-04-14") to override the NOW line position.
-    /// When null, the system date is used.
-    /// </summary>
     [JsonPropertyName("nowDateOverride")]
     public string? NowDateOverride { get; init; }
-
-    /// <summary>
-    /// Abbreviated month name (e.g. "Apr") to override current-month highlighting.
-    /// When null, derived from the effective date (nowDateOverride or system date).
-    /// </summary>
-    [JsonPropertyName("currentMonthOverride")]
-    public string? CurrentMonthOverride { get; init; }
 }
 
 public record TimelineConfig

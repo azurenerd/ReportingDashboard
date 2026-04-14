@@ -106,6 +106,7 @@ body {
     height: 12px;
     display: inline-block;
     transform: rotate(45deg);
+    flex-shrink: 0;
 }
 
 .icon-diamond.gold {
@@ -122,6 +123,7 @@ body {
     border-radius: 50%;
     background: var(--checkpoint);
     display: inline-block;
+    flex-shrink: 0;
 }
 
 .icon-now-line {
@@ -129,6 +131,7 @@ body {
     height: 14px;
     background: var(--red);
     display: inline-block;
+    flex-shrink: 0;
 }
 
 /* === TIMELINE === */
@@ -181,6 +184,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 8px;
+    flex-shrink: 0;
 }
 
 .hm-grid {
