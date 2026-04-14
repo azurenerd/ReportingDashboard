@@ -1,6 +1,14 @@
+## .NET Build Artifacts
 bin/
 obj/
-node_modules/
-.vs/
 *.user
-appsettings.json
+*.suo
+.vs/
+
+## IDE
+.idea/
+*.swp
+*~
+
+## Project data file (may contain real project names)
+ReportingDashboard/data.json
