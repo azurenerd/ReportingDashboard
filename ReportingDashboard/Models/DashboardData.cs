@@ -1,26 +1,22 @@
 namespace ReportingDashboard.Models;
 
 public record DashboardData(
-    string Title,
+    string? Title,
     string? Subtitle,
     string? BacklogUrl,
     DateOnly CurrentDate,
-    string[] Months,
+    string[]? Months,
     int CurrentMonthIndex,
     DateOnly? TimelineStart,
     DateOnly? TimelineEnd,
-    MilestoneTrack[] MilestoneTracks,
-    HeatmapData Heatmap
+    MilestoneTrack[]? MilestoneTracks,
+    HeatmapData? Heatmap
 )
 {
     public string Title { get; init; } = Title ?? "Untitled Dashboard";
     public string[] Months { get; init; } = Months ?? Array.Empty<string>();
     public MilestoneTrack[] MilestoneTracks { get; init; } = MilestoneTracks ?? Array.Empty<MilestoneTrack>();
-    public HeatmapData Heatmap { get; init; } = Heatmap ?? new HeatmapData(
-        new HeatmapRow(new Dictionary<string, string[]>()),
-        new HeatmapRow(new Dictionary<string, string[]>()),
-        new HeatmapRow(new Dictionary<string, string[]>()),
-        new HeatmapRow(new Dictionary<string, string[]>()));
+    public HeatmapData Heatmap { get; init; } = Heatmap ?? new HeatmapData(null, null, null, null);
 
     public DateOnly EffectiveTimelineStart => TimelineStart ?? new DateOnly(CurrentDate.Year, 1, 1);
     public DateOnly EffectiveTimelineEnd => TimelineEnd ?? new DateOnly(CurrentDate.Year, 6, 30);
@@ -30,7 +26,7 @@ public record MilestoneTrack(
     string Name,
     string? Description,
     string Color,
-    MilestoneEvent[] Events
+    MilestoneEvent[]? Events
 )
 {
     public MilestoneEvent[] Events { get; init; } = Events ?? Array.Empty<MilestoneEvent>();
@@ -43,14 +39,20 @@ public record MilestoneEvent(
 );
 
 public record HeatmapData(
-    HeatmapRow Shipped,
-    HeatmapRow InProgress,
-    HeatmapRow Carryover,
-    HeatmapRow Blockers
-);
+    HeatmapRow? Shipped,
+    HeatmapRow? InProgress,
+    HeatmapRow? Carryover,
+    HeatmapRow? Blockers
+)
+{
+    public HeatmapRow Shipped { get; init; } = Shipped ?? new HeatmapRow(new());
+    public HeatmapRow InProgress { get; init; } = InProgress ?? new HeatmapRow(new());
+    public HeatmapRow Carryover { get; init; } = Carryover ?? new HeatmapRow(new());
+    public HeatmapRow Blockers { get; init; } = Blockers ?? new HeatmapRow(new());
+}
 
 public record HeatmapRow(
-    Dictionary<string, string[]> Items
+    Dictionary<string, string[]>? Items
 )
 {
     public Dictionary<string, string[]> Items { get; init; } = Items ?? new Dictionary<string, string[]>();

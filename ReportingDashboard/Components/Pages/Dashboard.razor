@@ -3,16 +3,73 @@
 
 @if (errorMessage is not null)
 {
-    <div class="error-banner" style="max-width:600px; margin:200px auto 0;">
-        <div><strong>Dashboard Error</strong></div>
-        <div style="margin-top:8px;">@errorMessage</div>
+    <div class="error-banner">
+        <strong>⚠</strong> @errorMessage
     </div>
 }
 else if (dashboardData is not null)
 {
-    <!-- HEADER SECTION -->
-    <!-- TIMELINE SECTION -->
-    <!-- HEATMAP SECTION -->
+    <!-- Header -->
+    <div class="hdr">
+        <div>
+            <h1>
+                @dashboardData.Title
+                @if (!string.IsNullOrEmpty(dashboardData.BacklogUrl))
+                {
+                    <a href="@dashboardData.BacklogUrl"> → ADO Backlog</a>
+                }
+            </h1>
+            @if (dashboardData.Subtitle is not null)
+            {
+                <div class="sub">@dashboardData.Subtitle</div>
+            }
+        </div>
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-diamond" style="background:#F4B400"></span>
+                <span>PoC Milestone</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-diamond" style="background:#34A853"></span>
+                <span>Production Release</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-circle"></span>
+                <span>Checkpoint</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-line"></span>
+                <span>Now (@dashboardData.CurrentDate.ToString("MMM yyyy"))</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Area -->
+    <div class="tl-area">
+        <div class="tl-sidebar">
+            @foreach (var track in dashboardData.MilestoneTracks)
+            {
+                <div class="track">
+                    <strong style="color:@track.Color">@track.Name</strong>
+                    @if (track.Description is not null)
+                    {
+                        <div class="desc">@track.Description</div>
+                    }
+                </div>
+            }
+        </div>
+        <div class="tl-svg-box">
+            <!-- SVG timeline pending implementation by T-1199 -->
+        </div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="hm-wrap">
+        <div class="hm-title">Monthly Execution Heatmap - Shipped · In Progress · Carryover · Blockers</div>
+        <div class="hm-grid" style="grid-template-columns: 160px repeat(@dashboardData.Months.Length, 1fr)">
+            <!-- Heatmap grid pending implementation by T-1200 -->
+        </div>
+    </div>
 }
 
 @code {
