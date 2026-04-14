@@ -1,24 +1,2 @@
-@namespace ReportingDashboard.Components.Sections
-
-<div class="hm-row-hdr @CssPrefix-hdr">@CategoryLabel</div>
-@foreach (var month in Months)
-{
-    <HeatmapCell Items="@GetMonthItems(month)"
-                 CssPrefix="@CssPrefix"
-                 IsCurrentMonth="@(string.Equals(month, CurrentMonth, StringComparison.OrdinalIgnoreCase))" />
-}
-
-@code {
-    [Parameter] public string CategoryLabel { get; set; } = "";
-    [Parameter] public string CssPrefix { get; set; } = "";
-    [Parameter] public Dictionary<string, List<string>>? Items { get; set; }
-    [Parameter] public List<string> Months { get; set; } = new();
-    [Parameter] public string CurrentMonth { get; set; } = "";
-
-    private List<string>? GetMonthItems(string month)
-    {
-        if (Items is null) return null;
-        var key = month.ToLowerInvariant();
-        return Items.TryGetValue(key, out var items) ? items : null;
-    }
-}
+@* This file is intentionally left empty — the canonical HeatmapRow component is at Components/HeatmapRow.razor *@
+@* DELETE THIS FILE — it duplicates Components/HeatmapRow.razor and causes build errors *@

@@ -1,202 +1,106 @@
-/* Executive Reporting Dashboard — 1920x1080 pixel-precise layout */
+:root {
+    --color-ms-blue: #0078D4;
+    --color-poc: #F4B400;
+    --color-production: #34A853;
+    --color-checkpoint: #999;
+    --color-now: #EA4335;
+    --color-border: #E0E0E0;
+    --color-bg: #FFFFFF;
+    --color-bg-alt: #FAFAFA;
+    --color-text: #212121;
+    --color-text-secondary: #616161;
+    --font-stack: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    width: 1920px;
-    height: 1080px;
+    font-family: var(--font-stack);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-text);
+    background: var(--color-bg);
     overflow: hidden;
-    background: #fff;
-    color: #111;
 }
 
-/* ===== Header ===== */
+.dashboard {
+    width: 1920px;
+    height: 1080px;
+    margin: 0 auto;
+    background: var(--color-bg);
+    overflow: hidden;
+}
+
+/* Header */
 .hdr {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--color-border);
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 12px 44px 10px;
-    border-bottom: 1px solid #E0E0E0;
-}
-.hdr h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #111;
-    margin: 0;
-}
-.hdr h1 a {
-    color: #0078D4;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 400;
-    margin-left: 12px;
-}
-.hdr h1 a:hover { text-decoration: underline; }
-.sub {
-    font-size: 12px;
-    color: #888;
-    margin-top: 2px;
+    align-items: flex-start;
 }
 
-/* ===== Timeline Area ===== */
+.hdr h1 { font-size: 24px; font-weight: 700; }
+.hdr .sub { font-size: 12px; color: #888; margin-top: 4px; }
+
+/* Timeline */
 .tl-area {
-    display: flex;
-    align-items: stretch;
     height: 196px;
-    padding: 6px 44px 0;
-    background: #FAFAFA;
-    border-bottom: 2px solid #E8E8E8;
+    background: var(--color-bg-alt);
+    display: flex;
+    border-bottom: 1px solid var(--color-border);
 }
+
 .tl-svg-box {
     flex: 1;
-    padding-left: 12px;
-    padding-top: 6px;
-}
-
-/* ===== Heatmap ===== */
-.hm-wrap {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    padding: 10px 44px 10px;
-}
-.hm-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #888;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-}
-.hm-grid {
-    display: grid;
-    border: 1px solid #E0E0E0;
-    flex: 1;
-    min-height: 0;
-}
-
-/* Corner cell */
-.hm-corner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #F5F5F5;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #999;
-    border-right: 1px solid #E0E0E0;
-    border-bottom: 2px solid #CCC;
-}
-
-/* Column headers */
-.hm-col-hdr {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #F5F5F5;
-    font-size: 16px;
-    font-weight: 700;
-    border-right: 1px solid #E0E0E0;
-    border-bottom: 2px solid #CCC;
-}
-.apr-hdr {
-    background: #FFF0D0;
-    color: #C07700;
-}
-
-/* Row headers */
-.hm-row-hdr {
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-    border-right: 2px solid #CCC;
-    border-bottom: 1px solid #E0E0E0;
-}
-.ship-hdr { color: #1B7A28; background: #E8F5E9; }
-.prog-hdr { color: #1565C0; background: #E3F2FD; }
-.carry-hdr { color: #B45309; background: #FFF8E1; }
-.block-hdr { color: #991B1B; background: #FEF2F2; }
-
-/* Data cells */
-.hm-cell {
-    padding: 8px 12px;
-    border-right: 1px solid #E0E0E0;
-    border-bottom: 1px solid #E0E0E0;
+    position: relative;
     overflow: hidden;
 }
 
-/* Row-specific cell colors */
-.ship-cell { background: #F0FBF0; }
-.ship-cell.apr { background: #D8F2DA; }
-.prog-cell { background: #EEF4FE; }
-.prog-cell.apr { background: #DAE8FB; }
-.carry-cell { background: #FFFDE7; }
-.carry-cell.apr { background: #FFF0B0; }
-.block-cell { background: #FFF5F5; }
-.block-cell.apr { background: #FFE4E4; }
-
-/* Work items in cells */
-.it {
+/* Heatmap */
+.hm-wrap { padding: 16px 24px; }
+.hm-title {
     font-size: 12px;
-    color: #333;
-    padding: 2px 0 2px 12px;
-    line-height: 1.35;
-    position: relative;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #444;
+    margin-bottom: 12px;
 }
-.it::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 7px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-.ship-it::before { background: #34A853; }
-.prog-it::before { background: #0078D4; }
-.carry-it::before { background: #F4B400; }
-.block-it::before { background: #EA4335; }
 
-/* ===== Error Panel ===== */
-.error-panel {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 1920px;
-    height: 1080px;
-    background: #fff;
-    font-family: 'Segoe UI', Arial, sans-serif;
+.hm-grid { border: 1px solid var(--color-border); }
+.hm-corner {
+    background: #F5F5F5;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
 }
-.error-panel-content {
+
+.hm-col-hdr {
+    background: #F5F5F5;
+    padding: 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+}
+
+.apr-hdr { background: #E3F2FD !important; }
+
+/* Error panel */
+.error-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
-    max-width: 600px;
-    text-align: center;
+    justify-content: center;
+    height: 100%;
+    padding: 80px;
 }
-.error-icon {
-    font-size: 48px;
-    color: #EA4335;
-}
-.error-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #333;
-}
-.error-details {
-    font-size: 14px;
-    color: #666;
-    font-family: 'Cascadia Code', 'Consolas', monospace;
-    word-break: break-word;
-}
-.error-help {
-    font-size: 12px;
-    color: #888;
+
+/* Print styles */
+@media print {
+    body { overflow: visible; }
+    .dashboard { width: 100%; height: auto; }
 }

@@ -1,9 +1,9 @@
 {
-  "title": "Privacy Automation Release Roadmap",
-  "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
+  "title": "Project Atlas – Executive Dashboard",
+  "subtitle": "Cloud Platform · Infrastructure Modernization · April 2026",
   "backlogLink": "https://dev.azure.com/org/project/_backlogs",
   "currentMonth": "Apr",
-  "months": ["Jan", "Feb", "Mar", "Apr"],
+  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
   "timeline": {
     "startDate": "2026-01-01",
     "endDate": "2026-06-30",
@@ -11,60 +11,67 @@
     "tracks": [
       {
         "name": "M1",
-        "label": "Chatbot & MS Role",
-        "color": "#0078D4",
+        "label": "Core Platform",
+        "color": "#4285F4",
         "milestones": [
-          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
-          { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
-          { "date": "2026-05-01", "type": "production", "label": "May Prod" }
+          { "date": "2026-02-14", "type": "poc", "label": "PoC Complete" },
+          { "date": "2026-03-31", "type": "production", "label": "GA Release" }
         ]
       },
       {
         "name": "M2",
-        "label": "Privacy Review Automation",
-        "color": "#00897B",
+        "label": "API Gateway",
+        "color": "#EA4335",
         "milestones": [
-          { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
-          { "date": "2026-04-10", "type": "poc", "label": "Apr 10 PoC" },
-          { "date": "2026-06-01", "type": "production", "label": "Jun Prod" }
+          { "date": "2026-01-31", "type": "checkpoint", "label": "Design Review" },
+          { "date": "2026-03-15", "type": "poc", "label": "PoC Demo" },
+          { "date": "2026-05-30", "type": "production", "label": "v1.0 Ship" }
         ]
       },
       {
         "name": "M3",
-        "label": "Compliance Dashboard",
-        "color": "#546E7A",
+        "label": "Observability",
+        "color": "#34A853",
         "milestones": [
-          { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
-          { "date": "2026-05-15", "type": "poc", "label": "May 15 PoC" },
-          { "date": "2026-06-30", "type": "production", "label": "Jun 30 Prod" }
+          { "date": "2026-02-28", "type": "checkpoint", "label": "Spike Complete" },
+          { "date": "2026-04-30", "type": "poc", "label": "Dashboard PoC" },
+          { "date": "2026-06-15", "type": "production", "label": "Full Rollout" }
         ]
       }
     ]
   },
   "heatmap": {
     "shipped": {
-      "jan": ["DSAR intake form", "Consent API v1"],
-      "feb": ["Bot scaffolding"],
-      "mar": ["MS Graph connector", "Privacy classifier v2"],
-      "apr": ["Auto-redaction pipeline"]
+      "Jan": ["Infra scaffold", "CI/CD pipeline"],
+      "Feb": ["Auth service", "Logging v2"],
+      "Mar": ["API v1 GA", "Perf tuning"],
+      "Apr": [],
+      "May": [],
+      "Jun": []
     },
     "inProgress": {
-      "jan": [],
-      "feb": [],
-      "mar": ["Review queue UI"],
-      "apr": ["PII scanner integration", "Admin portal MVP"]
+      "Jan": [],
+      "Feb": ["Gateway design"],
+      "Mar": ["Gateway PoC"],
+      "Apr": ["Gateway build", "Obs dashboard"],
+      "May": [],
+      "Jun": []
     },
     "carryover": {
-      "jan": [],
-      "feb": [],
-      "mar": [],
-      "apr": ["Legacy data migration"]
+      "Jan": [],
+      "Feb": [],
+      "Mar": ["SDK docs"],
+      "Apr": ["SDK docs", "Load tests"],
+      "May": [],
+      "Jun": []
     },
     "blockers": {
-      "jan": [],
-      "feb": [],
-      "mar": [],
-      "apr": ["Awaiting Legal sign-off"]
+      "Jan": [],
+      "Feb": [],
+      "Mar": [],
+      "Apr": ["Vendor license delay"],
+      "May": [],
+      "Jun": []
     }
   }
 }

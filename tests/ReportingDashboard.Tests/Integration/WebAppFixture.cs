@@ -1,136 +1,86 @@
-using System.Text.Json;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Hosting;
 
 namespace ReportingDashboard.Tests.Integration;
 
-/// <summary>
-/// Shared fixture for integration tests. Creates <see cref="WebApplicationFactory{T}"/>-backed
-/// <see cref="HttpClient"/> instances with controllable data.json content.
-/// Implements <see cref="IAsyncLifetime"/> to clean up all temp directories on disposal.
-/// </summary>
-public class WebAppFixture : IAsyncLifetime
+public class WebAppFixture : IDisposable
 {
-    private readonly List<string> _tempDirectories = [];
-    private readonly List<WebApplicationFactory<Program>> _factories = [];
-    private readonly object _lock = new();
+    public WebApplicationFactory<Program> Factory { get; }
+    public HttpClient Client { get; }
 
-    private static readonly JsonSerializerOptions CamelCaseOptions = new()
+    private readonly List<IDisposable> _disposables = new();
+    private readonly List<string> _tempDirs = new();
+
+    public WebAppFixture()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true
-    };
-
-    public Task InitializeAsync() => Task.CompletedTask;
-
-    public Task DisposeAsync()
-    {
-        // Dispose all factories first so file handles are released
-        lock (_lock)
-        {
-            foreach (var factory in _factories)
-            {
-                try { factory.Dispose(); } catch { /* best-effort */ }
-            }
-            _factories.Clear();
-        }
-
-        // Delete all temp directories
-        lock (_lock)
-        {
-            foreach (var dir in _tempDirectories)
-            {
-                try
-                {
-                    if (Directory.Exists(dir))
-                        Directory.Delete(dir, recursive: true);
-                }
-                catch
-                {
-                    // Best-effort cleanup; CI runners may hold locks briefly
-                }
-            }
-            _tempDirectories.Clear();
-        }
-
-        return Task.CompletedTask;
+        Factory = new WebApplicationFactory<Program>();
+        Client = Factory.CreateClient();
     }
 
-    /// <summary>
-    /// Creates an <see cref="HttpClient"/> backed by a test server whose
-    /// data.json content is controlled by <paramref name="dataJson"/>.
-    /// Pass <c>null</c> to simulate a missing data file.
-    /// The temp directory is tracked and cleaned up in <see cref="DisposeAsync"/>.
-    /// </summary>
-    public HttpClient CreateInitializedClient(string? dataJson = null)
-    {
-        var tempDir = Path.Combine(Path.GetTempPath(), $"DashboardIntTest_{Guid.NewGuid():N}");
-        Directory.CreateDirectory(tempDir);
-
-        lock (_lock)
-        {
-            _tempDirectories.Add(tempDir);
-        }
-
-        var dataDir = Path.Combine(tempDir, "data");
-        Directory.CreateDirectory(dataDir);
-
-        if (dataJson is not null)
-        {
-            File.WriteAllText(Path.Combine(dataDir, "data.json"), dataJson);
-        }
-
-        // Ensure wwwroot/css exists for static file middleware
-        var cssDir = Path.Combine(tempDir, "wwwroot", "css");
-        Directory.CreateDirectory(cssDir);
-
-        var factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.UseContentRoot(tempDir);
-                builder.UseSetting("Dashboard:DataFilePath", "data/data.json");
-                builder.UseEnvironment("Development");
-            });
-
-        lock (_lock)
-        {
-            _factories.Add(factory);
-        }
-
-        return factory.CreateClient();
-    }
-
-    /// <summary>
-    /// Creates a client pre-loaded with a valid sample data.json.
-    /// </summary>
     public HttpClient CreateClientWithValidData()
     {
-        var sampleData = new
-        {
-            project = new { name = "Test Project", lead = "Alice", status = "On Track", lastUpdated = "2026-04-01", summary = "Integration test data" },
-            milestones = new[] { new { title = "M1", targetDate = "2026-05-01", status = "Completed" } },
-            shipped = new[] { new { title = "Feature A", description = "Done", category = "Core", percentComplete = 100 } },
-            inProgress = new[] { new { title = "Feature B", percentComplete = 50 } },
-            carriedOver = new[] { new { title = "Feature C", carryOverReason = "Delayed" } },
-            currentMonth = new { month = "April", totalItems = 10, completedItems = 7, carriedItems = 2, overallHealth = "On Track" }
-        };
-
-        return CreateInitializedClient(JsonSerializer.Serialize(sampleData, CamelCaseOptions));
+        // Default factory uses the real project wwwroot which contains data.json
+        var client = Factory.CreateClient();
+        _disposables.Add(client);
+        return client;
     }
 
-    /// <summary>
-    /// Creates a client with no data.json to simulate missing-file scenario.
-    /// </summary>
     public HttpClient CreateClientWithMissingData()
     {
-        return CreateInitializedClient(dataJson: null);
+        var tempDir = Path.Combine(Path.GetTempPath(), $"WebAppTest_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        var wwwrootDir = Path.Combine(tempDir, "wwwroot");
+        Directory.CreateDirectory(wwwrootDir);
+        _tempDirs.Add(tempDir);
+
+        var factory = Factory.WithWebHostBuilder(builder =>
+        {
+            builder.UseWebRoot(wwwrootDir);
+        });
+        _disposables.Add(factory);
+
+        var client = factory.CreateClient();
+        _disposables.Add(client);
+        return client;
     }
 
-    /// <summary>
-    /// Creates a client with malformed JSON in data.json.
-    /// </summary>
     public HttpClient CreateClientWithMalformedData()
     {
-        return CreateInitializedClient("{ this is not valid json !!! }");
+        var tempDir = Path.Combine(Path.GetTempPath(), $"WebAppTest_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        var wwwrootDir = Path.Combine(tempDir, "wwwroot");
+        Directory.CreateDirectory(wwwrootDir);
+        File.WriteAllText(Path.Combine(wwwrootDir, "data.json"), "{ this is not valid json !!! }");
+        _tempDirs.Add(tempDir);
+
+        var factory = Factory.WithWebHostBuilder(builder =>
+        {
+            builder.UseWebRoot(wwwrootDir);
+        });
+        _disposables.Add(factory);
+
+        var client = factory.CreateClient();
+        _disposables.Add(client);
+        return client;
+    }
+
+    public void Dispose()
+    {
+        foreach (var d in _disposables)
+        {
+            try { d.Dispose(); } catch { }
+        }
+        Client.Dispose();
+        Factory.Dispose();
+
+        foreach (var dir in _tempDirs)
+        {
+            try
+            {
+                if (Directory.Exists(dir))
+                    Directory.Delete(dir, recursive: true);
+            }
+            catch { }
+        }
     }
 }

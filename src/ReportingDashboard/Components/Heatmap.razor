@@ -1,44 +1,32 @@
-<div class="hm-wrap">
-    <div class="hm-title">MONTHLY EXECUTION HEATMAP — SHIPPED · IN PROGRESS · CARRYOVER · BLOCKERS</div>
-    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Months.Count, 1fr); grid-template-rows: 36px repeat(4, 1fr);">
-        <div class="hm-corner">STATUS</div>
-
-        @foreach (var month in Months)
-        {
-            var isCurrentMonth = month.Equals(CurrentMonth, StringComparison.OrdinalIgnoreCase);
-            <div class="hm-col-hdr @(isCurrentMonth ? "apr-hdr" : "")">
-                @month @(isCurrentMonth ? "▸ Now" : "")
-            </div>
-        }
-
-        <HeatmapRow CategoryLabel="✅ SHIPPED"
-                    CssPrefix="ship"
-                    Items="@HeatmapData.Shipped"
-                    Months="@Months"
-                    CurrentMonth="@CurrentMonth" />
-
-        <HeatmapRow CategoryLabel="🔄 IN PROGRESS"
-                    CssPrefix="prog"
-                    Items="@HeatmapData.InProgress"
-                    Months="@Months"
-                    CurrentMonth="@CurrentMonth" />
-
-        <HeatmapRow CategoryLabel="⏳ CARRYOVER"
-                    CssPrefix="carry"
-                    Items="@HeatmapData.Carryover"
-                    Months="@Months"
-                    CurrentMonth="@CurrentMonth" />
-
-        <HeatmapRow CategoryLabel="🚫 BLOCKERS"
-                    CssPrefix="block"
-                    Items="@HeatmapData.Blockers"
-                    Months="@Months"
-                    CurrentMonth="@CurrentMonth" />
+@* Heatmap component — full implementation in T6 *@
+<div class="hm-wrap" style="padding:16px 24px;">
+    <div class="hm-title" style="font-size:12px; font-weight:700; letter-spacing:1px; color:#444; margin-bottom:12px;">
+        MONTHLY EXECUTION HEATMAP — SHIPPED · IN PROGRESS · CARRYOVER · BLOCKERS
     </div>
+    @if (HeatmapData is not null && Months is not null)
+    {
+        <div class="hm-grid" style="display:grid; grid-template-columns:@GridColumns; grid-template-rows:@GridRows; gap:0; border:1px solid #E0E0E0;">
+            <div class="hm-corner" style="background:#F5F5F5; padding:8px; font-size:12px; font-weight:600; border-bottom:1px solid #E0E0E0; border-right:1px solid #E0E0E0;">STATUS</div>
+            @foreach (var month in Months)
+            {
+                <div class="hm-col-hdr @(month == CurrentMonth ? "apr-hdr" : "")"
+                     style="background:@(month == CurrentMonth ? "#E3F2FD" : "#F5F5F5"); padding:8px; text-align:center; font-size:12px; font-weight:600; border-bottom:1px solid #E0E0E0; border-right:1px solid #E0E0E0;">
+                    @month
+                </div>
+            }
+            <HeatmapRow CategoryLabel="SHIPPED" CssPrefix="ship" Items="@HeatmapData.Shipped" Months="@Months" CurrentMonth="@CurrentMonth" />
+            <HeatmapRow CategoryLabel="IN PROGRESS" CssPrefix="prog" Items="@HeatmapData.InProgress" Months="@Months" CurrentMonth="@CurrentMonth" />
+            <HeatmapRow CategoryLabel="CARRYOVER" CssPrefix="carry" Items="@HeatmapData.Carryover" Months="@Months" CurrentMonth="@CurrentMonth" />
+            <HeatmapRow CategoryLabel="BLOCKERS" CssPrefix="block" Items="@HeatmapData.Blockers" Months="@Months" CurrentMonth="@CurrentMonth" />
+        </div>
+    }
 </div>
 
 @code {
-    [Parameter] public HeatmapData HeatmapData { get; set; } = default!;
-    [Parameter] public List<string> Months { get; set; } = default!;
-    [Parameter] public string CurrentMonth { get; set; } = string.Empty;
+    [Parameter] public HeatmapData? HeatmapData { get; set; }
+    [Parameter] public List<string>? Months { get; set; }
+    [Parameter] public string CurrentMonth { get; set; } = "";
+
+    private string GridColumns => $"160px repeat({Months?.Count ?? 1}, 1fr)";
+    private string GridRows => $"36px repeat(4, 1fr)";
 }

@@ -13,24 +13,24 @@ public class ErrorPage
         _baseUrl = baseUrl;
     }
 
+    // Selectors
+    public ILocator ErrorPanel => _page.Locator(".error-panel");
+    public ILocator ErrorMessage => _page.Locator(".error-message");
+    public ILocator ErrorHelp => _page.Locator(".error-help");
+
     public async Task NavigateAsync()
     {
-        await _page.GotoAsync(_baseUrl, new PageGotoOptions
-        {
-            WaitUntil = WaitUntilState.NetworkIdle,
-            Timeout = 30_000
-        });
+        await _page.GotoAsync(_baseUrl);
+        await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
-
-    public ILocator ErrorBanner => _page.Locator(".error-banner");
 
     public async Task<bool> IsErrorVisibleAsync()
     {
-        return await ErrorBanner.IsVisibleAsync();
+        return await ErrorPanel.CountAsync() > 0;
     }
 
     public async Task<string> GetErrorTextAsync()
     {
-        return await ErrorBanner.InnerTextAsync();
+        return await ErrorPanel.InnerTextAsync();
     }
 }

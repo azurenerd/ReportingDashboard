@@ -19,7 +19,6 @@ public class StaticFileTests : IClassFixture<WebAppFixture>
 
         var response = await client.GetAsync("/css/dashboard.css");
 
-        // Static files may 404 from temp dir (CSS not copied), but must not 500.
         ((int)response.StatusCode).Should().BeLessThan(500);
     }
 

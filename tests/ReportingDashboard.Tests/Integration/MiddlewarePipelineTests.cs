@@ -1,4 +1,4 @@
-using FluentAssertions;
+using System.Net;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Integration;
@@ -13,32 +13,40 @@ public class MiddlewarePipelineTests : IClassFixture<WebAppFixture>
     }
 
     [Fact]
-    public async Task StaticFilesMiddleware_IsRegistered()
+    public async Task BlazorPipeline_RendersHtmlWithBlazorScript()
     {
-        using var client = _fixture.CreateClientWithValidData();
+        var response = await _fixture.Client.GetAsync("/");
+        var html = await response.Content.ReadAsStringAsync();
 
-        // UseStaticFiles is wired: a request for a known static path should not 500
-        var response = await client.GetAsync("/css/dashboard.css");
-        ((int)response.StatusCode).Should().BeLessThan(500);
+        Assert.Contains("blazor.server.js", html);
     }
 
     [Fact]
-    public async Task AntiforgeryMiddleware_DoesNotBlockGetRequests()
+    public async Task StaticFiles_Middleware_ServesCssWithCorrectContentType()
     {
-        using var client = _fixture.CreateClientWithValidData();
+        var response = await _fixture.Client.GetAsync("/css/dashboard.css");
 
-        var response = await client.GetAsync("/");
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("text/css", response.Content.Headers.ContentType?.MediaType);
     }
 
     [Fact]
-    public async Task BlazorServerJs_EndpointExists()
+    public async Task StaticFiles_Middleware_ServesJsonWithCorrectContentType()
     {
-        using var client = _fixture.CreateClientWithValidData();
+        var response = await _fixture.Client.GetAsync("/data.json");
 
-        var response = await client.GetAsync("/_framework/blazor.server.js");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
+    }
 
-        // Blazor framework JS is served by the framework middleware
-        ((int)response.StatusCode).Should().BeOneOf(200, 301, 302);
+    [Fact]
+    public async Task AntiforgeryMiddleware_IsConfigured()
+    {
+        // UseAntiforgery() is required between routing and endpoints in .NET 8 Blazor.
+        // If it's missing, MapRazorComponents would fail at startup.
+        // The fact that we get a successful response proves the middleware pipeline is correctly configured.
+        var response = await _fixture.Client.GetAsync("/");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 }

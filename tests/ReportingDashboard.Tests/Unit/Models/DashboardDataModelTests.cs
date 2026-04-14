@@ -5,170 +5,125 @@ using Xunit;
 
 namespace ReportingDashboard.Tests.Unit.Models;
 
+/// <summary>
+/// Tests the actual DashboardData, TimelineData, HeatmapData models
+/// from the PR #1171 source code (JsonPropertyName attributes, defaults, round-trips).
+/// </summary>
 public class DashboardDataModelTests
 {
-    private static readonly JsonSerializerOptions CamelCaseOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
-
     [Fact]
-    public void DashboardData_DefaultValues_AreCorrect()
+    [Trait("Category", "Unit")]
+    public void DashboardData_DefaultCollections_NotNull()
     {
         var data = new DashboardData();
 
-        data.Project.Should().BeNull();
-        data.Milestones.Should().NotBeNull().And.BeEmpty();
-        data.Shipped.Should().NotBeNull().And.BeEmpty();
-        data.InProgress.Should().NotBeNull().And.BeEmpty();
-        data.CarriedOver.Should().NotBeNull().And.BeEmpty();
-        data.CurrentMonth.Should().BeNull();
-        data.ErrorMessage.Should().BeNull();
+        data.Title.Should().Be("");
+        data.Subtitle.Should().Be("");
+        data.BacklogLink.Should().Be("");
+        data.CurrentMonth.Should().Be("");
+        data.Months.Should().NotBeNull().And.BeEmpty();
+        data.Timeline.Should().NotBeNull();
+        data.Timeline.Tracks.Should().NotBeNull().And.BeEmpty();
+        data.Heatmap.Should().NotBeNull();
+        data.Heatmap.Shipped.Should().NotBeNull().And.BeEmpty();
+        data.Heatmap.InProgress.Should().NotBeNull().And.BeEmpty();
+        data.Heatmap.Carryover.Should().NotBeNull().And.BeEmpty();
+        data.Heatmap.Blockers.Should().NotBeNull().And.BeEmpty();
     }
 
     [Fact]
-    public void ProjectInfo_DefaultValues_AreCorrect()
+    [Trait("Category", "Unit")]
+    public void DashboardData_JsonRoundTrip_PopulatesAllFields()
     {
-        var info = new ProjectInfo();
+        var json = """
+        {
+            "title": "Q2 Dashboard",
+            "subtitle": "Engineering · Core Platform · April 2026",
+            "backlogLink": "https://dev.azure.com/project",
+            "currentMonth": "Apr",
+            "months": ["Jan","Feb","Mar","Apr"],
+            "timeline": {
+                "startDate": "2026-01-01",
+                "endDate": "2026-06-30",
+                "nowDate": "2026-04-10",
+                "tracks": [
+                    {
+                        "name": "M1",
+                        "label": "Auth Rewrite",
+                        "color": "#4285F4",
+                        "milestones": [
+                            { "date": "2026-02-15", "type": "poc", "label": "PoC" },
+                            { "date": "2026-05-01", "type": "production", "label": "GA" }
+                        ]
+                    }
+                ]
+            },
+            "heatmap": {
+                "shipped": { "Jan": ["Feature A"], "Feb": ["Feature B"] },
+                "inProgress": { "Mar": ["Feature C"] },
+                "carryover": {},
+                "blockers": { "Apr": ["Blocker 1"] }
+            }
+        }
+        """;
 
-        info.Name.Should().Be("Untitled Project");
-        info.Lead.Should().BeNull();
-        info.Status.Should().Be("Unknown");
-        info.LastUpdated.Should().BeNull();
-        info.Summary.Should().BeNull();
+        var data = JsonSerializer.Deserialize<DashboardData>(json);
+
+        data.Should().NotBeNull();
+        data!.Title.Should().Be("Q2 Dashboard");
+        data.Subtitle.Should().Contain("Core Platform");
+        data.BacklogLink.Should().Be("https://dev.azure.com/project");
+        data.CurrentMonth.Should().Be("Apr");
+        data.Months.Should().HaveCount(4);
+        data.Timeline.StartDate.Should().Be("2026-01-01");
+        data.Timeline.NowDate.Should().Be("2026-04-10");
+        data.Timeline.Tracks.Should().HaveCount(1);
+        data.Timeline.Tracks[0].Name.Should().Be("M1");
+        data.Timeline.Tracks[0].Color.Should().Be("#4285F4");
+        data.Timeline.Tracks[0].Milestones.Should().HaveCount(2);
+        data.Timeline.Tracks[0].Milestones[0].Type.Should().Be("poc");
+        data.Heatmap.Shipped.Should().HaveCount(2);
+        data.Heatmap.Blockers["Apr"].Should().Contain("Blocker 1");
     }
 
     [Fact]
-    public void Milestone_DefaultValues_AreCorrect()
+    [Trait("Category", "Unit")]
+    public void TimelineTrack_DefaultColor_IsGray()
+    {
+        var track = new TimelineTrack();
+
+        track.Color.Should().Be("#999");
+        track.Name.Should().Be("");
+        track.Label.Should().Be("");
+        track.Milestones.Should().NotBeNull().And.BeEmpty();
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Milestone_DefaultType_IsCheckpoint()
     {
         var milestone = new Milestone();
 
-        milestone.Title.Should().Be("");
-        milestone.TargetDate.Should().BeNull();
-        milestone.Status.Should().Be("Upcoming");
+        milestone.Type.Should().Be("checkpoint");
+        milestone.Date.Should().Be("");
+        milestone.Label.Should().Be("");
     }
 
     [Fact]
-    public void WorkItem_DefaultValues_AreCorrect()
+    [Trait("Category", "Unit")]
+    public void DashboardData_Deserialize_PartialJson_DefaultsApplied()
     {
-        var item = new WorkItem();
+        var json = """{ "title": "Only Title" }""";
 
-        item.Title.Should().Be("");
-        item.Description.Should().BeNull();
-        item.Category.Should().BeNull();
-        item.PercentComplete.Should().Be(0);
-        item.CarryOverReason.Should().BeNull();
-    }
+        var data = JsonSerializer.Deserialize<DashboardData>(json);
 
-    [Fact]
-    public void MonthSummary_DefaultValues_AreCorrect()
-    {
-        var summary = new MonthSummary();
-
-        summary.Month.Should().BeNull();
-        summary.TotalItems.Should().Be(0);
-        summary.CompletedItems.Should().Be(0);
-        summary.CarriedItems.Should().Be(0);
-        summary.OverallHealth.Should().Be("Unknown");
-    }
-
-    [Fact]
-    public void DashboardData_JsonRoundTrip_PreservesAllFields()
-    {
-        var original = new DashboardData
-        {
-            Project = new ProjectInfo
-            {
-                Name = "Test",
-                Lead = "Alice",
-                Status = "On Track",
-                LastUpdated = "2026-04-01",
-                Summary = "Summary text"
-            },
-            Milestones = [new Milestone { Title = "M1", TargetDate = "2026-05-01", Status = "Completed" }],
-            Shipped = [new WorkItem { Title = "S1", Description = "Done", Category = "Core", PercentComplete = 100 }],
-            InProgress = [new WorkItem { Title = "I1", PercentComplete = 50 }],
-            CarriedOver = [new WorkItem { Title = "C1", CarryOverReason = "Delayed" }],
-            CurrentMonth = new MonthSummary
-            {
-                Month = "April",
-                TotalItems = 10,
-                CompletedItems = 7,
-                CarriedItems = 2,
-                OverallHealth = "On Track"
-            }
-        };
-
-        var json = JsonSerializer.Serialize(original, CamelCaseOptions);
-        var deserialized = JsonSerializer.Deserialize<DashboardData>(json, CamelCaseOptions);
-
-        deserialized.Should().NotBeNull();
-        deserialized!.Project!.Name.Should().Be("Test");
-        deserialized.Project.Lead.Should().Be("Alice");
-        deserialized.Milestones.Should().HaveCount(1);
-        deserialized.Milestones[0].Title.Should().Be("M1");
-        deserialized.Shipped.Should().HaveCount(1);
-        deserialized.InProgress.Should().HaveCount(1);
-        deserialized.CarriedOver.Should().HaveCount(1);
-        deserialized.CurrentMonth!.Month.Should().Be("April");
-        deserialized.CurrentMonth.TotalItems.Should().Be(10);
-    }
-
-    [Fact]
-    public void Serialization_ProducesCamelCaseKeys()
-    {
-        var data = new DashboardData
-        {
-            Project = new ProjectInfo { Name = "Test" },
-            CurrentMonth = new MonthSummary { TotalItems = 5 }
-        };
-
-        var json = JsonSerializer.Serialize(data, CamelCaseOptions);
-
-        json.Should().Contain("\"project\"");
-        json.Should().Contain("\"milestones\"");
-        json.Should().Contain("\"shipped\"");
-        json.Should().Contain("\"inProgress\"");
-        json.Should().Contain("\"carriedOver\"");
-        json.Should().Contain("\"currentMonth\"");
-        json.Should().Contain("\"totalItems\"");
-    }
-
-    [Fact]
-    public void Milestone_JsonRoundTrip_PreservesFields()
-    {
-        var original = new Milestone { Title = "Beta Release", TargetDate = "2026-06-15", Status = "In Progress" };
-
-        var json = JsonSerializer.Serialize(original, CamelCaseOptions);
-        var deserialized = JsonSerializer.Deserialize<Milestone>(json, CamelCaseOptions);
-
-        deserialized.Should().NotBeNull();
-        deserialized!.Title.Should().Be("Beta Release");
-        deserialized.TargetDate.Should().Be("2026-06-15");
-        deserialized.Status.Should().Be("In Progress");
-    }
-
-    [Fact]
-    public void WorkItem_JsonRoundTrip_PreservesFields()
-    {
-        var original = new WorkItem
-        {
-            Title = "Feature X",
-            Description = "Important feature",
-            Category = "Backend",
-            PercentComplete = 75,
-            CarryOverReason = "Dependencies"
-        };
-
-        var json = JsonSerializer.Serialize(original, CamelCaseOptions);
-        var deserialized = JsonSerializer.Deserialize<WorkItem>(json, CamelCaseOptions);
-
-        deserialized.Should().NotBeNull();
-        deserialized!.Title.Should().Be("Feature X");
-        deserialized.Description.Should().Be("Important feature");
-        deserialized.Category.Should().Be("Backend");
-        deserialized.PercentComplete.Should().Be(75);
-        deserialized.CarryOverReason.Should().Be("Dependencies");
+        data.Should().NotBeNull();
+        data!.Title.Should().Be("Only Title");
+        data.Subtitle.Should().Be("");
+        data.Months.Should().NotBeNull().And.BeEmpty();
+        data.Timeline.Should().NotBeNull();
+        data.Timeline.Tracks.Should().BeEmpty();
+        data.Heatmap.Should().NotBeNull();
+        data.Heatmap.Shipped.Should().BeEmpty();
     }
 }

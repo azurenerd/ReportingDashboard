@@ -1,18 +1,17 @@
 @page "/"
 @inject DashboardDataService DataService
-@rendermode RenderMode.InteractiveServer
 
-@if (DataService.IsError)
-{
-    <ErrorPanel ErrorMessage="@DataService.ErrorMessage" />
-}
-else if (DataService.Data is not null)
-{
-    <div style="display:flex; flex-direction:column; width:1920px; height:1080px; overflow:hidden; background:#fff; font-family:'Segoe UI',Arial,sans-serif; color:#111;">
+<div class="dashboard" style="width:1920px; height:1080px; margin:0 auto; overflow:hidden; background:#fff;">
+    @if (DataService.IsError)
+    {
+        <ErrorPanel ErrorMessage="@(DataService.ErrorMessage ?? "Unknown error loading dashboard data.")" />
+    }
+    else if (DataService.Data is not null)
+    {
         <Header Data="@DataService.Data" />
         <Timeline TimelineData="@DataService.Data.Timeline" />
         <Heatmap HeatmapData="@DataService.Data.Heatmap"
                  Months="@DataService.Data.Months"
                  CurrentMonth="@DataService.Data.CurrentMonth" />
-    </div>
-}
+    }
+</div>
