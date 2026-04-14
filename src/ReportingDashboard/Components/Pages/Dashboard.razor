@@ -1,0 +1,237 @@
+@page "/"
+@using ReportingDashboard.Models
+@using ReportingDashboard.Services
+@inject DataService DataService
+@implements IDisposable
+
+@{
+    var data = DataService.GetData();
+    var error = DataService.GetError();
+}
+
+@if (data is null && error is not null)
+{
+    <div class="error-page">
+        <div class="error-message">
+            <h2>📋 Dashboard Data Error</h2>
+            <p>@error</p>
+            <p>Place a valid <code>data.json</code> file in the <code>wwwroot/</code> directory.</p>
+        </div>
+    </div>
+}
+else if (data is not null)
+{
+    @if (error is not null)
+    {
+        <div class="error-banner">
+            ⚠ data.json has errors – showing last valid data. Error: @error
+        </div>
+    }
+
+    var effectiveDate = DataService.GetEffectiveDate();
+    var currentMonthName = effectiveDate.ToString("MMM");
+
+    @* === SECTION 1: HEADER === *@
+    <div class="hdr">
+        <div>
+            <h1>@data.Title <a href="@data.BacklogUrl">↗ ADO Backlog</a></h1>
+            <div class="sub">@data.Subtitle</div>
+        </div>
+        <div class="legend">
+            <span class="legend-item"><span class="icon-diamond gold"></span> PoC Milestone</span>
+            <span class="legend-item"><span class="icon-diamond green"></span> Production Release</span>
+            <span class="legend-item"><span class="icon-circle"></span> Checkpoint</span>
+            <span class="legend-item"><span class="icon-now-line"></span> Now</span>
+        </div>
+    </div>
+
+    @* === SECTION 2: TIMELINE === *@
+    <div class="tl-area">
+        <div class="tl-sidebar">
+            @foreach (var ws in data.Timeline.Workstreams)
+            {
+                <div>
+                    <div style="color: @ws.Color; font-size: 12px; font-weight: 600;">@ws.Id</div>
+                    <div class="tl-ws-name">@ws.Name</div>
+                </div>
+            }
+        </div>
+        <div class="tl-svg-box">
+            @{
+                var svgWidth = 1560.0;
+                var svgHeight = 185;
+                var startDate = DateOnly.ParseExact(data.Timeline.StartDate, "yyyy-MM-dd");
+                var endDate = DateOnly.ParseExact(data.Timeline.EndDate, "yyyy-MM-dd");
+                var totalDays = (double)(endDate.DayNumber - startDate.DayNumber);
+                var wsCount = data.Timeline.Workstreams.Length;
+                var yLanes = new int[] { 42, 98, 154 };
+                if (wsCount > 3)
+                {
+                    yLanes = new int[wsCount];
+                    var spacing = (svgHeight - 30) / (wsCount + 1);
+                    for (int i = 0; i < wsCount; i++)
+                        yLanes[i] = 30 + (int)(spacing * (i + 1));
+                }
+
+                double CalcX(string dateStr)
+                {
+                    var d = DateOnly.ParseExact(dateStr, "yyyy-MM-dd");
+                    var elapsed = d.DayNumber - startDate.DayNumber;
+                    return totalDays > 0 ? elapsed / totalDays * svgWidth : 0;
+                }
+
+                var nowX = CalcX(effectiveDate.ToString("yyyy-MM-dd"));
+
+                var gridlines = new List<(string Label, double X)>();
+                var cursor = new DateOnly(startDate.Year, startDate.Month, 1);
+                if (cursor < startDate) cursor = cursor.AddMonths(1);
+                while (cursor <= endDate)
+                {
+                    var x = CalcX(cursor.ToString("yyyy-MM-dd"));
+                    gridlines.Add((cursor.ToString("MMM"), x));
+                    cursor = cursor.AddMonths(1);
+                }
+
+                string DiamondPoints(double cx, double cy, double r = 11)
+                {
+                    return $"{F(cx)},{F(cy - r)} {F(cx + r)},{F(cy)} {F(cx)},{F(cy + r)} {F(cx - r)},{F(cy)}";
+                }
+
+                string F(double v) => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+            }
+            <svg xmlns="http://www.w3.org/2000/svg" width="@svgWidth" height="@svgHeight"
+                 style="overflow:visible;display:block">
+                <defs>
+                    <filter id="sh">
+                        <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/>
+                    </filter>
+                </defs>
+
+                @* Month gridlines *@
+                @foreach (var (label, gx) in gridlines)
+                {
+                    <line x1="@F(gx)" y1="0" x2="@F(gx)" y2="@svgHeight"
+                          stroke="#bbb" stroke-opacity="0.4" stroke-width="1"/>
+                    <svgtext x="@F(gx + 5)" y="14" fill="#666" font-size="11" font-weight="600"
+                          font-family="Segoe UI,Arial">@label</svgtext>
+                }
+
+                @* NOW line *@
+                <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="@svgHeight"
+                      stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3"/>
+                <svgtext x="@F(nowX + 4)" y="14" fill="#EA4335" font-size="10"
+                      font-weight="700" font-family="Segoe UI,Arial">NOW</svgtext>
+
+                @* Workstream lines and milestones *@
+                @for (int i = 0; i < wsCount; i++)
+                {
+                    var ws = data.Timeline.Workstreams[i];
+                    var y = i < yLanes.Length ? yLanes[i] : yLanes[^1];
+
+                    <line x1="0" y1="@y" x2="@F(svgWidth)" y2="@y"
+                          stroke="@ws.Color" stroke-width="3"/>
+
+                    @for (int m = 0; m < ws.Milestones.Length; m++)
+                    {
+                        var ms = ws.Milestones[m];
+                        var mx = CalcX(ms.Date);
+
+                        var labelAbove = ms.LabelPosition switch
+                        {
+                            "above" => true,
+                            "below" => false,
+                            _ => m % 2 == 0
+                        };
+                        var labelY = labelAbove ? y - 18 : y + 26;
+
+                        @if (ms.Type == "start")
+                        {
+                            <circle cx="@F(mx)" cy="@y" r="7" fill="white"
+                                    stroke="@ws.Color" stroke-width="2.5"/>
+                        }
+                        else if (ms.Type == "checkpoint")
+                        {
+                            <circle cx="@F(mx)" cy="@y" r="4" fill="#999"/>
+                        }
+                        else if (ms.Type == "poc")
+                        {
+                            <polygon points="@DiamondPoints(mx, y)" fill="#F4B400" filter="url(#sh)"/>
+                        }
+                        else if (ms.Type == "production")
+                        {
+                            <polygon points="@DiamondPoints(mx, y)" fill="#34A853" filter="url(#sh)"/>
+                        }
+
+                        <svgtext x="@F(mx)" y="@labelY" text-anchor="middle"
+                              fill="#666" font-size="10"
+                              font-family="Segoe UI,Arial">@ms.Label</svgtext>
+                    }
+                }
+            </svg>
+        </div>
+    </div>
+
+    @* === SECTION 3: HEATMAP === *@
+    <div class="hm-wrap">
+        <div class="hm-title">Monthly Execution Heatmap – Shipped · In Progress · Carryover · Blockers</div>
+        <div class="hm-grid" style="grid-template-columns: 160px repeat(@data.Heatmap.MonthColumns.Length, 1fr);">
+            @* Header row *@
+            <div class="hm-corner">Status</div>
+            @foreach (var month in data.Heatmap.MonthColumns)
+            {
+                var isNow = month == currentMonthName;
+                <div class="hm-col-hdr @(isNow ? "now-hdr" : "")">
+                    @month @(isNow ? "◄ Now" : "")
+                </div>
+            }
+
+            @* Status rows *@
+            @foreach (var cat in data.Heatmap.Categories)
+            {
+                <div class="hm-row-hdr @(cat.CssClass)-hdr">@cat.Emoji @cat.Name</div>
+                @foreach (var mi in cat.Months)
+                {
+                    var isNow = mi.Month == currentMonthName;
+                    <div class="hm-cell @(cat.CssClass)-cell @(isNow ? "now" : "")">
+                        @if (mi.Items.Length == 0)
+                        {
+                            <div class="it empty">-</div>
+                        }
+                        else
+                        {
+                            @foreach (var item in mi.Items)
+                            {
+                                <div class="it">@item</div>
+                            }
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="error-page">
+        <div class="error-message">
+            <h2>Loading...</h2>
+        </div>
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        DataService.OnDataChanged += HandleDataChanged;
+    }
+
+    private async void HandleDataChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        DataService.OnDataChanged -= HandleDataChanged;
+    }
+}

@@ -1,32 +1,36 @@
 ## .NET
 bin/
 obj/
+publish/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
-packages/
+.vs/
+*.DotSettings.user
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]uild/
+bld/
+
+## NuGet
 *.nupkg
-*.snupkg
+**/[Pp]ackages/*
+*.nuget.props
+*.nuget.targets
 project.lock.json
 project.fragment.lock.json
-artifacts/
 
-## Visual Studio
-.vs/
-*.rsuser
-*.sln.docstates
-
-## Rider
-.idea/
+## Test results
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
 
 ## OS
 Thumbs.db
-ehthumbs.db
-Desktop.ini
 .DS_Store
-
-## Dashboard data files (may contain sensitive project names)
-data.json
-data.*.json
-projects/*.json
