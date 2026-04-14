@@ -1,0 +1,33 @@
+{
+  "title": "Your Project Title – Executive Roadmap",
+  "subtitle": "Organization › Workstream › Month Year",
+  "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
+  "currentDate": "2026-04-14",
+  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+  "tracks": [
+    {
+      "id": "M1",
+      "label": "Milestone Track 1 Name",
+      "color": "#0078D4",
+      "milestones": [
+        { "date": "2026-01-15", "type": "Checkpoint", "label": "Jan 15" },
+        { "date": "2026-03-01", "type": "PoC", "label": "Mar 1 PoC" },
+        { "date": "2026-05-01", "type": "Production", "label": "May 1 Prod" }
+      ]
+    }
+  ],
+  "statusRows": {
+    "shipped": {
+      "Jan": ["Completed item 1", "Completed item 2"]
+    },
+    "inProgress": {
+      "Feb": ["Active work item"]
+    },
+    "carryover": {
+      "Mar": ["Carried over item"]
+    },
+    "blockers": {
+      "Apr": ["Blocking issue"]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Executive Reporting Dashboard
 
-A single-page Blazor Server (.NET 8) dashboard that visualizes project milestones, delivery status, and monthly execution progress. Optimized for 1920x1080 PowerPoint screenshots.
+A single-page Blazor Server (.NET 8) dashboard that visualizes project milestones, delivery status, and monthly execution progress. Optimized for 1920×1080 PowerPoint screenshots.
 
 ## Overview
 
@@ -10,7 +10,7 @@ This tool generates a screenshot-ready project roadmap dashboard from a single `
 
 - SVG milestone timeline with configurable tracks and date markers
 - Color-coded monthly execution heatmap (Shipped / In Progress / Carryover / Blockers)
-- Fixed 1920x1080 layout — screenshot and paste directly into PowerPoint
+- Fixed 1920×1080 layout — screenshot and paste directly into PowerPoint
 - Update `data.json`, refresh browser, done in seconds
 - Runs entirely on localhost — zero cloud, zero auth, zero database
 
