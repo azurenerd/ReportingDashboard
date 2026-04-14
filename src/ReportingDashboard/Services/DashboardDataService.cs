@@ -81,14 +81,20 @@ public class DashboardDataService
         if (data.Months == null || data.Months.Count == 0)
             return "data.json validation: 'months' must be a non-empty array";
 
-        if (!DateTime.TryParse(data.Timeline.StartDate, out _))
+        if (!data.Months.Contains(data.CurrentMonth, StringComparer.OrdinalIgnoreCase))
+            return "data.json validation: 'currentMonth' must exist in 'months' array";
+
+        if (!DateTime.TryParse(data.Timeline.StartDate, out var startDate))
             return "data.json validation: 'timeline.startDate' must be a valid ISO date";
 
-        if (!DateTime.TryParse(data.Timeline.EndDate, out _))
+        if (!DateTime.TryParse(data.Timeline.EndDate, out var endDate))
             return "data.json validation: 'timeline.endDate' must be a valid ISO date";
 
         if (!DateTime.TryParse(data.Timeline.NowDate, out _))
             return "data.json validation: 'timeline.nowDate' must be a valid ISO date";
+
+        if (endDate <= startDate)
+            return "data.json validation: 'timeline.endDate' must be after 'timeline.startDate'";
 
         if (data.Timeline.Tracks == null || data.Timeline.Tracks.Count == 0)
             return "data.json validation: 'timeline.tracks' must be a non-empty array";

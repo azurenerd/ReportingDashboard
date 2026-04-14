@@ -253,12 +253,11 @@ public class DashboardDataServiceTests : IDisposable
         svc.ErrorMessage.Should().Contain("invalid_type");
     }
 
-    // --- 8. currentMonth not in months array ---
-    // Documents actual service behavior: service does not currently validate this.
+    // --- 8. currentMonth not in months array produces validation error ---
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task LoadAsync_CurrentMonthNotInMonths_LoadsWithoutError()
+    public async Task LoadAsync_CurrentMonthNotInMonths_ValidationError()
     {
         var json = """
         {
@@ -281,18 +280,15 @@ public class DashboardDataServiceTests : IDisposable
 
         await svc.LoadAsync(path);
 
-        // Service does not currently enforce currentMonth membership in months array
-        svc.IsError.Should().BeFalse();
-        svc.Data.Should().NotBeNull();
-        svc.Data!.CurrentMonth.Should().Be("Dec");
+        svc.IsError.Should().BeTrue();
+        svc.ErrorMessage.Should().Contain("currentMonth");
     }
 
-    // --- 9. endDate before startDate ---
-    // Documents actual service behavior: service does not currently validate date ordering.
+    // --- 9. endDate before startDate produces validation error ---
 
     [Fact]
     [Trait("Category", "Unit")]
-    public async Task LoadAsync_EndDateBeforeStartDate_LoadsWithoutError()
+    public async Task LoadAsync_EndDateBeforeStartDate_ValidationError()
     {
         var json = """
         {
@@ -315,9 +311,8 @@ public class DashboardDataServiceTests : IDisposable
 
         await svc.LoadAsync(path);
 
-        // Service does not currently enforce endDate > startDate ordering
-        svc.IsError.Should().BeFalse();
-        svc.Data.Should().NotBeNull();
+        svc.IsError.Should().BeTrue();
+        svc.ErrorMessage.Should().Contain("endDate");
     }
 
     // --- 10. Performance under 100ms ---
