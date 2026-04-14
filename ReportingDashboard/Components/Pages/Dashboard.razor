@@ -5,17 +5,15 @@
 
 @if (_error is not null)
 {
-    <div style="display:flex; align-items:center; justify-content:center; width:1920px; height:1080px; font-family:'Segoe UI',Arial,sans-serif;">
-        <div style="text-align:center; color:#991B1B; max-width:800px;">
-            <p style="font-size:24px; font-weight:700;">⚠ Dashboard Error</p>
-            <p style="font-size:16px; margin-top:12px;">@_error</p>
-            <p style="font-size:14px; color:#888; margin-top:8px;">Please check your data.json file and refresh the browser.</p>
-        </div>
+    <div class="error-display">
+        <p style="font-size:24px; font-weight:700;">⚠ Dashboard Error</p>
+        <p style="font-size:16px; margin-top:12px;">@_error</p>
+        <p style="font-size:14px; color:#888; margin-top:8px;">Please check your data.json file and refresh the browser.</p>
     </div>
 }
 else if (_data is not null)
 {
-    <DashboardHeader Data="@_data" />
+    <HeatmapGrid Data="@_data" />
 }
 
 @code {
@@ -25,7 +23,7 @@ else if (_data is not null)
     protected override void OnInitialized()
     {
         DataService.Reload();
-        _data = DataService.GetDashboardData();
         _error = DataService.GetError();
+        _data = DataService.GetDashboardData();
     }
 }

@@ -1,3 +1,4 @@
+/* === CSS Custom Properties === */
 :root {
     /* Status colors */
     --shipped-color: #34A853;
@@ -37,6 +38,7 @@
     --border-heavy: #CCC;
 }
 
+/* === Global Reset & Body === */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -57,7 +59,21 @@ body {
     flex-direction: column;
 }
 
-/* ── Header ── */
+/* === Error Display === */
+.error-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 1920px;
+    height: 1080px;
+    text-align: center;
+    color: #991B1B;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* === Header === */
 .hdr {
     display: flex;
     align-items: center;
@@ -67,27 +83,21 @@ body {
     flex-shrink: 0;
 }
 
-.hdr-left {
-    display: flex;
-    flex-direction: column;
-}
-
-.hdr-title {
+.hdr h1 {
     font-size: 24px;
     font-weight: 700;
-    line-height: 1.3;
-    color: #111;
+    line-height: 1.2;
 }
 
-.hdr-backlog-link {
-    font-size: 14px;
-    font-weight: 400;
+.hdr h1 a {
     color: #0078D4;
     text-decoration: none;
-    margin-left: 16px;
+    font-size: 14px;
+    font-weight: 400;
+    margin-left: 12px;
 }
 
-.hdr-backlog-link:hover {
+.hdr h1 a:hover {
     text-decoration: underline;
 }
 
@@ -97,67 +107,60 @@ body {
     margin-top: 2px;
 }
 
-/* ── Legend ── */
-.hdr-legend {
+.legend {
     display: flex;
     align-items: center;
     gap: 22px;
+    font-size: 12px;
+    color: #555;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
-    color: #555;
 }
 
-.legend-label {
-    white-space: nowrap;
-}
-
-.legend-diamond {
-    display: inline-block;
+.legend-poc {
     width: 12px;
     height: 12px;
-    transform: rotate(45deg);
-    flex-shrink: 0;
-}
-
-.legend-diamond--poc {
     background: var(--poc-color);
-}
-
-.legend-diamond--prod {
-    background: var(--production-color);
-}
-
-.legend-circle {
+    transform: rotate(45deg);
     display: inline-block;
+}
+
+.legend-prod {
+    width: 12px;
+    height: 12px;
+    background: var(--production-color);
+    transform: rotate(45deg);
+    display: inline-block;
+}
+
+.legend-check {
     width: 8px;
     height: 8px;
-    border-radius: 50%;
     background: var(--checkpoint-color);
-    flex-shrink: 0;
+    border-radius: 50%;
+    display: inline-block;
 }
 
-.legend-now-bar {
-    display: inline-block;
+.legend-now {
     width: 2px;
     height: 14px;
     background: var(--now-color);
-    flex-shrink: 0;
+    display: inline-block;
 }
 
-/* ── Timeline Area ── */
+/* === Timeline Area === */
 .tl-area {
     display: flex;
     align-items: stretch;
+    padding: 6px 44px 0;
     height: 196px;
     flex-shrink: 0;
-    background: #FAFAFA;
     border-bottom: 2px solid #E8E8E8;
-    padding: 6px 44px 0;
+    background: #FAFAFA;
 }
 
 .tl-sidebar {
@@ -172,14 +175,11 @@ body {
 
 .tl-track-label {
     font-size: 12px;
+    font-weight: 600;
     line-height: 1.4;
 }
 
-.tl-track-id {
-    font-weight: 600;
-}
-
-.tl-track-name {
+.tl-track-label .track-name {
     font-weight: 400;
     color: #444;
 }
@@ -190,7 +190,7 @@ body {
     padding-top: 6px;
 }
 
-/* ── Heatmap ── */
+/* === Heatmap Wrapper === */
 .hm-wrap {
     flex: 1;
     min-height: 0;
@@ -199,6 +199,7 @@ body {
     padding: 10px 44px 10px;
 }
 
+/* === Heatmap Title === */
 .hm-title {
     font-size: 14px;
     font-weight: 700;
@@ -206,61 +207,89 @@ body {
     letter-spacing: 0.5px;
     text-transform: uppercase;
     margin-bottom: 8px;
+    flex-shrink: 0;
 }
 
+/* === Heatmap Grid === */
 .hm-grid {
     display: grid;
+    grid-template-rows: 36px repeat(4, 1fr);
     border: 1px solid var(--border-color);
     flex: 1;
     min-height: 0;
 }
 
+/* === Corner Cell === */
 .hm-corner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background: #F5F5F5;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     color: #999;
-    border-right: 1px solid var(--border-color);
-    border-bottom: 2px solid var(--border-heavy);
-}
-
-.hm-col-hdr {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #F5F5F5;
-    font-size: 16px;
-    font-weight: 700;
     border-right: 1px solid var(--border-color);
     border-bottom: 2px solid var(--border-heavy);
 }
 
-.apr-hdr {
-    background: var(--current-month-hdr-bg) !important;
-    color: var(--current-month-hdr-text);
-}
-
-.hm-row-hdr {
+/* === Column Headers === */
+.hm-col-hdr {
+    background: #F5F5F5;
+    font-size: 16px;
+    font-weight: 700;
     display: flex;
     align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--border-heavy);
+    color: #333;
+}
+
+.hm-col-hdr:last-of-type {
+    border-right: none;
+}
+
+/* === Current Month Header === */
+.apr-hdr {
+    background: var(--current-month-hdr-bg) !important;
+    color: var(--current-month-hdr-text) !important;
+}
+
+/* === Row Headers === */
+.hm-row-hdr {
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.7px;
     padding: 0 12px;
+    display: flex;
+    align-items: center;
     border-right: 2px solid var(--border-heavy);
     border-bottom: 1px solid var(--border-color);
 }
 
-.ship-hdr { background: var(--shipped-hdr-bg); color: var(--shipped-hdr-text); }
-.prog-hdr { background: var(--progress-hdr-bg); color: var(--progress-hdr-text); }
-.carry-hdr { background: var(--carryover-hdr-bg); color: var(--carryover-hdr-text); }
-.block-hdr { background: var(--blockers-hdr-bg); color: var(--blockers-hdr-text); }
+.ship-hdr {
+    background: var(--shipped-hdr-bg);
+    color: var(--shipped-hdr-text);
+}
 
+.prog-hdr {
+    background: var(--progress-hdr-bg);
+    color: var(--progress-hdr-text);
+}
+
+.carry-hdr {
+    background: var(--carryover-hdr-bg);
+    color: var(--carryover-hdr-text);
+}
+
+.block-hdr {
+    background: var(--blockers-hdr-bg);
+    color: var(--blockers-hdr-text);
+}
+
+/* === Data Cells === */
 .hm-cell {
     padding: 8px 12px;
     border-right: 1px solid var(--border-color);
@@ -268,22 +297,51 @@ body {
     overflow: hidden;
 }
 
-.ship-cell { background: var(--shipped-bg); }
-.prog-cell { background: var(--progress-bg); }
-.carry-cell { background: var(--carryover-bg); }
-.block-cell { background: var(--blockers-bg); }
+.hm-cell:last-child {
+    border-right: none;
+}
 
-.ship-cell.apr { background: var(--shipped-bg-current); }
-.prog-cell.apr { background: var(--progress-bg-current); }
-.carry-cell.apr { background: var(--carryover-bg-current); }
-.block-cell.apr { background: var(--blockers-bg-current); }
+/* Row-specific cell backgrounds */
+.ship-cell {
+    background: var(--shipped-bg);
+}
 
+.prog-cell {
+    background: var(--progress-bg);
+}
+
+.carry-cell {
+    background: var(--carryover-bg);
+}
+
+.block-cell {
+    background: var(--blockers-bg);
+}
+
+/* Current month cell highlighting */
+.ship-cell.apr {
+    background: var(--shipped-bg-current) !important;
+}
+
+.prog-cell.apr {
+    background: var(--progress-bg-current) !important;
+}
+
+.carry-cell.apr {
+    background: var(--carryover-bg-current) !important;
+}
+
+.block-cell.apr {
+    background: var(--blockers-bg-current) !important;
+}
+
+/* === Item Entries === */
 .it {
-    position: relative;
     font-size: 12px;
     color: #333;
     padding: 2px 0 2px 12px;
     line-height: 1.35;
+    position: relative;
 }
 
 .it::before {
@@ -296,28 +354,25 @@ body {
     border-radius: 50%;
 }
 
-.ship-cell .it::before { background: var(--shipped-color); }
-.prog-cell .it::before { background: var(--progress-color); }
-.carry-cell .it::before { background: var(--carryover-color); }
-.block-cell .it::before { background: var(--blockers-color); }
-
-.empty-cell {
-    color: #AAA;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
+/* Bullet color inherited from parent cell row class */
+.ship-cell .it::before {
+    background: var(--shipped-color);
 }
 
-/* ── Error Display ── */
-.error-display {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 1920px;
-    height: 1080px;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    text-align: center;
-    color: #991B1B;
+.prog-cell .it::before {
+    background: var(--progress-color);
+}
+
+.carry-cell .it::before {
+    background: var(--carryover-color);
+}
+
+.block-cell .it::before {
+    background: var(--blockers-color);
+}
+
+/* === Empty Cell === */
+.empty-cell {
+    color: #AAA;
+    font-size: 14px;
 }
