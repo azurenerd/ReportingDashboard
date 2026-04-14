@@ -1,7 +1,6 @@
 @page "/"
 @using ReportingDashboard.Models
 @using ReportingDashboard.Services
-
 @inject DashboardDataService DataService
 
 @if (_error is not null)
@@ -17,8 +16,6 @@
 else if (_data is not null)
 {
     <DashboardHeader Data="@_data" />
-    <TimelineSection Data="@_data" />
-    <HeatmapGrid Data="@_data" />
 }
 
 @code {
