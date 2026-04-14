@@ -1,86 +1,98 @@
 {
-  "title": "Project Phoenix Release Roadmap",
-  "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
-  "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
-  "currentDate": "2026-04-14",
-  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-  "currentMonthIndex": 3,
-  "timelineStart": "2026-01-01",
-  "timelineEnd": "2026-06-30",
-  "milestones": [
-    {
-      "id": "M1",
-      "label": "M1",
-      "description": "Chatbot & MS Role",
-      "color": "#0078D4",
-      "markers": [
-        { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
-        { "date": "2026-02-20", "type": "checkpoint", "label": "Feb 20" },
-        { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
-        { "date": "2026-05-15", "type": "production", "label": "May 15 Prod" }
-      ]
-    },
-    {
-      "id": "M2",
-      "label": "M2",
-      "description": "PDS & Data Inventory",
-      "color": "#00897B",
-      "markers": [
-        { "date": "2026-01-20", "type": "smallCheckpoint", "label": "" },
-        { "date": "2026-03-10", "type": "checkpoint", "label": "Mar 10" },
-        { "date": "2026-04-20", "type": "poc", "label": "Apr 20 PoC" },
-        { "date": "2026-06-01", "type": "production", "label": "Jun 1 Prod" }
-      ]
-    },
-    {
-      "id": "M3",
-      "label": "M3",
-      "description": "Compliance Reporting",
-      "color": "#546E7A",
-      "markers": [
-        { "date": "2026-02-01", "type": "checkpoint", "label": "Feb 1" },
-        { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC" },
-        { "date": "2026-06-15", "type": "production", "label": "Jun 15 Prod" }
-      ]
-    }
-  ],
-  "categories": [
-    {
-      "name": "Shipped",
-      "key": "shipped",
-      "items": {
-        "Jan": ["Auth Module v2", "Onboarding Flow"],
-        "Feb": ["Search Indexer", "API Gateway v3"],
-        "Mar": ["Chatbot PoC", "Role Assignment Engine"],
-        "Apr": ["PDS Schema v1"]
-      }
-    },
-    {
-      "name": "In Progress",
-      "key": "inProgress",
-      "items": {
-        "Jan": ["Search Indexer"],
-        "Feb": ["Chatbot PoC"],
-        "Mar": ["PDS Integration"],
-        "Apr": ["Data Inventory UI", "Compliance Dashboard"]
-      }
-    },
-    {
-      "name": "Carryover",
-      "key": "carryover",
-      "items": {
-        "Feb": ["Logging Pipeline"],
-        "Mar": ["Logging Pipeline"],
-        "Apr": ["PDS Edge Cases"]
-      }
-    },
-    {
-      "name": "Blockers",
-      "key": "blockers",
-      "items": {
-        "Mar": ["ICM Dependency on AAD"],
-        "Apr": ["Key Vault Access Policy"]
-      }
-    }
-  ]
+    "title": "Project Phoenix Release Roadmap",
+    "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
+    "backlogUrl": "https://dev.azure.com/contoso/phoenix/_backlogs",
+    "currentDate": "2026-04-14",
+    "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "currentMonthIndex": 3,
+    "timelineStart": "2026-01-01",
+    "timelineEnd": "2026-06-30",
+    "milestones": [
+        {
+            "id": "M1",
+            "label": "M1",
+            "description": "Chatbot & MS Role",
+            "color": "#0078D4",
+            "markers": [
+                { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
+                { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
+                { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
+                { "date": "2026-05-20", "type": "production", "label": "May 20 GA" }
+            ]
+        },
+        {
+            "id": "M2",
+            "label": "M2",
+            "description": "PDS & Data Inventory",
+            "color": "#00897B",
+            "markers": [
+                { "date": "2026-01-20", "type": "smallCheckpoint", "label": "" },
+                { "date": "2026-02-28", "type": "checkpoint", "label": "Feb 28" },
+                { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC" },
+                { "date": "2026-06-10", "type": "production", "label": "Jun 10 GA" }
+            ]
+        },
+        {
+            "id": "M3",
+            "label": "M3",
+            "description": "Compliance Automation",
+            "color": "#546E7A",
+            "markers": [
+                { "date": "2026-02-01", "type": "checkpoint", "label": "Feb 1" },
+                { "date": "2026-03-15", "type": "checkpoint", "label": "Mar 15" },
+                { "date": "2026-05-01", "type": "poc", "label": "May 1 PoC" },
+                { "date": "2026-06-25", "type": "production", "label": "Jun 25 GA" }
+            ]
+        }
+    ],
+    "categories": [
+        {
+            "name": "Shipped",
+            "key": "shipped",
+            "items": {
+                "Jan": ["Auth service MVP", "Role-based access control"],
+                "Feb": ["Chat UI v1", "Message persistence"],
+                "Mar": ["PDS connector alpha", "Data catalog schema"],
+                "Apr": [],
+                "May": [],
+                "Jun": []
+            }
+        },
+        {
+            "name": "In Progress",
+            "key": "inProgress",
+            "items": {
+                "Jan": [],
+                "Feb": ["PDS connector design"],
+                "Mar": ["Chat analytics dashboard"],
+                "Apr": ["PDS connector beta", "Compliance rule engine", "Chat analytics v2"],
+                "May": [],
+                "Jun": []
+            }
+        },
+        {
+            "name": "Carryover",
+            "key": "carryover",
+            "items": {
+                "Jan": [],
+                "Feb": [],
+                "Mar": ["SSO integration"],
+                "Apr": ["SSO integration"],
+                "May": [],
+                "Jun": []
+            }
+        },
+        {
+            "name": "Blockers",
+            "key": "blockers",
+            "items": {
+                "Jan": [],
+                "Feb": [],
+                "Mar": [],
+                "Apr": ["Dependency on Identity team API", "PDS staging env unavailable"],
+                "May": [],
+                "Jun": []
+            }
+        }
+    ]
 }

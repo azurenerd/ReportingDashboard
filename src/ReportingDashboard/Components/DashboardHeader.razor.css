@@ -8,27 +8,23 @@
 }
 
 .hdr-left {
-    display: flex;
-    flex-direction: column;
+    display: block;
 }
 
-.hdr h1 {
+.hdr-left h1 {
     font-size: 24px;
     font-weight: 700;
-    color: var(--color-text);
+    margin: 0;
     line-height: 1.2;
+    color: var(--color-text);
 }
 
-.backlog-link {
-    font-size: 14px;
-    font-weight: 400;
+.hdr-left h1 a {
     color: var(--color-link);
     text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
     margin-left: 12px;
-}
-
-.backlog-link:hover {
-    text-decoration: underline;
 }
 
 .sub {
@@ -39,34 +35,34 @@
 
 .legend {
     display: flex;
-    align-items: center;
     gap: 22px;
     font-size: 12px;
-    color: var(--color-text);
+    align-items: center;
 }
 
-.legend-item {
+.leg-item {
     display: flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
 }
 
-.legend-diamond {
+.diamond {
     width: 12px;
     height: 12px;
     transform: rotate(45deg);
     flex-shrink: 0;
 }
 
-.poc-diamond {
+.diamond.poc {
     background: #F4B400;
 }
 
-.prod-diamond {
+.diamond.prod {
     background: #34A853;
 }
 
-.legend-circle {
+.dot.chk {
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -74,7 +70,7 @@
     flex-shrink: 0;
 }
 
-.legend-now-bar {
+.bar.now {
     width: 2px;
     height: 14px;
     background: #EA4335;

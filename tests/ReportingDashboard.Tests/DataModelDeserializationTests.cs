@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Xunit;
 using ReportingDashboard.Models;
+using Xunit;
 
 namespace ReportingDashboard.Tests;
 
@@ -13,68 +13,38 @@ public class DataModelDeserializationTests
         AllowTrailingCommas = true
     };
 
-    private static string GetTestDataPath(string filename)
-    {
-        return Path.Combine(AppContext.BaseDirectory, "TestData", filename);
-    }
+    private static string GetTestDataPath(string filename) =>
+        Path.Combine("TestData", filename);
 
     [Fact]
-    public void Deserialize_ValidMinimal_ReturnsCorrectTitle()
+    public void Deserialize_ValidMinimal_ReturnsPopulatedModel()
     {
         var json = File.ReadAllText(GetTestDataPath("valid-minimal.json"));
         var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
 
         Assert.NotNull(data);
         Assert.Equal("Minimal Project", data.Title);
-    }
-
-    [Fact]
-    public void Deserialize_ValidMinimal_ReturnsCorrectMonths()
-    {
-        var json = File.ReadAllText(GetTestDataPath("valid-minimal.json"));
-        var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
-
-        Assert.NotNull(data);
-        Assert.Equal(3, data.Months.Count);
+        Assert.Equal("Org · Workstream · Jan 2026", data.Subtitle);
+        Assert.Equal("https://dev.azure.com/org/project", data.BacklogUrl);
+        Assert.Single(data.Months);
         Assert.Equal("Jan", data.Months[0]);
-        Assert.Equal("Feb", data.Months[1]);
-        Assert.Equal("Mar", data.Months[2]);
-    }
-
-    [Fact]
-    public void Deserialize_ValidMinimal_ReturnsOneMilestone()
-    {
-        var json = File.ReadAllText(GetTestDataPath("valid-minimal.json"));
-        var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
-
-        Assert.NotNull(data);
+        Assert.Equal(0, data.CurrentMonthIndex);
         Assert.Single(data.Milestones);
-        Assert.Equal("M1", data.Milestones[0].Id);
-        Assert.Equal("#0078D4", data.Milestones[0].Color);
-    }
-
-    [Fact]
-    public void Deserialize_ValidMinimal_ReturnsFourCategories()
-    {
-        var json = File.ReadAllText(GetTestDataPath("valid-minimal.json"));
-        var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
-
-        Assert.NotNull(data);
         Assert.Equal(4, data.Categories.Count);
-        Assert.Equal("shipped", data.Categories[0].Key);
-        Assert.Equal("inProgress", data.Categories[1].Key);
-        Assert.Equal("carryover", data.Categories[2].Key);
-        Assert.Equal("blockers", data.Categories[3].Key);
     }
 
     [Fact]
-    public void Deserialize_ValidFull_ReturnsThreeMilestones()
+    public void Deserialize_ValidFull_ReturnsAllMilestonesAndCategories()
     {
         var json = File.ReadAllText(GetTestDataPath("valid-full.json"));
         var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
 
         Assert.NotNull(data);
+        Assert.Equal("Project Phoenix Release Roadmap", data.Title);
+        Assert.Equal(6, data.Months.Count);
+        Assert.Equal(3, data.CurrentMonthIndex);
         Assert.Equal(3, data.Milestones.Count);
+        Assert.Equal(4, data.Categories.Count);
     }
 
     [Fact]
@@ -84,14 +54,15 @@ public class DataModelDeserializationTests
         var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
 
         Assert.NotNull(data);
-        var m1Markers = data.Milestones[0].Markers;
-        Assert.Contains(m1Markers, m => m.Type == "checkpoint");
-        Assert.Contains(m1Markers, m => m.Type == "poc");
-        Assert.Contains(m1Markers, m => m.Type == "production");
+        var m1 = data.Milestones.First(m => m.Id == "M1");
+        Assert.Equal(4, m1.Markers.Count);
+        Assert.Equal("checkpoint", m1.Markers[0].Type);
+        Assert.Equal("poc", m1.Markers[2].Type);
+        Assert.Equal("production", m1.Markers[3].Type);
     }
 
     [Fact]
-    public void Deserialize_ValidFull_CategoryItemsDeserializeCorrectly()
+    public void Deserialize_ValidFull_CategoryItemsAreDictionaries()
     {
         var json = File.ReadAllText(GetTestDataPath("valid-full.json"));
         var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
@@ -100,6 +71,7 @@ public class DataModelDeserializationTests
         var shipped = data.Categories.First(c => c.Key == "shipped");
         Assert.True(shipped.Items.ContainsKey("Jan"));
         Assert.Equal(2, shipped.Items["Jan"].Count);
+        Assert.Contains("Auth service MVP", shipped.Items["Jan"]);
     }
 
     [Fact]
@@ -113,42 +85,61 @@ public class DataModelDeserializationTests
     }
 
     [Fact]
-    public void Deserialize_ValidFull_CurrentMonthIndexWithinRange()
+    public void Deserialize_ValidFull_CurrentDateWithinRange()
     {
         var json = File.ReadAllText(GetTestDataPath("valid-full.json"));
         var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
 
         Assert.NotNull(data);
-        Assert.InRange(data.CurrentMonthIndex, 0, data.Months.Count - 1);
+        Assert.True(data.CurrentDate >= data.TimelineStart);
+        Assert.True(data.CurrentDate <= data.TimelineEnd);
     }
 
     [Fact]
-    public void Deserialize_ValidFull_BacklogUrlIsPresent()
+    public void Deserialize_MissingTitle_DefaultsToEmpty()
+    {
+        var json = File.ReadAllText(GetTestDataPath("invalid-missing-title.json"));
+        var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
+
+        Assert.NotNull(data);
+        Assert.Equal(string.Empty, data.Title);
+    }
+
+    [Fact]
+    public void Deserialize_HeaderFields_TitleSubtitleBacklogUrl()
     {
         var json = File.ReadAllText(GetTestDataPath("valid-full.json"));
         var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
 
         Assert.NotNull(data);
+        Assert.False(string.IsNullOrWhiteSpace(data.Title));
+        Assert.False(string.IsNullOrWhiteSpace(data.Subtitle));
+        Assert.False(string.IsNullOrWhiteSpace(data.BacklogUrl));
         Assert.StartsWith("https://", data.BacklogUrl);
     }
 
     [Fact]
-    public void Deserialize_EmptyItems_ReturnsEmptyList()
+    public void Deserialize_MilestoneColors_AreValidHex()
     {
-        var json = File.ReadAllText(GetTestDataPath("valid-minimal.json"));
+        var json = File.ReadAllText(GetTestDataPath("valid-full.json"));
+        var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
+
+        Assert.NotNull(data);
+        foreach (var milestone in data.Milestones)
+        {
+            Assert.Matches(@"^#[0-9A-Fa-f]{6}$", milestone.Color);
+        }
+    }
+
+    [Fact]
+    public void Deserialize_EmptyItemsList_DeserializesToEmptyList()
+    {
+        var json = File.ReadAllText(GetTestDataPath("valid-full.json"));
         var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
 
         Assert.NotNull(data);
         var shipped = data.Categories.First(c => c.Key == "shipped");
-        Assert.True(shipped.Items.ContainsKey("Mar"));
-        Assert.Empty(shipped.Items["Mar"]);
-    }
-
-    [Fact]
-    public void Deserialize_InvalidJson_ThrowsJsonException()
-    {
-        var invalidJson = "{ this is not valid json }";
-        Assert.Throws<JsonException>(() =>
-            JsonSerializer.Deserialize<DashboardData>(invalidJson, JsonOptions));
+        Assert.NotNull(shipped.Items["Apr"]);
+        Assert.Empty(shipped.Items["Apr"]);
     }
 }

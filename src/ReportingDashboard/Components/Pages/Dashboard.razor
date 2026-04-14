@@ -9,7 +9,7 @@
         <div class="error-icon">⚠</div>
         <h2>Dashboard Error</h2>
         <p>@_error</p>
-        <p class="error-hint">Check your data.json file and ensure it is valid JSON with all required fields.</p>
+        <p class="error-hint">Check your data.json file and reload the page.</p>
     </div>
 }
 else if (_data is not null)
@@ -25,27 +25,22 @@ else if (_data is not null)
 }
 
 @code {
+    [SupplyParameterFromQuery]
+    public string? Project { get; set; }
+
     private DashboardData? _data;
     private string? _error;
 
     protected override void OnInitialized()
     {
-        var uri = new Uri(Navigation.Uri);
-        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        var project = query["project"];
-
         try
         {
-            _data = DataService.GetData(project);
+            _data = DataService.GetData(Project);
             DataService.OnDataChanged += HandleDataChanged;
         }
         catch (DashboardDataException ex)
         {
             _error = ex.Message;
-        }
-        catch (Exception ex)
-        {
-            _error = $"Unexpected error loading dashboard data: {ex.Message}";
         }
     }
 
@@ -53,23 +48,15 @@ else if (_data is not null)
     {
         try
         {
-            var uri = new Uri(Navigation.Uri);
-            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-            var project = query["project"];
-            _data = DataService.GetData(project);
+            _data = DataService.GetData(Project);
             _error = null;
-            await InvokeAsync(StateHasChanged);
         }
         catch (DashboardDataException ex)
         {
             _error = ex.Message;
             _data = null;
-            await InvokeAsync(StateHasChanged);
         }
-        catch (Exception)
-        {
-            // Swallow errors during hot-reload to avoid crashing the circuit
-        }
+        await InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()

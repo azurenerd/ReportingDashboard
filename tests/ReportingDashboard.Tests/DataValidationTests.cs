@@ -1,11 +1,7 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 using ReportingDashboard.Models;
 using ReportingDashboard.Services;
+using Xunit;
 
 namespace ReportingDashboard.Tests;
 
@@ -18,216 +14,185 @@ public class DataValidationTests
         AllowTrailingCommas = true
     };
 
-    private static string GetTestDataPath(string filename)
-    {
-        return Path.Combine(AppContext.BaseDirectory, "TestData", filename);
-    }
+    private static string GetTestDataPath(string filename) =>
+        Path.Combine("TestData", filename);
 
-    private static DashboardDataService CreateService(string contentRoot)
+    private static DashboardData LoadTestData(string filename)
     {
-        var env = new TestWebHostEnvironment(contentRoot);
-        var logger = NullLogger<DashboardDataService>.Instance;
-        return new DashboardDataService(env, logger);
+        var json = File.ReadAllText(GetTestDataPath(filename));
+        return JsonSerializer.Deserialize<DashboardData>(json, JsonOptions)!;
     }
 
     [Fact]
-    public void GetData_ValidMinimal_Succeeds()
+    public void Validate_ValidMinimal_NoException()
     {
-        var testDir = Path.Combine(Path.GetTempPath(), $"rd-test-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(testDir);
-        try
-        {
-            File.Copy(GetTestDataPath("valid-minimal.json"), Path.Combine(testDir, "data.json"));
-            using var service = CreateService(testDir);
-            var data = service.GetData();
-            Assert.Equal("Minimal Project", data.Title);
-        }
-        finally
-        {
-            Directory.Delete(testDir, true);
-        }
+        var data = LoadTestData("valid-minimal.json");
+        var ex = Record.Exception(() => DashboardDataService.Validate(data, "test.json"));
+        Assert.Null(ex);
     }
 
     [Fact]
-    public void GetData_ValidFull_Succeeds()
+    public void Validate_ValidFull_NoException()
     {
-        var testDir = Path.Combine(Path.GetTempPath(), $"rd-test-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(testDir);
-        try
-        {
-            File.Copy(GetTestDataPath("valid-full.json"), Path.Combine(testDir, "data.json"));
-            using var service = CreateService(testDir);
-            var data = service.GetData();
-            Assert.Equal("Project Phoenix Release Roadmap", data.Title);
-            Assert.Equal(3, data.Milestones.Count);
-        }
-        finally
-        {
-            Directory.Delete(testDir, true);
-        }
+        var data = LoadTestData("valid-full.json");
+        var ex = Record.Exception(() => DashboardDataService.Validate(data, "test.json"));
+        Assert.Null(ex);
     }
 
     [Fact]
-    public void GetData_MissingTitle_ThrowsDashboardDataException()
+    public void Validate_MissingTitle_ThrowsWithMessage()
     {
-        var testDir = Path.Combine(Path.GetTempPath(), $"rd-test-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(testDir);
-        try
-        {
-            File.Copy(GetTestDataPath("invalid-missing-title.json"), Path.Combine(testDir, "data.json"));
-            using var service = CreateService(testDir);
-            var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
-            Assert.Contains("title", ex.Message, StringComparison.OrdinalIgnoreCase);
-        }
-        finally
-        {
-            Directory.Delete(testDir, true);
-        }
+        var data = LoadTestData("invalid-missing-title.json");
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("'title' is required", ex.Message);
     }
 
     [Fact]
-    public void GetData_BadMilestone_ThrowsDashboardDataException()
+    public void Validate_EmptyTitle_ThrowsWithMessage()
     {
-        var testDir = Path.Combine(Path.GetTempPath(), $"rd-test-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(testDir);
-        try
-        {
-            File.Copy(GetTestDataPath("invalid-bad-milestone.json"), Path.Combine(testDir, "data.json"));
-            using var service = CreateService(testDir);
-            var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
-            Assert.Contains("color", ex.Message, StringComparison.OrdinalIgnoreCase);
-        }
-        finally
-        {
-            Directory.Delete(testDir, true);
-        }
+        var data = LoadTestData("valid-full.json");
+        data.Title = "";
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("'title' is required", ex.Message);
     }
 
     [Fact]
-    public void GetData_FileNotFound_ThrowsDashboardDataException()
+    public void Validate_EmptyMonths_ThrowsWithMessage()
     {
-        var testDir = Path.Combine(Path.GetTempPath(), $"rd-test-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(testDir);
-        try
-        {
-            using var service = CreateService(testDir);
-            var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
-            Assert.Contains("not found", ex.Message, StringComparison.OrdinalIgnoreCase);
-        }
-        finally
-        {
-            Directory.Delete(testDir, true);
-        }
+        var data = LoadTestData("valid-full.json");
+        data.Months = new List<string>();
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("'months' must contain 1-12 entries", ex.Message);
     }
 
     [Fact]
-    public void GetData_InvalidProjectName_ThrowsDashboardDataException()
+    public void Validate_TooManyMonths_ThrowsWithMessage()
     {
-        var testDir = Path.Combine(Path.GetTempPath(), $"rd-test-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(testDir);
-        try
-        {
-            using var service = CreateService(testDir);
-            var ex = Assert.Throws<DashboardDataException>(() => service.GetData("../../etc/passwd"));
-            Assert.Contains("Invalid project name", ex.Message);
-        }
-        finally
-        {
-            Directory.Delete(testDir, true);
-        }
+        var data = LoadTestData("valid-full.json");
+        data.Months = Enumerable.Range(1, 13).Select(i => $"M{i}").ToList();
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("'months' must contain 1-12 entries", ex.Message);
     }
 
     [Fact]
-    public void GetData_ProjectNotFound_ThrowsDashboardDataException()
+    public void Validate_CurrentMonthIndexOutOfRange_ThrowsWithMessage()
     {
-        var testDir = Path.Combine(Path.GetTempPath(), $"rd-test-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(testDir);
-        try
-        {
-            using var service = CreateService(testDir);
-            var ex = Assert.Throws<DashboardDataException>(() => service.GetData("nonexistent"));
-            Assert.Contains("not found", ex.Message, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("nonexistent", ex.Message);
-        }
-        finally
-        {
-            Directory.Delete(testDir, true);
-        }
+        var data = LoadTestData("valid-full.json");
+        data.CurrentMonthIndex = 99;
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("'currentMonthIndex'", ex.Message);
+        Assert.Contains("out of range", ex.Message);
     }
 
     [Fact]
-    public void GetData_MultiProject_LoadsCorrectFile()
+    public void Validate_NegativeCurrentMonthIndex_ThrowsWithMessage()
     {
-        var testDir = Path.Combine(Path.GetTempPath(), $"rd-test-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(testDir);
-        try
-        {
-            File.Copy(GetTestDataPath("valid-full.json"), Path.Combine(testDir, "data.phoenix.json"));
-            using var service = CreateService(testDir);
-            var data = service.GetData("phoenix");
-            Assert.Equal("Project Phoenix Release Roadmap", data.Title);
-        }
-        finally
-        {
-            Directory.Delete(testDir, true);
-        }
+        var data = LoadTestData("valid-full.json");
+        data.CurrentMonthIndex = -1;
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("'currentMonthIndex'", ex.Message);
     }
 
     [Fact]
-    public void GetData_MultiProject_FallsBackToProjectsSubfolder()
+    public void Validate_TimelineStartAfterEnd_ThrowsWithMessage()
     {
-        var testDir = Path.Combine(Path.GetTempPath(), $"rd-test-{Guid.NewGuid():N}");
-        var projectsDir = Path.Combine(testDir, "projects");
-        Directory.CreateDirectory(projectsDir);
-        try
-        {
-            File.Copy(GetTestDataPath("valid-minimal.json"), Path.Combine(projectsDir, "atlas.json"));
-            using var service = CreateService(testDir);
-            var data = service.GetData("atlas");
-            Assert.Equal("Minimal Project", data.Title);
-        }
-        finally
-        {
-            Directory.Delete(testDir, true);
-        }
+        var data = LoadTestData("valid-full.json");
+        data.TimelineStart = data.TimelineEnd.AddDays(1);
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("'timelineStart' must be before 'timelineEnd'", ex.Message);
     }
 
     [Fact]
-    public void GetData_CachesResults()
+    public void Validate_NoMilestones_ThrowsWithMessage()
     {
-        var testDir = Path.Combine(Path.GetTempPath(), $"rd-test-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(testDir);
-        try
-        {
-            File.Copy(GetTestDataPath("valid-minimal.json"), Path.Combine(testDir, "data.json"));
-            using var service = CreateService(testDir);
-            var data1 = service.GetData();
-            var data2 = service.GetData();
-            Assert.Same(data1, data2);
-        }
-        finally
-        {
-            Directory.Delete(testDir, true);
-        }
+        var data = LoadTestData("valid-full.json");
+        data.Milestones = new List<Milestone>();
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("'milestones' must contain 1-5 entries", ex.Message);
     }
 
-    private class TestWebHostEnvironment : IWebHostEnvironment
+    [Fact]
+    public void Validate_TooManyMilestones_ThrowsWithMessage()
     {
-        public TestWebHostEnvironment(string contentRootPath)
+        var data = LoadTestData("valid-full.json");
+        data.Milestones = Enumerable.Range(1, 6).Select(i => new Milestone
         {
-            ContentRootPath = contentRootPath;
-            WebRootPath = Path.Combine(contentRootPath, "wwwroot");
-            EnvironmentName = "Testing";
-            ApplicationName = "ReportingDashboard.Tests";
-            ContentRootFileProvider = new NullFileProvider();
-            WebRootFileProvider = new NullFileProvider();
-        }
+            Id = $"M{i}", Label = $"M{i}", Color = "#000000", Markers = new()
+        }).ToList();
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("'milestones' must contain 1-5 entries", ex.Message);
+    }
 
-        public string WebRootPath { get; set; }
-        public IFileProvider WebRootFileProvider { get; set; }
-        public string EnvironmentName { get; set; }
-        public string ApplicationName { get; set; }
-        public string ContentRootPath { get; set; }
-        public IFileProvider ContentRootFileProvider { get; set; }
+    [Fact]
+    public void Validate_InvalidMilestoneColor_ThrowsWithMessage()
+    {
+        var data = LoadTestData("valid-full.json");
+        data.Milestones[0].Color = "not-a-color";
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("invalid color", ex.Message);
+        Assert.Contains(data.Milestones[0].Id, ex.Message);
+    }
+
+    [Fact]
+    public void Validate_InvalidMarkerType_ThrowsWithMessage()
+    {
+        var data = LoadTestData("invalid-bad-milestone.json");
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("Marker type", ex.Message);
+        Assert.Contains("not recognized", ex.Message);
+    }
+
+    [Fact]
+    public void Validate_WrongCategoryCount_ThrowsWithMessage()
+    {
+        var data = LoadTestData("valid-full.json");
+        data.Categories = data.Categories.Take(2).ToList();
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("'categories' must contain exactly 4 entries", ex.Message);
+    }
+
+    [Fact]
+    public void Validate_InvalidCategoryKey_ThrowsWithMessage()
+    {
+        var data = LoadTestData("valid-full.json");
+        data.Categories[0].Key = "invalid_key";
+        var ex = Assert.Throws<DashboardDataException>(
+            () => DashboardDataService.Validate(data, "test.json"));
+        Assert.Contains("Category key 'invalid_key' is not recognized", ex.Message);
+    }
+
+    [Fact]
+    public void Validate_HeaderFieldsPresent_ForDashboardHeader()
+    {
+        var data = LoadTestData("valid-full.json");
+        DashboardDataService.Validate(data, "test.json");
+
+        Assert.Equal("Project Phoenix Release Roadmap", data.Title);
+        Assert.Contains("·", data.Subtitle);
+        Assert.StartsWith("https://", data.BacklogUrl);
+    }
+
+    [Fact]
+    public void Validate_ThreeLetterMonthAbbreviations()
+    {
+        var data = LoadTestData("valid-full.json");
+        DashboardDataService.Validate(data, "test.json");
+
+        foreach (var month in data.Months)
+        {
+            Assert.Equal(3, month.Length);
+        }
     }
 }

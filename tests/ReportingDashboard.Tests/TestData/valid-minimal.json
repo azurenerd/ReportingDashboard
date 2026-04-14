@@ -1,59 +1,43 @@
 {
-  "title": "Minimal Project",
-  "subtitle": "Test Org · Test Workstream · April 2026",
-  "backlogUrl": "https://dev.azure.com/test/backlog",
-  "currentDate": "2026-04-14",
-  "months": ["Jan", "Feb", "Mar"],
-  "currentMonthIndex": 2,
-  "timelineStart": "2026-01-01",
-  "timelineEnd": "2026-03-31",
-  "milestones": [
-    {
-      "id": "M1",
-      "label": "M1",
-      "description": "Core Platform",
-      "color": "#0078D4",
-      "markers": [
-        { "date": "2026-03-15", "type": "checkpoint", "label": "Mar 15" }
-      ]
-    }
-  ],
-  "categories": [
-    {
-      "name": "Shipped",
-      "key": "shipped",
-      "items": {
-        "Jan": ["Item A"],
-        "Feb": [],
-        "Mar": []
-      }
-    },
-    {
-      "name": "In Progress",
-      "key": "inProgress",
-      "items": {
-        "Jan": [],
-        "Feb": [],
-        "Mar": []
-      }
-    },
-    {
-      "name": "Carryover",
-      "key": "carryover",
-      "items": {
-        "Jan": [],
-        "Feb": [],
-        "Mar": []
-      }
-    },
-    {
-      "name": "Blockers",
-      "key": "blockers",
-      "items": {
-        "Jan": [],
-        "Feb": [],
-        "Mar": []
-      }
-    }
-  ]
+    "title": "Minimal Project",
+    "subtitle": "Org · Workstream · Jan 2026",
+    "backlogUrl": "https://dev.azure.com/org/project",
+    "currentDate": "2026-01-15",
+    "months": ["Jan"],
+    "currentMonthIndex": 0,
+    "timelineStart": "2026-01-01",
+    "timelineEnd": "2026-03-31",
+    "milestones": [
+        {
+            "id": "M1",
+            "label": "M1",
+            "description": "Core Feature",
+            "color": "#0078D4",
+            "markers": [
+                { "date": "2026-01-15", "type": "checkpoint", "label": "Jan 15" }
+            ]
+        }
+    ],
+    "categories": [
+        {
+            "name": "Shipped",
+            "key": "shipped",
+            "items": { "Jan": ["Item A"] }
+        },
+        {
+            "name": "In Progress",
+            "key": "inProgress",
+            "items": { "Jan": [] }
+        },
+        {
+            "name": "Carryover",
+            "key": "carryover",
+            "items": { "Jan": [] }
+        },
+        {
+            "name": "Blockers",
+            "key": "blockers",
+            "items": { "Jan": [] }
+        }
+    ]
 }
