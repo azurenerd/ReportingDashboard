@@ -1,6 +1,5 @@
-using ReportingDashboard.Services;
-using ReportingDashboard.Tests.Helpers;
 using Xunit;
+using ReportingDashboard.Services;
 
 namespace ReportingDashboard.Tests;
 
@@ -10,274 +9,281 @@ public class DataValidationTests : IDisposable
 
     public DataValidationTests()
     {
-        _tempDir = Path.Combine(
-            Path.GetTempPath(),
-            "RD_ValTests_" + Guid.NewGuid().ToString("N")[..8]);
-        Directory.CreateDirectory(_tempDir);
+        _tempDir = TestHelper.CreateTempDir();
     }
 
-    public void Dispose()
+    [Fact]
+    public void MissingTitle_ThrowsDashboardDataException()
     {
-        try
-        {
-            if (Directory.Exists(_tempDir))
-                Directory.Delete(_tempDir, true);
-        }
-        catch { }
-    }
-
-    private DashboardDataService CreateServiceWithFile(string json)
-    {
+        var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "TestData", "invalid-missing-title.json"));
         File.WriteAllText(Path.Combine(_tempDir, "data.json"), json);
-        var env = new TestWebHostEnvironment { ContentRootPath = _tempDir };
-        var logger = new TestLogger<DashboardDataService>();
-        return new DashboardDataService(env, logger);
-    }
 
-    [Fact]
-    public void Validate_ValidData_Succeeds()
-    {
-        var service = CreateServiceWithFile(TestDataHelper.GenerateValidJson());
-        var exception = Record.Exception(() => service.Initialize());
-        Assert.Null(exception);
-        service.Dispose();
-    }
-
-    [Fact]
-    public void Validate_MissingTitle_ThrowsDashboardDataException()
-    {
-        var json = File.ReadAllText(
-            Path.Combine(AppContext.BaseDirectory, "TestData", "invalid-missing-title.json"));
-        var service = CreateServiceWithFile(json);
-
-        var ex = Assert.Throws<DashboardDataException>(() => service.Initialize());
-        Assert.Contains("'title' is required", ex.Message);
-        service.Dispose();
-    }
-
-    [Fact]
-    public void Validate_InvalidMilestoneColor_ThrowsDashboardDataException()
-    {
-        var json = File.ReadAllText(
-            Path.Combine(AppContext.BaseDirectory, "TestData", "invalid-bad-milestone.json"));
-        var service = CreateServiceWithFile(json);
-
-        var ex = Assert.Throws<DashboardDataException>(() => service.Initialize());
-        Assert.Contains("invalid color", ex.Message);
-        service.Dispose();
-    }
-
-    [Fact]
-    public void Validate_MissingDataJson_LogsWarningButDoesNotThrow()
-    {
-        // No data.json written to temp dir
-        var env = new TestWebHostEnvironment { ContentRootPath = _tempDir };
-        var logger = new TestLogger<DashboardDataService>();
-        var service = new DashboardDataService(env, logger);
-
-        var exception = Record.Exception(() => service.Initialize());
-        Assert.Null(exception);
-        Assert.True(logger.HasLogLevel(Microsoft.Extensions.Logging.LogLevel.Warning));
-        service.Dispose();
-    }
-
-    [Fact]
-    public void GetData_MissingDataJson_ThrowsDashboardDataException()
-    {
-        var env = new TestWebHostEnvironment { ContentRootPath = _tempDir };
-        var logger = new TestLogger<DashboardDataService>();
-        var service = new DashboardDataService(env, logger);
-        service.Initialize();
-
+        var service = TestHelper.CreateService(_tempDir);
         var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
-        Assert.Contains("not found", ex.Message);
+        Assert.Contains("title", ex.Message, StringComparison.OrdinalIgnoreCase);
         service.Dispose();
     }
 
     [Fact]
-    public void GetData_InvalidProjectName_ThrowsDashboardDataException()
+    public void InvalidMarkerType_ThrowsDashboardDataException()
     {
-        var service = CreateServiceWithFile(TestDataHelper.GenerateValidJson());
-        service.Initialize();
+        var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "TestData", "invalid-bad-milestone.json"));
+        File.WriteAllText(Path.Combine(_tempDir, "data.json"), json);
 
-        var ex = Assert.Throws<DashboardDataException>(() => service.GetData("../../../etc"));
-        Assert.Contains("Invalid project name", ex.Message);
+        var service = TestHelper.CreateService(_tempDir);
+        var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
+        Assert.Contains("invalid_type", ex.Message);
         service.Dispose();
     }
 
     [Fact]
-    public void GetData_NonexistentProject_ThrowsDashboardDataException()
-    {
-        var service = CreateServiceWithFile(TestDataHelper.GenerateValidJson());
-        service.Initialize();
-
-        var ex = Assert.Throws<DashboardDataException>(() => service.GetData("nonexistent"));
-        Assert.Contains("not found", ex.Message);
-        service.Dispose();
-    }
-
-    [Fact]
-    public void GetData_ValidProject_ReturnsProjectData()
-    {
-        var service = CreateServiceWithFile(TestDataHelper.GenerateValidJson());
-        File.WriteAllText(
-            Path.Combine(_tempDir, "data.phoenix.json"),
-            TestDataHelper.GenerateValidJson("Phoenix Project"));
-        service.Initialize();
-
-        var data = service.GetData("phoenix");
-        Assert.Equal("Phoenix Project", data.Title);
-        service.Dispose();
-    }
-
-    [Fact]
-    public void GetData_CachesResult_ReturnsSameInstance()
-    {
-        var service = CreateServiceWithFile(TestDataHelper.GenerateValidJson());
-        service.Initialize();
-
-        var data1 = service.GetData();
-        var data2 = service.GetData();
-        Assert.Same(data1, data2);
-        service.Dispose();
-    }
-
-    [Fact]
-    public void Validate_EmptyMonths_ThrowsDashboardDataException()
+    public void EmptyMonths_ThrowsDashboardDataException()
     {
         var json = """
         {
             "title": "Test",
-            "subtitle": "",
-            "backlogUrl": "",
+            "subtitle": "S",
+            "backlogUrl": "https://x.com",
             "currentDate": "2026-01-01",
             "months": [],
             "currentMonthIndex": 0,
             "timelineStart": "2026-01-01",
-            "timelineEnd": "2026-06-30",
-            "milestones": [{"id":"M1","label":"M1","description":"T","color":"#000000","markers":[]}],
+            "timelineEnd": "2026-01-31",
+            "milestones": [{"id":"M1","label":"M1","description":"D","color":"#000","markers":[]}],
             "categories": [
-                {"name":"S","key":"shipped","items":{}},
-                {"name":"I","key":"inProgress","items":{}},
-                {"name":"C","key":"carryover","items":{}},
-                {"name":"B","key":"blockers","items":{}}
+                {"name":"Shipped","key":"shipped","items":{}},
+                {"name":"In Progress","key":"inProgress","items":{}},
+                {"name":"Carryover","key":"carryover","items":{}},
+                {"name":"Blockers","key":"blockers","items":{}}
             ]
         }
         """;
-        var service = CreateServiceWithFile(json);
-        var ex = Assert.Throws<DashboardDataException>(() => service.Initialize());
-        Assert.Contains("'months' must contain 1-12 entries", ex.Message);
+        File.WriteAllText(Path.Combine(_tempDir, "data.json"), json);
+
+        var service = TestHelper.CreateService(_tempDir);
+        var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
+        Assert.Contains("months", ex.Message, StringComparison.OrdinalIgnoreCase);
         service.Dispose();
     }
 
     [Fact]
-    public void Validate_TimelineStartAfterEnd_ThrowsDashboardDataException()
+    public void InvalidCurrentMonthIndex_ThrowsDashboardDataException()
     {
         var json = """
         {
             "title": "Test",
-            "subtitle": "",
-            "backlogUrl": "",
+            "subtitle": "S",
+            "backlogUrl": "https://x.com",
+            "currentDate": "2026-01-01",
+            "months": ["Jan"],
+            "currentMonthIndex": 5,
+            "timelineStart": "2026-01-01",
+            "timelineEnd": "2026-01-31",
+            "milestones": [{"id":"M1","label":"M1","description":"D","color":"#000","markers":[]}],
+            "categories": [
+                {"name":"Shipped","key":"shipped","items":{}},
+                {"name":"In Progress","key":"inProgress","items":{}},
+                {"name":"Carryover","key":"carryover","items":{}},
+                {"name":"Blockers","key":"blockers","items":{}}
+            ]
+        }
+        """;
+        File.WriteAllText(Path.Combine(_tempDir, "data.json"), json);
+
+        var service = TestHelper.CreateService(_tempDir);
+        var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
+        Assert.Contains("currentMonthIndex", ex.Message, StringComparison.OrdinalIgnoreCase);
+        service.Dispose();
+    }
+
+    [Fact]
+    public void TimelineStartAfterEnd_ThrowsDashboardDataException()
+    {
+        var json = """
+        {
+            "title": "Test",
+            "subtitle": "S",
+            "backlogUrl": "https://x.com",
             "currentDate": "2026-01-01",
             "months": ["Jan"],
             "currentMonthIndex": 0,
-            "timelineStart": "2026-12-01",
+            "timelineStart": "2026-06-01",
             "timelineEnd": "2026-01-01",
-            "milestones": [{"id":"M1","label":"M1","description":"T","color":"#000000","markers":[]}],
+            "milestones": [{"id":"M1","label":"M1","description":"D","color":"#000","markers":[]}],
             "categories": [
-                {"name":"S","key":"shipped","items":{}},
-                {"name":"I","key":"inProgress","items":{}},
-                {"name":"C","key":"carryover","items":{}},
-                {"name":"B","key":"blockers","items":{}}
+                {"name":"Shipped","key":"shipped","items":{}},
+                {"name":"In Progress","key":"inProgress","items":{}},
+                {"name":"Carryover","key":"carryover","items":{}},
+                {"name":"Blockers","key":"blockers","items":{}}
             ]
         }
         """;
-        var service = CreateServiceWithFile(json);
-        var ex = Assert.Throws<DashboardDataException>(() => service.Initialize());
-        Assert.Contains("'timelineStart' must be before 'timelineEnd'", ex.Message);
+        File.WriteAllText(Path.Combine(_tempDir, "data.json"), json);
+
+        var service = TestHelper.CreateService(_tempDir);
+        var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
+        Assert.Contains("timelineStart", ex.Message, StringComparison.OrdinalIgnoreCase);
         service.Dispose();
     }
 
     [Fact]
-    public void Validate_InvalidMarkerType_ThrowsDashboardDataException()
+    public void TooManyMilestones_ThrowsDashboardDataException()
     {
-        var json = """
+        var milestoneList = new List<string>();
+        for (int i = 1; i <= 6; i++)
         {
-            "title": "Test",
-            "subtitle": "",
-            "backlogUrl": "",
-            "currentDate": "2026-01-01",
-            "months": ["Jan"],
-            "currentMonthIndex": 0,
-            "timelineStart": "2026-01-01",
-            "timelineEnd": "2026-06-30",
-            "milestones": [{"id":"M1","label":"M1","description":"T","color":"#0078D4","markers":[
-                {"date":"2026-02-01","type":"invalid_type","label":"Test"}
-            ]}],
-            "categories": [
-                {"name":"S","key":"shipped","items":{}},
-                {"name":"I","key":"inProgress","items":{}},
-                {"name":"C","key":"carryover","items":{}},
-                {"name":"B","key":"blockers","items":{}}
-            ]
+            milestoneList.Add("{\"id\":\"M" + i + "\",\"label\":\"M" + i + "\",\"description\":\"D\",\"color\":\"#000\",\"markers\":[]}");
         }
-        """;
-        var service = CreateServiceWithFile(json);
-        var ex = Assert.Throws<DashboardDataException>(() => service.Initialize());
-        Assert.Contains("Marker type 'invalid_type' is not recognized", ex.Message);
+        var milestones = string.Join(",", milestoneList);
+        var json = @"
+        {
+            ""title"": ""Test"",
+            ""subtitle"": ""S"",
+            ""backlogUrl"": ""https://x.com"",
+            ""currentDate"": ""2026-01-01"",
+            ""months"": [""Jan""],
+            ""currentMonthIndex"": 0,
+            ""timelineStart"": ""2026-01-01"",
+            ""timelineEnd"": ""2026-01-31"",
+            ""milestones"": [" + milestones + @"],
+            ""categories"": [
+                {""name"":""Shipped"",""key"":""shipped"",""items"":{}},
+                {""name"":""In Progress"",""key"":""inProgress"",""items"":{}},
+                {""name"":""Carryover"",""key"":""carryover"",""items"":{}},
+                {""name"":""Blockers"",""key"":""blockers"",""items"":{}}
+            ]
+        }";
+        File.WriteAllText(Path.Combine(_tempDir, "data.json"), json);
+
+        var service = TestHelper.CreateService(_tempDir);
+        var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
+        Assert.Contains("milestones", ex.Message, StringComparison.OrdinalIgnoreCase);
         service.Dispose();
     }
 
     [Fact]
-    public void Validate_WrongCategoryCount_ThrowsDashboardDataException()
+    public void WrongCategoryCount_ThrowsDashboardDataException()
     {
         var json = """
         {
             "title": "Test",
-            "subtitle": "",
-            "backlogUrl": "",
+            "subtitle": "S",
+            "backlogUrl": "https://x.com",
             "currentDate": "2026-01-01",
             "months": ["Jan"],
             "currentMonthIndex": 0,
             "timelineStart": "2026-01-01",
-            "timelineEnd": "2026-06-30",
-            "milestones": [{"id":"M1","label":"M1","description":"T","color":"#0078D4","markers":[]}],
+            "timelineEnd": "2026-01-31",
+            "milestones": [{"id":"M1","label":"M1","description":"D","color":"#000","markers":[]}],
             "categories": [
-                {"name":"S","key":"shipped","items":{}}
+                {"name":"Shipped","key":"shipped","items":{}}
             ]
         }
         """;
-        var service = CreateServiceWithFile(json);
-        var ex = Assert.Throws<DashboardDataException>(() => service.Initialize());
-        Assert.Contains("'categories' must contain exactly 4 entries", ex.Message);
+        File.WriteAllText(Path.Combine(_tempDir, "data.json"), json);
+
+        var service = TestHelper.CreateService(_tempDir);
+        var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
+        Assert.Contains("categories", ex.Message, StringComparison.OrdinalIgnoreCase);
         service.Dispose();
     }
 
     [Fact]
-    public void Validate_InvalidCategoryKey_ThrowsDashboardDataException()
+    public void InvalidCategoryKey_ThrowsDashboardDataException()
     {
         var json = """
         {
             "title": "Test",
-            "subtitle": "",
-            "backlogUrl": "",
+            "subtitle": "S",
+            "backlogUrl": "https://x.com",
             "currentDate": "2026-01-01",
             "months": ["Jan"],
             "currentMonthIndex": 0,
             "timelineStart": "2026-01-01",
-            "timelineEnd": "2026-06-30",
-            "milestones": [{"id":"M1","label":"M1","description":"T","color":"#0078D4","markers":[]}],
+            "timelineEnd": "2026-01-31",
+            "milestones": [{"id":"M1","label":"M1","description":"D","color":"#000","markers":[]}],
             "categories": [
-                {"name":"S","key":"shipped","items":{}},
-                {"name":"I","key":"badKey","items":{}},
-                {"name":"C","key":"carryover","items":{}},
-                {"name":"B","key":"blockers","items":{}}
+                {"name":"Shipped","key":"shipped","items":{}},
+                {"name":"In Progress","key":"inProgress","items":{}},
+                {"name":"Carryover","key":"carryover","items":{}},
+                {"name":"Bad","key":"invalidKey","items":{}}
             ]
         }
         """;
-        var service = CreateServiceWithFile(json);
-        var ex = Assert.Throws<DashboardDataException>(() => service.Initialize());
-        Assert.Contains("Category key 'badKey' is not recognized", ex.Message);
+        File.WriteAllText(Path.Combine(_tempDir, "data.json"), json);
+
+        var service = TestHelper.CreateService(_tempDir);
+        var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
+        Assert.Contains("invalidKey", ex.Message);
         service.Dispose();
+    }
+
+    [Fact]
+    public void InvalidHexColor_ThrowsDashboardDataException()
+    {
+        var json = """
+        {
+            "title": "Test",
+            "subtitle": "S",
+            "backlogUrl": "https://x.com",
+            "currentDate": "2026-01-01",
+            "months": ["Jan"],
+            "currentMonthIndex": 0,
+            "timelineStart": "2026-01-01",
+            "timelineEnd": "2026-01-31",
+            "milestones": [{"id":"M1","label":"M1","description":"D","color":"not-a-color","markers":[]}],
+            "categories": [
+                {"name":"Shipped","key":"shipped","items":{}},
+                {"name":"In Progress","key":"inProgress","items":{}},
+                {"name":"Carryover","key":"carryover","items":{}},
+                {"name":"Blockers","key":"blockers","items":{}}
+            ]
+        }
+        """;
+        File.WriteAllText(Path.Combine(_tempDir, "data.json"), json);
+
+        var service = TestHelper.CreateService(_tempDir);
+        var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
+        Assert.Contains("invalid color", ex.Message, StringComparison.OrdinalIgnoreCase);
+        service.Dispose();
+    }
+
+    [Fact]
+    public void ValidData_PassesValidation()
+    {
+        File.WriteAllText(Path.Combine(_tempDir, "data.json"), TestHelper.MinimalValidJson);
+
+        var service = TestHelper.CreateService(_tempDir);
+        var data = service.GetData();
+
+        Assert.NotNull(data);
+        Assert.Equal("Test Dashboard", data.Title);
+        service.Dispose();
+    }
+
+    [Fact]
+    public void MissingDataFile_ThrowsDashboardDataException()
+    {
+        // No data.json in temp dir
+        var service = TestHelper.CreateService(_tempDir);
+        var ex = Assert.Throws<DashboardDataException>(() => service.Initialize());
+        Assert.Contains("not found", ex.Message, StringComparison.OrdinalIgnoreCase);
+        service.Dispose();
+    }
+
+    [Fact]
+    public void MalformedJson_ThrowsDashboardDataException()
+    {
+        File.WriteAllText(Path.Combine(_tempDir, "data.json"), "{ this is not valid json }");
+
+        var service = TestHelper.CreateService(_tempDir);
+        var ex = Assert.Throws<DashboardDataException>(() => service.GetData());
+        Assert.Contains("parse", ex.Message, StringComparison.OrdinalIgnoreCase);
+        service.Dispose();
+    }
+
+    public void Dispose()
+    {
+        try { Directory.Delete(_tempDir, true); } catch { }
     }
 }

@@ -5,21 +5,25 @@
     </div>
     <div class="legend">
         <div class="legend-item">
-            <span class="diamond poc-diamond"></span> PoC Milestone
+            <span class="marker-diamond poc"></span>
+            <span>PoC Milestone</span>
         </div>
         <div class="legend-item">
-            <span class="diamond prod-diamond"></span> Production Release
+            <span class="marker-diamond prod"></span>
+            <span>Production Release</span>
         </div>
         <div class="legend-item">
-            <span class="circle checkpoint-circle"></span> Checkpoint
+            <span class="marker-circle"></span>
+            <span>Checkpoint</span>
         </div>
         <div class="legend-item">
-            <span class="now-bar"></span> Now
+            <span class="marker-now"></span>
+            <span>Now</span>
         </div>
     </div>
 </div>
 
 @code {
-    [Parameter]
+    [Parameter, EditorRequired]
     public DashboardData Data { get; set; } = default!;
 }

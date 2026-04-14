@@ -1,78 +1,71 @@
 {
-  "title": "Full Project Phoenix",
-  "subtitle": "Trusted Platform \u00b7 Privacy Automation \u00b7 April 2026",
-  "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
-  "currentDate": "2026-04-14",
-  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-  "currentMonthIndex": 3,
-  "timelineStart": "2025-12-15",
-  "timelineEnd": "2026-07-15",
-  "milestones": [
-    {
-      "id": "M1",
-      "label": "M1",
-      "description": "Chatbot & MS Role",
-      "color": "#0078D4",
-      "markers": [
-        { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
-        { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
-        { "date": "2026-05-15", "type": "production", "label": "May 15 Prod" }
-      ]
-    },
-    {
-      "id": "M2",
-      "label": "M2",
-      "description": "PDS & Data Inventory",
-      "color": "#00897B",
-      "markers": [
-        { "date": "2026-01-30", "type": "smallCheckpoint", "label": "Jan 30" },
-        { "date": "2026-03-10", "type": "checkpoint", "label": "Mar 10" }
-      ]
-    },
-    {
-      "id": "M3",
-      "label": "M3",
-      "description": "Compliance Reporting",
-      "color": "#546E7A",
-      "markers": [
-        { "date": "2026-02-05", "type": "smallCheckpoint", "label": "Feb 5" }
-      ]
-    }
-  ],
-  "categories": [
-    {
-      "name": "Shipped",
-      "key": "shipped",
-      "items": {
-        "Jan": ["Auth service v2", "SSO integration"],
-        "Feb": ["Data pipeline MVP"],
-        "Mar": ["Chatbot prototype", "API gateway"],
-        "Apr": ["Compliance module v1"]
-      }
-    },
-    {
-      "name": "In Progress",
-      "key": "inProgress",
-      "items": {
-        "Jan": ["Data pipeline design"],
-        "Apr": ["PDS data sync", "Dashboard reporting"]
-      }
-    },
-    {
-      "name": "Carryover",
-      "key": "carryover",
-      "items": {
-        "Feb": ["Vendor API delay"],
-        "Apr": ["Legacy migration"]
-      }
-    },
-    {
-      "name": "Blockers",
-      "key": "blockers",
-      "items": {
-        "Mar": ["Security review pending"],
-        "Apr": ["Azure quota increase"]
-      }
-    }
-  ]
+    "title": "Full Test Dashboard",
+    "subtitle": "Test Org · Test Workstream · April 2026",
+    "backlogUrl": "https://dev.azure.com/test/project/_backlogs",
+    "currentDate": "2026-04-14",
+    "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "currentMonthIndex": 3,
+    "timelineStart": "2026-01-01",
+    "timelineEnd": "2026-06-30",
+    "milestones": [
+        {
+            "id": "M1",
+            "label": "M1",
+            "description": "Feature A",
+            "color": "#0078D4",
+            "markers": [
+                { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
+                { "date": "2026-04-01", "type": "poc", "label": "Apr 1 PoC" },
+                { "date": "2026-06-01", "type": "production", "label": "Jun 1 GA" }
+            ]
+        },
+        {
+            "id": "M2",
+            "label": "M2",
+            "description": "Feature B",
+            "color": "#00897B",
+            "markers": [
+                { "date": "2026-01-20", "type": "smallCheckpoint", "label": "" },
+                { "date": "2026-03-15", "type": "checkpoint", "label": "Mar 15" }
+            ]
+        }
+    ],
+    "categories": [
+        {
+            "name": "Shipped",
+            "key": "shipped",
+            "items": {
+                "Jan": ["Item A shipped"],
+                "Feb": ["Item B shipped", "Item C shipped"],
+                "Mar": [],
+                "Apr": ["Item D shipped"],
+                "May": [],
+                "Jun": []
+            }
+        },
+        {
+            "name": "In Progress",
+            "key": "inProgress",
+            "items": {
+                "Jan": [],
+                "Feb": ["Working on X"],
+                "Mar": ["Working on Y"],
+                "Apr": ["Working on Z"],
+                "May": [],
+                "Jun": []
+            }
+        },
+        {
+            "name": "Carryover",
+            "key": "carryover",
+            "items": {}
+        },
+        {
+            "name": "Blockers",
+            "key": "blockers",
+            "items": {
+                "Apr": ["Blocked by dependency"]
+            }
+        }
+    ]
 }

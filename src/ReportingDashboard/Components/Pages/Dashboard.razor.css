@@ -6,29 +6,31 @@
     width: 1920px;
     height: 1080px;
     padding: 40px;
+    text-align: center;
 }
 
 .error-panel h2 {
+    margin: 16px 0 8px;
     font-size: 24px;
     color: #EA4335;
-    margin: 16px 0 12px;
 }
 
 .error-panel p {
-    font-size: 14px;
-    color: #333;
     max-width: 600px;
-    text-align: center;
+    font-size: 14px;
+    color: #666;
     line-height: 1.5;
     word-break: break-word;
 }
 
-.error-panel .error-icon {
+.error-icon {
     font-size: 48px;
 }
 
-.error-panel .error-hint {
-    color: #888;
-    font-size: 12px;
-    margin-top: 8px;
+.error-hint {
+    margin-top: 16px;
+    padding: 16px 24px;
+    background: #FFF5F5;
+    border: 1px solid #EA4335;
+    border-radius: 4px;
 }

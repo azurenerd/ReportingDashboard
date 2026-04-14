@@ -20,11 +20,14 @@
 
 .tl-label {
     font-size: 12px;
-    font-weight: 600;
     line-height: 1.4;
 }
 
-.tl-label-desc {
+.tl-id {
+    font-weight: 600;
+}
+
+.tl-desc {
     font-weight: 400;
     color: var(--color-text-secondary);
 }

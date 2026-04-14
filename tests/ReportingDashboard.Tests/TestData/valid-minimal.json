@@ -1,27 +1,25 @@
 {
-  "title": "Minimal Project",
-  "subtitle": "Test Org",
-  "backlogUrl": "https://dev.azure.com/test",
-  "currentDate": "2026-03-01",
-  "months": ["Mar"],
-  "currentMonthIndex": 0,
-  "timelineStart": "2026-01-01",
-  "timelineEnd": "2026-06-30",
-  "milestones": [
-    {
-      "id": "M1",
-      "label": "M1",
-      "description": "Single Milestone",
-      "color": "#0078D4",
-      "markers": [
-        { "date": "2026-03-15", "type": "checkpoint", "label": "Mar 15" }
-      ]
-    }
-  ],
-  "categories": [
-    { "name": "Shipped", "key": "shipped", "items": {} },
-    { "name": "In Progress", "key": "inProgress", "items": {} },
-    { "name": "Carryover", "key": "carryover", "items": {} },
-    { "name": "Blockers", "key": "blockers", "items": {} }
-  ]
+    "title": "Minimal Test",
+    "subtitle": "Test Subtitle",
+    "backlogUrl": "https://example.com",
+    "currentDate": "2026-04-01",
+    "months": ["Apr"],
+    "currentMonthIndex": 0,
+    "timelineStart": "2026-04-01",
+    "timelineEnd": "2026-04-30",
+    "milestones": [
+        {
+            "id": "M1",
+            "label": "M1",
+            "description": "Test Milestone",
+            "color": "#0078D4",
+            "markers": []
+        }
+    ],
+    "categories": [
+        { "name": "Shipped", "key": "shipped", "items": {} },
+        { "name": "In Progress", "key": "inProgress", "items": {} },
+        { "name": "Carryover", "key": "carryover", "items": {} },
+        { "name": "Blockers", "key": "blockers", "items": {} }
+    ]
 }

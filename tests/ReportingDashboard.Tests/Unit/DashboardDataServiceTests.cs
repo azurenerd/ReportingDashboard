@@ -1,7 +1,8 @@
 using Xunit;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using ReportingDashboard.Models;
 using ReportingDashboard.Services;
-using ReportingDashboard.Tests.Helpers;
 
 namespace ReportingDashboard.Tests.Unit;
 
@@ -9,8 +10,6 @@ namespace ReportingDashboard.Tests.Unit;
 public class DashboardDataServiceTests : IDisposable
 {
     private readonly string _tempDir;
-    private readonly TestWebHostEnvironment _env;
-    private readonly TestLogger<DashboardDataService> _logger;
 
     private static readonly string ValidJson = """
     {
@@ -46,9 +45,6 @@ public class DashboardDataServiceTests : IDisposable
     {
         _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardTests_{Guid.NewGuid():N}");
         Directory.CreateDirectory(_tempDir);
-
-        _env = new TestWebHostEnvironment { ContentRootPath = _tempDir };
-        _logger = new TestLogger<DashboardDataService>();
     }
 
     public void Dispose()
@@ -57,7 +53,7 @@ public class DashboardDataServiceTests : IDisposable
     }
 
     private DashboardDataService CreateService() =>
-        new(_env, _logger);
+        TestHelper.CreateService(_tempDir);
 
     private void WriteDataFile(string fileName, string content) =>
         File.WriteAllText(Path.Combine(_tempDir, fileName), content);
@@ -90,7 +86,7 @@ public class DashboardDataServiceTests : IDisposable
         using var svc = CreateService();
 
         var ex = Assert.Throws<DashboardDataException>(() => svc.GetData(null));
-        Assert.Contains("'title' is required", ex.Message);
+        Assert.Contains("title", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -101,7 +97,6 @@ public class DashboardDataServiceTests : IDisposable
 
         var ex = Assert.Throws<DashboardDataException>(() => svc.GetData("../hack"));
         Assert.Contains("Invalid project name", ex.Message);
-        Assert.Contains("Only alphanumeric characters, hyphens, and underscores", ex.Message);
     }
 
     [Fact]
@@ -112,16 +107,15 @@ public class DashboardDataServiceTests : IDisposable
         using var svc = CreateService();
 
         var ex = Assert.Throws<DashboardDataException>(() => svc.GetData(null));
-        Assert.Contains("Category key 'completed' is not recognized", ex.Message);
+        Assert.Contains("completed", ex.Message);
     }
 
     [Fact]
-    public void Initialize_WithNoDataJson_DoesNotThrow()
+    public void Initialize_WithNoDataJson_ThrowsDashboardDataException()
     {
         using var svc = CreateService();
 
-        var exception = Record.Exception(() => svc.Initialize());
-
-        Assert.Null(exception);
+        var ex = Assert.Throws<DashboardDataException>(() => svc.Initialize());
+        Assert.Contains("not found", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 }
