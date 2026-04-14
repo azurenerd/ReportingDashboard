@@ -1,0 +1,223 @@
+@namespace ReportingDashboard.Components
+@using ReportingDashboard.Models
+
+<div class="tl-area">
+    <div class="tl-sidebar">
+        @if (Data.Tracks is not null)
+        {
+            @foreach (var track in Data.Tracks)
+            {
+                <div class="tl-track-label">
+                    <span style="color:@track.Color; font-weight:600;">@track.Id</span>
+                    <span style="color:#444; font-weight:400;">@track.Label</span>
+                </div>
+            }
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg width="1560" height="185" style="overflow:visible; display:block;">
+            <defs>
+                <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/>
+                </filter>
+            </defs>
+
+            @* Month gridlines and labels *@
+            @foreach (var month in _monthPositions)
+            {
+                <line x1="@F(month.X)" y1="0" x2="@F(month.X)" y2="185"
+                      stroke="#bbb" stroke-width="1" opacity="0.4" />
+                @RenderSvgText(F(month.X + 5), "14", "start", "font-size:11px; font-weight:600; fill:#666; font-family:'Segoe UI',Arial,sans-serif;", month.Label)
+            }
+
+            @* Track lines and milestones *@
+            @if (Data.Tracks is not null)
+            {
+                var trackCount = Data.Tracks.Count;
+                var trackIndex = 0;
+                @foreach (var track in Data.Tracks)
+                {
+                    var y = GetTrackY(trackIndex, trackCount);
+
+                    <line x1="0" y1="@F(y)" x2="1560" y2="@F(y)"
+                          stroke="@track.Color" stroke-width="3" />
+
+                    @if (track.Milestones is not null)
+                    {
+                        var msIndex = 0;
+                        @foreach (var ms in track.Milestones)
+                        {
+                            if (DateOnly.TryParse(ms.Date, out var msDate))
+                            {
+                                var mx = DateToX(msDate);
+
+                                @switch (ms.Type?.ToLowerInvariant())
+                                {
+                                    case "poc":
+                                        <polygon points="@DiamondPoints(mx, y)"
+                                                 fill="#F4B400" filter="url(#sh)" />
+                                        break;
+                                    case "production":
+                                        <polygon points="@DiamondPoints(mx, y)"
+                                                 fill="#34A853" filter="url(#sh)" />
+                                        break;
+                                    case "checkpoint":
+                                    default:
+                                        <circle cx="@F(mx)" cy="@F(y)" r="6"
+                                                fill="white" stroke="@track.Color" stroke-width="2.5" />
+                                        break;
+                                }
+
+                                @* Date label alternating above/below *@
+                                var labelY = (msIndex % 2 == 0) ? y - 14 : y + 18;
+                                @RenderSvgText(F(mx), F(labelY), "middle", "font-size:10px; fill:#666; font-family:'Segoe UI',Arial,sans-serif;", ms.Label)
+
+                                msIndex++;
+                            }
+                        }
+                    }
+
+                    trackIndex++;
+                }
+            }
+
+            @* NOW indicator *@
+            @if (_currentDate.HasValue)
+            {
+                var nowX = DateToX(_currentDate.Value);
+                <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="185"
+                      stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+                @RenderSvgText(F(nowX), "10", "middle", "font-size:10px; font-weight:700; fill:#EA4335; font-family:'Segoe UI',Arial,sans-serif;", "NOW")
+            }
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter] public DashboardData Data { get; set; } = default!;
+
+    private const double SvgWidth = 1560.0;
+    private DateOnly _dateRangeStart;
+    private DateOnly _dateRangeEnd;
+    private DateOnly? _currentDate;
+    private List<MonthPosition> _monthPositions = new();
+
+    private record MonthPosition(double X, string Label);
+
+    private static RenderFragment RenderSvgText(string x, string y, string anchor, string style, string content) => builder =>
+    {
+        builder.OpenElement(0, "text");
+        builder.AddAttribute(1, "x", x);
+        builder.AddAttribute(2, "y", y);
+        builder.AddAttribute(3, "text-anchor", anchor);
+        builder.AddAttribute(4, "style", style);
+        builder.AddContent(5, content);
+        builder.CloseElement();
+    };
+
+    protected override void OnParametersSet()
+    {
+        _monthPositions.Clear();
+        _currentDate = null;
+
+        if (Data.Months is null || Data.Months.Count == 0)
+            return;
+
+        if (!string.IsNullOrEmpty(Data.CurrentDate) && DateOnly.TryParse(Data.CurrentDate, out var cd))
+        {
+            _currentDate = cd;
+        }
+
+        // Year inference assumes currentDate is always provided (per data contract).
+        // If null, falls back to DateTime.Now.Year which may not match milestone ISO dates.
+        var referenceYear = _currentDate?.Year ?? DateTime.Now.Year;
+
+        var parsedMonths = new List<(int MonthNum, string Label)>();
+        foreach (var monthAbbrev in Data.Months)
+        {
+            var monthNum = ParseMonthAbbrev(monthAbbrev);
+            if (monthNum <= 0) continue;
+            parsedMonths.Add((monthNum, monthAbbrev));
+        }
+
+        if (parsedMonths.Count == 0)
+            return;
+
+        var monthDates = new List<(DateOnly Start, DateOnly End, string Label)>();
+        var currentYear = referenceYear;
+        var firstMonthNum = parsedMonths[0].MonthNum;
+
+        // If the first month is after the reference date's month, it likely belongs to the previous year
+        if (_currentDate.HasValue && firstMonthNum > _currentDate.Value.Month)
+        {
+            currentYear = referenceYear - 1;
+        }
+
+        var prevMonthNum = -1;
+        foreach (var (monthNum, label) in parsedMonths)
+        {
+            if (prevMonthNum >= 0 && monthNum < prevMonthNum)
+            {
+                currentYear++;
+            }
+
+            var start = new DateOnly(currentYear, monthNum, 1);
+            var end = start.AddMonths(1).AddDays(-1);
+            monthDates.Add((start, end, label));
+            prevMonthNum = monthNum;
+        }
+
+        _dateRangeStart = monthDates[0].Start;
+        _dateRangeEnd = monthDates[^1].End;
+
+        foreach (var (start, _, label) in monthDates)
+        {
+            _monthPositions.Add(new MonthPosition(DateToX(start), label));
+        }
+    }
+
+    private double DateToX(DateOnly date)
+    {
+        var totalDays = _dateRangeEnd.DayNumber - _dateRangeStart.DayNumber;
+        if (totalDays <= 0) return 0;
+        var dayOffset = date.DayNumber - _dateRangeStart.DayNumber;
+        return (dayOffset / (double)totalDays) * SvgWidth;
+    }
+
+    private static double GetTrackY(int index, int count)
+    {
+        if (count <= 0) return 28;
+        if (count == 1) return 28 + (157.0 / 2);
+        return 28 + (index * (157.0 / count));
+    }
+
+    private static string DiamondPoints(double x, double y)
+    {
+        return $"{F(x)},{F(y - 11)} {F(x + 11)},{F(y)} {F(x)},{F(y + 11)} {F(x - 11)},{F(y)}";
+    }
+
+    private static string F(double value)
+    {
+        return value.ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private static int ParseMonthAbbrev(string abbrev)
+    {
+        return abbrev?.Trim().ToLowerInvariant() switch
+        {
+            "jan" => 1,
+            "feb" => 2,
+            "mar" => 3,
+            "apr" => 4,
+            "may" => 5,
+            "jun" => 6,
+            "jul" => 7,
+            "aug" => 8,
+            "sep" => 9,
+            "oct" => 10,
+            "nov" => 11,
+            "dec" => 12,
+            _ => -1
+        };
+    }
+}

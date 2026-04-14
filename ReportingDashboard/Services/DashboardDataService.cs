@@ -17,7 +17,6 @@ public class DashboardDataService
     }
 
     public DashboardData? GetDashboardData() => _cachedData;
-
     public string? GetError() => _error;
 
     public void Reload()
@@ -28,7 +27,7 @@ public class DashboardDataService
             {
                 if (!File.Exists(_dataFilePath))
                 {
-                    _error = "data.json not found. Please create a data.json file in the project root directory.";
+                    _error = "data.json not found. Please create a data.json file in the project root.";
                     _cachedData = null;
                     return;
                 }
@@ -42,11 +41,6 @@ public class DashboardDataService
                 };
                 _cachedData = JsonSerializer.Deserialize<DashboardData>(json, options);
                 _error = null;
-
-                if (_cachedData is null)
-                {
-                    _error = "data.json deserialized to null. Please verify the file contains valid JSON content.";
-                }
             }
             catch (JsonException ex)
             {

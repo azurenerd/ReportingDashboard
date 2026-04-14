@@ -12,6 +12,7 @@ public class PlaywrightFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         BaseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
+
         Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
         Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
         {
