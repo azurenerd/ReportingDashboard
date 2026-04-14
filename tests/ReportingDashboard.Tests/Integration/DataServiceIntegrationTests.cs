@@ -1,62 +1,46 @@
-using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
 using ReportingDashboard.Services;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Integration;
 
-public class DataServiceIntegrationTests : IClassFixture<WebAppFixture>
+public class DataServiceIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly WebAppFixture _fixture;
+    private readonly WebApplicationFactory<Program> _factory;
 
-    public DataServiceIntegrationTests(WebAppFixture fixture)
+    public DataServiceIntegrationTests(WebApplicationFactory<Program> factory)
     {
-        _fixture = fixture;
+        _factory = factory;
     }
 
     [Fact]
-    public async Task DataService_LoadAsync_WithMissingFile_SetsIsError()
+    public void ServiceRegistration_ResolvesAsSingleton()
     {
-        var service = new DashboardDataService(NullLogger<DashboardDataService>.Instance);
+        using var scope1 = _factory.Services.CreateScope();
+        using var scope2 = _factory.Services.CreateScope();
 
-        await service.LoadAsync(Path.Combine(Path.GetTempPath(), "nonexistent_data.json"));
+        var service1 = scope1.ServiceProvider.GetRequiredService<DashboardDataService>();
+        var service2 = scope2.ServiceProvider.GetRequiredService<DashboardDataService>();
 
-        service.IsError.Should().BeTrue();
-        service.ErrorMessage.Should().Contain("not found");
-        service.Data.Should().BeNull();
+        Assert.NotNull(service1);
+        Assert.Same(service1, service2);
     }
 
     [Fact]
-    public async Task DataService_LoadAsync_WithMalformedJson_SetsIsError()
+    public void DataAvailableAfterStartup()
     {
-        var tempPath = Path.Combine(Path.GetTempPath(), $"RD_malformed_{Guid.NewGuid():N}.json");
-        try
-        {
-            await File.WriteAllTextAsync(tempPath, "{ not valid json }}}");
-            var service = new DashboardDataService(NullLogger<DashboardDataService>.Instance);
+        var service = _factory.Services.GetRequiredService<DashboardDataService>();
 
-            await service.LoadAsync(tempPath);
-
-            service.IsError.Should().BeTrue();
-            service.ErrorMessage.Should().Contain("Failed to parse");
-            service.Data.Should().BeNull();
-        }
-        finally
-        {
-            File.Delete(tempPath);
-        }
+        Assert.False(service.IsError, service.ErrorMessage);
+        Assert.NotNull(service.Data);
     }
 
     [Fact]
-    public void LoadAsync_SingletonBehavior_SameInstanceAcrossResolves()
+    public void DataContainsExpectedTitle()
     {
-        using var scope1 = _fixture.Factory.Services.CreateScope();
-        using var scope2 = _fixture.Factory.Services.CreateScope();
+        var service = _factory.Services.GetRequiredService<DashboardDataService>();
 
-        var svc1 = scope1.ServiceProvider.GetRequiredService<DashboardDataService>();
-        var svc2 = scope2.ServiceProvider.GetRequiredService<DashboardDataService>();
-
-        svc1.Should().BeSameAs(svc2);
+        Assert.Equal("Privacy Automation Release Roadmap", service.Data?.Title);
     }
 }

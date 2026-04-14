@@ -7,6 +7,7 @@ namespace ReportingDashboard.Tests.Integration;
 
 public class StaticFileTests : IClassFixture<WebApplicationFactory<Program>>
 {
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     private readonly HttpClient _client;
 
     public StaticFileTests(WebApplicationFactory<Program> factory)
@@ -29,8 +30,7 @@ public class StaticFileTests : IClassFixture<WebApplicationFactory<Program>>
         var response = await _client.GetAsync("/data.json");
         var content = await response.Content.ReadAsStringAsync();
 
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var data = JsonSerializer.Deserialize<DashboardData>(content, options);
+        var data = JsonSerializer.Deserialize<DashboardData>(content, JsonOptions);
 
         Assert.NotNull(data);
         Assert.Equal("Privacy Automation Release Roadmap", data!.Title);
@@ -42,8 +42,7 @@ public class StaticFileTests : IClassFixture<WebApplicationFactory<Program>>
         var response = await _client.GetAsync("/data.json");
         var content = await response.Content.ReadAsStringAsync();
 
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var data = JsonSerializer.Deserialize<DashboardData>(content, options);
+        var data = JsonSerializer.Deserialize<DashboardData>(content, JsonOptions);
 
         Assert.NotNull(data);
         Assert.Equal(3, data!.Timeline.Tracks.Count);
@@ -56,8 +55,7 @@ public class StaticFileTests : IClassFixture<WebApplicationFactory<Program>>
         var response = await _client.GetAsync("/data.json");
         var content = await response.Content.ReadAsStringAsync();
 
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var data = JsonSerializer.Deserialize<DashboardData>(content, options);
+        var data = JsonSerializer.Deserialize<DashboardData>(content, JsonOptions);
 
         Assert.NotNull(data);
         Assert.NotEmpty(data!.Heatmap.Shipped);
