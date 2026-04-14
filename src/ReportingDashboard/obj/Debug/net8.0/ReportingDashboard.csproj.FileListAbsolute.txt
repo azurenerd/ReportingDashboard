@@ -108,3 +108,4 @@ C:\Agents\testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b\ReportingDashboard\src\R
 C:\Agents\testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b\ReportingDashboard\src\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.pdb
 C:\Agents\testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b\ReportingDashboard\src\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.genruntimeconfig.cache
 C:\Agents\testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b\ReportingDashboard\src\ReportingDashboard\obj\Debug\net8.0\ref\ReportingDashboard.dll
+C:\Agents\principalengineer-6f2ece16b24c433b81b14ae82c3b70c7\ReportingDashboard\src\ReportingDashboard\bin\Debug\net8.0\appsettings.json

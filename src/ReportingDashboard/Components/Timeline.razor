@@ -1,22 +1,231 @@
-@* Timeline component — full SVG implementation in T5 *@
-<div class="tl-area" style="height:196px; background:#FAFAFA; display:flex; border-bottom:1px solid #E0E0E0;">
-    <div style="width:230px; flex-shrink:0; display:flex; flex-direction:column; justify-content:space-around; padding:16px 12px; border-right:1px solid #E0E0E0;">
-        @if (TimelineData?.Tracks is not null)
-        {
+@using ReportingDashboard.Models
+@using System.Globalization
+
+<div class="tl-area">
+    @if (_isValid && TimelineData.Tracks.Count > 0)
+    {
+        <!-- Track labels sidebar -->
+        <div class="tl-sidebar">
             @foreach (var track in TimelineData.Tracks)
             {
-                <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="font-size:13px; font-weight:700; color:@track.Color;">@track.Name</span>
-                    <span style="font-size:12px; color:#555;">@track.Label</span>
+                <div class="tl-track-label">
+                    <span class="tl-track-id" style="color:@track.Color">@track.Name</span>
+                    <span class="tl-track-name">@track.Label</span>
                 </div>
             }
-        }
-    </div>
-    <div class="tl-svg-box" style="flex:1; display:flex; align-items:center; justify-content:center;">
-        <span style="color:#999; font-size:13px;">Timeline visualization — implemented in T5</span>
-    </div>
+        </div>
+
+        <!-- SVG Timeline -->
+        <div class="tl-svg-box">
+            <svg width="@SvgWidth" height="@SvgHeight" style="overflow:visible"
+                 xmlns="http://www.w3.org/2000/svg"
+                 font-family="'Segoe UI', Arial, sans-serif">
+
+                <!-- Drop shadow filter for diamond markers -->
+                <defs>
+                    <filter id="sh">
+                        <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"></feDropShadow>
+                    </filter>
+                </defs>
+
+                <!-- Month grid lines (vertical) -->
+                @for (var i = 0; i < _monthStarts.Count; i++)
+                {
+                    var x = i * _columnWidth;
+                    <line x1="@Fmt(x)" y1="0" x2="@Fmt(x)" y2="@SvgHeight.ToString(CultureInfo.InvariantCulture)"
+                          stroke="#bbb" stroke-opacity="0.4" />
+                }
+
+                <!-- Horizontal track lines -->
+                @for (var ti = 0; ti < TimelineData.Tracks.Count; ti++)
+                {
+                    var track = TimelineData.Tracks[ti];
+                    var y = TrackToY(ti, TimelineData.Tracks.Count);
+                    <line x1="0" y1="@Fmt(y)"
+                          x2="@SvgWidth.ToString(CultureInfo.InvariantCulture)" y2="@Fmt(y)"
+                          stroke="@track.Color" stroke-width="3" />
+                }
+
+                <!-- NOW dashed vertical line -->
+                @{
+                    var nowX = DateToX(_nowDate);
+                }
+                <line x1="@Fmt(nowX)" y1="0"
+                      x2="@Fmt(nowX)" y2="@SvgHeight.ToString(CultureInfo.InvariantCulture)"
+                      stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+
+                <!-- Milestone markers per track -->
+                @for (var ti = 0; ti < TimelineData.Tracks.Count; ti++)
+                {
+                    var track = TimelineData.Tracks[ti];
+                    var trackY = TrackToY(ti, TimelineData.Tracks.Count);
+
+                    @for (var mi = 0; mi < track.Milestones.Count; mi++)
+                    {
+                        var milestone = track.Milestones[mi];
+                        if (!DateTime.TryParse(milestone.Date, CultureInfo.InvariantCulture,
+                                DateTimeStyles.None, out var mDate))
+                        {
+                            continue;
+                        }
+                        var mx = DateToX(mDate);
+
+                        @if (milestone.Type == "poc")
+                        {
+                            <polygon points="@DiamondPoints(mx, trackY)"
+                                     fill="#F4B400" filter="url(#sh)">
+                                <title>@milestone.Label</title>
+                            </polygon>
+                        }
+                        else if (milestone.Type == "production")
+                        {
+                            <polygon points="@DiamondPoints(mx, trackY)"
+                                     fill="#34A853" filter="url(#sh)">
+                                <title>@milestone.Label</title>
+                            </polygon>
+                        }
+                        else
+                        {
+                            <circle cx="@Fmt(mx)" cy="@Fmt(trackY)" r="7"
+                                    fill="white" stroke="@track.Color" stroke-width="2.5">
+                                <title>@milestone.Label</title>
+                            </circle>
+                        }
+                    }
+                }
+
+                <!-- Month labels (rendered after shapes so text is on top) -->
+                @for (var i = 0; i < _monthStarts.Count; i++)
+                {
+                    var x = i * _columnWidth + 5;
+                    var label = _monthStarts[i].ToString("MMM", CultureInfo.InvariantCulture);
+                    @SvgText(Fmt(x), "14", "#666", "11", "600", null, label)
+                }
+
+                <!-- Milestone date labels (alternating above/below to avoid overlap) -->
+                @for (var ti = 0; ti < TimelineData.Tracks.Count; ti++)
+                {
+                    var track = TimelineData.Tracks[ti];
+                    var trackY = TrackToY(ti, TimelineData.Tracks.Count);
+
+                    @for (var mi = 0; mi < track.Milestones.Count; mi++)
+                    {
+                        var milestone = track.Milestones[mi];
+                        if (!DateTime.TryParse(milestone.Date, CultureInfo.InvariantCulture,
+                                DateTimeStyles.None, out var mDate))
+                        {
+                            continue;
+                        }
+                        var mx = DateToX(mDate);
+                        var labelY = mi % 2 == 0 ? trackY - 18 : trackY + 22;
+
+                        @SvgText(Fmt(mx), Fmt(labelY), "#666", "10", null, "middle", milestone.Label)
+                    }
+                }
+
+                <!-- NOW label -->
+                @SvgText(Fmt(nowX + 4), "14", "#EA4335", "10", "700", null, "NOW")
+            </svg>
+        </div>
+    }
+    else if (_isValid && TimelineData.Tracks.Count == 0)
+    {
+        <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#888;font-size:14px;">
+            No timeline tracks configured.
+        </div>
+    }
+    else
+    {
+        <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#888;font-size:14px;">
+            Timeline data is not available.
+        </div>
+    }
 </div>
 
 @code {
-    [Parameter] public TimelineData? TimelineData { get; set; }
+    [Parameter]
+    public TimelineData TimelineData { get; set; } = new();
+
+    private const int SvgWidth = 1560;
+
+    private DateTime _startDate;
+    private DateTime _endDate;
+    private DateTime _nowDate;
+    private bool _isValid;
+    private List<DateTime> _monthStarts = new();
+    private double _columnWidth;
+
+    private int SvgHeight => Math.Max(185, (TimelineData?.Tracks?.Count ?? 1) * 56);
+
+    /// <summary>
+    /// Renders an SVG text element using MarkupString to avoid Razor's reserved &lt;text&gt; tag conflict.
+    /// </summary>
+    private MarkupString SvgText(string x, string y, string fill, string fontSize, string? fontWeight, string? textAnchor, string content)
+    {
+        var attrs = $"x=\"{x}\" y=\"{y}\" fill=\"{fill}\" font-size=\"{fontSize}\"";
+        if (!string.IsNullOrEmpty(fontWeight))
+            attrs += $" font-weight=\"{fontWeight}\"";
+        if (!string.IsNullOrEmpty(textAnchor))
+            attrs += $" text-anchor=\"{textAnchor}\"";
+        return new MarkupString($"<text {attrs}>{System.Net.WebUtility.HtmlEncode(content)}</text>");
+    }
+
+    protected override void OnParametersSet()
+    {
+        _isValid = false;
+        _monthStarts.Clear();
+
+        if (TimelineData == null)
+            return;
+
+        if (!DateTime.TryParse(TimelineData.StartDate, CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out _startDate) ||
+            !DateTime.TryParse(TimelineData.EndDate, CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out _endDate) ||
+            !DateTime.TryParse(TimelineData.NowDate, CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out _nowDate))
+        {
+            return;
+        }
+
+        if (_endDate <= _startDate)
+            return;
+
+        var current = new DateTime(_startDate.Year, _startDate.Month, 1);
+        var endMonthStart = new DateTime(_endDate.Year, _endDate.Month, 1);
+        while (current <= endMonthStart)
+        {
+            _monthStarts.Add(current);
+            current = current.AddMonths(1);
+        }
+
+        _columnWidth = _monthStarts.Count > 0
+            ? (double)SvgWidth / _monthStarts.Count
+            : SvgWidth;
+
+        _isValid = true;
+    }
+
+    private double DateToX(DateTime date)
+    {
+        var totalDays = (_endDate - _startDate).TotalDays;
+        if (totalDays <= 0) return 0;
+        var elapsed = (date - _startDate).TotalDays;
+        return (elapsed / totalDays) * SvgWidth;
+    }
+
+    private double TrackToY(int trackIndex, int totalTracks)
+    {
+        double height = SvgHeight;
+        var spacing = height / (totalTracks + 1);
+        return spacing * (trackIndex + 1);
+    }
+
+    private string DiamondPoints(double cx, double cy, double size = 11)
+    {
+        return $"{Fmt(cx)},{Fmt(cy - size)} {Fmt(cx + size)},{Fmt(cy)} {Fmt(cx)},{Fmt(cy + size)} {Fmt(cx - size)},{Fmt(cy)}";
+    }
+
+    private static string Fmt(double value) =>
+        value.ToString("0.##", CultureInfo.InvariantCulture);
 }

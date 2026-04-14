@@ -1,10 +1,12 @@
-<Router AppAssembly="@typeof(Program).Assembly">
+@using Microsoft.AspNetCore.Components.Routing
+
+<Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.DashboardLayout)" />
+        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.DashboardLayout)" />
     </Found>
     <NotFound>
-        <LayoutView Layout="@typeof(Layout.DashboardLayout)">
-            <p>Page not found.</p>
+        <LayoutView Layout="typeof(Layout.DashboardLayout)">
+            <p style="text-align:center;margin-top:200px;color:#888;">Page not found.</p>
         </LayoutView>
     </NotFound>
 </Router>

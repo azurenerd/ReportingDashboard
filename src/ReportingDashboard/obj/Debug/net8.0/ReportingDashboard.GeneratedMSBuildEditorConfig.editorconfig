@@ -11,69 +11,69 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = ReportingDashboard
 build_property.RootNamespace = ReportingDashboard
-build_property.ProjectDir = C:\Agents\testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b\ReportingDashboard\src\ReportingDashboard\
+build_property.ProjectDir = C:\Agents\principalengineer-6f2ece16b24c433b81b14ae82c3b70c7\ReportingDashboard\src\ReportingDashboard\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Agents\testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b\ReportingDashboard\src\ReportingDashboard
+build_property.MSBuildProjectDirectory = C:\Agents\principalengineer-6f2ece16b24c433b81b14ae82c3b70c7\ReportingDashboard\src\ReportingDashboard
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/App.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/App.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcHAucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/ErrorPanel.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/ErrorPanel.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xFcnJvclBhbmVsLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/Header.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/Header.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xIZWFkZXIucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/Heatmap.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/Heatmap.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xIZWF0bWFwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/HeatmapCell.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/HeatmapCell.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xIZWF0bWFwQ2VsbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/HeatmapRow.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/HeatmapRow.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xIZWF0bWFwUm93LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/Layout/DashboardLayout.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/Layout/DashboardLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcRGFzaGJvYXJkTGF5b3V0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/Pages/Dashboard.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/Pages/Dashboard.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xEYXNoYm9hcmQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/Routes.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/Routes.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSb3V0ZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/Sections/Heatmap.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/Sections/Heatmap.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTZWN0aW9uc1xIZWF0bWFwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/Sections/HeatmapCell.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/Sections/HeatmapCell.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTZWN0aW9uc1xIZWF0bWFwQ2VsbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/Sections/HeatmapRow.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/Sections/HeatmapRow.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTZWN0aW9uc1xIZWF0bWFwUm93LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/Timeline.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/Timeline.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUaW1lbGluZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Agents/testengineer-6f31a9ec6f2a4d2fbeb7aeb29498793b/ReportingDashboard/src/ReportingDashboard/Components/_Imports.razor]
+[C:/Agents/principalengineer-6f2ece16b24c433b81b14ae82c3b70c7/ReportingDashboard/src/ReportingDashboard/Components/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xfSW1wb3J0cy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 

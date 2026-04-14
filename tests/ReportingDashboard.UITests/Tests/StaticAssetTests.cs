@@ -31,13 +31,12 @@ public class StaticAssetTests
         var response = await page.GotoAsync($"{_fixture.BaseUrl}/css/dashboard.css");
         var content = await response!.TextAsync();
 
-        content.Should().Contain(".dashboard-container");
-        content.Should().Contain(".error-banner");
-        content.Should().Contain(".section");
-        content.Should().Contain(".status-badge");
-        content.Should().Contain(".timeline-track");
-        content.Should().Contain(".work-item");
-        content.Should().Contain(".metric-card");
+        content.Should().Contain(".dashboard");
+        content.Should().Contain(".error-panel");
+        content.Should().Contain(".hdr");
+        content.Should().Contain(".tl-area");
+        content.Should().Contain(".hm-wrap");
+        content.Should().Contain(".hm-grid");
     }
 
     [Fact(Skip = "Requires running server")]
