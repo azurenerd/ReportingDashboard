@@ -1,5 +1,3 @@
-@using Microsoft.AspNetCore.Components.Web
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,10 +5,10 @@
     <meta name="viewport" content="width=1920" />
     <title>Executive Reporting Dashboard</title>
     <link rel="stylesheet" href="css/dashboard.css" />
-    <HeadOutlet @rendermode="RenderMode.InteractiveServer" />
+    <HeadOutlet @rendermode="Microsoft.AspNetCore.Components.Web.RenderMode.InteractiveServer" />
 </head>
 <body>
-    <Routes @rendermode="RenderMode.InteractiveServer" />
+    <Routes @rendermode="Microsoft.AspNetCore.Components.Web.RenderMode.InteractiveServer" />
     <script src="_framework/blazor.web.js"></script>
 </body>
 </html>

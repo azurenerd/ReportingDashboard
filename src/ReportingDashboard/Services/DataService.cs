@@ -1,246 +1,252 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Hosting;
 using ReportingDashboard.Models;
 
 namespace ReportingDashboard.Services;
 
-/// <summary>
-/// Singleton service that loads, caches, and watches wwwroot/data.json.
-/// Implements live-reload via FileSystemWatcher with 500ms debounce.
-/// On successful reload, updates cached data and clears error.
-/// On failed reload, preserves last-known-good data and sets error message.
-/// Fires OnDataChanged after every reload so Blazor components can re-render.
-/// </summary>
 public class DataService : IDisposable
 {
     private const int ExpectedSchemaVersion = 1;
-    private const int DebounceMs = 500;
-
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
-
     private readonly string _dataFilePath;
+    private FileSystemWatcher? _watcher;
+    private Timer? _debounceTimer;
     private readonly object _lock = new();
-    private readonly FileSystemWatcher? _watcher;
-    private readonly Timer _debounceTimer;
 
     private DashboardData? _currentData;
     private string? _currentError;
 
-    /// <summary>
-    /// Fired after every data reload attempt (success or failure).
-    /// Subscribers MUST marshal to their own sync context (e.g., InvokeAsync).
-    /// </summary>
     public event Action? OnDataChanged;
 
     public DataService(IWebHostEnvironment env)
     {
         _dataFilePath = Path.Combine(env.WebRootPath, "data.json");
-        _debounceTimer = new Timer(OnDebounceElapsed, null, Timeout.Infinite, Timeout.Infinite);
+        _debounceTimer = new Timer(_ => ReloadData(), null, Timeout.Infinite, Timeout.Infinite);
 
-        // Initial load on construction
         LoadData();
 
-        // Set up FileSystemWatcher for live-reload
         try
         {
-            var directory = Path.GetDirectoryName(_dataFilePath)!;
-            _watcher = new FileSystemWatcher(directory, "data.json")
+            var dir = Path.GetDirectoryName(_dataFilePath)!;
+            if (Directory.Exists(dir))
             {
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime,
-                EnableRaisingEvents = true
-            };
-            _watcher.Changed += OnFileChanged;
-            _watcher.Created += OnFileChanged;
-            _watcher.Renamed += OnFileRenamed;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[DataService] FileSystemWatcher could not be started: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Returns the current dashboard data, or null if no valid data has been loaded.
-    /// </summary>
-    public DashboardData? GetData()
-    {
-        lock (_lock)
-        {
-            return _currentData;
-        }
-    }
-
-    /// <summary>
-    /// Returns the current error message, or null if the last load was successful.
-    /// </summary>
-    public string? GetError()
-    {
-        lock (_lock)
-        {
-            return _currentError;
-        }
-    }
-
-    /// <summary>
-    /// Returns the effective "now" date used for the timeline NOW line.
-    /// Uses nowDateOverride from data.json if present and valid; otherwise uses DateTime.Today.
-    /// </summary>
-    public DateOnly GetEffectiveDate()
-    {
-        lock (_lock)
-        {
-            return GetEffectiveDateInternal();
-        }
-    }
-
-    /// <summary>
-    /// Returns the abbreviated month name (e.g. "Apr") used for current-month heatmap highlighting.
-    /// Checks CurrentMonthOverride first (direct month name), then derives from effective date.
-    /// </summary>
-    public string GetCurrentMonthName()
-    {
-        lock (_lock)
-        {
-            if (!string.IsNullOrWhiteSpace(_currentData?.CurrentMonthOverride))
-            {
-                return _currentData.CurrentMonthOverride;
+                _watcher = new FileSystemWatcher(dir, "data.json")
+                {
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.CreationTime | NotifyFilters.FileName,
+                    EnableRaisingEvents = true
+                };
+                _watcher.Changed += OnFileChanged;
+                _watcher.Created += OnFileChanged;
+                _watcher.Renamed += (_, _) => OnFileChanged(null, null!);
             }
-            return GetEffectiveDateInternal().ToString("MMM");
+        }
+        catch
+        {
+            // FileSystemWatcher may fail in some environments
         }
     }
 
-    // Must be called under lock
-    private DateOnly GetEffectiveDateInternal()
+    protected DataService()
     {
-        if (_currentData?.NowDateOverride is { } overrideStr
-            && !string.IsNullOrWhiteSpace(overrideStr))
+        _dataFilePath = string.Empty;
+    }
+
+    public virtual DashboardData? GetData()
+    {
+        lock (_lock) return _currentData;
+    }
+
+    public virtual string? GetError()
+    {
+        lock (_lock) return _currentError;
+    }
+
+    public virtual DateOnly GetEffectiveDate()
+    {
+        var data = GetData();
+        if (data?.NowDateOverride is { } ov && !string.IsNullOrWhiteSpace(ov))
         {
             try
             {
-                return DateOnly.ParseExact(overrideStr, "yyyy-MM-dd");
+                return DateOnly.ParseExact(ov, "yyyy-MM-dd");
             }
             catch
             {
-                // Invalid override format - fall through to system date
+                return DateOnly.FromDateTime(DateTime.Today);
             }
         }
         return DateOnly.FromDateTime(DateTime.Today);
     }
 
-    /// <summary>
-    /// Reads and parses data.json under a single lock acquisition.
-    /// On success, replaces cached data and clears error.
-    /// On failure, preserves last-known-good data (if any) and sets error message.
-    /// </summary>
+    public virtual string GetCurrentMonthName()
+    {
+        var data = GetData();
+        if (data?.CurrentMonthOverride is { } cmo && !string.IsNullOrWhiteSpace(cmo))
+        {
+            return cmo;
+        }
+        return GetEffectiveDate().ToString("MMM");
+    }
+
+    private void OnFileChanged(object? sender, FileSystemEventArgs e)
+    {
+        _debounceTimer?.Change(500, Timeout.Infinite);
+    }
+
     private void LoadData()
     {
-        lock (_lock)
+        try
         {
-            try
+            if (!File.Exists(_dataFilePath))
             {
-                if (!File.Exists(_dataFilePath))
+                lock (_lock)
                 {
-                    // _currentData intentionally unchanged - preserve last-known-good data
-                    _currentError = "No data.json found. Place a valid data.json file in the wwwroot/ directory.";
-                    return;
+                    _currentData = null;
+                    _currentError = "No data.json found. Place a valid data.json file in the wwwroot/ directory and restart.";
                 }
+                return;
+            }
 
-                var json = File.ReadAllText(_dataFilePath);
-                var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
+            var json = File.ReadAllText(_dataFilePath);
+            var data = JsonSerializer.Deserialize<DashboardData>(json);
 
-                if (data is null)
+            if (data is null)
+            {
+                lock (_lock)
                 {
-                    // _currentData intentionally unchanged - preserve last-known-good data
-                    _currentError = "data.json contains invalid JSON: deserialization returned null.";
-                    return;
+                    _currentData = null;
+                    _currentError = "data.json contains invalid JSON: deserialized to null.";
                 }
+                return;
+            }
 
-                if (data.SchemaVersion != ExpectedSchemaVersion)
+            if (data.SchemaVersion != ExpectedSchemaVersion)
+            {
+                lock (_lock)
                 {
-                    // _currentData intentionally unchanged - preserve last-known-good data
+                    _currentData = null;
                     _currentError = $"data.json schemaVersion is {data.SchemaVersion}, expected {ExpectedSchemaVersion}. Update your data.json to match the current schema.";
-                    return;
                 }
+                return;
+            }
 
-                // Success - update cached data and clear error
+            lock (_lock)
+            {
                 _currentData = data;
                 _currentError = null;
             }
-            catch (JsonException ex)
+        }
+        catch (JsonException ex)
+        {
+            lock (_lock)
             {
-                // _currentData intentionally unchanged - preserve last-known-good data
+                _currentData = null;
                 _currentError = $"data.json contains invalid JSON: {ex.Message}";
             }
-            catch (IOException ex)
+        }
+        catch (Exception ex)
+        {
+            lock (_lock)
             {
-                // _currentData intentionally unchanged - preserve last-known-good data
+                _currentData = null;
                 _currentError = $"Error reading data.json: {ex.Message}";
             }
-            catch (Exception ex)
+        }
+    }
+
+    private void ReloadData()
+    {
+        try
+        {
+            if (!File.Exists(_dataFilePath))
             {
-                // _currentData intentionally unchanged - preserve last-known-good data
-                _currentError = $"Error reading data.json: {ex.Message}";
+                lock (_lock)
+                {
+                    _currentError = "data.json file not found.";
+                    // Preserve _currentData (last known good) on file-not-found during reload
+                }
+                FireOnDataChanged();
+                return;
+            }
+
+            var json = File.ReadAllText(_dataFilePath);
+            var data = JsonSerializer.Deserialize<DashboardData>(json);
+
+            if (data is null)
+            {
+                lock (_lock)
+                {
+                    _currentError = "data.json contains invalid JSON: deserialized to null.";
+                    // Preserve _currentData (last known good)
+                }
+                FireOnDataChanged();
+                return;
+            }
+
+            if (data.SchemaVersion != ExpectedSchemaVersion)
+            {
+                lock (_lock)
+                {
+                    _currentError = $"data.json schemaVersion is {data.SchemaVersion}, expected {ExpectedSchemaVersion}.";
+                    // Preserve _currentData (last known good)
+                }
+                FireOnDataChanged();
+                return;
+            }
+
+            lock (_lock)
+            {
+                _currentData = data;
+                _currentError = null;
+            }
+        }
+        catch (JsonException ex)
+        {
+            lock (_lock)
+            {
+                _currentError = $"data.json contains invalid JSON: {ex.Message}";
+                // Preserve _currentData (last known good)
+            }
+        }
+        catch (Exception ex)
+        {
+            lock (_lock)
+            {
+                _currentError = $"Error reloading data.json: {ex.Message}";
+                // Preserve _currentData (last known good)
+            }
+        }
+
+        FireOnDataChanged();
+    }
+
+    private void FireOnDataChanged()
+    {
+        var handlers = OnDataChanged;
+        if (handlers != null)
+        {
+            foreach (var handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    ((Action)handler)();
+                }
+                catch
+                {
+                    // Subscriber exceptions must not kill the reload pipeline
+                }
             }
         }
     }
 
-    private void OnFileChanged(object sender, FileSystemEventArgs e)
+    public virtual void Dispose()
     {
-        _debounceTimer.Change(DebounceMs, Timeout.Infinite);
-    }
-
-    private void OnFileRenamed(object sender, RenamedEventArgs e)
-    {
-        _debounceTimer.Change(DebounceMs, Timeout.Infinite);
-    }
-
-    /// <summary>
-    /// Called after the 500ms debounce period. Reloads data and notifies subscribers.
-    /// </summary>
-    private void OnDebounceElapsed(object? state)
-    {
-        Console.WriteLine($"[DataService] data.json changed, reloading...");
-        LoadData();
-
-        // Log outcome
-        var error = GetError();
-        if (error is null)
+        if (_watcher != null)
         {
-            Console.WriteLine($"[DataService] data.json reloaded successfully at {DateTime.Now:HH:mm:ss.fff}");
+            _watcher.EnableRaisingEvents = false;
+            _watcher.Dispose();
+            _watcher = null;
         }
-        else
-        {
-            Console.WriteLine($"[DataService] data.json reload failed: {error}");
-        }
-
-        // Invoke each subscriber individually so one throwing doesn't prevent others from firing
-        RaiseOnDataChanged();
-    }
-
-    /// <summary>
-    /// Invokes each OnDataChanged subscriber individually, catching exceptions per-subscriber
-    /// so that a failing subscriber does not prevent subsequent subscribers from being notified.
-    /// </summary>
-    private void RaiseOnDataChanged()
-    {
-        var handler = OnDataChanged;
-        if (handler is null) return;
-
-        foreach (var d in handler.GetInvocationList())
-        {
-            try
-            {
-                ((Action)d).Invoke();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[DataService] OnDataChanged subscriber threw: {ex.Message}");
-            }
-        }
-    }
-
-    public void Dispose()
-    {
-        _watcher?.Dispose();
-        _debounceTimer.Dispose();
+        _debounceTimer?.Dispose();
+        _debounceTimer = null;
     }
 }

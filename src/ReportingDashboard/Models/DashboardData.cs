@@ -1,56 +1,105 @@
+using System.Text.Json.Serialization;
+
 namespace ReportingDashboard.Models;
 
-public record DashboardData
+public class DashboardData
 {
-    public required int SchemaVersion { get; init; }
-    public required string Title { get; init; }
-    public required string Subtitle { get; init; }
-    public required string BacklogUrl { get; init; }
-    public required TimelineConfig Timeline { get; init; }
-    public required HeatmapConfig Heatmap { get; init; }
-    public string? NowDateOverride { get; init; }
-    public string? CurrentMonthOverride { get; init; }
+    [JsonPropertyName("schemaVersion")]
+    public int SchemaVersion { get; set; }
+
+    [JsonPropertyName("title")]
+    public string Title { get; set; } = "";
+
+    [JsonPropertyName("subtitle")]
+    public string Subtitle { get; set; } = "";
+
+    [JsonPropertyName("backlogUrl")]
+    public string BacklogUrl { get; set; } = "";
+
+    [JsonPropertyName("timeline")]
+    public TimelineConfig Timeline { get; set; } = new();
+
+    [JsonPropertyName("heatmap")]
+    public HeatmapConfig Heatmap { get; set; } = new();
+
+    [JsonPropertyName("nowDateOverride")]
+    public string? NowDateOverride { get; set; }
+
+    [JsonPropertyName("currentMonthOverride")]
+    public string? CurrentMonthOverride { get; set; }
 }
 
-public record TimelineConfig
+public class TimelineConfig
 {
-    public required string StartDate { get; init; }
-    public required string EndDate { get; init; }
-    public required Workstream[] Workstreams { get; init; }
+    [JsonPropertyName("startDate")]
+    public string StartDate { get; set; } = "";
+
+    [JsonPropertyName("endDate")]
+    public string EndDate { get; set; } = "";
+
+    [JsonPropertyName("workstreams")]
+    public Workstream[] Workstreams { get; set; } = Array.Empty<Workstream>();
 }
 
-public record Workstream
+public class Workstream
 {
-    public required string Id { get; init; }
-    public required string Name { get; init; }
-    public required string Color { get; init; }
-    public required Milestone[] Milestones { get; init; }
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = "";
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = "";
+
+    [JsonPropertyName("color")]
+    public string Color { get; set; } = "";
+
+    [JsonPropertyName("milestones")]
+    public Milestone[] Milestones { get; set; } = Array.Empty<Milestone>();
 }
 
-public record Milestone
+public class Milestone
 {
-    public required string Label { get; init; }
-    public required string Date { get; init; }
-    public required string Type { get; init; }
-    public string? LabelPosition { get; init; }
+    [JsonPropertyName("label")]
+    public string Label { get; set; } = "";
+
+    [JsonPropertyName("date")]
+    public string Date { get; set; } = "";
+
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = "";
+
+    [JsonPropertyName("labelPosition")]
+    public string? LabelPosition { get; set; }
 }
 
-public record HeatmapConfig
+public class HeatmapConfig
 {
-    public required string[] MonthColumns { get; init; }
-    public required StatusCategory[] Categories { get; init; }
+    [JsonPropertyName("monthColumns")]
+    public string[] MonthColumns { get; set; } = Array.Empty<string>();
+
+    [JsonPropertyName("categories")]
+    public StatusCategory[] Categories { get; set; } = Array.Empty<StatusCategory>();
 }
 
-public record StatusCategory
+public class StatusCategory
 {
-    public required string Name { get; init; }
-    public required string Emoji { get; init; }
-    public required string CssClass { get; init; }
-    public required MonthItems[] Months { get; init; }
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = "";
+
+    [JsonPropertyName("emoji")]
+    public string Emoji { get; set; } = "";
+
+    [JsonPropertyName("cssClass")]
+    public string CssClass { get; set; } = "";
+
+    [JsonPropertyName("months")]
+    public MonthItems[] Months { get; set; } = Array.Empty<MonthItems>();
 }
 
-public record MonthItems
+public class MonthItems
 {
-    public required string Month { get; init; }
-    public required string[] Items { get; init; }
+    [JsonPropertyName("month")]
+    public string Month { get; set; } = "";
+
+    [JsonPropertyName("items")]
+    public string[] Items { get; set; } = Array.Empty<string>();
 }
