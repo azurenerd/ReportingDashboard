@@ -3,180 +3,16 @@
 
 @if (errorMessage is not null)
 {
-    <div class="error-banner">
-        <strong>⚠</strong> @errorMessage
+    <div class="error-banner" style="max-width:600px; margin:200px auto 0;">
+        <div><strong>Dashboard Error</strong></div>
+        <div style="margin-top:8px;">@errorMessage</div>
     </div>
 }
 else if (dashboardData is not null)
 {
-    <!-- HEADER -->
-    <div class="hdr">
-        <div class="hdr-left">
-            <h1>
-                @dashboardData.Title
-                @if (!string.IsNullOrEmpty(dashboardData.BacklogUrl))
-                {
-                    <a href="@dashboardData.BacklogUrl" target="_blank"> ↗ ADO Backlog</a>
-                }
-            </h1>
-            @if (!string.IsNullOrEmpty(dashboardData.Subtitle))
-            {
-                <div class="sub">@dashboardData.Subtitle</div>
-            }
-        </div>
-        <div class="legend">
-            <div class="legend-item">
-                <span class="legend-diamond gold"></span>
-                <span>PoC Milestone</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-diamond green"></span>
-                <span>Production Release</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-circle"></span>
-                <span>Checkpoint</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-line"></span>
-                <span>Now (@GetCurrentMonthLabel())</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- TIMELINE AREA -->
-    <div class="tl-area">
-        <div class="tl-sidebar">
-            @foreach (var track in dashboardData.MilestoneTracks)
-            {
-                <div class="tl-track-label">
-                    <strong style="color: @track.Color; font-size: 12px;">@track.Name</strong>
-                    @if (!string.IsNullOrEmpty(track.Description))
-                    {
-                        <div style="color: #444; font-size: 12px;">@track.Description</div>
-                    }
-                </div>
-            }
-        </div>
-        <div class="tl-svg-box">
-            <svg width="1560" height="185" style="overflow:visible" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <filter id="sh">
-                        <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
-                    </filter>
-                </defs>
-
-                @* Month grid lines *@
-                @foreach (var (label, x) in GetMonthGridPositions())
-                {
-                    <line x1="@F(x)" y1="0" x2="@F(x)" y2="@F(SvgHeight)"
-                          stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
-                    @RenderSvgText(F(x + 5), "14", "#666", "11", "600", null, label)
-                }
-
-                @* NOW indicator *@
-                @{
-                    var nowX = DateToX(dashboardData.CurrentDate);
-                }
-                <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="@F(SvgHeight)"
-                      stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
-                @RenderSvgText(F(nowX), "8", "#EA4335", "10", "700", "middle", "NOW")
-
-                @* Track lines and events *@
-                @foreach (var (track, trackY) in GetTrackPositions())
-                {
-                    <line x1="0" y1="@F(trackY)" x2="1560" y2="@F(trackY)"
-                          stroke="@track.Color" stroke-width="3" />
-
-                    @for (int ei = 0; ei < track.Events.Length; ei++)
-                    {
-                        var evt = track.Events[ei];
-                        var ex = DateToX(evt.Date);
-                        var labelY = ei % 2 == 0 ? trackY - 16 : trackY + 24;
-
-                        @if (evt.Type == "checkpoint")
-                        {
-                            <circle cx="@F(ex)" cy="@F(trackY)" r="7"
-                                    fill="white" stroke="@track.Color" stroke-width="2.5" />
-                        }
-                        else if (evt.Type == "checkpoint-small")
-                        {
-                            <circle cx="@F(ex)" cy="@F(trackY)" r="4" fill="#999" />
-                        }
-                        else if (evt.Type == "poc")
-                        {
-                            <polygon points="@DiamondPoints(ex, trackY, 11)"
-                                     fill="#F4B400" filter="url(#sh)" />
-                        }
-                        else if (evt.Type == "production")
-                        {
-                            <polygon points="@DiamondPoints(ex, trackY, 11)"
-                                     fill="#34A853" filter="url(#sh)" />
-                        }
-                        else
-                        {
-                            <circle cx="@F(ex)" cy="@F(trackY)" r="4" fill="#999" />
-                        }
-
-                        @RenderSvgText(F(ex), F(labelY), "#666", "10", null, "middle", evt.Label)
-                    }
-                }
-            </svg>
-        </div>
-    </div>
-
-    <!-- HEATMAP AREA -->
-    <div class="hm-wrap">
-        <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
-        <div class="hm-grid" style="grid-template-columns: 160px repeat(@dashboardData.Months.Length, 1fr)">
-            <div class="hm-corner">STATUS</div>
-            @for (int mi = 0; mi < dashboardData.Months.Length; mi++)
-            {
-                var isCurr = mi == dashboardData.CurrentMonthIndex;
-                <div class="hm-col-hdr @(isCurr ? "current-month" : "")">
-                    @dashboardData.Months[mi]
-                    @if (isCurr)
-                    {
-                        <span> ⭐ Now</span>
-                    }
-                </div>
-            }
-
-            @{
-                var heatmapRows = new (string Label, HeatmapRow Row, string HdrClass, string CellClass)[]
-                {
-                    ("\u2705 SHIPPED", dashboardData.Heatmap.Shipped, "ship-hdr", "ship-cell"),
-                    ("\uD83D\uDD04 IN PROGRESS", dashboardData.Heatmap.InProgress, "prog-hdr", "prog-cell"),
-                    ("\u23E9 CARRYOVER", dashboardData.Heatmap.Carryover, "carry-hdr", "carry-cell"),
-                    ("\uD83D\uDEAB BLOCKERS", dashboardData.Heatmap.Blockers, "block-hdr", "block-cell")
-                };
-            }
-
-            @foreach (var (label, row, hdrClass, cellClass) in heatmapRows)
-            {
-                <div class="hm-row-hdr @hdrClass">@label (@row.TotalItemCount)</div>
-                @for (int i = 0; i < dashboardData.Months.Length; i++)
-                {
-                    var month = dashboardData.Months[i];
-                    var isCurrent = i == dashboardData.CurrentMonthIndex;
-                    var items = row.GetItems(month);
-                    <div class="hm-cell @cellClass @(isCurrent ? "current-month" : "")">
-                        @if (items.Length == 0)
-                        {
-                            <span style="color:#AAA">-</span>
-                        }
-                        else
-                        {
-                            @foreach (var item in items)
-                            {
-                                <div class="it">@item</div>
-                            }
-                        }
-                    </div>
-                }
-            }
-        </div>
-    </div>
+    <!-- HEADER SECTION -->
+    <!-- TIMELINE SECTION -->
+    <!-- HEATMAP SECTION -->
 }
 
 @code {
@@ -186,76 +22,9 @@ else if (dashboardData is not null)
     private DashboardData? dashboardData;
     private string? errorMessage;
 
-    private const double SvgWidth = 1560.0;
-    private const double SvgHeight = 185.0;
-
     protected override async Task OnInitializedAsync()
     {
         var filename = DataFile ?? "data.json";
         (dashboardData, errorMessage) = await DataService.LoadAsync(filename);
-    }
-
-    private static string F(double v) => v.ToString("0.##", CultureInfo.InvariantCulture);
-
-    private RenderFragment RenderSvgText(string x, string y, string fill, string fontSize, string? fontWeight, string? textAnchor, string content) => builder =>
-    {
-        builder.OpenElement(0, "text");
-        builder.AddAttribute(1, "x", x);
-        builder.AddAttribute(2, "y", y);
-        builder.AddAttribute(3, "fill", fill);
-        builder.AddAttribute(4, "font-size", fontSize);
-        if (fontWeight is not null)
-            builder.AddAttribute(5, "font-weight", fontWeight);
-        if (textAnchor is not null)
-            builder.AddAttribute(6, "text-anchor", textAnchor);
-        builder.AddAttribute(7, "font-family", "Segoe UI, Arial, sans-serif");
-        builder.AddContent(8, content);
-        builder.CloseElement();
-    };
-
-    private double DateToX(DateOnly date)
-    {
-        var start = dashboardData!.EffectiveTimelineStart;
-        var end = dashboardData!.EffectiveTimelineEnd;
-        var totalDays = end.DayNumber - start.DayNumber;
-        if (totalDays <= 0) return 0;
-        var elapsed = date.DayNumber - start.DayNumber;
-        return Math.Clamp((elapsed / (double)totalDays) * SvgWidth, 0, SvgWidth);
-    }
-
-    private string DiamondPoints(double cx, double cy, double r = 11)
-    {
-        return FormattableString.Invariant($"{cx},{cy - r} {cx + r},{cy} {cx},{cy + r} {cx - r},{cy}");
-    }
-
-    private IEnumerable<(string Label, double X)> GetMonthGridPositions()
-    {
-        var start = dashboardData!.EffectiveTimelineStart;
-        var end = dashboardData!.EffectiveTimelineEnd;
-        var current = new DateOnly(start.Year, start.Month, 1);
-        while (current <= end)
-        {
-            yield return (current.ToString("MMM"), DateToX(current));
-            current = current.AddMonths(1);
-        }
-    }
-
-    private IEnumerable<(MilestoneTrack Track, double Y)> GetTrackPositions()
-    {
-        var tracks = dashboardData!.MilestoneTracks;
-        if (tracks.Length == 0) yield break;
-        var spacing = SvgHeight / (tracks.Length + 1);
-        for (int i = 0; i < tracks.Length; i++)
-        {
-            yield return (tracks[i], spacing * (i + 1));
-        }
-    }
-
-    private string GetCurrentMonthLabel()
-    {
-        if (dashboardData is null) return "";
-        if (dashboardData.CurrentMonthIndex >= 0 && dashboardData.CurrentMonthIndex < dashboardData.Months.Length)
-            return $"{dashboardData.Months[dashboardData.CurrentMonthIndex]} {dashboardData.CurrentDate.Year}";
-        return $"{dashboardData.CurrentDate.Year}";
     }
 }
