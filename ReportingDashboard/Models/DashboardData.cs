@@ -43,20 +43,12 @@ public record HeatmapData(
     HeatmapRow InProgress,
     HeatmapRow Carryover,
     HeatmapRow Blockers
-)
-{
-    public HeatmapRow Shipped { get; init; } = Shipped ?? new HeatmapRow(new());
-    public HeatmapRow InProgress { get; init; } = InProgress ?? new HeatmapRow(new());
-    public HeatmapRow Carryover { get; init; } = Carryover ?? new HeatmapRow(new());
-    public HeatmapRow Blockers { get; init; } = Blockers ?? new HeatmapRow(new());
-}
+);
 
 public record HeatmapRow(
     Dictionary<string, string[]> Items
 )
 {
-    public Dictionary<string, string[]> Items { get; init; } = Items ?? new();
-
     public string[] GetItems(string month) =>
         Items.TryGetValue(month, out var list) ? list : Array.Empty<string>();
 

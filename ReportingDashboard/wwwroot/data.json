@@ -16,7 +16,7 @@
                 { "date": "2026-01-15", "label": "Jan 15", "type": "checkpoint" },
                 { "date": "2026-02-20", "label": "Feb 20", "type": "checkpoint-small" },
                 { "date": "2026-03-20", "label": "Mar 20 PoC", "type": "poc" },
-                { "date": "2026-05-01", "label": "May 1 Prod", "type": "production" }
+                { "date": "2026-05-01", "label": "May Prod", "type": "production" }
             ]
         },
         {
@@ -27,7 +27,7 @@
                 { "date": "2026-02-10", "label": "Feb 10", "type": "checkpoint" },
                 { "date": "2026-03-15", "label": "Mar 15", "type": "checkpoint-small" },
                 { "date": "2026-04-15", "label": "Apr 15 PoC", "type": "poc" },
-                { "date": "2026-06-01", "label": "Jun 1 Prod", "type": "production" }
+                { "date": "2026-06-01", "label": "Jun Prod", "type": "production" }
             ]
         },
         {
@@ -46,7 +46,7 @@
             "items": {
                 "Jan": ["Auth service v1", "SSO integration"],
                 "Feb": ["Data connector", "Schema migration"],
-                "Mar": ["Pipeline MVP", "Monitoring alerts"],
+                "Mar": ["Pipeline MVP", "Monitoring alerts", "Batch ingestion"],
                 "Apr": ["Report templates"]
             }
         },
@@ -54,7 +54,7 @@
             "items": {
                 "Jan": ["OAuth2 provider"],
                 "Feb": ["Batch processor"],
-                "Mar": ["Dashboard wireframes"],
+                "Mar": ["Dashboard wireframes", "API gateway"],
                 "Apr": ["Executive views", "Filter engine"]
             }
         },

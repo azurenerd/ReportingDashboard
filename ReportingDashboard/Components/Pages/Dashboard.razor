@@ -1,5 +1,6 @@
 @page "/"
 @inject DashboardDataService DataService
+@rendermode InteractiveServer
 
 @if (errorMessage is not null)
 {
@@ -11,7 +12,7 @@ else if (dashboardData is not null)
 {
     <!-- HEADER -->
     <div class="hdr">
-        <div class="hdr-left">
+        <div>
             <h1>
                 @dashboardData.Title
                 @if (!string.IsNullOrEmpty(dashboardData.BacklogUrl))
@@ -25,22 +26,10 @@ else if (dashboardData is not null)
             }
         </div>
         <div class="legend">
-            <div class="legend-item">
-                <span class="legend-diamond gold"></span>
-                <span>PoC Milestone</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-diamond green"></span>
-                <span>Production Release</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-circle"></span>
-                <span>Checkpoint</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-line"></span>
-                <span>Now (@GetCurrentMonthLabel())</span>
-            </div>
+            <div class="legend-item"><span class="legend-diamond gold"></span> PoC Milestone</div>
+            <div class="legend-item"><span class="legend-diamond green"></span> Production Release</div>
+            <div class="legend-item"><span class="legend-circle"></span> Checkpoint</div>
+            <div class="legend-item"><span class="legend-line"></span> Now (@dashboardData.CurrentDate.ToString("MMM yyyy"))</div>
         </div>
     </div>
 
@@ -50,10 +39,10 @@ else if (dashboardData is not null)
             @foreach (var track in dashboardData.MilestoneTracks)
             {
                 <div class="tl-track-label">
-                    <strong style="color: @track.Color; font-size: 12px;">@track.Name</strong>
+                    <strong style="color:@track.Color; font-size:12px;">@track.Name</strong>
                     @if (!string.IsNullOrEmpty(track.Description))
                     {
-                        <div style="color: #444; font-size: 12px;">@track.Description</div>
+                        <div style="font-size:12px; color:#444;">@track.Description</div>
                     }
                 </div>
             }
@@ -69,35 +58,29 @@ else if (dashboardData is not null)
                 @* Month grid lines *@
                 @foreach (var (label, x) in GetMonthGridPositions())
                 {
-                    <line x1="@F(x)" y1="0" x2="@F(x)" y2="@F(SvgHeight)"
-                          stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
+                    <line x1="@F(x)" y1="0" x2="@F(x)" y2="185" stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
                     @RenderSvgText(F(x + 5), "14", "#666", "11", "600", null, label)
                 }
 
                 @* NOW indicator *@
-                @{
-                    var nowX = DateToX(dashboardData.CurrentDate);
-                }
-                <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="@F(SvgHeight)"
-                      stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
-                @RenderSvgText(F(nowX), "8", "#EA4335", "10", "700", "middle", "NOW")
+                @{ var nowX = DateToX(dashboardData.CurrentDate); }
+                <line x1="@F(nowX)" y1="18" x2="@F(nowX)" y2="185" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+                @RenderSvgText(F(nowX), "14", "#EA4335", "10", "700", "middle", "NOW")
 
                 @* Track lines and events *@
                 @foreach (var (track, trackY) in GetTrackPositions())
                 {
-                    <line x1="0" y1="@F(trackY)" x2="1560" y2="@F(trackY)"
-                          stroke="@track.Color" stroke-width="3" />
+                    <line x1="0" y1="@F(trackY)" x2="1560" y2="@F(trackY)" stroke="@track.Color" stroke-width="3" />
 
-                    @for (int ei = 0; ei < track.Events.Length; ei++)
+                    var eventIndex = 0;
+                    foreach (var evt in track.Events)
                     {
-                        var evt = track.Events[ei];
                         var ex = DateToX(evt.Date);
-                        var labelY = ei % 2 == 0 ? trackY - 16 : trackY + 24;
+                        var labelY = eventIndex % 2 == 0 ? trackY - 16 : trackY + 24;
 
-                        @if (evt.Type == "checkpoint")
+                        if (evt.Type == "checkpoint")
                         {
-                            <circle cx="@F(ex)" cy="@F(trackY)" r="7"
-                                    fill="white" stroke="@track.Color" stroke-width="2.5" />
+                            <circle cx="@F(ex)" cy="@F(trackY)" r="7" fill="white" stroke="@track.Color" stroke-width="2.5" />
                         }
                         else if (evt.Type == "checkpoint-small")
                         {
@@ -105,13 +88,11 @@ else if (dashboardData is not null)
                         }
                         else if (evt.Type == "poc")
                         {
-                            <polygon points="@DiamondPoints(ex, trackY, 11)"
-                                     fill="#F4B400" filter="url(#sh)" />
+                            <polygon points="@DiamondPoints(ex, trackY)" fill="#F4B400" filter="url(#sh)" />
                         }
                         else if (evt.Type == "production")
                         {
-                            <polygon points="@DiamondPoints(ex, trackY, 11)"
-                                     fill="#34A853" filter="url(#sh)" />
+                            <polygon points="@DiamondPoints(ex, trackY)" fill="#34A853" filter="url(#sh)" />
                         }
                         else
                         {
@@ -119,43 +100,42 @@ else if (dashboardData is not null)
                         }
 
                         @RenderSvgText(F(ex), F(labelY), "#666", "10", null, "middle", evt.Label)
+
+                        eventIndex++;
                     }
                 }
             </svg>
         </div>
     </div>
 
-    <!-- HEATMAP AREA -->
+    <!-- HEATMAP -->
     <div class="hm-wrap">
-        <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+        <div class="hm-title">Monthly Execution Heatmap – Shipped · In Progress · Carryover · Blockers</div>
         <div class="hm-grid" style="grid-template-columns: 160px repeat(@dashboardData.Months.Length, 1fr)">
+            <!-- Header row -->
             <div class="hm-corner">STATUS</div>
-            @for (int mi = 0; mi < dashboardData.Months.Length; mi++)
+            @for (var i = 0; i < dashboardData.Months.Length; i++)
             {
-                var isCurr = mi == dashboardData.CurrentMonthIndex;
-                <div class="hm-col-hdr @(isCurr ? "current-month" : "")">
-                    @dashboardData.Months[mi]
-                    @if (isCurr)
-                    {
-                        <span> ⭐ Now</span>
-                    }
+                var isCurrent = i == dashboardData.CurrentMonthIndex;
+                <div class="hm-col-hdr @(isCurrent ? "current-month" : "")">
+                    @dashboardData.Months[i]@(isCurrent ? " ★ Now" : "")
                 </div>
             }
 
+            <!-- Status rows -->
             @{
-                var heatmapRows = new (string Label, HeatmapRow Row, string HdrClass, string CellClass)[]
-                {
-                    ("\u2705 SHIPPED", dashboardData.Heatmap.Shipped, "ship-hdr", "ship-cell"),
-                    ("\uD83D\uDD04 IN PROGRESS", dashboardData.Heatmap.InProgress, "prog-hdr", "prog-cell"),
-                    ("\u23E9 CARRYOVER", dashboardData.Heatmap.Carryover, "carry-hdr", "carry-cell"),
-                    ("\uD83D\uDEAB BLOCKERS", dashboardData.Heatmap.Blockers, "block-hdr", "block-cell")
+                var rows = new[] {
+                    (Label: "✅ SHIPPED", Row: dashboardData.Heatmap.Shipped, HdrClass: "ship-hdr", CellClass: "ship-cell"),
+                    (Label: "🔄 IN PROGRESS", Row: dashboardData.Heatmap.InProgress, HdrClass: "prog-hdr", CellClass: "prog-cell"),
+                    (Label: "⏩ CARRYOVER", Row: dashboardData.Heatmap.Carryover, HdrClass: "carry-hdr", CellClass: "carry-cell"),
+                    (Label: "🚫 BLOCKERS", Row: dashboardData.Heatmap.Blockers, HdrClass: "block-hdr", CellClass: "block-cell"),
                 };
             }
 
-            @foreach (var (label, row, hdrClass, cellClass) in heatmapRows)
+            @foreach (var (label, row, hdrClass, cellClass) in rows)
             {
                 <div class="hm-row-hdr @hdrClass">@label (@row.TotalItemCount)</div>
-                @for (int i = 0; i < dashboardData.Months.Length; i++)
+                @for (var i = 0; i < dashboardData.Months.Length; i++)
                 {
                     var month = dashboardData.Months[i];
                     var isCurrent = i == dashboardData.CurrentMonthIndex;
@@ -186,32 +166,14 @@ else if (dashboardData is not null)
     private DashboardData? dashboardData;
     private string? errorMessage;
 
-    private const double SvgWidth = 1560.0;
-    private const double SvgHeight = 185.0;
-
     protected override async Task OnInitializedAsync()
     {
         var filename = DataFile ?? "data.json";
         (dashboardData, errorMessage) = await DataService.LoadAsync(filename);
     }
 
-    private static string F(double v) => v.ToString("0.##", CultureInfo.InvariantCulture);
-
-    private RenderFragment RenderSvgText(string x, string y, string fill, string fontSize, string? fontWeight, string? textAnchor, string content) => builder =>
-    {
-        builder.OpenElement(0, "text");
-        builder.AddAttribute(1, "x", x);
-        builder.AddAttribute(2, "y", y);
-        builder.AddAttribute(3, "fill", fill);
-        builder.AddAttribute(4, "font-size", fontSize);
-        if (fontWeight is not null)
-            builder.AddAttribute(5, "font-weight", fontWeight);
-        if (textAnchor is not null)
-            builder.AddAttribute(6, "text-anchor", textAnchor);
-        builder.AddAttribute(7, "font-family", "Segoe UI, Arial, sans-serif");
-        builder.AddContent(8, content);
-        builder.CloseElement();
-    };
+    private const double SvgWidth = 1560.0;
+    private const double SvgHeight = 185.0;
 
     private double DateToX(DateOnly date)
     {
@@ -225,8 +187,25 @@ else if (dashboardData is not null)
 
     private string DiamondPoints(double cx, double cy, double r = 11)
     {
-        return FormattableString.Invariant($"{cx},{cy - r} {cx + r},{cy} {cx},{cy + r} {cx - r},{cy}");
+        return $"{F(cx)},{F(cy - r)} {F(cx + r)},{F(cy)} {F(cx)},{F(cy + r)} {F(cx - r)},{F(cy)}";
     }
+
+    private static string F(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+    private RenderFragment RenderSvgText(string x, string y, string fill, string fontSize, string? fontWeight, string? textAnchor, string content) => builder =>
+    {
+        builder.OpenElement(0, "text");
+        builder.AddAttribute(1, "x", x);
+        builder.AddAttribute(2, "y", y);
+        builder.AddAttribute(3, "fill", fill);
+        builder.AddAttribute(4, "font-size", fontSize);
+        if (fontWeight is not null)
+            builder.AddAttribute(5, "font-weight", fontWeight);
+        if (textAnchor is not null)
+            builder.AddAttribute(6, "text-anchor", textAnchor);
+        builder.AddContent(7, content);
+        builder.CloseElement();
+    };
 
     private IEnumerable<(string Label, double X)> GetMonthGridPositions()
     {
@@ -249,13 +228,5 @@ else if (dashboardData is not null)
         {
             yield return (tracks[i], spacing * (i + 1));
         }
-    }
-
-    private string GetCurrentMonthLabel()
-    {
-        if (dashboardData is null) return "";
-        if (dashboardData.CurrentMonthIndex >= 0 && dashboardData.CurrentMonthIndex < dashboardData.Months.Length)
-            return $"{dashboardData.Months[dashboardData.CurrentMonthIndex]} {dashboardData.CurrentDate.Year}";
-        return $"{dashboardData.CurrentDate.Year}";
     }
 }

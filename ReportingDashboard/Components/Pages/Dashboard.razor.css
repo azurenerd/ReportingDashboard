@@ -1,4 +1,4 @@
-/* Error banner */
+/* === Error Banner === */
 .error-banner {
     background: #FEF2F2;
     color: #991B1B;
@@ -8,7 +8,7 @@
     text-align: center;
 }
 
-/* Header */
+/* === Header === */
 .hdr {
     display: flex;
     align-items: center;
@@ -18,17 +18,18 @@
     flex-shrink: 0;
 }
 
-.hdr-left h1 {
+.hdr h1 {
     font-size: 24px;
     font-weight: 700;
-    color: #111;
+    margin: 0;
 }
 
-.hdr-left h1 a {
+.hdr h1 a {
     font-size: 14px;
     font-weight: 400;
     color: #0078D4;
     text-decoration: none;
+    margin-left: 8px;
 }
 
 .sub {
@@ -45,10 +46,9 @@
 
 .legend-item {
     display: flex;
-    gap: 6px;
     align-items: center;
+    gap: 6px;
     font-size: 12px;
-    color: #333;
 }
 
 .legend-diamond {
@@ -81,7 +81,7 @@
     flex-shrink: 0;
 }
 
-/* Timeline area */
+/* === Timeline Area === */
 .tl-area {
     display: flex;
     align-items: stretch;
@@ -113,7 +113,7 @@
     min-width: 0;
 }
 
-/* Heatmap area */
+/* === Heatmap Wrapper === */
 .hm-wrap {
     display: flex;
     flex-direction: column;
@@ -131,6 +131,7 @@
     margin-bottom: 8px;
 }
 
+/* === Heatmap Grid === */
 .hm-grid {
     display: grid;
     grid-template-rows: 36px repeat(4, 1fr);
@@ -139,6 +140,7 @@
     min-height: 0;
 }
 
+/* Corner cell */
 .hm-corner {
     background: #F5F5F5;
     display: flex;
@@ -152,6 +154,7 @@
     border-bottom: 2px solid #CCC;
 }
 
+/* Month column headers */
 .hm-col-hdr {
     background: #F5F5F5;
     display: flex;
@@ -159,7 +162,6 @@
     justify-content: center;
     font-size: 16px;
     font-weight: 700;
-    color: #333;
     border-right: 1px solid #E0E0E0;
     border-bottom: 2px solid #CCC;
 }
@@ -208,11 +210,11 @@
     border-right: 1px solid #E0E0E0;
     border-bottom: 1px solid #E0E0E0;
     overflow: hidden;
+    transition: filter 0.15s ease;
 }
 
 .hm-cell:hover {
     filter: brightness(0.97);
-    transition: filter 0.15s ease;
 }
 
 .ship-cell {
@@ -247,8 +249,8 @@
     background: #FFE4E4;
 }
 
-/* Work items */
-.hm-cell .it {
+/* Work item entries */
+.it {
     position: relative;
     font-size: 12px;
     color: #333;
@@ -256,7 +258,7 @@
     line-height: 1.35;
 }
 
-.hm-cell .it::before {
+.it::before {
     content: '';
     position: absolute;
     left: 0;
