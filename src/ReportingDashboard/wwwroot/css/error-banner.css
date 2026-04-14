@@ -1,8 +1,3 @@
-/* ==========================================================================
-   Error Banner & Error Page Styles
-   Added by PR #1262 (Live-Reload with FileSystemWatcher)
-   ========================================================================== */
-
 /* Error banner - shown when data.json has errors but last-known-good data is available */
 .error-banner {
     background: #FFF3CD;

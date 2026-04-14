@@ -1,16 +1,3 @@
-using Bunit;
-using Xunit;
-
-namespace ReportingDashboard.Tests;
-
-/// <summary>
-/// Legacy placeholder — real tests are in Unit/DashboardComponentTests.cs
-/// </summary>
-public class DashboardComponentTests
-{
-    [Fact]
-    public void Placeholder_RemoveWhenRealTestsAdded()
-    {
-        Assert.True(true);
-    }
-}
+// This file intentionally left empty.
+// All Dashboard component tests live in Unit/DashboardComponentTests.cs.
+// This file exists only to prevent build errors from stale project references.

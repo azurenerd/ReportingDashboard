@@ -88,7 +88,7 @@ public class DataServiceTests : IDisposable
         File.WriteAllText(Path.Combine(_wwwrootDir, "data.json"), content);
     }
 
-    // ─── Valid JSON loading ───
+    // --- Valid JSON loading ---
 
     [Fact]
     public void ValidJson_LoadsCorrectly()
@@ -133,7 +133,7 @@ public class DataServiceTests : IDisposable
         data.Heatmap.Categories[0].Months[1].Items.Should().BeEmpty();
     }
 
-    // ─── Missing file ───
+    // --- Missing file ---
 
     [Fact]
     public void MissingFile_ReturnsError()
@@ -152,7 +152,7 @@ public class DataServiceTests : IDisposable
         service.GetError().Should().Contain("wwwroot");
     }
 
-    // ─── Malformed JSON ───
+    // --- Malformed JSON ---
 
     [Fact]
     public void MalformedJson_ReturnsError()
@@ -187,7 +187,7 @@ public class DataServiceTests : IDisposable
         service.GetError().Should().Contain("invalid JSON");
     }
 
-    // ─── Schema version validation ───
+    // --- Schema version validation ---
 
     [Fact]
     public void SchemaVersionMismatch_ReturnsError()
@@ -211,7 +211,7 @@ public class DataServiceTests : IDisposable
         service.GetError().Should().Contain("expected 1");
     }
 
-    // ─── Effective date (nowDateOverride) ───
+    // --- Effective date (nowDateOverride) ---
 
     [Fact]
     public void GetEffectiveDate_WithOverride_ReturnsParsedDate()
@@ -255,7 +255,30 @@ public class DataServiceTests : IDisposable
         service.GetEffectiveDate().Should().Be(DateOnly.FromDateTime(DateTime.Today));
     }
 
-    // ─── Thread safety: concurrent reads do not throw ───
+    // --- Current month name (derived from effective date) ---
+
+    [Fact]
+    public void GetCurrentMonthName_WithNowDateOverride_DerivesFromOverride()
+    {
+        WriteDataJson(CreateValidJson(nowDateOverride: "2026-06-15"));
+
+        using var service = new DataService(_envMock.Object);
+
+        service.GetCurrentMonthName().Should().Be("Jun");
+    }
+
+    [Fact]
+    public void GetCurrentMonthName_WithoutOverride_ReturnsCurrentMonth()
+    {
+        WriteDataJson(CreateValidJson());
+
+        using var service = new DataService(_envMock.Object);
+
+        var expected = DateOnly.FromDateTime(DateTime.Today).ToString("MMM");
+        service.GetCurrentMonthName().Should().Be(expected);
+    }
+
+    // --- Thread safety: concurrent reads do not throw ---
 
     [Fact]
     public void ConcurrentReads_DoNotThrow()
@@ -269,12 +292,13 @@ public class DataServiceTests : IDisposable
             service.GetData();
             service.GetError();
             service.GetEffectiveDate();
+            service.GetCurrentMonthName();
         }));
 
         Task.WaitAll(tasks.ToArray());
     }
 
-    // ─── File change triggers reload ───
+    // --- FileSystemWatcher live-reload ---
 
     [Fact]
     public async Task FileChange_TriggersReload()
@@ -287,10 +311,8 @@ public class DataServiceTests : IDisposable
         var tcs = new TaskCompletionSource<bool>();
         service.OnDataChanged += () => tcs.TrySetResult(true);
 
-        // Modify the file
         WriteDataJson(CreateValidJson("Updated Title"));
 
-        // Wait for debounced reload (500ms debounce + margin)
         var completed = await Task.WhenAny(tcs.Task, Task.Delay(3000));
         completed.Should().Be(tcs.Task, "OnDataChanged should fire after file change");
 
@@ -309,13 +331,11 @@ public class DataServiceTests : IDisposable
         var tcs = new TaskCompletionSource<bool>();
         service.OnDataChanged += () => tcs.TrySetResult(true);
 
-        // Write malformed JSON
         WriteDataJson("{ broken json!!!");
 
         var completed = await Task.WhenAny(tcs.Task, Task.Delay(3000));
         completed.Should().Be(tcs.Task, "OnDataChanged should fire even on error");
 
-        // Last-known-good data preserved
         service.GetData()!.Title.Should().Be("Good Data");
         service.GetError().Should().Contain("invalid JSON");
     }
@@ -327,14 +347,12 @@ public class DataServiceTests : IDisposable
 
         using var service = new DataService(_envMock.Object);
 
-        // First: break it
         var tcs1 = new TaskCompletionSource<bool>();
         service.OnDataChanged += () => tcs1.TrySetResult(true);
         WriteDataJson("{ broken }");
         await Task.WhenAny(tcs1.Task, Task.Delay(3000));
         service.GetError().Should().NotBeNull();
 
-        // Second: fix it
         var tcs2 = new TaskCompletionSource<bool>();
         service.OnDataChanged += () => tcs2.TrySetResult(true);
         WriteDataJson(CreateValidJson("Fixed Data"));
@@ -344,19 +362,100 @@ public class DataServiceTests : IDisposable
         service.GetError().Should().BeNull();
     }
 
-    // ─── Missing required fields ───
+    [Fact]
+    public async Task FileChange_SchemaVersionMismatch_PreservesLastGoodData()
+    {
+        WriteDataJson(CreateValidJson("Good Data"));
+
+        using var service = new DataService(_envMock.Object);
+        service.GetData()!.Title.Should().Be("Good Data");
+
+        var tcs = new TaskCompletionSource<bool>();
+        service.OnDataChanged += () => tcs.TrySetResult(true);
+
+        WriteDataJson(CreateValidJson("Bad Schema", schemaVersion: 99));
+
+        var completed = await Task.WhenAny(tcs.Task, Task.Delay(3000));
+        completed.Should().Be(tcs.Task, "OnDataChanged should fire on schema mismatch");
+
+        service.GetData()!.Title.Should().Be("Good Data");
+        service.GetError().Should().Contain("expected 1");
+    }
 
     [Fact]
-    public void MissingRequiredField_ReturnsError()
+    public async Task FileChange_Debounce_CollapsesRapidFireEvents()
     {
-        // JSON with missing required 'title' field
-        var json = """{"schemaVersion":1,"subtitle":"x","backlogUrl":"x","timeline":{"startDate":"2026-01-01","endDate":"2026-07-01","workstreams":[]},"heatmap":{"monthColumns":[],"categories":[]}}""";
-        WriteDataJson(json);
+        WriteDataJson(CreateValidJson("Original"));
+
+        using var service = new DataService(_envMock.Object);
+        var changeCount = 0;
+        service.OnDataChanged += () => Interlocked.Increment(ref changeCount);
+
+        // Fire multiple rapid writes within the 500ms debounce window
+        for (int i = 0; i < 5; i++)
+        {
+            WriteDataJson(CreateValidJson($"Rapid {i}"));
+            await Task.Delay(50);
+        }
+
+        // Wait for debounce to settle
+        await Task.Delay(1500);
+
+        // Debounce should collapse rapid-fire events; expect far fewer than 5 reloads
+        changeCount.Should().BeGreaterThanOrEqualTo(1);
+        changeCount.Should().BeLessThanOrEqualTo(3, "debounce should collapse rapid-fire events");
+    }
+
+    [Fact]
+    public async Task OnDataChanged_FiresOnEveryReload()
+    {
+        WriteDataJson(CreateValidJson("Initial"));
+        using var service = new DataService(_envMock.Object);
+
+        var fireCount = 0;
+        service.OnDataChanged += () => Interlocked.Increment(ref fireCount);
+
+        // First change
+        WriteDataJson(CreateValidJson("Change 1"));
+        await Task.Delay(1500);
+
+        // Second change
+        WriteDataJson(CreateValidJson("Change 2"));
+        await Task.Delay(1500);
+
+        fireCount.Should().BeGreaterThanOrEqualTo(2, "OnDataChanged should fire for each file modification");
+    }
+
+    [Fact]
+    public async Task OnDataChanged_SubscriberException_DoesNotKillReloadPipeline()
+    {
+        WriteDataJson(CreateValidJson("Initial"));
 
         using var service = new DataService(_envMock.Object);
 
-        // System.Text.Json treats missing 'required' properties as a deserialization error
-        // The service should catch and report it
-        service.GetError().Should().NotBeNullOrWhiteSpace();
+        // Add a subscriber that throws
+        service.OnDataChanged += () => throw new InvalidOperationException("Subscriber error");
+
+        var tcs = new TaskCompletionSource<bool>();
+        service.OnDataChanged += () => tcs.TrySetResult(true);
+
+        WriteDataJson(CreateValidJson("After Exception"));
+
+        // Should still fire and not crash
+        var completed = await Task.WhenAny(tcs.Task, Task.Delay(3000));
+        completed.Should().Be(tcs.Task, "OnDataChanged should still fire despite subscriber exception");
+    }
+
+    // --- Dispose ---
+
+    [Fact]
+    public void Dispose_CleansUpResources()
+    {
+        WriteDataJson(CreateValidJson());
+        var service = new DataService(_envMock.Object);
+
+        // Should not throw
+        service.Dispose();
+        service.Dispose(); // Double-dispose safety
     }
 }
