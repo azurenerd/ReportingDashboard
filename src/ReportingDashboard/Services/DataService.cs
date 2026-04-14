@@ -16,6 +16,10 @@ public class DataService : IDisposable
     private DashboardData? _currentData;
     private string? _currentError;
 
+    /// <summary>
+    /// Fired after every data reload attempt (success or failure).
+    /// Subscribers MUST marshal to their own sync context (e.g., InvokeAsync).
+    /// </summary>
     public event Action? OnDataChanged;
 
     public DataService(IWebHostEnvironment env)
@@ -39,10 +43,13 @@ public class DataService : IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"FileSystemWatcher could not be started: {ex.Message}");
+            Console.WriteLine($"[DataService] FileSystemWatcher could not be started: {ex.Message}");
         }
     }
 
+    /// <summary>
+    /// Returns the current dashboard data, or null if no valid data has been loaded.
+    /// </summary>
     public DashboardData? GetData()
     {
         lock (_lock)
@@ -51,6 +58,9 @@ public class DataService : IDisposable
         }
     }
 
+    /// <summary>
+    /// Returns the current error message, or null if the last load was successful.
+    /// </summary>
     public string? GetError()
     {
         lock (_lock)
@@ -59,6 +69,10 @@ public class DataService : IDisposable
         }
     }
 
+    /// <summary>
+    /// Returns the effective "now" date used for the timeline NOW line.
+    /// Uses nowDateOverride from data.json if present and valid; otherwise uses DateTime.Today.
+    /// </summary>
     public DateOnly GetEffectiveDate()
     {
         lock (_lock)
@@ -72,11 +86,46 @@ public class DataService : IDisposable
                 }
                 catch
                 {
-                    // Fall through to default
+                    // Invalid override format — fall through to system date
                 }
             }
             return DateOnly.FromDateTime(DateTime.Today);
         }
+    }
+
+    /// <summary>
+    /// Returns the abbreviated month name (e.g. "Apr") used for current-month heatmap highlighting.
+    /// Uses currentMonthOverride from data.json if present; otherwise derives from the effective date.
+    /// </summary>
+    public string GetCurrentMonthName()
+    {
+        lock (_lock)
+        {
+            if (_currentData?.CurrentMonthOverride is { } overrideMonth
+                && !string.IsNullOrWhiteSpace(overrideMonth))
+            {
+                return overrideMonth;
+            }
+            return GetEffectiveDateInternal().ToString("MMM");
+        }
+    }
+
+    private DateOnly GetEffectiveDateInternal()
+    {
+        // Must be called under lock
+        if (_currentData?.NowDateOverride is { } overrideStr
+            && !string.IsNullOrWhiteSpace(overrideStr))
+        {
+            try
+            {
+                return DateOnly.ParseExact(overrideStr, "yyyy-MM-dd");
+            }
+            catch
+            {
+                // Fall through
+            }
+        }
+        return DateOnly.FromDateTime(DateTime.Today);
     }
 
     private void LoadData()
@@ -87,7 +136,9 @@ public class DataService : IDisposable
             {
                 lock (_lock)
                 {
-                    _currentData = null;
+                    // Only clear data if we have nothing yet (preserve last-known-good on reload)
+                    if (_currentData is null)
+                        _currentData = null;
                     _currentError = "No data.json found. Place a valid data.json file in the wwwroot/ directory.";
                 }
                 return;
@@ -102,6 +153,7 @@ public class DataService : IDisposable
                 lock (_lock)
                 {
                     _currentError = "data.json contains invalid JSON: deserialization returned null.";
+                    // Preserve last-known-good data on reload
                 }
                 return;
             }
@@ -111,9 +163,7 @@ public class DataService : IDisposable
                 lock (_lock)
                 {
                     _currentError = $"data.json schemaVersion is {data.SchemaVersion}, expected {ExpectedSchemaVersion}. Update your data.json to match the current schema.";
-                    // Don't update _currentData on schema mismatch for initial load
-                    if (_currentData is null)
-                        _currentData = null;
+                    // Don't update _currentData on schema mismatch — preserve last-known-good
                 }
                 return;
             }
@@ -129,7 +179,14 @@ public class DataService : IDisposable
             lock (_lock)
             {
                 _currentError = $"data.json contains invalid JSON: {ex.Message}";
-                // Preserve last-known-good on reload failure
+                // Preserve last-known-good _currentData on reload failure
+            }
+        }
+        catch (IOException ex)
+        {
+            lock (_lock)
+            {
+                _currentError = $"Error reading data.json: {ex.Message}";
             }
         }
         catch (Exception ex)
@@ -153,6 +210,7 @@ public class DataService : IDisposable
 
     private void OnDebounceElapsed(object? state)
     {
+        Console.WriteLine($"[DataService] Reloading data.json at {DateTime.Now:HH:mm:ss.fff}");
         LoadData();
         OnDataChanged?.Invoke();
     }
