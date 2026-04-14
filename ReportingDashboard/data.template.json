@@ -1,0 +1,66 @@
+{
+  // Project title displayed in the header (required)
+  "title": "Your Project Name - Executive Dashboard",
+
+  // Subtitle line showing org hierarchy and date context (required)
+  "subtitle": "Division › Team › Workstream — Month Year",
+
+  // URL for the ADO Backlog link in the header (optional, renders '#' if empty)
+  "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
+
+  // ISO date string (YYYY-MM-DD) controlling the NOW indicator position (required)
+  // This is NOT auto-detected - set it to the date you want the red NOW line to appear
+  "currentDate": "2026-04-14",
+
+  // Array of 3-letter month abbreviations, ordered chronologically (required, 3-8 items)
+  // These define the heatmap columns and the timeline date range
+  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+
+  // Milestone tracks displayed in the timeline (required, 1-5 tracks)
+  "tracks": [
+    {
+      // Short identifier shown in sidebar (e.g., "M1", "WS1")
+      "id": "M1",
+      // Track description shown in sidebar
+      "label": "Workstream Name",
+      // Hex color for the track line and label
+      "color": "#0078D4",
+      // Array of milestone markers on this track
+      "milestones": [
+        {
+          // ISO date string (YYYY-MM-DD) for marker position
+          "date": "2026-03-20",
+          // Marker type: "Checkpoint" (circle), "PoC" (gold diamond), "Production" (green diamond)
+          "type": "PoC",
+          // Label shown near the marker
+          "label": "Mar 20 PoC"
+        }
+      ]
+    }
+  ],
+
+  // Status rows for the heatmap grid
+  // Each category maps month abbreviations to arrays of work item strings
+  // Month keys MUST match values in the "months" array above
+  // Months with no items can be omitted (will display a dash "-")
+  "statusRows": {
+    // Green row - completed deliverables
+    "shipped": {
+      "Jan": ["Completed item 1", "Completed item 2"],
+      "Feb": ["Completed item 3"]
+    },
+    // Blue row - active work items
+    "inProgress": {
+      "Mar": ["Active work item 1"],
+      "Apr": ["Active work item 2", "Active work item 3"]
+    },
+    // Amber row - items carried over from previous periods
+    "carryover": {
+      "Apr": ["Deferred item from last month"]
+    },
+    // Red row - blocked items requiring attention
+    "blockers": {
+      "Apr": ["Blocking issue description"]
+    }
+  }
+}
