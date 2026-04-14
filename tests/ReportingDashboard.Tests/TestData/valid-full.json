@@ -1,0 +1,98 @@
+{
+    "title": "Project Phoenix Release Roadmap",
+    "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
+    "backlogUrl": "https://dev.azure.com/contoso/Phoenix/_backlogs",
+    "currentDate": "2026-04-14",
+    "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "currentMonthIndex": 3,
+    "timelineStart": "2026-01-01",
+    "timelineEnd": "2026-07-01",
+    "milestones": [
+        {
+            "id": "M1",
+            "label": "M1",
+            "description": "Chatbot & MS Role Integration",
+            "color": "#0078D4",
+            "markers": [
+                { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
+                { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
+                { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
+                { "date": "2026-05-15", "type": "production", "label": "May 15 GA" }
+            ]
+        },
+        {
+            "id": "M2",
+            "label": "M2",
+            "description": "PDS & Data Inventory Pipeline",
+            "color": "#00897B",
+            "markers": [
+                { "date": "2026-01-20", "type": "smallCheckpoint", "label": "Jan 20" },
+                { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
+                { "date": "2026-04-10", "type": "poc", "label": "Apr 10 PoC" },
+                { "date": "2026-06-20", "type": "production", "label": "Jun 20 GA" }
+            ]
+        },
+        {
+            "id": "M3",
+            "label": "M3",
+            "description": "Compliance Reporting Module",
+            "color": "#546E7A",
+            "markers": [
+                { "date": "2026-02-01", "type": "smallCheckpoint", "label": "Feb 1" },
+                { "date": "2026-03-15", "type": "checkpoint", "label": "Mar 15" },
+                { "date": "2026-05-01", "type": "poc", "label": "May 1 PoC" },
+                { "date": "2026-06-30", "type": "production", "label": "Jun 30 GA" }
+            ]
+        }
+    ],
+    "categories": [
+        {
+            "name": "✅ Shipped",
+            "key": "shipped",
+            "items": {
+                "Jan": ["Auth service v2 deployed", "Role mapping config live"],
+                "Feb": ["Chatbot NLU model trained", "PDS schema v1 finalized"],
+                "Mar": ["M1 PoC demo completed", "Data inventory scan MVP", "Compliance template engine"],
+                "Apr": ["PDS ingestion pipeline live", "Chatbot prompt tuning v2"],
+                "May": [],
+                "Jun": []
+            }
+        },
+        {
+            "name": "🔄 In Progress",
+            "key": "inProgress",
+            "items": {
+                "Jan": ["NLU model training"],
+                "Feb": ["PDS connector build"],
+                "Mar": ["Integration test suite"],
+                "Apr": ["M1 hardening sprint", "Compliance dashboard UI", "E2E test automation"],
+                "May": [],
+                "Jun": []
+            }
+        },
+        {
+            "name": "⏳ Carryover",
+            "key": "carryover",
+            "items": {
+                "Jan": [],
+                "Feb": ["Auth edge case fixes"],
+                "Mar": ["PDS perf optimization"],
+                "Apr": ["API rate limit tuning"],
+                "May": [],
+                "Jun": []
+            }
+        },
+        {
+            "name": "🚧 Blockers",
+            "key": "blockers",
+            "items": {
+                "Jan": [],
+                "Feb": [],
+                "Mar": ["Waiting on Legal review for data retention policy"],
+                "Apr": ["Azure quota increase pending", "3P vendor API access delayed"],
+                "May": [],
+                "Jun": []
+            }
+        }
+    ]
+}

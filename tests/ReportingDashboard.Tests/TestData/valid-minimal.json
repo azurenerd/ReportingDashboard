@@ -1,0 +1,59 @@
+{
+    "title": "Minimal Project",
+    "subtitle": "Test Org · Test Workstream · January 2026",
+    "backlogUrl": "https://dev.azure.com/test",
+    "currentDate": "2026-01-15",
+    "months": ["Jan", "Feb", "Mar"],
+    "currentMonthIndex": 0,
+    "timelineStart": "2026-01-01",
+    "timelineEnd": "2026-04-01",
+    "milestones": [
+        {
+            "id": "M1",
+            "label": "M1",
+            "description": "Core Feature",
+            "color": "#0078D4",
+            "markers": [
+                { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" }
+            ]
+        }
+    ],
+    "categories": [
+        {
+            "name": "✅ Shipped",
+            "key": "shipped",
+            "items": {
+                "Jan": ["Feature A deployed"],
+                "Feb": ["Feature B deployed"],
+                "Mar": []
+            }
+        },
+        {
+            "name": "🔄 In Progress",
+            "key": "inProgress",
+            "items": {
+                "Jan": ["Feature C"],
+                "Feb": [],
+                "Mar": []
+            }
+        },
+        {
+            "name": "⏳ Carryover",
+            "key": "carryover",
+            "items": {
+                "Jan": [],
+                "Feb": [],
+                "Mar": []
+            }
+        },
+        {
+            "name": "🚧 Blockers",
+            "key": "blockers",
+            "items": {
+                "Jan": [],
+                "Feb": [],
+                "Mar": []
+            }
+        }
+    ]
+}
