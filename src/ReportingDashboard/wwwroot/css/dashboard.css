@@ -1,202 +1,148 @@
-/* Executive Reporting Dashboard — 1920x1080 pixel-precise layout */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* Executive Reporting Dashboard - Fixed 1920x1080 Layout */
 
-body {
-    font-family: 'Segoe UI', Arial, sans-serif;
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
     width: 1920px;
     height: 1080px;
     overflow: hidden;
-    background: #fff;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    font-size: 14px;
     color: #111;
+    background: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* ===== Header ===== */
+/* Header */
 .hdr {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 12px 44px 10px;
+    align-items: flex-start;
+    padding: 18px 32px 14px;
     border-bottom: 1px solid #E0E0E0;
 }
-.hdr h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #111;
-    margin: 0;
-}
-.hdr h1 a {
-    color: #0078D4;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 400;
-    margin-left: 12px;
-}
-.hdr h1 a:hover { text-decoration: underline; }
+
 .sub {
     font-size: 12px;
     color: #888;
-    margin-top: 2px;
+    margin-top: 4px;
 }
 
-/* ===== Timeline Area ===== */
+/* Timeline Area */
 .tl-area {
     display: flex;
-    align-items: stretch;
     height: 196px;
-    padding: 6px 44px 0;
     background: #FAFAFA;
-    border-bottom: 2px solid #E8E8E8;
+    border-bottom: 1px solid #E0E0E0;
 }
+
 .tl-svg-box {
     flex: 1;
-    padding-left: 12px;
-    padding-top: 6px;
+    padding: 8px 16px 8px 0;
+    overflow: hidden;
 }
 
-/* ===== Heatmap ===== */
+/* Heatmap */
 .hm-wrap {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    padding: 10px 44px 10px;
-}
-.hm-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #888;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-}
-.hm-grid {
-    display: grid;
-    border: 1px solid #E0E0E0;
-    flex: 1;
-    min-height: 0;
+    padding: 12px 32px 16px;
 }
 
-/* Corner cell */
+.hm-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 10px;
+}
+
+.hm-grid {
+    display: grid;
+    flex: 1;
+    gap: 0;
+    border: 1px solid #E0E0E0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
 .hm-corner {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #666;
     background: #F5F5F5;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #999;
     border-right: 1px solid #E0E0E0;
-    border-bottom: 2px solid #CCC;
+    border-bottom: 1px solid #E0E0E0;
 }
 
-/* Column headers */
 .hm-col-hdr {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #555;
     background: #F5F5F5;
-    font-size: 16px;
-    font-weight: 700;
     border-right: 1px solid #E0E0E0;
-    border-bottom: 2px solid #CCC;
+    border-bottom: 1px solid #E0E0E0;
 }
+
 .apr-hdr {
-    background: #FFF0D0;
-    color: #C07700;
+    background: #E8F0FE;
+    color: #0078D4;
+    font-weight: 700;
 }
 
 /* Row headers */
 .hm-row-hdr {
     display: flex;
     align-items: center;
-    padding: 0 12px;
+    padding: 6px 10px;
     font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-    border-right: 2px solid #CCC;
+    font-weight: 600;
+    border-right: 1px solid #E0E0E0;
     border-bottom: 1px solid #E0E0E0;
 }
-.ship-hdr { color: #1B7A28; background: #E8F5E9; }
-.prog-hdr { color: #1565C0; background: #E3F2FD; }
-.carry-hdr { color: #B45309; background: #FFF8E1; }
-.block-hdr { color: #991B1B; background: #FEF2F2; }
+
+.ship-hdr { background: #E6F4EA; color: #1B7A3D; }
+.prog-hdr { background: #E8F0FE; color: #0078D4; }
+.carry-hdr { background: #FFF3E0; color: #E65100; }
+.block-hdr { background: #FCE8E6; color: #C62828; }
 
 /* Data cells */
 .hm-cell {
-    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 5px 7px;
+    font-size: 10px;
+    line-height: 1.35;
     border-right: 1px solid #E0E0E0;
     border-bottom: 1px solid #E0E0E0;
     overflow: hidden;
 }
 
-/* Row-specific cell colors */
-.ship-cell { background: #F0FBF0; }
-.ship-cell.apr { background: #D8F2DA; }
-.prog-cell { background: #EEF4FE; }
-.prog-cell.apr { background: #DAE8FB; }
-.carry-cell { background: #FFFDE7; }
-.carry-cell.apr { background: #FFF0B0; }
-.block-cell { background: #FFF5F5; }
-.block-cell.apr { background: #FFE4E4; }
+.hm-cell.apr {
+    background: #F0F6FF;
+}
 
-/* Work items in cells */
+.ship-cell .it { color: #1B7A3D; }
+.prog-cell .it { color: #0078D4; }
+.carry-cell .it { color: #E65100; }
+.block-cell .it { color: #C62828; font-weight: 600; }
+
 .it {
-    font-size: 12px;
-    color: #333;
-    padding: 2px 0 2px 12px;
-    line-height: 1.35;
-    position: relative;
-}
-.it::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 7px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-.ship-it::before { background: #34A853; }
-.prog-it::before { background: #0078D4; }
-.carry-it::before { background: #F4B400; }
-.block-it::before { background: #EA4335; }
-
-/* ===== Error Panel ===== */
-.error-panel {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 1920px;
-    height: 1080px;
-    background: #fff;
-    font-family: 'Segoe UI', Arial, sans-serif;
-}
-.error-panel-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    max-width: 600px;
-    text-align: center;
-}
-.error-icon {
-    font-size: 48px;
-    color: #EA4335;
-}
-.error-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #333;
-}
-.error-details {
-    font-size: 14px;
-    color: #666;
-    font-family: 'Cascadia Code', 'Consolas', monospace;
-    word-break: break-word;
-}
-.error-help {
-    font-size: 12px;
-    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

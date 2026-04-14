@@ -3,32 +3,37 @@ using Microsoft.Playwright;
 namespace ReportingDashboard.UITests.PageObjects;
 
 /// <summary>
-/// Page Object for the error state when data.json cannot be loaded.
+/// Page Object for the error state view.
+/// Displayed when data.json is missing, malformed, or fails validation.
 /// </summary>
 public class ErrorPage
 {
     private readonly IPage _page;
+    private readonly string _baseUrl;
 
-    public ErrorPage(IPage page)
+    public ErrorPage(IPage page, string baseUrl)
     {
         _page = page;
+        _baseUrl = baseUrl.TrimEnd('/');
     }
 
-    // Error panel selectors
+    public async Task<IResponse?> NavigateAsync()
+    {
+        return await _page.GotoAsync(_baseUrl, new PageGotoOptions
+        {
+            WaitUntil = WaitUntilState.NetworkIdle
+        });
+    }
+
     public ILocator ErrorPanel => _page.Locator(".error-panel");
     public ILocator ErrorIcon => _page.Locator(".error-icon");
     public ILocator ErrorTitle => _page.Locator(".error-title");
     public ILocator ErrorDetails => _page.Locator(".error-details");
     public ILocator ErrorHelp => _page.Locator(".error-help");
 
-    public async Task<bool> IsDisplayedAsync()
+    public async Task<bool> IsErrorPanelVisibleAsync()
     {
         return await ErrorPanel.IsVisibleAsync();
-    }
-
-    public async Task<string> GetErrorTitleAsync()
-    {
-        return await ErrorTitle.TextContentAsync() ?? string.Empty;
     }
 
     public async Task<string> GetErrorMessageAsync()
@@ -36,19 +41,13 @@ public class ErrorPage
         return await ErrorDetails.TextContentAsync() ?? string.Empty;
     }
 
-    public async Task<string> GetHelpTextAsync()
+    public async Task<string> GetErrorHelpAsync()
     {
         return await ErrorHelp.TextContentAsync() ?? string.Empty;
     }
 
-    public async Task AssertErrorStateAsync()
+    public async Task<string> GetErrorTitleAsync()
     {
-        var isVisible = await IsDisplayedAsync();
-        if (!isVisible)
-            throw new InvalidOperationException("Error panel is not visible");
-
-        var title = await GetErrorTitleAsync();
-        if (!title.Contains("could not be loaded"))
-            throw new InvalidOperationException($"Unexpected error title: {title}");
+        return await ErrorTitle.TextContentAsync() ?? string.Empty;
     }
 }

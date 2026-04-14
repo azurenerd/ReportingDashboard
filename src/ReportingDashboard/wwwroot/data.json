@@ -1,70 +1,77 @@
 {
-  "title": "Privacy Automation Release Roadmap",
-  "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
-  "backlogLink": "https://dev.azure.com/org/project/_backlogs",
-  "currentMonth": "Apr",
-  "months": ["Jan", "Feb", "Mar", "Apr"],
-  "timeline": {
-    "startDate": "2026-01-01",
-    "endDate": "2026-06-30",
-    "nowDate": "2026-04-10",
-    "tracks": [
-      {
-        "name": "M1",
-        "label": "Chatbot & MS Role",
-        "color": "#0078D4",
-        "milestones": [
-          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
-          { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
-          { "date": "2026-05-01", "type": "production", "label": "May Prod" }
+    "title": "Privacy Automation Release Roadmap",
+    "subtitle": "Trusted Platform · Privacy Automation · April 2026",
+    "backlogLink": "https://dev.azure.com/org/project/_backlogs",
+    "currentMonth": "Apr",
+    "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "timeline": {
+        "startDate": "2026-01-01",
+        "endDate": "2026-06-30",
+        "nowDate": "2026-04-10",
+        "tracks": [
+            {
+                "name": "M1",
+                "label": "Chatbot & MS Role",
+                "color": "#0078D4",
+                "milestones": [
+                    { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
+                    { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
+                    { "date": "2026-05-01", "type": "production", "label": "May Prod" }
+                ]
+            },
+            {
+                "name": "M2",
+                "label": "Compliance Engine",
+                "color": "#00897B",
+                "milestones": [
+                    { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
+                    { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC" },
+                    { "date": "2026-06-01", "type": "production", "label": "Jun Prod" }
+                ]
+            },
+            {
+                "name": "M3",
+                "label": "DSR Automation",
+                "color": "#7B1FA2",
+                "milestones": [
+                    { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
+                    { "date": "2026-05-15", "type": "poc", "label": "May 15 PoC" }
+                ]
+            }
         ]
-      },
-      {
-        "name": "M2",
-        "label": "Privacy Review Automation",
-        "color": "#00897B",
-        "milestones": [
-          { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
-          { "date": "2026-04-10", "type": "poc", "label": "Apr 10 PoC" },
-          { "date": "2026-06-01", "type": "production", "label": "Jun Prod" }
-        ]
-      },
-      {
-        "name": "M3",
-        "label": "Compliance Dashboard",
-        "color": "#546E7A",
-        "milestones": [
-          { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
-          { "date": "2026-05-15", "type": "poc", "label": "May 15 PoC" },
-          { "date": "2026-06-30", "type": "production", "label": "Jun 30 Prod" }
-        ]
-      }
-    ]
-  },
-  "heatmap": {
-    "shipped": {
-      "jan": ["DSAR intake form", "Consent API v1"],
-      "feb": ["Bot scaffolding"],
-      "mar": ["MS Graph connector", "Privacy classifier v2"],
-      "apr": ["Auto-redaction pipeline"]
     },
-    "inProgress": {
-      "jan": [],
-      "feb": [],
-      "mar": ["Review queue UI"],
-      "apr": ["PII scanner integration", "Admin portal MVP"]
-    },
-    "carryover": {
-      "jan": [],
-      "feb": [],
-      "mar": [],
-      "apr": ["Legacy data migration"]
-    },
-    "blockers": {
-      "jan": [],
-      "feb": [],
-      "mar": [],
-      "apr": ["Awaiting Legal sign-off"]
+    "heatmap": {
+        "shipped": {
+            "jan": ["DSR v2 API endpoint", "Consent signal ingestion"],
+            "feb": ["Chatbot classifier v1", "Subject lookup perf fix"],
+            "mar": ["MS Graph sync pipeline", "Role hierarchy builder"],
+            "apr": ["Auto-classification v1"],
+            "may": [],
+            "jun": []
+        },
+        "inProgress": {
+            "jan": [],
+            "feb": [],
+            "mar": ["Dashboard wireframes", "Compliance rule engine schema"],
+            "apr": ["Chatbot hardening", "Dashboard build", "Audit trail v2"],
+            "may": [],
+            "jun": []
+        },
+        "carryover": {
+            "jan": [],
+            "feb": [],
+            "mar": [],
+            "apr": ["Audit log perf fix"],
+            "may": [],
+            "jun": []
+        },
+        "blockers": {
+            "jan": [],
+            "feb": [],
+            "mar": ["Graph API throttling"],
+            "apr": ["Legal review pending"],
+            "may": [],
+            "jun": []
+        }
     }
-  }
 }
