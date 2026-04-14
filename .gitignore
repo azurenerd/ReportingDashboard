@@ -6,7 +6,7 @@ publish/
 ## User secrets
 appsettings.Development.json
 
-## Dashboard data (may contain real project data)
+# Real project data (use data.template.json as starting point)
 ReportingDashboard/data.json
 
 ## IDE and editor files
