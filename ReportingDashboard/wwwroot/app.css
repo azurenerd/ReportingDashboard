@@ -1,4 +1,5 @@
 :root {
+    /* Status colors */
     --shipped-color: #34A853;
     --shipped-bg: #F0FBF0;
     --shipped-bg-current: #D8F2DA;
@@ -23,11 +24,13 @@
     --blockers-hdr-bg: #FEF2F2;
     --blockers-hdr-text: #991B1B;
 
+    /* Milestone markers */
     --poc-color: #F4B400;
     --production-color: #34A853;
     --checkpoint-color: #999;
     --now-color: #EA4335;
 
+    /* Layout */
     --current-month-hdr-bg: #FFF0D0;
     --current-month-hdr-text: #C07700;
     --border-color: #E0E0E0;
@@ -47,11 +50,14 @@ html, body {
     font-family: 'Segoe UI', Arial, sans-serif;
     color: #111;
     background: #FFFFFF;
+}
+
+body {
     display: flex;
     flex-direction: column;
 }
 
-/* Header */
+/* ── Header ── */
 .hdr {
     display: flex;
     align-items: center;
@@ -61,22 +67,27 @@ html, body {
     flex-shrink: 0;
 }
 
+.hdr-left {
+    display: flex;
+    flex-direction: column;
+}
+
 .hdr-title {
     font-size: 24px;
     font-weight: 700;
-    margin: 0;
-    line-height: 1.2;
+    line-height: 1.3;
+    color: #111;
 }
 
-.hdr-link {
+.hdr-backlog-link {
     font-size: 14px;
     font-weight: 400;
     color: #0078D4;
     text-decoration: none;
-    margin-left: 12px;
+    margin-left: 16px;
 }
 
-.hdr-link:hover {
+.hdr-backlog-link:hover {
     text-decoration: underline;
 }
 
@@ -86,7 +97,8 @@ html, body {
     margin-top: 2px;
 }
 
-.legend {
+/* ── Legend ── */
+.hdr-legend {
     display: flex;
     align-items: center;
     gap: 22px;
@@ -100,29 +112,44 @@ html, body {
     color: #555;
 }
 
+.legend-label {
+    white-space: nowrap;
+}
+
 .legend-diamond {
+    display: inline-block;
     width: 12px;
     height: 12px;
     transform: rotate(45deg);
     flex-shrink: 0;
 }
 
+.legend-diamond--poc {
+    background: var(--poc-color);
+}
+
+.legend-diamond--prod {
+    background: var(--production-color);
+}
+
 .legend-circle {
+    display: inline-block;
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #999;
+    background: var(--checkpoint-color);
     flex-shrink: 0;
 }
 
 .legend-now-bar {
+    display: inline-block;
     width: 2px;
     height: 14px;
-    background: #EA4335;
+    background: var(--now-color);
     flex-shrink: 0;
 }
 
-/* Timeline */
+/* ── Timeline Area ── */
 .tl-area {
     display: flex;
     align-items: stretch;
@@ -146,8 +173,15 @@ html, body {
 .tl-track-label {
     font-size: 12px;
     line-height: 1.4;
-    display: flex;
-    flex-direction: column;
+}
+
+.tl-track-id {
+    font-weight: 600;
+}
+
+.tl-track-name {
+    font-weight: 400;
+    color: #444;
 }
 
 .tl-svg-box {
@@ -156,7 +190,7 @@ html, body {
     padding-top: 6px;
 }
 
-/* Heatmap */
+/* ── Heatmap ── */
 .hm-wrap {
     flex: 1;
     min-height: 0;
@@ -176,32 +210,31 @@ html, body {
 
 .hm-grid {
     display: grid;
-    grid-template-rows: 36px repeat(4, 1fr);
     border: 1px solid var(--border-color);
     flex: 1;
     min-height: 0;
 }
 
 .hm-corner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: #F5F5F5;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     color: #999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     border-right: 1px solid var(--border-color);
     border-bottom: 2px solid var(--border-heavy);
 }
 
 .hm-col-hdr {
-    background: #F5F5F5;
-    font-size: 16px;
-    font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: #F5F5F5;
+    font-size: 16px;
+    font-weight: 700;
     border-right: 1px solid var(--border-color);
     border-bottom: 2px solid var(--border-heavy);
 }
@@ -211,14 +244,13 @@ html, body {
     color: var(--current-month-hdr-text);
 }
 
-/* Row headers */
 .hm-row-hdr {
+    display: flex;
+    align-items: center;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.7px;
-    display: flex;
-    align-items: center;
     padding: 0 12px;
     border-right: 2px solid var(--border-heavy);
     border-bottom: 1px solid var(--border-color);
@@ -229,7 +261,6 @@ html, body {
 .carry-hdr { background: var(--carryover-hdr-bg); color: var(--carryover-hdr-text); }
 .block-hdr { background: var(--blockers-hdr-bg); color: var(--blockers-hdr-text); }
 
-/* Data cells */
 .hm-cell {
     padding: 8px 12px;
     border-right: 1px solid var(--border-color);
@@ -247,13 +278,12 @@ html, body {
 .carry-cell.apr { background: var(--carryover-bg-current); }
 .block-cell.apr { background: var(--blockers-bg-current); }
 
-/* Items */
 .it {
+    position: relative;
     font-size: 12px;
     color: #333;
     padding: 2px 0 2px 12px;
     line-height: 1.35;
-    position: relative;
 }
 
 .it::before {
@@ -271,12 +301,23 @@ html, body {
 .carry-cell .it::before { background: var(--carryover-color); }
 .block-cell .it::before { background: var(--blockers-color); }
 
-/* Error display */
+.empty-cell {
+    color: #AAA;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+/* ── Error Display ── */
 .error-display {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 1920px;
     height: 1080px;
     font-family: 'Segoe UI', Arial, sans-serif;
+    text-align: center;
+    color: #991B1B;
 }

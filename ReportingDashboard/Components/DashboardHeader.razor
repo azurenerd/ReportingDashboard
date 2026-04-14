@@ -1,37 +1,51 @@
-@namespace ReportingDashboard.Components
 @using ReportingDashboard.Models
 
 <div class="hdr">
-    <div>
+    <div class="hdr-left">
         <h1 class="hdr-title">
             @Data.Title
             @if (!string.IsNullOrEmpty(Data.BacklogUrl))
             {
-                <a href="@Data.BacklogUrl" target="_blank" class="hdr-link">📋 ADO Backlog</a>
+                <a href="@Data.BacklogUrl" target="_blank" rel="noopener noreferrer" class="hdr-backlog-link">📋 ADO Backlog</a>
             }
         </h1>
         <div class="sub">@Data.Subtitle</div>
     </div>
-    <div class="legend">
+    <div class="hdr-legend">
         <div class="legend-item">
-            <span class="legend-diamond" style="background:#F4B400;"></span>
-            <span>PoC Milestone</span>
+            <span class="legend-diamond legend-diamond--poc"></span>
+            <span class="legend-label">PoC Milestone</span>
         </div>
         <div class="legend-item">
-            <span class="legend-diamond" style="background:#34A853;"></span>
-            <span>Production Release</span>
+            <span class="legend-diamond legend-diamond--prod"></span>
+            <span class="legend-label">Production Release</span>
         </div>
         <div class="legend-item">
             <span class="legend-circle"></span>
-            <span>Checkpoint</span>
+            <span class="legend-label">Checkpoint</span>
         </div>
         <div class="legend-item">
             <span class="legend-now-bar"></span>
-            <span>Now</span>
+            <span class="legend-label">Now@(CurrentDateDisplay)</span>
         </div>
     </div>
 </div>
 
 @code {
-    [Parameter] public DashboardData Data { get; set; } = default!;
+    [Parameter]
+    public DashboardData Data { get; set; } = default!;
+
+    private string CurrentDateDisplay
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(Data.CurrentDate))
+                return string.Empty;
+
+            if (DateOnly.TryParse(Data.CurrentDate, out var date))
+                return $" ({date:MMM d})";
+
+            return string.Empty;
+        }
+    }
 }
