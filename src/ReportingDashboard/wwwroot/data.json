@@ -1,10 +1,9 @@
 {
   "schemaVersion": 1,
   "title": "Project Atlas Release Roadmap",
-  "subtitle": "Platform Engineering · Atlas Workstream · April 2026",
-  "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
+  "subtitle": "Platform Engineering \u2013 Atlas Workstream \u2013 April 2026",
+  "backlogUrl": "https://dev.azure.com/contoso/Atlas/_backlogs",
   "nowDateOverride": null,
-  "currentMonthOverride": null,
   "timeline": {
     "startDate": "2026-01-01",
     "endDate": "2026-07-01",
@@ -15,32 +14,34 @@
         "color": "#0078D4",
         "milestones": [
           { "label": "Jan 12", "date": "2026-01-12", "type": "start" },
-          { "label": "Feb 10", "date": "2026-02-10", "type": "checkpoint" },
+          { "label": "Feb 15", "date": "2026-02-15", "type": "checkpoint", "labelPosition": "below" },
           { "label": "Mar 26 PoC", "date": "2026-03-26", "type": "poc" },
           { "label": "Apr 20", "date": "2026-04-20", "type": "checkpoint" },
-          { "label": "May Prod", "date": "2026-05-15", "type": "production" }
+          { "label": "May 28 Prod", "date": "2026-05-28", "type": "production" }
         ]
       },
       {
         "id": "M2",
-        "name": "Data Pipeline v2",
+        "name": "PDS & Data Inventory",
         "color": "#00897B",
         "milestones": [
           { "label": "Jan 20", "date": "2026-01-20", "type": "start" },
-          { "label": "Mar 1 PoC", "date": "2026-03-01", "type": "poc" },
-          { "label": "Apr 15", "date": "2026-04-15", "type": "checkpoint" },
-          { "label": "Jun Prod", "date": "2026-06-01", "type": "production" }
+          { "label": "Feb 28", "date": "2026-02-28", "type": "checkpoint", "labelPosition": "below" },
+          { "label": "Apr 10 PoC", "date": "2026-04-10", "type": "poc" },
+          { "label": "May 5", "date": "2026-05-05", "type": "checkpoint" },
+          { "label": "Jun 15 Prod", "date": "2026-06-15", "type": "production" }
         ]
       },
       {
         "id": "M3",
-        "name": "Auth & Compliance",
+        "name": "Auto Review DFD",
         "color": "#546E7A",
         "milestones": [
-          { "label": "Feb 1", "date": "2026-02-01", "type": "start" },
-          { "label": "Mar 15", "date": "2026-03-15", "type": "checkpoint" },
-          { "label": "Apr 30 PoC", "date": "2026-04-30", "type": "poc" },
-          { "label": "Jun 15 Prod", "date": "2026-06-15", "type": "production" }
+          { "label": "Feb 3", "date": "2026-02-03", "type": "start" },
+          { "label": "Mar 10", "date": "2026-03-10", "type": "checkpoint", "labelPosition": "below" },
+          { "label": "Apr 18 PoC", "date": "2026-04-18", "type": "poc" },
+          { "label": "May 12", "date": "2026-05-12", "type": "checkpoint" },
+          { "label": "Jun 22 Prod", "date": "2026-06-22", "type": "production" }
         ]
       }
     ]
@@ -50,46 +51,46 @@
     "categories": [
       {
         "name": "Shipped",
-        "emoji": "✅",
+        "emoji": "\u2705",
         "cssClass": "ship",
         "months": [
           { "month": "Jan", "items": ["Auth module v2", "Config migration tool"] },
-          { "month": "Feb", "items": ["API gateway", "Logging framework"] },
-          { "month": "Mar", "items": ["Search indexer", "Cache layer v3"] },
-          { "month": "Apr", "items": ["Dashboard MVP", "Data export API"] }
+          { "month": "Feb", "items": ["API gateway routing", "Telemetry pipeline"] },
+          { "month": "Mar", "items": ["Role-based access MVP", "Data catalog indexer", "PDS schema v1"] },
+          { "month": "Apr", "items": ["Chatbot intent engine"] }
         ]
       },
       {
         "name": "In Progress",
-        "emoji": "🔄",
+        "emoji": "\ud83d\udd35",
         "cssClass": "prog",
         "months": [
-          { "month": "Jan", "items": ["Chatbot PoC", "Pipeline refactor"] },
-          { "month": "Feb", "items": ["MS Role integration", "Schema migration"] },
-          { "month": "Mar", "items": ["Compliance audit prep", "Load testing"] },
-          { "month": "Apr", "items": ["Prod deployment M1", "Perf optimization"] }
+          { "month": "Jan", "items": ["Chatbot NLU training", "PDS connector framework"] },
+          { "month": "Feb", "items": ["MS Role integration"] },
+          { "month": "Mar", "items": ["Auto Review rule engine"] },
+          { "month": "Apr", "items": ["DFD generator", "Data lineage mapper", "Review approval flow", "Compliance audit tracker"] }
         ]
       },
       {
         "name": "Carryover",
-        "emoji": "🔁",
+        "emoji": "\ud83d\udfe1",
         "cssClass": "carry",
         "months": [
           { "month": "Jan", "items": [] },
-          { "month": "Feb", "items": ["Legacy API sunset"] },
-          { "month": "Mar", "items": ["Legacy API sunset", "Docs update"] },
-          { "month": "Apr", "items": ["Docs update"] }
+          { "month": "Feb", "items": ["Legacy migration script"] },
+          { "month": "Mar", "items": ["Legacy migration script", "SSO token refresh"] },
+          { "month": "Apr", "items": ["SSO token refresh"] }
         ]
       },
       {
         "name": "Blockers",
-        "emoji": "🚫",
+        "emoji": "\ud83d\udd34",
         "cssClass": "block",
         "months": [
-          { "month": "Jan", "items": ["Vendor SDK delay"] },
-          { "month": "Feb", "items": [] },
-          { "month": "Mar", "items": ["Security review pending"] },
-          { "month": "Apr", "items": ["Infra quota approval"] }
+          { "month": "Jan", "items": [] },
+          { "month": "Feb", "items": ["API rate limit investigation"] },
+          { "month": "Mar", "items": ["Waiting on InfoSec review"] },
+          { "month": "Apr", "items": ["AAD tenant config pending", "Prod subscription quota"] }
         ]
       }
     ]
