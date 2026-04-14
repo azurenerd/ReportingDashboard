@@ -1,31 +1,45 @@
-## .NET build output
+## .NET / Visual Studio
 bin/
 obj/
-publish/
-
-## User secrets
-appsettings.Development.json
-
-# Real project data (use data.template.json as starting point)
-ReportingDashboard/data.json
-
-## IDE and editor files
-.vs/
-.vscode/
 *.user
 *.suo
+*.userosscache
 *.sln.docstates
-
-## OS files
-Thumbs.db
-.DS_Store
-
-## NuGet
-*.nupkg
-packages/
+.vs/
+*.userprefs
 
 ## Build results
 [Dd]ebug/
 [Rr]elease/
 x64/
 x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+## Rider / JetBrains
+.idea/
+*.sln.iml
+
+## OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+## User-specific data files (may contain real project names)
+ReportingDashboard/data.json
+
+## Keep the template file committed
+!ReportingDashboard/data.template.json

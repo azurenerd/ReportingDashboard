@@ -1,28 +1,24 @@
 # Executive Reporting Dashboard
 
-A single-page Blazor Server (.NET 8) dashboard that renders a pixel-perfect 1920×1080 project roadmap visualization — optimized for PowerPoint screenshot capture. All content is driven by a single `data.json` configuration file. No authentication, no database, no external dependencies.
+A single-page Blazor Server (.NET 8) dashboard that visualizes project milestones, delivery status, and monthly execution progress. Optimized for 1920×1080 PowerPoint screenshots.
 
-![.NET 8](https://img.shields.io/badge/.NET-8.0-blue)
-![Blazor Server](https://img.shields.io/badge/Blazor-Server-purple)
-![Local Only](https://img.shields.io/badge/Hosting-Localhost-green)
+![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4) ![Blazor Server](https://img.shields.io/badge/Blazor-Server-512BD4) ![Local Only](https://img.shields.io/badge/Cloud-None-green)
 
----
+## Overview
 
-## Features
+This tool generates a screenshot-ready project roadmap dashboard from a single `data.json` configuration file. It eliminates manual PowerPoint slide construction by rendering a pixel-perfect view directly in the browser.
 
-- **Fixed 1920×1080 layout** — screenshot-ready for 16:9 PowerPoint slides
-- **SVG milestone timeline** — configurable tracks (1–5) with PoC, Production, and Checkpoint markers
-- **Execution heatmap** — color-coded grid showing Shipped, In Progress, Carryover, and Blockers by month
-- **Single data source** — edit `data.json`, refresh the browser, done
-- **Zero dependencies** — no NuGet packages beyond the default Blazor Server template
-- **Graceful error handling** — malformed JSON displays a friendly error instead of crashing
-
----
+**Key features:**
+- 📊 SVG milestone timeline with configurable tracks and date markers
+- 🗓️ Color-coded monthly execution heatmap (Shipped / In Progress / Carryover / Blockers)
+- 🎯 Fixed 1920×1080 layout — screenshot and paste directly into PowerPoint
+- ⚡ Update `data.json`, refresh browser, done in seconds
+- 🔒 Runs entirely on localhost — zero cloud, zero auth, zero database
 
 ## Prerequisites
 
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (any 8.0.x patch version)
 - A Chromium-based browser (Chrome 120+ or Edge 120+)
-- Windows 10/11 recommended (Segoe UI font availability)
+- Windows 10/11 recommended (for Segoe UI font rendering)
 
-Verify your .NET SDK installation:
+Verify your SDK installation:
