@@ -1,0 +1,255 @@
+@page "/"
+@inject DashboardDataService DataService
+
+@if (errorMessage is not null)
+{
+    <div class="error-banner">
+        <strong>⚠</strong> @errorMessage
+    </div>
+}
+else if (dashboardData is not null)
+{
+    <!-- Section 1: Header Bar -->
+    <div class="hdr">
+        <div class="hdr-left">
+            <h1>
+                @dashboardData.Title
+                @if (!string.IsNullOrEmpty(dashboardData.BacklogUrl))
+                {
+                    <a href="@dashboardData.BacklogUrl" target="_blank"> ↗ ADO Backlog</a>
+                }
+            </h1>
+            @if (!string.IsNullOrEmpty(dashboardData.Subtitle))
+            {
+                <div class="sub">@dashboardData.Subtitle</div>
+            }
+        </div>
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-diamond legend-poc"></span>
+                <span>PoC Milestone</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-diamond legend-prod"></span>
+                <span>Production Release</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-circle"></span>
+                <span>Checkpoint</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-line"></span>
+                <span>Now (@dashboardData.CurrentDate.ToString("MMM yyyy"))</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Timeline Area -->
+    <div class="tl-area">
+        <div class="tl-sidebar">
+            @foreach (var track in dashboardData.MilestoneTracks)
+            {
+                <div class="tl-track-label">
+                    <strong style="color:@track.Color;font-size:12px;">@track.Name</strong>
+                    @if (!string.IsNullOrEmpty(track.Description))
+                    {
+                        <div style="font-size:12px;color:#444;">@track.Description</div>
+                    }
+                </div>
+            }
+        </div>
+        <div class="tl-svg-box">
+            @RenderTimeline()
+        </div>
+    </div>
+
+    <!-- Section 3: Heatmap -->
+    <div class="hm-wrap">
+        <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+        <div class="hm-grid" style="grid-template-columns:160px repeat(@dashboardData.Months.Length, 1fr);">
+            <div class="hm-corner">STATUS</div>
+            @for (int mi = 0; mi < dashboardData.Months.Length; mi++)
+            {
+                var isCur = mi == dashboardData.CurrentMonthIndex;
+                <div class="hm-col-hdr @(isCur ? "current-month" : "")">
+                    @dashboardData.Months[mi]@(isCur ? " ★ Now" : "")
+                </div>
+            }
+
+            @foreach (var rowDef in GetHeatmapRows())
+            {
+                <div class="hm-row-hdr @rowDef.HdrCls">@rowDef.Label (@rowDef.Row.TotalItemCount)</div>
+                @for (int mi = 0; mi < dashboardData.Months.Length; mi++)
+                {
+                    var month = dashboardData.Months[mi];
+                    var isCur = mi == dashboardData.CurrentMonthIndex;
+                    var items = rowDef.Row.GetItems(month);
+                    <div class="hm-cell @rowDef.CellCls @(isCur ? "current-month" : "")">
+                        @if (items.Length == 0)
+                        {
+                            <span style="color:#AAA">-</span>
+                        }
+                        else
+                        {
+                            @foreach (var item in items)
+                            {
+                                <div class="it">@item</div>
+                            }
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery(Name = "data")]
+    public string? DataFile { get; set; }
+
+    private DashboardData? dashboardData;
+    private string? errorMessage;
+
+    private const double SvgWidth = 1560.0;
+    private const double SvgHeight = 185.0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var filename = DataFile ?? "data.json";
+        (dashboardData, errorMessage) = await DataService.LoadAsync(filename);
+    }
+
+    private static string F(double v) =>
+        v.ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
+
+    private double DateToX(DateOnly date)
+    {
+        var start = dashboardData!.EffectiveTimelineStart;
+        var end = dashboardData!.EffectiveTimelineEnd;
+        var totalDays = end.DayNumber - start.DayNumber;
+        if (totalDays <= 0) return 0;
+        var elapsed = date.DayNumber - start.DayNumber;
+        return Math.Clamp((elapsed / (double)totalDays) * SvgWidth, 0, SvgWidth);
+    }
+
+    private string DiamondPoints(double cx, double cy, double r = 11)
+    {
+        return $"{F(cx)},{F(cy - r)} {F(cx + r)},{F(cy)} {F(cx)},{F(cy + r)} {F(cx - r)},{F(cy)}";
+    }
+
+    private MarkupString RenderTimeline()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append("<svg width=\"1560\" height=\"185\" style=\"overflow:visible\" xmlns=\"http://www.w3.org/2000/svg\">");
+        sb.Append("<defs><filter id=\"sh\"><feDropShadow dx=\"0\" dy=\"1\" stdDeviation=\"1.5\" flood-opacity=\"0.3\" /></filter></defs>");
+
+        // Month grid lines
+        var start = dashboardData!.EffectiveTimelineStart;
+        var end = dashboardData!.EffectiveTimelineEnd;
+        var current = new DateOnly(start.Year, start.Month, 1);
+        while (current <= end)
+        {
+            var x = DateToX(current);
+            var label = System.Net.WebUtility.HtmlEncode(current.ToString("MMM"));
+            sb.Append($"<line x1=\"{F(x)}\" y1=\"0\" x2=\"{F(x)}\" y2=\"185\" stroke=\"#bbb\" stroke-opacity=\"0.4\" stroke-width=\"1\" />");
+            sb.Append($"<text x=\"{F(x + 5)}\" y=\"14\" fill=\"#666\" font-size=\"11\" font-weight=\"600\">{label}</text>");
+            current = current.AddMonths(1);
+        }
+
+        // NOW indicator
+        var nowX = DateToX(dashboardData.CurrentDate);
+        sb.Append($"<line x1=\"{F(nowX)}\" y1=\"0\" x2=\"{F(nowX)}\" y2=\"185\" stroke=\"#EA4335\" stroke-width=\"2\" stroke-dasharray=\"5,3\" />");
+        sb.Append($"<text x=\"{F(nowX)}\" y=\"-2\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\" text-anchor=\"middle\">NOW</text>");
+
+        // Track lines and events
+        var tracks = dashboardData.MilestoneTracks;
+        if (tracks.Length > 0)
+        {
+            var spacing = SvgHeight / (tracks.Length + 1);
+            for (int ti = 0; ti < tracks.Length; ti++)
+            {
+                var track = tracks[ti];
+                var trackY = spacing * (ti + 1);
+                sb.Append($"<line x1=\"0\" y1=\"{F(trackY)}\" x2=\"1560\" y2=\"{F(trackY)}\" stroke=\"{track.Color}\" stroke-width=\"3\" />");
+
+                for (int ei = 0; ei < track.Events.Length; ei++)
+                {
+                    var evt = track.Events[ei];
+                    var evtX = DateToX(evt.Date);
+                    var labelY = ei % 2 == 0 ? trackY - 16 : trackY + 24;
+                    var evtLabel = System.Net.WebUtility.HtmlEncode(evt.Label);
+
+                    if (evt.Type == "checkpoint")
+                    {
+                        sb.Append($"<circle cx=\"{F(evtX)}\" cy=\"{F(trackY)}\" r=\"7\" fill=\"white\" stroke=\"{track.Color}\" stroke-width=\"2.5\" />");
+                    }
+                    else if (evt.Type == "checkpoint-small")
+                    {
+                        sb.Append($"<circle cx=\"{F(evtX)}\" cy=\"{F(trackY)}\" r=\"4\" fill=\"#999\" />");
+                    }
+                    else if (evt.Type == "poc")
+                    {
+                        sb.Append($"<polygon points=\"{DiamondPoints(evtX, trackY)}\" fill=\"#F4B400\" filter=\"url(#sh)\" />");
+                    }
+                    else if (evt.Type == "production")
+                    {
+                        sb.Append($"<polygon points=\"{DiamondPoints(evtX, trackY)}\" fill=\"#34A853\" filter=\"url(#sh)\" />");
+                    }
+                    else
+                    {
+                        sb.Append($"<circle cx=\"{F(evtX)}\" cy=\"{F(trackY)}\" r=\"4\" fill=\"#999\" />");
+                    }
+
+                    sb.Append($"<text x=\"{F(evtX)}\" y=\"{F(labelY)}\" text-anchor=\"middle\" fill=\"#666\" font-size=\"10\">{evtLabel}</text>");
+                }
+            }
+        }
+
+        sb.Append("</svg>");
+        return new MarkupString(sb.ToString());
+    }
+
+    private record MonthGridPos(string Label, double X);
+
+    private List<MonthGridPos> GetMonthGridPositions()
+    {
+        var result = new List<MonthGridPos>();
+        var start = dashboardData!.EffectiveTimelineStart;
+        var end = dashboardData!.EffectiveTimelineEnd;
+        var current = new DateOnly(start.Year, start.Month, 1);
+        while (current <= end)
+        {
+            result.Add(new MonthGridPos(current.ToString("MMM"), DateToX(current)));
+            current = current.AddMonths(1);
+        }
+        return result;
+    }
+
+    private record TrackPos(MilestoneTrack Track, double Y);
+
+    private List<TrackPos> GetTrackPositions()
+    {
+        var result = new List<TrackPos>();
+        var tracks = dashboardData!.MilestoneTracks;
+        if (tracks.Length == 0) return result;
+        var spacing = SvgHeight / (tracks.Length + 1);
+        for (int i = 0; i < tracks.Length; i++)
+        {
+            result.Add(new TrackPos(tracks[i], spacing * (i + 1)));
+        }
+        return result;
+    }
+
+    private record HeatmapRowDef(string Label, HeatmapRow Row, string HdrCls, string CellCls);
+
+    private HeatmapRowDef[] GetHeatmapRows()
+    {
+        return new HeatmapRowDef[]
+        {
+            new("✅ SHIPPED", dashboardData!.Heatmap.Shipped, "ship-hdr", "ship-cell"),
+            new("🔄 IN PROGRESS", dashboardData!.Heatmap.InProgress, "prog-hdr", "prog-cell"),
+            new("⏳ CARRYOVER", dashboardData!.Heatmap.Carryover, "carry-hdr", "carry-cell"),
+            new("🚫 BLOCKERS", dashboardData!.Heatmap.Blockers, "block-hdr", "block-cell"),
+        };
+    }
+}
