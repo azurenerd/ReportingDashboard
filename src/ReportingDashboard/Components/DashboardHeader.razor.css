@@ -3,28 +3,28 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 44px 10px;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid #E0E0E0;
     flex-shrink: 0;
 }
 
 .hdr-left h1 {
     font-size: 24px;
     font-weight: 700;
-    color: var(--color-text);
+    color: #111;
     margin: 0;
 }
 
 .hdr-left h1 a {
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--color-link);
+    color: #0078D4;
     text-decoration: none;
+    font-size: 16px;
+    font-weight: 400;
     margin-left: 12px;
 }
 
 .sub {
     font-size: 12px;
-    color: var(--color-text-muted);
+    color: #888;
     margin-top: 2px;
 }
 
@@ -32,11 +32,10 @@
     display: flex;
     gap: 22px;
     font-size: 12px;
-    color: var(--color-text-secondary);
     align-items: center;
 }
 
-.legend-item {
+.leg-item {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -47,7 +46,6 @@
     height: 12px;
     transform: rotate(45deg);
     display: inline-block;
-    flex-shrink: 0;
 }
 
 .poc-diamond {
@@ -58,19 +56,23 @@
     background: #34A853;
 }
 
-.checkpoint-circle {
+.dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #999;
     display: inline-block;
-    flex-shrink: 0;
+}
+
+.checkpoint-dot {
+    background: #999;
+}
+
+.bar {
+    width: 2px;
+    height: 14px;
+    display: inline-block;
 }
 
 .now-bar {
-    width: 2px;
-    height: 14px;
     background: #EA4335;
-    display: inline-block;
-    flex-shrink: 0;
 }

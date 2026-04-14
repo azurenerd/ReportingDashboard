@@ -1,36 +1,57 @@
-.ship-cell,
-.prog-cell,
-.carry-cell,
-.block-cell,
 .cell {
     padding: 8px 12px;
-    border-right: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
     overflow: hidden;
 }
 
-.ship-cell { background: var(--color-shipped-bg); }
-.ship-cell.current { background: var(--color-shipped-bg-current); }
+/* Shipped category */
+.cell.shipped {
+    background: #F0FBF0;
+}
 
-.prog-cell { background: var(--color-progress-bg); }
-.prog-cell.current { background: var(--color-progress-bg-current); }
+.cell.shipped.current {
+    background: #D8F2DA;
+}
 
-.carry-cell { background: var(--color-carryover-bg); }
-.carry-cell.current { background: var(--color-carryover-bg-current); }
+/* In Progress category */
+.cell.inProgress {
+    background: #EEF4FE;
+}
 
-.block-cell { background: var(--color-blockers-bg); }
-.block-cell.current { background: var(--color-blockers-bg-current); }
+.cell.inProgress.current {
+    background: #DAE8FB;
+}
 
+/* Carryover category */
+.cell.carryover {
+    background: #FFFDE7;
+}
+
+.cell.carryover.current {
+    background: #FFF0B0;
+}
+
+/* Blockers category */
+.cell.blockers {
+    background: #FFF5F5;
+}
+
+.cell.blockers.current {
+    background: #FFE4E4;
+}
+
+/* Item text with bullet dot */
 .it {
+    position: relative;
     font-size: 12px;
-    color: var(--color-text-item);
+    color: #333;
     padding: 2px 0 2px 12px;
     line-height: 1.35;
-    position: relative;
 }
 
 .it::before {
-    content: '';
+    content: "";
     position: absolute;
     left: 0;
     top: 7px;
@@ -39,13 +60,25 @@
     border-radius: 50%;
 }
 
-.dot-shipped::before { background: var(--color-shipped); }
-.dot-progress::before { background: var(--color-progress); }
-.dot-carryover::before { background: var(--color-carryover); }
-.dot-blockers::before { background: var(--color-blockers); }
+/* Bullet dot colors per category */
+.cell.shipped .it::before {
+    background: #34A853;
+}
 
+.cell.inProgress .it::before {
+    background: #0078D4;
+}
+
+.cell.carryover .it::before {
+    background: #F4B400;
+}
+
+.cell.blockers .it::before {
+    background: #EA4335;
+}
+
+/* Empty state */
 .empty {
     color: #AAA;
-    text-align: center;
     font-size: 12px;
 }

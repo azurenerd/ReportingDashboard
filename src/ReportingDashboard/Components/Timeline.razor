@@ -3,8 +3,8 @@
         @foreach (var milestone in Milestones)
         {
             <div class="tl-label">
-                <span style="color: @milestone.Color; font-weight: 700;">@milestone.Id</span>
-                <span class="tl-label-desc"> - @milestone.Description</span>
+                <span style="color: @milestone.Color; font-weight: 700;">@milestone.Label</span>
+                <span class="tl-desc"> – @milestone.Description</span>
             </div>
         }
     </div>
@@ -16,22 +16,20 @@
                 </filter>
             </defs>
 
-            @* Month gridlines and labels *@
-            @foreach (var monthDate in GetMonthGridlines())
+            @foreach (var monthDate in GetMonthDates())
             {
                 var x = GetXPosition(monthDate);
-                <line x1="@F(x)" y1="0" x2="@F(x)" y2="185"
+                <line x1="@Fmt(x)" y1="0" x2="@Fmt(x)" y2="185"
                       stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
-                @RenderSvgText(F(x + 5), "14", "11", "600", "#666", "start", monthDate.ToString("MMM"))
+                @RenderSvgText(Fmt(x + 5), "14", "11", "600", "#666", "start", monthDate.ToString("MMM"))
             }
 
-            @* Milestone tracks and markers *@
-            @for (int i = 0; i < Milestones.Count; i++)
+            @for (var i = 0; i < Milestones.Count; i++)
             {
                 var milestone = Milestones[i];
-                var trackY = GetTrackY(i);
+                var y = GetTrackY(i);
 
-                <line x1="0" y1="@F(trackY)" x2="1560" y2="@F(trackY)"
+                <line x1="0" y1="@Fmt(y)" x2="1560" y2="@Fmt(y)"
                       stroke="@milestone.Color" stroke-width="3" />
 
                 @foreach (var marker in milestone.Markers)
@@ -40,47 +38,51 @@
 
                     @if (marker.Type == "checkpoint")
                     {
-                        <circle cx="@F(mx)" cy="@F(trackY)" r="6"
+                        <circle cx="@Fmt(mx)" cy="@Fmt(y)" r="6"
                                 fill="white" stroke="@milestone.Color" stroke-width="2.5" />
-                        @RenderSvgText(F(mx), F(trackY - 14), "10", "400", "#666", "middle", marker.Label)
                     }
                     else if (marker.Type == "poc")
                     {
-                        <polygon points="@DiamondPoints(mx, trackY, 11)"
-                                 fill="#F4B400" filter="url(#sh)" />
-                        @RenderSvgText(F(mx), F(trackY - 16), "10", "400", "#666", "middle", marker.Label)
+                        <polygon points="@DiamondPoints(mx, y)" fill="#F4B400" filter="url(#sh)" />
                     }
                     else if (marker.Type == "production")
                     {
-                        <polygon points="@DiamondPoints(mx, trackY, 11)"
-                                 fill="#34A853" filter="url(#sh)" />
-                        @RenderSvgText(F(mx), F(trackY + 24), "10", "400", "#666", "middle", marker.Label)
+                        <polygon points="@DiamondPoints(mx, y)" fill="#34A853" filter="url(#sh)" />
                     }
                     else if (marker.Type == "smallCheckpoint")
                     {
-                        <circle cx="@F(mx)" cy="@F(trackY)" r="4" fill="#999" />
-                        @RenderSvgText(F(mx), F(trackY - 10), "10", "400", "#666", "middle", marker.Label)
+                        <circle cx="@Fmt(mx)" cy="@Fmt(y)" r="4" fill="#999" />
+                    }
+
+                    @if (!string.IsNullOrEmpty(marker.Label))
+                    {
+                        @RenderSvgText(Fmt(mx), Fmt(y - 16), "10", "400", "#666", "middle", marker.Label)
                     }
                 }
             }
 
-            @* NOW line *@
             @{
                 var nowX = GetXPosition(CurrentDate);
             }
-            <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="185"
+            <line x1="@Fmt(nowX)" y1="0" x2="@Fmt(nowX)" y2="185"
                   stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
-            @RenderSvgText(F(nowX), "181", "10", "700", "#EA4335", "middle", "NOW")
+            @RenderSvgText(Fmt(nowX), "180", "10", "700", "#EA4335", "middle", "NOW")
         </svg>
     </div>
 </div>
 
 @code {
-    [Parameter] public List<Milestone> Milestones { get; set; } = new();
-    [Parameter] public DateTime TimelineStart { get; set; }
-    [Parameter] public DateTime TimelineEnd { get; set; }
-    [Parameter] public DateTime CurrentDate { get; set; }
-    [Parameter] public List<string> Months { get; set; } = new();
+    [Parameter]
+    public List<Milestone> Milestones { get; set; } = new();
+
+    [Parameter]
+    public DateTime TimelineStart { get; set; }
+
+    [Parameter]
+    public DateTime TimelineEnd { get; set; }
+
+    [Parameter]
+    public DateTime CurrentDate { get; set; }
 
     private const double SvgWidth = 1560;
     private const double SvgHeight = 185;
@@ -104,25 +106,24 @@
 
     private string DiamondPoints(double cx, double cy, double r = 11)
     {
-        return $"{F(cx)},{F(cy - r)} {F(cx + r)},{F(cy)} {F(cx)},{F(cy + r)} {F(cx - r)},{F(cy)}";
+        return $"{Fmt(cx)},{Fmt(cy - r)} {Fmt(cx + r)},{Fmt(cy)} {Fmt(cx)},{Fmt(cy + r)} {Fmt(cx - r)},{Fmt(cy)}";
     }
 
-    private List<DateTime> GetMonthGridlines()
+    private List<DateTime> GetMonthDates()
     {
-        var gridlines = new List<DateTime>();
+        var dates = new List<DateTime>();
         var current = new DateTime(TimelineStart.Year, TimelineStart.Month, 1);
-        if (current < TimelineStart)
-            current = current.AddMonths(1);
         while (current <= TimelineEnd)
         {
-            gridlines.Add(current);
+            if (current >= TimelineStart)
+                dates.Add(current);
             current = current.AddMonths(1);
         }
-        return gridlines;
+        return dates;
     }
 
-    private static string F(double value) =>
-        value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    private static string Fmt(double value) =>
+        value.ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
 
     private RenderFragment RenderSvgText(string x, string y, string fontSize, string fontWeight, string fill, string textAnchor, string content) => builder =>
     {

@@ -1,31 +1,25 @@
 <div class="hm-wrap">
-    <div class="hm-title">MONTHLY EXECUTION HEATMAP &mdash; SHIPPED &middot; IN PROGRESS &middot; CARRYOVER &middot; BLOCKERS</div>
-    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Months.Count, 1fr);">
-        @* Corner cell *@
-        <div class="hm-corner">STATUS</div>
-
-        @* Column headers *@
-        @for (int i = 0; i < Months.Count; i++)
+    <div class="hm-title">Monthly Execution Heatmap - Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Months.Count, 1fr)">
+        @* Header row: corner + month columns *@
+        <div class="hm-corner">Status</div>
+        @for (var i = 0; i < Months.Count; i++)
         {
             var isCurrent = i == CurrentMonthIndex;
-            <div class="hm-col-hdr @(isCurrent ? "current-month-hdr" : "")">
-                @Months[i]@(isCurrent ? " \u2605 Now" : "")
+            <div class="hm-col-hdr @(isCurrent ? "current" : "")">
+                @Months[i]@(isCurrent ? " ★ Now" : "")
             </div>
         }
 
-        @* Data rows: each category gets a row header + N data cells *@
+        @* Data rows: row header + cells for each category *@
         @foreach (var category in Categories)
         {
-            <div class="hm-row-hdr @GetRowHeaderClass(category.Key)">
-                @category.Name
-            </div>
-
-            @for (int i = 0; i < Months.Count; i++)
+            <div class="hm-row-hdr @category.Key">@category.Name</div>
+            @for (var i = 0; i < Months.Count; i++)
             {
                 var month = Months[i];
                 var isCurrent = i == CurrentMonthIndex;
-                var items = category.Items.TryGetValue(month, out var list) ? list : new List<string>();
-
+                var items = GetItems(category, month);
                 <HeatmapCell Items="@items"
                              CategoryKey="@category.Key"
                              IsCurrentMonth="@isCurrent" />
@@ -35,16 +29,19 @@
 </div>
 
 @code {
-    [Parameter] public List<HeatmapCategory> Categories { get; set; } = new();
-    [Parameter] public List<string> Months { get; set; } = new();
-    [Parameter] public int CurrentMonthIndex { get; set; }
+    [Parameter]
+    public List<HeatmapCategory> Categories { get; set; } = new();
 
-    private static string GetRowHeaderClass(string key) => key switch
+    [Parameter]
+    public List<string> Months { get; set; } = new();
+
+    [Parameter]
+    public int CurrentMonthIndex { get; set; }
+
+    private static List<string> GetItems(HeatmapCategory category, string month)
     {
-        "shipped" => "ship-hdr",
-        "inProgress" => "prog-hdr",
-        "carryover" => "carry-hdr",
-        "blockers" => "block-hdr",
-        _ => ""
-    };
+        if (category.Items.TryGetValue(month, out var items))
+            return items;
+        return new List<string>();
+    }
 }

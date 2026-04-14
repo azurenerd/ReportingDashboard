@@ -1,23 +1,23 @@
-<div class="hdr">
+<header class="hdr">
     <div class="hdr-left">
-        <h1>@Data.Title <a href="@Data.BacklogUrl" target="_blank">📋 ADO Backlog</a></h1>
+        <h1>@Data.Title <a href="@Data.BacklogUrl" target="_blank" rel="noopener">📋 ADO Backlog</a></h1>
         <div class="sub">@Data.Subtitle</div>
     </div>
     <div class="legend">
-        <div class="legend-item">
+        <div class="leg-item">
             <span class="diamond poc-diamond"></span> PoC Milestone
         </div>
-        <div class="legend-item">
+        <div class="leg-item">
             <span class="diamond prod-diamond"></span> Production Release
         </div>
-        <div class="legend-item">
-            <span class="circle checkpoint-circle"></span> Checkpoint
+        <div class="leg-item">
+            <span class="dot checkpoint-dot"></span> Checkpoint
         </div>
-        <div class="legend-item">
-            <span class="now-bar"></span> Now
+        <div class="leg-item">
+            <span class="bar now-bar"></span> Now
         </div>
     </div>
-</div>
+</header>
 
 @code {
     [Parameter]

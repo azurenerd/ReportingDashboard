@@ -9,7 +9,7 @@
         <div class="error-icon">⚠</div>
         <h2>Dashboard Error</h2>
         <p>@_error</p>
-        <p class="error-hint">Check your data.json file and try again.</p>
+        <p class="error-hint">Check your data.json file and reload the page.</p>
     </div>
 }
 else if (_data is not null)
@@ -18,8 +18,7 @@ else if (_data is not null)
     <Timeline Milestones="@_data.Milestones"
               TimelineStart="@_data.TimelineStart"
               TimelineEnd="@_data.TimelineEnd"
-              CurrentDate="@_data.CurrentDate"
-              Months="@_data.Months" />
+              CurrentDate="@_data.CurrentDate" />
     <Heatmap Categories="@_data.Categories"
              Months="@_data.Months"
              CurrentMonthIndex="@_data.CurrentMonthIndex" />
@@ -31,9 +30,14 @@ else if (_data is not null)
 
     protected override void OnInitialized()
     {
-        var uri = new Uri(Navigation.Uri);
-        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        var project = query["project"];
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        string? project = null;
+
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query)
+                .TryGetValue("project", out var values))
+        {
+            project = values.FirstOrDefault();
+        }
 
         try
         {
@@ -50,9 +54,15 @@ else if (_data is not null)
     {
         try
         {
-            var uri = new Uri(Navigation.Uri);
-            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-            var project = query["project"];
+            var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+            string? project = null;
+
+            if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query)
+                    .TryGetValue("project", out var values))
+            {
+                project = values.FirstOrDefault();
+            }
+
             _data = DataService.GetData(project);
             _error = null;
             await InvokeAsync(StateHasChanged);
@@ -60,12 +70,7 @@ else if (_data is not null)
         catch (DashboardDataException ex)
         {
             _error = ex.Message;
-            _data = null;
             await InvokeAsync(StateHasChanged);
-        }
-        catch (Exception)
-        {
-            // Retain current display state on unexpected errors
         }
     }
 

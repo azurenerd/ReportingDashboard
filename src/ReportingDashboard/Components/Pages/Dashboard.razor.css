@@ -6,29 +6,32 @@
     width: 1920px;
     height: 1080px;
     padding: 40px;
-}
-
-.error-panel h2 {
-    font-size: 24px;
-    color: #EA4335;
-    margin: 16px 0 12px;
-}
-
-.error-panel p {
-    font-size: 14px;
-    color: #333;
-    max-width: 600px;
-    text-align: center;
-    line-height: 1.5;
-    word-break: break-word;
+    background: #FFF5F5;
+    color: #991B1B;
+    font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 .error-panel .error-icon {
     font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.error-panel h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.error-panel p {
+    font-size: 14px;
+    max-width: 600px;
+    text-align: center;
+    line-height: 1.5;
+    color: #333;
 }
 
 .error-panel .error-hint {
+    margin-top: 8px;
     color: #888;
     font-size: 12px;
-    margin-top: 8px;
 }

@@ -1,25 +1,27 @@
 {
-  "title": "Test Project",
-  "subtitle": "Test Org",
-  "backlogUrl": "https://example.com",
-  "currentDate": "2026-01-01",
-  "months": ["Jan"],
-  "currentMonthIndex": 0,
-  "timelineStart": "2026-01-01",
-  "timelineEnd": "2026-06-30",
-  "milestones": [
-    {
-      "id": "M1",
-      "label": "M1",
-      "description": "Test",
-      "color": "not-a-color",
-      "markers": []
-    }
-  ],
-  "categories": [
-    { "name": "Shipped", "key": "shipped", "items": {} },
-    { "name": "In Progress", "key": "inProgress", "items": {} },
-    { "name": "Carryover", "key": "carryover", "items": {} },
-    { "name": "Blockers", "key": "blockers", "items": {} }
-  ]
+    "title": "Bad Milestone Test",
+    "subtitle": "Test",
+    "backlogUrl": "https://example.com",
+    "currentDate": "2026-04-01",
+    "months": ["Apr"],
+    "currentMonthIndex": 0,
+    "timelineStart": "2026-01-01",
+    "timelineEnd": "2026-06-30",
+    "milestones": [
+        {
+            "id": "M1",
+            "label": "M1",
+            "description": "Test",
+            "color": "#0078D4",
+            "markers": [
+                { "date": "2026-03-01", "type": "invalid_type", "label": "Bad Marker" }
+            ]
+        }
+    ],
+    "categories": [
+        { "name": "Shipped", "key": "shipped", "items": {} },
+        { "name": "In Progress", "key": "inProgress", "items": {} },
+        { "name": "Carryover", "key": "carryover", "items": {} },
+        { "name": "Blockers", "key": "blockers", "items": {} }
+    ]
 }
