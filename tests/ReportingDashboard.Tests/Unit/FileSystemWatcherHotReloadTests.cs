@@ -134,7 +134,7 @@ public class FileSystemWatcherHotReloadTests : IDisposable
         var eventFired = false;
         svc.OnDataChanged += () => eventFired = true;
 
-        // Act: call ExecuteReload directly (internal, visible via InternalsVisibleTo)
+        // Act: call ExecuteReload directly
         svc.ExecuteReload();
 
         // Assert: event was raised and cache returns new data
@@ -188,7 +188,7 @@ public class FileSystemWatcherHotReloadTests : IDisposable
         var eventFired = false;
         svc.OnDataChanged += () => eventFired = true;
 
-        // Lock the file exclusively so PreValidateDataFiles throws IOException
+        // Lock the file exclusively so reading throws IOException
         var filePath = Path.Combine(_tempDir, "data.json");
         using (var lockStream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
         {
@@ -247,7 +247,7 @@ public class FileSystemWatcherHotReloadTests : IDisposable
         // Act
         svc.ExecuteReload();
 
-        // Assert: validation fails in PreValidateDataFiles, cache retained
+        // Assert: validation fails, cache retained
         Assert.False(eventFired, "OnDataChanged should NOT fire on validation failure");
         var cachedData = svc.GetData();
         Assert.Equal("Original Title", cachedData.Title);
