@@ -1,4 +1,7 @@
 @page "/"
+@rendermode InteractiveServer
+@using ReportingDashboard.Models
+@using ReportingDashboard.Services
 @inject DashboardDataService DataService
 
 @if (errorMessage is not null)
