@@ -4,6 +4,7 @@
   "subtitle": "Platform Engineering · Atlas Workstream · April 2026",
   "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
   "nowDateOverride": null,
+  "currentMonthOverride": null,
   "timeline": {
     "startDate": "2026-01-01",
     "endDate": "2026-07-01",

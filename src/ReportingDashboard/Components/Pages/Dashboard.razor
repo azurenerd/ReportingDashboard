@@ -13,7 +13,7 @@
 {
     <div class="error-page">
         <div class="error-message">
-            <h2>📋 Dashboard Data Error</h2>
+            <h2>Dashboard Data Error</h2>
             <p>@error</p>
             <p>Place a valid <code>data.json</code> file in the <code>wwwroot/</code> directory.</p>
         </div>
@@ -24,17 +24,17 @@ else if (data is not null)
     @if (error is not null)
     {
         <div class="error-banner">
-            ⚠ data.json has errors – showing last valid data. Error: @error
+            data.json has errors - showing last valid data. Error: @error
         </div>
     }
 
     var effectiveDate = DataService.GetEffectiveDate();
-    var currentMonthName = effectiveDate.ToString("MMM");
+    var currentMonthName = DataService.GetCurrentMonthName();
 
     @* === SECTION 1: HEADER === *@
     <div class="hdr">
         <div>
-            <h1>@data.Title <a href="@data.BacklogUrl">↗ ADO Backlog</a></h1>
+            <h1>@data.Title <a href="@data.BacklogUrl">ADO Backlog</a></h1>
             <div class="sub">@data.Subtitle</div>
         </div>
         <div class="legend">
@@ -98,6 +98,12 @@ else if (data is not null)
                 }
 
                 string F(double v) => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+
+                string SvgText(string x, string y, string fill, string fontSize, string fontWeight, string fontFamily, string content, string textAnchor = "")
+                {
+                    var anchorAttr = string.IsNullOrEmpty(textAnchor) ? "" : $@" text-anchor=""{textAnchor}""";
+                    return $@"<text x=""{x}"" y=""{y}"" fill=""{fill}"" font-size=""{fontSize}"" font-weight=""{fontWeight}"" font-family=""{fontFamily}""{anchorAttr}>{System.Net.WebUtility.HtmlEncode(content)}</text>";
+                }
             }
             <svg xmlns="http://www.w3.org/2000/svg" width="@svgWidth" height="@svgHeight"
                  style="overflow:visible;display:block">
@@ -112,15 +118,13 @@ else if (data is not null)
                 {
                     <line x1="@F(gx)" y1="0" x2="@F(gx)" y2="@svgHeight"
                           stroke="#bbb" stroke-opacity="0.4" stroke-width="1"/>
-                    <svgtext x="@F(gx + 5)" y="14" fill="#666" font-size="11" font-weight="600"
-                          font-family="Segoe UI,Arial">@label</svgtext>
+                    @((MarkupString)SvgText(F(gx + 5), "14", "#666", "11", "600", "Segoe UI,Arial", label))
                 }
 
                 @* NOW line *@
                 <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="@svgHeight"
                       stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3"/>
-                <svgtext x="@F(nowX + 4)" y="14" fill="#EA4335" font-size="10"
-                      font-weight="700" font-family="Segoe UI,Arial">NOW</svgtext>
+                @((MarkupString)SvgText(F(nowX + 4), "14", "#EA4335", "10", "700", "Segoe UI,Arial", "NOW"))
 
                 @* Workstream lines and milestones *@
                 @for (int i = 0; i < wsCount; i++)
@@ -162,9 +166,7 @@ else if (data is not null)
                             <polygon points="@DiamondPoints(mx, y)" fill="#34A853" filter="url(#sh)"/>
                         }
 
-                        <svgtext x="@F(mx)" y="@labelY" text-anchor="middle"
-                              fill="#666" font-size="10"
-                              font-family="Segoe UI,Arial">@ms.Label</svgtext>
+                        @((MarkupString)SvgText(F(mx), labelY.ToString(), "#666", "10", "400", "Segoe UI,Arial", ms.Label, "middle"))
                     }
                 }
             </svg>
@@ -173,7 +175,7 @@ else if (data is not null)
 
     @* === SECTION 3: HEATMAP === *@
     <div class="hm-wrap">
-        <div class="hm-title">Monthly Execution Heatmap – Shipped · In Progress · Carryover · Blockers</div>
+        <div class="hm-title">Monthly Execution Heatmap - Shipped · In Progress · Carryover · Blockers</div>
         <div class="hm-grid" style="grid-template-columns: 160px repeat(@data.Heatmap.MonthColumns.Length, 1fr);">
             @* Header row *@
             <div class="hm-corner">Status</div>
@@ -181,7 +183,7 @@ else if (data is not null)
             {
                 var isNow = month == currentMonthName;
                 <div class="hm-col-hdr @(isNow ? "now-hdr" : "")">
-                    @month @(isNow ? "◄ Now" : "")
+                    @month @(isNow ? " Now" : "")
                 </div>
             }
 
