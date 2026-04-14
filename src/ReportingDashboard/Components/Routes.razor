@@ -1,0 +1,13 @@
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="typeof(Layout.MainLayout)">
+            <div class="error-panel">
+                <h2>Page Not Found</h2>
+                <p>The requested page does not exist.</p>
+            </div>
+        </LayoutView>
+    </NotFound>
+</Router>

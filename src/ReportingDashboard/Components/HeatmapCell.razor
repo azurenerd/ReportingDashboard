@@ -1,0 +1,41 @@
+<div class="@GetCellClass()">
+    @if (Items != null && Items.Count > 0)
+    {
+        @foreach (var item in Items)
+        {
+            <div class="it @GetBulletClass()">@item</div>
+        }
+    }
+    else
+    {
+        <div class="empty">–</div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<string>? Items { get; set; }
+    [Parameter] public string CategoryKey { get; set; } = string.Empty;
+    [Parameter] public bool IsCurrentMonth { get; set; }
+
+    private string GetCellClass()
+    {
+        var baseClass = CategoryKey switch
+        {
+            "shipped" => "ship-cell",
+            "inProgress" => "prog-cell",
+            "carryover" => "carry-cell",
+            "blockers" => "block-cell",
+            _ => "cell"
+        };
+        return IsCurrentMonth ? $"{baseClass} current" : baseClass;
+    }
+
+    private string GetBulletClass() => CategoryKey switch
+    {
+        "shipped" => "bullet-shipped",
+        "inProgress" => "bullet-progress",
+        "carryover" => "bullet-carryover",
+        "blockers" => "bullet-blockers",
+        _ => ""
+    };
+}
