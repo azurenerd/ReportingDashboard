@@ -1,0 +1,4 @@
+agent: PrincipalEngineer 1
+task: Integrate dashboard page and wire data service
+complexity: Medium
+status: in-progress
