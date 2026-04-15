@@ -12,11 +12,24 @@ namespace ReportingDashboard.Tests.Unit;
 public class DashboardComponentTests : TestContext
 {
     private static DashboardData CreateTestData() => new(
-        Header: new ProjectHeader("Test Dashboard", "Org • Stream • April 2026", "https://example.com", "April 2026"),
+        Header: new ProjectHeader(
+            "Project Phoenix",
+            "Trusted Platform \u2022 Privacy Automation \u2022 April 2026",
+            "https://dev.azure.com/org/project/_backlogs",
+            "April 2026"),
         Timeline: new TimelineConfig(
             new DateTime(2026, 1, 1), new DateTime(2026, 12, 31), new DateTime(2026, 4, 15),
-            new List<Track> { new("m1", "M1", "Core API", "#0078D4") },
-            new List<Milestone> { new("m1", new DateTime(2026, 3, 26), "PoC", "poc", null) }
+            new List<Track>
+            {
+                new("m1", "M1", "Core API & Auth", "#0078D4"),
+                new("m2", "M2", "PDS & Data Inventory", "#00897B"),
+                new("m3", "M3", "Auto Review DFD", "#546E7A")
+            },
+            new List<Milestone>
+            {
+                new("m1", new DateTime(2026, 3, 26), "PoC", "poc", null),
+                new("m2", new DateTime(2026, 5, 15), "Production Release", "production", "Full rollout")
+            }
         ),
         Heatmap: new HeatmapData(
             new List<string> { "Jan", "Feb", "Mar", "Apr" }, 3,
@@ -24,10 +37,17 @@ public class DashboardComponentTests : TestContext
             {
                 new("Shipped", "green", new List<MonthCell>
                 {
-                    new(new List<string> { "Item A" }),
-                    new(new List<string>()),
+                    new(new List<string> { "Foundation scaffolding" }),
+                    new(new List<string> { "Auth module" }),
                     new(new List<string>()),
                     new(new List<string>())
+                }),
+                new("In Progress", "blue", new List<MonthCell>
+                {
+                    new(new List<string>()),
+                    new(new List<string> { "Dashboard UI" }),
+                    new(new List<string>()),
+                    new(new List<string> { "Heatmap grid" })
                 })
             }
         )
@@ -38,7 +58,7 @@ public class DashboardComponentTests : TestContext
     {
         var mockService = new Mock<IDataService>();
         mockService.Setup(s => s.GetData()).Returns((DashboardData?)null);
-        mockService.Setup(s => s.GetError()).Returns("data.json not found at /test/data.json.");
+        mockService.Setup(s => s.GetError()).Returns("data.json not found at /test/data.json. Create this file with your dashboard data.");
 
         Services.AddSingleton(mockService.Object);
 
@@ -61,8 +81,8 @@ public class DashboardComponentTests : TestContext
 
         var cut = RenderComponent<ReportingDashboard.Web.Pages.Dashboard>();
 
-        cut.Find("h1").TextContent.Should().Be("Test Dashboard");
-        cut.Markup.Should().Contain("Org • Stream • April 2026");
+        cut.Find("h1").TextContent.Should().Be("Project Phoenix");
+        cut.Markup.Should().Contain("Trusted Platform");
         cut.Markup.Should().Contain("data.json loaded successfully");
     }
 

@@ -9,7 +9,7 @@ namespace ReportingDashboard.UITests;
 public class DashboardPageTests : IAsyncLifetime
 {
     private readonly PlaywrightFixture _fixture;
-    private IPage? _page;
+    private IPage _page = null!;
 
     public DashboardPageTests(PlaywrightFixture fixture)
     {
@@ -18,55 +18,38 @@ public class DashboardPageTests : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        if (_fixture.IsAvailable)
-        {
-            _page = await _fixture.Browser!.NewPageAsync();
-            _page.SetDefaultTimeout(60000);
-        }
+        _page = await _fixture.Browser.NewPageAsync();
+        _page.SetDefaultTimeout(60000);
     }
 
     public async Task DisposeAsync()
     {
-        if (_page is not null)
-        {
-            await _page.CloseAsync();
-        }
+        await _page.CloseAsync();
     }
 
-    private void SkipIfBrowserUnavailable()
-    {
-        Skip.If(!_fixture.IsAvailable, "Playwright browsers not installed. Run: pwsh bin/Debug/net8.0/playwright.ps1 install");
-    }
-
-    [SkippableFact]
+    [Fact]
     public async Task HomePage_Loads_WithoutErrors()
     {
-        SkipIfBrowserUnavailable();
-
-        var response = await _page!.GotoAsync(_fixture.BaseUrl);
+        var response = await _page.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         response!.Status.Should().Be(200);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HomePage_ShowsEitherDataOrError()
     {
-        SkipIfBrowserUnavailable();
-
-        await _page!.GotoAsync(_fixture.BaseUrl);
+        await _page.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var h1 = await _page.Locator("h1").First.TextContentAsync();
         h1.Should().NotBeNullOrEmpty("page should display either project title or error heading");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ErrorPanel_ShowsConfigurationError_WhenDataMissing()
     {
-        SkipIfBrowserUnavailable();
-
-        await _page!.GotoAsync(_fixture.BaseUrl);
+        await _page.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var errorHeading = _page.GetByText("Dashboard Configuration Error");
@@ -79,12 +62,10 @@ public class DashboardPageTests : IAsyncLifetime
         }
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task SuccessState_ShowsProjectTitle_WhenDataValid()
     {
-        SkipIfBrowserUnavailable();
-
-        await _page!.GotoAsync(_fixture.BaseUrl);
+        await _page.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         var placeholder = _page.Locator(".dashboard-placeholder");
@@ -98,12 +79,10 @@ public class DashboardPageTests : IAsyncLifetime
         }
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Viewport_IsFixedDimensions()
     {
-        SkipIfBrowserUnavailable();
-
-        await _page!.SetViewportSizeAsync(1920, 1080);
+        await _page.SetViewportSizeAsync(1920, 1080);
         await _page.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
