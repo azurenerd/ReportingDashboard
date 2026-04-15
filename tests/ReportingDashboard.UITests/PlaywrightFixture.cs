@@ -3,9 +3,6 @@ using Xunit;
 
 namespace ReportingDashboard.UITests;
 
-[CollectionDefinition("Playwright")]
-public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }
-
 public class PlaywrightFixture : IAsyncLifetime
 {
     public IPlaywright Playwright { get; private set; } = null!;
@@ -27,15 +24,9 @@ public class PlaywrightFixture : IAsyncLifetime
         await Browser.DisposeAsync();
         Playwright.Dispose();
     }
+}
 
-    public async Task<IPage> CreatePageAsync()
-    {
-        var context = await Browser.NewContextAsync(new BrowserNewContextOptions
-        {
-            ViewportSize = new ViewportSize { Width = 1920, Height = 1080 }
-        });
-        var page = await context.NewPageAsync();
-        page.SetDefaultTimeout(60000);
-        return page;
-    }
+[CollectionDefinition("Playwright")]
+public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture>
+{
 }
