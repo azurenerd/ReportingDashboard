@@ -70,9 +70,6 @@
     [Parameter]
     public TimelineConfig Timeline { get; set; } = default!;
 
-    [Parameter]
-    public List<Milestone> Milestones { get; set; } = new();
-
     private const double SvgWidth = 1560.0;
     private const double SvgHeight = 185.0;
 
@@ -113,7 +110,7 @@
         var result = new List<string>();
         var trackMilestoneCount = new Dictionary<string, int>();
 
-        foreach (var milestone in Milestones)
+        foreach (var milestone in Timeline.Milestones)
         {
             var trackIndex = GetTrackIndex(milestone.TrackId);
             if (trackIndex < 0) continue;
@@ -154,7 +151,7 @@
                 continue;
             }
 
-            // Render label for all milestone types
+            // Render label for all recognized milestone types
             result.Add($"<text x=\"{mxStr}\" y=\"{labelYStr}\" text-anchor=\"middle\" fill=\"#666\" font-size=\"10\" font-family=\"'Segoe UI', Arial, sans-serif\">{safeLabel}</text>");
         }
 
