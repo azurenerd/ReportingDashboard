@@ -1,0 +1,37 @@
+@using ReportingDashboard.Models
+
+<div class="hdr">
+    <div class="hdr-left">
+        <h1>
+            @Data.Title
+            @if (!string.IsNullOrEmpty(Data.BacklogUrl))
+            {
+                <a href="@Data.BacklogUrl" target="_blank"> &#128279; ADO Backlog</a>
+            }
+        </h1>
+        <div class="sub">@Data.Subtitle</div>
+    </div>
+    <div class="hdr-legend">
+        <div class="legend-item">
+            <span class="legend-icon legend-poc"></span>
+            <span class="legend-label">PoC Milestone</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-icon legend-prod"></span>
+            <span class="legend-label">Production Release</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-icon legend-checkpoint"></span>
+            <span class="legend-label">Checkpoint</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-icon legend-now"></span>
+            <span class="legend-label">Now</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public DashboardData Data { get; set; } = default!;
+}
