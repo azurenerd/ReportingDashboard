@@ -1,28 +1,27 @@
 @page "/"
 @implements IDisposable
+@using ReportingDashboard.Models
+@using ReportingDashboard.Services
+@using ReportingDashboard.Components.Shared
 @inject DashboardDataService DataService
 
-@if (DataService.Data is null)
+@if (DataService.ErrorMessage is not null && DataService.Data is null)
 {
     <div style="display:flex;align-items:center;justify-content:center;width:1920px;height:1080px;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
         <div style="text-align:center;max-width:600px;">
             <p style="font-size:18px;color:#666;">
                 Unable to load dashboard data. Please check that data.json exists and contains valid JSON.
             </p>
-            @if (DataService.ErrorMessage is not null)
-            {
-                <p style="font-size:14px;color:#999;margin-top:16px;">
-                    @DataService.ErrorMessage
-                </p>
-            }
+            <p style="font-size:14px;color:#999;margin-top:16px;">
+                @DataService.ErrorMessage
+            </p>
         </div>
     </div>
 }
-else
+else if (DataService.Data is { } data)
 {
-    var data = DataService.Data;
     <Header Data="data" />
-    <Timeline TimelineData="data.Timeline" NowDate="@ComputeNowDate(data)" />
+    <Timeline TimelineData="data.Timeline" NowDate="@GetNowDate(data)" />
     <Heatmap HeatmapData="data.Heatmap" />
 }
 
@@ -32,7 +31,7 @@ else
         DataService.OnDataChanged += HandleDataChanged;
     }
 
-    private DateOnly ComputeNowDate(DashboardData data)
+    private DateOnly GetNowDate(DashboardData data)
     {
         if (!string.IsNullOrWhiteSpace(data.NowDate))
         {

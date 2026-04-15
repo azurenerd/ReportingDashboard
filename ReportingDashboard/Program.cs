@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Server;
 using ReportingDashboard.Components;
 using ReportingDashboard.Services;
 
@@ -17,11 +18,10 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton(new DashboardDataServiceOptions { FilePath = dataFilePath });
 builder.Services.AddSingleton<DashboardDataService>();
 
-// Configure disconnected circuit retention to 1 hour
-builder.Services.AddSignalR(hubOptions =>
+// Configure disconnected circuit retention to 1 hour for SignalR resilience
+builder.Services.Configure<CircuitOptions>(options =>
 {
-    hubOptions.ClientTimeoutInterval = TimeSpan.FromMinutes(30);
-    hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromHours(1);
 });
 
 builder.WebHost.UseUrls("http://localhost:5000");
