@@ -1,26 +1,29 @@
 ## .NET
 bin/
 obj/
-publish/
-
-## User-specific files
-*.rsuser
-*.suo
 *.user
+*.suo
 *.userosscache
 *.sln.docstates
 
-## Build results
+## Visual Studio
+.vs/
+*.rsuser
 [Dd]ebug/
 [Rr]elease/
 x64/
 x86/
-build/
+[Bb]uild/
 bld/
+[Ll]og/
+[Ll]ogs/
 
-## Visual Studio
-.vs/
-*.csproj.user
+## NuGet
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nupkg
+**/packages/*
+!**/packages/build/
 
 ## Rider
 .idea/
@@ -30,3 +33,6 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
+
+## Project-specific
+*.db

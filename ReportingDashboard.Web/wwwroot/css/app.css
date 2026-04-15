@@ -1,0 +1,38 @@
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --font-primary: 'Segoe UI', Arial, sans-serif;
+    --color-text: #111;
+    --color-link: #0078D4;
+    --color-border: #E0E0E0;
+    --color-border-heavy: #CCC;
+    --color-subtitle: #888;
+    --color-now: #EA4335;
+    --color-poc: #F4B400;
+    --color-production: #34A853;
+    --color-checkpoint: #999;
+}
+
+html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: #FFFFFF;
+    font-family: var(--font-primary);
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    color: var(--color-link);
+    text-decoration: none;
+}
+
+#blazor-error-ui {
+    display: none !important;
+}
