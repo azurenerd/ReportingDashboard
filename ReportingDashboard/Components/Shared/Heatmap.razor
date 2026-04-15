@@ -1,0 +1,39 @@
+@using ReportingDashboard.Models
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap &mdash; Shipped &middot; In Progress &middot; Carryover &middot; Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@HeatmapData.Months.Count, 1fr); grid-template-rows: 36px repeat(4, 1fr);">
+
+        @* Header row: corner + month headers *@
+        <div class="hm-corner">STATUS</div>
+        @foreach (var month in HeatmapData.Months)
+        {
+            <div class="hm-col-hdr @(month == HeatmapData.CurrentMonth ? "current-month-hdr" : "")">@month</div>
+        }
+
+        @* Category rows *@
+        @foreach (var category in HeatmapData.Categories)
+        {
+            <div class="hm-row-hdr @(category.CssClass)-hdr">@category.Name</div>
+            @foreach (var month in HeatmapData.Months)
+            {
+                var isCurrentMonth = month == HeatmapData.CurrentMonth;
+                var items = GetItems(category, month);
+                <div class="hm-cell @(category.CssClass)-cell @(isCurrentMonth ? "current-month" : "")">
+                    <HeatmapCell Items="@items" CssClass="@category.CssClass" IsCurrentMonth="@isCurrentMonth" />
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public HeatmapConfig HeatmapData { get; set; } = default!;
+
+    private List<string>? GetItems(HeatmapCategory category, string month)
+    {
+        if (category.Items.TryGetValue(month, out var items) && items.Count > 0)
+            return items;
+        return null;
+    }
+}
