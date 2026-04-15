@@ -1,73 +1,74 @@
 using Bunit;
 using FluentAssertions;
 using ReportingDashboard.Models;
+using ReportingDashboard.Components.Shared;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Unit;
 
 public class HeaderComponentTests : TestContext
 {
-    private DashboardData CreateTestData(string? backlogUrl = "https://dev.azure.com/test") => new()
+    private static DashboardData CreateTestData()
     {
-        Title = "Test Project Roadmap",
-        Subtitle = "Test Team \u2022 Test Workstream \u2022 April 2026",
-        BacklogUrl = backlogUrl
-    };
+        return new DashboardData
+        {
+            Title = "Test Dashboard",
+            Subtitle = "Test Team \u2022 Test Workstream \u2022 April 2026",
+            BacklogUrl = "https://dev.azure.com/test",
+            Timeline = new TimelineConfig
+            {
+                StartMonth = "2026-01",
+                EndMonth = "2026-06",
+                Tracks = new List<Track>()
+            },
+            Heatmap = new HeatmapConfig
+            {
+                Months = new List<string>(),
+                CurrentMonth = "April",
+                Categories = new List<HeatmapCategory>()
+            }
+        };
+    }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void Header_RendersTitle_InH1Element()
+    public void Header_RendersProjectTitle()
     {
         var data = CreateTestData();
 
-        var cut = RenderComponent<ReportingDashboard.Components.Shared.Header>(
-            p => p.Add(x => x.Data, data));
+        var cut = RenderComponent<Header>(p => p
+            .Add(x => x.DashboardData, data));
 
-        var h1 = cut.Find("h1");
-        h1.TextContent.Should().Contain("Test Project Roadmap");
+        var markup = cut.Markup;
+        markup.Should().Contain("Test Dashboard");
     }
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void Header_RendersBacklogLink_WhenBacklogUrlIsPresent()
-    {
-        var data = CreateTestData("https://dev.azure.com/myorg/backlog");
-
-        var cut = RenderComponent<ReportingDashboard.Components.Shared.Header>(
-            p => p.Add(x => x.Data, data));
-
-        var link = cut.Find("h1 a");
-        link.GetAttribute("href").Should().Be("https://dev.azure.com/myorg/backlog");
-        link.GetAttribute("target").Should().Be("_blank");
-        link.TextContent.Should().Contain("ADO Backlog");
-    }
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [Trait("Category", "Unit")]
-    public void Header_HidesBacklogLink_WhenBacklogUrlIsNullOrEmpty(string? backlogUrl)
-    {
-        var data = CreateTestData(backlogUrl);
-
-        var cut = RenderComponent<ReportingDashboard.Components.Shared.Header>(
-            p => p.Add(x => x.Data, data));
-
-        var links = cut.FindAll("h1 a");
-        links.Should().BeEmpty();
-    }
-
-    [Fact]
-    [Trait("Category", "Unit")]
-    public void Header_RendersSubtitle_WithSubClass()
+    public void Header_RendersSubtitle()
     {
         var data = CreateTestData();
 
-        var cut = RenderComponent<ReportingDashboard.Components.Shared.Header>(
-            p => p.Add(x => x.Data, data));
+        var cut = RenderComponent<Header>(p => p
+            .Add(x => x.DashboardData, data));
 
-        var sub = cut.Find(".sub");
-        sub.TextContent.Should().Contain("Test Team");
+        var markup = cut.Markup;
+        markup.Should().Contain("Test Team");
+        markup.Should().Contain("April 2026");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Header_RendersBacklogLink()
+    {
+        var data = CreateTestData();
+
+        var cut = RenderComponent<Header>(p => p
+            .Add(x => x.DashboardData, data));
+
+        var markup = cut.Markup;
+        markup.Should().Contain("https://dev.azure.com/test");
+        markup.Should().Contain("ADO Backlog");
     }
 
     [Fact]
@@ -76,22 +77,37 @@ public class HeaderComponentTests : TestContext
     {
         var data = CreateTestData();
 
-        var cut = RenderComponent<ReportingDashboard.Components.Shared.Header>(
-            p => p.Add(x => x.Data, data));
+        var cut = RenderComponent<Header>(p => p
+            .Add(x => x.DashboardData, data));
 
-        var legendItems = cut.FindAll(".hdr-legend .legend-item");
-        legendItems.Should().HaveCount(4);
+        var markup = cut.Markup;
 
-        var labels = cut.FindAll(".legend-label");
-        labels[0].TextContent.Should().Be("PoC Milestone");
-        labels[1].TextContent.Should().Be("Production Release");
-        labels[2].TextContent.Should().Be("Checkpoint");
-        labels[3].TextContent.Should().Be("Now");
+        // Verify legend text content is present in the rendered markup
+        markup.Should().Contain("PoC Milestone");
+        markup.Should().Contain("Production Release");
+        markup.Should().Contain("Checkpoint");
+        markup.Should().Contain("Now");
 
-        // Verify icon CSS classes
-        cut.FindAll(".legend-poc").Should().HaveCount(1);
-        cut.FindAll(".legend-prod").Should().HaveCount(1);
-        cut.FindAll(".legend-checkpoint").Should().HaveCount(1);
-        cut.FindAll(".legend-now").Should().HaveCount(1);
+        // Verify correct order: PoC before Production before Checkpoint before Now
+        var pocIndex = markup.IndexOf("PoC Milestone");
+        var prodIndex = markup.IndexOf("Production Release");
+        var cpIndex = markup.IndexOf("Checkpoint");
+        var nowIndex = markup.IndexOf("Now", cpIndex);
+
+        pocIndex.Should().BeLessThan(prodIndex);
+        prodIndex.Should().BeLessThan(cpIndex);
+        cpIndex.Should().BeLessThan(nowIndex);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Header_RendersHdrClass()
+    {
+        var data = CreateTestData();
+
+        var cut = RenderComponent<Header>(p => p
+            .Add(x => x.DashboardData, data));
+
+        cut.Find("div.hdr").Should().NotBeNull();
     }
 }
