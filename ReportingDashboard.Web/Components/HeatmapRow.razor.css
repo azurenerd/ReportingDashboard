@@ -9,23 +9,3 @@
     border-right: 2px solid #CCC;
     border-bottom: 1px solid #E0E0E0;
 }
-
-.ship-hdr {
-    background: #E8F5E9;
-    color: #1B7A28;
-}
-
-.prog-hdr {
-    background: #E3F2FD;
-    color: #1565C0;
-}
-
-.carry-hdr {
-    background: #FFF8E1;
-    color: #B45309;
-}
-
-.block-hdr {
-    background: #FEF2F2;
-    color: #991B1B;
-}

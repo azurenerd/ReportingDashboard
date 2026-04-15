@@ -1,6 +1,7 @@
+@namespace ReportingDashboard.Web.Components
 @using ReportingDashboard.Models
 
-<div class="hm-cell @ThemeCellClass @(IsHighlighted ? "highlight" : "")">
+<div class="hm-cell @ThemeCellClass @(IsHighlighted ? "highlight" : "")" style="@BulletColorStyle">
     @if (Cell is null || Cell.Items.Count == 0)
     {
         <div class="it empty">-</div>
@@ -26,5 +27,14 @@
         "carryover" => "carry-cell",
         "blockers" => "block-cell",
         _ => ""
+    };
+
+    private string BulletColorStyle => ColorTheme switch
+    {
+        "shipped" => "--bullet-color: #34A853;",
+        "progress" => "--bullet-color: #0078D4;",
+        "carryover" => "--bullet-color: #F4B400;",
+        "blockers" => "--bullet-color: #EA4335;",
+        _ => "--bullet-color: transparent;"
     };
 }

@@ -1,27 +1,27 @@
+@namespace ReportingDashboard.Web.Components
 @using ReportingDashboard.Models
 
-<div style="display:contents">
-    <div class="hm-row-hdr @ThemeHdrClass">@Row.Category</div>
-    @for (int i = 0; i < Row.Cells.Count; i++)
-    {
-        var index = i;
-        <HeatmapCell Cell="@Row.Cells[index]"
-                     ColorTheme="@Row.ColorTheme"
-                     IsHighlighted="@(index == HighlightColumnIndex)" />
-    }
-</div>
+@* Row header and cells rendered as direct grid children via display:contents *@
+<div class="hm-row-hdr" style="@HeaderStyle">@Row.Category</div>
+@for (int i = 0; i < Row.Cells.Count; i++)
+{
+    var index = i;
+    <HeatmapCell Cell="@Row.Cells[index]"
+                 ColorTheme="@Row.ColorTheme"
+                 IsHighlighted="@(index == HighlightColumnIndex)" />
+}
 
 @code {
     [Parameter] public StatusRow Row { get; set; } = default!;
     [Parameter] public int HighlightColumnIndex { get; set; } = -1;
     [Parameter] public int ColumnCount { get; set; }
 
-    private string ThemeHdrClass => Row.ColorTheme switch
+    private string HeaderStyle => Row.ColorTheme switch
     {
-        "shipped" => "ship-hdr",
-        "progress" => "prog-hdr",
-        "carryover" => "carry-hdr",
-        "blockers" => "block-hdr",
+        "shipped" => "background: #E8F5E9; color: #1B7A28;",
+        "progress" => "background: #E3F2FD; color: #1565C0;",
+        "carryover" => "background: #FFF8E1; color: #B45309;",
+        "blockers" => "background: #FEF2F2; color: #991B1B;",
         _ => ""
     };
 }
