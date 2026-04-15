@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "title": "Project Atlas Release Roadmap",
-  "subtitle": "Platform Engineering \u00b7 Atlas Workstream \u00b7 April 2026",
-  "backlogUrl": "https://dev.azure.com/contoso/Atlas/_backlogs",
-  "nowDateOverride": null,
+  "title": "Project Atlas - Executive Dashboard",
+  "subtitle": "Platform Engineering \u00b7 AI Workstream \u00b7 April 2026",
+  "backlogUrl": "https://dev.azure.com/contoso/ProjectAtlas/_backlogs",
+  "nowDateOverride": "2026-04-10",
   "currentMonthOverride": null,
   "timeline": {
     "startDate": "2026-01-01",
@@ -14,35 +14,35 @@
         "name": "Chatbot & MS Role",
         "color": "#0078D4",
         "milestones": [
-          { "label": "Jan 12", "date": "2026-01-12", "type": "start", "labelPosition": "above" },
-          { "label": "Feb 10", "date": "2026-02-10", "type": "checkpoint" },
-          { "label": "Mar 26 PoC", "date": "2026-03-26", "type": "poc", "labelPosition": "below" },
-          { "label": "Apr 20", "date": "2026-04-20", "type": "checkpoint" },
-          { "label": "May Prod", "date": "2026-05-01", "type": "production" }
+          { "label": "Jan 12", "date": "2026-01-12", "type": "start", "labelPosition": null },
+          { "label": "Feb 5", "date": "2026-02-05", "type": "checkpoint", "labelPosition": null },
+          { "label": "Mar 26", "date": "2026-03-26", "type": "poc", "labelPosition": "above" },
+          { "label": "May 1", "date": "2026-05-01", "type": "checkpoint", "labelPosition": "below" },
+          { "label": "Jun 15", "date": "2026-06-15", "type": "production", "labelPosition": "above" }
         ]
       },
       {
         "id": "M2",
-        "name": "PDS & Data Inventory",
+        "name": "Knowledge Graph",
         "color": "#00897B",
         "milestones": [
-          { "label": "Jan 20", "date": "2026-01-20", "type": "start" },
-          { "label": "Feb 28", "date": "2026-02-28", "type": "checkpoint", "labelPosition": "above" },
-          { "label": "Apr 10 PoC", "date": "2026-04-10", "type": "poc" },
-          { "label": "May 15", "date": "2026-05-15", "type": "checkpoint", "labelPosition": "below" },
-          { "label": "Jun Prod", "date": "2026-06-01", "type": "production" }
+          { "label": "Jan 20", "date": "2026-01-20", "type": "start", "labelPosition": null },
+          { "label": "Feb 18", "date": "2026-02-18", "type": "checkpoint", "labelPosition": "above" },
+          { "label": "Apr 5", "date": "2026-04-05", "type": "poc", "labelPosition": null },
+          { "label": "May 20", "date": "2026-05-20", "type": "checkpoint", "labelPosition": "below" },
+          { "label": "Jun 28", "date": "2026-06-28", "type": "production", "labelPosition": "above" }
         ]
       },
       {
         "id": "M3",
-        "name": "Auto Review DFD",
+        "name": "Eval &Tic-Tac-Toe",
         "color": "#546E7A",
         "milestones": [
-          { "label": "Feb 1", "date": "2026-02-01", "type": "start", "labelPosition": "above" },
-          { "label": "Mar 15", "date": "2026-03-15", "type": "checkpoint" },
-          { "label": "Apr 25 PoC", "date": "2026-04-25", "type": "poc", "labelPosition": "below" },
-          { "label": "May 30", "date": "2026-05-30", "type": "checkpoint" },
-          { "label": "Jun 20 Prod", "date": "2026-06-20", "type": "production" }
+          { "label": "Feb 1", "date": "2026-02-01", "type": "start", "labelPosition": null },
+          { "label": "Mar 10", "date": "2026-03-10", "type": "checkpoint", "labelPosition": "above" },
+          { "label": "Apr 15", "date": "2026-04-15", "type": "poc", "labelPosition": null },
+          { "label": "May 28", "date": "2026-05-28", "type": "checkpoint", "labelPosition": "below" },
+          { "label": "Jun 25", "date": "2026-06-25", "type": "production", "labelPosition": "above" }
         ]
       }
     ]
@@ -55,10 +55,10 @@
         "emoji": "\u2705",
         "cssClass": "ship",
         "months": [
-          { "month": "Jan", "items": ["Auth module v2", "Config migration"] },
-          { "month": "Feb", "items": ["API gateway", "Logging framework"] },
-          { "month": "Mar", "items": ["Search indexer"] },
-          { "month": "Apr", "items": ["Dashboard MVP"] }
+          { "month": "Jan", "items": ["Auth Module", "CI/CD Pipeline"] },
+          { "month": "Feb", "items": ["Graph Schema v1", "Search API"] },
+          { "month": "Mar", "items": ["Chatbot PoC", "Eval Framework", "Role RBAC"] },
+          { "month": "Apr", "items": ["Knowledge Ingest"] }
         ]
       },
       {
@@ -66,10 +66,10 @@
         "emoji": "\ud83d\udea7",
         "cssClass": "prog",
         "months": [
-          { "month": "Jan", "items": ["Chatbot prototype"] },
-          { "month": "Feb", "items": ["Data pipeline v2"] },
-          { "month": "Mar", "items": ["MS Role integration", "PDS schema design"] },
-          { "month": "Apr", "items": ["PoC hardening", "Review DFD automation", "Perf testing", "Docs update"] }
+          { "month": "Jan", "items": ["Graph Schema Design"] },
+          { "month": "Feb", "items": ["Chatbot NLU Training"] },
+          { "month": "Mar", "items": ["Knowledge Ingest Pipeline"] },
+          { "month": "Apr", "items": ["Prod Hardening", "Load Testing", "Monitoring Dash", "Docs & Runbook"] }
         ]
       },
       {
@@ -78,9 +78,9 @@
         "cssClass": "carry",
         "months": [
           { "month": "Jan", "items": [] },
-          { "month": "Feb", "items": ["Legacy data cleanup"] },
-          { "month": "Mar", "items": ["Auth token refresh bug"] },
-          { "month": "Apr", "items": ["Search ranking tuning"] }
+          { "month": "Feb", "items": ["Legacy Migration"] },
+          { "month": "Mar", "items": ["Legacy Migration", "Perf Tuning"] },
+          { "month": "Apr", "items": ["Perf Tuning"] }
         ]
       },
       {
@@ -90,8 +90,8 @@
         "months": [
           { "month": "Jan", "items": [] },
           { "month": "Feb", "items": [] },
-          { "month": "Mar", "items": ["Waiting on infra team for staging env"] },
-          { "month": "Apr", "items": ["Compliance review pending"] }
+          { "month": "Mar", "items": ["AAD Tenant Access"] },
+          { "month": "Apr", "items": ["GPU Quota Limit"] }
         ]
       }
     ]
