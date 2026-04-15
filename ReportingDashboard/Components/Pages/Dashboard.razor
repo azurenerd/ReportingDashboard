@@ -2,6 +2,7 @@
 @implements IDisposable
 @using ReportingDashboard.Models
 @using ReportingDashboard.Services
+@using ReportingDashboard.Components.Shared
 @inject DashboardDataService DataService
 
 @if (DataService.ErrorMessage is not null && DataService.Data is null)
