@@ -7,9 +7,15 @@
 
 @if (DataService.ErrorMessage is not null && DataService.Data is null)
 {
-    <div class="error-container">
-        <p>Unable to load dashboard data. Please check that data.json exists and contains valid JSON.</p>
-        <p><span style="font-size:14px;color:#999;">@DataService.ErrorMessage</span></p>
+    <div style="display:flex;align-items:center;justify-content:center;width:1920px;height:1080px;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+        <div style="text-align:center;max-width:600px;">
+            <p style="font-size:18px;color:#666;">
+                Unable to load dashboard data. Please check that data.json exists and contains valid JSON.
+            </p>
+            <p style="font-size:14px;color:#999;margin-top:16px;">
+                @DataService.ErrorMessage
+            </p>
+        </div>
     </div>
 }
 else if (DataService.Data is { } data)
@@ -27,8 +33,11 @@ else if (DataService.Data is { } data)
 
     private DateOnly GetNowDate(DashboardData data)
     {
-        if (data.NowDate is { } overrideDate)
-            return DateOnly.Parse(overrideDate);
+        if (!string.IsNullOrWhiteSpace(data.NowDate))
+        {
+            if (DateOnly.TryParse(data.NowDate, out var parsed))
+                return parsed;
+        }
         return DateOnly.FromDateTime(DateTime.Today);
     }
 

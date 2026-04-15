@@ -17,8 +17,16 @@ public class DashboardDataService : IDisposable
     private DashboardData? _data;
     private string? _errorMessage;
 
-    public DashboardData? Data { get { lock (_lock) return _data; } }
-    public string? ErrorMessage { get { lock (_lock) return _errorMessage; } }
+    public DashboardData? Data
+    {
+        get { lock (_lock) return _data; }
+    }
+
+    public string? ErrorMessage
+    {
+        get { lock (_lock) return _errorMessage; }
+    }
+
     public event Action? OnDataChanged;
 
     public DashboardDataService(DashboardDataServiceOptions options)
@@ -31,7 +39,7 @@ public class DashboardDataService : IDisposable
             AllowTrailingCommas = true
         };
 
-        var directory = Path.GetDirectoryName(Path.GetFullPath(_filePath))!;
+        var directory = Path.GetDirectoryName(Path.GetFullPath(_filePath)) ?? Directory.GetCurrentDirectory();
         var fileName = Path.GetFileName(_filePath);
 
         _watcher = new FileSystemWatcher(directory, fileName)
@@ -42,7 +50,10 @@ public class DashboardDataService : IDisposable
         _watcher.Changed += OnFileChanged;
     }
 
-    public void Initialize() => LoadData();
+    public void Initialize()
+    {
+        LoadData();
+    }
 
     private void OnFileChanged(object sender, FileSystemEventArgs e)
     {
@@ -80,5 +91,8 @@ public class DashboardDataService : IDisposable
         }
     }
 
-    public void Dispose() => _watcher.Dispose();
+    public void Dispose()
+    {
+        _watcher.Dispose();
+    }
 }

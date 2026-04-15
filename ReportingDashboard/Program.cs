@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Components.Server;
 using ReportingDashboard.Components;
 using ReportingDashboard.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Parse --data argument
 string dataFilePath = "data.json";
 var dataArgIndex = Array.IndexOf(args, "--data");
 if (dataArgIndex >= 0 && dataArgIndex + 1 < args.Length)
@@ -16,11 +18,11 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton(new DashboardDataServiceOptions { FilePath = dataFilePath });
 builder.Services.AddSingleton<DashboardDataService>();
 
-builder.Services.AddOptions<Microsoft.AspNetCore.Components.Server.CircuitOptions>()
-    .Configure(options =>
-    {
-        options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromHours(1);
-    });
+// Configure disconnected circuit retention to 1 hour for SignalR resilience
+builder.Services.Configure<CircuitOptions>(options =>
+{
+    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromHours(1);
+});
 
 builder.WebHost.UseUrls("http://localhost:5000");
 

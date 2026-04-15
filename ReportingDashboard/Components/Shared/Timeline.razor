@@ -1,4 +1,3 @@
-@using ReportingDashboard.Models
 @using System.Globalization
 
 <div class="tl-area">
@@ -19,74 +18,83 @@
                 </filter>
             </defs>
 
-            @* Month grid lines and labels *@
-            @foreach (var m in GetMonthGridLines())
+            @{ var monthLines = GetMonthGridLines(); }
+            @{ var totalTracks = TimelineData.Tracks.Count; }
+
+            @foreach (var ml in monthLines)
             {
-                var x = GetXPosition(m.date);
-                <line x1="@F(x)" y1="10" x2="@F(x)" y2="185" stroke="#bbb" stroke-opacity="0.4" />
-                @((MarkupString)$"<text x=\"{F(x + 5)}\" y=\"10\" font-size=\"11\" font-weight=\"600\" fill=\"#666\" font-family=\"Segoe UI, Arial, sans-serif\">{m.label}</text>")
+                var xPos = GetXPosition(ml.Date);
+                <line x1="@Fmt(xPos)" y1="15" x2="@Fmt(xPos)" y2="185" stroke="#bbb" stroke-opacity="0.4" />
+                @((MarkupString)$"<text x=\"{Fmt(xPos + 5)}\" y=\"12\" font-size=\"11\" font-weight=\"600\" fill=\"#666\" font-family=\"Segoe UI, Arial, sans-serif\">{ml.Label}</text>")
             }
 
-            @* Track lines and milestones *@
-            @for (int i = 0; i < TimelineData.Tracks.Count; i++)
+            @for (int i = 0; i < totalTracks; i++)
             {
                 var track = TimelineData.Tracks[i];
-                var y = GetTrackY(i, TimelineData.Tracks.Count);
+                var trackY = GetTrackY(i, totalTracks);
 
-                <line x1="0" y1="@F(y)" x2="1560" y2="@F(y)" stroke="@track.Color" stroke-width="3" />
+                <line x1="0" y1="@Fmt(trackY)" x2="1560" y2="@Fmt(trackY)" stroke="@track.Color" stroke-width="3" />
 
                 @foreach (var ms in track.Milestones)
                 {
-                    var msDate = DateOnly.ParseExact(ms.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                    var mx = GetXPosition(msDate);
+                    if (!DateOnly.TryParseExact(ms.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var msDate))
+                        continue;
+
+                    var msX = GetXPosition(msDate);
+                    var labelYOffset = (i % 2 == 0) ? trackY - 18 : trackY + 22;
 
                     @if (ms.Type == "poc")
                     {
-                        <polygon points="@DiamondPoints(mx, y)" fill="#F4B400" filter="url(#sh)" />
-                        @((MarkupString)$"<text x=\"{F(mx)}\" y=\"{F(y - 16)}\" font-size=\"10\" fill=\"#666\" text-anchor=\"middle\" font-family=\"Segoe UI, Arial, sans-serif\">{System.Net.WebUtility.HtmlEncode(ms.Label)}</text>")
+                        <polygon points="@DiamondPoints(msX, trackY)" fill="#F4B400" filter="url(#sh)" />
                     }
                     else if (ms.Type == "production")
                     {
-                        <polygon points="@DiamondPoints(mx, y)" fill="#34A853" filter="url(#sh)" />
-                        @((MarkupString)$"<text x=\"{F(mx)}\" y=\"{F(y - 16)}\" font-size=\"10\" fill=\"#666\" text-anchor=\"middle\" font-family=\"Segoe UI, Arial, sans-serif\">{System.Net.WebUtility.HtmlEncode(ms.Label)}</text>")
+                        <polygon points="@DiamondPoints(msX, trackY)" fill="#34A853" filter="url(#sh)" />
                     }
                     else if (ms.Type == "checkpoint")
                     {
-                        <circle cx="@F(mx)" cy="@F(y)" r="7" fill="white" stroke="@track.Color" stroke-width="2.5" />
-                        @((MarkupString)$"<text x=\"{F(mx)}\" y=\"{F(y + 20)}\" font-size=\"10\" fill=\"#666\" text-anchor=\"middle\" font-family=\"Segoe UI, Arial, sans-serif\">{System.Net.WebUtility.HtmlEncode(ms.Label)}</text>")
+                        <circle cx="@Fmt(msX)" cy="@Fmt(trackY)" r="7" fill="white" stroke="@track.Color" stroke-width="2.5" />
                     }
                     else if (ms.Type == "checkpoint-small")
                     {
-                        <circle cx="@F(mx)" cy="@F(y)" r="4" fill="#999" />
-                        @((MarkupString)$"<text x=\"{F(mx)}\" y=\"{F(y + 20)}\" font-size=\"10\" fill=\"#666\" text-anchor=\"middle\" font-family=\"Segoe UI, Arial, sans-serif\">{System.Net.WebUtility.HtmlEncode(ms.Label)}</text>")
+                        <circle cx="@Fmt(msX)" cy="@Fmt(trackY)" r="4" fill="#999" />
                     }
+
+                    @((MarkupString)$"<text x=\"{Fmt(msX)}\" y=\"{Fmt(labelYOffset)}\" font-size=\"10\" fill=\"#666\" text-anchor=\"middle\" font-family=\"Segoe UI, Arial, sans-serif\">{System.Net.WebUtility.HtmlEncode(ms.Label)}</text>")
                 }
             }
 
-            @* NOW line *@
             @{
-                var nowX = GetXPosition(NowDate);
+                var nowXPos = GetXPosition(NowDate);
             }
-            <line x1="@F(nowX)" y1="10" x2="@F(nowX)" y2="185" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
-            @((MarkupString)$"<text x=\"{F(nowX)}\" y=\"8\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\" text-anchor=\"middle\" font-family=\"Segoe UI, Arial, sans-serif\">NOW</text>")
+            <line x1="@Fmt(nowXPos)" y1="5" x2="@Fmt(nowXPos)" y2="185" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+            @((MarkupString)$"<text x=\"{Fmt(nowXPos)}\" y=\"4\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\" text-anchor=\"middle\" font-family=\"Segoe UI, Arial, sans-serif\">NOW</text>")
         </svg>
     </div>
 </div>
 
 @code {
-    [Parameter] public TimelineConfig TimelineData { get; set; } = default!;
-    [Parameter] public DateOnly NowDate { get; set; }
+    [Parameter]
+    public TimelineConfig TimelineData { get; set; } = default!;
 
-    private const double SvgWidth = 1560;
-    private const double SvgHeight = 185;
+    [Parameter]
+    public DateOnly NowDate { get; set; }
 
-    private string F(double value) => value.ToString("0.#", CultureInfo.InvariantCulture);
+    private const double SvgWidth = 1560.0;
+    private const double SvgHeight = 185.0;
+
+    private string Fmt(double val) => val.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private DateOnly ParseMonth(string yyyyMM)
+    {
+        return DateOnly.ParseExact(yyyyMM + "-01", "yyyy-MM-dd", CultureInfo.InvariantCulture);
+    }
 
     private double GetXPosition(DateOnly date)
     {
-        var start = DateOnly.ParseExact(TimelineData.StartMonth + "-01", "yyyy-MM-dd", CultureInfo.InvariantCulture);
-        var endMonth = DateOnly.ParseExact(TimelineData.EndMonth + "-01", "yyyy-MM-dd", CultureInfo.InvariantCulture);
-        var end = endMonth.AddMonths(1).AddDays(-1);
+        var start = ParseMonth(TimelineData.StartMonth);
+        var endMonthStart = ParseMonth(TimelineData.EndMonth);
+        var end = endMonthStart.AddMonths(1).AddDays(-1);
         var totalDays = end.DayNumber - start.DayNumber;
         if (totalDays <= 0) return 0;
         var offset = date.DayNumber - start.DayNumber;
@@ -95,24 +103,26 @@
 
     private double GetTrackY(int trackIndex, int totalTracks)
     {
-        var usableHeight = SvgHeight - 30;
+        var usableHeight = SvgHeight - 30.0;
         var spacing = usableHeight / (totalTracks + 1);
-        return 30 + spacing * (trackIndex + 1);
+        return 30.0 + spacing * (trackIndex + 1);
     }
 
-    private string DiamondPoints(double cx, double cy, double radius = 11)
+    private string DiamondPoints(double cx, double cy, double radius = 11.0)
     {
-        return $"{F(cx)},{F(cy - radius)} {F(cx + radius)},{F(cy)} {F(cx)},{F(cy + radius)} {F(cx - radius)},{F(cy)}";
+        return $"{Fmt(cx)},{Fmt(cy - radius)} {Fmt(cx + radius)},{Fmt(cy)} {Fmt(cx)},{Fmt(cy + radius)} {Fmt(cx - radius)},{Fmt(cy)}";
     }
 
-    private List<(DateOnly date, string label)> GetMonthGridLines()
+    private record MonthGridLine(DateOnly Date, string Label);
+
+    private List<MonthGridLine> GetMonthGridLines()
     {
-        var lines = new List<(DateOnly, string)>();
-        var current = DateOnly.ParseExact(TimelineData.StartMonth + "-01", "yyyy-MM-dd", CultureInfo.InvariantCulture);
-        var endMonth = DateOnly.ParseExact(TimelineData.EndMonth + "-01", "yyyy-MM-dd", CultureInfo.InvariantCulture);
-        while (current <= endMonth)
+        var lines = new List<MonthGridLine>();
+        var current = ParseMonth(TimelineData.StartMonth);
+        var endMonthStart = ParseMonth(TimelineData.EndMonth);
+        while (current <= endMonthStart)
         {
-            lines.Add((current, current.ToString("MMM", CultureInfo.InvariantCulture)));
+            lines.Add(new MonthGridLine(current, current.ToString("MMM", CultureInfo.InvariantCulture)));
             current = current.AddMonths(1);
         }
         return lines;

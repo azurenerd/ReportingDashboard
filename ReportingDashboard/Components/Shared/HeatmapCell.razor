@@ -1,17 +1,22 @@
-@if (Items is { Count: > 0 })
-{
-    @foreach (var item in Items)
-    {
-        <div class="it">@item</div>
-    }
-}
-else
+@if (Items is null || Items.Count == 0)
 {
     <span style="color:#AAA;">-</span>
 }
+else
+{
+    @foreach (var item in Items)
+    {
+        <div class="it @(CssClass)-it">@item</div>
+    }
+}
 
 @code {
-    [Parameter] public List<string>? Items { get; set; }
-    [Parameter] public string CssClass { get; set; } = "";
-    [Parameter] public bool IsCurrentMonth { get; set; }
+    [Parameter]
+    public List<string>? Items { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; } = "";
+
+    [Parameter]
+    public bool IsCurrentMonth { get; set; }
 }
