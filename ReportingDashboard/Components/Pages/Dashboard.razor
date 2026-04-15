@@ -1,8 +1,5 @@
 @page "/"
 @implements IDisposable
-@using ReportingDashboard.Models
-@using ReportingDashboard.Services
-@using ReportingDashboard.Components.Shared
 @inject DashboardDataService DataService
 
 @if (DataService.ErrorMessage is not null && DataService.Data is null)
@@ -18,12 +15,21 @@
 else if (DataService.Data is { } data)
 {
     <Header Data="data" />
+    <Timeline TimelineData="data.Timeline" NowDate="@GetNowDate(data)" />
+    <Heatmap HeatmapData="data.Heatmap" />
 }
 
 @code {
     protected override void OnInitialized()
     {
         DataService.OnDataChanged += HandleDataChanged;
+    }
+
+    private DateOnly GetNowDate(DashboardData data)
+    {
+        if (data.NowDate is { } overrideDate)
+            return DateOnly.Parse(overrideDate);
+        return DateOnly.FromDateTime(DateTime.Today);
     }
 
     private async void HandleDataChanged()
