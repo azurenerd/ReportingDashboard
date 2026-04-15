@@ -16,7 +16,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton(new DashboardDataServiceOptions { FilePath = dataFilePath });
 builder.Services.AddSingleton<DashboardDataService>();
 
-builder.Services.AddServerSideBlazor(options =>
+builder.Services.Configure<Microsoft.AspNetCore.Components.Server.CircuitOptions>(options =>
 {
     options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromHours(1);
 });

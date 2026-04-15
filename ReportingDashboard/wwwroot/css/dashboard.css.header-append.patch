@@ -1,0 +1,93 @@
+/* ============================================================
+   HEADER CSS — append these rules to the existing dashboard.css
+   Do NOT replace the file. Add after the last existing rule.
+   ============================================================ */
+
+/* === Header === */
+.hdr {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 44px 10px;
+    border-bottom: 1px solid #E0E0E0;
+    flex-shrink: 0;
+}
+
+.hdr-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.hdr h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.hdr h1 a {
+    font-size: 14px;
+    font-weight: 400;
+    color: #0078D4;
+    text-decoration: none;
+    margin-left: 12px;
+}
+
+.sub {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* === Legend === */
+.hdr-legend {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 22px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-label {
+    font-size: 12px;
+    color: #111;
+}
+
+.legend-icon {
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.legend-poc {
+    width: 12px;
+    height: 12px;
+    background: #F4B400;
+    transform: rotate(45deg);
+}
+
+.legend-prod {
+    width: 12px;
+    height: 12px;
+    background: #34A853;
+    transform: rotate(45deg);
+}
+
+.legend-checkpoint {
+    width: 8px;
+    height: 8px;
+    background: #999;
+    border-radius: 50%;
+}
+
+.legend-now {
+    width: 2px;
+    height: 14px;
+    background: #EA4335;
+}

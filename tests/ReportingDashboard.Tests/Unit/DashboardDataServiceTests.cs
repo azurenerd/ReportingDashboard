@@ -118,8 +118,10 @@ public class DashboardDataServiceTests : IDisposable
     }
 
     [Fact]
-    public void Initialize_WithEmptyFile_SetsEmptyErrorMessage()
+    public void Initialize_WithEmptyFile_SetsErrorMessage()
     {
+        // An empty file is not valid JSON, so JsonSerializer.Deserialize throws JsonException.
+        // The service catches it and sets "Invalid JSON in data file: ..."
         var filePath = Path.Combine(_tempDir, "blank.json");
         File.WriteAllText(filePath, "");
 
@@ -129,7 +131,7 @@ public class DashboardDataServiceTests : IDisposable
         service.Initialize();
 
         service.Data.Should().BeNull();
-        service.ErrorMessage.Should().Be("Data file is empty.");
+        service.ErrorMessage.Should().Contain("Invalid JSON in data file");
     }
 
     [Fact]

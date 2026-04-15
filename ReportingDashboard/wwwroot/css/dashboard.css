@@ -1,4 +1,4 @@
-/* === Reset === */
+/* === Global Reset === */
 * {
     margin: 0;
     padding: 0;
@@ -48,7 +48,7 @@ a {
     font-weight: 400;
     color: #0078D4;
     text-decoration: none;
-    margin-left: 10px;
+    margin-left: 12px;
 }
 
 .sub {
@@ -67,7 +67,6 @@ a {
 
 .legend-item {
     display: flex;
-    flex-direction: row;
     align-items: center;
     gap: 6px;
 }
@@ -121,6 +120,12 @@ a {
     flex-shrink: 0;
 }
 
+.tl-svg-box {
+    flex: 1;
+    padding-left: 12px;
+    padding-top: 6px;
+}
+
 /* === Heatmap Area === */
 .hm-wrap {
     display: flex;
@@ -141,12 +146,13 @@ a {
 
 .hm-grid {
     display: grid;
+    grid-template-rows: 36px repeat(4, 1fr);
     border: 1px solid #E0E0E0;
     flex: 1;
     min-height: 0;
 }
 
-/* === Heatmap Header Row === */
+/* Corner cell */
 .hm-corner {
     background: #F5F5F5;
     font-size: 11px;
@@ -160,6 +166,7 @@ a {
     border-bottom: 2px solid #CCC;
 }
 
+/* Month column headers */
 .hm-col-hdr {
     font-size: 16px;
     font-weight: 700;
@@ -173,10 +180,10 @@ a {
 
 .current-month-hdr {
     background: #FFF0D0 !important;
-    color: #C07700 !important;
+    color: #C07700;
 }
 
-/* === Heatmap Row Headers === */
+/* Row headers */
 .hm-row-hdr {
     font-size: 11px;
     font-weight: 700;
@@ -194,7 +201,7 @@ a {
 .carry-hdr { background: #FFF8E1; color: #B45309; }
 .block-hdr { background: #FEF2F2; color: #991B1B; }
 
-/* === Heatmap Data Cells === */
+/* Data cells */
 .hm-cell {
     padding: 8px 12px;
     border-right: 1px solid #E0E0E0;
@@ -212,7 +219,7 @@ a {
 .carry-cell.current-month { background: #FFF0B0; }
 .block-cell.current-month { background: #FFE4E4; }
 
-/* === Heatmap Items === */
+/* Cell items */
 .it {
     font-size: 12px;
     color: #333;
@@ -236,7 +243,13 @@ a {
 .carry-cell .it::before { background: #F4B400; }
 .block-cell .it::before { background: #EA4335; }
 
-/* === Error View === */
+/* Empty cell dash */
+.empty-cell {
+    color: #AAA;
+    font-size: 12px;
+}
+
+/* Error container */
 .error-container {
     display: flex;
     align-items: center;
