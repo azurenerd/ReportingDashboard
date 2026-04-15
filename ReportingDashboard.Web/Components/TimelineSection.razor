@@ -1,0 +1,96 @@
+@namespace ReportingDashboard.Web.Components
+@using ReportingDashboard.Models
+@using System.Globalization
+
+<div class="tl-area">
+    <div class="tl-sidebar">
+        @foreach (var track in Timeline.Tracks)
+        {
+            <div class="tl-track-label">
+                <span class="tl-label" style="color: @track.Color">@track.Label</span>
+                <span class="tl-desc"> – @track.Description</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg width="1560" height="185" style="overflow:visible;display:block" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter id="sh">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
+                </filter>
+            </defs>
+
+            @* Month gridlines and labels *@
+            @foreach (var monthStart in GetMonthStarts())
+            {
+                var x = DateToX(monthStart);
+                var xStr = x.ToString("F1", CultureInfo.InvariantCulture);
+                var labelX = (x + 5).ToString("F1", CultureInfo.InvariantCulture);
+                var monthAbbr = monthStart.ToString("MMM", CultureInfo.InvariantCulture);
+
+                <line x1="@xStr" y1="0" x2="@xStr" y2="185"
+                      stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
+                @((MarkupString)$"<text x=\"{labelX}\" y=\"14\" fill=\"#666\" font-size=\"11\" font-weight=\"600\" font-family=\"'Segoe UI', Arial, sans-serif\">{monthAbbr}</text>")
+            }
+
+            @* NOW indicator line and label *@
+            @{
+                var nowX = DateToX(Timeline.NowDate);
+                var nowXStr = nowX.ToString("F1", CultureInfo.InvariantCulture);
+                var nowLabelX = (nowX + 4).ToString("F1", CultureInfo.InvariantCulture);
+            }
+            <line x1="@nowXStr" y1="0" x2="@nowXStr" y2="185"
+                  stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+            @((MarkupString)$"<text x=\"{nowLabelX}\" y=\"14\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\" font-family=\"'Segoe UI', Arial, sans-serif\">NOW</text>")
+
+            @* Horizontal track lines *@
+            @for (int i = 0; i < Timeline.Tracks.Count; i++)
+            {
+                var track = Timeline.Tracks[i];
+                var y = TrackToY(i, Timeline.Tracks.Count);
+                var yStr = y.ToString("F1", CultureInfo.InvariantCulture);
+
+                <line x1="0" y1="@yStr" x2="1560" y2="@yStr"
+                      stroke="@track.Color" stroke-width="3" />
+            }
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public TimelineConfig Timeline { get; set; } = default!;
+
+    private const double SvgWidth = 1560.0;
+    private const double SvgHeight = 185.0;
+
+    private double DateToX(DateTime date)
+    {
+        double totalDays = (Timeline.EndDate - Timeline.StartDate).TotalDays;
+        if (totalDays <= 0) return 0;
+        double dayOffset = (date - Timeline.StartDate).TotalDays;
+        return Math.Clamp((dayOffset / totalDays) * SvgWidth, 0, SvgWidth);
+    }
+
+    private double TrackToY(int trackIndex, int trackCount)
+    {
+        if (trackCount <= 0) return SvgHeight / 2;
+        double spacing = SvgHeight / (trackCount + 1);
+        return spacing * (trackIndex + 1);
+    }
+
+    private IEnumerable<DateTime> GetMonthStarts()
+    {
+        var start = Timeline.StartDate;
+        var end = Timeline.EndDate;
+        var current = new DateTime(start.Year, start.Month, 1);
+        if (current < start)
+            current = current.AddMonths(1);
+
+        while (current <= end)
+        {
+            yield return current;
+            current = current.AddMonths(1);
+        }
+    }
+}
