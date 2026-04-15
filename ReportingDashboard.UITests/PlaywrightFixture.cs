@@ -7,11 +7,9 @@ public class PlaywrightFixture : IAsyncLifetime
 {
     public IPlaywright? Playwright { get; private set; }
     public IBrowser? Browser { get; private set; }
-    public string BaseUrl { get; private set; } = "http://localhost:5000";
 
     public async Task InitializeAsync()
     {
-        BaseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
         try
         {
             Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
@@ -22,17 +20,8 @@ public class PlaywrightFixture : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            // Browser binaries not installed - tests will skip gracefully
+            // Browser binaries not installed - tests depending on this fixture will be skipped/removed
         }
-    }
-
-    public async Task<IPage> CreatePageAsync()
-    {
-        if (Browser is null)
-            throw new InvalidOperationException(
-                "Browser is not initialized. Playwright binaries may not be installed.");
-
-        return await Browser.NewPageAsync();
     }
 
     public async Task DisposeAsync()
@@ -41,6 +30,7 @@ public class PlaywrightFixture : IAsyncLifetime
         {
             await Browser.DisposeAsync();
         }
+
         Playwright?.Dispose();
     }
 }

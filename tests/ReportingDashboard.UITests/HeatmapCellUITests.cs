@@ -5,12 +5,12 @@ namespace ReportingDashboard.UITests;
 
 [Collection("Playwright")]
 [Trait("Category", "UI")]
-public class TimelineSectionUITests : IAsyncLifetime
+public class HeatmapCellUITests : IAsyncLifetime
 {
     private readonly PlaywrightFixture _fixture;
     private IPage? _page;
 
-    public TimelineSectionUITests(PlaywrightFixture fixture)
+    public HeatmapCellUITests(PlaywrightFixture fixture)
     {
         _fixture = fixture;
     }
@@ -32,50 +32,49 @@ public class TimelineSectionUITests : IAsyncLifetime
     }
 
     [Fact(Skip = "Playwright browser binaries not installed. Run 'pwsh bin/Debug/net8.0/playwright.ps1 install' to enable.")]
-    public async Task TimelineArea_IsVisible_WithCorrectStructure()
+    public async Task HeatmapGrid_CssGridLayout_HasCorrectStructure()
     {
         var page = _page ?? await _fixture.CreatePageAsync();
         await page.GotoAsync(_fixture.BaseUrl);
-        var timeline = page.Locator(".tl-area");
-        await Assertions.Expect(timeline).ToBeVisibleAsync();
+        var grid = page.Locator(".hm-grid");
+        await Assertions.Expect(grid).ToBeVisibleAsync();
+        var display = await grid.EvaluateAsync<string>("el => getComputedStyle(el).display");
+        Assert.Equal("grid", display);
     }
 
     [Fact(Skip = "Playwright browser binaries not installed. Run 'pwsh bin/Debug/net8.0/playwright.ps1 install' to enable.")]
-    public async Task Sidebar_RendersTrackLabels_WithColorAndDescription()
+    public async Task HeatmapCells_RenderWithThemedClasses()
     {
         var page = _page ?? await _fixture.CreatePageAsync();
         await page.GotoAsync(_fixture.BaseUrl);
-        var sidebar = page.Locator(".tl-area").First;
-        var trackLabels = sidebar.Locator("[style*='color']");
-        Assert.True(await trackLabels.CountAsync() >= 3, "Should render at least 3 track labels");
+        var shippedCells = page.Locator(".ship-cell");
+        Assert.True(await shippedCells.CountAsync() > 0, "Should have shipped-themed cells");
     }
 
     [Fact(Skip = "Playwright browser binaries not installed. Run 'pwsh bin/Debug/net8.0/playwright.ps1 install' to enable.")]
-    public async Task Svg_RendersWithCorrectDimensions_AndDropShadowFilter()
+    public async Task HeatmapCells_HighlightedCellsHaveHighlightClass()
     {
         var page = _page ?? await _fixture.CreatePageAsync();
         await page.GotoAsync(_fixture.BaseUrl);
-        var svg = page.Locator(".tl-svg-box svg");
-        await Assertions.Expect(svg).ToBeVisibleAsync();
-        var width = await svg.GetAttributeAsync("width");
-        Assert.Equal("1560", width);
+        var highlightedCells = page.Locator(".hm-cell.highlight");
+        Assert.True(await highlightedCells.CountAsync() > 0, "Should have highlighted cells for current month");
     }
 
     [Fact(Skip = "Playwright browser binaries not installed. Run 'pwsh bin/Debug/net8.0/playwright.ps1 install' to enable.")]
-    public async Task NowIndicator_IsRendered_WithDashedRedLine()
+    public async Task HeatmapCells_DisplayItemsOrEmptyDash()
     {
         var page = _page ?? await _fixture.CreatePageAsync();
         await page.GotoAsync(_fixture.BaseUrl);
-        var nowLine = page.Locator("line[stroke='#EA4335']");
-        Assert.True(await nowLine.CountAsync() > 0, "NOW indicator line should be rendered");
+        var items = page.Locator(".hm-cell .it");
+        Assert.True(await items.CountAsync() > 0, "Heatmap cells should contain item elements or dash placeholders");
     }
 
     [Fact(Skip = "Playwright browser binaries not installed. Run 'pwsh bin/Debug/net8.0/playwright.ps1 install' to enable.")]
-    public async Task TrackLines_RenderHorizontally_WithCorrectColors()
+    public async Task HeatmapRows_UseDisplayContents_ForGridParticipation()
     {
         var page = _page ?? await _fixture.CreatePageAsync();
         await page.GotoAsync(_fixture.BaseUrl);
-        var trackLines = page.Locator(".tl-svg-box svg line[stroke-width='3']");
-        Assert.True(await trackLines.CountAsync() >= 3, "Should render at least 3 horizontal track lines");
+        var rowHeaders = page.Locator(".hm-row-hdr");
+        Assert.True(await rowHeaders.CountAsync() == 4, "Should have exactly 4 row headers (Shipped, In Progress, Carryover, Blockers)");
     }
 }

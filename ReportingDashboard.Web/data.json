@@ -1,14 +1,14 @@
 {
   "header": {
     "title": "Project Phoenix Release Roadmap",
-    "subtitle": "Platform Engineering · Phoenix Workstream · April 2026",
+    "subtitle": "Platform Engineering \u00b7 Phoenix Workstream \u00b7 April 2026",
     "backlogUrl": "https://dev.azure.com/contoso/ProjectPhoenix/_backlogs",
     "currentMonth": "April 2026"
   },
   "timeline": {
     "startDate": "2026-01-01",
     "endDate": "2026-06-30",
-    "nowDate": "2026-04-15",
+    "nowDate": "2026-04-10",
     "tracks": [
       {
         "id": "m1",
@@ -19,13 +19,13 @@
       {
         "id": "m2",
         "label": "M2",
-        "description": "Data Pipeline",
+        "description": "Data Pipeline & Analytics",
         "color": "#00897B"
       },
       {
         "id": "m3",
         "label": "M3",
-        "description": "UI & Dashboard",
+        "description": "UI & Integration",
         "color": "#546E7A"
       }
     ],
@@ -33,131 +33,186 @@
       {
         "trackId": "m1",
         "date": "2026-01-15",
-        "label": "Jan 15",
-        "type": "checkpoint-minor",
-        "description": "API spec review"
+        "label": "Jan 15 Kickoff",
+        "type": "checkpoint",
+        "description": "Sprint 0 kickoff"
       },
       {
         "trackId": "m1",
         "date": "2026-02-20",
-        "label": "Feb 20 PoC",
-        "type": "poc",
-        "description": "Auth PoC complete"
+        "label": "Feb 20 API Design",
+        "type": "checkpoint",
+        "description": "API contract finalized"
       },
       {
         "trackId": "m1",
-        "date": "2026-03-26",
-        "label": "Mar 26",
-        "type": "checkpoint",
-        "description": "API v1 code-complete"
+        "date": "2026-03-20",
+        "label": "Mar 20 PoC",
+        "type": "poc",
+        "description": "Auth PoC complete"
       },
       {
         "trackId": "m1",
         "date": "2026-05-15",
         "label": "May 15 GA",
         "type": "production",
-        "description": "Core API production release"
+        "description": "Core API v1 GA"
       },
       {
         "trackId": "m2",
-        "date": "2026-02-01",
-        "label": "Feb 1",
+        "date": "2026-01-30",
+        "label": "Jan 30",
         "type": "checkpoint-minor",
-        "description": "Pipeline design approved"
+        "description": "Data model draft"
       },
       {
         "trackId": "m2",
-        "date": "2026-03-10",
-        "label": "Mar 10 PoC",
+        "date": "2026-03-05",
+        "label": "Mar 5 PoC",
         "type": "poc",
-        "description": "ETL pipeline PoC"
+        "description": "Pipeline PoC validated"
       },
       {
         "trackId": "m2",
-        "date": "2026-04-20",
-        "label": "Apr 20",
+        "date": "2026-04-25",
+        "label": "Apr 25 Beta",
         "type": "checkpoint",
-        "description": "Pipeline integration tests"
+        "description": "Analytics beta"
       },
       {
         "trackId": "m2",
         "date": "2026-06-01",
-        "label": "Jun 1 GA",
+        "label": "Jun 1 Release",
         "type": "production",
-        "description": "Data pipeline production release"
+        "description": "Pipeline v1 release"
       },
       {
         "trackId": "m3",
-        "date": "2026-03-01",
-        "label": "Mar 1",
+        "date": "2026-02-10",
+        "label": "Feb 10",
         "type": "checkpoint-minor",
         "description": "Wireframes approved"
       },
       {
         "trackId": "m3",
-        "date": "2026-04-10",
-        "label": "Apr 10 PoC",
-        "type": "poc",
-        "description": "Dashboard PoC demo"
-      },
-      {
-        "trackId": "m3",
-        "date": "2026-05-20",
-        "label": "May 20",
+        "date": "2026-04-15",
+        "label": "Apr 15 Preview",
         "type": "checkpoint",
-        "description": "UI feature-complete"
-      },
-      {
-        "trackId": "m3",
-        "date": "2026-06-25",
-        "label": "Jun 25 GA",
-        "type": "production",
-        "description": "Dashboard production release"
+        "description": "UI preview release"
       }
     ]
   },
   "heatmap": {
-    "columns": ["January", "February", "March", "April"],
+    "columns": [
+      "January",
+      "February",
+      "March",
+      "April"
+    ],
     "highlightColumnIndex": 3,
     "rows": [
       {
         "category": "Shipped",
         "colorTheme": "shipped",
         "cells": [
-          { "items": ["Project kickoff", "Dev environment setup"] },
-          { "items": ["Auth PoC delivered", "API spec finalized"] },
-          { "items": ["ETL pipeline PoC", "CI/CD pipeline live"] },
-          { "items": ["Dashboard PoC demo", "Monitoring alerts configured"] }
+          {
+            "items": [
+              "Project charter signed"
+            ]
+          },
+          {
+            "items": [
+              "API contract v1",
+              "Data model schema"
+            ]
+          },
+          {
+            "items": [
+              "Auth PoC validated",
+              "Pipeline PoC demo"
+            ]
+          },
+          {
+            "items": [
+              "Core API beta deployed",
+              "Analytics dashboard v0.1"
+            ]
+          }
         ]
       },
       {
         "category": "In Progress",
         "colorTheme": "progress",
         "cells": [
-          { "items": ["API spec drafting"] },
-          { "items": ["Core API scaffolding", "Pipeline design"] },
-          { "items": ["API v1 development", "Dashboard wireframes"] },
-          { "items": ["Pipeline integration tests", "UI component build-out"] }
+          {
+            "items": [
+              "Sprint planning",
+              "Environment setup"
+            ]
+          },
+          {
+            "items": [
+              "Auth service scaffold"
+            ]
+          },
+          {
+            "items": [
+              "Pipeline integration"
+            ]
+          },
+          {
+            "items": [
+              "UI component library",
+              "E2E test harness"
+            ]
+          }
         ]
       },
       {
         "category": "Carryover",
         "colorTheme": "carryover",
         "cells": [
-          { "items": [] },
-          { "items": [] },
-          { "items": ["SSO integration (from Feb)"] },
-          { "items": ["Load testing setup (from Mar)"] }
+          {
+            "items": []
+          },
+          {
+            "items": [
+              "CI/CD pipeline config"
+            ]
+          },
+          {
+            "items": [
+              "Load test framework"
+            ]
+          },
+          {
+            "items": [
+              "Vendor SDK integration"
+            ]
+          }
         ]
       },
       {
         "category": "Blockers",
         "colorTheme": "blockers",
         "cells": [
-          { "items": [] },
-          { "items": [] },
-          { "items": ["Vendor API access pending"] },
-          { "items": ["Vendor API access pending", "Capacity approval for staging"] }
+          {
+            "items": []
+          },
+          {
+            "items": []
+          },
+          {
+            "items": [
+              "Vendor API access pending"
+            ]
+          },
+          {
+            "items": [
+              "Capacity approval",
+              "Security review sign-off"
+            ]
+          }
         ]
       }
     ]
