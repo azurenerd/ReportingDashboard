@@ -9,7 +9,7 @@ namespace ReportingDashboard.UITests;
 public class DashboardPageTests : IAsyncLifetime
 {
     private readonly PlaywrightFixture _fixture;
-    private IPage _page = null!;
+    private IPage? _page;
 
     public DashboardPageTests(PlaywrightFixture fixture)
     {
@@ -18,42 +18,57 @@ public class DashboardPageTests : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        _page = await _fixture.Browser.NewPageAsync();
-        _page.SetDefaultTimeout(60000);
+        if (_fixture.IsAvailable)
+        {
+            _page = await _fixture.Browser!.NewPageAsync();
+            _page.SetDefaultTimeout(60000);
+        }
     }
 
     public async Task DisposeAsync()
     {
-        await _page.CloseAsync();
+        if (_page is not null)
+        {
+            await _page.CloseAsync();
+        }
     }
 
-    [Fact]
+    private void SkipIfBrowserUnavailable()
+    {
+        Skip.If(!_fixture.IsAvailable, "Playwright browsers not installed. Run: pwsh bin/Debug/net8.0/playwright.ps1 install");
+    }
+
+    [SkippableFact]
     public async Task HomePage_Loads_WithoutErrors()
     {
-        var response = await _page.GotoAsync(_fixture.BaseUrl);
+        SkipIfBrowserUnavailable();
+
+        var response = await _page!.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         response!.Status.Should().Be(200);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HomePage_ShowsEitherDataOrError()
     {
-        await _page.GotoAsync(_fixture.BaseUrl);
+        SkipIfBrowserUnavailable();
+
+        await _page!.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        // The page should render either the error panel or the placeholder
         var h1 = await _page.Locator("h1").First.TextContentAsync();
         h1.Should().NotBeNullOrEmpty("page should display either project title or error heading");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ErrorPanel_ShowsConfigurationError_WhenDataMissing()
     {
-        await _page.GotoAsync(_fixture.BaseUrl);
+        SkipIfBrowserUnavailable();
+
+        await _page!.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        // If error panel is present, verify its content
         var errorHeading = _page.GetByText("Dashboard Configuration Error");
         if (await errorHeading.CountAsync() > 0)
         {
@@ -64,13 +79,14 @@ public class DashboardPageTests : IAsyncLifetime
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SuccessState_ShowsProjectTitle_WhenDataValid()
     {
-        await _page.GotoAsync(_fixture.BaseUrl);
+        SkipIfBrowserUnavailable();
+
+        await _page!.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        // If data loaded successfully, the placeholder div should exist
         var placeholder = _page.Locator(".dashboard-placeholder");
         if (await placeholder.CountAsync() > 0)
         {
@@ -82,10 +98,12 @@ public class DashboardPageTests : IAsyncLifetime
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Viewport_IsFixedDimensions()
     {
-        await _page.SetViewportSizeAsync(1920, 1080);
+        SkipIfBrowserUnavailable();
+
+        await _page!.SetViewportSizeAsync(1920, 1080);
         await _page.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
