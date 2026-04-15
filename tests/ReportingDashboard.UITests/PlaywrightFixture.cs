@@ -21,8 +21,11 @@ public class PlaywrightFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await Browser.DisposeAsync();
-        Playwright.Dispose();
+        if (Browser is not null)
+        {
+            await Browser.DisposeAsync();
+        }
+        Playwright?.Dispose();
     }
 }
 

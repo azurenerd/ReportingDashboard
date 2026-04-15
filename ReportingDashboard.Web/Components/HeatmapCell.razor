@@ -1,0 +1,30 @@
+@using ReportingDashboard.Models
+
+<div class="hm-cell @ThemeCellClass @(IsHighlighted ? "highlight" : "")">
+    @if (Cell is null || Cell.Items.Count == 0)
+    {
+        <div class="it empty">-</div>
+    }
+    else
+    {
+        @foreach (var item in Cell.Items)
+        {
+            <div class="it">@item</div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public MonthCell Cell { get; set; } = default!;
+    [Parameter] public string ColorTheme { get; set; } = "";
+    [Parameter] public bool IsHighlighted { get; set; }
+
+    private string ThemeCellClass => ColorTheme switch
+    {
+        "shipped" => "ship-cell",
+        "progress" => "prog-cell",
+        "carryover" => "carry-cell",
+        "blockers" => "block-cell",
+        _ => ""
+    };
+}

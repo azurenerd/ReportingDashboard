@@ -1,0 +1,31 @@
+@using ReportingDashboard.Models
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Heatmap.Columns.Count, 1fr)">
+        @* Header row: corner + column headers *@
+        <div class="hm-corner">Status</div>
+        @for (int i = 0; i < Heatmap.Columns.Count; i++)
+        {
+            var index = i;
+            <div class="hm-col-hdr @(index == SafeHighlightIndex ? "hm-col-highlight" : "")">@Heatmap.Columns[index]</div>
+        }
+
+        @* Data rows *@
+        @foreach (var row in Heatmap.Rows)
+        {
+            <HeatmapRow Row="@row"
+                        HighlightColumnIndex="@SafeHighlightIndex"
+                        ColumnCount="@Heatmap.Columns.Count" />
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public HeatmapData Heatmap { get; set; } = default!;
+
+    private int SafeHighlightIndex =>
+        Heatmap.HighlightColumnIndex >= 0 && Heatmap.HighlightColumnIndex < Heatmap.Columns.Count
+            ? Heatmap.HighlightColumnIndex
+            : -1;
+}

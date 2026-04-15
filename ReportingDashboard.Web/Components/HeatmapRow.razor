@@ -1,0 +1,27 @@
+@using ReportingDashboard.Models
+
+<div style="display:contents">
+    <div class="hm-row-hdr @ThemeHdrClass">@Row.Category</div>
+    @for (int i = 0; i < Row.Cells.Count; i++)
+    {
+        var index = i;
+        <HeatmapCell Cell="@Row.Cells[index]"
+                     ColorTheme="@Row.ColorTheme"
+                     IsHighlighted="@(index == HighlightColumnIndex)" />
+    }
+</div>
+
+@code {
+    [Parameter] public StatusRow Row { get; set; } = default!;
+    [Parameter] public int HighlightColumnIndex { get; set; } = -1;
+    [Parameter] public int ColumnCount { get; set; }
+
+    private string ThemeHdrClass => Row.ColorTheme switch
+    {
+        "shipped" => "ship-hdr",
+        "progress" => "prog-hdr",
+        "carryover" => "carry-hdr",
+        "blockers" => "block-hdr",
+        _ => ""
+    };
+}
