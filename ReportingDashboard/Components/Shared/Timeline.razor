@@ -1,5 +1,13 @@
 @using ReportingDashboard.Models
 @using System.Globalization
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Rendering
+
+@* 
+    Timeline.razor - SVG Milestone Timeline Component
+    Render mode: Inherits InteractiveServer from parent Dashboard.razor / App.razor route configuration.
+    Does not specify @rendermode directly as it is a child component.
+*@
 
 <div class="tl-area">
     @* Left sidebar: track labels *@
@@ -29,7 +37,7 @@
                 var x = GetXPosition(date);
                 <line x1="@F(x)" y1="0" x2="@F(x)" y2="@F(SvgHeight)"
                       stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
-                @RenderSvgText(F(x + 4), "12", "11", "600", "#666", "start", label)
+                @SvgText(F(x + 4), "12", "11", "600", "#666", "start", label)
             }
 
             @* Track lines and milestones *@
@@ -54,27 +62,27 @@
                         @* PoC diamond - gold *@
                         <polygon points="@DiamondPoints(mx, trackY, 11)"
                                  fill="#F4B400" filter="url(#sh)" />
-                        @RenderSvgText(F(mx), F(trackY - 16), "10", null, "#666", "middle", milestone.Label)
+                        @SvgText(F(mx), F(trackY - 16), "10", null, "#666", "middle", milestone.Label)
                     }
                     else if (milestone.Type == "production")
                     {
                         @* Production diamond - green *@
                         <polygon points="@DiamondPoints(mx, trackY, 11)"
                                  fill="#34A853" filter="url(#sh)" />
-                        @RenderSvgText(F(mx), F(trackY - 16), "10", null, "#666", "middle", milestone.Label)
+                        @SvgText(F(mx), F(trackY - 16), "10", null, "#666", "middle", milestone.Label)
                     }
                     else if (milestone.Type == "checkpoint-small")
                     {
                         @* Small checkpoint dot *@
                         <circle cx="@F(mx)" cy="@F(trackY)" r="4" fill="#999" />
-                        @RenderSvgText(F(mx), F(trackY + 18), "10", null, "#666", "middle", milestone.Label)
+                        @SvgText(F(mx), F(trackY + 18), "10", null, "#666", "middle", milestone.Label)
                     }
                     else
                     {
                         @* Standard checkpoint circle *@
                         <circle cx="@F(mx)" cy="@F(trackY)" r="6"
                                 fill="white" stroke="@track.Color" stroke-width="2.5" />
-                        @RenderSvgText(F(mx), F(trackY + 20), "10", null, "#666", "middle", milestone.Label)
+                        @SvgText(F(mx), F(trackY + 20), "10", null, "#666", "middle", milestone.Label)
                     }
                 }
             }
@@ -87,7 +95,7 @@
             {
                 <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="@F(SvgHeight)"
                       stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
-                @RenderSvgText(F(nowX), F(SvgHeight - 2), "10", "700", "#EA4335", "middle", "NOW")
+                @SvgText(F(nowX), F(SvgHeight - 2), "10", "700", "#EA4335", "middle", "NOW")
             }
         </svg>
     </div>
@@ -149,11 +157,24 @@
 
     private static string F(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 
-    private Microsoft.AspNetCore.Components.MarkupString RenderSvgText(
-        string x, string y, string fontSize, string? fontWeight, string fill, string textAnchor, string content)
+    /// <summary>
+    /// Renders an SVG text element using Blazor's RenderTreeBuilder for proper attribute encoding.
+    /// All values pass through Blazor's built-in HTML encoding pipeline — no raw MarkupString bypass.
+    /// </summary>
+    private RenderFragment SvgText(string x, string y, string fontSize, string? fontWeight, string fill, string textAnchor, string content) => builder =>
     {
-        var fw = fontWeight is not null ? $" font-weight=\"{fontWeight}\"" : "";
-        var html = $"<text x=\"{x}\" y=\"{y}\" font-size=\"{fontSize}\"{fw} fill=\"{fill}\" text-anchor=\"{textAnchor}\" font-family=\"'Segoe UI', Arial, sans-serif\">{System.Net.WebUtility.HtmlEncode(content)}</text>";
-        return new Microsoft.AspNetCore.Components.MarkupString(html);
-    }
+        builder.OpenElement(0, "text");
+        builder.AddAttribute(1, "x", x);
+        builder.AddAttribute(2, "y", y);
+        builder.AddAttribute(3, "font-size", fontSize);
+        if (fontWeight is not null)
+        {
+            builder.AddAttribute(4, "font-weight", fontWeight);
+        }
+        builder.AddAttribute(5, "fill", fill);
+        builder.AddAttribute(6, "text-anchor", textAnchor);
+        builder.AddAttribute(7, "font-family", "'Segoe UI', Arial, sans-serif");
+        builder.AddContent(8, content);
+        builder.CloseElement();
+    };
 }
