@@ -1,7 +1,7 @@
 {
   "title": "Privacy Automation Platform",
   "subtitle": "Trusted Platform \u2022 Privacy Automation Workstream \u2022 April 2026",
-  "backlogUrl": "https://dev.azure.com/example/privacy-automation/_backlogs",
+  "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
   "nowDate": "2026-04-15",
   "timeline": {
     "startMonth": "2026-01",
@@ -13,28 +13,29 @@
         "color": "#0078D4",
         "milestones": [
           { "date": "2026-01-15", "type": "checkpoint", "label": "Design" },
-          { "date": "2026-03-01", "type": "poc", "label": "PoC" },
-          { "date": "2026-05-15", "type": "production", "label": "GA" }
+          { "date": "2026-02-28", "type": "poc", "label": "PoC" },
+          { "date": "2026-04-15", "type": "checkpoint", "label": "Beta" },
+          { "date": "2026-06-01", "type": "production", "label": "GA" }
         ]
       },
       {
         "id": "M2",
-        "label": "DSR Automation",
+        "label": "Data Pipeline v2",
         "color": "#00897B",
         "milestones": [
-          { "date": "2026-02-01", "type": "checkpoint", "label": "Kickoff" },
-          { "date": "2026-04-01", "type": "poc", "label": "PoC" },
-          { "date": "2026-06-01", "type": "production", "label": "Ship" }
+          { "date": "2026-01-20", "type": "checkpoint-small", "label": "Kickoff" },
+          { "date": "2026-03-10", "type": "poc", "label": "PoC" },
+          { "date": "2026-05-15", "type": "production", "label": "Ship" }
         ]
       },
       {
         "id": "M3",
-        "label": "Consent Platform",
+        "label": "Compliance Portal",
         "color": "#546E7A",
         "milestones": [
-          { "date": "2026-01-20", "type": "checkpoint-small", "label": "Spike" },
-          { "date": "2026-03-15", "type": "checkpoint", "label": "Review" },
-          { "date": "2026-06-15", "type": "production", "label": "v1" }
+          { "date": "2026-02-01", "type": "checkpoint", "label": "Spec" },
+          { "date": "2026-04-01", "type": "poc", "label": "PoC" },
+          { "date": "2026-06-15", "type": "production", "label": "Launch" }
         ]
       }
     ]
@@ -47,40 +48,37 @@
         "name": "Shipped",
         "cssClass": "ship",
         "items": {
-          "January": ["Privacy bot scaffolding", "Role matrix v1"],
-          "February": ["DSR intake form", "Consent SDK alpha"],
-          "March": ["Bot PoC demo", "DSR workflow engine"],
-          "April": ["Consent banner rollout"]
+          "January": ["Auth service v1", "Telemetry SDK"],
+          "February": ["Chatbot prototype", "Role mapping API"],
+          "March": ["Pipeline v2 PoC", "Compliance schema"],
+          "April": ["Beta chatbot release"]
         }
       },
       {
         "name": "In Progress",
         "cssClass": "prog",
         "items": {
-          "January": ["Bot NLU training"],
-          "February": ["Role-based access PoC"],
-          "March": ["DSR queue dashboard"],
-          "April": ["Bot GA hardening", "DSR perf tuning"]
+          "January": ["Chatbot design", "Pipeline research"],
+          "February": ["Data connector build"],
+          "March": ["Beta testing", "Portal wireframes"],
+          "April": ["GA hardening", "Portal PoC", "Load testing"]
         }
       },
       {
         "name": "Carryover",
         "cssClass": "carry",
         "items": {
-          "January": [],
-          "February": ["Bot NLU training"],
-          "March": [],
-          "April": ["DSR queue dashboard"]
+          "February": ["Auth edge cases"],
+          "March": ["Connector retry logic", "Audit log export API (from Feb)"],
+          "April": ["Retry logic fix"]
         }
       },
       {
         "name": "Blockers",
         "cssClass": "block",
         "items": {
-          "January": [],
-          "February": [],
-          "March": ["AAD tenant config delay"],
-          "April": []
+          "March": ["AAD tenant access"],
+          "April": ["Prod subscription quota"]
         }
       }
     ]

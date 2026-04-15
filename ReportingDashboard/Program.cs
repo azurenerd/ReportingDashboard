@@ -1,8 +1,8 @@
+using ReportingDashboard.Components;
 using ReportingDashboard.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Parse --data argument
 string dataFilePath = "data.json";
 var dataArgIndex = Array.IndexOf(args, "--data");
 if (dataArgIndex >= 0 && dataArgIndex + 1 < args.Length)
@@ -16,10 +16,11 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton(new DashboardDataServiceOptions { FilePath = dataFilePath });
 builder.Services.AddSingleton<DashboardDataService>();
 
-builder.Services.Configure<Microsoft.AspNetCore.Components.Server.CircuitOptions>(options =>
-{
-    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromHours(1);
-});
+builder.Services.AddOptions<Microsoft.AspNetCore.Components.Server.CircuitOptions>()
+    .Configure(options =>
+    {
+        options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromHours(1);
+    });
 
 builder.WebHost.UseUrls("http://localhost:5000");
 
@@ -30,7 +31,7 @@ dataService.Initialize();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-app.MapRazorComponents<ReportingDashboard.Components.App>()
+app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();

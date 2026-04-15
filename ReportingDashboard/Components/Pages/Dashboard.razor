@@ -1,15 +1,15 @@
 @page "/"
 @implements IDisposable
+@using ReportingDashboard.Models
+@using ReportingDashboard.Services
+@using ReportingDashboard.Components.Shared
 @inject DashboardDataService DataService
 
 @if (DataService.ErrorMessage is not null && DataService.Data is null)
 {
     <div class="error-container">
-        <p>
-            Unable to load dashboard data. Please check that data.json exists and contains valid JSON.
-            <br /><br />
-            <span class="error-detail">@DataService.ErrorMessage</span>
-        </p>
+        <p>Unable to load dashboard data. Please check that data.json exists and contains valid JSON.</p>
+        <p><span style="font-size:14px;color:#999;">@DataService.ErrorMessage</span></p>
     </div>
 }
 else if (DataService.Data is { } data)
