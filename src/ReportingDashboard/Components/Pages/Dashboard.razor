@@ -1,22 +1,27 @@
 @page "/"
-@using ReportingDashboard.Models
 @using ReportingDashboard.Services
+@using ReportingDashboard.Models
 @inject DataService DataService
 @implements IDisposable
 
 @{
     var data = DataService.GetData();
     var error = DataService.GetError();
+    var currentMonth = DataService.GetCurrentMonthName();
+}
+
+@if (error is not null && data is not null)
+{
+    <div class="error-banner">⚠ data.json has errors - showing last valid data. Error: @error</div>
 }
 
 @if (data is null && error is not null)
 {
     <div class="error-page">
         <div class="error-message">
-            <h1>Dashboard Data Error</h1>
-            <p>There was a problem loading <code>data.json</code>:</p>
-            <pre>@error</pre>
-            <p>Please fix the file and save. The dashboard will reload automatically.</p>
+            <h2>⚠ Dashboard Data Error</h2>
+            <p>@error</p>
+            <p>Fix <code>wwwroot/data.json</code> and save - the dashboard will reload automatically.</p>
         </div>
     </div>
 }
@@ -24,223 +29,148 @@ else if (data is null)
 {
     <div class="error-page">
         <div class="error-message">
-            <h1>Dashboard Data Error</h1>
-            <p>No data available. Place a valid <code>data.json</code> file in the wwwroot/ directory.</p>
+            <h2>Loading...</h2>
         </div>
     </div>
 }
 else
 {
-    var effectiveDate = DataService.GetEffectiveDate();
-    var currentMonth = DataService.GetCurrentMonthName();
-    var startDate = DateOnly.ParseExact(data.Timeline.StartDate, "yyyy-MM-dd");
-    var endDate = DateOnly.ParseExact(data.Timeline.EndDate, "yyyy-MM-dd");
-    var totalDays = (double)(endDate.DayNumber - startDate.DayNumber);
-    var svgWidth = 1560.0;
-    var svgHeight = 196.0;
-    var workstreams = data.Timeline.Workstreams;
-    var wsCount = workstreams.Length;
+    <div class="dashboard">
+        <DashboardHeader Data="@data" />
 
-    double CalcX(DateOnly d) => totalDays > 0 ? (d.DayNumber - startDate.DayNumber) / totalDays * svgWidth : 0;
+        @* Timeline Band *@
+        <div class="timeline-band">
+            @{
+                var tlStartDate = DateOnly.ParseExact(data.Timeline.StartDate, "yyyy-MM-dd");
+                var tlEndDate = DateOnly.ParseExact(data.Timeline.EndDate, "yyyy-MM-dd");
+                var totalDays = (double)(tlEndDate.DayNumber - tlStartDate.DayNumber);
+                var leftMargin = 180.0;
+                var rightMargin = 40.0;
+                var trackWidth = 1920.0 - leftMargin - rightMargin;
 
-    var nowX = CalcX(effectiveDate);
-    var showNow = effectiveDate >= startDate && effectiveDate <= endDate;
+                double DateToX(DateOnly d)
+                {
+                    var dayOffset = d.DayNumber - tlStartDate.DayNumber;
+                    return leftMargin + (dayOffset / totalDays) * trackWidth;
+                }
 
-    var monthLines = new List<(double x, string label)>();
-    {
-        var cursor = new DateOnly(startDate.Year, startDate.Month, 1);
-        while (cursor <= endDate)
-        {
-            if (cursor >= startDate)
-            {
-                var mx = CalcX(cursor);
-                monthLines.Add((mx, cursor.ToString("MMM")));
+                var effectiveDate = DataService.GetEffectiveDate();
+                var nowX = DateToX(effectiveDate);
+
+                var gridlines = new List<(double x, string label)>();
+                var gridDate = new DateOnly(tlStartDate.Year, tlStartDate.Month, 1).AddMonths(1);
+                while (gridDate < tlEndDate)
+                {
+                    gridlines.Add((DateToX(gridDate), gridDate.ToString("MMM yyyy")));
+                    gridDate = gridDate.AddMonths(1);
+                }
+
+                var showNow = effectiveDate >= tlStartDate && effectiveDate <= tlEndDate;
+
+                var workstreamData = new List<(Workstream ws, int trackY, int labelY, List<(Milestone ms, double mx, bool isPast, string diamondFill, string labelPos, int labelDy)> milestones)>();
+                var wsIndex = 0;
+                foreach (var ws in data.Timeline.Workstreams)
+                {
+                    var trackY = 60 + wsIndex * 50;
+                    var labelY = trackY + 5;
+                    var milestones = new List<(Milestone ms, double mx, bool isPast, string diamondFill, string labelPos, int labelDy)>();
+                    var miIndex = 0;
+                    foreach (var ms in ws.Milestones)
+                    {
+                        var msDate = DateOnly.ParseExact(ms.Date, "yyyy-MM-dd");
+                        var mx = DateToX(msDate);
+                        var isPast = msDate <= effectiveDate;
+                        var diamondFill = isPast ? ws.Color : "#FFF";
+                        var labelPos = ms.LabelPosition ?? (miIndex % 2 == 0 ? "above" : "below");
+                        var labelDy = labelPos == "above" ? -14 : 18;
+                        milestones.Add((ms, mx, isPast, diamondFill, labelPos, labelDy));
+                        miIndex++;
+                    }
+                    workstreamData.Add((ws, trackY, labelY, milestones));
+                    wsIndex++;
+                }
             }
-            cursor = cursor.AddMonths(1);
-        }
-    }
-
-    var laneHeight = wsCount > 0 ? (svgHeight - 20) / wsCount : 56.0;
-    double WsY(int idx) => 10 + laneHeight * idx + laneHeight / 2.0;
-
-    var monthCols = data.Heatmap.MonthColumns;
-    var categories = data.Heatmap.Categories;
-    var colCount = monthCols.Length;
-    var gridCols = "140px repeat(" + colCount.ToString() + ", 1fr)";
-
-    <div class="dashboard" style="width:1920px;height:1080px;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;background:#fff;">
-
-        @if (error is not null)
-        {
-            <div class="error-banner" style="background:#FFF3CD;border-bottom:2px solid #FFC107;padding:8px 24px;font-size:12px;color:#856404;display:flex;align-items:center;gap:8px;">
-                <span>&#9888;</span>
-                <span>@error</span>
-            </div>
-        }
-
-        <!-- HEADER -->
-        <div class="hdr" style="display:flex;justify-content:space-between;align-items:flex-start;padding:12px 24px 8px 24px;border-bottom:1px solid #E0E0E0;">
-            <div>
-                <h1 style="font-size:24px;font-weight:700;margin:0;display:flex;align-items:center;gap:12px;">
-                    @data.Title
-                    <a href="@data.BacklogUrl" target="_blank" style="font-size:13px;font-weight:400;color:#0078D4;text-decoration:none;">&#128203; ADO Backlog</a>
-                </h1>
-                <div class="sub" style="font-size:12px;color:#888;margin-top:2px;">@data.Subtitle</div>
-            </div>
-            <div class="legend" style="display:flex;gap:16px;align-items:center;padding-top:6px;">
-                <div class="legend-item" style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666;">
-                    <span class="icon-diamond gold" style="width:10px;height:10px;background:#F4B400;transform:rotate(45deg);display:inline-block;"></span>
-                    PoC Milestone
-                </div>
-                <div class="legend-item" style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666;">
-                    <span class="icon-diamond green" style="width:10px;height:10px;background:#34A853;transform:rotate(45deg);display:inline-block;"></span>
-                    Production Release
-                </div>
-                <div class="legend-item" style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666;">
-                    <span class="icon-circle" style="width:10px;height:10px;background:#999;border-radius:50%;display:inline-block;"></span>
-                    Checkpoint
-                </div>
-                <div class="legend-item" style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666;">
-                    <span class="icon-now-line" style="width:3px;height:14px;background:#EA4335;display:inline-block;"></span>
-                    Now
-                </div>
-            </div>
-        </div>
-
-        <!-- TIMELINE -->
-        <div class="tl-area" style="display:flex;height:196px;background:#FAFAFA;border-bottom:1px solid #E0E0E0;">
-            <div class="tl-sidebar" style="width:230px;padding:8px 12px;display:flex;flex-direction:column;justify-content:space-around;">
-                @foreach (var ws in workstreams)
+            <svg width="1920" height="260" viewBox="0 0 1920 260" xmlns="http://www.w3.org/2000/svg">
+                @foreach (var gl in gridlines)
                 {
-                    <div class="ws-label" style="display:flex;align-items:center;gap:6px;font-size:12px;">
-                        <span class="ws-color" style="width:10px;height:10px;border-radius:2px;background:@ws.Color;display:inline-block;"></span>
-                        <span>@ws.Id &#8211; @ws.Name</span>
-                    </div>
+                    <line x1="@gl.x" y1="30" x2="@gl.x" y2="240" stroke="#E0E0E0" stroke-width="1" />
+                    <svg x="@gl.x" y="20" overflow="visible">
+                        <text x="0" y="0" text-anchor="middle" font-size="11" fill="#888">@gl.label</text>
+                    </svg>
                 }
-            </div>
-            <div class="tl-svg-wrap" style="flex:1;position:relative;overflow:hidden;">
-                @{
-                    var svgWidthStr = svgWidth.ToString("F0");
-                    var svgHeightStr = svgHeight.ToString("F0");
-                    var svgHeightMinus4 = (svgHeight - 4).ToString("F0");
 
-                    var svgParts = new System.Text.StringBuilder();
-                    svgParts.Append("<defs><filter id=\"sh\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feDropShadow dx=\"0\" dy=\"1\" stdDeviation=\"1.5\" flood-opacity=\"0.12\"/></filter></defs>");
+                @if (showNow)
+                {
+                    <line x1="@nowX" y1="30" x2="@nowX" y2="240" stroke="#F4B400" stroke-width="2" stroke-dasharray="6,3" />
+                    <rect x="@(nowX - 20)" y="24" width="40" height="16" rx="3" fill="#FFF0D0" stroke="#F4B400" stroke-width="1" />
+                    <svg x="@nowX" y="36" overflow="visible">
+                        <text x="0" y="0" text-anchor="middle" font-size="9" font-weight="bold" fill="#C07700">NOW</text>
+                    </svg>
+                }
 
-                    // Month gridlines
-                    foreach (var ml in monthLines)
+                @foreach (var (ws, trackY, labelY, milestones) in workstreamData)
+                {
+                    <svg x="10" y="@labelY" overflow="visible">
+                        <text x="0" y="0" font-size="12" font-weight="600" fill="@ws.Color">@ws.Id</text>
+                    </svg>
+                    <svg x="35" y="@labelY" overflow="visible">
+                        <text x="0" y="0" font-size="11" fill="#333">@ws.Name</text>
+                    </svg>
+                    <line x1="@leftMargin" y1="@trackY" x2="@(1920 - rightMargin)" y2="@trackY" stroke="@ws.Color" stroke-width="3" opacity="0.3" />
+
+                    @foreach (var (ms, mx, isPast, diamondFill, labelPos, labelDy) in milestones)
                     {
-                        var mlx = ml.x.ToString("F1");
-                        svgParts.Append("<line x1=\"" + mlx + "\" y1=\"0\" x2=\"" + mlx + "\" y2=\"" + svgHeightStr + "\" stroke=\"#E8E8E8\" stroke-width=\"1\"/>");
-                        svgParts.Append("<text x=\"" + mlx + "\" y=\"" + svgHeightMinus4 + "\" font-size=\"11\" fill=\"#666\" text-anchor=\"middle\">" + ml.label + "</text>");
-                    }
-
-                    // Workstream lines and milestones
-                    for (int i = 0; i < wsCount; i++)
-                    {
-                        var ws = workstreams[i];
-                        var y = WsY(i);
-                        var yStr = y.ToString("F1");
-
-                        svgParts.Append("<line x1=\"0\" y1=\"" + yStr + "\" x2=\"" + svgWidthStr + "\" y2=\"" + yStr + "\" stroke=\"" + ws.Color + "\" stroke-width=\"2\" opacity=\"0.3\"/>");
-
-                        foreach (var ms in ws.Milestones)
+                        if (ms.Type == "checkpoint")
                         {
-                            var msDate = DateOnly.ParseExact(ms.Date, "yyyy-MM-dd");
-                            var mx = CalcX(msDate);
-                            var mxStr = mx.ToString("F1");
-
-                            var labelAbove = string.Equals(ms.LabelPosition, "above", StringComparison.OrdinalIgnoreCase);
-                            var labelY = labelAbove ? (y - 14) : (y + 20);
-                            var labelYStr = labelY.ToString("F1");
-
-                            var yMinus7 = (y - 7).ToString("F1");
-                            var yPlus7 = (y + 7).ToString("F1");
-                            var mxPlus7 = (mx + 7).ToString("F1");
-                            var mxMinus7 = (mx - 7).ToString("F1");
-
-                            if (ms.Type == "poc")
-                            {
-                                var d = "M" + mxStr + "," + yMinus7 + " L" + mxPlus7 + "," + yStr + " L" + mxStr + "," + yPlus7 + " L" + mxMinus7 + "," + yStr + " Z";
-                                svgParts.Append("<path d=\"" + d + "\" fill=\"#F4B400\" filter=\"url(#sh)\" class=\"milestone poc\"/>");
-                            }
-                            else if (ms.Type == "production")
-                            {
-                                var d = "M" + mxStr + "," + yMinus7 + " L" + mxPlus7 + "," + yStr + " L" + mxStr + "," + yPlus7 + " L" + mxMinus7 + "," + yStr + " Z";
-                                svgParts.Append("<path d=\"" + d + "\" fill=\"#34A853\" filter=\"url(#sh)\" class=\"milestone production\"/>");
-                            }
-                            else if (ms.Type == "start")
-                            {
-                                svgParts.Append("<circle cx=\"" + mxStr + "\" cy=\"" + yStr + "\" r=\"5\" fill=\"none\" stroke=\"" + ws.Color + "\" stroke-width=\"2\" class=\"milestone start\"/>");
-                            }
-                            else
-                            {
-                                svgParts.Append("<circle cx=\"" + mxStr + "\" cy=\"" + yStr + "\" r=\"4\" fill=\"#999\" class=\"milestone checkpoint\"/>");
-                            }
-
-                            svgParts.Append("<text x=\"" + mxStr + "\" y=\"" + labelYStr + "\" font-size=\"10\" fill=\"#666\" text-anchor=\"middle\" class=\"ms-label\">" + System.Net.WebUtility.HtmlEncode(ms.Label) + "</text>");
+                            <circle cx="@mx" cy="@trackY" r="5" fill="@(isPast ? "#999" : "#FFF")" stroke="#999" stroke-width="2" />
                         }
-                    }
+                        else
+                        {
+                            <g transform="translate(@mx, @trackY) rotate(45)">
+                                <rect x="-6" y="-6" width="12" height="12" fill="@diamondFill" stroke="@ws.Color" stroke-width="2" />
+                            </g>
+                        }
 
-                    // NOW line
-                    if (showNow)
-                    {
-                        var nxStr = nowX.ToString("F1");
-                        svgParts.Append("<line x1=\"" + nxStr + "\" y1=\"0\" x2=\"" + nxStr + "\" y2=\"" + svgHeightStr + "\" stroke=\"#EA4335\" stroke-width=\"2\" stroke-dasharray=\"5,3\" class=\"now-line\"/>");
-                        svgParts.Append("<text x=\"" + nxStr + "\" y=\"12\" font-size=\"11\" fill=\"#EA4335\" font-weight=\"bold\" text-anchor=\"middle\" class=\"now-label\">NOW</text>");
+                        <svg x="@mx" y="@(trackY + labelDy)" overflow="visible">
+                            <text x="0" y="0" text-anchor="middle" font-size="9" fill="#666">@ms.Label</text>
+                        </svg>
                     }
-
-                    var fullSvg = "<svg width=\"" + svgWidthStr + "\" height=\"" + svgHeightStr + "\" xmlns=\"http://www.w3.org/2000/svg\" style=\"display:block;\">" + svgParts.ToString() + "</svg>";
                 }
-                @((MarkupString)fullSvg)
-            </div>
+            </svg>
         </div>
 
-        <!-- HEATMAP -->
-        <div class="hm-wrap" style="padding:12px 24px 0 24px;">
-            <div class="hm-title" style="font-size:14px;font-weight:600;margin-bottom:8px;">Monthly Execution Heatmap</div>
-
-            <div class="hm-grid" style="display:grid;grid-template-columns:@gridCols;gap:0;border:1px solid #E0E0E0;border-radius:6px;overflow:hidden;">
-                <!-- Column headers -->
-                <div class="hm-corner" style="background:#F5F5F5;padding:6px 10px;font-size:11px;font-weight:600;color:#666;border-bottom:1px solid #E0E0E0;border-right:1px solid #E0E0E0;"></div>
-                @foreach (var mc in monthCols)
-                {
-                    var isCurrentMonth = string.Equals(mc, currentMonth, StringComparison.OrdinalIgnoreCase);
-                    var colBg = isCurrentMonth ? "#E8F0FE" : "#F5F5F5";
-                    var colWeight = isCurrentMonth ? "700" : "600";
-                    var hdrClass = isCurrentMonth ? "hm-month-hdr now" : "hm-month-hdr";
-                    <div class="@hdrClass" style="background:@colBg;padding:6px 10px;font-size:11px;font-weight:@colWeight;color:#333;text-align:center;border-bottom:1px solid #E0E0E0;border-right:1px solid #E0E0E0;">@mc</div>
-                }
-
-                <!-- Category rows -->
-                @foreach (var cat in categories)
-                {
-                    var rowLabelClass = "hm-row-label " + cat.CssClass;
-                    <div class="@rowLabelClass" style="display:flex;align-items:center;gap:6px;padding:8px 10px;font-size:12px;font-weight:600;border-bottom:1px solid #E0E0E0;border-right:1px solid #E0E0E0;background:#FAFAFA;">
-                        <span>@cat.Emoji</span> @cat.Name
-                    </div>
-                    @foreach (var monthData in cat.Months)
+        @* Heatmap Band *@
+        <div class="heatmap">
+            <table class="heatmap-table">
+                <thead>
+                    <tr>
+                        <th class="cat-hdr"></th>
+                        @foreach (var month in data.Heatmap.MonthColumns)
+                        {
+                            var isCurrentMonth = string.Equals(month, currentMonth, StringComparison.OrdinalIgnoreCase);
+                            <th class="month-hdr @(isCurrentMonth ? "now" : "")">@month</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cat in data.Heatmap.Categories)
                     {
-                        var isCurrentMonthCol = string.Equals(monthData.Month, currentMonth, StringComparison.OrdinalIgnoreCase);
-                        var cellBg = isCurrentMonthCol ? "#F0F4FF" : "#fff";
-                        var itemCount = monthData.Items.Length;
-                        var cellClass = isCurrentMonthCol ? "hm-cell " + cat.CssClass + " now" : "hm-cell " + cat.CssClass;
-                        <div class="@cellClass" style="padding:4px 8px;border-bottom:1px solid #E0E0E0;border-right:1px solid #E0E0E0;background:@cellBg;font-size:11px;line-height:1.5;">
-                            @if (itemCount == 0)
+                        <tr>
+                            <td class="cat-label @cat.CssClass">@cat.Emoji @cat.Name</td>
+                            @foreach (var monthData in cat.Months)
                             {
-                                <span class="empty-cell" style="color:#CCC;">&mdash;</span>
+                                var isCurrentMonth = string.Equals(monthData.Month, currentMonth, StringComparison.OrdinalIgnoreCase);
+                                <td class="cell @cat.CssClass @(isCurrentMonth ? "active" : "")">
+                                    @foreach (var item in monthData.Items)
+                                    {
+                                        <div class="item">@item</div>
+                                    }
+                                </td>
                             }
-                            else
-                            {
-                                @foreach (var item in monthData.Items)
-                                {
-                                    <div class="hm-item" style="padding:1px 0;">@item</div>
-                                }
-                            }
-                        </div>
+                        </tr>
                     }
-                }
-            </div>
+                </tbody>
+            </table>
         </div>
     </div>
 }
@@ -248,16 +178,23 @@ else
 @code {
     protected override void OnInitialized()
     {
-        DataService.OnDataChanged += HandleDataChanged;
+        DataService.OnDataChanged += OnDataChanged;
     }
 
-    private void HandleDataChanged()
+    private async void OnDataChanged()
     {
-        InvokeAsync(StateHasChanged);
+        try
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException)
+        {
+            // Circuit may be gone
+        }
     }
 
     public void Dispose()
     {
-        DataService.OnDataChanged -= HandleDataChanged;
+        DataService.OnDataChanged -= OnDataChanged;
     }
 }

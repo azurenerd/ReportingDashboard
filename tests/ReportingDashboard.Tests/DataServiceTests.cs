@@ -1,121 +1,89 @@
-using System.Text.Json;
-using ReportingDashboard.Models;
+using Microsoft.AspNetCore.Hosting;
+using Moq;
+using ReportingDashboard.Services;
 using Xunit;
 
 namespace ReportingDashboard.Tests;
 
-public class DataServiceTests
+public class DataServiceTests : IDisposable
 {
-    [Fact]
-    public void DashboardData_ValidJson_DeserializesCorrectly()
-    {
-        var json = GetSampleJson();
-        var data = JsonSerializer.Deserialize<DashboardData>(json);
+    private readonly string _tempRoot;
+    private readonly string _wwwroot;
+    private readonly Mock<IWebHostEnvironment> _envMock;
 
-        Assert.NotNull(data);
-        Assert.Equal(1, data.SchemaVersion);
-        Assert.Equal("Test Project", data.Title);
-        Assert.Equal("Test Subtitle", data.Subtitle);
-        Assert.Equal("https://example.com", data.BacklogUrl);
-        Assert.NotNull(data.Timeline);
-        Assert.Equal("2026-01-01", data.Timeline.StartDate);
-        Assert.Equal("2026-07-01", data.Timeline.EndDate);
-        Assert.Single(data.Timeline.Workstreams);
-        Assert.Equal("M1", data.Timeline.Workstreams[0].Id);
-        Assert.Equal(2, data.Timeline.Workstreams[0].Milestones.Length);
-        Assert.NotNull(data.Heatmap);
-        Assert.Equal(2, data.Heatmap.MonthColumns.Length);
-        Assert.Single(data.Heatmap.Categories);
+    public DataServiceTests()
+    {
+        _tempRoot = Path.Combine(Path.GetTempPath(), "DSTests_" + Guid.NewGuid().ToString("N").Substring(0, 8));
+        _wwwroot = Path.Combine(_tempRoot, "wwwroot");
+        Directory.CreateDirectory(_wwwroot);
+
+        _envMock = new Mock<IWebHostEnvironment>();
+        _envMock.Setup(e => e.WebRootPath).Returns(_wwwroot);
+    }
+
+    public void Dispose()
+    {
+        try { Directory.Delete(_tempRoot, true); } catch { }
+    }
+
+    private void WriteJson(string json)
+    {
+        File.WriteAllText(Path.Combine(_wwwroot, "data.json"), json);
+    }
+
+    private static string ValidJson()
+    {
+        return @"{
+  ""schemaVersion"": 1,
+  ""title"": ""Test"",
+  ""subtitle"": ""Sub"",
+  ""backlogUrl"": ""https://example.com"",
+  ""nowDateOverride"": null,
+  ""timeline"": {
+    ""startDate"": ""2026-01-01"",
+    ""endDate"": ""2026-07-01"",
+    ""workstreams"": []
+  },
+  ""heatmap"": {
+    ""monthColumns"": [],
+    ""categories"": []
+  }
+}";
     }
 
     [Fact]
-    public void DashboardData_MalformedJson_ThrowsJsonException()
+    public void ValidJson_LoadsSuccessfully()
     {
-        var json = "{ invalid json }";
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DashboardData>(json));
+        WriteJson(ValidJson());
+        using var svc = new DataService(_envMock.Object);
+        Assert.NotNull(svc.GetData());
+        Assert.Null(svc.GetError());
     }
 
     [Fact]
-    public void DashboardData_NowDateOverride_ParsesCorrectly()
+    public void MissingFile_ReturnsError()
     {
-        var json = GetSampleJson(nowOverride: "\"2026-03-15\"");
-        var data = JsonSerializer.Deserialize<DashboardData>(json)!;
-        Assert.Equal("2026-03-15", data.NowDateOverride);
+        using var svc = new DataService(_envMock.Object);
+        Assert.Null(svc.GetData());
+        Assert.NotNull(svc.GetError());
+        Assert.Contains("No data.json found", svc.GetError()!);
     }
 
     [Fact]
-    public void DashboardData_NullNowDateOverride_IsNull()
+    public void InvalidJson_ReturnsError()
     {
-        var json = GetSampleJson();
-        var data = JsonSerializer.Deserialize<DashboardData>(json)!;
-        Assert.Null(data.NowDateOverride);
+        WriteJson("not json {{{");
+        using var svc = new DataService(_envMock.Object);
+        Assert.Null(svc.GetData());
+        Assert.Contains("invalid JSON", svc.GetError()!);
     }
 
     [Fact]
-    public void DashboardData_MilestoneWithLabelPosition_ParsesCorrectly()
+    public void WrongSchemaVersion_ReturnsError()
     {
-        var json = GetSampleJson();
-        var data = JsonSerializer.Deserialize<DashboardData>(json)!;
-        Assert.Equal("above", data.Timeline.Workstreams[0].Milestones[0].LabelPosition);
-        Assert.Null(data.Timeline.Workstreams[0].Milestones[1].LabelPosition);
-    }
-
-    [Fact]
-    public void DashboardData_EmptyItems_DeserializesAsEmptyArray()
-    {
-        var json = GetSampleJson();
-        var data = JsonSerializer.Deserialize<DashboardData>(json)!;
-        var feb = data.Heatmap.Categories[0].Months[1];
-        Assert.Empty(feb.Items);
-    }
-
-    [Fact]
-    public void DashboardData_SchemaVersionMismatch_Detected()
-    {
-        var json = GetSampleJson().Replace("\"schemaVersion\": 1", "\"schemaVersion\": 99");
-        var data = JsonSerializer.Deserialize<DashboardData>(json)!;
-        Assert.Equal(99, data.SchemaVersion);
-    }
-
-    private static string GetSampleJson(string nowOverride = "null")
-    {
-        return $$"""
-        {
-          "schemaVersion": 1,
-          "title": "Test Project",
-          "subtitle": "Test Subtitle",
-          "backlogUrl": "https://example.com",
-          "nowDateOverride": {{nowOverride}},
-          "timeline": {
-            "startDate": "2026-01-01",
-            "endDate": "2026-07-01",
-            "workstreams": [
-              {
-                "id": "M1",
-                "name": "Test Workstream",
-                "color": "#0078D4",
-                "milestones": [
-                  { "label": "Start", "date": "2026-01-15", "type": "start", "labelPosition": "above" },
-                  { "label": "PoC", "date": "2026-03-26", "type": "poc" }
-                ]
-              }
-            ]
-          },
-          "heatmap": {
-            "monthColumns": ["Jan", "Feb"],
-            "categories": [
-              {
-                "name": "Shipped",
-                "emoji": "OK",
-                "cssClass": "ship",
-                "months": [
-                  { "month": "Jan", "items": ["Item A"] },
-                  { "month": "Feb", "items": [] }
-                ]
-              }
-            ]
-          }
-        }
-        """;
+        WriteJson(ValidJson().Replace("\"schemaVersion\": 1", "\"schemaVersion\": 42"));
+        using var svc = new DataService(_envMock.Object);
+        Assert.Null(svc.GetData());
+        Assert.Contains("expected 1", svc.GetError()!);
     }
 }
