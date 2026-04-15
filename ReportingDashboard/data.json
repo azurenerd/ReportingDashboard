@@ -1,0 +1,89 @@
+{
+  "title": "Project Nightingale – Executive Status",
+  "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
+  "backlogUrl": "https://dev.azure.com/contoso/nightingale/_backlogs",
+  "nowDate": "2026-04-15",
+  "timeline": {
+    "startMonth": "2026-01",
+    "endMonth": "2026-06",
+    "tracks": [
+      {
+        "id": "M1",
+        "label": "Chatbot & MS Role",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2026-01-15", "type": "checkpoint", "label": "Design" },
+          { "date": "2026-03-01", "type": "poc", "label": "PoC" },
+          { "date": "2026-05-15", "type": "production", "label": "GA" }
+        ]
+      },
+      {
+        "id": "M2",
+        "label": "Data Pipeline v2",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2026-02-01", "type": "checkpoint", "label": "Kickoff" },
+          { "date": "2026-03-15", "type": "checkpoint-small", "label": "Review" },
+          { "date": "2026-04-20", "type": "poc", "label": "PoC" },
+          { "date": "2026-06-01", "type": "production", "label": "Ship" }
+        ]
+      },
+      {
+        "id": "M3",
+        "label": "Compliance Automation",
+        "color": "#546E7A",
+        "milestones": [
+          { "date": "2026-01-20", "type": "checkpoint-small", "label": "Scoping" },
+          { "date": "2026-04-01", "type": "poc", "label": "PoC" },
+          { "date": "2026-06-15", "type": "production", "label": "Release" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["January", "February", "March", "April"],
+    "currentMonth": "April",
+    "categories": [
+      {
+        "name": "Shipped",
+        "cssClass": "ship",
+        "items": {
+          "January": ["Auth module v1", "Logging infra"],
+          "February": ["Role assignment API", "Dashboard wireframe"],
+          "March": ["Pipeline ingestion", "Chatbot prototype"],
+          "April": ["Compliance scan MVP"]
+        }
+      },
+      {
+        "name": "In Progress",
+        "cssClass": "prog",
+        "items": {
+          "January": ["Data pipeline design"],
+          "February": ["Chatbot NLU training"],
+          "March": ["Role integration tests"],
+          "April": ["Pipeline v2 beta", "Chatbot fine-tuning"]
+        }
+      },
+      {
+        "name": "Carryover",
+        "cssClass": "carry",
+        "items": {
+          "January": [],
+          "February": ["Delayed: Auth edge cases"],
+          "March": [],
+          "April": ["Compliance scan perf fix"]
+        }
+      },
+      {
+        "name": "Blockers",
+        "cssClass": "block",
+        "items": {
+          "January": [],
+          "February": [],
+          "March": ["Vendor API contract pending"],
+          "April": ["ICM 98234: Quota limit"]
+        }
+      }
+    ]
+  }
+}
