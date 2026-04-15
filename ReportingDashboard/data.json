@@ -1,7 +1,7 @@
 {
-  "title": "Privacy Automation Platform",
-  "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
-  "backlogUrl": "https://dev.azure.com/contoso/privacy-automation/_backlogs",
+  "title": "Project Phoenix \u2013 Executive Status",
+  "subtitle": "Trusted Platform \u00b7 Privacy Automation Workstream \u00b7 April 2026",
+  "backlogUrl": "https://dev.azure.com/contoso/ProjectPhoenix/_backlogs",
   "nowDate": "2026-04-15",
   "timeline": {
     "startMonth": "2026-01",
@@ -9,78 +9,109 @@
     "tracks": [
       {
         "id": "M1",
-        "label": "Chatbot & MS Role",
+        "label": "Identity & Access Platform",
         "color": "#0078D4",
         "milestones": [
-          { "date": "2026-01-15", "type": "checkpoint", "label": "Design" },
-          { "date": "2026-03-01", "type": "poc", "label": "PoC" },
-          { "date": "2026-05-15", "type": "production", "label": "GA" }
+          { "date": "2026-01-15", "type": "checkpoint-small", "label": "Kickoff" },
+          { "date": "2026-02-10", "type": "checkpoint", "label": "Design Review" },
+          { "date": "2026-03-17", "type": "poc", "label": "PoC Complete" },
+          { "date": "2026-05-12", "type": "production", "label": "GA Release" }
         ]
       },
       {
         "id": "M2",
-        "label": "Data Pipeline v2",
+        "label": "Data Classification Engine",
         "color": "#00897B",
         "milestones": [
-          { "date": "2026-02-01", "type": "checkpoint", "label": "Kickoff" },
-          { "date": "2026-04-01", "type": "poc", "label": "PoC" },
-          { "date": "2026-06-01", "type": "production", "label": "Ship" }
+          { "date": "2026-01-22", "type": "checkpoint-small", "label": "Requirements" },
+          { "date": "2026-02-28", "type": "checkpoint", "label": "Arch Approved" },
+          { "date": "2026-04-07", "type": "poc", "label": "PoC Demo" },
+          { "date": "2026-06-15", "type": "production", "label": "Prod Deploy" }
         ]
       },
       {
         "id": "M3",
-        "label": "Compliance Engine",
+        "label": "Compliance Reporting Hub",
         "color": "#546E7A",
         "milestones": [
-          { "date": "2026-01-20", "type": "checkpoint-small", "label": "Scoping" },
-          { "date": "2026-03-15", "type": "checkpoint", "label": "Review" },
-          { "date": "2026-05-01", "type": "production", "label": "v1" }
+          { "date": "2026-02-03", "type": "checkpoint-small", "label": "Scoping" },
+          { "date": "2026-03-05", "type": "checkpoint", "label": "UX Sign-off" },
+          { "date": "2026-04-21", "type": "poc", "label": "PoC Review" },
+          { "date": "2026-06-02", "type": "production", "label": "Ship v1.0" }
         ]
       }
     ]
   },
   "heatmap": {
-    "months": ["January", "February", "March", "April"],
+    "months": ["March", "April", "May", "June"],
     "currentMonth": "April",
     "categories": [
       {
         "name": "Shipped",
         "cssClass": "ship",
         "items": {
-          "January": ["Auth service migration", "Logging v2 rollout"],
-          "February": ["Data classification API", "Role-based access MVP"],
-          "March": ["Pipeline orchestrator", "Audit trail v1"],
-          "April": ["Chatbot intent engine", "Compliance scan scheduler"]
+          "March": [
+            "IAM PoC milestone met",
+            "Data classification schema v2 finalized",
+            "Compliance dashboard wireframes approved"
+          ],
+          "April": [
+            "SSO integration for partner tenants",
+            "PII scanner batch mode shipped"
+          ],
+          "May": [],
+          "June": []
         }
       },
       {
         "name": "In Progress",
         "cssClass": "prog",
         "items": {
-          "January": ["Chatbot NLU model training"],
-          "February": ["Pipeline retry logic"],
-          "March": ["MS Role integration", "Dashboard reporting"],
-          "April": ["Data pipeline v2 beta", "Consent management UI"]
+          "March": [
+            "RBAC policy engine development",
+            "Label propagation service build"
+          ],
+          "April": [
+            "Conditional access rule builder",
+            "Auto-classification ML model training",
+            "Compliance report template engine"
+          ],
+          "May": [
+            "End-to-end integration testing",
+            "Perf benchmarking at scale"
+          ],
+          "June": []
         }
       },
       {
         "name": "Carryover",
         "cssClass": "carry",
         "items": {
-          "January": [],
-          "February": ["Auth token refresh bug"],
-          "March": ["Logging alert thresholds"],
-          "April": ["Pipeline retry logic"]
+          "March": [
+            "Audit log export API (from Feb)",
+            "Token refresh retry logic (from Feb)"
+          ],
+          "April": [
+            "RBAC policy engine (from Mar)",
+            "Label propagation perf fix (from Mar)"
+          ],
+          "May": [],
+          "June": []
         }
       },
       {
         "name": "Blockers",
         "cssClass": "block",
         "items": {
-          "January": [],
-          "February": [],
-          "March": ["Vendor API deprecation"],
-          "April": ["Legal review pending on consent flows"]
+          "March": [
+            "Waiting on Legal review for data residency"
+          ],
+          "April": [
+            "AAD tenant provisioning delay",
+            "Dependency on Platform SDK v4.2 release"
+          ],
+          "May": [],
+          "June": []
         }
       }
     ]
