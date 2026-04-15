@@ -1,0 +1,53 @@
+@page "/"
+@using ReportingDashboard.Web.Services
+@using ReportingDashboard.Models
+@inject IDataService DataService
+@implements IDisposable
+
+@if (_data is null)
+{
+    <div style="padding: 60px; font-family: 'Segoe UI', Arial, sans-serif;">
+        <h1 style="color: #EA4335;">Dashboard Configuration Error</h1>
+        <p style="font-size: 16px; color: #333; margin-top: 16px;">@_error</p>
+        <p style="font-size: 13px; color: #888; margin-top: 12px;">
+            Edit data.json and refresh this page.
+        </p>
+    </div>
+}
+else
+{
+    @* Child components will be added in subsequent tasks *@
+    <div class="dashboard-placeholder" style="padding: 60px; font-family: 'Segoe UI', Arial, sans-serif;">
+        <h1>@_data.Header.Title</h1>
+        <p style="color: #888; margin-top: 4px;">@_data.Header.Subtitle</p>
+        <p style="color: #34A853; margin-top: 12px;">✓ data.json loaded successfully. Components will render here.</p>
+    </div>
+}
+
+@code {
+    private DashboardData? _data;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        LoadData();
+        DataService.OnDataChanged += HandleDataChanged;
+    }
+
+    private void LoadData()
+    {
+        _data = DataService.GetData();
+        _error = DataService.GetError();
+    }
+
+    private async void HandleDataChanged()
+    {
+        LoadData();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        DataService.OnDataChanged -= HandleDataChanged;
+    }
+}
