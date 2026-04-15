@@ -16,17 +16,17 @@ public class DashboardData
     [JsonPropertyName("backlogUrl")]
     public string BacklogUrl { get; set; } = "";
 
-    [JsonPropertyName("timeline")]
-    public TimelineConfig Timeline { get; set; } = new();
-
-    [JsonPropertyName("heatmap")]
-    public HeatmapConfig Heatmap { get; set; } = new();
-
     [JsonPropertyName("nowDateOverride")]
     public string? NowDateOverride { get; set; }
 
     [JsonPropertyName("currentMonthOverride")]
     public string? CurrentMonthOverride { get; set; }
+
+    [JsonPropertyName("timeline")]
+    public TimelineConfig Timeline { get; set; } = new();
+
+    [JsonPropertyName("heatmap")]
+    public HeatmapConfig Heatmap { get; set; } = new();
 }
 
 public class TimelineConfig
@@ -50,7 +50,7 @@ public class Workstream
     public string Name { get; set; } = "";
 
     [JsonPropertyName("color")]
-    public string Color { get; set; } = "";
+    public string Color { get; set; } = "#000";
 
     [JsonPropertyName("milestones")]
     public Milestone[] Milestones { get; set; } = Array.Empty<Milestone>();
