@@ -1,5 +1,10 @@
-/* Global reset and base */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* === Reset === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     width: 1920px;
     height: 1080px;
@@ -9,21 +14,246 @@ body {
     display: flex;
     flex-direction: column;
 }
-a { color: #0078D4; text-decoration: none; }
 
-/* Error container */
-.error-container {
+a {
+    color: #0078D4;
+    text-decoration: none;
+}
+
+/* === Header === */
+.hdr {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 44px 10px;
+    border-bottom: 1px solid #E0E0E0;
+    flex-shrink: 0;
+}
+
+.hdr-left {
     display: flex;
     flex-direction: column;
+}
+
+.hdr h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.2;
+}
+
+.hdr h1 a {
+    font-size: 14px;
+    font-weight: 400;
+    color: #0078D4;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.sub {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* === Legend === */
+.hdr-legend {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 22px;
+}
+
+.legend-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-label {
+    font-size: 12px;
+    color: #111;
+}
+
+.legend-icon {
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.legend-poc {
+    width: 12px;
+    height: 12px;
+    background: #F4B400;
+    transform: rotate(45deg);
+}
+
+.legend-prod {
+    width: 12px;
+    height: 12px;
+    background: #34A853;
+    transform: rotate(45deg);
+}
+
+.legend-checkpoint {
+    width: 8px;
+    height: 8px;
+    background: #999;
+    border-radius: 50%;
+}
+
+.legend-now {
+    width: 2px;
+    height: 14px;
+    background: #EA4335;
+}
+
+/* === Timeline Area === */
+.tl-area {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    height: 196px;
+    padding: 6px 44px 0;
+    background: #FAFAFA;
+    border-bottom: 2px solid #E8E8E8;
+    flex-shrink: 0;
+}
+
+/* === Heatmap Area === */
+.hm-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding: 10px 44px 10px;
+}
+
+.hm-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.hm-grid {
+    display: grid;
+    border: 1px solid #E0E0E0;
+    flex: 1;
+    min-height: 0;
+}
+
+/* === Heatmap Header Row === */
+.hm-corner {
+    background: #F5F5F5;
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #CCC;
+}
+
+.hm-col-hdr {
+    font-size: 16px;
+    font-weight: 700;
+    background: #F5F5F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #CCC;
+}
+
+.current-month-hdr {
+    background: #FFF0D0 !important;
+    color: #C07700 !important;
+}
+
+/* === Heatmap Row Headers === */
+.hm-row-hdr {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    border-right: 2px solid #CCC;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.ship-hdr { background: #E8F5E9; color: #1B7A28; }
+.prog-hdr { background: #E3F2FD; color: #1565C0; }
+.carry-hdr { background: #FFF8E1; color: #B45309; }
+.block-hdr { background: #FEF2F2; color: #991B1B; }
+
+/* === Heatmap Data Cells === */
+.hm-cell {
+    padding: 8px 12px;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
+    overflow: hidden;
+}
+
+.ship-cell { background: #F0FBF0; }
+.prog-cell { background: #EEF4FE; }
+.carry-cell { background: #FFFDE7; }
+.block-cell { background: #FFF5F5; }
+
+.ship-cell.current-month { background: #D8F2DA; }
+.prog-cell.current-month { background: #DAE8FB; }
+.carry-cell.current-month { background: #FFF0B0; }
+.block-cell.current-month { background: #FFE4E4; }
+
+/* === Heatmap Items === */
+.it {
+    font-size: 12px;
+    color: #333;
+    padding: 2px 0 2px 12px;
+    line-height: 1.35;
+    position: relative;
+}
+
+.it::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.ship-cell .it::before { background: #34A853; }
+.prog-cell .it::before { background: #0078D4; }
+.carry-cell .it::before { background: #F4B400; }
+.block-cell .it::before { background: #EA4335; }
+
+/* === Error View === */
+.error-container {
+    display: flex;
     align-items: center;
     justify-content: center;
     width: 1920px;
     height: 1080px;
     font-family: 'Segoe UI', Arial, sans-serif;
-    text-align: center;
 }
+
 .error-container p {
     font-size: 18px;
     color: #666;
     max-width: 600px;
+    text-align: center;
+}
+
+.error-container .error-detail {
+    font-size: 14px;
+    color: #999;
 }

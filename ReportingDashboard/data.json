@@ -1,7 +1,7 @@
 {
-  "title": "Project Nightingale – Executive Status",
+  "title": "Privacy Automation Platform",
   "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
-  "backlogUrl": "https://dev.azure.com/contoso/nightingale/_backlogs",
+  "backlogUrl": "https://dev.azure.com/contoso/privacy-automation/_backlogs",
   "nowDate": "2026-04-15",
   "timeline": {
     "startMonth": "2026-01",
@@ -23,19 +23,18 @@
         "color": "#00897B",
         "milestones": [
           { "date": "2026-02-01", "type": "checkpoint", "label": "Kickoff" },
-          { "date": "2026-03-15", "type": "checkpoint-small", "label": "Review" },
-          { "date": "2026-04-20", "type": "poc", "label": "PoC" },
+          { "date": "2026-04-01", "type": "poc", "label": "PoC" },
           { "date": "2026-06-01", "type": "production", "label": "Ship" }
         ]
       },
       {
         "id": "M3",
-        "label": "Compliance Automation",
+        "label": "Compliance Engine",
         "color": "#546E7A",
         "milestones": [
           { "date": "2026-01-20", "type": "checkpoint-small", "label": "Scoping" },
-          { "date": "2026-04-01", "type": "poc", "label": "PoC" },
-          { "date": "2026-06-15", "type": "production", "label": "Release" }
+          { "date": "2026-03-15", "type": "checkpoint", "label": "Review" },
+          { "date": "2026-05-01", "type": "production", "label": "v1" }
         ]
       }
     ]
@@ -48,20 +47,20 @@
         "name": "Shipped",
         "cssClass": "ship",
         "items": {
-          "January": ["Auth module v1", "Logging infra"],
-          "February": ["Role assignment API", "Dashboard wireframe"],
-          "March": ["Pipeline ingestion", "Chatbot prototype"],
-          "April": ["Compliance scan MVP"]
+          "January": ["Auth service migration", "Logging v2 rollout"],
+          "February": ["Data classification API", "Role-based access MVP"],
+          "March": ["Pipeline orchestrator", "Audit trail v1"],
+          "April": ["Chatbot intent engine", "Compliance scan scheduler"]
         }
       },
       {
         "name": "In Progress",
         "cssClass": "prog",
         "items": {
-          "January": ["Data pipeline design"],
-          "February": ["Chatbot NLU training"],
-          "March": ["Role integration tests"],
-          "April": ["Pipeline v2 beta", "Chatbot fine-tuning"]
+          "January": ["Chatbot NLU model training"],
+          "February": ["Pipeline retry logic"],
+          "March": ["MS Role integration", "Dashboard reporting"],
+          "April": ["Data pipeline v2 beta", "Consent management UI"]
         }
       },
       {
@@ -69,9 +68,9 @@
         "cssClass": "carry",
         "items": {
           "January": [],
-          "February": ["Delayed: Auth edge cases"],
-          "March": [],
-          "April": ["Compliance scan perf fix"]
+          "February": ["Auth token refresh bug"],
+          "March": ["Logging alert thresholds"],
+          "April": ["Pipeline retry logic"]
         }
       },
       {
@@ -80,8 +79,8 @@
         "items": {
           "January": [],
           "February": [],
-          "March": ["Vendor API contract pending"],
-          "April": ["ICM 98234: Quota limit"]
+          "March": ["Vendor API deprecation"],
+          "April": ["Legal review pending on consent flows"]
         }
       }
     ]
