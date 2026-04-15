@@ -38,11 +38,7 @@
     --checkpoint: #999;
 }
 
-*, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     width: 1920px;
@@ -55,49 +51,7 @@ body {
     flex-direction: column;
 }
 
-/* === ERROR STATES === */
-.error-page {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 1920px;
-    height: 1080px;
-    font-family: 'Segoe UI', Arial, sans-serif;
-}
-
-.error-message {
-    text-align: center;
-    color: var(--text-primary);
-}
-
-.error-message h2 {
-    font-size: 24px;
-    margin-bottom: 16px;
-}
-
-.error-message p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 8px;
-}
-
-.error-message code {
-    background: var(--surface);
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 13px;
-}
-
-.error-banner {
-    background: #FFF3CD;
-    color: #856404;
-    padding: 8px 44px;
-    font-size: 12px;
-    border-bottom: 1px solid #FFE69C;
-    flex-shrink: 0;
-}
-
-/* === SECTION 1: HEADER === */
+/* === HEADER === */
 .hdr {
     display: flex;
     align-items: center;
@@ -111,15 +65,14 @@ body {
     font-size: 24px;
     font-weight: 700;
     color: var(--text-primary);
-    margin: 0;
-    line-height: 1.2;
+    display: inline;
 }
 
-.hdr h1 a.backlog-link {
-    font-size: 14px;
-    font-weight: 400;
+.hdr h1 a {
     color: var(--link);
     text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
     margin-left: 12px;
 }
 
@@ -131,11 +84,11 @@ body {
 
 .legend {
     display: flex;
-    align-items: center;
     gap: 22px;
+    align-items: center;
 }
 
-.leg-item {
+.legend-item {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -143,37 +96,35 @@ body {
     color: var(--text-tertiary);
 }
 
-.leg-icon.diamond {
+.icon-diamond {
     width: 12px;
     height: 12px;
     transform: rotate(45deg);
+    display: inline-block;
     flex-shrink: 0;
 }
 
-.leg-icon.diamond.gold {
-    background: var(--amber);
-}
+.icon-diamond.gold { background: var(--amber); }
+.icon-diamond.green { background: var(--green); }
 
-.leg-icon.diamond.green {
-    background: var(--green);
-}
-
-.leg-icon.circle-cp {
+.icon-circle {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     background: var(--checkpoint);
+    display: inline-block;
     flex-shrink: 0;
 }
 
-.leg-icon.now-bar {
+.icon-now-line {
     width: 2px;
     height: 14px;
     background: var(--red);
+    display: inline-block;
     flex-shrink: 0;
 }
 
-/* === SECTION 2: TIMELINE === */
+/* === TIMELINE === */
 .tl-area {
     height: 196px;
     flex-shrink: 0;
@@ -217,7 +168,7 @@ body {
     min-width: 0;
 }
 
-/* === SECTION 3: HEATMAP === */
+/* === HEATMAP === */
 .hm-wrap {
     display: flex;
     flex-direction: column;
@@ -243,7 +194,6 @@ body {
     min-height: 0;
 }
 
-/* Header row */
 .hm-corner {
     background: var(--surface-header);
     font-size: 11px;
@@ -273,7 +223,6 @@ body {
     color: var(--now-text);
 }
 
-/* Row headers */
 .hm-row-hdr {
     font-size: 11px;
     font-weight: 700;
@@ -291,7 +240,6 @@ body {
 .carry-hdr { background: var(--amber-hdr-bg); color: var(--amber-hdr-text); }
 .block-hdr { background: var(--red-hdr-bg); color: var(--red-hdr-text); }
 
-/* Data cells */
 .hm-cell {
     padding: 8px 12px;
     border-right: 1px solid var(--border-light);
@@ -309,7 +257,6 @@ body {
 .carry-cell.now { background: var(--amber-cell-active); }
 .block-cell.now { background: var(--red-cell-active); }
 
-/* Items */
 .it {
     font-size: 12px;
     color: var(--text-item);
@@ -333,10 +280,30 @@ body {
 .carry-cell .it::before { background: var(--amber); }
 .block-cell .it::before { background: var(--red); }
 
-.it.empty {
-    color: var(--text-muted);
+.it.empty { color: var(--text-muted); }
+.it.empty::before { display: none; }
+
+/* === ERROR STATES === */
+.error-banner {
+    background: #FFF3CD;
+    color: #856404;
+    padding: 8px 44px;
+    font-size: 12px;
+    border-bottom: 1px solid #FFE69C;
+    flex-shrink: 0;
 }
 
-.it.empty::before {
-    display: none;
+.error-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1920px;
+    height: 1080px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #FFFFFF;
 }
+
+.error-message { text-align: center; max-width: 600px; }
+.error-message h2 { font-size: 24px; font-weight: 700; color: #856404; margin-bottom: 12px; }
+.error-message p { font-size: 14px; color: #333; line-height: 1.6; }
+.error-message code { background: #F5F5F5; padding: 2px 6px; border-radius: 3px; font-size: 13px; }

@@ -1,0 +1,4 @@
+agent: PrincipalEngineer 2
+task: Live-Reload with FileSystemWatcher
+complexity: Medium
+status: in-progress
