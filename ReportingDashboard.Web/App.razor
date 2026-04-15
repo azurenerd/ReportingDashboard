@@ -1,30 +1,13 @@
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=1920" />
-    <title>Executive Reporting Dashboard</title>
-    <base href="/" />
-    <link href="css/app.css" rel="stylesheet" />
-    <link href="ReportingDashboard.Web.styles.css" rel="stylesheet" />
-</head>
-<body>
-    @Body
-
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>
-
-    <script src="_framework/blazor.server.js"></script>
-</body>
-</html>
-
-@code {
-    [Parameter]
-    public RenderFragment? Body { get; set; }
-}
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p>Page not found</p>
+        </LayoutView>
+    </NotFound>
+</Router>
