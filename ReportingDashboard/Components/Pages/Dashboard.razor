@@ -1,0 +1,36 @@
+@page "/"
+@implements IDisposable
+@using ReportingDashboard.Models
+@using ReportingDashboard.Services
+@inject DashboardDataService DataService
+
+@if (DataService.ErrorMessage is not null && DataService.Data is null)
+{
+    <div class="error-container">
+        <p>Unable to load dashboard data. Please check that data.json exists and contains valid JSON.</p>
+        <p><span style="font-size:14px; color:#999;">@DataService.ErrorMessage</span></p>
+    </div>
+}
+else if (DataService.Data is { } data)
+{
+    <div style="display:flex; align-items:center; justify-content:center; color:#666; padding-top:200px;">
+        <p style="font-size:18px;">Dashboard loaded: @data.Title</p>
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        DataService.OnDataChanged += HandleDataChanged;
+    }
+
+    private async void HandleDataChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        DataService.OnDataChanged -= HandleDataChanged;
+    }
+}
