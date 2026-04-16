@@ -12,10 +12,10 @@ var app = builder.Build();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-
 var dataService = app.Services.GetRequiredService<DashboardDataService>();
 await dataService.LoadAsync();
+
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
 
 app.Run();

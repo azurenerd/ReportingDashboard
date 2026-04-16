@@ -1,26 +1,89 @@
 {
-  "project": {
-    "name": "Sample Project",
-    "lead": "Project Lead",
-    "status": "On Track",
-    "lastUpdated": "2026-01-01",
-    "summary": "Sample project dashboard for preview."
-  },
   "title": "Executive Reporting Dashboard",
-  "subtitle": "Project Status Overview",
-  "backlogLink": "",
-  "currentMonth": "January",
-  "months": ["January", "February", "March"],
-  "milestones": [
-    { "title": "Phase 1", "targetDate": "2026-02-01", "status": "Completed" },
-    { "title": "Phase 2", "targetDate": "2026-04-01", "status": "In Progress" }
+  "subtitle": "Project Status Overview \u2022 April 2026",
+  "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
+  "currentDate": "2026-04-10",
+  "timelineStart": "2026-01-01",
+  "timelineEnd": "2026-06-30",
+  "milestoneStreams": [
+    {
+      "id": "M1",
+      "name": "Core Platform",
+      "color": "#0078D4",
+      "milestones": [
+        { "date": "2026-02-15", "label": "PoC Complete", "type": "poc", "labelPosition": "above" },
+        { "date": "2026-04-01", "label": "Beta Release", "type": "production", "labelPosition": "above" },
+        { "date": "2026-06-01", "label": "GA Release", "type": "production", "labelPosition": "above" }
+      ]
+    },
+    {
+      "id": "M2",
+      "name": "Integration Layer",
+      "color": "#00897B",
+      "milestones": [
+        { "date": "2026-03-01", "label": "API Design", "type": "checkpoint", "labelPosition": "above" },
+        { "date": "2026-05-15", "label": "Integration Complete", "type": "production", "labelPosition": "below" }
+      ]
+    },
+    {
+      "id": "M3",
+      "name": "Security & Compliance",
+      "color": "#546E7A",
+      "milestones": [
+        { "date": "2026-01-15", "label": "Threat Model", "type": "checkpoint", "labelPosition": "above" },
+        { "date": "2026-03-15", "label": "Pen Test", "type": "poc", "labelPosition": "below" },
+        { "date": "2026-06-15", "label": "Compliance Sign-off", "type": "production", "labelPosition": "above" }
+      ]
+    }
   ],
-  "shipped": [
-    { "title": "Foundation", "description": "Project scaffolding", "category": "Infrastructure", "percentComplete": 100 }
-  ],
-  "inProgress": [
-    { "title": "Dashboard UI", "description": "Building components", "category": "Frontend", "percentComplete": 60 }
-  ],
-  "timeline": { "startMonth": "Jan 2026", "endMonth": "Jun 2026", "tracks": [] },
-  "heatmap": { "months": ["Jan", "Feb", "Mar"], "categories": [], "items": [] }
+  "heatmap": {
+    "columns": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "currentColumnIndex": 3,
+    "rows": [
+      {
+        "category": "shipped",
+        "items": {
+          "Jan": ["Project scaffold", "CI pipeline"],
+          "Feb": ["Auth module", "Logging"],
+          "Mar": ["API v1", "Dashboard shell"],
+          "Apr": [],
+          "May": [],
+          "Jun": []
+        }
+      },
+      {
+        "category": "inProgress",
+        "items": {
+          "Jan": [],
+          "Feb": [],
+          "Mar": [],
+          "Apr": ["Timeline component", "Heatmap grid"],
+          "May": [],
+          "Jun": []
+        }
+      },
+      {
+        "category": "carryover",
+        "items": {
+          "Jan": [],
+          "Feb": [],
+          "Mar": ["Accessibility audit"],
+          "Apr": ["Perf testing"],
+          "May": [],
+          "Jun": []
+        }
+      },
+      {
+        "category": "blockers",
+        "items": {
+          "Jan": [],
+          "Feb": [],
+          "Mar": [],
+          "Apr": ["License approval"],
+          "May": [],
+          "Jun": []
+        }
+      }
+    ]
+  }
 }
