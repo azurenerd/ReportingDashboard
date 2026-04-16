@@ -3,17 +3,20 @@ using Xunit;
 
 namespace ReportingDashboard.UITests;
 
+[CollectionDefinition("Playwright")]
+public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }
+
 public class PlaywrightFixture : IAsyncLifetime
 {
-    public IPlaywright PlaywrightInstance { get; private set; } = null!;
     public IBrowser Browser { get; private set; } = null!;
     public string BaseUrl { get; private set; } = null!;
+    private IPlaywright _playwright = null!;
 
     public async Task InitializeAsync()
     {
         BaseUrl = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
-        PlaywrightInstance = await Playwright.CreateAsync();
-        Browser = await PlaywrightInstance.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        _playwright = await Playwright.CreateAsync();
+        Browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
         {
             Headless = true
         });
@@ -22,11 +25,6 @@ public class PlaywrightFixture : IAsyncLifetime
     public async Task DisposeAsync()
     {
         await Browser.DisposeAsync();
-        PlaywrightInstance.Dispose();
+        _playwright.Dispose();
     }
-}
-
-[CollectionDefinition("Playwright")]
-public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture>
-{
 }
