@@ -86,7 +86,7 @@ public class DashboardDataModelTests
 
         track.Id.Should().Be("");
         track.Label.Should().Be("");
-        track.Color.Should().Be("#000");
+        track.Color.Should().Be("#000000");
         track.Events.Should().BeEmpty();
     }
 
@@ -100,12 +100,12 @@ public class DashboardDataModelTests
     }
 
     [Fact]
-    public void MilestoneEvent_DefaultValues_AreCorrect()
+    public void HeatmapRow_DefaultValues_AreCorrect()
     {
-        var evt = new MilestoneEvent();
+        var row = new HeatmapRow();
 
-        evt.Type.Should().Be("checkpoint");
-        evt.Label.Should().Be("");
-        evt.Date.Should().Be(default(DateOnly));
+        row.Category.Should().Be("");
+        row.Items.Should().NotBeNull();
+        row.Items.Should().BeEmpty();
     }
 }

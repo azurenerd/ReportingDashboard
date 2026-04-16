@@ -4,5 +4,3 @@ publish/
 .vs/
 **/wwwroot/data/data.json
 *.user
-*.suo
-.idea/
