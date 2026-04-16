@@ -54,7 +54,6 @@ public class DashboardDataServiceTests : IDisposable
     [Fact]
     public async Task GetDashboardDataAsync_MissingFile_ReturnsNullWithFileNotFoundError()
     {
-        // Don't create data.json
         var service = new DashboardDataService(_envMock.Object);
         var result = await service.GetDashboardDataAsync();
 
