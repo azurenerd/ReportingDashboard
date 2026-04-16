@@ -1,0 +1,83 @@
+{
+  "title": "Privacy Automation Release Roadmap",
+  "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
+  "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
+  "timelineMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+  "currentMonth": "Apr",
+  "milestones": [
+    {
+      "id": "M1",
+      "label": "Chatbot & MS Role",
+      "color": "#0078D4",
+      "events": [
+        { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
+        { "date": "2026-02-18", "type": "checkpoint", "label": "Feb 18" },
+        { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
+        { "date": "2026-05-01", "type": "production", "label": "May Prod" }
+      ]
+    },
+    {
+      "id": "M2",
+      "label": "PDS & Data Inventory",
+      "color": "#00897B",
+      "events": [
+        { "date": "2025-12-19", "type": "checkpoint", "label": "Dec 19" },
+        { "date": "2026-02-11", "type": "checkpoint", "label": "Feb 11" },
+        { "date": "2026-03-10", "type": "checkpoint-minor", "label": "" },
+        { "date": "2026-03-15", "type": "checkpoint-minor", "label": "" },
+        { "date": "2026-03-20", "type": "poc", "label": "Mar 20 PoC" },
+        { "date": "2026-05-15", "type": "production", "label": "May Prod" }
+      ]
+    },
+    {
+      "id": "M3",
+      "label": "Auto Review DFD",
+      "color": "#546E7A",
+      "events": [
+        { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC" },
+        { "date": "2026-06-01", "type": "production", "label": "Jun Prod" }
+      ]
+    }
+  ],
+  "heatmap": {
+    "columns": ["Jan", "Feb", "Mar", "Apr"],
+    "rows": [
+      {
+        "category": "shipped",
+        "items": {
+          "Jan": ["Auth module v1", "Config pipeline"],
+          "Feb": ["Data connector beta"],
+          "Mar": ["PDS integration", "Role mapping v2"],
+          "Apr": ["Chatbot PoC demo"]
+        }
+      },
+      {
+        "category": "in-progress",
+        "items": {
+          "Jan": ["Chatbot prototype"],
+          "Feb": ["PDS schema design", "Auth hardening"],
+          "Mar": ["Chatbot UX iteration"],
+          "Apr": ["DFD auto-review engine", "Production hardening"]
+        }
+      },
+      {
+        "category": "carryover",
+        "items": {
+          "Jan": [],
+          "Feb": ["Perf benchmarks"],
+          "Mar": ["Perf benchmarks", "Logging overhaul"],
+          "Apr": ["Logging overhaul"]
+        }
+      },
+      {
+        "category": "blockers",
+        "items": {
+          "Jan": [],
+          "Feb": [],
+          "Mar": ["ICM: PDS API rate limit"],
+          "Apr": ["ICM: PDS API rate limit", "Dependency on Team X"]
+        }
+      }
+    ]
+  }
+}
