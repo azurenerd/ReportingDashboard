@@ -1,50 +1,19 @@
-# .NET
+## .NET
 bin/
 obj/
 .vs/
 *.user
 *.suo
-*.userprefs
-*.sln.docstates
-*.DotSettings.user
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
-TestResults/
-publish/
-*.nupkg
-*.snupkg
-project.lock.json
-project.fragment.lock.json
-artifacts/
+*.cache
+*.dll
+*.exe
+*.pdb
 
-# IDE
+## IDE
 .idea/
 *.swp
 *~
-.vscode/.ropeproject
 
-# OS
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-.DS_Store
-
-# Python (existing project)
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-.env
-*.egg-info/
-dist/
-build/
+## Dashboard data (user-specific, not committed)
+wwwroot/data.json
+ReportingDashboard/wwwroot/data.json
