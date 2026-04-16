@@ -35,7 +35,7 @@ public record MilestoneTrack
     public string Label { get; init; } = "";
 
     [JsonPropertyName("color")]
-    public string Color { get; init; } = "#000";
+    public string Color { get; init; } = "#000000";
 
     [JsonPropertyName("events")]
     public MilestoneEvent[] Events { get; init; } = Array.Empty<MilestoneEvent>();
@@ -91,10 +91,10 @@ public record CategoryStyle(
 {
     public static CategoryStyle GetCategoryStyle(string category) => category switch
     {
-        "shipped" => new CategoryStyle("#1B7A28", "#E8F5E9", "#F0FBF0", "#D8F2DA", "#34A853", "Shipped ✓"),
-        "in-progress" => new CategoryStyle("#1565C0", "#E3F2FD", "#EEF4FE", "#DAE8FB", "#0078D4", "In Progress ▸"),
-        "carryover" => new CategoryStyle("#B45309", "#FFF8E1", "#FFFDE7", "#FFF0B0", "#F4B400", "Carryover ⟳"),
-        "blockers" => new CategoryStyle("#991B1B", "#FEF2F2", "#FFF5F5", "#FFE4E4", "#EA4335", "Blockers ✕"),
+        "shipped" => new CategoryStyle("#1B7A28", "#E8F5E9", "#F0FBF0", "#D8F2DA", "#34A853", "Shipped"),
+        "in-progress" => new CategoryStyle("#1565C0", "#E3F2FD", "#EEF4FE", "#DAE8FB", "#0078D4", "In Progress"),
+        "carryover" => new CategoryStyle("#B45309", "#FFF8E1", "#FFFDE7", "#FFF0B0", "#F4B400", "Carryover"),
+        "blockers" => new CategoryStyle("#991B1B", "#FEF2F2", "#FFF5F5", "#FFE4E4", "#EA4335", "Blockers"),
         _ => new CategoryStyle("#666", "#F5F5F5", "#FAFAFA", "#F0F0F0", "#999", category)
     };
 }

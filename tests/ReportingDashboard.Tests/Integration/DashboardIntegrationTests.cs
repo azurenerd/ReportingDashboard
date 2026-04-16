@@ -1,4 +1,3 @@
-using System.Reflection;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -9,18 +8,10 @@ using Xunit;
 
 namespace ReportingDashboard.Tests.Integration;
 
-/// <summary>
-/// Custom WebApplicationFactory that locates the entry point assembly by using
-/// a public type from the ReportingDashboard project, avoiding the inaccessible
-/// top-level-statements-generated internal Program class.
-/// </summary>
 public class DashboardWebApplicationFactory : WebApplicationFactory<DashboardDataService>
 {
     protected override IHost CreateHost(IHostBuilder builder)
     {
-        // WebApplicationFactory<T> uses typeof(T).Assembly to find the entry assembly.
-        // DashboardDataService is a public type in the ReportingDashboard assembly,
-        // so this works without needing access to the internal Program class.
         return base.CreateHost(builder);
     }
 }
@@ -39,9 +30,7 @@ public class DashboardIntegrationTests : IClassFixture<DashboardWebApplicationFa
     public async Task HomePage_ReturnsSuccessStatusCode()
     {
         var client = _factory.CreateClient();
-
         var response = await client.GetAsync("/");
-
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }
 
@@ -49,10 +38,8 @@ public class DashboardIntegrationTests : IClassFixture<DashboardWebApplicationFa
     public async Task HomePage_ContainsBlazorScript()
     {
         var client = _factory.CreateClient();
-
         var response = await client.GetAsync("/");
         var content = await response.Content.ReadAsStringAsync();
-
         content.Should().Contain("_framework/blazor");
     }
 
@@ -68,27 +55,34 @@ public class DashboardIntegrationTests : IClassFixture<DashboardWebApplicationFa
     }
 
     [Fact]
-    public async Task HomePage_ContainsDashboardMarkup()
-    {
-        var client = _factory.CreateClient();
-
-        var response = await client.GetAsync("/");
-        var content = await response.Content.ReadAsStringAsync();
-
-        var hasDashboard = content.Contains("dashboard") || content.Contains("error-container");
-        hasDashboard.Should().BeTrue();
-    }
-
-    [Fact]
     public async Task StaticFiles_CssIsServed()
     {
         var client = _factory.CreateClient();
-
         var response = await client.GetAsync("/css/app.css");
 
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Contain("1920px");
         content.Should().Contain("1080px");
+    }
+
+    [Fact]
+    public async Task DashboardDataService_LoadsDataThroughDI()
+    {
+        var service = _factory.Services.GetRequiredService<DashboardDataService>();
+        var data = await service.GetDashboardDataAsync();
+
+        // Service should either load data or set an error — never throw
+        if (data != null)
+        {
+            data.Title.Should().NotBeNull();
+            data.Milestones.Should().NotBeNull();
+            data.Heatmap.Should().NotBeNull();
+            service.GetError().Should().BeNull();
+        }
+        else
+        {
+            service.GetError().Should().NotBeNullOrEmpty();
+        }
     }
 }

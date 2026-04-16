@@ -9,15 +9,8 @@ public class DashboardDataService
     private DashboardData? _cachedData;
     private string? _error;
     private readonly SemaphoreSlim _lock = new(1, 1);
-    private readonly FileSystemWatcher? _watcher;
-    private volatile bool _cacheInvalidated = true;
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true
-    };
+    private volatile bool _cacheValid;
+    private FileSystemWatcher? _watcher;
 
     public DashboardDataService(IWebHostEnvironment env)
     {
@@ -30,29 +23,25 @@ public class DashboardDataService
             {
                 _watcher = new FileSystemWatcher(directory, "data.json")
                 {
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.CreationTime | NotifyFilters.Size,
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.CreationTime,
                     EnableRaisingEvents = true
                 };
                 _watcher.Changed += (_, _) => InvalidateCache();
                 _watcher.Created += (_, _) => InvalidateCache();
-                _watcher.Deleted += (_, _) => InvalidateCache();
             }
         }
-        catch (Exception ex)
+        catch
         {
-            Console.WriteLine($"Warning: FileSystemWatcher could not be initialized: {ex.Message}");
+            // FileSystemWatcher is optional; ignore setup failures
         }
     }
 
     public async Task<DashboardData?> GetDashboardDataAsync()
     {
-        if (!_cacheInvalidated && _cachedData != null)
-            return _cachedData;
-
         await _lock.WaitAsync();
         try
         {
-            if (!_cacheInvalidated && _cachedData != null)
+            if (_cacheValid)
                 return _cachedData;
 
             _error = null;
@@ -61,37 +50,99 @@ public class DashboardDataService
             if (!File.Exists(_dataFilePath))
             {
                 _error = $"Unable to load dashboard data. File not found: {_dataFilePath}";
+                _cacheValid = true;
                 return null;
             }
 
-            var json = await File.ReadAllTextAsync(_dataFilePath);
-            var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
+            string json;
+            try
+            {
+                json = await File.ReadAllTextAsync(_dataFilePath);
+            }
+            catch (IOException ex)
+            {
+                _error = $"Unable to load dashboard data. File read error: {ex.Message}";
+                _cacheValid = true;
+                return null;
+            }
+
+            DashboardData? data;
+            try
+            {
+                data = JsonSerializer.Deserialize<DashboardData>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch (JsonException ex)
+            {
+                _error = $"Unable to load dashboard data. JSON parse error: {ex.Message}";
+                _cacheValid = true;
+                return null;
+            }
 
             if (data == null)
             {
-                _error = "Unable to load dashboard data. JSON parse error: deserialization returned null.";
+                _error = "Unable to load dashboard data. JSON deserialized to null.";
+                _cacheValid = true;
                 return null;
             }
 
-            data = ApplyDefaults(data);
-            _cachedData = data;
-            _cacheInvalidated = false;
-            return data;
-        }
-        catch (FileNotFoundException)
-        {
-            _error = $"Unable to load dashboard data. File not found: {_dataFilePath}";
-            return null;
-        }
-        catch (JsonException ex)
-        {
-            _error = $"Unable to load dashboard data. JSON parse error: {ex.Message}";
-            return null;
-        }
-        catch (IOException ex)
-        {
-            _error = $"Unable to load dashboard data. File read error: {ex.Message}";
-            return null;
+            // Apply null-coalescing defaults and log warnings for missing fields
+            var title = data.Title;
+            if (title == null)
+            {
+                Console.WriteLine("WARNING: 'title' field missing from data.json, defaulting to empty string.");
+                title = "";
+            }
+
+            var subtitle = data.Subtitle;
+            if (subtitle == null)
+            {
+                Console.WriteLine("WARNING: 'subtitle' field missing from data.json, defaulting to empty string.");
+                subtitle = "";
+            }
+
+            var timelineMonths = data.TimelineMonths;
+            if (timelineMonths == null)
+            {
+                Console.WriteLine("WARNING: 'timelineMonths' field missing from data.json, defaulting to empty array.");
+                timelineMonths = Array.Empty<string>();
+            }
+
+            var currentMonth = data.CurrentMonth;
+            if (currentMonth == null)
+            {
+                Console.WriteLine("WARNING: 'currentMonth' field missing from data.json, defaulting to empty string.");
+                currentMonth = "";
+            }
+
+            var milestones = data.Milestones;
+            if (milestones == null)
+            {
+                Console.WriteLine("WARNING: 'milestones' field missing from data.json, defaulting to empty array.");
+                milestones = Array.Empty<MilestoneTrack>();
+            }
+
+            var heatmap = data.Heatmap;
+            if (heatmap == null)
+            {
+                Console.WriteLine("WARNING: 'heatmap' field missing from data.json, defaulting to empty heatmap.");
+                heatmap = new HeatmapData(Array.Empty<string>(), Array.Empty<HeatmapRow>());
+            }
+
+            _cachedData = data with
+            {
+                Title = title,
+                Subtitle = subtitle,
+                TimelineMonths = timelineMonths,
+                CurrentMonth = currentMonth,
+                Milestones = milestones,
+                Heatmap = heatmap
+            };
+
+            _cacheValid = true;
+            return _cachedData;
         }
         finally
         {
@@ -103,57 +154,6 @@ public class DashboardDataService
 
     public void InvalidateCache()
     {
-        _cacheInvalidated = true;
-    }
-
-    private static DashboardData ApplyDefaults(DashboardData data)
-    {
-        var title = data.Title;
-        var subtitle = data.Subtitle;
-        var timelineMonths = data.TimelineMonths;
-        var currentMonth = data.CurrentMonth;
-        var milestones = data.Milestones;
-        var heatmap = data.Heatmap;
-
-        if (title == null)
-        {
-            Console.WriteLine("Warning: 'title' field missing from data.json, using empty string.");
-            title = "";
-        }
-        if (subtitle == null)
-        {
-            Console.WriteLine("Warning: 'subtitle' field missing from data.json, using empty string.");
-            subtitle = "";
-        }
-        if (timelineMonths == null)
-        {
-            Console.WriteLine("Warning: 'timelineMonths' field missing from data.json, using empty array.");
-            timelineMonths = Array.Empty<string>();
-        }
-        if (currentMonth == null)
-        {
-            Console.WriteLine("Warning: 'currentMonth' field missing from data.json, using empty string.");
-            currentMonth = "";
-        }
-        if (milestones == null)
-        {
-            Console.WriteLine("Warning: 'milestones' field missing from data.json, using empty array.");
-            milestones = Array.Empty<MilestoneTrack>();
-        }
-        if (heatmap == null)
-        {
-            Console.WriteLine("Warning: 'heatmap' field missing from data.json, using empty heatmap.");
-            heatmap = new HeatmapData(Array.Empty<string>(), Array.Empty<HeatmapRow>());
-        }
-
-        return data with
-        {
-            Title = title,
-            Subtitle = subtitle,
-            TimelineMonths = timelineMonths,
-            CurrentMonth = currentMonth,
-            Milestones = milestones,
-            Heatmap = heatmap
-        };
+        Volatile.Write(ref _cacheValid, false);
     }
 }
