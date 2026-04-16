@@ -2,7 +2,7 @@ bin/
 obj/
 publish/
 .vs/
-wwwroot/data/data.json
+**/wwwroot/data/data.json
 *.user
 *.suo
 .idea/
