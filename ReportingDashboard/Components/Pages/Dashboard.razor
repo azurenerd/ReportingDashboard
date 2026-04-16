@@ -21,7 +21,31 @@
     @if (Data != null)
     {
         <!-- SECTION:HEADER-START -->
-        <div style="padding: 12px 44px 10px; border-bottom: 1px solid #E0E0E0;">Header placeholder</div>
+        <div class="hdr">
+            <div>
+                <h1>@Data.Title
+                    @if (!string.IsNullOrEmpty(Data.BacklogUrl))
+                    {
+                        <a href="@Data.BacklogUrl" target="_blank">⧉ ADO Backlog</a>
+                    }
+                </h1>
+                <div class="sub">@Data.Subtitle</div>
+            </div>
+            <div class="legend">
+                <span class="legend-item">
+                    <span class="legend-diamond poc-diamond"></span>PoC Milestone
+                </span>
+                <span class="legend-item">
+                    <span class="legend-diamond prod-diamond"></span>Production Release
+                </span>
+                <span class="legend-item">
+                    <span class="legend-checkpoint"></span>Checkpoint
+                </span>
+                <span class="legend-item">
+                    <span class="legend-now"></span>Now (@Data.CurrentMonth 2026)
+                </span>
+            </div>
+        </div>
         <!-- SECTION:HEADER-END -->
 
         <!-- SECTION:TIMELINE-START -->
