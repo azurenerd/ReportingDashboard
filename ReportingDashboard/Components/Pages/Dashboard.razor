@@ -1,0 +1,65 @@
+@page "/"
+@rendermode InteractiveServer
+@inject DashboardDataService DataService
+
+@if (Data != null)
+{
+    <div class="dashboard">
+        <!-- SECTION:HEADER-START -->
+        <div class="hdr">
+            <div class="hdr-left">
+                <h1>@Data.Title</h1>
+                <div class="sub">@Data.Subtitle</div>
+            </div>
+            <div class="legend">
+                <span class="legend-item">Legend:</span>
+            </div>
+        </div>
+        <!-- SECTION:HEADER-END -->
+
+        <!-- SECTION:TIMELINE-START -->
+        <div class="tl-area">
+            <div class="tl-sidebar">
+                <div class="tl-sidebar-placeholder">Timeline placeholder</div>
+            </div>
+            <div class="tl-svg-box">
+            </div>
+        </div>
+        <!-- SECTION:TIMELINE-END -->
+
+        <!-- SECTION:HEATMAP-START -->
+        <div class="hm-wrap">
+            <div class="hm-title">MONTHLY EXECUTION HEATMAP</div>
+            <div class="hm-grid-placeholder">Heatmap placeholder</div>
+        </div>
+        <!-- SECTION:HEATMAP-END -->
+    </div>
+}
+else
+{
+    <!-- SECTION:ERROR-START -->
+    <div class="error-container">
+        <div class="error-message">
+            <h2>Unable to load dashboard data. Please check data.json.</h2>
+            @if (!string.IsNullOrEmpty(Error))
+            {
+                <p>@Error</p>
+            }
+        </div>
+    </div>
+    <!-- SECTION:ERROR-END -->
+}
+
+@code {
+    private DashboardData? Data { get; set; }
+    private string? Error { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Data = await DataService.GetDashboardDataAsync();
+        if (Data == null)
+        {
+            Error = DataService.GetError();
+        }
+    }
+}
