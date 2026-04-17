@@ -3,26 +3,26 @@
 
 <div class="hm-wrap">
     <div class="hm-title">MONTHLY EXECUTION HEATMAP &mdash; SHIPPED &bull; IN PROGRESS &bull; CARRYOVER &bull; BLOCKERS</div>
-    <div class="hm-grid" style="grid-template-columns: 160px repeat(@HeatmapData.Months.Count, 1fr);">
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@HeatmapSource.Months.Count, 1fr);">
         @* Header row: corner + month columns *@
         <div class="hm-corner">STATUS</div>
-        @for (int i = 0; i < HeatmapData.Months.Count; i++)
+        @for (int i = 0; i < HeatmapSource.Months.Count; i++)
         {
-            var isCurrent = i == HeatmapData.CurrentMonthIndex;
+            var isCurrent = i == HeatmapSource.CurrentMonthIndex;
             <div class="hm-col-hdr @(isCurrent ? "current" : "")">
-                @HeatmapData.Months[i]@(isCurrent ? " \u25C0 Now" : "")
+                @HeatmapSource.Months[i]@(isCurrent ? " \u25C0 Now" : "")
             </div>
         }
 
         @* Data rows *@
-        @foreach (var row in HeatmapData.Rows)
+        @foreach (var row in HeatmapSource.Rows)
         {
             var info = GetCategoryInfo(row.Category);
             <div class="hm-row-hdr @info.HdrClass">@info.DisplayName</div>
-            @for (int i = 0; i < HeatmapData.Months.Count; i++)
+            @for (int i = 0; i < HeatmapSource.Months.Count; i++)
             {
-                var month = HeatmapData.Months[i];
-                var isCurrent = i == HeatmapData.CurrentMonthIndex;
+                var month = HeatmapSource.Months[i];
+                var isCurrent = i == HeatmapSource.CurrentMonthIndex;
                 var items = row.Items.ContainsKey(month) ? row.Items[month] : null;
                 var cellClass = info.CellClass + (isCurrent ? " current" : "");
                 <HeatmapCell Items="@items" CssClass="@cellClass" />
@@ -32,8 +32,12 @@
 </div>
 
 @code {
+    // Note: C# prohibits a member named "Heatmap" on a class named "Heatmap" (CS0542).
+    // Consumer usage: <Heatmap HeatmapData="@data.Heatmap" />
     [Parameter]
-    public HeatmapData HeatmapData { get; set; } = new();
+    public HeatmapData HeatmapData { get; set; } = default!;
+
+    private HeatmapData HeatmapSource => HeatmapData ?? new HeatmapData();
 
     private record CategoryInfo(string HdrClass, string CellClass, string DisplayName);
 
