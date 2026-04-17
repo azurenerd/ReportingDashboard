@@ -2,8 +2,8 @@
 @using ReportingDashboard.Data
 @inject DashboardDataService DataService
 
-<div class="dash-wrap" style="display:flex;flex-direction:column;width:1920px;height:1080px;overflow:hidden">
-    @if (ErrorMessage != null)
+<div class="dash-wrap" style="display:flex;flex-direction:column;width:1920px;height:1080px;overflow:hidden;">
+    @if (ErrorMessage is not null)
     {
         <div class="error-container">
             <h2>Unable to load dashboard data</h2>
@@ -11,9 +11,21 @@
             <p class="error-detail">@ErrorMessage</p>
         </div>
     }
-    else
+    else if (Data is not null)
     {
         <!-- HDR-SLOT -->
+        <div class="hdr">
+            <div>
+                <h1 class="hdr-title">@Data.Header.Title <a href="@Data.Header.BacklogLink" target="_blank">&#128279; ADO Backlog</a></h1>
+                <div class="sub">@Data.Header.Subtitle</div>
+            </div>
+            <div class="legend">
+                <span class="legend-item"><span class="legend-diamond poc"></span>PoC Milestone</span>
+                <span class="legend-item"><span class="legend-diamond prod"></span>Production Release</span>
+                <span class="legend-item"><span class="legend-circle"></span>Checkpoint</span>
+                <span class="legend-item"><span class="legend-now-bar"></span>Now</span>
+            </div>
+        </div>
         <!-- TL-SLOT -->
         <!-- HM-SLOT -->
     }
