@@ -1,0 +1,38 @@
+@namespace ReportingDashboard.Components.Shared
+
+<div class="hdr">
+    <div class="hdr-left">
+        <div class="title-row">
+            <span class="title">@Title</span>
+            @if (!string.IsNullOrEmpty(BacklogUrl))
+            {
+                <a href="@BacklogUrl" target="_blank" rel="noopener noreferrer" class="ado-link">↗ ADO Backlog</a>
+            }
+        </div>
+        <div class="sub">@Subtitle</div>
+    </div>
+    <div class="legend">
+        <div class="legend-item">
+            <span class="icon diamond poc"></span>
+            <span class="legend-label">PoC Milestone</span>
+        </div>
+        <div class="legend-item">
+            <span class="icon diamond prod"></span>
+            <span class="legend-label">Production Release</span>
+        </div>
+        <div class="legend-item">
+            <span class="icon checkpoint"></span>
+            <span class="legend-label">Checkpoint</span>
+        </div>
+        <div class="legend-item">
+            <span class="icon now-line"></span>
+            <span class="legend-label">Now</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Subtitle { get; set; } = "";
+    [Parameter] public string BacklogUrl { get; set; } = "";
+}
