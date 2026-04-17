@@ -1,5 +1,5 @@
-using ReportingDashboard.Components;
 using ReportingDashboard.Data;
+using ReportingDashboard.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
