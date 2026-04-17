@@ -102,4 +102,39 @@ public class DashboardDataServiceTests : IDisposable
         result.Should().NotBeNull();
         result.Header.Title.Should().Be("Test Project");
     }
+
+    [Fact]
+    public async Task LoadAsync_MalformedJson_ThrowsJsonException()
+    {
+        File.WriteAllText(Path.Combine(_dataDir, "broken.json"), "{ not valid json!!! }");
+
+        var act = () => _service.LoadAsync("broken.json");
+
+        await act.Should().ThrowAsync<JsonException>();
+    }
+
+    [Fact]
+    public async Task LoadAsync_NullFilename_DefaultsToDataJson()
+    {
+        WriteJsonFile("data.json", CreateValidData());
+
+        var result = await _service.LoadAsync(null);
+
+        result.Should().NotBeNull();
+        result.Header.Title.Should().Be("Test Project");
+    }
+
+    [Theory]
+    [InlineData("DATA.JSON")]
+    [InlineData("report.JSON")]
+    [InlineData("My-File.Json")]
+    public async Task LoadAsync_CaseInsensitiveJsonExtension_DoesNotThrowArgumentException(string filename)
+    {
+        WriteJsonFile(filename, CreateValidData());
+
+        var act = () => _service.LoadAsync(filename);
+
+        // Should not throw ArgumentException for extension; may throw FileNotFoundException on case-sensitive OS
+        await act.Should().NotThrowAsync<ArgumentException>();
+    }
 }
