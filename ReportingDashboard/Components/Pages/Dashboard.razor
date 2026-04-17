@@ -12,4 +12,6 @@
 else if (DataService.Data is not null)
 {
     <DashboardHeader Data="@DataService.Data" />
+    <TimelineSection Data="@DataService.Data" DataService="@DataService" />
+    <HeatmapGrid Data="@DataService.Data" />
 }
