@@ -86,25 +86,25 @@ public class DashboardDataService
     {
         if (string.IsNullOrWhiteSpace(header?.Title))
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 "Validation error: header.title is required and cannot be empty.");
         }
 
         if (string.IsNullOrWhiteSpace(header.TimelineStartDate))
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 "Validation error: header.timelineStartDate is required (ISO 8601 format, e.g., '2026-01-01').");
         }
 
         if (string.IsNullOrWhiteSpace(header.TimelineEndDate))
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 "Validation error: header.timelineEndDate is required (ISO 8601 format, e.g., '2026-07-01').");
         }
 
         if (string.IsNullOrWhiteSpace(header.ReportDate))
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 "Validation error: header.reportDate is required (ISO 8601 format, e.g., '2026-04-17').");
         }
 
@@ -114,7 +114,7 @@ public class DashboardDataService
 
         if (header.TimelineMonths == null || header.TimelineMonths.Count == 0)
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 "Validation error: header.timelineMonths must be a non-empty array of month labels (e.g., [\"Jan\", \"Feb\"]).");
         }
 
@@ -128,7 +128,7 @@ public class DashboardDataService
     {
         if (tracks == null || tracks.Count == 0)
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 "Validation error: timelineTracks must be a non-empty array of track objects.");
         }
 
@@ -138,13 +138,13 @@ public class DashboardDataService
 
             if (string.IsNullOrWhiteSpace(track?.Id))
             {
-                throw new InvalidOperationException(
+                throw new ArgumentException(
                     $"Validation error: timelineTracks[{i}].id is required.");
             }
 
             if (string.IsNullOrWhiteSpace(track.Name))
             {
-                throw new InvalidOperationException(
+                throw new ArgumentException(
                     $"Validation error: timelineTracks[{i}].name is required.");
             }
 
@@ -170,13 +170,13 @@ public class DashboardDataService
 
             if (string.IsNullOrWhiteSpace(milestone?.Label))
             {
-                throw new InvalidOperationException(
+                throw new ArgumentException(
                     $"Validation error: timelineTracks[{trackIndex}].milestones[{i}].label is required.");
             }
 
             if (string.IsNullOrWhiteSpace(milestone.Date))
             {
-                throw new InvalidOperationException(
+                throw new ArgumentException(
                     $"Validation error: timelineTracks[{trackIndex}].milestones[{i}].date is required (ISO 8601 format).");
             }
 
@@ -188,13 +188,13 @@ public class DashboardDataService
             }
             else if (!new[] { "checkpoint", "minor", "poc", "production" }.Contains(milestone.Type.ToLower()))
             {
-                throw new InvalidOperationException(
+                throw new ArgumentException(
                     $"Validation error: timelineTracks[{trackIndex}].milestones[{i}].type must be one of: 'checkpoint', 'minor', 'poc', 'production'.");
             }
 
             if (milestone.LabelPosition != null && !new[] { "above", "below" }.Contains(milestone.LabelPosition.ToLower()))
             {
-                throw new InvalidOperationException(
+                throw new ArgumentException(
                     $"Validation error: timelineTracks[{trackIndex}].milestones[{i}].labelPosition must be 'above' or 'below'.");
             }
         }
@@ -204,13 +204,13 @@ public class DashboardDataService
     {
         if (heatmap == null)
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 "Validation error: heatmap object is required.");
         }
 
         if (heatmap.Columns == null || heatmap.Columns.Count == 0)
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 "Validation error: heatmap.columns must be a non-empty array of month names.");
         }
 
@@ -228,14 +228,14 @@ public class DashboardDataService
 
         if (heatmap.Rows == null || heatmap.Rows.Count == 0)
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 "Validation error: heatmap.rows must be a non-empty array of row objects.");
         }
 
         var expectedCategories = new[] { "shipped", "in-progress", "carryover", "blockers" };
         if (heatmap.Rows.Count != 4)
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 $"Validation error: heatmap.rows must contain exactly 4 rows (shipped, in-progress, carryover, blockers), but found {heatmap.Rows.Count}.");
         }
 
@@ -245,13 +245,13 @@ public class DashboardDataService
 
             if (string.IsNullOrWhiteSpace(row?.Category))
             {
-                throw new InvalidOperationException(
+                throw new ArgumentException(
                     $"Validation error: heatmap.rows[{i}].category is required.");
             }
 
             if (!expectedCategories.Contains(row.Category.ToLower()))
             {
-                throw new InvalidOperationException(
+                throw new ArgumentException(
                     $"Validation error: heatmap.rows[{i}].category must be one of: 'shipped', 'in-progress', 'carryover', 'blockers'.");
             }
 
@@ -273,7 +273,7 @@ public class DashboardDataService
     {
         if (cellItems.Count != expectedColumnCount)
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 $"Validation error: heatmap.rows[{rowIndex}].cellItems must have {expectedColumnCount} columns to match heatmap.columns, but found {cellItems.Count}.");
         }
 
@@ -294,7 +294,7 @@ public class DashboardDataService
         }
         catch (FormatException)
         {
-            throw new InvalidOperationException(
+            throw new ArgumentException(
                 $"Validation error: {fieldName} must be in ISO 8601 format (YYYY-MM-DD), but got '{dateStr}'.");
         }
     }
