@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=1920" />
-    <title>Reporting Dashboard</title>
-    <link href="css/dashboard.css" rel="stylesheet" />
-    <HeadOutlet />
+    <meta name="viewport" content="width=1920, initial-scale=1.0" />
+    <title>ReportingDashboard</title>
+    <base href="/" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <HeadOutlet @rendermode="@RenderMode.InteractiveServer" />
 </head>
+
 <body>
-    <Routes />
+    <Routes @rendermode="@RenderMode.InteractiveServer" />
     <script src="_framework/blazor.web.js"></script>
 </body>
+
 </html>
