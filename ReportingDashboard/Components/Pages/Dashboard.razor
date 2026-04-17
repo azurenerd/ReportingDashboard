@@ -5,17 +5,11 @@
 
 @if (DataService.HasError)
 {
-    <div style="display:flex;align-items:center;justify-content:center;width:1920px;height:1080px;">
-        <p style="color:#EA4335;font-family:'Segoe UI',Arial,sans-serif;font-size:18px;">
-            @DataService.ErrorMessage
-        </p>
+    <div class="error-state" style="display:flex;align-items:center;justify-content:center;height:100vh;color:#EA4335;font-size:18px;font-family:'Segoe UI',Arial,sans-serif;">
+        @DataService.ErrorMessage
     </div>
 }
 else if (DataService.Data is not null)
 {
-    <div class="dashboard">
-        <DashboardHeader Data="DataService.Data" />
-        <TimelineSection Data="DataService.Data" DataService="DataService" />
-        <HeatmapGrid Data="DataService.Data" />
-    </div>
+    <DashboardHeader Data="@DataService.Data" />
 }
