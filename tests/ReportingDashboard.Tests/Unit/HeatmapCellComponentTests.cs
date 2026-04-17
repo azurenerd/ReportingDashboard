@@ -39,7 +39,7 @@ public class HeatmapCellComponentTests : TestContext
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void HeatmapCell_WithEmptyItems_RendersDash()
+    public void HeatmapCell_WithEmptyList_RendersDash()
     {
         var cut = RenderComponent<HeatmapCell>(p => p
             .Add(x => x.Items, new List<string>())
@@ -51,10 +51,10 @@ public class HeatmapCellComponentTests : TestContext
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void HeatmapCell_AppliesCssClassToRootDiv()
+    public void HeatmapCell_AppliesCssClassToRoot()
     {
         var cut = RenderComponent<HeatmapCell>(p => p
-            .Add(x => x.Items, new List<string> { "Item" })
+            .Add(x => x.Items, (List<string>?)null)
             .Add(x => x.CssClass, "block-cell current"));
 
         var root = cut.Find("div.hm-cell");
@@ -67,7 +67,7 @@ public class HeatmapCellComponentTests : TestContext
     public void HeatmapCell_DefaultCssClass_IsEmpty()
     {
         var cut = RenderComponent<HeatmapCell>(p => p
-            .Add(x => x.Items, (List<string>?)null));
+            .Add(x => x.Items, new List<string> { "Item1" }));
 
         var root = cut.Find("div");
         root.ClassName!.Trim().Should().Be("hm-cell");
