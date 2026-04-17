@@ -1,0 +1,34 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 1920px;
+    height: 1080px;
+}
+
+body {
+    background: #FFFFFF;
+    font-family: 'Segoe UI', -apple-system, Arial, sans-serif;
+    color: #111;
+    overflow: hidden;
+}
+
+a {
+    color: #0078D4;
+    text-decoration: none;
+}
+
+#blazor-error-ui {
+    display: none !important;
+}

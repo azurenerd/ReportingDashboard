@@ -1,0 +1,99 @@
+@page "/"
+@inject DashboardDataService DashboardDataService
+@using AgentSquad.Runner.Data
+
+<div class="dashboard-container">
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="error-container">
+            <h2>Unable to load dashboard data</h2>
+            <p>Please check that data.json exists and contains valid JSON.</p>
+            <p class="error-detail">@ErrorMessage</p>
+        </div>
+    }
+    else if (Data != null)
+    {
+        <div>Dashboard content will render here</div>
+    }
+    else
+    {
+        <div>Loading...</div>
+    }
+</div>
+
+@code {
+    private DashboardReport? Data;
+    private string? ErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Data = await DashboardDataService.GetDataAsync();
+            ErrorMessage = null;
+        }
+        catch (FileNotFoundException ex)
+        {
+            ErrorMessage = ex.Message;
+            Data = null;
+        }
+        catch (JsonException ex)
+        {
+            ErrorMessage = $"Invalid JSON format: {ex.Message} (Line {ex.LineNumber}, BytePositionInLine {ex.BytePositionInLine})";
+            Data = null;
+        }
+        catch (InvalidOperationException ex)
+        {
+            ErrorMessage = ex.Message;
+            Data = null;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"An unexpected error occurred: {ex.Message}";
+            Data = null;
+        }
+    }
+
+    private double DateToX(string dateStr)
+    {
+        if (Data?.Header == null)
+            return 0;
+
+        var date = DateOnly.Parse(dateStr);
+        var start = DateOnly.Parse(Data.Header.TimelineStartDate);
+        var end = DateOnly.Parse(Data.Header.TimelineEndDate);
+        var totalDays = end.DayNumber - start.DayNumber;
+        if (totalDays <= 0) return 0;
+        var elapsed = date.DayNumber - start.DayNumber;
+        return (elapsed / (double)totalDays) * 1560.0;
+    }
+
+    private string DiamondPoints(double cx, double cy)
+    {
+        var r = 11;
+        return $"{cx},{cy - r} {cx + r},{cy} {cx},{cy + r} {cx - r},{cy}";
+    }
+
+    private double TrackY(int index)
+    {
+        return 42 + (index * 56);
+    }
+
+    private string CategoryCellClass(string category) => category switch
+    {
+        "shipped" => "ship-cell",
+        "in-progress" => "prog-cell",
+        "carryover" => "carry-cell",
+        "blockers" => "block-cell",
+        _ => ""
+    };
+
+    private string CategoryHeaderClass(string category) => category switch
+    {
+        "shipped" => "ship-hdr",
+        "in-progress" => "prog-hdr",
+        "carryover" => "carry-hdr",
+        "blockers" => "block-hdr",
+        _ => ""
+    };
+}

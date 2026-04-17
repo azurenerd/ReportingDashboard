@@ -1,0 +1,113 @@
+{
+  "header": {
+    "title": "Project Phoenix Release Roadmap",
+    "subtitle": "Engineering Division > Platform Modernization > April 2026",
+    "backlogLink": "https://dev.azure.com/example/project/_backlogs",
+    "reportDate": "2026-04-17",
+    "timelineStartDate": "2026-01-01",
+    "timelineEndDate": "2026-07-01",
+    "timelineMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+  },
+  "timelineTracks": [
+    {
+      "id": "M1",
+      "name": "M1",
+      "description": "Core API & Auth",
+      "color": "#0078D4",
+      "milestones": [
+        {
+          "label": "Mar 26 PoC",
+          "date": "2026-03-26",
+          "type": "poc"
+        },
+        {
+          "label": "May 15 Production",
+          "date": "2026-05-15",
+          "type": "production"
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "name": "M2",
+      "description": "Data Services",
+      "color": "#00897B",
+      "milestones": [
+        {
+          "label": "Feb 28 Checkpoint",
+          "date": "2026-02-28",
+          "type": "checkpoint"
+        },
+        {
+          "label": "Apr 30 Production",
+          "date": "2026-04-30",
+          "type": "production"
+        }
+      ]
+    },
+    {
+      "id": "M3",
+      "name": "M3",
+      "description": "UI & Integration",
+      "color": "#546E7A",
+      "milestones": [
+        {
+          "label": "Apr 15 Checkpoint",
+          "date": "2026-04-15",
+          "type": "checkpoint"
+        },
+        {
+          "label": "Jun 30 Production",
+          "date": "2026-06-30",
+          "type": "production"
+        }
+      ]
+    }
+  ],
+  "heatmap": {
+    "columns": ["January", "February", "March", "April"],
+    "highlightColumnIndex": 3,
+    "rows": [
+      {
+        "category": "shipped",
+        "label": "Shipped",
+        "cellItems": [
+          ["API v1 released"],
+          ["Auth service deployed"],
+          ["Core feature A"],
+          ["Feature B complete"]
+        ]
+      },
+      {
+        "category": "in-progress",
+        "label": "In Progress",
+        "cellItems": [
+          ["Platform upgrade"],
+          ["Database optimization"],
+          ["UI redesign"],
+          ["Security audit"]
+        ]
+      },
+      {
+        "category": "carryover",
+        "label": "Carryover",
+        "cellItems": [
+          [],
+          ["Mobile support"],
+          [],
+          ["Documentation update"]
+        ]
+      },
+      {
+        "category": "blockers",
+        "label": "Blockers",
+        "cellItems": [
+          [],
+          [],
+          ["Third-party API delay"],
+          []
+        ]
+      }
+    ]
+  }
+}
