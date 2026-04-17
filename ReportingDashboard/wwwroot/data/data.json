@@ -1,0 +1,83 @@
+{
+  "title": "Project Atlas - Cloud Migration Platform",
+  "subtitle": "Cloud Engineering \u2013 Migration Workstream \u2013 April 2026",
+  "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
+  "currentDate": "2026-04-10",
+  "timeline": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-06-30",
+    "tracks": [
+      {
+        "id": "M1",
+        "label": "API Gateway",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2026-01-15", "type": "checkpoint", "label": "Jan 15" },
+          { "date": "2026-03-20", "type": "poc", "label": "Mar 20 PoC" },
+          { "date": "2026-05-01", "type": "production", "label": "May 1 GA" }
+        ]
+      },
+      {
+        "id": "M2",
+        "label": "Data Migration Engine",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2026-02-10", "type": "checkpoint", "label": "Feb 10" },
+          { "date": "2026-03-15", "type": "poc", "label": "Mar 15 PoC" },
+          { "date": "2026-05-15", "type": "production", "label": "May 15 GA" }
+        ]
+      },
+      {
+        "id": "M3",
+        "label": "Monitoring Dashboard",
+        "color": "#546E7A",
+        "milestones": [
+          { "date": "2026-03-01", "type": "checkpoint", "label": "Mar 1" },
+          { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["January", "February", "March", "April"],
+    "currentMonth": "April",
+    "rows": [
+      {
+        "status": "shipped",
+        "items": {
+          "January": ["Auth service migrated", "DNS cutover complete"],
+          "February": ["Blob storage sync tool", "Config service v2"],
+          "March": ["API Gateway PoC done", "Data migration dry-run"],
+          "April": ["Monitoring agent v1"]
+        }
+      },
+      {
+        "status": "inprogress",
+        "items": {
+          "January": [],
+          "February": [],
+          "March": ["Load test framework"],
+          "April": ["Gateway perf tuning", "Migration rollback proc", "Dashboard wireframes"]
+        }
+      },
+      {
+        "status": "carryover",
+        "items": {
+          "January": [],
+          "February": [],
+          "March": [],
+          "April": ["SDK v2 upgrade (from Mar)"]
+        }
+      },
+      {
+        "status": "blockers",
+        "items": {
+          "January": [],
+          "February": [],
+          "March": [],
+          "April": ["Waiting on VNet peering approval"]
+        }
+      }
+    ]
+  }
+}
