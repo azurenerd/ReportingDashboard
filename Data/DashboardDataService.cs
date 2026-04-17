@@ -216,8 +216,14 @@ public class DashboardDataService
 
         if (heatmap.HighlightColumnIndex < 0 || heatmap.HighlightColumnIndex >= heatmap.Columns.Count)
         {
-            throw new InvalidOperationException(
-                $"Validation error: heatmap.highlightColumnIndex ({heatmap.HighlightColumnIndex}) must be between 0 and {heatmap.Columns.Count - 1}.");
+            if (heatmap.HighlightColumnIndex < 0)
+            {
+                heatmap.HighlightColumnIndex = 0;
+            }
+            else
+            {
+                heatmap.HighlightColumnIndex = heatmap.Columns.Count - 1;
+            }
         }
 
         if (heatmap.Rows == null || heatmap.Rows.Count == 0)
