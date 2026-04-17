@@ -1,7 +1,6 @@
 @page "/"
-@rendermode InteractiveServer
 @using System.Text.Json
-@inject DashboardDataService DataService
+@inject ReportingDashboard.Services.DashboardDataService DataService
 @inject NavigationManager Navigation
 
 @if (!string.IsNullOrEmpty(_errorMessage))
@@ -12,26 +11,14 @@
 }
 else if (_data is not null)
 {
-    <div class="placeholder">
-        <h2>✅ Dashboard data loaded successfully</h2>
-        <p><strong>Title:</strong> @_data.Header.Title</p>
-        <p><strong>Subtitle:</strong> @_data.Header.Subtitle</p>
-        <p><strong>Timeline Tracks:</strong> @_data.Timeline.Tracks.Count</p>
-        <p><strong>Heatmap Columns:</strong> @_data.Heatmap.Columns.Count</p>
-        <p><strong>Heatmap Rows:</strong> @_data.Heatmap.Rows.Count</p>
-        <p><strong>Schema Version:</strong> @_data.SchemaVersion</p>
-        <p><strong>Current Date:</strong> @_currentDate.ToString("yyyy-MM-dd")</p>
-    </div>
-}
-else
-{
-    <div class="placeholder">
-        <h2>Loading dashboard data…</h2>
-    </div>
+    <HeaderSection Header="@_data.Header" />
+    <TimelineSection Timeline="@_data.Timeline"
+                     CurrentDate="@_currentDate" />
+    <HeatmapSection Heatmap="@_data.Heatmap" />
 }
 
 @code {
-    private DashboardData? _data;
+    private ReportingDashboard.Models.DashboardData? _data;
     private string? _errorMessage;
     private DateOnly _currentDate;
 
@@ -53,6 +40,18 @@ else
         catch (JsonException ex)
         {
             _errorMessage = $"Failed to load dashboard data: {ex.Message}";
+        }
+        catch (ArgumentException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        catch (FormatException ex)
+        {
+            _errorMessage = $"Failed to parse date in dashboard data: {ex.Message}";
+        }
+        catch (InvalidOperationException ex)
+        {
+            _errorMessage = ex.Message;
         }
         catch (Exception ex)
         {
