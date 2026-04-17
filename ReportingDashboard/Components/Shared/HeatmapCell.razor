@@ -1,0 +1,45 @@
+@namespace ReportingDashboard.Components.Shared
+
+<div class="hm-cell @CellCssClass" style="@(IsLastColumn ? "border-right:none;" : "")">
+    @if (Items == null || Items.Count == 0)
+    {
+        <div class="it" style="color:#AAA;">—</div>
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            <div class="it">@item</div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<string>? Items { get; set; }
+
+    [Parameter, EditorRequired]
+    public string ColorScheme { get; set; } = "green";
+
+    [Parameter]
+    public bool IsCurrentMonth { get; set; }
+
+    [Parameter]
+    public bool IsLastColumn { get; set; }
+
+    private string CellCssClass
+    {
+        get
+        {
+            var prefix = ColorScheme switch
+            {
+                "green" => "ship",
+                "blue" => "prog",
+                "amber" => "carry",
+                "red" => "block",
+                _ => "ship"
+            };
+            return $"{prefix}-cell{(IsCurrentMonth ? " current-month" : "")}";
+        }
+    }
+}
