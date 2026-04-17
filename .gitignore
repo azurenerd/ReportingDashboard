@@ -1,19 +1,24 @@
-## .NET
+## .NET build output
 bin/
 obj/
+out/
+
+## IDE / editor
 .vs/
+.vscode/
 *.user
 *.suo
-*.cache
-*.dll
-*.exe
-*.pdb
+*.userprefs
+*.sln.docstates
 
-## IDE
-.idea/
-*.swp
-*~
+## NuGet
+packages/
+*.nupkg
+project.lock.json
 
-## Dashboard data (user-specific, not committed)
-wwwroot/data.json
+## OS files
+Thumbs.db
+.DS_Store
+
+## Dashboard working data (user-specific, not committed)
 ReportingDashboard/wwwroot/data.json
