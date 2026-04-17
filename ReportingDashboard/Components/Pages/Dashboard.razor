@@ -1,8 +1,9 @@
 @page "/"
 @using ReportingDashboard.Data
+
 @inject DashboardDataService DataService
 
-@if (ErrorMessage is not null)
+@if (!string.IsNullOrEmpty(ErrorMessage))
 {
     <div class="error-container">
         <h2>Unable to load dashboard data</h2>
@@ -12,19 +13,140 @@
 }
 else if (Data is not null)
 {
-    <!-- Header placeholder -->
-    <div class="header-placeholder">
-        <p>Header: @Data.Header.Title</p>
+    <!-- Header -->
+    <div class="hdr">
+        <div>
+            <h1>@Data.Header.Title <a href="@Data.Header.BacklogLink" target="_blank">📋 ADO Backlog</a></h1>
+            <div class="sub">@Data.Header.Subtitle</div>
+        </div>
+        <div class="legend">
+            <span class="legend-item">
+                <span class="legend-diamond poc"></span>PoC Milestone
+            </span>
+            <span class="legend-item">
+                <span class="legend-diamond prod"></span>Production Release
+            </span>
+            <span class="legend-item">
+                <span class="legend-circle"></span>Checkpoint
+            </span>
+            <span class="legend-item">
+                <span class="legend-now-bar"></span>Now
+            </span>
+        </div>
     </div>
 
-    <!-- Timeline placeholder -->
-    <div class="timeline-placeholder">
-        <p>Timeline: @Data.TimelineTracks.Count tracks</p>
+    <!-- Timeline -->
+    <div class="tl-area">
+        <div class="tl-labels">
+            @foreach (var track in Data.TimelineTracks)
+            {
+                <div style="font-size:12px;font-weight:600;line-height:1.4;color:@track.Color;">
+                    @track.Name<br/><span style="font-weight:400;color:#444;">@track.Description</span>
+                </div>
+            }
+        </div>
+        <div class="tl-svg-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="185" style="overflow:visible;display:block">
+                <defs>
+                    <filter id="sh">
+                        <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/>
+                    </filter>
+                </defs>
+
+                @* Month gridlines and labels *@
+                @for (int mi = 0; mi < Data.Header.TimelineMonths.Count; mi++)
+                {
+                    var mx = mi * MonthSpacing;
+                    <line x1="@F(mx)" y1="0" x2="@F(mx)" y2="185" stroke="#bbb" stroke-opacity="0.4" stroke-width="1"/>
+                    @RenderSvgText(F(mx + 5), "14", "#666", "11", "600", Data.Header.TimelineMonths[mi])
+                }
+
+                @* NOW line *@
+                @{
+                    var nowX = DateToX(Data.Header.ReportDate);
+                }
+                <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="185" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3"/>
+                @RenderSvgText(F(nowX + 4), "14", "#EA4335", "10", "700", "NOW")
+
+                @* Track lines and milestones *@
+                @for (int ti = 0; ti < Data.TimelineTracks.Count; ti++)
+                {
+                    var track = Data.TimelineTracks[ti];
+                    var ty = TrackY(ti);
+
+                    <line x1="0" y1="@F(ty)" x2="1560" y2="@F(ty)" stroke="@track.Color" stroke-width="3"/>
+
+                    @foreach (var ms in track.Milestones)
+                    {
+                        var msX = DateToX(ms.Date);
+                        var labelAbove = (ms.LabelPosition ?? "above") == "above";
+                        var labelY = labelAbove ? ty - 16 : ty + 24;
+
+                        @if (ms.Type == "checkpoint")
+                        {
+                            <circle cx="@F(msX)" cy="@F(ty)" r="7" fill="white" stroke="@track.Color" stroke-width="2.5"/>
+                        }
+                        else if (ms.Type == "minor")
+                        {
+                            <circle cx="@F(msX)" cy="@F(ty)" r="4" fill="#999"/>
+                        }
+                        else if (ms.Type == "poc")
+                        {
+                            <polygon points="@DiamondPoints(msX, ty)" fill="#F4B400" filter="url(#sh)"/>
+                        }
+                        else if (ms.Type == "production")
+                        {
+                            <polygon points="@DiamondPoints(msX, ty)" fill="#34A853" filter="url(#sh)"/>
+                        }
+
+                        @RenderMilestoneLabel(F(msX), F(labelY), ms.Label)
+                    }
+                }
+            </svg>
+        </div>
     </div>
 
-    <!-- Heatmap placeholder -->
-    <div class="heatmap-placeholder">
-        <p>Heatmap: @Data.Heatmap.Rows.Count rows × @Data.Heatmap.Columns.Count columns</p>
+    <!-- Heatmap -->
+    <div class="hm-wrap">
+        <div class="hm-title">Monthly Execution Heatmap – Shipped · In Progress · Carryover · Blockers</div>
+        <div class="hm-grid" style="grid-template-columns: 160px repeat(@Data.Heatmap.Columns.Count, 1fr);">
+            <!-- Header row -->
+            <div class="hm-corner">Status</div>
+            @for (int ci = 0; ci < Data.Heatmap.Columns.Count; ci++)
+            {
+                var isHighlight = ci == Data.Heatmap.HighlightColumnIndex;
+                var isLast = ci == Data.Heatmap.Columns.Count - 1;
+                <div class="hm-col-hdr @(isHighlight ? "apr-hdr" : "")" style="@(isLast ? "border-right:none;" : "")">
+                    @Data.Heatmap.Columns[ci]@(isHighlight ? " ▸ Now" : "")
+                </div>
+            }
+
+            <!-- Data rows -->
+            @foreach (var row in Data.Heatmap.Rows)
+            {
+                <div class="hm-row-hdr @CategoryHeaderClass(row.Category)">@row.Label</div>
+                @for (int ci = 0; ci < Data.Heatmap.Columns.Count; ci++)
+                {
+                    var isHighlight = ci == Data.Heatmap.HighlightColumnIndex;
+                    var isLast = ci == Data.Heatmap.Columns.Count - 1;
+                    var items = ci < row.CellItems.Count ? row.CellItems[ci] : new List<string>();
+
+                    <div class="hm-cell @CategoryCellClass(row.Category) @(isHighlight ? "apr" : "")" style="@(isLast ? "border-right:none;" : "")">
+                        @if (items.Count == 0)
+                        {
+                            <div class="it" style="color:#AAA;">-</div>
+                        }
+                        else
+                        {
+                            @foreach (var item in items)
+                            {
+                                <div class="it">@item</div>
+                            }
+                        }
+                    </div>
+                }
+            }
+        </div>
     </div>
 }
 
@@ -43,4 +165,74 @@ else if (Data is not null)
             ErrorMessage = ex.Message;
         }
     }
+
+    private double MonthSpacing => Data?.Header.TimelineMonths.Count > 0
+        ? 1560.0 / Data.Header.TimelineMonths.Count
+        : 260;
+
+    private double DateToX(string dateStr)
+    {
+        if (Data is null) return 0;
+        var date = DateOnly.Parse(dateStr);
+        var start = DateOnly.Parse(Data.Header.TimelineStartDate);
+        var end = DateOnly.Parse(Data.Header.TimelineEndDate);
+        var totalDays = end.DayNumber - start.DayNumber;
+        if (totalDays == 0) return 0;
+        var elapsed = date.DayNumber - start.DayNumber;
+        return (elapsed / (double)totalDays) * 1560.0;
+    }
+
+    private double TrackY(int index) => 42 + (index * 56);
+
+    private string DiamondPoints(double cx, double cy)
+    {
+        var r = 11;
+        return $"{F(cx)},{F(cy - r)} {F(cx + r)},{F(cy)} {F(cx)},{F(cy + r)} {F(cx - r)},{F(cy)}";
+    }
+
+    private static string F(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+    private RenderFragment RenderSvgText(string x, string y, string fill, string fontSize, string fontWeight, string content) => builder =>
+    {
+        builder.OpenElement(0, "text");
+        builder.AddAttribute(1, "x", x);
+        builder.AddAttribute(2, "y", y);
+        builder.AddAttribute(3, "fill", fill);
+        builder.AddAttribute(4, "font-size", fontSize);
+        builder.AddAttribute(5, "font-weight", fontWeight);
+        builder.AddAttribute(6, "font-family", "Segoe UI,Arial");
+        builder.AddContent(7, content);
+        builder.CloseElement();
+    };
+
+    private RenderFragment RenderMilestoneLabel(string x, string y, string label) => builder =>
+    {
+        builder.OpenElement(0, "text");
+        builder.AddAttribute(1, "x", x);
+        builder.AddAttribute(2, "y", y);
+        builder.AddAttribute(3, "text-anchor", "middle");
+        builder.AddAttribute(4, "fill", "#666");
+        builder.AddAttribute(5, "font-size", "10");
+        builder.AddAttribute(6, "font-family", "Segoe UI,Arial");
+        builder.AddContent(7, label);
+        builder.CloseElement();
+    };
+
+    private static string CategoryCellClass(string category) => category switch
+    {
+        "shipped" => "ship-cell",
+        "in-progress" => "prog-cell",
+        "carryover" => "carry-cell",
+        "blockers" => "block-cell",
+        _ => ""
+    };
+
+    private static string CategoryHeaderClass(string category) => category switch
+    {
+        "shipped" => "ship-hdr",
+        "in-progress" => "prog-hdr",
+        "carryover" => "carry-hdr",
+        "blockers" => "block-hdr",
+        _ => ""
+    };
 }
