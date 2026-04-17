@@ -1,4 +1,5 @@
 @page "/"
+@rendermode InteractiveServer
 @using System.Text.Json
 @inject DashboardDataService DataService
 @inject NavigationManager Navigation
@@ -20,6 +21,12 @@ else if (_data is not null)
         <p><strong>Heatmap Rows:</strong> @_data.Heatmap.Rows.Count</p>
         <p><strong>Schema Version:</strong> @_data.SchemaVersion</p>
         <p><strong>Current Date:</strong> @_currentDate.ToString("yyyy-MM-dd")</p>
+    </div>
+}
+else
+{
+    <div class="placeholder">
+        <h2>Loading dashboard data…</h2>
     </div>
 }
 
