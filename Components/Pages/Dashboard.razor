@@ -1,6 +1,7 @@
 @page "/"
 @inject DashboardDataService DashboardDataService
-@using AgentSquad.Runner.Data
+@using ReportingDashboard.Data
+@using System.Text.Json
 
 <div class="dashboard-container">
     @if (!string.IsNullOrEmpty(ErrorMessage))

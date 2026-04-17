@@ -1,4 +1,4 @@
-namespace AgentSquad.Runner.Data;
+namespace ReportingDashboard.Data;
 
 public record DashboardReport
 {

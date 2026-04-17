@@ -1,5 +1,5 @@
-using AgentSquad.Runner.Components;
-using AgentSquad.Runner.Data;
+using ReportingDashboard.Components;
+using ReportingDashboard.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

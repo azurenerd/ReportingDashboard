@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace AgentSquad.Runner.Data;
+namespace ReportingDashboard.Data;
 
 public class DashboardDataService
 {
