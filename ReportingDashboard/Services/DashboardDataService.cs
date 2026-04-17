@@ -44,8 +44,8 @@ public class DashboardDataService
                 return;
             }
 
-            _rangeStart = DateOnly.Parse(Data.Timeline.StartDate, CultureInfo.InvariantCulture);
-            _rangeEnd = DateOnly.Parse(Data.Timeline.EndDate, CultureInfo.InvariantCulture);
+            _rangeStart = DateOnly.Parse(Data.TimelineRange.Start, CultureInfo.InvariantCulture);
+            _rangeEnd = DateOnly.Parse(Data.TimelineRange.End, CultureInfo.InvariantCulture);
             _reportDate = DateOnly.Parse(Data.ReportDate, CultureInfo.InvariantCulture);
         }
         catch (JsonException ex)

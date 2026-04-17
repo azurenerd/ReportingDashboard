@@ -3,10 +3,10 @@
   "subtitle": "Cloud Engineering \u00b7 AI Platform \u00b7 April 2026",
   "backlogUrl": "https://dev.azure.com/contoso/ProjectPhoenix/_backlogs",
   "reportDate": "2026-04-15",
-  "timeline": {
-    "startDate": "2026-01-01",
-    "endDate": "2026-06-30",
-    "months": [
+  "timelineRange": {
+    "start": "2026-01-01",
+    "end": "2026-06-30",
+    "monthGridlines": [
       { "label": "Jan", "date": "2026-01-01" },
       { "label": "Feb", "date": "2026-02-01" },
       { "label": "Mar", "date": "2026-03-01" },
@@ -18,7 +18,8 @@
   "workstreams": [
     {
       "id": "M1",
-      "label": "Chatbot & MS Role",
+      "label": "M1",
+      "description": "Chatbot & MS Role",
       "color": "#0078D4",
       "milestones": [
         { "date": "2026-01-15", "label": "Kickoff", "type": "Start" },
@@ -31,7 +32,8 @@
     },
     {
       "id": "M2",
-      "label": "Data Pipeline & Analytics",
+      "label": "M2",
+      "description": "Data Pipeline & Analytics",
       "color": "#00897B",
       "milestones": [
         { "date": "2026-01-20", "label": "Kickoff", "type": "Start" },
@@ -43,7 +45,8 @@
     },
     {
       "id": "M3",
-      "label": "Infrastructure & DevOps",
+      "label": "M3",
+      "description": "Infrastructure & DevOps",
       "color": "#546E7A",
       "milestones": [
         { "date": "2026-01-10", "label": "Kickoff", "type": "Start" },
@@ -56,11 +59,12 @@
     }
   ],
   "heatmap": {
+    "title": "Monthly Execution Heatmap \u2013 Shipped \u00b7 In Progress \u00b7 Carryover \u00b7 Blockers",
     "months": ["January", "February", "March", "April"],
     "currentMonth": "April",
     "rows": [
       {
-        "status": "Shipped",
+        "category": "Shipped",
         "displayLabel": "\u2705 SHIPPED",
         "cells": [
           {
@@ -98,7 +102,7 @@
         ]
       },
       {
-        "status": "InProgress",
+        "category": "InProgress",
         "displayLabel": "\ud83d\udd04 IN PROGRESS",
         "cells": [
           {
@@ -134,7 +138,7 @@
         ]
       },
       {
-        "status": "Carryover",
+        "category": "Carryover",
         "displayLabel": "\u23f3 CARRYOVER",
         "cells": [
           {
@@ -164,7 +168,7 @@
         ]
       },
       {
-        "status": "Blockers",
+        "category": "Blockers",
         "displayLabel": "\ud83d\udeab BLOCKERS",
         "cells": [
           {
