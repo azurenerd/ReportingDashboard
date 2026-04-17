@@ -2,6 +2,4 @@ main {
     width: 1920px;
     height: 1080px;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
 }
