@@ -1,0 +1,67 @@
+.hm-cell {
+    padding: 8px 12px;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
+    overflow: hidden;
+}
+
+/* Category background colors */
+.hm-cell.ship-cell {
+    background: #F0FBF0;
+}
+.hm-cell.ship-cell.current {
+    background: #D8F2DA;
+}
+.hm-cell.prog-cell {
+    background: #EEF4FE;
+}
+.hm-cell.prog-cell.current {
+    background: #DAE8FB;
+}
+.hm-cell.carry-cell {
+    background: #FFFDE7;
+}
+.hm-cell.carry-cell.current {
+    background: #FFF0B0;
+}
+.hm-cell.block-cell {
+    background: #FFF5F5;
+}
+.hm-cell.block-cell.current {
+    background: #FFE4E4;
+}
+
+/* Item rows */
+.it {
+    font-size: 12px;
+    color: #333;
+    padding: 2px 0 2px 12px;
+    position: relative;
+    line-height: 1.35;
+}
+
+/* Bullet pseudo-elements */
+.it::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #999;
+}
+
+/* Category-specific bullet colors */
+.ship-cell .it::before {
+    background: #34A853;
+}
+.prog-cell .it::before {
+    background: #0078D4;
+}
+.carry-cell .it::before {
+    background: #F4B400;
+}
+.block-cell .it::before {
+    background: #EA4335;
+}
