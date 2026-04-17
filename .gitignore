@@ -1,0 +1,33 @@
+## .NET build artifacts
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+launchSettings.json
+
+## Rider
+.idea/
+*.sln.iml
+
+## NuGet
+**/packages/*
+*.nupkg
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+[Ll]og/
+[Ll]ogs/
+publish/
+
+## OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
