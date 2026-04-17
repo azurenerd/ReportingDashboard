@@ -1,0 +1,16 @@
+/* === Heatmap bullet colors (global) ===
+   Blazor CSS isolation cannot scope compound selectors with runtime-composed
+   classes. These rules must be global. */
+
+.ship-cell .it::before {
+    background: #34A853;
+}
+.prog-cell .it::before {
+    background: #0078D4;
+}
+.carry-cell .it::before {
+    background: #F4B400;
+}
+.block-cell .it::before {
+    background: #EA4335;
+}

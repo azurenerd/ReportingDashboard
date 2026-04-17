@@ -32,8 +32,9 @@
 </div>
 
 @code {
-    // Note: C# prohibits a member named "Heatmap" on a class named "Heatmap" (CS0542).
-    // Consumer usage: <Heatmap HeatmapData="@data.Heatmap" />
+    // CS0542 prevents naming a member the same as its enclosing type.
+    // The original spec called for "Heatmap" but the class is also named "Heatmap".
+    // Using "HeatmapData" as the parameter name. Consumer usage: <Heatmap HeatmapData="@data.Heatmap" />
     [Parameter]
     public HeatmapData HeatmapData { get; set; } = default!;
 

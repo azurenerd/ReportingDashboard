@@ -1,0 +1,17 @@
+/* Heatmap category-specific bullet colors (global)
+   These rules must be global because Blazor CSS isolation cannot scope
+   compound selectors where the parent class (.ship-cell etc.) is applied
+   at runtime via a CssClass parameter. Referenced from app.css or App.razor. */
+
+.ship-cell .it::before {
+    background: #34A853;
+}
+.prog-cell .it::before {
+    background: #0078D4;
+}
+.carry-cell .it::before {
+    background: #F4B400;
+}
+.block-cell .it::before {
+    background: #EA4335;
+}

@@ -5,7 +5,8 @@
     overflow: hidden;
 }
 
-/* Category background colors */
+/* Category background colors - these work with scoped CSS because
+   the classes are on the same element that has the scoped attribute */
 .hm-cell.ship-cell {
     background: #F0FBF0;
 }
@@ -31,7 +32,7 @@
     background: #FFE4E4;
 }
 
-/* Item rows */
+/* Item rows - use ::deep to penetrate into child elements */
 ::deep .it {
     font-size: 12px;
     color: #333;
@@ -52,16 +53,6 @@
     background: #999;
 }
 
-/* Category-specific bullet colors using ::deep to penetrate CSS isolation */
-.ship-cell ::deep .it::before {
-    background: #34A853;
-}
-.prog-cell ::deep .it::before {
-    background: #0078D4;
-}
-.carry-cell ::deep .it::before {
-    background: #F4B400;
-}
-.block-cell ::deep .it::before {
-    background: #EA4335;
-}
+/* Category-specific bullet colors are in wwwroot/app.css (global)
+   because Blazor CSS isolation cannot reliably scope compound selectors
+   like .ship-cell .it::before when .ship-cell is a runtime-composed class. */
