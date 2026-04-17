@@ -1,6 +1,6 @@
 {
   "title": "Project Phoenix Release Roadmap",
-  "subtitle": "Cloud Engineering \u00b7 AI Platform \u00b7 April 2026",
+  "subtitle": "Engineering Platform \u00b7 Phoenix Workstream \u00b7 April 2026",
   "backlogUrl": "https://dev.azure.com/contoso/ProjectPhoenix/_backlogs",
   "reportDate": "2026-04-15",
   "timelineRange": {
@@ -60,15 +60,15 @@
   ],
   "heatmap": {
     "title": "Monthly Execution Heatmap \u2013 Shipped \u00b7 In Progress \u00b7 Carryover \u00b7 Blockers",
-    "months": ["January", "February", "March", "April"],
-    "currentMonth": "April",
+    "months": ["Jan", "Feb", "Mar", "Apr"],
+    "currentMonth": "Apr",
     "rows": [
       {
         "category": "Shipped",
         "displayLabel": "\u2705 SHIPPED",
         "cells": [
           {
-            "month": "January",
+            "month": "Jan",
             "items": [
               "Project kickoff & team onboarding",
               "IaC base templates created",
@@ -76,7 +76,7 @@
             ]
           },
           {
-            "month": "February",
+            "month": "Feb",
             "items": [
               "Chatbot PoC delivered to stakeholders",
               "Data schema v1 approved",
@@ -84,7 +84,7 @@
             ]
           },
           {
-            "month": "March",
+            "month": "Mar",
             "items": [
               "Chatbot beta deployed to test group",
               "Data pipeline PoC end-to-end",
@@ -93,7 +93,7 @@
             ]
           },
           {
-            "month": "April",
+            "month": "Apr",
             "items": [
               "Chatbot v1.0 GA released",
               "Prod infra deployment complete"
@@ -106,21 +106,21 @@
         "displayLabel": "\ud83d\udd04 IN PROGRESS",
         "cells": [
           {
-            "month": "January",
+            "month": "Jan",
             "items": [
               "Requirements gathering across teams",
               "Chatbot NLU model training"
             ]
           },
           {
-            "month": "February",
+            "month": "Feb",
             "items": [
               "Chatbot intent refinement",
               "Pipeline ingestion connectors"
             ]
           },
           {
-            "month": "March",
+            "month": "Mar",
             "items": [
               "Chatbot v1.0 hardening",
               "Pipeline throughput optimization",
@@ -128,7 +128,7 @@
             ]
           },
           {
-            "month": "April",
+            "month": "Apr",
             "items": [
               "Data pipeline v1.0 integration testing",
               "Analytics dashboard wireframes",
@@ -142,24 +142,24 @@
         "displayLabel": "\u23f3 CARRYOVER",
         "cells": [
           {
-            "month": "January",
+            "month": "Jan",
             "items": []
           },
           {
-            "month": "February",
+            "month": "Feb",
             "items": [
               "SSO integration delayed by IdP team"
             ]
           },
           {
-            "month": "March",
+            "month": "Mar",
             "items": [
               "SSO integration (waiting on IdP team)",
               "Load testing framework selection"
             ]
           },
           {
-            "month": "April",
+            "month": "Apr",
             "items": [
               "SSO integration (IdP team ETA: May)",
               "Load testing framework selection"
@@ -172,24 +172,24 @@
         "displayLabel": "\ud83d\udeab BLOCKERS",
         "cells": [
           {
-            "month": "January",
+            "month": "Jan",
             "items": []
           },
           {
-            "month": "February",
+            "month": "Feb",
             "items": [
               "IdP team resource constraints"
             ]
           },
           {
-            "month": "March",
+            "month": "Mar",
             "items": [
               "IdP team resource constraints",
               "Vendor API rate limit under negotiation"
             ]
           },
           {
-            "month": "April",
+            "month": "Apr",
             "items": [
               "Vendor API rate limit approval pending"
             ]
