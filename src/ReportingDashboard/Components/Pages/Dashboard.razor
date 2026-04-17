@@ -11,14 +11,10 @@
 }
 else if (_data is not null)
 {
-    <div class="placeholder">
-        <h2>Dashboard data loaded successfully</h2>
-        <p>Title: @_data.Header.Title</p>
-        <p>Subtitle: @_data.Header.Subtitle</p>
-        <p>Schema Version: @_data.SchemaVersion</p>
-        <p>Timeline Tracks: @_data.Timeline.Tracks.Count</p>
-        <p>Heatmap Columns: @_data.Heatmap.Columns.Count</p>
-    </div>
+    <HeaderSection Header="@_data.Header" />
+    <TimelineSection Timeline="@_data.Timeline"
+                     CurrentDate="@_currentDate" />
+    <HeatmapSection Heatmap="@_data.Heatmap" />
 }
 
 @code {
