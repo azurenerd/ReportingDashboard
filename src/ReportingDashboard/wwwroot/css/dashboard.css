@@ -240,6 +240,13 @@ a { color: var(--link-color); text-decoration: none; }
     border-radius: 50%;
 }
 
+/* Empty cell dash */
+.hm-cell .hm-empty {
+    color: #AAA;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
 /* Row color variants */
 .ship-hdr { color: var(--ship-hdr-text); background: var(--ship-hdr-bg); border-right: 2px solid var(--border-heavy); }
 .ship-cell { background: var(--ship-cell-bg); }
