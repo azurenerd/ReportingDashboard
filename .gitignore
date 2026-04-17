@@ -1,0 +1,42 @@
+## .NET
+bin/
+obj/
+publish/
+
+## IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+
+## NuGet
+*.nupkg
+**/packages/*
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+## Rider
+.idea/
+
+## User-specific files
+*.rsuser
+*.pidb
+*.svclog
+*.scc
