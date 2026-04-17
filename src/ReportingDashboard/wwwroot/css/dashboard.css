@@ -1,9 +1,4 @@
-/* ============================================================
-   Executive Reporting Dashboard — dashboard.css
-   Fixed 1920×1080 viewport, Segoe UI, screenshot-optimized
-   ============================================================ */
-
-/* --- CSS Custom Properties (Color Palette) --- */
+/* === CSS Custom Properties === */
 :root {
     /* Backgrounds */
     --bg-white: #FFFFFF;
@@ -16,7 +11,7 @@
     --text-muted: #999;
     --text-dark: #333;
     --text-desc: #444;
-    --text-grid-label: #666;
+    --text-grid: #666;
 
     /* Links */
     --link-color: #0078D4;
@@ -26,15 +21,15 @@
     --border-heavy: #CCC;
     --border-timeline: #E8E8E8;
 
-    /* Timeline */
-    --now-color: #EA4335;
-    --poc-color: #F4B400;
-    --prod-color: #34A853;
+    /* Timeline & milestones */
+    --now-line: #EA4335;
+    --poc-milestone: #F4B400;
+    --prod-milestone: #34A853;
     --checkpoint-color: #999;
 
     /* Highlight column */
-    --hl-col-bg: #FFF0D0;
-    --hl-col-text: #C07700;
+    --highlight-col-bg: #FFF0D0;
+    --highlight-col-text: #C07700;
 
     /* Shipped */
     --ship-hdr-text: #1B7A28;
@@ -65,13 +60,10 @@
     --block-dot: #EA4335;
 }
 
-/* --- Reset & Body --- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* === Reset === */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* === Body - Fixed 1920x1080 viewport === */
 body {
     width: 1920px;
     height: 1080px;
@@ -83,35 +75,28 @@ body {
     flex-direction: column;
 }
 
-/* --- Suppress Blazor reconnection overlay --- */
-#components-reconnect-modal {
-    display: none !important;
-}
+/* Suppress Blazor reconnection overlay */
+#components-reconnect-modal { display: none !important; }
 
-/* ============================================================
-   Section 1: Header Bar (.hdr)
-   ============================================================ */
+/* === Section 1: Header Bar === */
 .hdr {
-    flex-shrink: 0;
-    padding: 12px 44px 10px 44px;
-    border-bottom: 1px solid var(--border-light);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 12px 44px 10px 44px;
+    border-bottom: 1px solid var(--border-light);
+    flex-shrink: 0;
 }
 
 .hdr h1 {
     font-size: 24px;
     font-weight: 700;
     color: var(--text-primary);
-    line-height: 1.2;
 }
 
 .hdr h1 a {
     color: var(--link-color);
     text-decoration: none;
-    font-size: 24px;
-    font-weight: 700;
 }
 
 .hdr .sub {
@@ -120,69 +105,62 @@ body {
     margin-top: 2px;
 }
 
-/* Legend */
 .hdr .legend {
     display: flex;
-    flex-direction: row;
     gap: 22px;
     align-items: center;
 }
 
-.hdr .legend .leg-item {
+.hdr .legend span {
     display: flex;
-    flex-direction: row;
     align-items: center;
     gap: 6px;
     font-size: 12px;
     color: var(--text-dark);
-    white-space: nowrap;
 }
 
-.hdr .legend .leg-diamond-poc {
+.hdr .legend .diamond-poc {
     width: 12px;
     height: 12px;
-    background: var(--poc-color);
+    background: var(--poc-milestone);
     transform: rotate(45deg);
-    flex-shrink: 0;
+    display: inline-block;
 }
 
-.hdr .legend .leg-diamond-prod {
+.hdr .legend .diamond-prod {
     width: 12px;
     height: 12px;
-    background: var(--prod-color);
+    background: var(--prod-milestone);
     transform: rotate(45deg);
-    flex-shrink: 0;
+    display: inline-block;
 }
 
-.hdr .legend .leg-checkpoint {
+.hdr .legend .circle-cp {
     width: 8px;
     height: 8px;
     background: var(--checkpoint-color);
     border-radius: 50%;
-    flex-shrink: 0;
+    display: inline-block;
 }
 
-.hdr .legend .leg-now {
+.hdr .legend .rect-now {
     width: 2px;
     height: 14px;
-    background: var(--now-color);
-    flex-shrink: 0;
+    background: var(--now-line);
+    display: inline-block;
 }
 
-/* ============================================================
-   Section 2: Timeline Area (.tl-area)
-   ============================================================ */
+/* === Section 2: Timeline Area === */
 .tl-area {
-    flex-shrink: 0;
     height: 196px;
     background: var(--bg-subtle);
     border-bottom: 2px solid var(--border-timeline);
     padding: 6px 44px;
     display: flex;
     align-items: stretch;
+    flex-shrink: 0;
 }
 
-/* Track Label Sidebar */
 .tl-sidebar {
     width: 230px;
     flex-shrink: 0;
@@ -193,37 +171,35 @@ body {
     justify-content: space-around;
 }
 
-.tl-sidebar .track-label .track-id {
+.tl-sidebar .track-label {
+    display: flex;
+    flex-direction: column;
+}
+
+.tl-sidebar .track-id {
     font-size: 12px;
     font-weight: 600;
 }
 
-.tl-sidebar .track-label .track-desc {
+.tl-sidebar .track-desc {
     font-size: 12px;
     font-weight: 400;
     color: var(--text-desc);
 }
 
-/* SVG container */
 .tl-svg-box {
     flex: 1;
-    min-width: 0;
-    display: flex;
-    align-items: center;
+    overflow: visible;
 }
 
-/* ============================================================
-   Section 3: Heatmap Area (.hm-wrap)
-   ============================================================ */
+/* === Section 3: Heatmap Area === */
 .hm-wrap {
-    flex: 1;
     padding: 10px 44px;
     display: flex;
     flex-direction: column;
-    min-height: 0;
+    flex: 1;
 }
 
-/* Heatmap Title */
 .hm-title {
     font-size: 14px;
     font-weight: 700;
@@ -234,12 +210,10 @@ body {
     flex-shrink: 0;
 }
 
-/* Heatmap Grid */
 .hm-grid {
     flex: 1;
     display: grid;
     border: 1px solid var(--border-light);
-    min-height: 0;
 }
 
 /* Corner cell */
@@ -270,8 +244,8 @@ body {
 }
 
 .hm-col-hdr.apr-hdr {
-    background: var(--hl-col-bg);
-    color: var(--hl-col-text);
+    background: var(--highlight-col-bg);
+    color: var(--highlight-col-text);
 }
 
 /* Row headers */
@@ -311,7 +285,7 @@ body {
 .carry-cell.apr { background: var(--carry-cell-hl); }
 .block-cell.apr { background: var(--block-cell-hl); }
 
-/* Work items inside cells */
+/* Work items */
 .it {
     font-size: 12px;
     color: var(--text-dark);
@@ -331,21 +305,18 @@ body {
     border-radius: 50%;
 }
 
-/* Dot colors per category */
 .ship-cell .it::before { background: var(--ship-dot); }
 .prog-cell .it::before { background: var(--prog-dot); }
 .carry-cell .it::before { background: var(--carry-dot); }
 .block-cell .it::before { background: var(--block-dot); }
 
 /* Empty cell dash */
-.hm-empty {
+.empty-cell {
     color: #AAA;
     font-size: 12px;
 }
 
-/* ============================================================
-   Error State
-   ============================================================ */
+/* === Error Container === */
 .error-container {
     display: flex;
     align-items: center;
@@ -359,25 +330,12 @@ body {
     color: var(--text-dark);
     text-align: center;
     max-width: 600px;
-    line-height: 1.6;
+    line-height: 1.5;
 }
 
-/* ============================================================
-   Print Styles
-   ============================================================ */
+/* === Print Styles === */
 @media print {
-    body {
-        width: auto;
-        height: auto;
-        overflow: visible;
-    }
-
-    #components-reconnect-modal {
-        display: none !important;
-    }
-
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
+    body { width: auto; height: auto; overflow: visible; }
+    #components-reconnect-modal { display: none !important; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
