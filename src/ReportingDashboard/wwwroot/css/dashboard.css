@@ -168,6 +168,7 @@ a { color: var(--link-color); text-decoration: none; }
     flex: 1;
     min-height: 0;
     display: grid;
+    grid-template-rows: 36px repeat(4, 1fr);
     border: 1px solid var(--border-light);
 }
 
@@ -238,13 +239,6 @@ a { color: var(--link-color); text-decoration: none; }
     width: 6px;
     height: 6px;
     border-radius: 50%;
-}
-
-/* Empty cell dash */
-.hm-cell .hm-empty {
-    color: #AAA;
-    font-size: 12px;
-    line-height: 1.35;
 }
 
 /* Row color variants */

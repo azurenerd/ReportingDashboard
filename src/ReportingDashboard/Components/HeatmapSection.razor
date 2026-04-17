@@ -1,0 +1,70 @@
+@using ReportingDashboard.Models
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap – Shipped · In Progress · Carryover · Blockers</div>
+
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Heatmap.Columns.Count, 1fr);">
+        @* Header row: corner + column headers *@
+        <div class="hm-corner">Status</div>
+        @foreach (var col in Heatmap.Columns)
+        {
+            <div class="hm-col-hdr @(IsHighlighted(col) ? "apr-hdr" : "")">@col</div>
+        }
+
+        @* Data rows: row header + cells per column *@
+        @foreach (var row in Heatmap.Rows)
+        {
+            <div class="hm-row-hdr @(row.CategoryStyle)-hdr">@row.Category</div>
+
+            @for (var colIdx = 0; colIdx < Heatmap.Columns.Count; colIdx++)
+            {
+                var items = colIdx < row.Cells.Count ? row.Cells[colIdx] : new List<string>();
+                var cellClass = CellClass(row.CategoryStyle, Heatmap.Columns[colIdx]);
+
+                <div class="hm-cell @cellClass">
+                    @if (items.Count == 0)
+                    {
+                        <span style="color:#AAA">-</span>
+                    }
+                    else
+                    {
+                        @foreach (var item in items)
+                        {
+                            <div class="it">@item</div>
+                        }
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public required HeatmapData Heatmap { get; set; }
+
+    private string? _highlightColumn;
+
+    private string ResolveHighlightColumn()
+    {
+        if (_highlightColumn is not null)
+            return _highlightColumn;
+
+        _highlightColumn = !string.IsNullOrEmpty(Heatmap.HighlightColumn)
+            ? Heatmap.HighlightColumn
+            : DateTime.Now.ToString("MMMM");
+
+        return _highlightColumn;
+    }
+
+    private bool IsHighlighted(string columnName)
+    {
+        return string.Equals(columnName, ResolveHighlightColumn(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private string CellClass(string categoryStyle, string columnName)
+    {
+        var baseClass = $"{categoryStyle}-cell";
+        return IsHighlighted(columnName) ? $"{baseClass} apr" : baseClass;
+    }
+}
