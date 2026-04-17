@@ -1,0 +1,46 @@
+@page "/"
+@using ReportingDashboard.Data
+@inject DashboardDataService DataService
+
+@if (ErrorMessage is not null)
+{
+    <div class="error-container">
+        <h2>Unable to load dashboard data</h2>
+        <p>Please check that data.json exists and contains valid JSON.</p>
+        <p class="error-detail">@ErrorMessage</p>
+    </div>
+}
+else if (Data is not null)
+{
+    <!-- Header placeholder -->
+    <div class="header-placeholder">
+        <p>Header: @Data.Header.Title</p>
+    </div>
+
+    <!-- Timeline placeholder -->
+    <div class="timeline-placeholder">
+        <p>Timeline: @Data.TimelineTracks.Count tracks</p>
+    </div>
+
+    <!-- Heatmap placeholder -->
+    <div class="heatmap-placeholder">
+        <p>Heatmap: @Data.Heatmap.Rows.Count rows × @Data.Heatmap.Columns.Count columns</p>
+    </div>
+}
+
+@code {
+    private DashboardReport? Data;
+    private string? ErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Data = await DataService.GetDataAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+}
