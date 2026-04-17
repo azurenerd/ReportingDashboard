@@ -1,0 +1,73 @@
+@page "/"
+@inject DashboardDataService DataService
+
+@if (ErrorMessage is not null)
+{
+    <!-- SECTION: ERROR -->
+    <div class="error-container">
+        <h2>Unable to load dashboard data</h2>
+        <p>Please check that data.json exists and contains valid JSON.</p>
+        <p class="error-detail">@ErrorMessage</p>
+    </div>
+}
+else if (Data is not null)
+{
+    <!-- SECTION: HDR -->
+
+    <!-- SECTION: TL-AREA -->
+
+    <!-- SECTION: HM-WRAP -->
+}
+
+@code {
+    private DashboardReport? Data;
+    private string? ErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Data = await DataService.GetDataAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+
+    private double DateToX(string dateStr)
+    {
+        var date = DateOnly.Parse(dateStr);
+        var start = DateOnly.Parse(Data!.Header.TimelineStartDate);
+        var end = DateOnly.Parse(Data!.Header.TimelineEndDate);
+        var totalDays = end.DayNumber - start.DayNumber;
+        var elapsed = date.DayNumber - start.DayNumber;
+        return (elapsed / (double)totalDays) * 1560.0;
+    }
+
+    private static double TrackY(int index) => 42 + (index * 56);
+
+    private static string DiamondPoints(double cx, double cy)
+    {
+        const int r = 11;
+        return $"{cx},{cy - r} {cx + r},{cy} {cx},{cy + r} {cx - r},{cy}";
+    }
+
+    private static string CategoryCellClass(string category) => category switch
+    {
+        "shipped" => "ship-cell",
+        "in-progress" => "prog-cell",
+        "carryover" => "carry-cell",
+        "blockers" => "block-cell",
+        _ => ""
+    };
+
+    private static string CategoryHeaderClass(string category) => category switch
+    {
+        "shipped" => "ship-hdr",
+        "in-progress" => "prog-hdr",
+        "carryover" => "carry-hdr",
+        "blockers" => "block-hdr",
+        _ => ""
+    };
+}
