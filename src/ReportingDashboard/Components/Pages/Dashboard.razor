@@ -11,17 +11,22 @@
 }
 else if (_data is not null)
 {
-    <div class="placeholder-message">
-        <p>Dashboard data loaded successfully.</p>
-        <p><strong>@_data.Header.Title</strong></p>
-        <p>@_data.Header.Subtitle</p>
-        <p>Timeline tracks: @_data.Timeline.Tracks.Count | Heatmap months: @_data.Heatmap.Columns.Count</p>
+    <div class="placeholder">
+        <h2>✅ Dashboard data loaded successfully</h2>
+        <p><strong>Title:</strong> @_data.Header.Title</p>
+        <p><strong>Subtitle:</strong> @_data.Header.Subtitle</p>
+        <p><strong>Timeline Tracks:</strong> @_data.Timeline.Tracks.Count</p>
+        <p><strong>Heatmap Columns:</strong> @_data.Heatmap.Columns.Count</p>
+        <p><strong>Heatmap Rows:</strong> @_data.Heatmap.Rows.Count</p>
+        <p><strong>Schema Version:</strong> @_data.SchemaVersion</p>
+        <p><strong>Current Date:</strong> @_currentDate.ToString("yyyy-MM-dd")</p>
     </div>
 }
 
 @code {
     private DashboardData? _data;
     private string? _errorMessage;
+    private DateOnly _currentDate;
 
     protected override async Task OnInitializedAsync()
     {
@@ -32,6 +37,7 @@ else if (_data is not null)
             var filename = query["data"];
 
             _data = await DataService.LoadAsync(filename);
+            _currentDate = DateOnly.Parse(_data.Header.CurrentDate);
         }
         catch (FileNotFoundException ex)
         {
@@ -40,14 +46,6 @@ else if (_data is not null)
         catch (JsonException ex)
         {
             _errorMessage = $"Failed to load dashboard data: {ex.Message}";
-        }
-        catch (InvalidOperationException ex)
-        {
-            _errorMessage = ex.Message;
-        }
-        catch (ArgumentException ex)
-        {
-            _errorMessage = ex.Message;
         }
         catch (Exception ex)
         {

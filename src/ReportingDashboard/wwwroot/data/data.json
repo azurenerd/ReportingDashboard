@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "header": {
     "title": "Project Phoenix Release Roadmap",
-    "subtitle": "Engineering Platform \u2022 Core Infrastructure Workstream \u2022 April 2026",
-    "backlogLink": "https://dev.azure.com/org/project/_backlogs",
+    "subtitle": "Engineering Platform · Core Infrastructure Workstream · April 2026",
+    "backlogLink": "https://dev.azure.com/contoso/phoenix/_backlogs",
     "currentDate": "2026-04-17"
   },
   "timeline": {
@@ -16,10 +16,11 @@
         "description": "API Gateway & Auth",
         "color": "#0078D4",
         "milestones": [
-          { "label": "Kickoff", "date": "2026-01-15", "type": "checkpoint" },
-          { "label": "API PoC", "date": "2026-02-28", "type": "poc" },
-          { "label": "Auth v1", "date": "2026-03-20", "type": "checkpoint" },
-          { "label": "Gateway GA", "date": "2026-05-15", "type": "production" }
+          { "label": "Kickoff", "date": "2026-01-13", "type": "checkpoint" },
+          { "label": "Design Review", "date": "2026-02-03", "type": "checkpoint" },
+          { "label": "PoC Complete", "date": "2026-03-10", "type": "poc" },
+          { "label": "Beta", "date": "2026-04-21", "type": "checkpoint" },
+          { "label": "GA Release", "date": "2026-05-26", "type": "production" }
         ]
       },
       {
@@ -28,10 +29,11 @@
         "description": "PDS & Data Inventory",
         "color": "#00897B",
         "milestones": [
-          { "label": "Discovery", "date": "2026-01-20", "type": "checkpoint" },
-          { "label": "PDS PoC", "date": "2026-03-10", "type": "poc" },
-          { "label": "Inventory v1", "date": "2026-04-25", "type": "checkpoint" },
-          { "label": "PDS Prod", "date": "2026-06-01", "type": "production" }
+          { "label": "Kickoff", "date": "2026-01-20", "type": "checkpoint" },
+          { "label": "Schema Draft", "date": "2026-02-17", "type": "checkpoint" },
+          { "label": "PoC Complete", "date": "2026-03-24", "type": "poc" },
+          { "label": "Integration Test", "date": "2026-04-28", "type": "checkpoint" },
+          { "label": "GA Release", "date": "2026-06-09", "type": "production" }
         ]
       },
       {
@@ -40,10 +42,10 @@
         "description": "Auto Review DFD",
         "color": "#546E7A",
         "milestones": [
-          { "label": "Req Gather", "date": "2026-02-01", "type": "checkpoint" },
-          { "label": "DFD PoC", "date": "2026-03-25", "type": "poc" },
-          { "label": "Review v1", "date": "2026-05-10", "type": "checkpoint" },
-          { "label": "DFD Prod", "date": "2026-06-20", "type": "production" }
+          { "label": "Kickoff", "date": "2026-02-03", "type": "checkpoint" },
+          { "label": "PoC Complete", "date": "2026-03-17", "type": "poc" },
+          { "label": "Pilot", "date": "2026-05-05", "type": "checkpoint" },
+          { "label": "GA Release", "date": "2026-06-16", "type": "production" }
         ]
       }
     ]
@@ -56,20 +58,20 @@
         "category": "Shipped",
         "categoryStyle": "ship",
         "cells": [
-          ["Infra Bootstrap", "CI Pipeline v1"],
-          ["Auth Token Service"],
-          ["API Gateway PoC", "Schema Registry"],
-          ["Inventory Indexer", "DFD Parser v1"]
+          ["Repo scaffolding", "CI pipeline setup"],
+          ["Auth token service", "Rate limiter v1"],
+          ["Gateway PoC", "Schema validator"],
+          ["Metrics dashboard", "Logging overhaul"]
         ]
       },
       {
         "category": "In Progress",
         "categoryStyle": "prog",
         "cells": [
-          ["Auth Token Service", "Schema Registry"],
-          ["API Gateway PoC", "PDS Discovery"],
-          ["DFD PoC", "Inventory Indexer"],
-          ["PDS Integration", "Review Workflow"]
+          ["Auth token service", "API schema design"],
+          ["Gateway prototype", "Data catalog spike"],
+          ["Integration harness", "DFD template engine"],
+          ["PDS connector v2", "Review automation rules"]
         ]
       },
       {
@@ -77,9 +79,9 @@
         "categoryStyle": "carry",
         "cells": [
           [],
-          ["Infra Bootstrap Hardening"],
-          ["Auth Refresh Flow"],
-          ["Schema Registry v2"]
+          ["Perf test framework"],
+          ["Perf test framework", "Legacy adapter"],
+          ["Legacy adapter"]
         ]
       },
       {
@@ -88,8 +90,8 @@
         "cells": [
           [],
           [],
-          ["AAD Tenant Config"],
-          ["Cross-region Latency"]
+          ["AAD tenant config delay"],
+          ["Shared infra quota limit"]
         ]
       }
     ]
