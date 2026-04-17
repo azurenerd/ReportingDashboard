@@ -1,0 +1,95 @@
+{
+  "header": {
+    "title": "Project Phoenix Release Roadmap",
+    "subtitle": "Engineering Division · Platform Modernization · April 2026",
+    "backlogLink": "https://dev.azure.com/contoso/Phoenix/_backlogs/backlog",
+    "reportDate": "2026-04-17",
+    "timelineStartDate": "2026-01-01",
+    "timelineEndDate": "2026-07-01",
+    "timelineMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+  },
+  "timelineTracks": [
+    {
+      "id": "M1",
+      "name": "M1",
+      "description": "Core API & Auth",
+      "color": "#0078D4",
+      "milestones": [
+        { "label": "Jan Kickoff", "date": "2026-01-15", "type": "checkpoint", "labelPosition": "above" },
+        { "label": "Feb Checkpoint", "date": "2026-02-14", "type": "minor", "labelPosition": "below" },
+        { "label": "Mar 26 PoC", "date": "2026-03-26", "type": "poc", "labelPosition": "above" },
+        { "label": "May 15 GA", "date": "2026-05-15", "type": "production", "labelPosition": "above" }
+      ]
+    },
+    {
+      "id": "M2",
+      "name": "M2",
+      "description": "Data Pipeline & ETL",
+      "color": "#00897B",
+      "milestones": [
+        { "label": "Feb Start", "date": "2026-02-01", "type": "checkpoint", "labelPosition": "above" },
+        { "label": "Mar Review", "date": "2026-03-10", "type": "minor", "labelPosition": "below" },
+        { "label": "Apr 20 PoC", "date": "2026-04-20", "type": "poc", "labelPosition": "above" },
+        { "label": "Jun 10 GA", "date": "2026-06-10", "type": "production", "labelPosition": "above" }
+      ]
+    },
+    {
+      "id": "M3",
+      "name": "M3",
+      "description": "UI & Reporting Layer",
+      "color": "#546E7A",
+      "milestones": [
+        { "label": "Mar Design", "date": "2026-03-01", "type": "checkpoint", "labelPosition": "above" },
+        { "label": "Apr PoC", "date": "2026-04-10", "type": "poc", "labelPosition": "below" },
+        { "label": "May Review", "date": "2026-05-20", "type": "minor", "labelPosition": "above" },
+        { "label": "Jun 30 GA", "date": "2026-06-30", "type": "production", "labelPosition": "above" }
+      ]
+    }
+  ],
+  "heatmap": {
+    "columns": ["January", "February", "March", "April"],
+    "highlightColumnIndex": 3,
+    "rows": [
+      {
+        "category": "shipped",
+        "label": "Shipped",
+        "cellItems": [
+          ["Auth service v1", "User mgmt API", "CI pipeline setup"],
+          ["Data ingestion v1", "Schema migrations", "Unit test coverage 80%"],
+          ["Design system tokens", "Component library v1", "Storybook published"],
+          ["API gateway config", "SSO integration"]
+        ]
+      },
+      {
+        "category": "in-progress",
+        "label": "In Progress",
+        "cellItems": [
+          [],
+          [],
+          ["ETL job scheduler", "Monitoring dashboards"],
+          ["Reporting UI scaffold", "E2E test suite", "Perf baseline"]
+        ]
+      },
+      {
+        "category": "carryover",
+        "label": "Carryover",
+        "cellItems": [
+          [],
+          ["Audit logging (slipped)", "Rate limiting"],
+          ["Real-time sync (slipped)"],
+          ["Notification service", "Dark mode (deferred)"]
+        ]
+      },
+      {
+        "category": "blockers",
+        "label": "Blockers",
+        "cellItems": [
+          [],
+          [],
+          ["Prod DB access pending security review"],
+          ["Azure quota increase needed", "Dependency on M1 GA"]
+        ]
+      }
+    ]
+  }
+}

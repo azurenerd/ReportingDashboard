@@ -1,0 +1,43 @@
+@page "/"
+@layout MainLayout
+@inject DashboardDataService DataService
+
+<!-- REGION:CODE -->
+@code {
+    private DashboardReport? Data;
+    private string? ErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await DataService.GetDataAsync();
+        Data = result.Data;
+        ErrorMessage = result.ErrorMessage;
+    }
+}
+<!-- END REGION:CODE -->
+
+<!-- REGION:ERRORUI -->
+@if (ErrorMessage is not null)
+{
+    <div class="error-container">
+        <h2>Unable to load dashboard data</h2>
+        <p>Please check that data.json exists and contains valid JSON.</p>
+        <p class="error-detail">@ErrorMessage</p>
+    </div>
+}
+<!-- END REGION:ERRORUI -->
+
+@if (Data is not null)
+{
+    <!-- REGION:HEADER -->
+    <!-- T2: Header section placeholder -->
+    <!-- END REGION:HEADER -->
+
+    <!-- REGION:TIMELINE -->
+    <!-- T3: Timeline section placeholder -->
+    <!-- END REGION:TIMELINE -->
+
+    <!-- REGION:HEATMAP -->
+    <!-- T4: Heatmap section placeholder -->
+    <!-- END REGION:HEATMAP -->
+}
