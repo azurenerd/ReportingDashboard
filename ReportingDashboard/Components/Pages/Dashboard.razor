@@ -1,0 +1,82 @@
+@page "/"
+@using ReportingDashboard.Models
+@using ReportingDashboard.Services
+@inject DashboardDataService DataService
+
+@if (_error is not null)
+{
+    <div style="display:flex;align-items:center;justify-content:center;width:1920px;height:1080px;flex-direction:column;">
+        <div style="font-size:20px;font-weight:600;color:#333;">@_errorTitle</div>
+        <div style="font-size:13px;color:#888;margin-top:8px;max-width:600px;text-align:center;white-space:pre-wrap;">@_errorDetail</div>
+    </div>
+}
+else if (_data is not null)
+{
+    <div style="display:flex;flex-direction:column;width:1920px;height:1080px;overflow:hidden;">
+        <Header Title="@_data.Title" Subtitle="@_data.Subtitle" BacklogUrl="@_data.BacklogUrl" />
+        <Timeline Milestones="@_data.Milestones" TimelineStart="@_timelineStart" TimelineEnd="@_timelineEnd" CurrentDate="@_currentDate" />
+        <Heatmap Heatmap="@_data.Heatmap" />
+    </div>
+}
+
+@code {
+    private DashboardData? _data;
+    private string? _error;
+    private string _errorTitle = "";
+    private string _errorDetail = "";
+    private DateOnly _timelineStart;
+    private DateOnly _timelineEnd;
+    private DateOnly _currentDate;
+
+    protected override void OnInitialized()
+    {
+        var (data, error) = DataService.LoadDashboard();
+
+        if (error is not null)
+        {
+            _error = error;
+            if (error.Contains("not found"))
+            {
+                _errorTitle = "data.json not found. Please place a valid data.json file in the wwwroot/ directory. See data.sample.json for the expected format.";
+                _errorDetail = "";
+            }
+            else
+            {
+                _errorTitle = "Unable to load dashboard data. Please check data.json for syntax errors.";
+                // Extract detail after the first newline if present
+                var newlineIndex = error.IndexOf('\n');
+                _errorDetail = newlineIndex >= 0 ? error[(newlineIndex + 1)..] : "";
+            }
+            return;
+        }
+
+        _data = data;
+
+        if (_data is not null)
+        {
+            // Parse timeline start: "YYYY-MM" -> first day of that month
+            if (!string.IsNullOrEmpty(_data.TimelineStartMonth) &&
+                _data.TimelineStartMonth.Length >= 7 &&
+                int.TryParse(_data.TimelineStartMonth[..4], out var sy) &&
+                int.TryParse(_data.TimelineStartMonth[5..7], out var sm))
+            {
+                _timelineStart = new DateOnly(sy, sm, 1);
+            }
+
+            // Parse timeline end: "YYYY-MM" -> last day of that month
+            if (!string.IsNullOrEmpty(_data.TimelineEndMonth) &&
+                _data.TimelineEndMonth.Length >= 7 &&
+                int.TryParse(_data.TimelineEndMonth[..4], out var ey) &&
+                int.TryParse(_data.TimelineEndMonth[5..7], out var em))
+            {
+                _timelineEnd = new DateOnly(ey, em, DateTime.DaysInMonth(ey, em));
+            }
+
+            // Parse current date: "YYYY-MM-DD"
+            if (!DateOnly.TryParse(_data.CurrentDate, out _currentDate))
+            {
+                _currentDate = _timelineStart;
+            }
+        }
+    }
+}
