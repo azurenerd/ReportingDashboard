@@ -7,7 +7,10 @@
 {
     <div style="display:flex;align-items:center;justify-content:center;width:1920px;height:1080px;flex-direction:column;">
         <div style="font-size:20px;font-weight:600;color:#333;">@_errorTitle</div>
-        <div style="font-size:13px;color:#888;margin-top:8px;max-width:600px;text-align:center;white-space:pre-wrap;">@_errorDetail</div>
+        @if (!string.IsNullOrEmpty(_errorDetail))
+        {
+            <div style="font-size:13px;color:#888;margin-top:8px;max-width:600px;text-align:center;white-space:pre-wrap;">@_errorDetail</div>
+        }
     </div>
 }
 else if (_data is not null)
@@ -35,17 +38,19 @@ else if (_data is not null)
         if (error is not null)
         {
             _error = error;
-            if (error.Contains("not found"))
+
+            // Split on first newline: first line is the primary title, remainder is detail.
+            // This forwards the service's exact message for both missing-file and malformed-JSON cases.
+            var newlineIndex = error.IndexOf('\n');
+            if (newlineIndex >= 0)
             {
-                _errorTitle = "data.json not found. Please place a valid data.json file in the wwwroot/ directory. See data.sample.json for the expected format.";
-                _errorDetail = "";
+                _errorTitle = error[..newlineIndex];
+                _errorDetail = error[(newlineIndex + 1)..];
             }
             else
             {
-                _errorTitle = "Unable to load dashboard data. Please check data.json for syntax errors.";
-                // Extract detail after the first newline if present
-                var newlineIndex = error.IndexOf('\n');
-                _errorDetail = newlineIndex >= 0 ? error[(newlineIndex + 1)..] : "";
+                _errorTitle = error;
+                _errorDetail = "";
             }
             return;
         }
@@ -63,13 +68,13 @@ else if (_data is not null)
                 _timelineStart = new DateOnly(sy, sm, 1);
             }
 
-            // Parse timeline end: "YYYY-MM" -> last day of that month
+            // Parse timeline end: "YYYY-MM" -> first day of that month (matches TimelineStart semantics)
             if (!string.IsNullOrEmpty(_data.TimelineEndMonth) &&
                 _data.TimelineEndMonth.Length >= 7 &&
                 int.TryParse(_data.TimelineEndMonth[..4], out var ey) &&
                 int.TryParse(_data.TimelineEndMonth[5..7], out var em))
             {
-                _timelineEnd = new DateOnly(ey, em, DateTime.DaysInMonth(ey, em));
+                _timelineEnd = new DateOnly(ey, em, 1);
             }
 
             // Parse current date: "YYYY-MM-DD"
