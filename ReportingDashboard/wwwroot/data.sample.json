@@ -34,8 +34,8 @@
       "label": "Auto Review DFD",
       "color": "#546E7A",
       "events": [
-        { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC", "labelPosition": "above" },
-        { "date": "2026-06-01", "type": "production", "label": "Jun 1 Prod", "labelPosition": "above" }
+        { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC", "labelPosition": null },
+        { "date": "2026-06-01", "type": "production", "label": "Jun 1 Prod", "labelPosition": null }
       ]
     }
   ],
