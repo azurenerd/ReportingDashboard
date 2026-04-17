@@ -1,0 +1,14 @@
+@using ReportingDashboard.Models
+
+<!-- Placeholder: Header component will be implemented by downstream task T2 -->
+<header class="hdr">
+    <div>
+        <h1>@Data.Title</h1>
+        <div class="subtitle">@Data.Subtitle</div>
+    </div>
+</header>
+
+@code {
+    [Parameter]
+    public required DashboardData Data { get; set; }
+}

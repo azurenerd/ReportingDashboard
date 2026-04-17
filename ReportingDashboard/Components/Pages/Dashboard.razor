@@ -1,0 +1,21 @@
+@page "/"
+@using ReportingDashboard.Models
+@using ReportingDashboard.Services
+@inject DashboardDataService DataService
+
+@if (DataService.HasError)
+{
+    <div style="display:flex;align-items:center;justify-content:center;width:1920px;height:1080px;">
+        <p style="color:#EA4335;font-family:'Segoe UI',Arial,sans-serif;font-size:18px;">
+            @DataService.ErrorMessage
+        </p>
+    </div>
+}
+else if (DataService.Data is not null)
+{
+    <div class="dashboard">
+        <DashboardHeader Data="DataService.Data" />
+        <TimelineSection Data="DataService.Data" DataService="DataService" />
+        <HeatmapGrid Data="DataService.Data" />
+    </div>
+}

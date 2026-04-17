@@ -1,0 +1,201 @@
+{
+  "title": "Project Phoenix Release Roadmap",
+  "subtitle": "Engineering Platform \u00b7 Phoenix Workstream \u00b7 April 2026",
+  "backlogUrl": "https://dev.azure.com/contoso/ProjectPhoenix/_backlogs",
+  "reportDate": "2026-04-15",
+  "timelineRange": {
+    "start": "2026-01-01",
+    "end": "2026-06-30",
+    "monthGridlines": [
+      { "label": "Jan", "date": "2026-01-01" },
+      { "label": "Feb", "date": "2026-02-01" },
+      { "label": "Mar", "date": "2026-03-01" },
+      { "label": "Apr", "date": "2026-04-01" },
+      { "label": "May", "date": "2026-05-01" },
+      { "label": "Jun", "date": "2026-06-01" }
+    ]
+  },
+  "workstreams": [
+    {
+      "id": "M1",
+      "label": "M1",
+      "description": "Chatbot & MS Role",
+      "color": "#0078D4",
+      "milestones": [
+        { "date": "2026-01-15", "label": "Kickoff", "type": "Start" },
+        { "date": "2026-02-14", "label": "PoC Complete", "type": "PoC", "labelPosition": "above" },
+        { "date": "2026-03-10", "label": "Beta", "type": "CheckpointMajor", "labelPosition": "below" },
+        { "date": "2026-04-20", "label": "v1.0 GA", "type": "Production", "labelPosition": "above" },
+        { "date": "2026-05-15", "label": "Perf Review", "type": "CheckpointMinor", "labelPosition": "below" },
+        { "date": "2026-06-10", "label": "v1.1 Release", "type": "Production", "labelPosition": "above" }
+      ]
+    },
+    {
+      "id": "M2",
+      "label": "M2",
+      "description": "Data Pipeline & Analytics",
+      "color": "#00897B",
+      "milestones": [
+        { "date": "2026-01-20", "label": "Kickoff", "type": "Start" },
+        { "date": "2026-02-28", "label": "Schema Finalized", "type": "CheckpointMajor", "labelPosition": "above" },
+        { "date": "2026-03-25", "label": "PoC Pipeline", "type": "PoC", "labelPosition": "below" },
+        { "date": "2026-05-01", "label": "v1.0 Launch", "type": "Production", "labelPosition": "above" },
+        { "date": "2026-06-15", "label": "Dashboard Live", "type": "Production", "labelPosition": "below" }
+      ]
+    },
+    {
+      "id": "M3",
+      "label": "M3",
+      "description": "Infrastructure & DevOps",
+      "color": "#546E7A",
+      "milestones": [
+        { "date": "2026-01-10", "label": "Kickoff", "type": "Start" },
+        { "date": "2026-02-05", "label": "IaC Templates", "type": "CheckpointMajor", "labelPosition": "above" },
+        { "date": "2026-03-01", "label": "CI/CD PoC", "type": "PoC", "labelPosition": "below" },
+        { "date": "2026-03-30", "label": "Staging Env", "type": "CheckpointMinor", "labelPosition": "above" },
+        { "date": "2026-04-25", "label": "Prod Deploy", "type": "Production", "labelPosition": "below" },
+        { "date": "2026-05-20", "label": "DR Drill", "type": "CheckpointMinor", "labelPosition": "above" }
+      ]
+    }
+  ],
+  "heatmap": {
+    "title": "Monthly Execution Heatmap \u2013 Shipped \u00b7 In Progress \u00b7 Carryover \u00b7 Blockers",
+    "months": ["Jan", "Feb", "Mar", "Apr"],
+    "currentMonth": "Apr",
+    "rows": [
+      {
+        "category": "Shipped",
+        "displayLabel": "\u2705 SHIPPED",
+        "cells": [
+          {
+            "month": "Jan",
+            "items": [
+              "Project kickoff & team onboarding",
+              "IaC base templates created",
+              "ADO backlog structure finalized"
+            ]
+          },
+          {
+            "month": "Feb",
+            "items": [
+              "Chatbot PoC delivered to stakeholders",
+              "Data schema v1 approved",
+              "CI/CD pipeline for staging"
+            ]
+          },
+          {
+            "month": "Mar",
+            "items": [
+              "Chatbot beta deployed to test group",
+              "Data pipeline PoC end-to-end",
+              "IaC templates peer-reviewed",
+              "Staging environment provisioned"
+            ]
+          },
+          {
+            "month": "Apr",
+            "items": [
+              "Chatbot v1.0 GA released",
+              "Prod infra deployment complete"
+            ]
+          }
+        ]
+      },
+      {
+        "category": "InProgress",
+        "displayLabel": "\ud83d\udd04 IN PROGRESS",
+        "cells": [
+          {
+            "month": "Jan",
+            "items": [
+              "Requirements gathering across teams",
+              "Chatbot NLU model training"
+            ]
+          },
+          {
+            "month": "Feb",
+            "items": [
+              "Chatbot intent refinement",
+              "Pipeline ingestion connectors"
+            ]
+          },
+          {
+            "month": "Mar",
+            "items": [
+              "Chatbot v1.0 hardening",
+              "Pipeline throughput optimization",
+              "Monitoring dashboards setup"
+            ]
+          },
+          {
+            "month": "Apr",
+            "items": [
+              "Data pipeline v1.0 integration testing",
+              "Analytics dashboard wireframes",
+              "DR runbook documentation"
+            ]
+          }
+        ]
+      },
+      {
+        "category": "Carryover",
+        "displayLabel": "\u23f3 CARRYOVER",
+        "cells": [
+          {
+            "month": "Jan",
+            "items": []
+          },
+          {
+            "month": "Feb",
+            "items": [
+              "SSO integration delayed by IdP team"
+            ]
+          },
+          {
+            "month": "Mar",
+            "items": [
+              "SSO integration (waiting on IdP team)",
+              "Load testing framework selection"
+            ]
+          },
+          {
+            "month": "Apr",
+            "items": [
+              "SSO integration (IdP team ETA: May)",
+              "Load testing framework selection"
+            ]
+          }
+        ]
+      },
+      {
+        "category": "Blockers",
+        "displayLabel": "\ud83d\udeab BLOCKERS",
+        "cells": [
+          {
+            "month": "Jan",
+            "items": []
+          },
+          {
+            "month": "Feb",
+            "items": [
+              "IdP team resource constraints"
+            ]
+          },
+          {
+            "month": "Mar",
+            "items": [
+              "IdP team resource constraints",
+              "Vendor API rate limit under negotiation"
+            ]
+          },
+          {
+            "month": "Apr",
+            "items": [
+              "Vendor API rate limit approval pending"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
