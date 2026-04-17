@@ -1,6 +1,6 @@
 {
   "title": "Privacy Automation Release Roadmap",
-  "subtitle": "Trusted Platform \u2022 Privacy Automation Workstream \u2022 April 2026",
+  "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
   "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
   "currentDate": "2026-04-10",
   "timelineStartMonth": "2026-01",
@@ -11,9 +11,10 @@
       "label": "Chatbot & MS Role",
       "color": "#0078D4",
       "events": [
-        { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
-        { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
-        { "date": "2026-05-01", "type": "production", "label": "Apr Prod (TBD)" }
+        { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12", "labelPosition": null },
+        { "date": "2026-02-05", "type": "checkpoint-small", "label": "", "labelPosition": null },
+        { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC", "labelPosition": "above" },
+        { "date": "2026-05-01", "type": "production", "label": "May 1 Prod", "labelPosition": "above" }
       ]
     },
     {
@@ -21,11 +22,11 @@
       "label": "PDS & Data Inventory",
       "color": "#00897B",
       "events": [
-        { "date": "2025-12-19", "type": "checkpoint", "label": "Dec 19" },
-        { "date": "2026-02-11", "type": "checkpoint", "label": "Feb 11" },
-        { "date": "2026-03-15", "type": "checkpoint-small", "label": "" },
-        { "date": "2026-03-21", "type": "poc", "label": "Mar 21 PoC" },
-        { "date": "2026-04-25", "type": "production", "label": "Apr 25 Prod" }
+        { "date": "2025-12-19", "type": "checkpoint", "label": "Dec 19", "labelPosition": "above" },
+        { "date": "2026-02-11", "type": "checkpoint", "label": "Feb 11", "labelPosition": "above" },
+        { "date": "2026-03-15", "type": "checkpoint-small", "label": "", "labelPosition": null },
+        { "date": "2026-03-21", "type": "poc", "label": "Mar 21 PoC", "labelPosition": "below" },
+        { "date": "2026-04-25", "type": "production", "label": "Apr 25 Prod", "labelPosition": "above" }
       ]
     },
     {
@@ -33,8 +34,8 @@
       "label": "Auto Review DFD",
       "color": "#546E7A",
       "events": [
-        { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC" },
-        { "date": "2026-06-01", "type": "production", "label": "Jun 1 Prod" }
+        { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC", "labelPosition": "above" },
+        { "date": "2026-06-01", "type": "production", "label": "Jun 1 Prod", "labelPosition": "above" }
       ]
     }
   ],
