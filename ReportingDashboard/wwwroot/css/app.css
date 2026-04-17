@@ -1,0 +1,15 @@
+/* T2 implements full content */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: #FFFFFF;
+    font-family: 'Segoe UI', -apple-system, Arial, sans-serif;
+    color: #111;
+}
+
+a { color: #0078D4; text-decoration: none; }
+
+#blazor-error-ui { display: none !important; }
