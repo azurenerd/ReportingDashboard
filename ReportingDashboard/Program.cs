@@ -1,9 +1,11 @@
 using ReportingDashboard.Components;
+using ReportingDashboard.Services;
 
 // Intentionally minimal - see Architecture.md
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddSingleton<DashboardDataService>();
 
 builder.WebHost.UseUrls("http://localhost:5000");
 

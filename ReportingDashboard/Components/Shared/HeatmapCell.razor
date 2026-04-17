@@ -1,0 +1,14 @@
+<div class="@CssClass">
+    <span style="color:#999">–</span>
+</div>
+
+@code {
+    [Parameter]
+    public List<string>? Items { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; } = "";
+
+    [Parameter]
+    public bool IsCurrentMonth { get; set; }
+}
