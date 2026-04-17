@@ -1,0 +1,213 @@
+/* === CSS Custom Properties === */
+:root {
+    --color-shipped: #34A853;
+    --color-shipped-bg: #F0FBF0;
+    --color-shipped-bg-current: #D8F2DA;
+    --color-shipped-hdr-bg: #E8F5E9;
+    --color-shipped-hdr-text: #1B7A28;
+    --color-progress: #0078D4;
+    --color-progress-bg: #EEF4FE;
+    --color-progress-bg-current: #DAE8FB;
+    --color-progress-hdr-bg: #E3F2FD;
+    --color-progress-hdr-text: #1565C0;
+    --color-carry: #F4B400;
+    --color-carry-bg: #FFFDE7;
+    --color-carry-bg-current: #FFF0B0;
+    --color-carry-hdr-bg: #FFF8E1;
+    --color-carry-hdr-text: #B45309;
+    --color-block: #EA4335;
+    --color-block-bg: #FFF5F5;
+    --color-block-bg-current: #FFE4E4;
+    --color-block-hdr-bg: #FEF2F2;
+    --color-block-hdr-text: #991B1B;
+    --color-now: #EA4335;
+    --color-current-month-hdr-bg: #FFF0D0;
+    --color-current-month-hdr-text: #C07700;
+    --color-link: #0078D4;
+    --color-border: #E0E0E0;
+    --color-border-heavy: #CCC;
+}
+
+/* === Reset & Base === */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: #FFFFFF;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #111;
+    display: flex;
+    flex-direction: column;
+}
+
+a { color: var(--color-link); text-decoration: none; }
+
+/* === Header === */
+.hdr {
+    padding: 12px 44px 10px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.hdr h1 { font-size: 24px; font-weight: 700; }
+
+.sub { font-size: 12px; color: #888; margin-top: 2px; }
+
+/* === Timeline Area === */
+.tl-area {
+    display: flex;
+    align-items: stretch;
+    padding: 6px 44px 0;
+    flex-shrink: 0;
+    height: 196px;
+    border-bottom: 2px solid #E8E8E8;
+    background: #FAFAFA;
+}
+
+.tl-svg-box {
+    flex: 1;
+    padding-left: 12px;
+    padding-top: 6px;
+}
+
+/* === Heatmap === */
+.hm-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 44px 10px;
+}
+
+.hm-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.hm-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 160px repeat(4, 1fr);
+    grid-template-rows: 36px repeat(4, 1fr);
+    border: 1px solid var(--color-border);
+}
+
+/* Header cells */
+.hm-corner {
+    background: #F5F5F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    border-right: 1px solid var(--color-border);
+    border-bottom: 2px solid var(--color-border-heavy);
+}
+
+.hm-col-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    background: #F5F5F5;
+    border-right: 1px solid var(--color-border);
+    border-bottom: 2px solid var(--color-border-heavy);
+}
+
+.hm-col-hdr.apr-hdr {
+    background: var(--color-current-month-hdr-bg);
+    color: var(--color-current-month-hdr-text);
+}
+
+/* Row header */
+.hm-row-hdr {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+    border-right: 2px solid var(--color-border-heavy);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* Data cells */
+.hm-cell {
+    padding: 8px 12px;
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    overflow: hidden;
+}
+
+.hm-cell .it {
+    font-size: 12px;
+    color: #333;
+    padding: 2px 0 2px 12px;
+    position: relative;
+    line-height: 1.35;
+}
+
+.hm-cell .it::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* === Row Colors: Shipped === */
+.ship-hdr {
+    color: var(--color-shipped-hdr-text);
+    background: var(--color-shipped-hdr-bg);
+    border-right: 2px solid var(--color-border-heavy);
+}
+.ship-cell { background: var(--color-shipped-bg); }
+.ship-cell.apr { background: var(--color-shipped-bg-current); }
+.ship-cell .it::before { background: var(--color-shipped); }
+
+/* === Row Colors: In Progress === */
+.prog-hdr {
+    color: var(--color-progress-hdr-text);
+    background: var(--color-progress-hdr-bg);
+    border-right: 2px solid var(--color-border-heavy);
+}
+.prog-cell { background: var(--color-progress-bg); }
+.prog-cell.apr { background: var(--color-progress-bg-current); }
+.prog-cell .it::before { background: var(--color-progress); }
+
+/* === Row Colors: Carryover === */
+.carry-hdr {
+    color: var(--color-carry-hdr-text);
+    background: var(--color-carry-hdr-bg);
+    border-right: 2px solid var(--color-border-heavy);
+}
+.carry-cell { background: var(--color-carry-bg); }
+.carry-cell.apr { background: var(--color-carry-bg-current); }
+.carry-cell .it::before { background: var(--color-carry); }
+
+/* === Row Colors: Blockers === */
+.block-hdr {
+    color: var(--color-block-hdr-text);
+    background: var(--color-block-hdr-bg);
+    border-right: 2px solid var(--color-border-heavy);
+}
+.block-cell { background: var(--color-block-bg); }
+.block-cell.apr { background: var(--color-block-bg-current); }
+.block-cell .it::before { background: var(--color-block); }
