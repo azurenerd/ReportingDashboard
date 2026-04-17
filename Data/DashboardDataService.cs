@@ -118,7 +118,7 @@ public class DashboardDataService
                 "Validation error: header.timelineMonths must be a non-empty array of month labels (e.g., [\"Jan\", \"Feb\"]).");
         }
 
-        if (string.IsNullOrWhiteSpace(header.BacklogLink))
+        if (string.IsNullOrEmpty(header.BacklogLink))
         {
             header.BacklogLink = "#";
         }
@@ -214,16 +214,13 @@ public class DashboardDataService
                 "Validation error: heatmap.columns must be a non-empty array of month names.");
         }
 
-        if (heatmap.HighlightColumnIndex < 0 || heatmap.HighlightColumnIndex >= heatmap.Columns.Count)
+        if (heatmap.HighlightColumnIndex < 0)
         {
-            if (heatmap.HighlightColumnIndex < 0)
-            {
-                heatmap.HighlightColumnIndex = 0;
-            }
-            else
-            {
-                heatmap.HighlightColumnIndex = heatmap.Columns.Count - 1;
-            }
+            heatmap.HighlightColumnIndex = 0;
+        }
+        else if (heatmap.HighlightColumnIndex >= heatmap.Columns.Count)
+        {
+            heatmap.HighlightColumnIndex = heatmap.Columns.Count - 1;
         }
 
         if (heatmap.Rows == null || heatmap.Rows.Count == 0)
