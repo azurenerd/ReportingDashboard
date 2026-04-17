@@ -1,0 +1,96 @@
+:root {
+    --bg-white: #FFFFFF;
+    --bg-subtle: #FAFAFA;
+    --bg-header: #F5F5F5;
+    --text-primary: #111;
+    --text-secondary: #888;
+    --text-muted: #999;
+    --text-dark: #333;
+    --text-track-desc: #444;
+    --link-color: #0078D4;
+    --border-light: #E0E0E0;
+    --border-heavy: #CCC;
+    --border-timeline: #E8E8E8;
+    --now-line: #EA4335;
+    --poc-milestone: #F4B400;
+    --prod-milestone: #34A853;
+    --highlight-col-bg: #FFF0D0;
+    --highlight-col-text: #C07700;
+    --ship-hdr-text: #1B7A28;
+    --ship-hdr-bg: #E8F5E9;
+    --ship-cell-bg: #F0FBF0;
+    --ship-cell-highlight: #D8F2DA;
+    --ship-dot: #34A853;
+    --prog-hdr-text: #1565C0;
+    --prog-hdr-bg: #E3F2FD;
+    --prog-cell-bg: #EEF4FE;
+    --prog-cell-highlight: #DAE8FB;
+    --prog-dot: #0078D4;
+    --carry-hdr-text: #B45309;
+    --carry-hdr-bg: #FFF8E1;
+    --carry-cell-bg: #FFFDE7;
+    --carry-cell-highlight: #FFF0B0;
+    --carry-dot: #F4B400;
+    --block-hdr-text: #991B1B;
+    --block-hdr-bg: #FEF2F2;
+    --block-cell-bg: #FFF5F5;
+    --block-cell-highlight: #FFE4E4;
+    --block-dot: #EA4335;
+    --track-blue: #0078D4;
+    --track-teal: #00897B;
+    --track-bluegray: #546E7A;
+    --checkpoint-color: #999;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--bg-white);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+}
+
+a { color: var(--link-color); text-decoration: none; }
+
+/* Suppress Blazor reconnection overlay */
+#components-reconnect-modal { display: none !important; }
+
+/* Error state */
+.error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.error-message {
+    font-size: 18px;
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 600px;
+    line-height: 1.5;
+}
+
+/* Placeholder for step 1 */
+.placeholder-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+@media print {
+    body { width: auto; height: auto; overflow: visible; }
+    #components-reconnect-modal { display: none !important; }
+}

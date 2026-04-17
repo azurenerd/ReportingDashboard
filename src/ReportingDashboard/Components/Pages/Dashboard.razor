@@ -1,0 +1,58 @@
+@page "/"
+@using Microsoft.AspNetCore.Components.Web
+@rendermode @(new InteractiveServerRenderMode())
+@inject DashboardDataService DataService
+@inject NavigationManager Navigation
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="error-container">
+        <p class="error-message">@_errorMessage</p>
+    </div>
+}
+else if (_data is not null)
+{
+    <div class="placeholder-message">
+        <p>Dashboard data loaded successfully.</p>
+        <p><strong>@_data.Header.Title</strong></p>
+        <p>@_data.Header.Subtitle</p>
+        <p>Timeline tracks: @_data.Timeline.Tracks.Count | Heatmap months: @_data.Heatmap.Columns.Count</p>
+    </div>
+}
+
+@code {
+    private DashboardData? _data;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var uri = new Uri(Navigation.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var filename = query["data"];
+
+            _data = await DataService.LoadAsync(filename);
+        }
+        catch (FileNotFoundException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        catch (JsonException ex)
+        {
+            _errorMessage = $"Failed to load dashboard data: {ex.Message}";
+        }
+        catch (InvalidOperationException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        catch (ArgumentException ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Unexpected error: {ex.Message}";
+        }
+    }
+}

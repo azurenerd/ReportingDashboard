@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "header": {
+    "title": "Project Phoenix Release Roadmap",
+    "subtitle": "Engineering Platform \u2022 Core Infrastructure Workstream \u2022 April 2026",
+    "backlogLink": "https://dev.azure.com/org/project/_backlogs",
+    "currentDate": "2026-04-17"
+  },
+  "timeline": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-06-30",
+    "tracks": [
+      {
+        "id": "m1",
+        "label": "M1",
+        "description": "API Gateway & Auth",
+        "color": "#0078D4",
+        "milestones": [
+          { "label": "Kickoff", "date": "2026-01-15", "type": "checkpoint" },
+          { "label": "API PoC", "date": "2026-02-28", "type": "poc" },
+          { "label": "Auth v1", "date": "2026-03-20", "type": "checkpoint" },
+          { "label": "Gateway GA", "date": "2026-05-15", "type": "production" }
+        ]
+      },
+      {
+        "id": "m2",
+        "label": "M2",
+        "description": "PDS & Data Inventory",
+        "color": "#00897B",
+        "milestones": [
+          { "label": "Discovery", "date": "2026-01-20", "type": "checkpoint" },
+          { "label": "PDS PoC", "date": "2026-03-10", "type": "poc" },
+          { "label": "Inventory v1", "date": "2026-04-25", "type": "checkpoint" },
+          { "label": "PDS Prod", "date": "2026-06-01", "type": "production" }
+        ]
+      },
+      {
+        "id": "m3",
+        "label": "M3",
+        "description": "Auto Review DFD",
+        "color": "#546E7A",
+        "milestones": [
+          { "label": "Req Gather", "date": "2026-02-01", "type": "checkpoint" },
+          { "label": "DFD PoC", "date": "2026-03-25", "type": "poc" },
+          { "label": "Review v1", "date": "2026-05-10", "type": "checkpoint" },
+          { "label": "DFD Prod", "date": "2026-06-20", "type": "production" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "columns": ["January", "February", "March", "April"],
+    "highlightColumn": "April",
+    "rows": [
+      {
+        "category": "Shipped",
+        "categoryStyle": "ship",
+        "cells": [
+          ["Infra Bootstrap", "CI Pipeline v1"],
+          ["Auth Token Service"],
+          ["API Gateway PoC", "Schema Registry"],
+          ["Inventory Indexer", "DFD Parser v1"]
+        ]
+      },
+      {
+        "category": "In Progress",
+        "categoryStyle": "prog",
+        "cells": [
+          ["Auth Token Service", "Schema Registry"],
+          ["API Gateway PoC", "PDS Discovery"],
+          ["DFD PoC", "Inventory Indexer"],
+          ["PDS Integration", "Review Workflow"]
+        ]
+      },
+      {
+        "category": "Carryover",
+        "categoryStyle": "carry",
+        "cells": [
+          [],
+          ["Infra Bootstrap Hardening"],
+          ["Auth Refresh Flow"],
+          ["Schema Registry v2"]
+        ]
+      },
+      {
+        "category": "Blockers",
+        "categoryStyle": "block",
+        "cells": [
+          [],
+          [],
+          ["AAD Tenant Config"],
+          ["Cross-region Latency"]
+        ]
+      }
+    ]
+  }
+}
