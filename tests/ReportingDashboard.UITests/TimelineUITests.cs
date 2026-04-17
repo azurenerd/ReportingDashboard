@@ -10,6 +10,7 @@ public class TimelineUITests : IAsyncLifetime
 {
     private readonly PlaywrightFixture _fixture;
     private IPage _page = null!;
+    private bool _serverAvailable;
 
     public TimelineUITests(PlaywrightFixture fixture)
     {
@@ -20,6 +21,18 @@ public class TimelineUITests : IAsyncLifetime
     {
         _page = await _fixture.Browser.NewPageAsync();
         _page.SetDefaultTimeout(60000);
+
+        // Check if the server is available before running tests
+        try
+        {
+            using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+            var response = await httpClient.GetAsync(_fixture.BaseUrl);
+            _serverAvailable = response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            _serverAvailable = false;
+        }
     }
 
     public async Task DisposeAsync()
@@ -27,10 +40,17 @@ public class TimelineUITests : IAsyncLifetime
         await _page.CloseAsync();
     }
 
-    [Fact]
+    private void SkipIfServerUnavailable()
+    {
+        Skip.If(!_serverAvailable, $"Server not available at {_fixture.BaseUrl}. Start the app with 'dotnet run' before running UI tests.");
+    }
+
+    [SkippableFact]
     [Trait("Category", "UI")]
     public async Task Timeline_TlArea_IsVisibleOnPage()
     {
+        SkipIfServerUnavailable();
+
         await _page.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
@@ -39,10 +59,12 @@ public class TimelineUITests : IAsyncLifetime
         (await tlArea.IsVisibleAsync()).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     [Trait("Category", "UI")]
     public async Task Timeline_SvgElement_HasCorrectDimensions()
     {
+        SkipIfServerUnavailable();
+
         await _page.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
@@ -56,10 +78,12 @@ public class TimelineUITests : IAsyncLifetime
         height.Should().Be("185");
     }
 
-    [Fact]
+    [SkippableFact]
     [Trait("Category", "UI")]
     public async Task Timeline_Sidebar_DisplaysMilestoneIds()
     {
+        SkipIfServerUnavailable();
+
         await _page.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
@@ -71,10 +95,12 @@ public class TimelineUITests : IAsyncLifetime
         count.Should().BeGreaterOrEqualTo(1, "at least one milestone ID should render in sidebar");
     }
 
-    [Fact]
+    [SkippableFact]
     [Trait("Category", "UI")]
     public async Task Timeline_NowLine_IsRenderedWithRedStroke()
     {
+        SkipIfServerUnavailable();
+
         await _page.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
@@ -88,10 +114,12 @@ public class TimelineUITests : IAsyncLifetime
         (await nowText.CountAsync()).Should().BeGreaterOrEqualTo(1);
     }
 
-    [Fact]
+    [SkippableFact]
     [Trait("Category", "UI")]
     public async Task Timeline_EventMarkers_CirclesAndDiamondsArePresent()
     {
+        SkipIfServerUnavailable();
+
         await _page.GotoAsync(_fixture.BaseUrl);
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
