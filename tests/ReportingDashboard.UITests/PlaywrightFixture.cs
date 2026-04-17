@@ -11,40 +11,69 @@ public class PlaywrightFixture : IAsyncLifetime
     private Process? _serverProcess;
     public IBrowser Browser { get; private set; } = null!;
     public IPlaywright PlaywrightInstance { get; private set; } = null!;
-    public string BaseUrl { get; } = "http://localhost:5000";
+    public string BaseUrl { get; private set; } = null!;
 
     public async Task InitializeAsync()
     {
-        // Start the Blazor Server app
+        var port = GetAvailablePort();
+        BaseUrl = $"http://localhost:{port}";
+
         var projectDir = FindProjectDirectory();
+
+        // Pre-build so that `dotnet run --no-build` starts quickly and doesn't fail silently
+        var buildProcess = Process.Start(new ProcessStartInfo
+        {
+            FileName = "dotnet",
+            Arguments = "build -c Debug --nologo -v q",
+            WorkingDirectory = projectDir,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        });
+        if (buildProcess is not null)
+        {
+            await buildProcess.WaitForExitAsync();
+            if (buildProcess.ExitCode != 0)
+            {
+                var stderr = await buildProcess.StandardError.ReadToEndAsync();
+                throw new InvalidOperationException($"dotnet build failed (exit {buildProcess.ExitCode}): {stderr}");
+            }
+        }
+
         _serverProcess = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = "run --no-launch-profile",
+                Arguments = "run --no-build --no-launch-profile",
                 WorkingDirectory = projectDir,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                CreateNoWindow = true,
-                Environment =
-                {
-                    ["ASPNETCORE_URLS"] = BaseUrl,
-                    ["ASPNETCORE_ENVIRONMENT"] = "Development",
-                    ["DOTNET_NOLOGO"] = "1"
-                }
+                CreateNoWindow = true
             }
         };
 
+        // Set environment variables on the existing dictionary (preserves PATH, DOTNET_ROOT, etc.)
+        _serverProcess.StartInfo.EnvironmentVariables["ASPNETCORE_URLS"] = BaseUrl;
+        _serverProcess.StartInfo.EnvironmentVariables["ASPNETCORE_ENVIRONMENT"] = "Development";
+        _serverProcess.StartInfo.EnvironmentVariables["DOTNET_NOLOGO"] = "1";
+
         _serverProcess.Start();
 
-        // Discard stdout/stderr asynchronously to prevent buffer deadlock
-        _ = _serverProcess.StandardOutput.ReadToEndAsync();
-        _ = _serverProcess.StandardError.ReadToEndAsync();
+        // Consume stdout/stderr to prevent buffer deadlock
+        _ = Task.Run(async () =>
+        {
+            try { await _serverProcess.StandardOutput.ReadToEndAsync(); } catch { }
+        });
+        _ = Task.Run(async () =>
+        {
+            try { await _serverProcess.StandardError.ReadToEndAsync(); } catch { }
+        });
 
         // Wait for the server to be ready
-        await WaitForServerAsync(BaseUrl, TimeSpan.FromSeconds(60));
+        await WaitForServerAsync(BaseUrl, TimeSpan.FromSeconds(90));
 
         // Initialize Playwright
         PlaywrightInstance = await Playwright.CreateAsync();
@@ -81,9 +110,17 @@ public class PlaywrightFixture : IAsyncLifetime
         }
     }
 
+    private static int GetAvailablePort()
+    {
+        using var listener = new TcpListener(IPAddress.Loopback, 0);
+        listener.Start();
+        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+        listener.Stop();
+        return port;
+    }
+
     private static string FindProjectDirectory()
     {
-        // Walk up from the test assembly location to find the ReportingDashboard project
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir is not null)
         {
@@ -94,7 +131,6 @@ public class PlaywrightFixture : IAsyncLifetime
                 return candidate;
             }
 
-            // Also check if we're already at the solution root
             var slnFiles = dir.GetFiles("*.sln");
             if (slnFiles.Length > 0)
             {
@@ -109,29 +145,31 @@ public class PlaywrightFixture : IAsyncLifetime
         }
 
         throw new InvalidOperationException(
-            "Could not find ReportingDashboard project directory. " +
-            $"Searched upward from {AppContext.BaseDirectory}");
+            $"Could not find ReportingDashboard project directory. Searched upward from {AppContext.BaseDirectory}");
     }
 
     private static async Task WaitForServerAsync(string url, TimeSpan timeout)
     {
         using var cts = new CancellationTokenSource(timeout);
-        using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(2) };
+        using var handler = new HttpClientHandler { AllowAutoRedirect = true };
+        using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(5) };
 
         while (!cts.Token.IsCancellationRequested)
         {
             try
             {
                 var response = await client.GetAsync(url, cts.Token);
-                if (response.IsSuccessStatusCode ||
-                    response.StatusCode == HttpStatusCode.OK)
+                // Blazor Server returns 200 when ready (even if page content loads via SignalR)
+                if ((int)response.StatusCode < 500)
                 {
+                    // Give Blazor a moment to fully initialize its SignalR hub
+                    await Task.Delay(1000, cts.Token);
                     return;
                 }
             }
             catch (Exception) when (!cts.Token.IsCancellationRequested)
             {
-                // Server not ready yet
+                // Server not ready yet - connection refused, timeout, etc.
             }
 
             try

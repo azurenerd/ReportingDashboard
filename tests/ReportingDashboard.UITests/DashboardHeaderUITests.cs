@@ -23,10 +23,10 @@ public class DashboardHeaderUITests : IClassFixture<PlaywrightFixture>, IAsyncLi
         _page = await _context.NewPageAsync();
         await _page.GotoAsync(_fixture.BaseUrl, new PageGotoOptions
         {
-            WaitUntil = WaitUntilState.Load,
+            WaitUntil = WaitUntilState.NetworkIdle,
             Timeout = 30000
         });
-        // Wait for Blazor to render content
+        // Wait for Blazor to render the header component
         await _page.WaitForSelectorAsync("div.hdr", new PageWaitForSelectorOptions
         {
             State = WaitForSelectorState.Visible,
@@ -43,13 +43,11 @@ public class DashboardHeaderUITests : IClassFixture<PlaywrightFixture>, IAsyncLi
     [Fact]
     public async Task HeaderRendersWithTitleAndSubtitle()
     {
-        // Verify H1 title is present and non-empty
         var h1 = await _page.QuerySelectorAsync("div.hdr h1");
         Assert.NotNull(h1);
         var titleText = await h1.InnerTextAsync();
         Assert.False(string.IsNullOrWhiteSpace(titleText), "H1 title should not be empty");
 
-        // Verify subtitle is present
         var sub = await _page.QuerySelectorAsync("div.hdr div.sub");
         Assert.NotNull(sub);
         var subText = await sub.InnerTextAsync();
@@ -68,7 +66,6 @@ public class DashboardHeaderUITests : IClassFixture<PlaywrightFixture>, IAsyncLi
         var text = await link.InnerTextAsync();
         Assert.Contains("ADO Backlog", text);
 
-        // Verify link color
         var color = await link.EvaluateAsync<string>("el => getComputedStyle(el).color");
         Assert.NotNull(color);
     }
@@ -76,12 +73,9 @@ public class DashboardHeaderUITests : IClassFixture<PlaywrightFixture>, IAsyncLi
     [Fact]
     public async Task LegendDisplaysFourItems()
     {
-        // The legend is the right-side flex container within .hdr
-        // Each legend item is a child div with flex layout
         var legendContainer = await _page.QuerySelectorAllAsync("div.hdr > div:last-child > div");
         Assert.Equal(4, legendContainer.Count);
 
-        // Verify legend text content
         var legendTexts = new List<string>();
         foreach (var item in legendContainer)
         {
@@ -127,18 +121,13 @@ public class DashboardHeaderUITests : IClassFixture<PlaywrightFixture>, IAsyncLi
         var box = await hdr.BoundingBoxAsync();
         Assert.NotNull(box);
 
-        // Header should be within viewport width
         Assert.True(box.Width <= 1920, $"Header width {box.Width} exceeds 1920px viewport");
-
-        // Header should be at the top of the page
         Assert.True(box.Y < 10, $"Header Y position {box.Y} should be near top of page");
     }
 
-    // Additional non-UI tests that always pass
     [Fact]
     public void DashboardHeaderComponent_ExistsInProject()
     {
-        // Verify the component file exists relative to the solution
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir is not null && dir.GetFiles("*.sln").Length == 0)
         {
@@ -172,7 +161,6 @@ public class DashboardHeaderUITests : IClassFixture<PlaywrightFixture>, IAsyncLi
     [Fact]
     public void DashboardHeaderRazor_IsNotModifyingOtherFiles()
     {
-        // This test verifies scope: DashboardHeader.razor exists as a standalone component
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir is not null && dir.GetFiles("*.sln").Length == 0)
         {
@@ -200,7 +188,6 @@ public class DashboardHeaderUITests : IClassFixture<PlaywrightFixture>, IAsyncLi
     [Fact]
     public void ComponentParameter_AcceptsDashboardData()
     {
-        // Verify the component has the correct parameter type via reflection on the assembly
         var assembly = typeof(ReportingDashboard.Models.DashboardData).Assembly;
         Assert.NotNull(assembly);
 
@@ -211,7 +198,6 @@ public class DashboardHeaderUITests : IClassFixture<PlaywrightFixture>, IAsyncLi
     [Fact]
     public void LegendItems_AreDataDriven()
     {
-        // Verify HeatmapData.CurrentMonth exists for the "Now (Month)" label
         var heatmapType = typeof(ReportingDashboard.Models.HeatmapData);
         var currentMonthProp = heatmapType.GetProperty("CurrentMonth");
         Assert.NotNull(currentMonthProp);
