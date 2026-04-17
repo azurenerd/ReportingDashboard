@@ -1,0 +1,55 @@
+@namespace ReportingDashboard.Components.Shared
+@using ReportingDashboard.Models
+
+<div class="hm-wrap">
+    <div class="hm-title">MONTHLY EXECUTION HEATMAP &mdash; SHIPPED &bull; IN PROGRESS &bull; CARRYOVER &bull; BLOCKERS</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@HeatmapSource.Months.Count, 1fr);">
+        @* Header row: corner + month columns *@
+        <div class="hm-corner">STATUS</div>
+        @for (int i = 0; i < HeatmapSource.Months.Count; i++)
+        {
+            var isCurrent = i == HeatmapSource.CurrentMonthIndex;
+            <div class="hm-col-hdr @(isCurrent ? "current" : "")">
+                @HeatmapSource.Months[i]@(isCurrent ? " \u25C0 Now" : "")
+            </div>
+        }
+
+        @* Data rows *@
+        @foreach (var row in HeatmapSource.Rows)
+        {
+            var info = GetCategoryInfo(row.Category);
+            <div class="hm-row-hdr @info.HdrClass">@info.DisplayName</div>
+            @for (int i = 0; i < HeatmapSource.Months.Count; i++)
+            {
+                var month = HeatmapSource.Months[i];
+                var isCurrent = i == HeatmapSource.CurrentMonthIndex;
+                var items = row.Items.ContainsKey(month) ? row.Items[month] : null;
+                var cellClass = info.CellClass + (isCurrent ? " current" : "");
+                <HeatmapCell Items="@items" CssClass="@cellClass" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// The heatmap data to render. Consumer usage: <HeatmapSection Heatmap="@data.Heatmap" />
+    /// File renamed from Heatmap.razor to HeatmapSection.razor to avoid CS0542
+    /// (member name cannot match enclosing type) while keeping the parameter named "Heatmap".
+    /// </summary>
+    [Parameter]
+    public HeatmapData Heatmap { get; set; } = default!;
+
+    private HeatmapData HeatmapSource => Heatmap ?? new HeatmapData();
+
+    private record CategoryInfo(string HdrClass, string CellClass, string DisplayName);
+
+    private static CategoryInfo GetCategoryInfo(string category) => category switch
+    {
+        "shipped" => new CategoryInfo("ship-hdr", "ship-cell", "\u2705 Shipped"),
+        "in-progress" => new CategoryInfo("prog-hdr", "prog-cell", "\uD83D\uDD04 In Progress"),
+        "carryover" => new CategoryInfo("carry-hdr", "carry-cell", "\uD83D\uDCE6 Carryover"),
+        "blockers" => new CategoryInfo("block-hdr", "block-cell", "\uD83D\uDEA8 Blockers"),
+        _ => new CategoryInfo("ship-hdr", "ship-cell", category)
+    };
+}
