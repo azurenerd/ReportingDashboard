@@ -1,67 +1,99 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 using Microsoft.Playwright;
-using ReportingDashboard.Components;
-using ReportingDashboard.Data;
 using Xunit;
 
 namespace ReportingDashboard.UITests;
 
+[CollectionDefinition("Playwright")]
+public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }
+
 public class PlaywrightFixture : IAsyncLifetime
 {
-    private WebApplication? _app;
-    public IPlaywright Playwright { get; private set; } = null!;
     public IBrowser Browser { get; private set; } = null!;
     public string BaseUrl { get; } = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5000";
+
+    private IPlaywright _playwright = null!;
+    private Process? _appProcess;
 
     public async Task InitializeAsync()
     {
         if (Environment.GetEnvironmentVariable("BASE_URL") == null)
         {
-            var contentRoot = FindContentRoot();
-            var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-            {
-                ContentRootPath = contentRoot,
-                WebRootPath = Path.Combine(contentRoot, "wwwroot")
-            });
-
-            builder.WebHost.UseUrls(BaseUrl);
-            builder.Services.AddRazorComponents();
-            builder.Services.AddScoped<DashboardDataService>();
-
-            _app = builder.Build();
-            _app.UseStaticFiles();
-            _app.UseAntiforgery();
-            _app.MapRazorComponents<App>();
-
-            await _app.StartAsync();
+            _appProcess = StartApp();
+            await WaitForAppAsync();
         }
 
-        Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-        Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
-    }
-
-    private static string FindContentRoot()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir != null)
+        _playwright = await Playwright.CreateAsync();
+        Browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
         {
-            var candidate = Path.Combine(dir.FullName, "ReportingDashboard");
-            if (Directory.Exists(candidate) && File.Exists(Path.Combine(candidate, "ReportingDashboard.csproj")))
-                return candidate;
-            dir = dir.Parent;
-        }
-        throw new DirectoryNotFoundException("Could not locate ReportingDashboard project content root.");
+            Headless = true,
+            Timeout = 60000
+        });
     }
 
     public async Task DisposeAsync()
     {
         await Browser.DisposeAsync();
-        Playwright.Dispose();
-        if (_app != null)
-            await _app.StopAsync();
+        _playwright.Dispose();
+
+        if (_appProcess != null && !_appProcess.HasExited)
+        {
+            _appProcess.Kill(entireProcessTree: true);
+            _appProcess.Dispose();
+        }
+    }
+
+    private Process StartApp()
+    {
+        var repoRoot = FindRepoRoot();
+        var projectPath = Path.Combine(repoRoot, "ReportingDashboard");
+
+        var psi = new ProcessStartInfo("dotnet", "run --no-build --urls http://localhost:5000")
+        {
+            WorkingDirectory = projectPath,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+        var process = Process.Start(psi)
+            ?? throw new InvalidOperationException("Failed to start the application process.");
+
+        return process;
+    }
+
+    private async Task WaitForAppAsync()
+    {
+        using var client = new HttpClient();
+        var deadline = DateTime.UtcNow.AddSeconds(60);
+
+        while (DateTime.UtcNow < deadline)
+        {
+            try
+            {
+                var response = await client.GetAsync(BaseUrl);
+                if (response.IsSuccessStatusCode || (int)response.StatusCode < 500)
+                    return;
+            }
+            catch
+            {
+                // not ready yet
+            }
+            await Task.Delay(500);
+        }
+
+        throw new TimeoutException("Application did not start within 60 seconds.");
+    }
+
+    private static string FindRepoRoot()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null)
+        {
+            if (dir.GetFiles("*.sln").Length > 0)
+                return dir.FullName;
+            dir = dir.Parent;
+        }
+        throw new DirectoryNotFoundException("Could not find solution root.");
     }
 }
-
-[CollectionDefinition("Playwright")]
-public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }
