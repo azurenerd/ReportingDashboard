@@ -1,6 +1,5 @@
 @page "/"
-@using ReportingDashboard.Data
-@inject DashboardDataService DataService
+@inject ReportingDashboard.Data.DashboardDataService DataService
 
 @if (ErrorMessage is not null)
 {
@@ -12,40 +11,82 @@
 }
 else if (Data is not null)
 {
-    <div class="hdr">
-        <div>
-            <h1>
-                @Data.Header.Title
-                <a href="@Data.Header.BacklogLink" target="_blank">&#128279; ADO Backlog</a>
-            </h1>
-            <div class="sub">@Data.Header.Subtitle</div>
+    <div class="dashboard">
+        <div class="hdr">
+            <div class="hdr-left">
+                <h1>
+                    @Data.Header.Title
+                    <a href="@Data.Header.BacklogLink" target="_blank">&#128279; ADO Backlog</a>
+                </h1>
+                <div class="sub">@Data.Header.Subtitle</div>
+            </div>
+            <div class="legend">
+                <span class="legend-item"><span class="legend-diamond poc"></span> PoC Milestone</span>
+                <span class="legend-item"><span class="legend-diamond prod"></span> Production Release</span>
+                <span class="legend-item"><span class="legend-circle"></span> Checkpoint</span>
+                <span class="legend-item"><span class="legend-now-bar"></span> Now</span>
+            </div>
         </div>
-        <div class="legend">
-            <span class="legend-item">
-                <span class="legend-diamond poc"></span>
-                PoC Milestone
-            </span>
-            <span class="legend-item">
-                <span class="legend-diamond prod"></span>
-                Production Release
-            </span>
-            <span class="legend-item">
-                <span class="legend-circle"></span>
-                Checkpoint
-            </span>
-            <span class="legend-item">
-                <span class="legend-now-bar"></span>
-                Now
-            </span>
+
+        <div class="tl-area">
+            <div class="tl-labels">
+                @foreach (var track in Data.TimelineTracks)
+                {
+                    <div class="tl-track-label">
+                        <span style="color:@track.Color;font-weight:600;">@track.Name</span>
+                        <br />
+                        <span style="color:#444;font-weight:400;">@track.Description</span>
+                    </div>
+                }
+            </div>
+            <div class="tl-svg-box">
+                @if (!string.IsNullOrEmpty(Data.Header.TimelineStartDate))
+                {
+                    @((MarkupString)BuildTimelineSvg())
+                }
+            </div>
+        </div>
+
+        <div class="hm-wrap">
+            <div class="hm-title">MONTHLY EXECUTION HEATMAP &mdash; SHIPPED &bull; IN PROGRESS &bull; CARRYOVER &bull; BLOCKERS</div>
+            <div class="hm-grid" style="grid-template-columns: 160px repeat(@Data.Heatmap.Columns.Count, 1fr);">
+                <div class="hm-corner">MONTH</div>
+                @for (int ci = 0; ci < Data.Heatmap.Columns.Count; ci++)
+                {
+                    bool isHighlight = ci == Data.Heatmap.HighlightColumnIndex;
+                    <div class="hm-col-hdr @(isHighlight ? "highlight" : "")">
+                        @Data.Heatmap.Columns[ci]@(isHighlight ? " \u2605 Now" : "")
+                    </div>
+                }
+                @foreach (var row in Data.Heatmap.Rows)
+                {
+                    <div class="hm-row-hdr @CategoryHeaderClass(row.Category)">@row.Label.ToUpper()</div>
+                    @for (int ci = 0; ci < Data.Heatmap.Columns.Count; ci++)
+                    {
+                        bool isHighlight = ci == Data.Heatmap.HighlightColumnIndex;
+                        var items = ci < row.CellItems.Count ? row.CellItems[ci] : new List<string>();
+                        <div class="hm-cell @CategoryCellClass(row.Category) @(isHighlight ? "highlight" : "")">
+                            @if (items.Count == 0)
+                            {
+                                <span class="empty">-</span>
+                            }
+                            else
+                            {
+                                @foreach (var item in items)
+                                {
+                                    <div class="it">@item</div>
+                                }
+                            }
+                        </div>
+                    }
+                }
+            </div>
         </div>
     </div>
-
-    <!-- TODO:TL -->
-    <!-- TODO:HM -->
 }
 
 @code {
-    private DashboardReport? Data;
+    private ReportingDashboard.Data.DashboardReport? Data;
     private string? ErrorMessage;
 
     protected override async Task OnInitializedAsync()
@@ -59,4 +100,86 @@ else if (Data is not null)
             ErrorMessage = ex.Message;
         }
     }
+
+    private string BuildTimelineSvg()
+    {
+        if (Data is null) return "";
+        var sb = new System.Text.StringBuilder();
+        sb.Append("<svg width=\"1560\" height=\"185\" overflow=\"visible\">");
+        sb.Append("<defs><filter id=\"sh\"><feDropShadow dx=\"0\" dy=\"1\" stdDeviation=\"1.5\" flood-opacity=\"0.3\"/></filter></defs>");
+
+        int monthCount = Data.Header.TimelineMonths.Count;
+        for (int mi = 0; mi < monthCount; mi++)
+        {
+            double gx = monthCount > 1 ? mi * (1560.0 / (monthCount - 1)) : 0;
+            sb.Append($"<line x1=\"{gx}\" y1=\"20\" x2=\"{gx}\" y2=\"185\" stroke=\"#BBB\" stroke-width=\"1\" opacity=\"0.4\"/>");
+            sb.Append($"<text x=\"{gx + 5}\" y=\"14\" font-size=\"11\" font-weight=\"600\" fill=\"#666\" font-family=\"'Segoe UI',Arial\">{System.Web.HttpUtility.HtmlEncode(Data.Header.TimelineMonths[mi])}</text>");
+        }
+
+        double nowX = DateToX(Data.Header.ReportDate);
+        sb.Append($"<line x1=\"{nowX}\" y1=\"20\" x2=\"{nowX}\" y2=\"185\" stroke=\"#EA4335\" stroke-width=\"2\" stroke-dasharray=\"5,3\"/>");
+        sb.Append($"<text x=\"{nowX}\" y=\"12\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#EA4335\" font-family=\"'Segoe UI',Arial\">NOW</text>");
+
+        for (int ti = 0; ti < Data.TimelineTracks.Count; ti++)
+        {
+            var track = Data.TimelineTracks[ti];
+            double ty = TrackY(ti);
+            sb.Append($"<line x1=\"0\" y1=\"{ty}\" x2=\"1560\" y2=\"{ty}\" stroke=\"{track.Color}\" stroke-width=\"3\"/>");
+            foreach (var ms in track.Milestones)
+            {
+                double mx = DateToX(ms.Date);
+                bool above = (ms.LabelPosition ?? "above") == "above";
+                double labelY = above ? ty - 16 : ty + 24;
+                if (ms.Type == "checkpoint")
+                    sb.Append($"<circle cx=\"{mx}\" cy=\"{ty}\" r=\"6\" fill=\"white\" stroke=\"{track.Color}\" stroke-width=\"2.5\"/>");
+                else if (ms.Type == "minor")
+                    sb.Append($"<circle cx=\"{mx}\" cy=\"{ty}\" r=\"4\" fill=\"#999\"/>");
+                else if (ms.Type == "poc")
+                    sb.Append($"<polygon points=\"{DiamondPoints(mx, ty)}\" fill=\"#F4B400\" filter=\"url(#sh)\"/>");
+                else if (ms.Type == "production")
+                    sb.Append($"<polygon points=\"{DiamondPoints(mx, ty)}\" fill=\"#34A853\" filter=\"url(#sh)\"/>");
+                sb.Append($"<text x=\"{mx}\" y=\"{labelY}\" text-anchor=\"middle\" font-size=\"10\" fill=\"#666\" font-family=\"'Segoe UI',Arial\">{System.Web.HttpUtility.HtmlEncode(ms.Label)}</text>");
+            }
+        }
+
+        sb.Append("</svg>");
+        return sb.ToString();
+    }
+
+    private double DateToX(string dateStr)
+    {
+        if (!DateOnly.TryParse(dateStr, out var date)) return 0;
+        if (!DateOnly.TryParse(Data?.Header.TimelineStartDate, out var start)) return 0;
+        if (!DateOnly.TryParse(Data?.Header.TimelineEndDate, out var end)) return 0;
+        var totalDays = end.DayNumber - start.DayNumber;
+        if (totalDays == 0) return 0;
+        var elapsed = date.DayNumber - start.DayNumber;
+        return (elapsed / (double)totalDays) * 1560.0;
+    }
+
+    private double TrackY(int index) => 42 + (index * 56);
+
+    private string DiamondPoints(double cx, double cy)
+    {
+        const int r = 11;
+        return $"{cx},{cy - r} {cx + r},{cy} {cx},{cy + r} {cx - r},{cy}";
+    }
+
+    private string CategoryCellClass(string category) => category switch
+    {
+        "shipped" => "ship-cell",
+        "in-progress" => "prog-cell",
+        "carryover" => "carry-cell",
+        "blockers" => "block-cell",
+        _ => ""
+    };
+
+    private string CategoryHeaderClass(string category) => category switch
+    {
+        "shipped" => "ship-hdr",
+        "in-progress" => "prog-hdr",
+        "carryover" => "carry-hdr",
+        "blockers" => "block-hdr",
+        _ => ""
+    };
 }
