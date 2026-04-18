@@ -2,7 +2,7 @@ using ReportingDashboard.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://localhost:5000");
+builder.WebHost.ConfigureKestrel(o => o.ListenLocalhost(5000));
 builder.Services.AddRazorComponents();
 builder.Services.AddScoped<DashboardDataService>();
 
