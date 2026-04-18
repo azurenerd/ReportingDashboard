@@ -8,7 +8,9 @@ obj/
 .vs/
 
 # Data file with real project data - commit only data.example.json
-ReportingDashboard/Data/data.json
+# Ignore data.json at all locations to prevent accidental commits
+data.json
+**/data.json
 
 # OS
 .DS_Store
