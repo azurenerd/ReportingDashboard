@@ -11,6 +11,8 @@ body {
     background: #FFFFFF;
     font-family: 'Segoe UI', -apple-system, Arial, sans-serif;
     color: #111;
+    display: flex;
+    flex-direction: column;
 }
 
 a {
