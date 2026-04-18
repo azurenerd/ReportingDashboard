@@ -4,7 +4,6 @@
 
 @if (ErrorMessage is not null)
 {
-    <!-- ERROR-STATE -->
     <div class="error-container">
         <h2>Unable to load dashboard data.</h2>
         <p>Please check that data.json exists and contains valid JSON.</p>
@@ -13,11 +12,36 @@
 }
 else if (Data is not null)
 {
-    <!-- HDR-SECTION -->
+    <div class="hdr">
+        <div>
+            <h1>
+                @Data.Header.Title
+                <a href="@Data.Header.BacklogLink" target="_blank">&#128279; ADO Backlog</a>
+            </h1>
+            <div class="sub">@Data.Header.Subtitle</div>
+        </div>
+        <div class="legend">
+            <span class="legend-item">
+                <span class="legend-diamond poc"></span>
+                PoC Milestone
+            </span>
+            <span class="legend-item">
+                <span class="legend-diamond prod"></span>
+                Production Release
+            </span>
+            <span class="legend-item">
+                <span class="legend-circle"></span>
+                Checkpoint
+            </span>
+            <span class="legend-item">
+                <span class="legend-now-bar"></span>
+                Now
+            </span>
+        </div>
+    </div>
 
-    <!-- TL-SECTION -->
-
-    <!-- HM-SECTION -->
+    <!-- TODO:TL -->
+    <!-- TODO:HM -->
 }
 
 @code {
@@ -35,41 +59,4 @@ else if (Data is not null)
             ErrorMessage = ex.Message;
         }
     }
-
-    private double DateToX(string dateStr)
-    {
-        if (!DateOnly.TryParse(dateStr, out var date)) return 0;
-        if (!DateOnly.TryParse(Data!.Header.TimelineStartDate, out var start)) return 0;
-        if (!DateOnly.TryParse(Data!.Header.TimelineEndDate, out var end)) return 0;
-        var totalDays = end.DayNumber - start.DayNumber;
-        if (totalDays == 0) return 0;
-        var elapsed = date.DayNumber - start.DayNumber;
-        return (elapsed / (double)totalDays) * 1560.0;
-    }
-
-    private double TrackY(int index) => 42 + (index * 56);
-
-    private string DiamondPoints(double cx, double cy)
-    {
-        const int r = 11;
-        return $"{cx},{cy - r} {cx + r},{cy} {cx},{cy + r} {cx - r},{cy}";
-    }
-
-    private string CategoryCellClass(string category) => category switch
-    {
-        "shipped" => "ship-cell",
-        "in-progress" => "prog-cell",
-        "carryover" => "carry-cell",
-        "blockers" => "block-cell",
-        _ => ""
-    };
-
-    private string CategoryHeaderClass(string category) => category switch
-    {
-        "shipped" => "ship-hdr",
-        "in-progress" => "prog-hdr",
-        "carryover" => "carry-hdr",
-        "blockers" => "block-hdr",
-        _ => ""
-    };
 }
