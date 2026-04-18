@@ -1,10 +1,8 @@
 @page "/"
-@using ReportingDashboard.Data
 @inject DashboardDataService DataService
 
 @if (ErrorMessage is not null)
 {
-    <!-- ERROR-STATE -->
     <div class="error-container">
         <h2>Unable to load dashboard data.</h2>
         <p>Please check that data.json exists and contains valid JSON.</p>
@@ -13,11 +11,19 @@
 }
 else if (Data is not null)
 {
-    <!-- HDR-SECTION -->
+    <div class="dash-root">
+        <!-- TODO: SECTION HDR - header bar -->
+        <div class="hdr">
+        </div>
 
-    <!-- TL-SECTION -->
+        <!-- TODO: SECTION TIMELINE - SVG milestone timeline -->
+        <div class="tl-area">
+        </div>
 
-    <!-- HM-SECTION -->
+        <!-- TODO: SECTION HEATMAP - monthly execution heatmap -->
+        <div class="hm-wrap">
+        </div>
+    </div>
 }
 
 @code {
@@ -38,38 +44,26 @@ else if (Data is not null)
 
     private double DateToX(string dateStr)
     {
-        if (!DateOnly.TryParse(dateStr, out var date)) return 0;
-        if (!DateOnly.TryParse(Data!.Header.TimelineStartDate, out var start)) return 0;
-        if (!DateOnly.TryParse(Data!.Header.TimelineEndDate, out var end)) return 0;
-        var totalDays = end.DayNumber - start.DayNumber;
-        if (totalDays == 0) return 0;
-        var elapsed = date.DayNumber - start.DayNumber;
-        return (elapsed / (double)totalDays) * 1560.0;
+        throw new NotImplementedException();
     }
 
-    private double TrackY(int index) => 42 + (index * 56);
+    private double TrackY(int index)
+    {
+        throw new NotImplementedException();
+    }
 
     private string DiamondPoints(double cx, double cy)
     {
-        const int r = 11;
-        return $"{cx},{cy - r} {cx + r},{cy} {cx},{cy + r} {cx - r},{cy}";
+        throw new NotImplementedException();
     }
 
-    private string CategoryCellClass(string category) => category switch
+    private string CategoryCellClass(string category)
     {
-        "shipped" => "ship-cell",
-        "in-progress" => "prog-cell",
-        "carryover" => "carry-cell",
-        "blockers" => "block-cell",
-        _ => ""
-    };
+        throw new NotImplementedException();
+    }
 
-    private string CategoryHeaderClass(string category) => category switch
+    private string CategoryHeaderClass(string category)
     {
-        "shipped" => "ship-hdr",
-        "in-progress" => "prog-hdr",
-        "carryover" => "carry-hdr",
-        "blockers" => "block-hdr",
-        _ => ""
-    };
+        throw new NotImplementedException();
+    }
 }

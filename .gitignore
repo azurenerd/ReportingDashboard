@@ -1,17 +1,15 @@
-# Build outputs
+# Build artifacts
 bin/
 obj/
+
+# Real dashboard data (contains sensitive project information)
+ReportingDashboard/Data/data.json
 
 # User-specific files
 *.user
 *.suo
 .vs/
 
-# Data file with real project data - commit only data.example.json
-# Ignore data.json at all locations to prevent accidental commits
-data.json
-**/data.json
-
-# OS
+# OS files
 .DS_Store
 Thumbs.db
