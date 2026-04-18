@@ -1,7 +1,31 @@
 /* ERROR-CSS */
+.error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 1920px;
+    height: 1080px;
+}
 
-/* HDR-CSS */
+.error-container h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
 
-/* TL-CSS */
+.error-container p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
 
-/* HM-CSS */
+.error-detail {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #EA4335;
+    font-family: monospace;
+    max-width: 800px;
+    text-align: center;
+}
