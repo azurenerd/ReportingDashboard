@@ -1,0 +1,15 @@
+bin/
+obj/
+out/
+.vs/
+*.user
+*.suo
+.idea/
+.vscode/
+*.nupkg
+packages/
+TestResults/
+coverage/
+publish/
+.DS_Store
+Thumbs.db

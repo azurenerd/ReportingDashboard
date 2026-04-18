@@ -1,0 +1,26 @@
+@using ReportingDashboard.Models
+
+<div class="hdr">
+    <div>
+        <div class="hdr-title-row">
+            <h1>
+                @Project.Title
+                @if (!string.IsNullOrWhiteSpace(Project.AdoLink))
+                {
+                    <a href="@Project.AdoLink" target="_blank" class="ado-link">↗ ADO Backlog</a>
+                }
+            </h1>
+        </div>
+        <div class="sub">@Project.Subtitle</div>
+    </div>
+    <div class="legend">
+        <div class="legend-item"><span class="leg-poc"></span><span>PoC Milestone</span></div>
+        <div class="legend-item"><span class="leg-release"></span><span>Production Release</span></div>
+        <div class="legend-item"><span class="leg-checkpoint"></span><span>Checkpoint</span></div>
+        <div class="legend-item"><span class="leg-now"></span><span>Now</span></div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public ProjectConfig Project { get; set; } = default!;
+}

@@ -1,0 +1,18 @@
+@page "/"
+@using ReportingDashboard.Services
+@using ReportingDashboard.Models
+@inject IDashboardDataService DataService
+
+@if (!DataService.IsLoaded)
+{
+    <ErrorDisplay />
+}
+else
+{
+    <PageTitle>@DataService.Data!.Project.Title</PageTitle>
+    <div class="dashboard-canvas">
+        <DashboardHeader Project="DataService.Data.Project" />
+        <MilestoneTimeline Timeline="DataService.Data.Timeline" NowDate="DataService.NowDate" />
+        <ExecutionHeatmap Heatmap="DataService.Data.Heatmap" CurrentColumn="DataService.CurrentColumn" />
+    </div>
+}

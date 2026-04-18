@@ -1,0 +1,68 @@
+@using ReportingDashboard.Models
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap</div>
+    <div class="hm-grid" style="display:grid; grid-template-columns:160px repeat(@Heatmap.Columns.Count, 1fr); grid-template-rows:36px repeat(@Heatmap.Rows.Count, 1fr); border:1px solid #E0E0E0; flex:1; min-height:0;">
+
+        <div class="hm-corner">STATUS</div>
+        @foreach (var col in Heatmap.Columns)
+        {
+            <div class="@(col == CurrentColumn ? "hm-col-hdr apr-hdr" : "hm-col-hdr")">@col</div>
+        }
+
+        @foreach (var row in Heatmap.Rows)
+        {
+            <div class="hm-row-hdr @GetRowHeaderClass(row.Type)">@row.Label</div>
+            @foreach (var col in Heatmap.Columns)
+            {
+                var cell = row.Cells.FirstOrDefault(c => c.Month == col);
+                var cellClass = $"hm-cell {GetRowCellClass(row.Type)}{(col == CurrentColumn ? " apr" : "")}";
+                <div class="@cellClass">
+                    @if (cell == null || cell.Items.Count == 0)
+                    {
+                        <div class="it" style="color:#AAA">-</div>
+                    }
+                    else
+                    {
+                        @foreach (var item in cell.Items)
+                        {
+                            <div class="it @GetDotClass(row.Type)">@item</div>
+                        }
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public HeatmapConfig Heatmap { get; set; } = default!;
+    [Parameter, EditorRequired] public string CurrentColumn { get; set; } = string.Empty;
+
+    private static string GetRowHeaderClass(HeatmapRowType type) => type switch
+    {
+        HeatmapRowType.Shipped    => "ship-hdr",
+        HeatmapRowType.InProgress => "prog-hdr",
+        HeatmapRowType.Carryover  => "carry-hdr",
+        HeatmapRowType.Blocker    => "block-hdr",
+        _                         => ""
+    };
+
+    private static string GetRowCellClass(HeatmapRowType type) => type switch
+    {
+        HeatmapRowType.Shipped    => "ship-cell",
+        HeatmapRowType.InProgress => "prog-cell",
+        HeatmapRowType.Carryover  => "carry-cell",
+        HeatmapRowType.Blocker    => "block-cell",
+        _                         => ""
+    };
+
+    private static string GetDotClass(HeatmapRowType type) => type switch
+    {
+        HeatmapRowType.Shipped    => "dot-ship",
+        HeatmapRowType.InProgress => "dot-prog",
+        HeatmapRowType.Carryover  => "dot-carry",
+        HeatmapRowType.Blocker    => "dot-block",
+        _                         => ""
+    };
+}

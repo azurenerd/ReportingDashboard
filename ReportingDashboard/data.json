@@ -1,0 +1,89 @@
+{
+  "project": {
+    "title": "Project Orion",
+    "subtitle": "AI Platform Workstream · April 2026",
+    "adoLink": "https://dev.azure.com/contoso/orion/_backlogs"
+  },
+  "timeline": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-06-30",
+    "nowDate": "2026-04-17",
+    "milestones": [
+      {
+        "id": "M1",
+        "label": "M1",
+        "description": "Data Ingestion Pipeline",
+        "color": "#0078D4",
+        "events": [
+          { "date": "2026-01-20", "type": "Checkpoint", "label": "Design Review" },
+          { "date": "2026-02-28", "type": "Poc", "label": "PoC Complete" },
+          { "date": "2026-04-10", "type": "Release", "label": "v1.0 Release" }
+        ]
+      },
+      {
+        "id": "M2",
+        "label": "M2",
+        "description": "Model Training Service",
+        "color": "#34A853",
+        "events": [
+          { "date": "2026-02-14", "type": "Checkpoint", "label": "Arch Review" },
+          { "date": "2026-03-31", "type": "Poc", "label": "PoC Complete" },
+          { "date": "2026-05-15", "type": "Release", "label": "v1.0 Release" }
+        ]
+      },
+      {
+        "id": "M3",
+        "label": "M3",
+        "description": "Inference & Serving Layer",
+        "color": "#9C27B0",
+        "events": [
+          { "date": "2026-03-15", "type": "Checkpoint", "label": "Design Review" },
+          { "date": "2026-05-01", "type": "Poc", "label": "PoC Complete" },
+          { "date": "2026-06-20", "type": "Release", "label": "v1.0 Release" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "columns": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "currentColumn": "Apr",
+    "rows": [
+      {
+        "type": "Shipped",
+        "label": "Shipped",
+        "cells": [
+          { "month": "Jan", "items": ["Schema design finalized", "Kafka connectors deployed"] },
+          { "month": "Feb", "items": ["PoC ingestion pipeline live", "Unit test coverage 85%"] },
+          { "month": "Mar", "items": ["Model training harness v0.1", "Arch review passed"] },
+          { "month": "Apr", "items": ["Data pipeline v1.0 released", "Monitoring dashboards live"] }
+        ]
+      },
+      {
+        "type": "InProgress",
+        "label": "In Progress",
+        "cells": [
+          { "month": "Feb", "items": ["Model feature store"] },
+          { "month": "Mar", "items": ["GPU cluster provisioning", "Training job scheduler"] },
+          { "month": "Apr", "items": ["Inference API v0.3", "Load testing framework", "M2 PoC validation"] },
+          { "month": "May", "items": ["Serving layer autoscaling", "Canary rollout tooling"] }
+        ]
+      },
+      {
+        "type": "Carryover",
+        "label": "Carryover",
+        "cells": [
+          { "month": "Mar", "items": ["Feature store schema — blocked on data governance"] },
+          { "month": "Apr", "items": ["GPU quota approval (carried from Mar)", "Batch scoring pipeline"] }
+        ]
+      },
+      {
+        "type": "Blocker",
+        "label": "Blockers",
+        "cells": [
+          { "month": "Mar", "items": ["GPU quota request pending (3 weeks)"] },
+          { "month": "Apr", "items": ["Data governance sign-off delayed"] }
+        ]
+      }
+    ]
+  }
+}

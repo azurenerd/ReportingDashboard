@@ -1,0 +1,12 @@
+@using ReportingDashboard.Services
+@inject IDashboardDataService DataService
+
+<div style="width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+    <div style="border:1px solid #EA4335;border-radius:4px;padding:32px 48px;max-width:640px;text-align:center;">
+        <h2 style="color:#991B1B;margin:0 0 12px 0;">Dashboard Failed to Load</h2>
+        <p style="color:#333;font-size:14px;margin:0 0 16px 0;">@DataService.ErrorMessage</p>
+        <p style="color:#888;font-size:12px;margin:0;">
+            Edit <code>data.json</code> in the application directory and restart the app.
+        </p>
+    </div>
+</div>

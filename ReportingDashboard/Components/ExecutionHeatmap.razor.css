@@ -1,0 +1,104 @@
+.hm-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 44px 10px;
+}
+
+.hm-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.hm-corner {
+    background: #F5F5F5;
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #CCC;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+}
+
+.hm-col-hdr {
+    background: #F5F5F5;
+    font-size: 16px;
+    font-weight: 700;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 2px solid #CCC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.apr-hdr {
+    background: #FFF0D0 !important;
+    color: #C07700 !important;
+}
+
+.hm-row-hdr {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    padding: 0 12px;
+    border-right: 2px solid #CCC;
+    border-bottom: 1px solid #E0E0E0;
+    display: flex;
+    align-items: center;
+}
+
+.ship-hdr  { background: #E8F5E9; color: #1B7A28; }
+.prog-hdr  { background: #E3F2FD; color: #1565C0; }
+.carry-hdr { background: #FFF8E1; color: #B45309; }
+.block-hdr { background: #FEF2F2; color: #991B1B; }
+
+.hm-cell {
+    padding: 8px 12px;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
+    overflow: hidden;
+}
+
+.ship-cell  { background: #F0FBF0; }
+.prog-cell  { background: #EEF4FE; }
+.carry-cell { background: #FFFDE7; }
+.block-cell { background: #FFF5F5; }
+
+.ship-cell.apr  { background: #D8F2DA; }
+.prog-cell.apr  { background: #DAE8FB; }
+.carry-cell.apr { background: #FFF0B0; }
+.block-cell.apr { background: #FFE4E4; }
+
+.it {
+    font-size: 12px;
+    color: #333;
+    padding: 2px 0 2px 14px;
+    position: relative;
+    line-height: 1.4;
+}
+
+.it::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #999;
+}
+
+.dot-ship::before  { background: #34A853; }
+.dot-prog::before  { background: #0078D4; }
+.dot-carry::before { background: #F4B400; }
+.dot-block::before { background: #EA4335; }
