@@ -1,3 +1,4 @@
+// T2 owns this file - data model records
 namespace ReportingDashboard.Data;
 
 public record DashboardReport

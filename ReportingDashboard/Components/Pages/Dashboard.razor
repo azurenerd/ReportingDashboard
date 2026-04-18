@@ -1,6 +1,5 @@
 @page "/"
-@using ReportingDashboard.Data
-@inject DashboardDataService DataService
+@inject ReportingDashboard.Data.DashboardDataService DataService
 
 @if (ErrorMessage is not null)
 {
@@ -12,40 +11,13 @@
 }
 else if (Data is not null)
 {
-    <div class="hdr">
-        <div>
-            <h1>
-                @Data.Header.Title
-                <a href="@Data.Header.BacklogLink" target="_blank">&#128279; ADO Backlog</a>
-            </h1>
-            <div class="sub">@Data.Header.Subtitle</div>
-        </div>
-        <div class="legend">
-            <span class="legend-item">
-                <span class="legend-diamond poc"></span>
-                PoC Milestone
-            </span>
-            <span class="legend-item">
-                <span class="legend-diamond prod"></span>
-                Production Release
-            </span>
-            <span class="legend-item">
-                <span class="legend-circle"></span>
-                Checkpoint
-            </span>
-            <span class="legend-item">
-                <span class="legend-now-bar"></span>
-                Now
-            </span>
-        </div>
-    </div>
-
-    <!-- TODO:TL -->
-    <!-- TODO:HM -->
+    <div class="hdr"></div>
+    <div class="tl-area"></div>
+    <div class="hm-wrap"></div>
 }
 
 @code {
-    private DashboardReport? Data;
+    private ReportingDashboard.Data.DashboardReport? Data;
     private string? ErrorMessage;
 
     protected override async Task OnInitializedAsync()

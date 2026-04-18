@@ -2,15 +2,22 @@
 bin/
 obj/
 
-# User-specific files
-*.user
-*.suo
-.vs/
+# Sensitive dashboard data
+ReportingDashboard/Data/data.json
+ReportingDashboard/wwwroot/data.json
+ReportingDashboard/wwwroot/data/
 
-# Data file with real project data - commit only data.example.json
-# Ignore data.json at all locations to prevent accidental commits
-data.json
-**/data.json
+# User secrets and local settings
+appsettings.Development.json
+*.user
+
+# VS / Rider
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
 # OS
 .DS_Store
