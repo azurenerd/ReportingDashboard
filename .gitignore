@@ -1,0 +1,15 @@
+# Build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+.vs/
+
+# Data file with real project data - commit only data.example.json
+ReportingDashboard/Data/data.json
+
+# OS
+.DS_Store
+Thumbs.db

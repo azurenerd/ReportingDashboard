@@ -1,0 +1,38 @@
+@page "/"
+@layout MainLayout
+@inject DashboardDataService DataService
+
+@if (ErrorMessage is not null)
+{
+    <!-- ERROR-STATE -->
+    <div class="error-container">
+        <h2>Unable to load dashboard data</h2>
+        <p>Please check that data.json exists and contains valid JSON.</p>
+        <p class="error-detail">@ErrorMessage</p>
+    </div>
+}
+else if (Data is not null)
+{
+    <!-- HDR-SECTION -->
+
+    <!-- TL-SECTION -->
+
+    <!-- HM-SECTION -->
+}
+
+@code {
+    private DashboardReport? Data;
+    private string? ErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Data = await DataService.GetDataAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+}
