@@ -1,53 +1,51 @@
-@* Heatmap partial component skeleton. Full visual implementation is delivered by a
-   downstream task (T6); this file is included in the scaffold so the project's
-   component namespace exists and so the data-binding contract is visible. *@
+@using ReportingDashboard.Web.Layout
+@using ReportingDashboard.Web.Models
 
-@if (Model is null || Model.Rows.Count == 0)
-{
-    <div class="hm-wrap"></div>
-}
-else
-{
-    <div class="hm-wrap">
-        <div class="hm-title">Monthly Execution Heatmap</div>
-        <div class="hm-grid">
-            <div class="hm-corner">Status</div>
-            @for (var i = 0; i < Model.Months.Count; i++)
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid">
+        <div class="hm-corner">Status</div>
+        @for (int i = 0; i < Model.Months.Count; i++)
+        {
+            var isCurrent = i == Model.CurrentMonthIndex;
+            <div class="hm-col-hdr @(isCurrent ? "current-hdr" : "")">@Model.Months[i]</div>
+        }
+
+        @foreach (var row in Model.Rows)
+        {
+            var cat = CatToken(row.Category);
+            <div class="hm-row-hdr @(cat)-hdr">@row.HeaderLabel</div>
+            @for (int i = 0; i < row.Cells.Count; i++)
             {
+                var cell = row.Cells[i];
                 var isCurrent = i == Model.CurrentMonthIndex;
-                <div class="hm-col-hdr @(isCurrent ? "current-hdr" : null)">@Model.Months[i]</div>
-            }
-
-            @foreach (var row in Model.Rows)
-            {
-                <div class="hm-row-hdr">@row.HeaderLabel</div>
-                @for (var i = 0; i < row.Cells.Count; i++)
-                {
-                    var cell = row.Cells[i];
-                    var isCurrent = i == Model.CurrentMonthIndex;
-                    <div class="hm-cell @(isCurrent ? "current" : null)">
-                        @if (cell.IsEmpty)
+                <div class="hm-cell @(cat)-cell @(isCurrent ? "current" : "")">
+                    @if (cell.IsEmpty)
+                    {
+                        <div class="it empty">-</div>
+                    }
+                    else
+                    {
+                        @foreach (var item in cell.Items)
                         {
-                            <div class="it empty">&ndash;</div>
+                            <div class="it">@item</div>
                         }
-                        else
-                        {
-                            @foreach (var item in cell.Items)
-                            {
-                                <div class="it">@item</div>
-                            }
-                            @if (cell.OverflowCount > 0)
-                            {
-                                <div class="it overflow">+@cell.OverflowCount more</div>
-                            }
-                        }
-                    </div>
-                }
+                    }
+                </div>
             }
-        </div>
+        }
     </div>
-}
+</div>
 
 @code {
-    [Parameter] public HeatmapViewModel? Model { get; set; }
+    [Parameter] public required HeatmapViewModel Model { get; set; }
+
+    private static string CatToken(HeatmapCategory c) => c switch
+    {
+        HeatmapCategory.Shipped => "ship",
+        HeatmapCategory.InProgress => "prog",
+        HeatmapCategory.Carryover => "carry",
+        HeatmapCategory.Blockers => "block",
+        _ => "ship",
+    };
 }
