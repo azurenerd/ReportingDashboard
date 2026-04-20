@@ -1,0 +1,38 @@
+# --- .NET ---
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+publish/
+*.pdb
+*.user
+*.suo
+*.userprefs
+*.cache
+*.DotSettings.user
+
+# --- IDE ---
+.vs/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# --- Node ---
+node_modules/
+npm-debug.log*
+
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Logs ---
+*.log
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
