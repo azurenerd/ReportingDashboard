@@ -1,0 +1,4 @@
+agent: SoftwareEngineer
+task: Add Screenshot Script ADR and README
+complexity: Medium
+status: in-progress
