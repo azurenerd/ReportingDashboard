@@ -1,0 +1,15 @@
+@* STUB — T8 replaces the body with the 230px lane-label column + 1560x185 SVG (gridlines,
+   lane tracks, milestone diamonds/circles, NOW line). Parameter signature is stable. *@
+
+<div class="tl-area">
+    <div class="tl-svg-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="185"
+             style="overflow:visible;display:block">
+            <!-- Stub placeholder — T8 will render gridlines, lanes, milestones, NOW line from Model. -->
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public TimelineViewModel Model { get; set; } = TimelineViewModel.Empty;
+}

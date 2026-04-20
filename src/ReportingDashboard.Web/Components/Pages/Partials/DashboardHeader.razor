@@ -1,0 +1,15 @@
+@* STUB — T7 replaces the body with the full .hdr band (title + backlog link + subtitle + legend).
+   Parameter signature is stable: Project + NowLabel. *@
+
+<div class="hdr">
+    <div>
+        <h1>@Project.Title</h1>
+        <div class="sub">@Project.Subtitle</div>
+    </div>
+    <div>@NowLabel</div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Project Project { get; set; } = default!;
+    [Parameter, EditorRequired] public string NowLabel { get; set; } = string.Empty;
+}

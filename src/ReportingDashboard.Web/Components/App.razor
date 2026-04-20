@@ -1,0 +1,16 @@
+@* Root HTML document shell. Dashboard.razor re-declares its own <html>/<body> for
+   full CSS control; this App component provides the framework entry point. *@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920" />
+    <base href="/" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="ReportingDashboard.Web.styles.css" />
+    <HeadOutlet />
+</head>
+<body>
+    <Routes />
+</body>
+</html>

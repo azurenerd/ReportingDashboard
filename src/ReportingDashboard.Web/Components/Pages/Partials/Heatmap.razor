@@ -1,0 +1,13 @@
+@* STUB — T9 replaces the body with .hm-title + .hm-grid 5x5 CSS grid rendering Model.Months,
+   Model.CurrentMonthIndex, and Model.Rows. Parameter signature is stable. *@
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid">
+        <!-- Stub placeholder — T9 will render 5x5 grid from Model. -->
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public HeatmapViewModel Model { get; set; } = HeatmapViewModel.Empty;
+}

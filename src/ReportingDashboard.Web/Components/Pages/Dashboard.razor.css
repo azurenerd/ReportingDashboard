@@ -1,0 +1,13 @@
+/* === HEADER === */
+/* T6 / T7: port .hdr, .hdr h1, .sub, legend styles from OriginalDesignConcept.html here. */
+
+/* === TIMELINE === */
+/* T6 / T8: port .tl-area, .tl-labels, .tl-svg-box and SVG-adjacent rules here. */
+
+/* === HEATMAP === */
+/* T6 / T9: port .hm-wrap, .hm-title, .hm-grid, .hm-corner, .hm-col-hdr(+.current-hdr),
+   .hm-row-hdr, .hm-cell(+.current), .it, and per-category .ship/.prog/.carry/.block rules.
+   Rename .apr → .current and .apr-hdr → .current-hdr. */
+
+/* === ERROR BANNER === */
+/* T6 / T10: port .error-banner (#FEF2F2 / #991B1B / 1px #EA4335 bottom border) here. */

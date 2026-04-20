@@ -1,0 +1,17 @@
+@* STUB — T10 replaces the body with the full red banner markup
+   (file path, kind, optional line/col, message). Parameter signature is stable. *@
+
+<div class="error-banner" role="alert">
+    <strong>Failed to load data.json</strong>
+    <span class="error-kind">@Error.Kind</span>
+    <span class="error-path">@Error.FilePath</span>
+    @if (Error.Line is { } line)
+    {
+        <span class="error-location">line @line, col @Error.Column</span>
+    }
+    <span class="error-message">@Error.Message</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public DashboardLoadError Error { get; set; } = default!;
+}

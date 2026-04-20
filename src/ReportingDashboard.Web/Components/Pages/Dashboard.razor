@@ -1,0 +1,81 @@
+@page "/"
+@inject IDashboardDataService Data
+
+@*
+    ============================================================================
+    INTEGRATION CONTRACT (T1 stub — Dashboard.razor body will be fleshed out by T11)
+    ----------------------------------------------------------------------------
+    T2  → fills POCO bodies + sample wwwroot/data.json + README.
+    T3  → fills DashboardDataService (file load, FileSystemWatcher, cache) +
+          DashboardDataValidator + DashboardLoadResult/DashboardLoadError.
+    T4  → fills TimelineLayoutEngine + TimelineViewModel (SVG geometry math).
+    T5  → fills HeatmapLayoutEngine + HeatmapViewModel (truncation + current month).
+    T6  → fills Dashboard.razor.css (port of OriginalDesignConcept.html styles)
+          and refines wwwroot/app.css.
+    T7  → fills Partials/DashboardHeader.razor (title, subtitle, legend).
+    T8  → fills Partials/TimelineSvg.razor (230px labels + 1560x185 SVG).
+    T9  → fills Partials/Heatmap.razor (.hm-title + .hm-grid 5x5).
+    T10 → fills Partials/ErrorBanner.razor (red banner, file/line/col/message).
+    T11 → replaces this stub body with full composition:
+            result = Data.GetCurrent();
+            if (result.Error is not null) → render <ErrorBanner />
+            if (result.Data is { } d) →
+                TimelineLayoutEngine.Build(d.Timeline, today)
+                HeatmapLayoutEngine.Build(d.Heatmap, today)
+                pass Project/TimelineViewModel/HeatmapViewModel to partials
+            else → DashboardHeader(Project.Placeholder) + .Empty VMs
+          No @rendermode — static SSR only.
+    ============================================================================
+*@
+
+@code {
+    private DashboardLoadResult _result = default!;
+    private string _nowLabel = string.Empty;
+    private TimelineViewModel _timelineVm = TimelineViewModel.Empty;
+    private HeatmapViewModel _heatmapVm = HeatmapViewModel.Empty;
+
+    protected override void OnInitialized()
+    {
+        _result = Data.GetCurrent();
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        _nowLabel = $"Now ({DateTime.Today:MMM yyyy})";
+
+        if (_result.Data is { } d)
+        {
+            _timelineVm = TimelineLayoutEngine.Build(d.Timeline, today);
+            _heatmapVm = HeatmapLayoutEngine.Build(d.Heatmap, today);
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920" />
+    <base href="/" />
+    <title>ReportingDashboard</title>
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="ReportingDashboard.Web.styles.css" />
+    <HeadOutlet />
+</head>
+<body>
+    @if (_result.Error is not null)
+    {
+        <ErrorBanner Error="_result.Error" />
+    }
+
+    @if (_result.Data is { } data)
+    {
+        <DashboardHeader Project="data.Project" NowLabel="_nowLabel" />
+        <TimelineSvg Model="_timelineVm" />
+        <Heatmap Model="_heatmapVm" />
+    }
+    else
+    {
+        <DashboardHeader Project="Project.Placeholder" NowLabel="_nowLabel" />
+        <TimelineSvg Model="TimelineViewModel.Empty" />
+        <Heatmap Model="HeatmapViewModel.Empty" />
+    }
+</body>
+</html>

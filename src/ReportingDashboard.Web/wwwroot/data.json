@@ -1,0 +1,23 @@
+{
+  "project": {
+    "title": "ReportingDashboard (stub)",
+    "subtitle": "Scaffolded by T1 — T2 will replace with sample data",
+    "backlogUrl": null
+  },
+  "timeline": {
+    "start": "2026-01-01",
+    "end": "2026-06-30",
+    "lanes": []
+  },
+  "heatmap": {
+    "months": ["Jan", "Feb", "Mar", "Apr"],
+    "currentMonthIndex": null,
+    "maxItemsPerCell": 4,
+    "rows": [
+      { "category": "shipped",    "cells": [[], [], [], []] },
+      { "category": "inProgress", "cells": [[], [], [], []] },
+      { "category": "carryover",  "cells": [[], [], [], []] },
+      { "category": "blockers",   "cells": [[], [], [], []] }
+    ]
+  }
+}
