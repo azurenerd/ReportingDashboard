@@ -1,0 +1,63 @@
+## .NET
+bin/
+obj/
+out/
+publish/
+*.user
+*.suo
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.VC.opendb
+
+## Visual Studio / Rider / VSCode
+.vs/
+.vscode/
+.idea/
+*.sln.docstates
+*.ncrunch*
+.sonarqube/
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+## Build outputs
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+Generated_Code/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+!packages/build/
+!packages/repositories.config
+*.nuget.props
+*.nuget.targets
+
+## Rider
+*.DotSettings.user
+
+## OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+## Logs
+*.log
+logs/
+
+## Local user overrides
+appsettings.*.local.json
