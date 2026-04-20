@@ -1,14 +1,18 @@
+@namespace ReportingDashboard.Web.Components
+@using Microsoft.AspNetCore.Components.Web
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=1920" />
-    <title>ReportingDashboard</title>
+    <title>Reporting Dashboard</title>
     <base href="/" />
     <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="ReportingDashboard.Web.styles.css" />
     <HeadOutlet />
 </head>
 <body>
+    <!-- Static SSR: no Blazor interactive runtime by design (see architecture R1) -->
     <Routes />
 </body>
 </html>
