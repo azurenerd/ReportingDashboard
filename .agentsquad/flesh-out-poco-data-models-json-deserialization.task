@@ -1,0 +1,4 @@
+agent: SoftwareEngineer
+task: Flesh Out POCO Data Models & JSON Deserialization
+complexity: Medium
+status: in-progress

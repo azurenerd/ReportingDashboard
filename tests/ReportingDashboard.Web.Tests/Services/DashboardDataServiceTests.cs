@@ -22,10 +22,9 @@ public class DashboardDataServiceTests
         "backlogUrl": "https://example.com/backlog"
       },
       "timeline": {
-        "startDate": "2025-01-01",
-        "endDate": "2026-12-31",
-        "lanes": [],
-        "milestones": []
+        "start": "2025-01-01",
+        "end": "2026-12-31",
+        "lanes": []
       },
       "heatmap": {
         "months": [],
