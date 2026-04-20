@@ -1,0 +1,17 @@
+@page "/"
+@inject IDashboardDataService Data
+
+@{
+    var result = Data.GetCurrent();
+    var nowLabel = $"Now ({DateTime.Today:MMM yyyy})";
+    var project = result.Data?.Project ?? Project.Placeholder;
+}
+
+@if (result.Error is not null)
+{
+    <ErrorBanner Error="result.Error" />
+}
+
+<DashboardHeader Project="project" NowLabel="@nowLabel" />
+<TimelineSvg Model="TimelineViewModel.Empty" />
+<Heatmap Model="HeatmapViewModel.Empty" />

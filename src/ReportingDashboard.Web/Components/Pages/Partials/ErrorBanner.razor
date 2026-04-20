@@ -1,0 +1,11 @@
+@* T1 stub. T6 will implement the full banner with kind/line/column/message. *@
+
+<div class="error-banner" role="alert">
+    <strong>Failed to load data.json</strong>
+    <span class="error-path">@Error.FilePath</span>
+    <span class="error-message">@Error.Message</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required DashboardLoadError Error { get; set; }
+}

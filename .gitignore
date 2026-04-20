@@ -1,0 +1,55 @@
+## .NET
+bin/
+obj/
+out/
+publish/
+*.user
+*.suo
+*.userprefs
+*.swp
+.vs/
+.vscode/
+.idea/
+*.DotSettings.user
+
+## Build output
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Test results
+TestResults/
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+coverage*.info
+
+## NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+
+## Rider / Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Environment
+*.env
+.env.*
+!.env.example

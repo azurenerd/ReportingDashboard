@@ -1,0 +1,10 @@
+@* T1 stub. T5 will implement the 5x5 CSS grid. *@
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap</div>
+    <div class="hm-grid"></div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required HeatmapViewModel Model { get; set; }
+}
