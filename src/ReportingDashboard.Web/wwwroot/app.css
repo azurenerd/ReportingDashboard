@@ -1,7 +1,6 @@
 /* =========================================================================
-   app.css - global styles
-   T4 will finalize: universal reset + body (1920x1080, Segoe UI, #FFF/#111).
-   This minimal skeleton exists so the app boots without 404s.
+   app.css - global reset + body viewport + anchor color.
+   All component-specific styles live in Dashboard.razor.css (scoped).
    ========================================================================= */
 
 * {
@@ -11,7 +10,17 @@
 }
 
 body {
-    font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
     background: #FFFFFF;
     color: #111;
+    font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    color: #0078D4;
+    text-decoration: none;
 }
