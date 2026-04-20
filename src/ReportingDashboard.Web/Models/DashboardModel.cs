@@ -9,9 +9,9 @@ public sealed record DashboardModel(
     HeatmapModel Heatmap)
 {
     public static DashboardModel Empty { get; } = new(
-        Title: "",
-        Subtitle: "",
-        BacklogUrl: "",
+        Title: string.Empty,
+        Subtitle: string.Empty,
+        BacklogUrl: string.Empty,
         CurrentDate: DateOnly.FromDateTime(DateTime.Today),
         Timeline: TimelineModel.Empty,
         Heatmap: HeatmapModel.Empty);

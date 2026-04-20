@@ -5,7 +5,7 @@ public sealed record DashboardState(
     ParseError? Error,
     DateTime LoadedAtUtc)
 {
-    public static DashboardState Initial { get; } = new(
+    public static DashboardState Empty { get; } = new(
         Model: DashboardModel.Empty,
         Error: null,
         LoadedAtUtc: DateTime.UtcNow);

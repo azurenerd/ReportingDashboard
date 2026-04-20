@@ -1,32 +1,22 @@
+using Microsoft.Extensions.Logging;
 using ReportingDashboard.Web.Models;
 
 namespace ReportingDashboard.Web.Services;
 
-// Stub implementation — fleshed out by downstream task T4 (watcher, debounce,
-// parsing, validation, last-known-good retention). For the scaffolding wave
-// this just seeds an empty state so the app boots at http://localhost:5000.
 public sealed class DashboardDataService : IDashboardDataService, IDisposable
 {
     private readonly ILogger<DashboardDataService> _logger;
-    private readonly object _lock = new();
-    private DashboardState _current = DashboardState.Initial;
+    private readonly IHostEnvironment _env;
+    private DashboardState _current = DashboardState.Empty;
 
-    public DashboardDataService(ILogger<DashboardDataService> logger)
+    public DashboardDataService(IHostEnvironment env, ILogger<DashboardDataService> logger)
     {
+        _env = env;
         _logger = logger;
-        _logger.LogInformation("DashboardDataService initialized (stub).");
+        _logger.LogInformation("DashboardDataService initialized (stub); ContentRoot={Root}", _env.ContentRootPath);
     }
 
-    public DashboardState Current
-    {
-        get
-        {
-            lock (_lock)
-            {
-                return _current;
-            }
-        }
-    }
+    public DashboardState Current => _current;
 
     public event Action? OnChanged;
 
@@ -38,12 +28,12 @@ public sealed class DashboardDataService : IDashboardDataService, IDisposable
 
     public void Reload()
     {
-        // Downstream task T4 will implement file read + parse + validate.
+        // Stub implementation - real loading lives in a downstream task.
         OnChanged?.Invoke();
     }
 
     public void Dispose()
     {
-        // Downstream task T4 will dispose FileSystemWatcher + timers here.
+        // Nothing to dispose in the stub.
     }
 }

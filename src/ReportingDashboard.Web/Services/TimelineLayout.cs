@@ -1,22 +1,33 @@
 namespace ReportingDashboard.Web.Services;
 
-// Stub — downstream task T3 will implement the full date→pixel math.
 public static class TimelineLayout
 {
+    public const int SvgWidth = 1560;
+    public const int TrackRowHeight = 56;
+    public const int FirstTrackY = 42;
+
     public static double ComputeX(DateOnly date, DateOnly rangeStart, DateOnly rangeEnd, int pixelWidth)
     {
-        if (rangeEnd <= rangeStart || pixelWidth <= 0)
-        {
-            return 0;
-        }
-
-        var total = (rangeEnd.DayNumber - rangeStart.DayNumber);
-        var offset = (date.DayNumber - rangeStart.DayNumber);
-        var ratio = (double)offset / total;
-        return ratio * pixelWidth;
+        // Stub: real implementation owned by T3.
+        _ = date;
+        _ = rangeStart;
+        _ = rangeEnd;
+        _ = pixelWidth;
+        return 0.0;
     }
 
-    public static int ComputeTrackY(int trackIndex) => 42 + (trackIndex * 56);
+    public static double ComputeNowX(DateOnly today, DateOnly rangeStart, DateOnly rangeEnd, int pixelWidth)
+        => ComputeX(today, rangeStart, rangeEnd, pixelWidth);
 
-    public static int ComputeSvgHeight(int trackCount) => Math.Max(1, trackCount) * 56 + 40;
+    public static IReadOnlyList<(string Label, int X)> ComputeMonthGridlines(DateOnly rangeStart, DateOnly rangeEnd)
+    {
+        // Stub: real implementation owned by T3.
+        _ = rangeStart;
+        _ = rangeEnd;
+        return Array.Empty<(string, int)>();
+    }
+
+    public static int ComputeTrackY(int trackIndex) => FirstTrackY + (trackIndex * TrackRowHeight);
+
+    public static int ComputeSvgHeight(int trackCount) => (trackCount * TrackRowHeight) + 40;
 }

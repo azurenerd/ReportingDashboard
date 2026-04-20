@@ -1,19 +1,18 @@
 @page "/"
 @namespace ReportingDashboard.Web.Pages
+@using Microsoft.AspNetCore.Components.Web
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@{
-    Layout = null;
-}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=1920" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data:;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'" />
     <title>Reporting Dashboard</title>
     <base href="~/" />
     <link rel="stylesheet" href="css/site.css" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
 <body>
     <component type="typeof(App)" render-mode="ServerPrerendered" />

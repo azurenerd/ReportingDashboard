@@ -1,49 +1,25 @@
 {
   "title": "Project Aurora - Customer Portal Revamp",
-  "subtitle": "Trusted Platform · Customer Experience Workstream · April 2026",
-  "backlogUrl": "https://dev.azure.com/contoso/aurora/_backlogs",
+  "subtitle": "Trusted Platform - Customer Experience Workstream - April 2026",
+  "backlogUrl": "https://example.invalid/backlog",
   "currentDate": "2026-04-19",
   "timeline": {
     "rangeStart": "2026-01-01",
     "rangeEnd": "2026-06-30",
     "tracks": [
-      {
-        "id": "M1",
-        "label": "Auth & Identity",
-        "color": "#0078D4",
-        "milestones": [
-          { "date": "2026-01-12", "kind": "Checkpoint", "label": "Jan 12 design review" },
-          { "date": "2026-03-26", "kind": "PoC",        "label": "Mar 26 PoC" },
-          { "date": "2026-04-30", "kind": "Production", "label": "Apr Prod" }
-        ]
-      },
-      {
-        "id": "M2",
-        "label": "Portal UI",
-        "color": "#00897B",
-        "milestones": [
-          { "date": "2026-02-10", "kind": "Checkpoint", "label": "Feb 10 review" },
-          { "date": "2026-05-15", "kind": "Production", "label": "May Prod" }
-        ]
-      },
-      {
-        "id": "M3",
-        "label": "Data Migration",
-        "color": "#546E7A",
-        "milestones": [
-          { "date": "2026-06-15", "kind": "PoC", "label": "Jun PoC" }
-        ]
-      }
+      { "id": "M1", "label": "Auth & Identity",  "color": "#0078D4", "milestones": [] },
+      { "id": "M2", "label": "Portal UI",        "color": "#00897B", "milestones": [] },
+      { "id": "M3", "label": "Data Migration",   "color": "#546E7A", "milestones": [] }
     ]
   },
   "heatmap": {
     "months": ["Jan", "Feb", "Mar", "Apr"],
     "currentMonthIndex": 3,
     "rows": {
-      "shipped":    [["SSO rollout"], ["MFA prompt v2"], ["Settings UI"], ["Portal v3 GA"]],
-      "inProgress": [[],              [],                ["Data import"], ["Billing widget", "Audit log"]],
-      "carryover":  [[],              [],                [],              ["Legacy export"]],
-      "blockers":   [[],              [],                [],              ["SAP cert expiry"]]
+      "shipped":    [[], [], [], []],
+      "inProgress": [[], [], [], []],
+      "carryover":  [[], [], [], []],
+      "blockers":   [[], [], [], []]
     }
   }
 }

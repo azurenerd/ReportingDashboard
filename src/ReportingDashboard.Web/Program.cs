@@ -1,4 +1,3 @@
-using ReportingDashboard.Web.Models;
 using ReportingDashboard.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +10,6 @@ builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-
 builder.Services.AddSingleton<IDashboardDataService, DashboardDataService>();
 
 var app = builder.Build();

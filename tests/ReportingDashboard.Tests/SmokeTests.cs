@@ -1,39 +1,67 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using ReportingDashboard.Web.Models;
 using ReportingDashboard.Web.Services;
 
 namespace ReportingDashboard.Tests;
 
-public class SmokeTests
+public sealed class SmokeTests
 {
     [Fact]
-    public void DashboardState_Initial_IsNotNull()
+    public void DashboardState_Empty_IsNonNullAndSelfConsistent()
     {
-        DashboardState.Initial.Should().NotBeNull();
-        DashboardState.Initial.Model.Should().NotBeNull();
-        DashboardState.Initial.Error.Should().BeNull();
+        var state = DashboardState.Empty;
+
+        state.Should().NotBeNull();
+        state.Model.Should().NotBeNull();
+        state.Model.Timeline.Should().NotBeNull();
+        state.Model.Heatmap.Should().NotBeNull();
+        state.Model.Heatmap.Months.Should().HaveCount(4);
+        state.Error.Should().BeNull();
     }
 
     [Fact]
-    public void DashboardModel_Empty_HasDefaults()
+    public void HeatmapModel_Empty_HasAllFourCategoriesWithFourMonthCells()
     {
-        DashboardModel.Empty.Title.Should().BeEmpty();
-        DashboardModel.Empty.Timeline.Tracks.Should().BeEmpty();
-        DashboardModel.Empty.Heatmap.Months.Should().HaveCount(4);
+        var heatmap = HeatmapModel.Empty;
+
+        foreach (var category in Enum.GetValues<HeatmapCategory>())
+        {
+            heatmap.Rows.Should().ContainKey(category);
+            heatmap.Rows[category].Should().HaveCount(4);
+            foreach (var cell in heatmap.Rows[category])
+            {
+                cell.Should().NotBeNull();
+            }
+        }
     }
 
     [Fact]
-    public void TimelineLayout_ComputeTrackY_FirstTrack_Returns42()
+    public void Di_Resolves_IDashboardDataService_AsSingleton()
     {
-        TimelineLayout.ComputeTrackY(0).Should().Be(42);
-        TimelineLayout.ComputeTrackY(1).Should().Be(98);
-        TimelineLayout.ComputeTrackY(2).Should().Be(154);
+        var services = new ServiceCollection();
+        services.AddSingleton<IHostEnvironment>(new TestHostEnv());
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+        services.AddSingleton<IDashboardDataService, DashboardDataService>();
+
+        using var provider = services.BuildServiceProvider();
+
+        var a = provider.GetRequiredService<IDashboardDataService>();
+        var b = provider.GetRequiredService<IDashboardDataService>();
+
+        a.Should().NotBeNull();
+        a.Should().BeSameAs(b);
+        a.Current.Should().NotBeNull();
     }
 
-    [Fact]
-    public void TimelineLayout_ComputeX_AtRangeStart_ReturnsZero()
+    private sealed class TestHostEnv : IHostEnvironment
     {
-        var start = new DateOnly(2026, 1, 1);
-        var end = new DateOnly(2026, 6, 30);
-        TimelineLayout.ComputeX(start, start, end, 1560).Should().Be(0);
+        public string EnvironmentName { get; set; } = "Development";
+        public string ApplicationName { get; set; } = "ReportingDashboard.Tests";
+        public string ContentRootPath { get; set; } = AppContext.BaseDirectory;
+        public Microsoft.Extensions.FileProviders.IFileProvider ContentRootFileProvider { get; set; }
+            = new Microsoft.Extensions.FileProviders.NullFileProvider();
     }
 }

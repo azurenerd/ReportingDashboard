@@ -1,10 +1,8 @@
 @namespace ReportingDashboard.Web.Components
-@using ReportingDashboard.Web.Models
 
-@* Stub — downstream task T7 renders the full left-gutter + inline SVG. *@
-<section class="tl-area"></section>
+@* Stub component - full implementation owned by T7. *@
 
 @code {
-    [Parameter] public TimelineModel Timeline { get; set; } = TimelineModel.Empty;
-    [Parameter] public DateOnly CurrentDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+    [Parameter] public TimelineModel? Timeline { get; set; }
+    [Parameter] public DateOnly Today { get; set; }
 }

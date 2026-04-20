@@ -1,61 +1,51 @@
-## .NET
+## .NET build outputs
 bin/
 obj/
 out/
+publish/
+dist/
+
+## Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
 *.user
 *.suo
 *.userprefs
-*.swp
-*.DS_Store
-
-## Visual Studio / Rider
-.vs/
-.idea/
-*.vsidx
-*.lock.json
-
-## Build results
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-[Bb]uild/
-[Bb]in/
-[Oo]bj/
+*.DotSettings.user
 
 ## Test results
 TestResults/
 *.trx
 *.coverage
 *.coveragexml
-coverage*.xml
-coverage*.json
-
-## NuGet
-*.nupkg
-*.snupkg
-.nuget/
-packages/
-!**/packages/build/
-
-## Rider / ReSharper
-_ReSharper*/
-*.DotSettings.user
+coverage.*.xml
 
 ## Logs
 *.log
 logs/
 
-## OS
+## OS cruft
+.DS_Store
 Thumbs.db
-ehthumbs.db
-Desktop.ini
+desktop.ini
 
-## Node (Playwright helper, if any)
+## Node (in case Playwright or tooling pulls it in)
 node_modules/
 
-## Screenshot output
-docs/screenshots/*.png
+## NuGet
+*.nupkg
+.nuget/
+packages/
 
-## Local data overrides (keep committed sample; ignore local overrides)
-*.local.json
+## ASP.NET DataProtection keys (local only)
+**/DataProtection-Keys/
+
+## Playwright artifacts
+tools/.playwright/
+playwright-report/
+test-results/
+
+## Misc
+*.bak
+*.tmp

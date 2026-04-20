@@ -1,15 +1,7 @@
 @namespace ReportingDashboard.Web.Components
 
-@* Stub — downstream task T5 will render the full header + legend. *@
-<header class="hdr">
-    <div>
-        <h1>@Title</h1>
-        <div class="sub">@Subtitle</div>
-    </div>
-</header>
+@* Stub component - full implementation owned by T5. *@
 
 @code {
-    [Parameter] public string Title { get; set; } = "";
-    [Parameter] public string Subtitle { get; set; } = "";
-    [Parameter] public string BacklogUrl { get; set; } = "";
+    [Parameter] public DashboardModel? Model { get; set; }
 }

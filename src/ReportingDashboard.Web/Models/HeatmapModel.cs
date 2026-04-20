@@ -7,15 +7,21 @@ public sealed record HeatmapModel(
 {
     public static HeatmapModel Empty { get; } = new(
         Months: new[] { "Jan", "Feb", "Mar", "Apr" },
-        CurrentMonthIndex: 0,
-        Rows: new Dictionary<HeatmapCategory, IReadOnlyList<IReadOnlyList<string>>>
-        {
-            [HeatmapCategory.Shipped] = EmptyRow(),
-            [HeatmapCategory.InProgress] = EmptyRow(),
-            [HeatmapCategory.Carryover] = EmptyRow(),
-            [HeatmapCategory.Blockers] = EmptyRow(),
-        });
+        CurrentMonthIndex: 3,
+        Rows: BuildEmptyRows(4));
 
-    private static IReadOnlyList<IReadOnlyList<string>> EmptyRow() =>
-        new IReadOnlyList<string>[] { Array.Empty<string>(), Array.Empty<string>(), Array.Empty<string>(), Array.Empty<string>() };
+    private static IReadOnlyDictionary<HeatmapCategory, IReadOnlyList<IReadOnlyList<string>>> BuildEmptyRows(int monthCount)
+    {
+        var dict = new Dictionary<HeatmapCategory, IReadOnlyList<IReadOnlyList<string>>>();
+        foreach (var cat in Enum.GetValues<HeatmapCategory>())
+        {
+            var cells = new List<IReadOnlyList<string>>(monthCount);
+            for (var i = 0; i < monthCount; i++)
+            {
+                cells.Add(Array.Empty<string>());
+            }
+            dict[cat] = cells;
+        }
+        return dict;
+    }
 }
