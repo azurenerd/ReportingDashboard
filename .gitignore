@@ -1,35 +1,22 @@
-## .NET / Visual Studio
+## .NET / VS ignores
 bin/
 obj/
-out/
-publish/
+.vs/
 *.user
 *.suo
-*.userprefs
-*.swp
-*.tmp
-*.log
-
-## IDE
-.vs/
-.vscode/
-.idea/
-*.DotSettings.user
-
-## Test results / coverage
 TestResults/
-coverage/
-*.coverage
-*.coveragexml
-*.trx
-
-## OS
-.DS_Store
-Thumbs.db
-
-## Rider / ReSharper
-_ReSharper*/
-*.ReSharper
-
-## Node (not used, but guard)
-node_modules/
+publish/
+.idea/
+*.swp
+*.swo
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]uild/
+[Bb]uilds/
+artifacts/
+*.pidb
+*.userprefs
+.vscode/
+*.log

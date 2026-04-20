@@ -1,16 +1,5 @@
 /* TODO(T5): port full CSS verbatim from OriginalDesignConcept.html (with .apr -> .current rename). */
-.hdr {}
-.sub {}
-.tl-area {}
-.tl-svg-box {}
-.hm-wrap {}
-.hm-title {}
-.hm-grid {}
-.hm-corner {}
-.hm-col-hdr {}
-.hm-row-hdr {}
-.hm-cell {}
-.it {}
-.current {}
-.current-hdr {}
-.error-banner {}
+.hdr { }
+.tl-area { }
+.hm-wrap { }
+.error-banner { }

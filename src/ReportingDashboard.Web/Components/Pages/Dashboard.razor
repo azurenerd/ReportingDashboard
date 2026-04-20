@@ -1,12 +1,16 @@
-@* TODO(T5,T9): flesh out shell + composition (ErrorBanner, DashboardHeader, TimelineSvg, Heatmap). *@
+@* TODO(T5,T9): flesh out shell + composition (ErrorBanner + DashboardHeader + TimelineSvg + Heatmap). *@
 @page "/"
 @inject IDashboardDataService Data
 
 <div class="hdr">
     <h1>(placeholder)</h1>
 </div>
-<div class="tl-area">Timeline placeholder</div>
-<div class="hm-wrap">Heatmap placeholder</div>
+<div class="tl-area">
+    Timeline placeholder
+</div>
+<div class="hm-wrap">
+    Heatmap placeholder
+</div>
 
 @code {
     private DashboardLoadResult? _result;

@@ -10,4 +10,4 @@ public sealed record DashboardLoadError(
     string Message,
     int? Line,
     int? Column,
-    string Kind);
+    string Kind); // "NotFound" | "ParseError" | "ValidationError"

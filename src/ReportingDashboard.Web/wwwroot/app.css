@@ -1,13 +1,15 @@
-/* TODO(T5): finalize global reset + body rule per OriginalDesignConcept.html. */
-*{margin:0;padding:0;box-sizing:border-box;}
-body{
-    width:1920px;
-    height:1080px;
-    overflow:hidden;
-    background:#FFFFFF;
-    color:#111;
-    font-family:'Segoe UI',-apple-system,'Helvetica Neue',Arial,sans-serif;
-    display:flex;
-    flex-direction:column;
+/* TODO(T5): finalize per OriginalDesignConcept.html. Kept minimal for T1 smoke test. */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: #FFFFFF;
+    color: #111;
+    font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
 }
-a{color:#0078D4;text-decoration:none;}
+
+a { color: #0078D4; text-decoration: none; }

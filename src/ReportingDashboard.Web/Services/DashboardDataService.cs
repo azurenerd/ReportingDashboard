@@ -2,21 +2,16 @@ using ReportingDashboard.Web.Models;
 
 namespace ReportingDashboard.Web.Services;
 
-// TODO(T4): implement hot-reload via FileSystemWatcher (debounced 250ms),
-// System.Text.Json deserialization with retry, DashboardDataValidator integration,
-// IMemoryCache storage, structured logging. Must never throw to callers.
+// TODO(T4): implement JSON read, validation, IMemoryCache, FileSystemWatcher-based hot-reload,
+// retry-on-IOException, and populate DashboardLoadError on NotFound/ParseError/ValidationError.
 public sealed class DashboardDataService : IDashboardDataService
 {
-    public DashboardDataService()
-    {
-    }
-
     public event EventHandler? DataChanged;
 
     public DashboardLoadResult GetCurrent()
     {
-        // Stub: returns empty result so app boots even when data.json is missing or not yet wired.
-        _ = DataChanged;
-        return new DashboardLoadResult(Data: null, Error: null, LoadedAt: DateTimeOffset.UtcNow);
+        // Stub: return empty result so the app boots even when wwwroot/data.json is absent.
+        _ = DataChanged; // suppress unused-event warning until T4 wires it.
+        return new DashboardLoadResult(null, null, DateTimeOffset.UtcNow);
     }
 }
