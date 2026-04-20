@@ -96,7 +96,7 @@ public class HeatmapLayoutEngineTests
         var c = vm.Rows[0].Cells[0];
         c.Items.Should().Equal("A", "B", "C");
         c.OverflowCount.Should().Be(6);
-        (c.Items.Count + c.OverflowCount).Should().Be(items.Length - 0 + 0).And.Be(9);
+        (c.Items.Count + c.OverflowCount).Should().Be(items.Length);
     }
 
     [Fact]
@@ -113,13 +113,13 @@ public class HeatmapLayoutEngineTests
     public void CurrentMonthIndex_AutoResolves_MatchingMonth()
     {
         var vm = HeatmapLayoutEngine.Build(MakeHeatmap(), new DateOnly(2026, 4, 15));
-        vm.CurrentMonthIndex.Should().Be(3); // Apr
+        vm.CurrentMonthIndex.Should().Be(3);
     }
 
     [Fact]
     public void CurrentMonthIndex_NonMatching_ReturnsMinus1()
     {
-        var vm = HeatmapLayoutEngine.Build(MakeHeatmap(), new DateOnly(2026, 7, 15)); // Jul not in Jan..Apr
+        var vm = HeatmapLayoutEngine.Build(MakeHeatmap(), new DateOnly(2026, 7, 15));
         vm.CurrentMonthIndex.Should().Be(-1);
     }
 
@@ -210,21 +210,13 @@ public class HeatmapLayoutEngineTests
     }
 
     [Fact]
-    public void EmptyFactory_Has4EmptyRowsOver4EmptyMonths()
+    public void EmptyFactory_HasNoMonthsOrRows()
     {
         var vm = ReportingDashboard.Web.ViewModels.HeatmapViewModel.Empty;
-        vm.Months.Should().HaveCount(4);
+        vm.Should().NotBeNull();
+        vm.Months.Should().BeEmpty();
+        vm.Rows.Should().BeEmpty();
         vm.CurrentMonthIndex.Should().Be(-1);
-        vm.Rows.Should().HaveCount(4);
-        vm.Rows.Select(r => r.Category).Should().Equal(
-            HeatmapCategory.Shipped,
-            HeatmapCategory.InProgress,
-            HeatmapCategory.Carryover,
-            HeatmapCategory.Blockers);
-        vm.Rows.Should().AllSatisfy(r =>
-        {
-            r.Cells.Should().HaveCount(4);
-            r.Cells.Should().AllSatisfy(c => c.IsEmpty.Should().BeTrue());
-        });
+        vm.IsEmpty.Should().BeTrue();
     }
 }

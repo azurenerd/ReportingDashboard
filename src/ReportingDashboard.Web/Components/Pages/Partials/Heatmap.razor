@@ -1,25 +1,30 @@
 @using ReportingDashboard.Web.Models
 @using ReportingDashboard.Web.ViewModels
 
+@{
+    var model = Model ?? HeatmapViewModel.Empty;
+    var monthCount = model.Months.Count;
+}
+
 <div class="hm-wrap">
     <div class="hm-title">MONTHLY EXECUTION HEATMAP &nbsp;&nbsp;&#9679;&nbsp;SHIPPED &nbsp;&nbsp;&#9679;&nbsp;IN PROGRESS &nbsp;&nbsp;&#9679;&nbsp;CARRYOVER &nbsp;&nbsp;&#9679;&nbsp;BLOCKERS</div>
     <div class="hm-grid">
         <div class="hm-corner">Status</div>
-        @for (int i = 0; i < Model.Months.Count; i++)
+        @for (int i = 0; i < monthCount; i++)
         {
-            var isCurrent = i == Model.CurrentMonthIndex;
-            <div class="hm-col-hdr @(isCurrent ? "current-hdr" : "")">@Model.Months[i]</div>
+            var isCurrent = i == model.CurrentMonthIndex;
+            <div class="hm-col-hdr @(isCurrent ? "current-hdr" : "")">@model.Months[i]</div>
         }
 
-        @foreach (var row in Model.Rows)
+        @foreach (var row in model.Rows)
         {
             var hdrClass = CategoryHdrClass(row.Category);
             var cellClass = CategoryCellClass(row.Category);
             <div class="hm-row-hdr @hdrClass">@row.HeaderLabel</div>
-            @for (int i = 0; i < row.Cells.Count; i++)
+            @for (int i = 0; i < monthCount; i++)
             {
-                var cell = row.Cells[i];
-                var isCurrent = i == Model.CurrentMonthIndex;
+                var cell = i < row.Cells.Count ? row.Cells[i] : HeatmapCellView.EmptyCell;
+                var isCurrent = i == model.CurrentMonthIndex;
                 <div class="hm-cell @cellClass @(isCurrent ? "current" : "")">
                     @if (cell.IsEmpty)
                     {
@@ -43,7 +48,7 @@
 </div>
 
 @code {
-    [Parameter, EditorRequired] public required HeatmapViewModel Model { get; set; }
+    [Parameter] public HeatmapViewModel? Model { get; set; }
 
     private static string CategoryHdrClass(HeatmapCategory c) => c switch
     {

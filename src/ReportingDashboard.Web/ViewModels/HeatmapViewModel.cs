@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ReportingDashboard.Web.Models;
 
@@ -11,23 +12,9 @@ public sealed record HeatmapViewModel(
     public bool IsEmpty => Rows.Count == 0 || Months.Count == 0;
 
     public static HeatmapViewModel Empty { get; } = new(
-        new[] { "", "", "", "" },
+        Array.Empty<string>(),
         -1,
-        new[]
-        {
-            new HeatmapRowView(HeatmapCategory.Shipped,    "SHIPPED",     EmptyCells()),
-            new HeatmapRowView(HeatmapCategory.InProgress, "IN PROGRESS", EmptyCells()),
-            new HeatmapRowView(HeatmapCategory.Carryover,  "CARRYOVER",   EmptyCells()),
-            new HeatmapRowView(HeatmapCategory.Blockers,   "BLOCKERS",    EmptyCells()),
-        });
-
-    private static IReadOnlyList<HeatmapCellView> EmptyCells() => new[]
-    {
-        HeatmapCellView.EmptyCell,
-        HeatmapCellView.EmptyCell,
-        HeatmapCellView.EmptyCell,
-        HeatmapCellView.EmptyCell,
-    };
+        Array.Empty<HeatmapRowView>());
 }
 
 public sealed record HeatmapRowView(
@@ -41,5 +28,5 @@ public sealed record HeatmapCellView(
     bool IsEmpty)
 {
     public static HeatmapCellView EmptyCell { get; } =
-        new(System.Array.Empty<string>(), 0, true);
+        new(Array.Empty<string>(), 0, true);
 }
