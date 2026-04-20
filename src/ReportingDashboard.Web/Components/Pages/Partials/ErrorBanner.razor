@@ -1,0 +1,16 @@
+@namespace ReportingDashboard.Web.Components.Pages.Partials
+
+<div class="error-banner" role="alert">
+    <strong>&#9888; Failed to load data.json</strong>
+    <span class="error-kind">@Error.Kind</span>
+    <span class="error-path">@Error.FilePath</span>
+    @if (Error.Line is { } l)
+    {
+        <span class="error-location">line @l, col @Error.Column</span>
+    }
+    <span class="error-message">@Error.Message</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required DashboardLoadError Error { get; set; }
+}

@@ -1,0 +1,12 @@
+@namespace ReportingDashboard.Web.Components.Pages.Partials
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap - Shipped &bull; In Progress &bull; Carryover &bull; Blockers</div>
+    <div class="hm-grid">
+        <!-- Heatmap grid contents populated by T7. -->
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required HeatmapViewModel Model { get; set; }
+}

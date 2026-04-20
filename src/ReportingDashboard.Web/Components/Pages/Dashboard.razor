@@ -1,0 +1,28 @@
+@page "/"
+@namespace ReportingDashboard.Web.Components.Pages
+@inject IDashboardDataService Data
+
+<PageTitle>Reporting Dashboard</PageTitle>
+
+@{
+    var result = Data.GetCurrent();
+    var nowLabel = $"Now ({DateTime.Today:MMM yyyy})";
+}
+
+@if (result.Error is not null)
+{
+    <ErrorBanner Error="result.Error" />
+}
+
+@if (result.Data is { } d)
+{
+    <DashboardHeader Project="d.Project" NowLabel="@nowLabel" />
+    <TimelineSvg Model="TimelineViewModel.Empty" />
+    <Heatmap Model="HeatmapViewModel.Empty" />
+}
+else
+{
+    <DashboardHeader Project="Project.Placeholder" NowLabel="@nowLabel" />
+    <TimelineSvg Model="TimelineViewModel.Empty" />
+    <Heatmap Model="HeatmapViewModel.Empty" />
+}

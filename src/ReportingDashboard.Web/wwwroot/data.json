@@ -1,0 +1,53 @@
+{
+  "project": {
+    "title": "Privacy Automation Release Roadmap",
+    "subtitle": "Trusted Platform \u2022 Privacy Automation Workstream \u2022 April 2026",
+    "backlogUrl": "https://dev.azure.com/contoso/privacy/_backlogs/backlog/"
+  },
+  "timeline": {
+    "start": "2026-01-01",
+    "end":   "2026-06-30",
+    "lanes": [
+      {
+        "id": "M1",
+        "label": "Chatbot & MS Role",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
+          { "date": "2026-03-26", "type": "poc",        "label": "Mar 26 PoC" },
+          { "date": "2026-04-30", "type": "prod",       "label": "Apr Prod (TBD)" }
+        ]
+      },
+      {
+        "id": "M2",
+        "label": "PDS & Data Inventory",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2026-02-11", "type": "checkpoint", "label": "Feb 11" },
+          { "date": "2026-03-20", "type": "poc",        "label": "Mar 20 PoC" },
+          { "date": "2026-03-30", "type": "prod",       "label": "Mar 30 Prod" }
+        ]
+      },
+      {
+        "id": "M3",
+        "label": "Auto Review DFD",
+        "color": "#546E7A",
+        "milestones": [
+          { "date": "2026-01-05", "type": "checkpoint", "label": "Jan 5" },
+          { "date": "2026-03-30", "type": "poc",        "label": "Mar 30 PoC" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["March", "April", "May", "June"],
+    "currentMonthIndex": null,
+    "maxItemsPerCell": 4,
+    "rows": [
+      { "category": "shipped",    "cells": [["TODO - item shipped","TODO - item shipped"], ["TODO - item shipped","TODO - item shipped"], [], []] },
+      { "category": "inProgress", "cells": [["TODO - in progress","TODO - in progress"],   ["TODO - active item","TODO - active item"],   ["TODO - planned","TODO - planned"], ["TODO - planned"]] },
+      { "category": "carryover",  "cells": [["TODO - carry from Feb (ETA: TODO)"],          ["TODO - carry from Mar (ETA: TBD)","TODO - carry from Mar (ETA: TBD)"], ["TODO - potential from Apr"], []] },
+      { "category": "blockers",   "cells": [["None logged"],                                 ["TODO - blocker detail"],                     [], []] }
+    ]
+  }
+}
