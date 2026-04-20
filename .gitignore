@@ -2,29 +2,55 @@
 [Bb]in/
 [Oo]bj/
 [Dd]ebug/
+[Dd]ebugPublic/
 [Rr]elease/
+[Rr]eleases/
 x64/
 x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Ll]og/
+[Ll]ogs/
 publish/
+[Pp]ublish/
 *.pdb
 *.user
+*.userosscache
 *.suo
 *.userprefs
 *.cache
 *.DotSettings.user
+*.pidb
+*.svclog
+*.scc
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.nupkg
+*.snupkg
+.vs/
 
 # --- IDE ---
-.vs/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 *.swp
+*.swo
+*~
 
 # --- Node ---
 node_modules/
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# --- Secrets ---
+# --- Secrets / Environment ---
 .env
 .env.*
 !.env.example
@@ -36,3 +62,4 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 desktop.ini
+ehthumbs.db
