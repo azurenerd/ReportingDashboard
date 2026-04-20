@@ -1,16 +1,61 @@
 @page "/"
-
-@* Minimal placeholder root page for the T1 scaffold. T2 replaces this with Dashboard.razor. *@
-
+@using Microsoft.AspNetCore.Components.Web
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=1920" />
-    <title>ReportingDashboard</title>
+    <title>Reporting Dashboard</title>
+    <base href="/" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="ReportingDashboard.Web.styles.css" />
+    <HeadOutlet />
 </head>
-<body style="font-family:'Segoe UI',-apple-system,'Helvetica Neue',Arial,sans-serif;padding:44px;color:#111;">
-    <h1 style="font-size:24px;font-weight:700;margin-bottom:8px;">ReportingDashboard scaffold ready</h1>
-    <p style="font-size:12px;color:#888;">T1 foundation is in place. Dashboard UI lands in T2&ndash;T7.</p>
+<body>
+    <!-- Static SSR: no Blazor interactive runtime by design (see architecture R1) -->
+    <div class="hdr">
+        <div>
+            <h1>ReportingDashboard scaffold ready</h1>
+            <div class="sub">Layout foundation loaded � awaiting T4/T5/T6/T7 composition</div>
+        </div>
+    </div>
+    <div class="tl-area">
+        <div class="tl-labels"></div>
+        <div class="tl-svg-box"></div>
+    </div>
+    <div class="hm-wrap">
+        <div class="hm-title">Monthly Execution Heatmap</div>
+        <div class="hm-grid">
+            <div class="hm-corner">Status</div>
+            <div class="hm-col-hdr">Jan</div>
+            <div class="hm-col-hdr">Feb</div>
+            <div class="hm-col-hdr">Mar</div>
+            <div class="hm-col-hdr current-hdr">Apr</div>
+
+            <div class="hm-row-hdr ship-hdr">Shipped</div>
+            <div class="hm-cell ship-cell"></div>
+            <div class="hm-cell ship-cell"></div>
+            <div class="hm-cell ship-cell"></div>
+            <div class="hm-cell ship-cell current"></div>
+
+            <div class="hm-row-hdr prog-hdr">In Progress</div>
+            <div class="hm-cell prog-cell"></div>
+            <div class="hm-cell prog-cell"></div>
+            <div class="hm-cell prog-cell"></div>
+            <div class="hm-cell prog-cell current"></div>
+
+            <div class="hm-row-hdr carry-hdr">Carryover</div>
+            <div class="hm-cell carry-cell"></div>
+            <div class="hm-cell carry-cell"></div>
+            <div class="hm-cell carry-cell"></div>
+            <div class="hm-cell carry-cell current"></div>
+
+            <div class="hm-row-hdr block-hdr">Blockers</div>
+            <div class="hm-cell block-cell"></div>
+            <div class="hm-cell block-cell"></div>
+            <div class="hm-cell block-cell"></div>
+            <div class="hm-cell block-cell current"></div>
+        </div>
+    </div>
 </body>
 </html>
