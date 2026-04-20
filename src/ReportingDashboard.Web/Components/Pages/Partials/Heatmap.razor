@@ -1,11 +1,65 @@
-@* Stub shell - T7 will flesh out the .hm-title + .hm-grid 5x5 CSS grid
-   (1 header row + 4 data rows; 1 status column + 4 month columns). *@
+@using ReportingDashboard.Web.Models
+@using ReportingDashboard.Web.ViewModels
 
-<section class="hm-wrap">
-    <div class="hm-title">Monthly Execution Heatmap</div>
-    <div class="hm-grid"></div>
-</section>
+<div class="hm-wrap">
+    <div class="hm-title">MONTHLY EXECUTION HEATMAP &nbsp;&nbsp;&#9679;&nbsp;SHIPPED &nbsp;&nbsp;&#9679;&nbsp;IN PROGRESS &nbsp;&nbsp;&#9679;&nbsp;CARRYOVER &nbsp;&nbsp;&#9679;&nbsp;BLOCKERS</div>
+    <div class="hm-grid">
+        <div class="hm-corner">Status</div>
+        @for (int i = 0; i < Model.Months.Count; i++)
+        {
+            var isCurrent = i == Model.CurrentMonthIndex;
+            <div class="hm-col-hdr @(isCurrent ? "current-hdr" : "")">@Model.Months[i]</div>
+        }
+
+        @foreach (var row in Model.Rows)
+        {
+            var hdrClass = CategoryHdrClass(row.Category);
+            var cellClass = CategoryCellClass(row.Category);
+            <div class="hm-row-hdr @hdrClass">@row.HeaderLabel</div>
+            @for (int i = 0; i < row.Cells.Count; i++)
+            {
+                var cell = row.Cells[i];
+                var isCurrent = i == Model.CurrentMonthIndex;
+                <div class="hm-cell @cellClass @(isCurrent ? "current" : "")">
+                    @if (cell.IsEmpty)
+                    {
+                        <div class="it empty">-</div>
+                    }
+                    else
+                    {
+                        @foreach (var item in cell.Items)
+                        {
+                            <div class="it">@item</div>
+                        }
+                        @if (cell.OverflowCount > 0)
+                        {
+                            <div class="it overflow">+@cell.OverflowCount more</div>
+                        }
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
 
 @code {
-    [Parameter] public required HeatmapViewModel Model { get; set; }
+    [Parameter, EditorRequired] public required HeatmapViewModel Model { get; set; }
+
+    private static string CategoryHdrClass(HeatmapCategory c) => c switch
+    {
+        HeatmapCategory.Shipped => "ship-hdr",
+        HeatmapCategory.InProgress => "prog-hdr",
+        HeatmapCategory.Carryover => "carry-hdr",
+        HeatmapCategory.Blockers => "block-hdr",
+        _ => ""
+    };
+
+    private static string CategoryCellClass(HeatmapCategory c) => c switch
+    {
+        HeatmapCategory.Shipped => "ship-cell",
+        HeatmapCategory.InProgress => "prog-cell",
+        HeatmapCategory.Carryover => "carry-cell",
+        HeatmapCategory.Blockers => "block-cell",
+        _ => ""
+    };
 }
