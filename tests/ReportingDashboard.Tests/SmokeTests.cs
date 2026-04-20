@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using ReportingDashboard.Web.Pages;
+using IndexPage = ReportingDashboard.Web.Pages.Index;
 
 namespace ReportingDashboard.Tests;
 
@@ -36,7 +38,7 @@ public class SmokeTests
         using var ctx = new TestContext();
         ctx.Services.AddSingleton<IDashboardDataService, DashboardDataService>();
 
-        var cut = ctx.RenderComponent<ReportingDashboard.Web.Pages.Index>();
+        var cut = ctx.RenderComponent<IndexPage>();
 
         cut.Markup.Should().NotBeNullOrWhiteSpace();
         cut.Markup.Should().Contain("hdr");
