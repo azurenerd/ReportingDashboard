@@ -1,63 +1,59 @@
-## .NET
-bin/
-obj/
-out/
-publish/
-*.user
-*.suo
-*.userprefs
-*.pidb
-*.booproj
-*.svd
-*.pdb
-*.mdb
-*.opendb
-*.VC.db
-*.VC.opendb
-
-## Visual Studio / Rider / VSCode
-.vs/
-.vscode/
-.idea/
-*.sln.docstates
-*.ncrunch*
-.sonarqube/
-TestResults/
-coverage/
-*.coverage
-*.coveragexml
-
-## Build outputs
+## Build results
 [Dd]ebug/
 [Rr]elease/
 x64/
 x86/
-build/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
 bld/
-Generated_Code/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
 
 ## NuGet
 *.nupkg
 *.snupkg
-.nuget/
-packages/
-!packages/build/
-!packages/repositories.config
-*.nuget.props
-*.nuget.targets
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+## Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.csproj.user
 
 ## Rider
+.idea/
+
+## User-specific
+*.rsuser
 *.DotSettings.user
+launchSettings.json
+
+## Build output
+publish/
+[Pp]ublish/
+**/wwwroot/dist/
+
+## Node
+node_modules/
+npm-debug.log*
 
 ## OS
 .DS_Store
 Thumbs.db
-ehthumbs.db
-Desktop.ini
+desktop.ini
 
-## Logs
-*.log
-logs/
+## Environment
+.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
 
-## Local user overrides
-appsettings.*.local.json
+## Playwright
+playwright-report/
+test-results/
