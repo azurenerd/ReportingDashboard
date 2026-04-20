@@ -1,0 +1,25 @@
+@page "/"
+@inject IDashboardDataService Data
+@using ReportingDashboard.Web.Components.Pages.Partials
+@using ReportingDashboard.Web.Layout
+
+@{
+    var result = Data.GetCurrent();
+    var today = DateOnly.FromDateTime(DateTime.Today);
+    var nowLabel = $"Now ({DateTime.Today:MMM yyyy})";
+    var project = result.Data?.Project ?? Project.Placeholder;
+    var timelineVm = result.Data is { } d1
+        ? TimelineLayoutEngine.Build(d1.Timeline, today)
+        : TimelineViewModel.Empty;
+    var heatmapVm = result.Data is { } d2
+        ? HeatmapLayoutEngine.Build(d2.Heatmap, today)
+        : HeatmapViewModel.Empty;
+}
+
+@if (result.Error is not null)
+{
+    <ErrorBanner Error="result.Error" />
+}
+<DashboardHeader Project="project" NowLabel="@nowLabel" />
+<TimelineSvg Model="timelineVm" />
+<Heatmap Model="heatmapVm" />

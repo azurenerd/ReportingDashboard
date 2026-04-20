@@ -1,0 +1,13 @@
+/* =========================================================================
+   Dashboard.razor.css
+   Scoped styles for the dashboard page. T4 will populate with the full port
+   of OriginalDesignConcept.html's <style> block.
+   ---
+   Section markers (to be filled in by T4):
+   -- 1. Header (.hdr, .sub, legend)
+   -- 2. Timeline (.tl-area, .tl-labels, .tl-svg-box)
+   -- 3. Heatmap (.hm-wrap, .hm-title, .hm-grid, .hm-corner, .hm-col-hdr,
+                  .hm-row-hdr, .hm-cell, .it, category modifiers,
+                  .current / .current-hdr)
+   -- 4. Error banner (.error-banner)
+   ========================================================================= */

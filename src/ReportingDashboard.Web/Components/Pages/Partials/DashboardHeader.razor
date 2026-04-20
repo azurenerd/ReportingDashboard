@@ -1,0 +1,15 @@
+@* Stub shell - T5 will flesh out the .hdr band, title+backlog link,
+   subtitle, and the 4-item legend. *@
+
+<header class="hdr">
+    <div>
+        <h1>@Project.Title</h1>
+        <div class="sub">@Project.Subtitle</div>
+    </div>
+    <div class="legend">@NowLabel</div>
+</header>
+
+@code {
+    [Parameter] public required Project Project { get; set; }
+    [Parameter] public required string NowLabel { get; set; }
+}
