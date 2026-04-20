@@ -1,43 +1,28 @@
 @page "/"
-@inject IDashboardDataService Data
+@using ReportingDashboard.Web.Models
+@using ReportingDashboard.Web.Services
+@using ReportingDashboard.Web.ViewModels
 @using ReportingDashboard.Web.Components.Pages.Partials
-@using ReportingDashboard.Web.Layout
+@inject IDashboardDataService DataService
 
-<div class="page">
-    @if (_result.Error is not null)
+@if (result is not null)
+{
+    @if (result.Error is not null)
     {
-        <ErrorBanner Error="_result.Error" />
+        <ErrorBanner Error="result.Error" />
     }
-    @if (_result.Data is { } d)
-    {
-        <DashboardHeader Project="d.Project" NowLabel="@_nowLabel" />
-        <TimelineSvg Model="_timelineVm" />
-        <Heatmap Model="_heatmapVm" />
-    }
-    else
-    {
-        <DashboardHeader Project="Project.Placeholder" NowLabel="@_nowLabel" />
-        <TimelineSvg Model="TimelineViewModel.Empty" />
-        <Heatmap Model="HeatmapViewModel.Empty" />
-    }
-</div>
+    <DashboardHeader Project="(result.Data?.Project ?? Project.Placeholder)" NowLabel="nowLabel" />
+    <TimelineSvg Model="TimelineViewModel.Empty" />
+    <Heatmap Model="HeatmapViewModel.Empty" />
+}
 
 @code {
-    private DashboardLoadResult _result = default!;
-    private TimelineViewModel _timelineVm = TimelineViewModel.Empty;
-    private HeatmapViewModel _heatmapVm = HeatmapViewModel.Empty;
-    private string _nowLabel = string.Empty;
+    private DashboardLoadResult? result;
+    private string nowLabel = "";
 
     protected override void OnInitialized()
     {
-        _result = Data.GetCurrent();
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        _nowLabel = $"Now ({DateTime.Today:MMM yyyy})";
-
-        if (_result.Data is { } d)
-        {
-            _timelineVm = TimelineLayoutEngine.Build(d.Timeline, today);
-            _heatmapVm = HeatmapLayoutEngine.Build(d.Heatmap, today);
-        }
+        result = DataService.GetCurrent();
+        nowLabel = $"Now ({DateTime.Today:MMM yyyy})";
     }
 }
