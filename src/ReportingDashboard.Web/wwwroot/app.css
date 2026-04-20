@@ -1,0 +1,17 @@
+/* =========================================================================
+   app.css - global styles
+   T4 will finalize: universal reset + body (1920x1080, Segoe UI, #FFF/#111).
+   This minimal skeleton exists so the app boots without 404s.
+   ========================================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    background: #FFFFFF;
+    color: #111;
+}
