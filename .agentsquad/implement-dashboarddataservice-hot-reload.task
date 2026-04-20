@@ -1,0 +1,4 @@
+agent: SoftwareEngineer
+task: Implement DashboardDataService Hot-Reload
+complexity: High
+status: in-progress
