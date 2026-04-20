@@ -1,1 +1,69 @@
-﻿@* Auto-generated stub to satisfy BLAZOR102 scoped-CSS pairing. *@
+@page "/"
+@* T2 layout smoke page. Emits the full 1920x1080 shell (header + timeline + heatmap)
+   using ONLY the class names defined in Dashboard.razor.css so the PM can verify
+   visual fidelity against OriginalDesignConcept.png. Downstream tasks T4/T5/T6/T7/T9
+   will replace this body with data-bound components; the outer layout contract
+   (.hdr / .tl-area / .hm-wrap flex-column) remains unchanged. *@
+
+<div class="hdr">
+    <div>
+        <h1>Privacy Automation Release Roadmap <a href="#">&#8594; ADO Backlog</a></h1>
+        <div class="sub">Trusted Platform &bull; Privacy Automation Workstream &bull; April 2026</div>
+    </div>
+    <div class="legend">
+        <div class="legend-item"><span class="lg-diamond poc"></span>PoC Milestone</div>
+        <div class="legend-item"><span class="lg-diamond prod"></span>Production Release</div>
+        <div class="legend-item"><span class="lg-dot"></span>Checkpoint</div>
+        <div class="legend-item"><span class="lg-now"></span>Now (Apr 2026)</div>
+    </div>
+</div>
+
+<div class="tl-area">
+    <div class="tl-labels">
+        <div class="lane" style="color:#0078D4;">M1<br /><span class="lane-sub">Chatbot &amp; MS Role</span></div>
+        <div class="lane" style="color:#00897B;">M2<br /><span class="lane-sub">PDS &amp; Data Inventory</span></div>
+        <div class="lane" style="color:#546E7A;">M3<br /><span class="lane-sub">Auto Review DFD</span></div>
+    </div>
+    <div class="tl-svg-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="185">
+            <defs>
+                <filter id="sh"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" /></filter>
+            </defs>
+        </svg>
+    </div>
+</div>
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap &mdash; Shipped / In Progress / Carryover / Blockers</div>
+    <div class="hm-grid">
+        <div class="hm-corner">Status</div>
+        <div class="hm-col-hdr">Jan</div>
+        <div class="hm-col-hdr">Feb</div>
+        <div class="hm-col-hdr">Mar</div>
+        <div class="hm-col-hdr current-hdr">Apr</div>
+
+        <div class="hm-row-hdr ship-hdr">Shipped</div>
+        <div class="hm-cell ship-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell ship-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell ship-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell ship-cell current"><div class="it empty">&ndash;</div></div>
+
+        <div class="hm-row-hdr prog-hdr">In Progress</div>
+        <div class="hm-cell prog-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell prog-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell prog-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell prog-cell current"><div class="it empty">&ndash;</div></div>
+
+        <div class="hm-row-hdr carry-hdr">Carryover</div>
+        <div class="hm-cell carry-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell carry-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell carry-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell carry-cell current"><div class="it empty">&ndash;</div></div>
+
+        <div class="hm-row-hdr block-hdr">Blockers</div>
+        <div class="hm-cell block-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell block-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell block-cell"><div class="it empty">&ndash;</div></div>
+        <div class="hm-cell block-cell current"><div class="it empty">&ndash;</div></div>
+    </div>
+</div>

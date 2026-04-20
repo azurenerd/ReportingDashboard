@@ -1,3 +1,4 @@
+@namespace ReportingDashboard.Web.Components
 @using Microsoft.AspNetCore.Components.Web
 <!DOCTYPE html>
 <html lang="en">
@@ -11,6 +12,7 @@
     <HeadOutlet />
 </head>
 <body>
+    <!-- Static SSR: no Blazor interactive runtime by design (see architecture R1) -->
     <Routes />
 </body>
 </html>
