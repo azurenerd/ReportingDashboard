@@ -1,0 +1,19 @@
+@page "/"
+@inject IDashboardDataService Data
+
+<div class="hdr" style="width:1920px;"><h1>(placeholder)</h1></div>
+<div class="tl-area" style="width:1920px;">
+    Timeline placeholder
+</div>
+<div class="hm-wrap" style="width:1920px;height:1080px;">
+    Heatmap placeholder
+</div>
+
+@code {
+    private DashboardLoadResult? _result;
+
+    protected override void OnInitialized()
+    {
+        _result = Data.GetCurrent();
+    }
+}

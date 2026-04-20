@@ -1,0 +1,5 @@
+{
+  "project": { "title": "(placeholder)", "subtitle": "" },
+  "timeline": { "start": "2026-01-01", "end": "2026-06-30", "lanes": [] },
+  "heatmap": { "months": ["Jan","Feb","Mar","Apr"], "rows": [] }
+}
