@@ -1,7 +1,62 @@
-@* TODO(T6): render .hdr band with title, backlog link, subtitle, and legend. *@
-<div>DashboardHeader placeholder</div>
+@using ReportingDashboard.Web.Models
+
+<header class="hdr">
+    <div class="hdr-left">
+        <h1>
+            @Project.Title
+            @if (HasValidBacklogUrl)
+            {
+                <a class="backlog-link" href="@Project.BacklogUrl">@Project.BacklogLinkText</a>
+            }
+            else
+            {
+                <span class="backlog-link backlog-link--disabled">@Project.BacklogLinkText</span>
+            }
+        </h1>
+        <div class="sub">@Project.Subtitle</div>
+    </div>
+    <div class="hdr-legend">
+        <span class="legend-item">
+            <span class="legend-shape legend-diamond legend-diamond--poc" aria-hidden="true"></span>
+            <span class="legend-label">PoC Milestone</span>
+        </span>
+        <span class="legend-item">
+            <span class="legend-shape legend-diamond legend-diamond--prod" aria-hidden="true"></span>
+            <span class="legend-label">Production Release</span>
+        </span>
+        <span class="legend-item">
+            <span class="legend-shape legend-circle" aria-hidden="true"></span>
+            <span class="legend-label">Checkpoint</span>
+        </span>
+        <span class="legend-item">
+            <span class="legend-shape legend-bar" aria-hidden="true"></span>
+            <span class="legend-label">@NowLabel</span>
+        </span>
+    </div>
+</header>
 
 @code {
-    [Parameter] public Project? Project { get; set; }
-    [Parameter] public string? NowLabel { get; set; }
+    [Parameter, EditorRequired]
+    public required Project Project { get; set; }
+
+    [Parameter, EditorRequired]
+    public required string NowLabel { get; set; }
+
+    private bool HasValidBacklogUrl
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(Project.BacklogUrl))
+            {
+                return false;
+            }
+
+            if (!Uri.TryCreate(Project.BacklogUrl, UriKind.Absolute, out var uri))
+            {
+                return false;
+            }
+
+            return uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
+        }
+    }
 }
