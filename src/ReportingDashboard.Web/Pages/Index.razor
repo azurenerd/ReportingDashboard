@@ -1,0 +1,45 @@
+@page "/"
+@namespace ReportingDashboard.Web.Pages
+@using ReportingDashboard.Web.Components
+@using ReportingDashboard.Web.Models
+@using ReportingDashboard.Web.Services
+@inject IDashboardDataService DataService
+@implements IDisposable
+
+@if (_state?.Error is not null)
+{
+    <ParseErrorBanner Error="_state.Error" />
+}
+
+@if (_state?.Model is not null)
+{
+    <DashboardHeader Title="@_state.Model.Title"
+                     Subtitle="@_state.Model.Subtitle"
+                     BacklogUrl="@_state.Model.BacklogUrl" />
+
+    <TimelineSvg Timeline="_state.Model.Timeline"
+                 CurrentDate="_state.Model.CurrentDate" />
+
+    <Heatmap Model="_state.Model.Heatmap" />
+}
+
+@code {
+    private DashboardState? _state;
+
+    protected override void OnInitialized()
+    {
+        _state = DataService.Current;
+        DataService.OnChanged += HandleChanged;
+    }
+
+    private async void HandleChanged()
+    {
+        _state = DataService.Current;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        DataService.OnChanged -= HandleChanged;
+    }
+}

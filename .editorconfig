@@ -1,0 +1,38 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+indent_style = space
+trim_trailing_whitespace = true
+
+[*.{cs,csx}]
+indent_size = 4
+
+[*.{json,jsonc,yml,yaml,razor,cshtml,css,html}]
+indent_size = 2
+
+[*.cs]
+# Namespaces
+csharp_style_namespace_declarations = file_scoped:suggestion
+
+# Modern C# preferences
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_prefer_braces = true:silent
+csharp_new_line_before_open_brace = all
+csharp_style_expression_bodied_methods = when_on_single_line:silent
+csharp_style_expression_bodied_properties = when_on_single_line:silent
+
+# var
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_for_built_in_types = false:suggestion
+
+# using directives
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+
+# Nullable
+dotnet_diagnostic.CS8600.severity = warning
+dotnet_diagnostic.CS8602.severity = warning
+dotnet_diagnostic.CS8603.severity = warning
