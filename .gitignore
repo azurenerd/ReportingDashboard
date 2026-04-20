@@ -1,16 +1,46 @@
+## .NET
 bin/
 obj/
+out/
 *.user
+*.suo
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+## Visual Studio / Rider / VS Code
 .vs/
 .vscode/
-TestResults/
-docs/screenshots/*.png
-*.swp
 .idea/
-*.suo
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
+*.swp
+
+## Test output
+TestResults/
+[Tt]est[Rr]esult*/
+coverage*.xml
+coverage*.json
+*.coverage
+*.coveragexml
+
+## Publish output
 publish/
+*.pubxml.user
+
+## Screenshots (generated)
+docs/screenshots/*.png
+!docs/screenshots/.gitkeep
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+## OS
 .DS_Store
+Thumbs.db

@@ -1,18 +1,33 @@
 root = true
 
 [*]
-indent_style = space
-end_of_line = crlf
 charset = utf-8
-trim_trailing_whitespace = true
+end_of_line = crlf
+indent_style = space
 insert_final_newline = true
+trim_trailing_whitespace = true
 
-[*.{cs}]
+[*.{cs,csx}]
 indent_size = 4
+csharp_new_line_before_open_brace = all
 csharp_style_namespace_declarations = file_scoped:warning
 csharp_style_prefer_primary_constructors = true:suggestion
-dotnet_diagnostic.CA1822.severity = suggestion
-dotnet_diagnostic.CA1062.severity = suggestion
+csharp_prefer_braces = true:suggestion
+dotnet_sort_system_directives_first = true
 
-[*.{json,razor,cshtml,csproj,sln}]
+# Analyzer severities
+dotnet_diagnostic.CA1822.severity = suggestion
+dotnet_diagnostic.CA1825.severity = warning
+dotnet_diagnostic.IDE0161.severity = warning
+
+[*.{json,jsonc}]
+indent_size = 2
+
+[*.{csproj,props,targets,xml,config}]
+indent_size = 2
+
+[*.{razor,cshtml,html,css}]
+indent_size = 4
+
+[*.{yml,yaml}]
 indent_size = 2

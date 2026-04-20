@@ -8,11 +8,11 @@ public sealed record DashboardModel(
     TimelineModel Timeline,
     HeatmapModel Heatmap)
 {
-    public static DashboardModel Empty { get; } = new(
+    public static DashboardModel Empty() => new(
         Title: string.Empty,
         Subtitle: string.Empty,
         BacklogUrl: "#",
         CurrentDate: DateOnly.FromDateTime(DateTime.Today),
-        Timeline: TimelineModel.Empty,
-        Heatmap: HeatmapModel.Empty);
+        Timeline: TimelineModel.Empty(),
+        Heatmap: HeatmapModel.Empty());
 }

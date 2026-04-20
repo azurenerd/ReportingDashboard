@@ -1,7 +1,7 @@
 {
   "title": "Project Aurora - Customer Portal Revamp",
-  "subtitle": "Trusted Platform - Customer Experience Workstream - April 2026",
-  "backlogUrl": "https://example.com/backlog",
+  "subtitle": "Trusted Platform · Customer Experience Workstream · April 2026",
+  "backlogUrl": "https://dev.azure.com/contoso/aurora/_backlogs",
   "currentDate": "2026-04-19",
   "timeline": {
     "rangeStart": "2026-01-01",

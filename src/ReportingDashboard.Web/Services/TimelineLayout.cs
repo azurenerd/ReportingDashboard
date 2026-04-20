@@ -6,16 +6,16 @@ public static class TimelineLayout
     {
         if (rangeEnd <= rangeStart || pixelWidth <= 0)
         {
-            return 0;
+            return 0d;
         }
 
-        var total = (rangeEnd.ToDateTime(TimeOnly.MinValue) - rangeStart.ToDateTime(TimeOnly.MinValue)).TotalDays;
-        var offset = (date.ToDateTime(TimeOnly.MinValue) - rangeStart.ToDateTime(TimeOnly.MinValue)).TotalDays;
+        var total = (rangeEnd.DayNumber - rangeStart.DayNumber);
+        var offset = (date.DayNumber - rangeStart.DayNumber);
         if (total <= 0)
         {
-            return 0;
+            return 0d;
         }
-        return (offset / total) * pixelWidth;
+        return (double)offset / total * pixelWidth;
     }
 
     public static int ComputeTrackY(int trackIndex) => 42 + (trackIndex * 56);

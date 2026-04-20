@@ -24,8 +24,6 @@ a { color: #0078D4; text-decoration: none; }
 .hdr h1 { font-size: 24px; font-weight: 700; }
 .sub { font-size: 12px; color: #888; margin-top: 2px; }
 
-.legend { display: flex; gap: 22px; align-items: center; }
-
 .tl-area {
     display: flex;
     align-items: stretch;
@@ -37,6 +35,7 @@ a { color: #0078D4; text-decoration: none; }
 }
 .tl-svg-box { flex: 1; padding-left: 12px; padding-top: 6px; }
 
+/* heatmap */
 .hm-wrap {
     flex: 1;
     min-height: 0;
@@ -62,6 +61,7 @@ a { color: #0078D4; text-decoration: none; }
     border: 1px solid #E0E0E0;
 }
 
+/* header cells */
 .hm-corner {
     background: #F5F5F5;
     display: flex;
@@ -86,6 +86,7 @@ a { color: #0078D4; text-decoration: none; }
 }
 .hm-col-hdr.apr-hdr { background: #FFF0D0; color: #C07700; }
 
+/* row header */
 .hm-row-hdr {
     display: flex;
     align-items: center;
@@ -98,6 +99,7 @@ a { color: #0078D4; text-decoration: none; }
     border-bottom: 1px solid #E0E0E0;
 }
 
+/* data cells */
 .hm-cell {
     padding: 8px 12px;
     border-right: 1px solid #E0E0E0;
@@ -121,6 +123,7 @@ a { color: #0078D4; text-decoration: none; }
     border-radius: 50%;
 }
 
+/* row colors */
 .ship-hdr { color: #1B7A28; background: #E8F5E9; border-right: 2px solid #CCC; }
 .ship-cell { background: #F0FBF0; }
 .ship-cell.apr { background: #D8F2DA; }
@@ -141,9 +144,11 @@ a { color: #0078D4; text-decoration: none; }
 .block-cell.apr { background: #FFE4E4; }
 .block-cell .it::before { background: #EA4335; }
 
-/* Screenshot-clean overrides */
-#components-reconnect-modal, #blazor-error-ui { display: none !important; }
+/* Hide Blazor Server chrome so screenshots are clean */
+#components-reconnect-modal,
+#blazor-error-ui { display: none !important; }
 
+/* Parse-error banner */
 .err-banner {
     position: fixed;
     top: 0;
@@ -158,5 +163,6 @@ a { color: #0078D4; text-decoration: none; }
     font-family: 'Segoe UI', 'Selawik', Arial, sans-serif;
 }
 
+/* Empty heatmap cell placeholder */
 .hm-cell .it.empty { color: #AAA; padding-left: 0; }
 .hm-cell .it.empty::before { display: none; }

@@ -1,5 +1,10 @@
-<section class="hm-wrap">
-</section>
+@namespace ReportingDashboard.Web.Components
+@using ReportingDashboard.Web.Models
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid"></div>
+</div>
 
 @code {
     [Parameter] public HeatmapModel? Model { get; set; }

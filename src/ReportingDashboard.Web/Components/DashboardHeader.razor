@@ -1,14 +1,15 @@
-<header class="hdr">
+@namespace ReportingDashboard.Web.Components
+
+<div class="hdr">
     <div>
         <h1>@Title</h1>
         <div class="sub">@Subtitle</div>
     </div>
     <TimelineLegend />
-</header>
+</div>
 
 @code {
     [Parameter] public string Title { get; set; } = string.Empty;
     [Parameter] public string Subtitle { get; set; } = string.Empty;
     [Parameter] public string BacklogUrl { get; set; } = "#";
-    [Parameter] public string? CurrentMonthLabel { get; set; }
 }

@@ -5,8 +5,8 @@ public sealed record TimelineModel(
     DateOnly RangeEnd,
     IReadOnlyList<MilestoneTrack> Tracks)
 {
-    public static TimelineModel Empty { get; } = new(
-        RangeStart: new DateOnly(2026, 1, 1),
-        RangeEnd: new DateOnly(2026, 6, 30),
+    public static TimelineModel Empty() => new(
+        RangeStart: new DateOnly(DateTime.Today.Year, 1, 1),
+        RangeEnd: new DateOnly(DateTime.Today.Year, 12, 31),
         Tracks: Array.Empty<MilestoneTrack>());
 }
