@@ -10,4 +10,13 @@ public sealed record DashboardLoadError(
     string Message,
     int? Line,
     int? Column,
-    string Kind); // "NotFound" | "ParseError" | "ValidationError"
+    string Kind) // one of DashboardLoadErrorKind.*
+{
+}
+
+public static class DashboardLoadErrorKind
+{
+    public const string NotFound = "NotFound";
+    public const string ParseError = "ParseError";
+    public const string ValidationError = "ValidationError";
+}
