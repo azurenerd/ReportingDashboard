@@ -1,17 +1,18 @@
+using ReportingDashboard.Web.Components;
 using ReportingDashboard.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents();
-builder.Services.AddAntiforgery();
 builder.Services.AddMemoryCache();
+builder.Services.AddAntiforgery();
 builder.Services.AddSingleton<IDashboardDataService, DashboardDataService>();
 
 var app = builder.Build();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-app.MapRazorComponents<ReportingDashboard.Web.Components.App>();
+app.MapRazorComponents<App>();
 app.MapGet("/healthz", () => "ok");
 
 app.Run();
