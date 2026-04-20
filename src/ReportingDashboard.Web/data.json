@@ -1,0 +1,22 @@
+{
+  "project": {
+    "title": "Sample Project",
+    "subtitle": "Scaffold placeholder \u2022 T9 will replace with full sample"
+  },
+  "timeline": {
+    "start": "2026-01-01",
+    "end": "2026-06-30",
+    "lanes": []
+  },
+  "heatmap": {
+    "months": ["Jan", "Feb", "Mar", "Apr"],
+    "currentMonthIndex": null,
+    "maxItemsPerCell": 4,
+    "rows": [
+      { "category": "shipped",    "cells": [[], [], [], []] },
+      { "category": "inProgress", "cells": [[], [], [], []] },
+      { "category": "carryover",  "cells": [[], [], [], []] },
+      { "category": "blockers",   "cells": [[], [], [], []] }
+    ]
+  }
+}
