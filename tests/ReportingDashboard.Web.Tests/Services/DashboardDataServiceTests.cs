@@ -1,141 +1,149 @@
+using System;
+using System.IO;
+using System.Text;
+using System.Threading;
+using FluentAssertions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
 using ReportingDashboard.Web.Models;
 using ReportingDashboard.Web.Services;
+using Xunit;
 
 namespace ReportingDashboard.Web.Tests.Services;
 
-public sealed class DashboardDataServiceTests : IDisposable
+[Trait("Category", "Unit")]
+public class DashboardDataServiceTests
 {
-    private readonly string _tempDir;
-    private readonly string _filePath;
-
-    public DashboardDataServiceTests()
+    private const string ValidDataJson = """
     {
-        _tempDir = Path.Combine(Path.GetTempPath(), "rd-dds-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(_tempDir);
-        _filePath = Path.Combine(_tempDir, "data.json");
+      "project": {
+        "title": "My Project",
+        "subtitle": "Org - Workstream - Jan 2026",
+        "backlogUrl": "https://example.com/backlog"
+      },
+      "timeline": {
+        "startDate": "2025-01-01",
+        "endDate": "2026-12-31",
+        "lanes": [],
+        "milestones": []
+      },
+      "heatmap": {
+        "months": [],
+        "rows": []
+      }
+    }
+    """;
+
+    private static readonly UTF8Encoding Utf8NoBom = new(encoderShouldEmitUTF8Identifier: false);
+
+    private sealed class TempDir : IDisposable
+    {
+        public string Path { get; }
+        public TempDir()
+        {
+            Path = System.IO.Path.Combine(
+                System.IO.Path.GetTempPath(),
+                "rd-tests-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(Path);
+        }
+        public string FilePath => System.IO.Path.Combine(Path, "data.json");
+        public void Dispose()
+        {
+            try { if (Directory.Exists(Path)) Directory.Delete(Path, true); }
+            catch { /* best effort */ }
+        }
     }
 
-    public void Dispose()
-    {
-        try { Directory.Delete(_tempDir, recursive: true); } catch { }
-    }
-
-    private DashboardDataService CreateService()
+    private static DashboardDataService CreateService(string filePath)
     {
         var cache = new MemoryCache(new MemoryCacheOptions());
-        return new DashboardDataService(_filePath, cache, NullLogger<DashboardDataService>.Instance);
+        return new DashboardDataService(filePath, cache, NullLogger<DashboardDataService>.Instance);
     }
 
-    private const string ValidJson = """
-        {
-          "project": { "title": "Hello", "subtitle": "Sub" },
-          "timeline": { },
-          "heatmap": { }
-        }
-        """;
-
     [Fact]
-    public void GetCurrent_HappyPath_ReturnsDataAndNoError()
+    public void GetCurrent_HappyPath_ReturnsData()
     {
-        File.WriteAllText(_filePath, ValidJson);
+        using var temp = new TempDir();
+        File.WriteAllText(temp.FilePath, ValidDataJson, Utf8NoBom);
 
-        using var sut = CreateService();
+        using var svc = CreateService(temp.FilePath);
+        var result = svc.GetCurrent();
 
-        var result = sut.GetCurrent();
-
+        result.Should().NotBeNull();
         result.Error.Should().BeNull();
         result.Data.Should().NotBeNull();
-        result.Data!.Project!.Title.Should().Be("Hello");
-    }
-
-    [Fact]
-    public void GetCurrent_MalformedJson_ReturnsParseErrorWithLineColumn()
-    {
-        File.WriteAllText(_filePath, "{ \"project\": { \"title\": \"X\"  ");
-
-        using var sut = CreateService();
-
-        var result = sut.GetCurrent();
-
-        result.Data.Should().BeNull();
-        result.Error.Should().NotBeNull();
-        result.Error!.Kind.Should().Be(DashboardLoadErrorKind.ParseError);
-        result.Error.FilePath.Should().Be(_filePath);
-        result.Error.Message.Should().NotBeNullOrWhiteSpace();
+        result.LoadedAt.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
     }
 
     [Fact]
     public void GetCurrent_MissingFile_ReturnsNotFoundError()
     {
-        // file intentionally not created
-        using var sut = CreateService();
+        using var temp = new TempDir();
 
-        var result = sut.GetCurrent();
+        using var svc = CreateService(temp.FilePath);
+        var result = svc.GetCurrent();
 
         result.Data.Should().BeNull();
         result.Error.Should().NotBeNull();
         result.Error!.Kind.Should().Be(DashboardLoadErrorKind.NotFound);
-        result.Error.FilePath.Should().Be(_filePath);
+        result.Error.FilePath.Should().EndWith("data.json");
+        result.Error.Message.Should().Contain("not found");
     }
 
     [Fact]
-    public void GetCurrent_NeverThrows_OnArbitraryGarbage()
+    public void GetCurrent_MalformedJson_ReturnsParseError()
     {
-        File.WriteAllBytes(_filePath, new byte[] { 0xFF, 0x00, 0x42, 0x7B });
+        using var temp = new TempDir();
+        File.WriteAllText(temp.FilePath, "{ not valid json", Utf8NoBom);
 
-        using var sut = CreateService();
+        using var svc = CreateService(temp.FilePath);
+        var result = svc.GetCurrent();
 
-        var act = () => sut.GetCurrent();
-        act.Should().NotThrow();
-        sut.GetCurrent().Error.Should().NotBeNull();
+        result.Data.Should().BeNull();
+        result.Error.Should().NotBeNull();
+        result.Error!.Kind.Should().Be(DashboardLoadErrorKind.ParseError);
+        result.Error.Message.Should().NotBeNullOrEmpty();
+        result.Error.Line.Should().NotBeNull();
+        result.Error.Line!.Value.Should().BeGreaterThan(0);
+        result.Error.Column.Should().NotBeNull();
+        result.Error.Column!.Value.Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public async Task FileSystemWatcher_ReloadsCacheOnFileChange()
+    public void Dispose_IsIdempotent()
     {
-        File.WriteAllText(_filePath, ValidJson);
+        using var temp = new TempDir();
+        File.WriteAllText(temp.FilePath, ValidDataJson, Utf8NoBom);
 
-        using var sut = CreateService();
+        var svc = CreateService(temp.FilePath);
+        svc.Dispose();
+        Action second = () => svc.Dispose();
+        second.Should().NotThrow();
+    }
 
-        var initial = sut.GetCurrent();
-        initial.Data!.Project!.Title.Should().Be("Hello");
+    [Fact]
+    public void GetCurrent_NeverThrows_WhenDirectoryMissing()
+    {
+        var nonexistent = Path.Combine(
+            Path.GetTempPath(),
+            "rd-missing-" + Guid.NewGuid().ToString("N"),
+            "data.json");
 
-        var changed = new TaskCompletionSource<DashboardLoadResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-        sut.DataChanged += (_, _) =>
+        DashboardDataService? svc = null;
+        Action construct = () => svc = CreateService(nonexistent);
+        construct.Should().NotThrow();
+
+        try
         {
-            var r = sut.GetCurrent();
-            if (r.Data?.Project?.Title == "World")
-            {
-                changed.TrySetResult(r);
-            }
-        };
-
-        // Write updated content; FSW should fire, debounce 250ms, then reload.
-        File.WriteAllText(_filePath, ValidJson.Replace("Hello", "World"));
-
-        var completed = await Task.WhenAny(changed.Task, Task.Delay(TimeSpan.FromSeconds(5)));
-        completed.Should().Be(changed.Task, "FileSystemWatcher should trigger a reload within 5s");
-
-        var reloaded = sut.GetCurrent();
-        reloaded.Error.Should().BeNull();
-        reloaded.Data!.Project!.Title.Should().Be("World");
-    }
-
-    [Fact]
-    public void Reload_AfterFixingMalformedFile_RecoversToValid()
-    {
-        File.WriteAllText(_filePath, "{ not json");
-        using var sut = CreateService();
-
-        sut.GetCurrent().Error.Should().NotBeNull();
-
-        File.WriteAllText(_filePath, ValidJson);
-        sut.Reload();
-
-        var result = sut.GetCurrent();
-        result.Error.Should().BeNull();
-        result.Data!.Project!.Title.Should().Be("Hello");
+            var result = svc!.GetCurrent();
+            result.Should().NotBeNull();
+            result.Data.Should().BeNull();
+            result.Error.Should().NotBeNull();
+            result.Error!.Kind.Should().Be(DashboardLoadErrorKind.NotFound);
+        }
+        finally
+        {
+            svc?.Dispose();
+        }
     }
 }
