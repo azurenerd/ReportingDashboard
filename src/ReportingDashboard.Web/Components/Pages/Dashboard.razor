@@ -1,50 +1,102 @@
 @page "/"
 @* Static SSR - intentionally NO @rendermode directive. *@
+@using System.Globalization
+@using ReportingDashboard.Web.Components.Pages.Partials
+@using ReportingDashboard.Web.Models
+@using ReportingDashboard.Web.Services
+@inject IDashboardDataService Data
 
 <PageTitle>Reporting Dashboard</PageTitle>
 
-<div class="hdr">
-    <div>
-        <h1>Reporting Dashboard</h1>
-        <div class="sub">Static SSR shell &bull; data binding lands in a later task</div>
-    </div>
-</div>
+@if (_error is not null)
+{
+    <ErrorBanner Error="_error" />
+}
 
-<div class="tl-area">
-    <div class="tl-svg-box"></div>
-</div>
+<DashboardHeader Project="_project" NowLabel="@_nowLabel" />
+<TimelineSvg Model="_timelineVm" />
+<Heatmap Model="_heatmapVm" />
 
-<div class="hm-wrap">
-    <div class="hm-title">Monthly Execution Heatmap &mdash; Shipped &middot; In Progress &middot; Carryover &middot; Blockers</div>
-    <div class="hm-grid">
-        <div class="hm-corner">Status</div>
-        <div class="hm-col-hdr">&nbsp;</div>
-        <div class="hm-col-hdr">&nbsp;</div>
-        <div class="hm-col-hdr">&nbsp;</div>
-        <div class="hm-col-hdr">&nbsp;</div>
+@code {
+    private DashboardLoadError? _error;
+    private Project _project = Project.Placeholder;
+    private string _nowLabel = "Now";
+    private TimelineViewModel _timelineVm = TimelineViewModel.Empty;
+    private HeatmapViewModel _heatmapVm = HeatmapViewModel.Empty;
 
-        <div class="hm-row-hdr ship-hdr">Shipped</div>
-        <div class="hm-cell ship-cell"></div>
-        <div class="hm-cell ship-cell"></div>
-        <div class="hm-cell ship-cell"></div>
-        <div class="hm-cell ship-cell"></div>
+    protected override void OnInitialized()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        _nowLabel = "Now (" + DateTime.Today.ToString("MMM yyyy", CultureInfo.InvariantCulture) + ")";
 
-        <div class="hm-row-hdr prog-hdr">In Progress</div>
-        <div class="hm-cell prog-cell"></div>
-        <div class="hm-cell prog-cell"></div>
-        <div class="hm-cell prog-cell"></div>
-        <div class="hm-cell prog-cell"></div>
+        var result = Data.GetCurrent();
+        _error = result.Error;
 
-        <div class="hm-row-hdr carry-hdr">Carryover</div>
-        <div class="hm-cell carry-cell"></div>
-        <div class="hm-cell carry-cell"></div>
-        <div class="hm-cell carry-cell"></div>
-        <div class="hm-cell carry-cell"></div>
+        if (result.Data is { } d)
+        {
+            _project = d.Project;
+            _timelineVm = BuildTimelineSafe(d.Timeline, today);
+            _heatmapVm = BuildHeatmapSafe(d.Heatmap, today);
+        }
+        else
+        {
+            _project = Project.Placeholder;
+            _timelineVm = TimelineViewModel.Empty;
+            _heatmapVm = HeatmapViewModel.Empty;
+        }
+    }
 
-        <div class="hm-row-hdr block-hdr">Blockers</div>
-        <div class="hm-cell block-cell"></div>
-        <div class="hm-cell block-cell"></div>
-        <div class="hm-cell block-cell"></div>
-        <div class="hm-cell block-cell"></div>
-    </div>
-</div>
+    private static TimelineViewModel BuildTimelineSafe(Timeline timeline, DateOnly today)
+    {
+        try
+        {
+            if (timeline is null || timeline.End <= timeline.Start)
+                return TimelineViewModel.Empty;
+
+            var gridlines = TimelineMath.MonthGridlines(timeline.Start, timeline.End, 1560);
+            var now = TimelineMath.NowX(today, timeline.Start, timeline.End, 1560);
+
+            var lanes = timeline.Lanes ?? Array.Empty<TimelineLane>();
+            var laneCount = Math.Max(lanes.Count, 1);
+            const int topPad = 20, bottomPad = 20;
+            var usable = 185 - topPad - bottomPad;
+
+            var laneVms = new List<LaneGeometry>(lanes.Count);
+            for (var i = 0; i < lanes.Count; i++)
+            {
+                var lane = lanes[i];
+                var y = topPad + (i + 0.5) * usable / laneCount;
+
+                var milestones = new List<MilestoneGeometry>();
+                foreach (var ms in lane.Milestones ?? Array.Empty<Milestone>())
+                {
+                    if (ms.Date < timeline.Start || ms.Date > timeline.End) continue;
+                    var x = TimelineMath.DateToX(ms.Date, timeline.Start, timeline.End, 1560);
+                    milestones.Add(new MilestoneGeometry(
+                        x, y, ms.Type, ms.Label,
+                        ms.CaptionPosition ?? CaptionPosition.Above));
+                }
+
+                laneVms.Add(new LaneGeometry(lane.Id, lane.Label, lane.Color, y, milestones));
+            }
+
+            return new TimelineViewModel(gridlines, laneVms, now);
+        }
+        catch
+        {
+            return TimelineViewModel.Empty;
+        }
+    }
+
+    private static HeatmapViewModel BuildHeatmapSafe(ReportingDashboard.Web.Models.Heatmap heatmap, DateOnly today)
+    {
+        try
+        {
+            return HeatmapLayout.Build(heatmap, today);
+        }
+        catch
+        {
+            return HeatmapViewModel.Empty;
+        }
+    }
+}
