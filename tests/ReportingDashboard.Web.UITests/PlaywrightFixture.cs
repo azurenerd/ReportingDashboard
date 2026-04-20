@@ -1,17 +1,16 @@
+using System;
+using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Xunit;
 
 namespace ReportingDashboard.Web.UITests;
-
-[CollectionDefinition("Playwright")]
-public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }
 
 public class PlaywrightFixture : IAsyncLifetime
 {
     public IPlaywright Playwright { get; private set; } = default!;
     public IBrowser Browser { get; private set; } = default!;
 
-    public string BaseUrl =>
+    public string BaseUrl { get; } =
         Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5080";
 
     public async Task InitializeAsync()
@@ -23,9 +22,15 @@ public class PlaywrightFixture : IAsyncLifetime
 
     public async Task<IPage> NewPageAsync()
     {
-        var context = await Browser.NewContextAsync();
-        context.SetDefaultTimeout(60000);
-        return await context.NewPageAsync();
+        var ctx = await Browser.NewContextAsync(new BrowserNewContextOptions
+        {
+            ViewportSize = new ViewportSize { Width = 1920, Height = 1080 }
+        });
+        var page = await ctx.NewPageAsync();
+        page.SetDefaultTimeout(60000);
+        await page.GotoAsync(BaseUrl);
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        return page;
     }
 
     public async Task DisposeAsync()
@@ -34,3 +39,6 @@ public class PlaywrightFixture : IAsyncLifetime
         Playwright?.Dispose();
     }
 }
+
+[CollectionDefinition("Playwright")]
+public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }
