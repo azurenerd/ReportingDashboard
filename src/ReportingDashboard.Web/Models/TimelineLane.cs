@@ -1,6 +1,11 @@
+using System.Collections.Generic;
+
 namespace ReportingDashboard.Web.Models;
 
-// TODO(T2): add Id/Label/Color/Milestones per architecture.
 public sealed class TimelineLane
 {
+    public required string Id { get; init; }
+    public required string Label { get; init; }
+    public required string Color { get; init; }
+    public required IReadOnlyList<Milestone> Milestones { get; init; }
 }
