@@ -1,44 +1,36 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Xunit;
 
 namespace ReportingDashboard.Web.UITests;
 
+[CollectionDefinition("Playwright")]
+public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }
+
 public class PlaywrightFixture : IAsyncLifetime
 {
     public IPlaywright Playwright { get; private set; } = default!;
     public IBrowser Browser { get; private set; } = default!;
-    public string BaseUrl { get; } =
+
+    public string BaseUrl =>
         Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5080";
 
     public async Task InitializeAsync()
     {
         Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
         Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-        Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
-        {
-            Headless = true
-        });
+        Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
     }
 
     public async Task<IPage> NewPageAsync()
     {
-        var context = await Browser.NewContextAsync(new BrowserNewContextOptions
-        {
-            ViewportSize = new ViewportSize { Width = 1920, Height = 1080 }
-        });
-        var page = await context.NewPageAsync();
-        page.SetDefaultTimeout(60000);
-        return page;
+        var context = await Browser.NewContextAsync();
+        context.SetDefaultTimeout(60000);
+        return await context.NewPageAsync();
     }
 
     public async Task DisposeAsync()
     {
-        if (Browser != null) await Browser.DisposeAsync();
+        if (Browser is not null) await Browser.CloseAsync();
         Playwright?.Dispose();
     }
 }
-
-[CollectionDefinition("Playwright")]
-public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }
