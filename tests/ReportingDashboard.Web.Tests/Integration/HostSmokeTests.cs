@@ -73,15 +73,15 @@ public class HostSmokeTests : IClassFixture<WebApplicationFactory<Project>>
 
     [Fact]
     [Trait("Category", "Integration")]
-    public void DashboardDataService_GetCurrent_ReturnsNotFoundStub_WithoutThrowing()
+    public void DashboardDataService_GetCurrent_LoadsSampleDataWithoutThrowing()
     {
         var svc = _factory.Services.GetRequiredService<IDashboardDataService>();
 
         var result = svc.GetCurrent();
 
         result.Should().NotBeNull();
-        result.Data.Should().BeNull();
-        result.Error.Should().NotBeNull();
-        result.Error!.Kind.Should().Be("NotFound");
+        // wwwroot/data.json ships in the repo; expect a successful load.
+        result.Error.Should().BeNull();
+        result.Data.Should().NotBeNull();
     }
 }
