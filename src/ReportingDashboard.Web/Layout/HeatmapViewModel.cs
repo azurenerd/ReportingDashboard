@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ReportingDashboard.Web.Models;
 
 namespace ReportingDashboard.Web.Layout;
@@ -7,10 +8,8 @@ public sealed record HeatmapViewModel(
     int CurrentMonthIndex,
     IReadOnlyList<HeatmapRowView> Rows)
 {
-    public static HeatmapViewModel Empty { get; } = new(
-        Array.Empty<string>(),
-        -1,
-        Array.Empty<HeatmapRowView>());
+    public static HeatmapViewModel Empty { get; } =
+        new(System.Array.Empty<string>(), -1, System.Array.Empty<HeatmapRowView>());
 }
 
 public sealed record HeatmapRowView(
