@@ -1,6 +1,35 @@
-@* TODO(T9): render full-width red error banner with file path, line/col, kind, and message. *@
-<div class="error-banner" role="alert">Error placeholder</div>
+@using ReportingDashboard.Web.Models
+
+@if (Error is not null)
+{
+    <div class="error-banner" role="alert">
+        <strong>@Heading</strong>
+        <span class="error-kind">@KindLabel</span>
+        <span class="error-path">@Error.FilePath</span>
+        @if (Error.Line is { } line)
+        {
+            <span class="error-location">line @line@(Error.Column is { } col ? $", col {col}" : "")</span>
+        }
+        <span class="error-message">@Error.Message</span>
+    </div>
+}
 
 @code {
     [Parameter] public DashboardLoadError? Error { get; set; }
+
+    private string Heading => Error?.Kind switch
+    {
+        DashboardLoadErrorKind.NotFound => "data.json not found",
+        DashboardLoadErrorKind.ParseError => "Failed to parse data.json",
+        DashboardLoadErrorKind.ValidationError => "data.json failed validation",
+        _ => "Failed to load data.json"
+    };
+
+    private string KindLabel => Error?.Kind switch
+    {
+        DashboardLoadErrorKind.NotFound => "not found",
+        DashboardLoadErrorKind.ParseError => "parse error",
+        DashboardLoadErrorKind.ValidationError => "validation error",
+        _ => Error?.Kind ?? string.Empty
+    };
 }

@@ -1,5 +1,7 @@
 using Bunit;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using ReportingDashboard.Web.Services;
 using Xunit;
 
 namespace ReportingDashboard.Web.Tests.Unit;
@@ -7,10 +9,17 @@ namespace ReportingDashboard.Web.Tests.Unit;
 [Trait("Category", "Unit")]
 public class DashboardShellTests
 {
+    private static Bunit.TestContext NewCtx()
+    {
+        var ctx = new Bunit.TestContext();
+        ctx.Services.AddSingleton<IDashboardDataService>(FakeDashboardDataService.WithSample());
+        return ctx;
+    }
+
     [Fact]
     public void Dashboard_Renders_AllLayoutBands()
     {
-        using var ctx = new Bunit.TestContext();
+        using var ctx = NewCtx();
         var cut = ctx.RenderComponent<ReportingDashboard.Web.Components.Pages.Dashboard>();
 
         cut.Markup.Should().Contain("class=\"hdr\"");
@@ -22,7 +31,7 @@ public class DashboardShellTests
     [Fact]
     public void Dashboard_Renders_ExactlyOneHmTitle_WithLiteralText()
     {
-        using var ctx = new Bunit.TestContext();
+        using var ctx = NewCtx();
         var cut = ctx.RenderComponent<ReportingDashboard.Web.Components.Pages.Dashboard>();
 
         var titles = cut.FindAll("div.hm-title");
@@ -37,7 +46,7 @@ public class DashboardShellTests
     [Fact]
     public void Dashboard_HasNo_InteractiveBlazorArtifacts()
     {
-        using var ctx = new Bunit.TestContext();
+        using var ctx = NewCtx();
         var cut = ctx.RenderComponent<ReportingDashboard.Web.Components.Pages.Dashboard>();
 
         cut.Markup.Should().NotContain("blazor.server.js");
@@ -50,7 +59,7 @@ public class DashboardShellTests
     [Fact]
     public void Dashboard_Heatmap_RendersExpectedCategoryCells()
     {
-        using var ctx = new Bunit.TestContext();
+        using var ctx = NewCtx();
         var cut = ctx.RenderComponent<ReportingDashboard.Web.Components.Pages.Dashboard>();
 
         cut.FindAll("div.hm-cell.ship-cell").Count.Should().Be(4);
@@ -63,7 +72,7 @@ public class DashboardShellTests
     [Fact]
     public void Dashboard_RowHeaders_AllFourCategoriesPresent()
     {
-        using var ctx = new Bunit.TestContext();
+        using var ctx = NewCtx();
         var cut = ctx.RenderComponent<ReportingDashboard.Web.Components.Pages.Dashboard>();
 
         cut.Find("div.hm-row-hdr.ship-hdr").TextContent.Should().Be("Shipped");
