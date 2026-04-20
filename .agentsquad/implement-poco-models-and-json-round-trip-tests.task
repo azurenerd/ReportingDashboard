@@ -1,0 +1,4 @@
+agent: SoftwareEngineer
+task: Implement POCO Models and JSON Round-Trip Tests
+complexity: Medium
+status: in-progress
