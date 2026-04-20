@@ -22,4 +22,8 @@
     <ProjectReference Include="..\..\src\ReportingDashboard.Web\ReportingDashboard.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\src\ReportingDashboard.Web\wwwroot\data.json" Link="data.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
