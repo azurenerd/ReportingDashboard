@@ -1,0 +1,7 @@
+@code {
+    [Parameter] public IReadOnlyList<string>? Items { get; set; }
+    [Parameter] public string RowClass { get; set; } = "ship";
+    [Parameter] public bool IsCurrentMonth { get; set; }
+}
+
+<div class="hm-cell"></div>

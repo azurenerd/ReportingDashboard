@@ -1,0 +1,73 @@
+{
+  "Project": {
+    "Title": "Privacy Automation Release Roadmap",
+    "Subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
+    "BacklogUrl": "https://ado.example.com/backlog",
+    "AsOfDate": "2026-04-19"
+  },
+  "Timeline": {
+    "StartDate": "2026-01-01",
+    "EndDate": "2026-04-30",
+    "NowDate": "2026-04-19",
+    "Swimlanes": [
+      {
+        "Id": "M1",
+        "Label": "Chatbot & MS Role",
+        "Color": "#0078D4",
+        "Milestones": [
+          { "Date": "2026-01-12", "Type": "checkpoint", "Label": "Jan 12 Checkpoint" },
+          { "Date": "2026-03-26", "Type": "poc", "Label": "Mar 26 PoC" },
+          { "Date": "2026-04-15", "Type": "prod", "Label": "Apr Prod" }
+        ]
+      },
+      {
+        "Id": "M2",
+        "Label": "PDS & Data Inventory",
+        "Color": "#00897B",
+        "Milestones": [
+          { "Date": "2026-02-11", "Type": "checkpoint", "Label": "Feb 11" },
+          { "Date": "2026-04-02", "Type": "poc", "Label": "Apr 2 PoC" }
+        ]
+      },
+      {
+        "Id": "M3",
+        "Label": "Auto Review DFD",
+        "Color": "#546E7A",
+        "Milestones": [
+          { "Date": "2026-03-10", "Type": "checkpointMinor", "Label": "" },
+          { "Date": "2026-04-22", "Type": "prod", "Label": "Apr Prod" }
+        ]
+      }
+    ]
+  },
+  "Heatmap": {
+    "Months": ["Jan", "Feb", "Mar", "Apr"],
+    "CurrentMonthIndex": 3,
+    "Rows": {
+      "Shipped": [
+        ["Consent API v1"],
+        ["MS Role GA"],
+        ["PDS schema v2"],
+        ["Chatbot beta"]
+      ],
+      "InProgress": [
+        [],
+        ["Review DFD spike"],
+        ["Auto-Review v0"],
+        ["Chatbot RC", "MS Role v2 planning"]
+      ],
+      "Carryover": [
+        [],
+        [],
+        ["Telemetry dashboard"],
+        ["Docs cleanup"]
+      ],
+      "Blockers": [
+        [],
+        [],
+        [],
+        ["Legal review of AI prompts"]
+      ]
+    }
+  }
+}
