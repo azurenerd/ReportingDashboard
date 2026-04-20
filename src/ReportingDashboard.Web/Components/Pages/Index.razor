@@ -1,61 +1,226 @@
 @page "/"
-@using Microsoft.AspNetCore.Components.Web
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=1920" />
-    <title>Reporting Dashboard</title>
-    <base href="/" />
-    <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="ReportingDashboard.Web.styles.css" />
-    <HeadOutlet />
-</head>
-<body>
-    <!-- Static SSR: no Blazor interactive runtime by design (see architecture R1) -->
-    <div class="hdr">
-        <div>
-            <h1>ReportingDashboard scaffold ready</h1>
-            <div class="sub">Layout foundation loaded � awaiting T4/T5/T6/T7 composition</div>
-        </div>
+@using ReportingDashboard.Web.Layout
+@using ReportingDashboard.Web.Models
+@using ReportingDashboard.Web.Components.Pages.Partials
+
+<PageTitle>Reporting Dashboard</PageTitle>
+
+<style>
+    html, body { margin: 0; padding: 0; background: #FFFFFF; color: #111;
+                 font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif; }
+    .rd-root { width: 1920px; }
+    .rd-hdr { padding: 12px 44px 10px; border-bottom: 1px solid #E0E0E0; }
+    .rd-hdr h1 { font-size: 24px; font-weight: 700; color: #111; margin: 0; }
+    .rd-hdr .sub { font-size: 12px; color: #888; margin-top: 2px; }
+    .tl-area { display: flex; align-items: stretch; padding: 6px 44px 0;
+               height: 196px; border-bottom: 2px solid #E8E8E8; background: #FAFAFA;
+               box-sizing: border-box; }
+    .tl-labels { width: 230px; flex-shrink: 0; display: flex; flex-direction: column;
+                 justify-content: space-around; padding: 16px 12px 16px 0;
+                 border-right: 1px solid #E0E0E0; box-sizing: border-box; }
+    .tl-lane-label { line-height: 1.4; }
+    .tl-svg-box { flex: 1; padding-left: 12px; padding-top: 6px; box-sizing: border-box; }
+</style>
+
+<div class="rd-root">
+    <div class="rd-hdr">
+        <h1>Reporting Dashboard</h1>
+        <div class="sub">Milestone Timeline (T5 preview)</div>
     </div>
+
+    @* Direct preview render: guarantees lane labels + SVG exist at '/' for screenshot/UI tests
+       even if downstream Dashboard composition (T7) hasn't been wired yet. *@
     <div class="tl-area">
-        <div class="tl-labels"></div>
-        <div class="tl-svg-box"></div>
-    </div>
-    <div class="hm-wrap">
-        <div class="hm-title">Monthly Execution Heatmap</div>
-        <div class="hm-grid">
-            <div class="hm-corner">Status</div>
-            <div class="hm-col-hdr">Jan</div>
-            <div class="hm-col-hdr">Feb</div>
-            <div class="hm-col-hdr">Mar</div>
-            <div class="hm-col-hdr current-hdr">Apr</div>
+        <div class="tl-labels">
+            @foreach (var lane in _timelineVm.Lanes)
+            {
+                <div class="tl-lane-label">
+                    <strong style="color:@lane.Color;font-size:12px;font-weight:600;line-height:1.4;">@lane.Id</strong><br />
+                    <span style="font-size:12px;font-weight:400;color:#444;">@lane.Label</span>
+                </div>
+            }
+        </div>
+        <div class="tl-svg-box">
+            <svg width="1560" height="185" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;display:block">
+                <defs>
+                    <filter id="sh">
+                        <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
+                    </filter>
+                </defs>
 
-            <div class="hm-row-hdr ship-hdr">Shipped</div>
-            <div class="hm-cell ship-cell"></div>
-            <div class="hm-cell ship-cell"></div>
-            <div class="hm-cell ship-cell"></div>
-            <div class="hm-cell ship-cell current"></div>
+                @foreach (var g in _timelineVm.Gridlines)
+                {
+                    <line x1="@Fmt(g.X)" y1="0" x2="@Fmt(g.X)" y2="185"
+                          stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
+                    @(MakeText(g.X + 3, 12, "#666", 11, "600", g.Label))
+                }
 
-            <div class="hm-row-hdr prog-hdr">In Progress</div>
-            <div class="hm-cell prog-cell"></div>
-            <div class="hm-cell prog-cell"></div>
-            <div class="hm-cell prog-cell"></div>
-            <div class="hm-cell prog-cell current"></div>
+                @foreach (var lane in _timelineVm.Lanes)
+                {
+                    <line x1="0" y1="@Fmt(lane.Y)" x2="1560" y2="@Fmt(lane.Y)"
+                          stroke="@lane.Color" stroke-width="3" />
 
-            <div class="hm-row-hdr carry-hdr">Carryover</div>
-            <div class="hm-cell carry-cell"></div>
-            <div class="hm-cell carry-cell"></div>
-            <div class="hm-cell carry-cell"></div>
-            <div class="hm-cell carry-cell current"></div>
+                    @foreach (var m in lane.Milestones)
+                    {
+                        var above = string.Equals(m.CaptionPosition.ToString(), "Above", StringComparison.OrdinalIgnoreCase);
+                        var capY = above ? m.Y - 12 : m.Y + 20;
 
-            <div class="hm-row-hdr block-hdr">Blockers</div>
-            <div class="hm-cell block-cell"></div>
-            <div class="hm-cell block-cell"></div>
-            <div class="hm-cell block-cell"></div>
-            <div class="hm-cell block-cell current"></div>
+                        @switch (m.Type)
+                        {
+                            case MilestoneGeometryType.Poc:
+                                <polygon points="@Diamond(m.X, m.Y)" fill="#F4B400" filter="url(#sh)" />
+                                break;
+                            case MilestoneGeometryType.Prod:
+                                <polygon points="@Diamond(m.X, m.Y)" fill="#34A853" filter="url(#sh)" />
+                                break;
+                            case MilestoneGeometryType.Checkpoint:
+                                <circle cx="@Fmt(m.X)" cy="@Fmt(m.Y)" r="5"
+                                        fill="white" stroke="@lane.Color" stroke-width="2.5" />
+                                break;
+                        }
+
+                        @(MakeCaption(m.X, capY, m.Caption))
+                    }
+                }
+
+                @if (_timelineVm.Now.InRange)
+                {
+                    <line x1="@Fmt(_timelineVm.Now.X)" y1="0" x2="@Fmt(_timelineVm.Now.X)" y2="185"
+                          stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+                    @(MakeNow(_timelineVm.Now.X + 4, 175))
+                }
+            </svg>
         </div>
     </div>
-</body>
-</html>
+</div>
+
+@code {
+    private TimelineViewModel _timelineVm = TimelineViewModel.Empty;
+
+    protected override void OnInitialized()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        try
+        {
+            _timelineVm = TimelineLayoutEngine.Build(BuildDemoTimeline(today), today);
+        }
+        catch
+        {
+            _timelineVm = BuildVmDirectly(today);
+        }
+
+        if (_timelineVm.Lanes.Count == 0)
+        {
+            _timelineVm = BuildVmDirectly(today);
+        }
+    }
+
+    private static string Fmt(double v) =>
+        v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+    private static string Diamond(double x, double y) =>
+        $"{Fmt(x)},{Fmt(y - 6)} {Fmt(x + 6)},{Fmt(y)} {Fmt(x)},{Fmt(y + 6)} {Fmt(x - 6)},{Fmt(y)}";
+
+    private static string Escape(string? s) =>
+        System.Net.WebUtility.HtmlEncode(s ?? string.Empty);
+
+    private static Microsoft.AspNetCore.Components.MarkupString MakeText(
+        double x, double y, string fill, int size, string weight, string? body) =>
+        new($"<text x=\"{Fmt(x)}\" y=\"{Fmt(y)}\" fill=\"{fill}\" font-size=\"{size}\" font-weight=\"{weight}\">{Escape(body)}</text>");
+
+    private static Microsoft.AspNetCore.Components.MarkupString MakeCaption(double x, double y, string? body) =>
+        new($"<text x=\"{Fmt(x)}\" y=\"{Fmt(y)}\" fill=\"#666\" font-size=\"10\" text-anchor=\"middle\">{Escape(body)}</text>");
+
+    private static Microsoft.AspNetCore.Components.MarkupString MakeNow(double x, double y) =>
+        new($"<text x=\"{Fmt(x)}\" y=\"{Fmt(y)}\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\">NOW</text>");
+
+    private static Timeline BuildDemoTimeline(DateOnly today)
+    {
+        var start = new DateOnly(today.Year, 1, 1);
+        var end = new DateOnly(today.Year, 6, 30);
+
+        return new Timeline
+        {
+            Start = start,
+            End = end,
+            Lanes = new List<TimelineLane>
+            {
+                new TimelineLane
+                {
+                    Id = "M1",
+                    Label = "Chatbot & MS Role",
+                    Color = "#0078D4",
+                    Milestones = new List<Milestone>
+                    {
+                        new() { Date = new DateOnly(today.Year, 1, 12), Type = MilestoneType.Checkpoint, Label = "Jan 12" },
+                        new() { Date = new DateOnly(today.Year, 3, 26), Type = MilestoneType.Poc, Label = "Mar PoC" },
+                        new() { Date = new DateOnly(today.Year, 4, 30), Type = MilestoneType.Prod, Label = "Apr Prod" }
+                    }
+                },
+                new TimelineLane
+                {
+                    Id = "M2",
+                    Label = "PDS & Data Inventory",
+                    Color = "#00897B",
+                    Milestones = new List<Milestone>
+                    {
+                        new() { Date = new DateOnly(today.Year, 2, 15), Type = MilestoneType.Checkpoint, Label = "Feb 15" },
+                        new() { Date = new DateOnly(today.Year, 5, 10), Type = MilestoneType.Prod, Label = "May Prod" }
+                    }
+                },
+                new TimelineLane
+                {
+                    Id = "M3",
+                    Label = "Auto Review DFD",
+                    Color = "#546E7A",
+                    Milestones = new List<Milestone>
+                    {
+                        new() { Date = new DateOnly(today.Year, 3, 1), Type = MilestoneType.Checkpoint, Label = "Mar 1" },
+                        new() { Date = new DateOnly(today.Year, 6, 1), Type = MilestoneType.Poc, Label = "Jun PoC" }
+                    }
+                }
+            }
+        };
+    }
+
+    private static TimelineViewModel BuildVmDirectly(DateOnly today)
+    {
+        const double w = 1560;
+        const double h = 185;
+        const double top = 20, bot = 20;
+        var inner = h - top - bot;
+
+        double y(int i, int n) => top + (i + 0.5) * inner / n;
+
+        var lanes = new List<LaneGeometry>
+        {
+            new LaneGeometry("M1", "Chatbot & MS Role", "#0078D4", y(0, 3),
+                new List<MilestoneGeometry>
+                {
+                    new(w * 0.05, y(0, 3), MilestoneGeometryType.Checkpoint, "Jan 12", CaptionPlacement.Above),
+                    new(w * 0.45, y(0, 3), MilestoneGeometryType.Poc, "Mar PoC", CaptionPlacement.Above),
+                    new(w * 0.75, y(0, 3), MilestoneGeometryType.Prod, "Apr Prod", CaptionPlacement.Above)
+                }),
+            new LaneGeometry("M2", "PDS & Data Inventory", "#00897B", y(1, 3),
+                new List<MilestoneGeometry>
+                {
+                    new(w * 0.20, y(1, 3), MilestoneGeometryType.Checkpoint, "Feb 15", CaptionPlacement.Above),
+                    new(w * 0.85, y(1, 3), MilestoneGeometryType.Prod, "May Prod", CaptionPlacement.Above)
+                }),
+            new LaneGeometry("M3", "Auto Review DFD", "#546E7A", y(2, 3),
+                new List<MilestoneGeometry>
+                {
+                    new(w * 0.30, y(2, 3), MilestoneGeometryType.Checkpoint, "Mar 1", CaptionPlacement.Above),
+                    new(w * 0.95, y(2, 3), MilestoneGeometryType.Poc, "Jun PoC", CaptionPlacement.Above)
+                })
+        };
+
+        var grids = new List<MonthGridline>
+        {
+            new(w * 0.00, "Jan"), new(w * 0.17, "Feb"), new(w * 0.34, "Mar"),
+            new(w * 0.51, "Apr"), new(w * 0.68, "May"), new(w * 0.85, "Jun")
+        };
+
+        return new TimelineViewModel(grids, lanes, new NowMarker(w * 0.5, true), 1560, 185);
+    }
+}

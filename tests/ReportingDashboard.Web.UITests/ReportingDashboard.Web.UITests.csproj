@@ -14,20 +14,4 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageReference Include="FluentAssertions" Version="6.12.*" />
   </ItemGroup>
-
-  <!--
-    Workaround for BLAZOR102: Dashboard.razor.css exists without a matching Dashboard.razor
-    in the source project. Ensure a stub exists so any solution-wide build succeeds.
-  -->
-  <Target Name="EnsureDashboardRazorStubExists" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <_DashboardRazorStubPath>$(MSBuildThisFileDirectory)..\..\src\ReportingDashboard.Web\Components\Pages\Dashboard.razor</_DashboardRazorStubPath>
-    </PropertyGroup>
-    <WriteLinesToFile
-      Condition="!Exists('$(_DashboardRazorStubPath)')"
-      File="$(_DashboardRazorStubPath)"
-      Lines="@* Auto-generated stub to satisfy BLAZOR102 scoped-CSS pairing. *@"
-      Overwrite="true"
-      Encoding="UTF-8" />
-  </Target>
 </Project>
