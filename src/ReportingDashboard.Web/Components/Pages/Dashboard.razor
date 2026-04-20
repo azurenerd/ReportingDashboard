@@ -1,19 +1,50 @@
 @page "/"
-@inject IDashboardDataService Data
+@* Static SSR - intentionally NO @rendermode directive. *@
 
-<div class="hdr" style="width:1920px;"><h1>(placeholder)</h1></div>
-<div class="tl-area" style="width:1920px;">
-    Timeline placeholder
+<PageTitle>Reporting Dashboard</PageTitle>
+
+<div class="hdr">
+    <div>
+        <h1>Reporting Dashboard</h1>
+        <div class="sub">Static SSR shell &bull; data binding lands in a later task</div>
+    </div>
 </div>
-<div class="hm-wrap" style="width:1920px;height:1080px;">
-    Heatmap placeholder
+
+<div class="tl-area">
+    <div class="tl-svg-box"></div>
 </div>
 
-@code {
-    private DashboardLoadResult? _result;
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap &mdash; Shipped &middot; In Progress &middot; Carryover &middot; Blockers</div>
+    <div class="hm-grid">
+        <div class="hm-corner">Status</div>
+        <div class="hm-col-hdr">&nbsp;</div>
+        <div class="hm-col-hdr">&nbsp;</div>
+        <div class="hm-col-hdr">&nbsp;</div>
+        <div class="hm-col-hdr">&nbsp;</div>
 
-    protected override void OnInitialized()
-    {
-        _result = Data.GetCurrent();
-    }
-}
+        <div class="hm-row-hdr ship-hdr">Shipped</div>
+        <div class="hm-cell ship-cell"></div>
+        <div class="hm-cell ship-cell"></div>
+        <div class="hm-cell ship-cell"></div>
+        <div class="hm-cell ship-cell"></div>
+
+        <div class="hm-row-hdr prog-hdr">In Progress</div>
+        <div class="hm-cell prog-cell"></div>
+        <div class="hm-cell prog-cell"></div>
+        <div class="hm-cell prog-cell"></div>
+        <div class="hm-cell prog-cell"></div>
+
+        <div class="hm-row-hdr carry-hdr">Carryover</div>
+        <div class="hm-cell carry-cell"></div>
+        <div class="hm-cell carry-cell"></div>
+        <div class="hm-cell carry-cell"></div>
+        <div class="hm-cell carry-cell"></div>
+
+        <div class="hm-row-hdr block-hdr">Blockers</div>
+        <div class="hm-cell block-cell"></div>
+        <div class="hm-cell block-cell"></div>
+        <div class="hm-cell block-cell"></div>
+        <div class="hm-cell block-cell"></div>
+    </div>
+</div>
