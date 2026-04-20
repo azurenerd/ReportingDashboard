@@ -1,28 +1,18 @@
+@* TODO(T5,T9): flesh out shell + composition (ErrorBanner, DashboardHeader, TimelineSvg, Heatmap). *@
 @page "/"
-@namespace ReportingDashboard.Web.Components.Pages
 @inject IDashboardDataService Data
 
-<PageTitle>Reporting Dashboard</PageTitle>
+<div class="hdr">
+    <h1>(placeholder)</h1>
+</div>
+<div class="tl-area">Timeline placeholder</div>
+<div class="hm-wrap">Heatmap placeholder</div>
 
-@{
-    var result = Data.GetCurrent();
-    var nowLabel = $"Now ({DateTime.Today:MMM yyyy})";
-}
+@code {
+    private DashboardLoadResult? _result;
 
-@if (result.Error is not null)
-{
-    <ErrorBanner Error="result.Error" />
-}
-
-@if (result.Data is { } d)
-{
-    <DashboardHeader Project="d.Project" NowLabel="@nowLabel" />
-    <TimelineSvg Model="TimelineViewModel.Empty" />
-    <Heatmap Model="HeatmapViewModel.Empty" />
-}
-else
-{
-    <DashboardHeader Project="Project.Placeholder" NowLabel="@nowLabel" />
-    <TimelineSvg Model="TimelineViewModel.Empty" />
-    <Heatmap Model="HeatmapViewModel.Empty" />
+    protected override void OnInitialized()
+    {
+        _result = Data.GetCurrent();
+    }
 }

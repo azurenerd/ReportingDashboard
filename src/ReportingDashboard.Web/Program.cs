@@ -9,12 +9,17 @@ builder.Services.AddSingleton<IDashboardDataService, DashboardDataService>();
 
 var app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+}
+
 app.UseStaticFiles();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>();
 
-app.MapGet("/healthz", () => "ok");
+app.MapGet("/healthz", () => Results.Text("ok", "text/plain"));
 
 app.Run();
 

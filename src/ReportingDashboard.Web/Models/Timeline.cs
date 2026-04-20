@@ -1,8 +1,6 @@
 namespace ReportingDashboard.Web.Models;
 
+// TODO(T2): add Start/End DateOnly + Lanes list.
 public sealed class Timeline
 {
-    public required DateOnly Start { get; init; }
-    public required DateOnly End { get; init; }
-    public required IReadOnlyList<TimelineLane> Lanes { get; init; }
 }

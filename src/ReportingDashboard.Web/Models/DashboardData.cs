@@ -1,8 +1,6 @@
 namespace ReportingDashboard.Web.Models;
 
+// TODO(T2): define full DashboardData POCO (Project, Timeline, Heatmap, optional Theme) per architecture.
 public sealed class DashboardData
 {
-    public required Project Project { get; init; }
-    public required Timeline Timeline { get; init; }
-    public required Heatmap Heatmap { get; init; }
 }

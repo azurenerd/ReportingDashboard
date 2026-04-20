@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ReportingDashboard.Web</RootNamespace>
     <AssemblyName>ReportingDashboard.Web</AssemblyName>
-    <AnalysisLevel>latest</AnalysisLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 

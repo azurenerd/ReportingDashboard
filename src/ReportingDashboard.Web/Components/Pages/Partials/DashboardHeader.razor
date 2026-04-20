@@ -1,25 +1,7 @@
-@namespace ReportingDashboard.Web.Components.Pages.Partials
-
-<div class="hdr">
-    <div>
-        <h1>
-            @Project.Title
-            @if (!string.IsNullOrWhiteSpace(Project.BacklogUrl))
-            {
-                <a href="@Project.BacklogUrl">@Project.BacklogLinkText</a>
-            }
-        </h1>
-        <div class="sub">@Project.Subtitle</div>
-    </div>
-    <div class="legend">
-        <span>PoC Milestone</span>
-        <span>Production Release</span>
-        <span>Checkpoint</span>
-        <span>@NowLabel</span>
-    </div>
-</div>
+@* TODO(T6): render .hdr band (title + backlog link + subtitle + legend) per OriginalDesignConcept.html. *@
+<div>DashboardHeader placeholder</div>
 
 @code {
-    [Parameter, EditorRequired] public required Project Project { get; set; }
-    [Parameter, EditorRequired] public required string NowLabel { get; set; }
+    [Parameter] public Project? Project { get; set; }
+    [Parameter] public string? NowLabel { get; set; }
 }

@@ -1,26 +1,78 @@
+using System.Net;
+using Microsoft.AspNetCore.Mvc.Testing;
+
 namespace ReportingDashboard.Web.Tests;
 
-public class SmokeTests
+public class SmokeTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    [Fact]
-    public void EmptyTimelineViewModel_HasNoLanes()
+    private readonly WebApplicationFactory<Program> _factory;
+
+    public SmokeTests(WebApplicationFactory<Program> factory)
     {
-        TimelineViewModel.Empty.Lanes.Should().BeEmpty();
-        TimelineViewModel.Empty.Gridlines.Should().BeEmpty();
-        TimelineViewModel.Empty.Now.InRange.Should().BeFalse();
+        _factory = factory;
     }
 
     [Fact]
-    public void EmptyHeatmapViewModel_HasNegativeCurrentMonth()
+    public async Task Home_Returns200_WithPlaceholderSections()
     {
-        HeatmapViewModel.Empty.Rows.Should().BeEmpty();
-        HeatmapViewModel.Empty.Months.Should().BeEmpty();
-        HeatmapViewModel.Empty.CurrentMonthIndex.Should().Be(-1);
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("text/html");
+
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Timeline placeholder");
+        html.Should().Contain("Heatmap placeholder");
+        html.Should().Contain("(placeholder)");
     }
 
     [Fact]
-    public void ProjectPlaceholder_HasErrorTitle()
+    public async Task Home_DoesNotContain_BlazorServerJs_StaticSsrOnly()
     {
-        Project.Placeholder.Title.Should().Contain("error");
+        var client = _factory.CreateClient();
+
+        var html = await client.GetStringAsync("/");
+
+        html.Should().NotContain("blazor.server.js",
+            "Static SSR must not emit the interactive Blazor Server runtime.");
+        html.Should().NotContain("blazor.web.js",
+            "Static SSR must not emit the Blazor Web runtime.");
+    }
+
+    [Fact]
+    public async Task AppCss_IsServed_AndContainsViewportLockingReset()
+    {
+        var client = _factory.CreateClient();
+
+        var css = await client.GetStringAsync("/app.css");
+
+        css.Should().Contain("width:1920px");
+        css.Should().Contain("height:1080px");
+        css.Should().Contain("overflow:hidden");
+    }
+
+    [Fact]
+    public async Task Healthz_Returns_Ok()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/healthz");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Be("ok");
+    }
+
+    [Fact]
+    public async Task DataJson_IsServed_AsApplicationJson()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/data.json");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
     }
 }

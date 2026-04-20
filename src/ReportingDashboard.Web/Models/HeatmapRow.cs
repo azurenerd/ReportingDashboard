@@ -1,7 +1,6 @@
 namespace ReportingDashboard.Web.Models;
 
+// TODO(T2): add Category + Cells (IReadOnlyList<IReadOnlyList<string>>).
 public sealed class HeatmapRow
 {
-    public required HeatmapCategory Category { get; init; }
-    public required IReadOnlyList<IReadOnlyList<string>> Cells { get; init; }
 }

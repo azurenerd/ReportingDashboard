@@ -7,49 +7,29 @@ publish/
 *.suo
 *.userprefs
 *.swp
+*.tmp
+*.log
+
+## IDE
 .vs/
 .vscode/
-*.vspscc
-*.vssscc
-*.sln.docstates
-
-## Build outputs
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-[Bb]in/
-[Oo]bj/
-
-## Test results
-TestResults/
-*.trx
-*.coverage
-*.coveragexml
-coverage*.xml
-coverage*.json
-coverage*.info
-
-## NuGet
-*.nupkg
-*.snupkg
-.nuget/
-packages/
-!**/packages/build/
-
-## Tooling
 .idea/
 *.DotSettings.user
+
+## Test results / coverage
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.trx
 
 ## OS
 .DS_Store
 Thumbs.db
 
-## Logs
-*.log
-dashboard.log
+## Rider / ReSharper
+_ReSharper*/
+*.ReSharper
 
-## User-local data overrides (optional)
-**/wwwroot/data.local.json
+## Node (not used, but guard)
+node_modules/
