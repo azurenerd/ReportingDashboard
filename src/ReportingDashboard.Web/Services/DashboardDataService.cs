@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Memory;
@@ -5,50 +6,115 @@ using ReportingDashboard.Web.Models;
 
 namespace ReportingDashboard.Web.Services;
 
-/// <summary>
-/// Singleton data service. T1 ships a minimal working loader so DI composes and the
-/// scaffold boots with real, parsed data. T3 replaces this with FileSystemWatcher-based
-/// hot reload, validation, and richer error reporting.
-/// </summary>
-public sealed class DashboardDataService : IDashboardDataService
+public sealed class DashboardDataService : IDashboardDataService, IDisposable
 {
     private const string CacheKey = "dashboard:current";
+    private const int DebounceMs = 250;
+    private const int MaxReadRetries = 3;
+    private const int ReadRetryDelayMs = 50;
 
     private readonly IMemoryCache _cache;
-    private readonly IWebHostEnvironment _env;
-    private readonly IConfiguration _config;
     private readonly ILogger<DashboardDataService> _logger;
+    private readonly string _dataFilePath;
+    private readonly SemaphoreSlim _reloadLock = new(1, 1);
+    private readonly System.Timers.Timer _debounceTimer;
+    private readonly FileSystemWatcher? _watcher;
     private readonly JsonSerializerOptions _jsonOptions;
+    private bool _disposed;
 
     public event EventHandler? DataChanged;
 
     public DashboardDataService(
         IMemoryCache cache,
         IWebHostEnvironment env,
-        IConfiguration config,
+        IConfiguration configuration,
         ILogger<DashboardDataService> logger)
     {
         _cache = cache;
-        _env = env;
-        _config = config;
         _logger = logger;
+
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             ReadCommentHandling = JsonCommentHandling.Skip,
-            AllowTrailingCommas = true
+            AllowTrailingCommas = true,
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
         };
-        _jsonOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+
+        var configuredPath = configuration["Dashboard:DataFilePath"] ?? "wwwroot/data.json";
+        _dataFilePath = Path.IsPathRooted(configuredPath)
+            ? configuredPath
+            : Path.GetFullPath(Path.Combine(env.ContentRootPath, configuredPath));
+
+        _logger.LogInformation("DashboardDataService starting. DataFilePath: {Path}", _dataFilePath);
+
+        _debounceTimer = new System.Timers.Timer(DebounceMs) { AutoReset = false };
+        _debounceTimer.Elapsed += (_, _) => _ = ReloadAsync();
+
+        LoadAndCache();
+
+        try
+        {
+            var dir = Path.GetDirectoryName(_dataFilePath);
+            var file = Path.GetFileName(_dataFilePath);
+            if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
+            {
+                _watcher = new FileSystemWatcher(dir, file)
+                {
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size | NotifyFilters.CreationTime,
+                    EnableRaisingEvents = true
+                };
+                _watcher.Changed += OnFileChanged;
+                _watcher.Created += OnFileChanged;
+                _watcher.Renamed += OnFileChanged;
+            }
+            else
+            {
+                _logger.LogWarning("Directory for data file does not exist; hot-reload disabled: {Dir}", dir);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to start FileSystemWatcher for {Path}. Hot-reload disabled.", _dataFilePath);
+        }
     }
 
     public DashboardLoadResult GetCurrent()
     {
-        if (_cache.TryGetValue(CacheKey, out DashboardLoadResult? cached) && cached is not null)
+        if (_cache.TryGetValue(CacheKey, out DashboardLoadResult? result) && result is not null)
         {
-            return cached;
+            return result;
         }
 
+        return LoadAndCache();
+    }
+
+    private void OnFileChanged(object sender, FileSystemEventArgs e)
+    {
+        _debounceTimer.Stop();
+        _debounceTimer.Start();
+    }
+
+    private async Task ReloadAsync()
+    {
+        await _reloadLock.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            LoadAndCache();
+            DataChanged?.Invoke(this, EventArgs.Empty);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error during data.json reload.");
+        }
+        finally
+        {
+            _reloadLock.Release();
+        }
+    }
+
+    private DashboardLoadResult LoadAndCache()
+    {
         var result = Load();
         _cache.Set(CacheKey, result);
         return result;
@@ -56,77 +122,154 @@ public sealed class DashboardDataService : IDashboardDataService
 
     private DashboardLoadResult Load()
     {
-        var filePath = ResolveFilePath();
-        try
-        {
-            if (!File.Exists(filePath))
-            {
-                _logger.LogWarning("data.json not found at {Path}", filePath);
-                return new DashboardLoadResult(
-                    Data: null,
-                    Error: new DashboardLoadError(filePath, "data.json not found.", null, null, "NotFound"),
-                    LoadedAt: DateTimeOffset.UtcNow);
-            }
+        var sw = Stopwatch.StartNew();
 
-            using var stream = File.Open(filePath, new FileStreamOptions
-            {
-                Mode = FileMode.Open,
-                Access = FileAccess.Read,
-                Share = FileShare.ReadWrite
-            });
-            var data = JsonSerializer.Deserialize<DashboardData>(stream, _jsonOptions);
-            if (data is null)
-            {
-                return new DashboardLoadResult(
-                    Data: null,
-                    Error: new DashboardLoadError(filePath, "data.json deserialized to null.", null, null, "ParseError"),
-                    LoadedAt: DateTimeOffset.UtcNow);
-            }
-
-            _logger.LogInformation("Loaded data.json from {Path}", filePath);
-            return new DashboardLoadResult(data, Error: null, DateTimeOffset.UtcNow);
-        }
-        catch (JsonException jex)
+        if (!File.Exists(_dataFilePath))
         {
-            _logger.LogWarning(jex, "Failed to parse data.json at {Path}", filePath);
+            _logger.LogError("data.json not found at {Path}", _dataFilePath);
             return new DashboardLoadResult(
                 Data: null,
                 Error: new DashboardLoadError(
-                    filePath,
-                    jex.Message,
-                    jex.LineNumber.HasValue ? (int)jex.LineNumber.Value + 1 : null,
-                    jex.BytePositionInLine.HasValue ? (int)jex.BytePositionInLine.Value + 1 : null,
-                    "ParseError"),
+                    FilePath: _dataFilePath,
+                    Message: $"data.json not found at {_dataFilePath}. See README for schema.",
+                    Line: null,
+                    Column: null,
+                    Kind: "NotFound"),
+                LoadedAt: DateTimeOffset.UtcNow);
+        }
+
+        string? json = null;
+        Exception? lastIoError = null;
+        for (int attempt = 0; attempt < MaxReadRetries; attempt++)
+        {
+            try
+            {
+                using var stream = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var reader = new StreamReader(stream);
+                json = reader.ReadToEnd();
+                lastIoError = null;
+                break;
+            }
+            catch (IOException ex)
+            {
+                lastIoError = ex;
+                if (attempt < MaxReadRetries - 1)
+                {
+                    Thread.Sleep(ReadRetryDelayMs);
+                }
+            }
+        }
+
+        if (json is null)
+        {
+            _logger.LogError(lastIoError, "Failed to read data.json after {Attempts} attempts: {Path}", MaxReadRetries, _dataFilePath);
+            return new DashboardLoadResult(
+                Data: null,
+                Error: new DashboardLoadError(
+                    FilePath: _dataFilePath,
+                    Message: $"Failed to read data.json: {lastIoError?.Message ?? "unknown IO error"}",
+                    Line: null,
+                    Column: null,
+                    Kind: "ParseError"),
+                LoadedAt: DateTimeOffset.UtcNow);
+        }
+
+        DashboardData? data;
+        try
+        {
+            data = JsonSerializer.Deserialize<DashboardData>(json, _jsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to parse data.json at {Path}", _dataFilePath);
+            return new DashboardLoadResult(
+                Data: null,
+                Error: new DashboardLoadError(
+                    FilePath: _dataFilePath,
+                    Message: ex.Message,
+                    Line: ex.LineNumber.HasValue ? (int)ex.LineNumber.Value + 1 : null,
+                    Column: ex.BytePositionInLine.HasValue ? (int)ex.BytePositionInLine.Value + 1 : null,
+                    Kind: "ParseError"),
                 LoadedAt: DateTimeOffset.UtcNow);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error loading data.json at {Path}", filePath);
+            _logger.LogError(ex, "Unexpected error deserializing data.json at {Path}", _dataFilePath);
             return new DashboardLoadResult(
                 Data: null,
-                Error: new DashboardLoadError(filePath, ex.Message, null, null, "ParseError"),
+                Error: new DashboardLoadError(
+                    FilePath: _dataFilePath,
+                    Message: ex.Message,
+                    Line: null,
+                    Column: null,
+                    Kind: "ParseError"),
                 LoadedAt: DateTimeOffset.UtcNow);
         }
+
+        if (data is null)
+        {
+            return new DashboardLoadResult(
+                Data: null,
+                Error: new DashboardLoadError(
+                    FilePath: _dataFilePath,
+                    Message: "data.json deserialized to null.",
+                    Line: null,
+                    Column: null,
+                    Kind: "ParseError"),
+                LoadedAt: DateTimeOffset.UtcNow);
+        }
+
+        var validationErrors = DashboardDataValidator.Validate(data);
+        if (validationErrors.Count > 0)
+        {
+            foreach (var err in validationErrors)
+            {
+                _logger.LogWarning("data.json validation warning: {Error}", err);
+            }
+
+            return new DashboardLoadResult(
+                Data: null,
+                Error: new DashboardLoadError(
+                    FilePath: _dataFilePath,
+                    Message: string.Join("; ", validationErrors),
+                    Line: null,
+                    Column: null,
+                    Kind: "ValidationError"),
+                LoadedAt: DateTimeOffset.UtcNow);
+        }
+
+        sw.Stop();
+        _logger.LogInformation("Loaded data.json ({Bytes} bytes) in {ElapsedMs}ms", json.Length, sw.ElapsedMilliseconds);
+
+        return new DashboardLoadResult(
+            Data: data,
+            Error: null,
+            LoadedAt: DateTimeOffset.UtcNow);
     }
 
-    private string ResolveFilePath()
+    public void Dispose()
     {
-        var configured = _config["Dashboard:DataFilePath"];
-        if (!string.IsNullOrWhiteSpace(configured))
+        if (_disposed) return;
+        _disposed = true;
+
+        try
         {
-            return Path.IsPathRooted(configured)
-                ? configured
-                : Path.Combine(_env.ContentRootPath, configured);
+            if (_watcher is not null)
+            {
+                _watcher.EnableRaisingEvents = false;
+                _watcher.Changed -= OnFileChanged;
+                _watcher.Created -= OnFileChanged;
+                _watcher.Renamed -= OnFileChanged;
+                _watcher.Dispose();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error disposing FileSystemWatcher.");
         }
 
-        var root = _env.WebRootPath;
-        if (string.IsNullOrEmpty(root))
-        {
-            root = Path.Combine(_env.ContentRootPath, "wwwroot");
-        }
-        return Path.Combine(root, "data.json");
+        _debounceTimer.Stop();
+        _debounceTimer.Dispose();
+        _reloadLock.Dispose();
     }
-
-    // Keep compiler from warning about unused event; downstream tasks will raise it.
-    private void RaiseChanged() => DataChanged?.Invoke(this, EventArgs.Empty);
 }
