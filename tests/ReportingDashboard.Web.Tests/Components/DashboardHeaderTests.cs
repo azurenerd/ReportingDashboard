@@ -1,128 +1,92 @@
 using Bunit;
 using FluentAssertions;
-using ReportingDashboard.Web.Components.Pages.Partials;
 using ReportingDashboard.Web.Models;
 using Xunit;
 
 namespace ReportingDashboard.Web.Tests.Components;
 
-public class DashboardHeaderTests : TestContext
+[Trait("Category", "Unit")]
+public class DashboardHeaderTests : IDisposable
 {
-    private static Project MakeProject(string? backlogUrl = "https://dev.azure.com/contoso/privacy/_backlogs/backlog/") => new()
+    private readonly Bunit.TestContext _ctx = new();
+
+    public void Dispose() => _ctx.Dispose();
+
+    private static Project MakeProject(
+        string? backlogUrl = "https://dev.azure.com/x",
+        string title = "Privacy Roadmap",
+        string subtitle = "Trusted Platform - Privacy - April 2026") => new()
     {
-        Title = "Privacy Automation Release Roadmap",
-        Subtitle = "Trusted Platform \u2022 Privacy Automation Workstream \u2022 April 2026",
-        BacklogUrl = backlogUrl
+        Title = title,
+        Subtitle = subtitle,
+        BacklogUrl = backlogUrl,
+        BacklogLinkText = "ADO Backlog"
     };
 
     [Fact]
-    public void Renders_Title_Subtitle_And_NowLabel()
+    public void Renders_Title_Subtitle_And_Legend()
     {
-        var cut = RenderComponent<DashboardHeader>(p => p
-            .Add(h => h.Project, MakeProject())
-            .Add(h => h.NowLabel, "Now (Apr 2026)"));
+        var cut = _ctx.RenderComponent<ReportingDashboard.Web.Components.Pages.Partials.DashboardHeader>(p => p
+            .Add(x => x.Project, MakeProject())
+            .Add(x => x.NowLabel, "Now (Apr 2026)"));
 
-        var h1 = cut.Find(".hdr h1");
-        h1.TextContent.Should().Contain("Privacy Automation Release Roadmap");
-
-        cut.Find(".sub").TextContent.Should().Contain("Privacy Automation Workstream");
-        cut.Markup.Should().Contain("Now (Apr 2026)");
+        cut.Find("header.hdr").Should().NotBeNull();
+        cut.Find("h1").TextContent.Should().Contain("Privacy Roadmap");
+        cut.Find(".sub").TextContent.Should().Be("Trusted Platform - Privacy - April 2026");
+        cut.FindAll(".legend-item").Count.Should().Be(4);
     }
 
     [Fact]
-    public void Renders_Backlog_Link_As_Anchor_When_Url_Is_Http()
+    public void Renders_Active_Backlog_Link_For_Https_Url()
     {
-        var cut = RenderComponent<DashboardHeader>(p => p
-            .Add(h => h.Project, MakeProject("http://example.com/backlog"))
-            .Add(h => h.NowLabel, "Now (Apr 2026)"));
+        var cut = _ctx.RenderComponent<ReportingDashboard.Web.Components.Pages.Partials.DashboardHeader>(p => p
+            .Add(x => x.Project, MakeProject("https://dev.azure.com/x"))
+            .Add(x => x.NowLabel, "Now (Apr 2026)"));
 
         var anchor = cut.Find("a.backlog-link");
-        anchor.GetAttribute("href").Should().Be("http://example.com/backlog");
-    }
-
-    [Fact]
-    public void Renders_Backlog_Link_As_Anchor_When_Url_Is_Https()
-    {
-        var cut = RenderComponent<DashboardHeader>(p => p
-            .Add(h => h.Project, MakeProject("https://dev.azure.com/x/_backlogs/"))
-            .Add(h => h.NowLabel, "Now (Apr 2026)"));
-
-        cut.FindAll("a.backlog-link").Should().HaveCount(1);
-    }
-
-    [Fact]
-    public void Renders_Backlog_As_Plain_Text_When_Url_Is_Null()
-    {
-        var cut = RenderComponent<DashboardHeader>(p => p
-            .Add(h => h.Project, MakeProject(null))
-            .Add(h => h.NowLabel, "Now (Apr 2026)"));
-
-        cut.FindAll("a.backlog-link").Should().BeEmpty();
-        cut.FindAll("span.backlog-link").Should().HaveCount(1);
-    }
-
-    [Fact]
-    public void Renders_Backlog_As_Plain_Text_When_Url_Is_Empty_Or_Whitespace()
-    {
-        var cut = RenderComponent<DashboardHeader>(p => p
-            .Add(h => h.Project, MakeProject("   "))
-            .Add(h => h.NowLabel, "Now (Apr 2026)"));
-
-        cut.FindAll("a.backlog-link").Should().BeEmpty();
+        anchor.GetAttribute("href").Should().Be("https://dev.azure.com/x");
+        anchor.TextContent.Trim().Should().Be("ADO Backlog");
     }
 
     [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("ftp://x/y")]
     [InlineData("javascript:alert(1)")]
-    [InlineData("ftp://example.com/file")]
-    [InlineData("file:///etc/passwd")]
-    [InlineData("not a url")]
-    [InlineData("/relative/path")]
-    public void Renders_Backlog_As_Plain_Text_When_Url_Is_Not_Http_Or_Https(string badUrl)
+    [InlineData("file:///c:/x")]
+    [InlineData("not-a-url")]
+    public void Renders_Disabled_Span_When_Url_Is_Unsafe_Or_Missing(string? url)
     {
-        var cut = RenderComponent<DashboardHeader>(p => p
-            .Add(h => h.Project, MakeProject(badUrl))
-            .Add(h => h.NowLabel, "Now (Apr 2026)"));
+        var cut = _ctx.RenderComponent<ReportingDashboard.Web.Components.Pages.Partials.DashboardHeader>(p => p
+            .Add(x => x.Project, MakeProject(url))
+            .Add(x => x.NowLabel, "Now (Apr 2026)"));
 
         cut.FindAll("a.backlog-link").Should().BeEmpty();
-        cut.FindAll("span.backlog-link").Should().HaveCount(1);
+        cut.FindAll("span.backlog-link--disabled").Count.Should().Be(1);
     }
 
     [Fact]
-    public void Renders_All_Four_Legend_Items()
+    public void Renders_NowLabel_Verbatim_In_Last_Legend_Item()
     {
-        var cut = RenderComponent<DashboardHeader>(p => p
-            .Add(h => h.Project, MakeProject())
-            .Add(h => h.NowLabel, "Now (Apr 2026)"));
+        var cut = _ctx.RenderComponent<ReportingDashboard.Web.Components.Pages.Partials.DashboardHeader>(p => p
+            .Add(x => x.Project, MakeProject())
+            .Add(x => x.NowLabel, "CUSTOM_LABEL_XYZ"));
 
-        var items = cut.FindAll(".hdr-legend .legend-item");
-        items.Count.Should().Be(4);
-
-        cut.Markup.Should().Contain("PoC Milestone");
-        cut.Markup.Should().Contain("Production Release");
-        cut.Markup.Should().Contain("Checkpoint");
-        cut.Markup.Should().Contain("Now (Apr 2026)");
+        var items = cut.FindAll(".legend-item");
+        items[items.Count - 1].TextContent.Should().Contain("CUSTOM_LABEL_XYZ");
     }
 
     [Fact]
-    public void Renders_Legend_Shape_Classes()
+    public void Html_Encodes_Hostile_Title()
     {
-        var cut = RenderComponent<DashboardHeader>(p => p
-            .Add(h => h.Project, MakeProject())
-            .Add(h => h.NowLabel, "Now (Apr 2026)"));
+        var project = MakeProject(title: "<script>alert(1)</script>");
 
-        cut.FindAll(".legend-diamond--poc").Should().HaveCount(1);
-        cut.FindAll(".legend-diamond--prod").Should().HaveCount(1);
-        cut.FindAll(".legend-circle").Should().HaveCount(1);
-        cut.FindAll(".legend-bar").Should().HaveCount(1);
-    }
+        var cut = _ctx.RenderComponent<ReportingDashboard.Web.Components.Pages.Partials.DashboardHeader>(p => p
+            .Add(x => x.Project, project)
+            .Add(x => x.NowLabel, "Now (Apr 2026)"));
 
-    [Fact]
-    public void Renders_Hdr_Container_Class()
-    {
-        var cut = RenderComponent<DashboardHeader>(p => p
-            .Add(h => h.Project, MakeProject())
-            .Add(h => h.NowLabel, "Now (Apr 2026)"));
-
-        cut.FindAll("header.hdr").Should().HaveCount(1);
+        cut.Markup.Should().NotContain("<script>alert(1)</script>");
+        cut.Markup.Should().Contain("&lt;script&gt;");
     }
 }

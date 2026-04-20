@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Xunit;
 
@@ -7,31 +5,24 @@ namespace ReportingDashboard.Web.UITests;
 
 public class PlaywrightFixture : IAsyncLifetime
 {
-    public IPlaywright Playwright { get; private set; } = default!;
-    public IBrowser Browser { get; private set; } = default!;
+    public IPlaywright Playwright { get; private set; } = null!;
+    public IBrowser Browser { get; private set; } = null!;
 
-    public string BaseUrl { get; } =
+    public string BaseUrl =>
         Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5080";
 
     public async Task InitializeAsync()
     {
         Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
         Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-        Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+        Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true,
+            Timeout = 60000
+        });
     }
 
-    public async Task<IPage> NewPageAsync()
-    {
-        var ctx = await Browser.NewContextAsync(new BrowserNewContextOptions
-        {
-            ViewportSize = new ViewportSize { Width = 1920, Height = 1080 }
-        });
-        var page = await ctx.NewPageAsync();
-        page.SetDefaultTimeout(60000);
-        await page.GotoAsync(BaseUrl);
-        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-        return page;
-    }
+    public Task<IPage> NewPageAsync() => Browser.NewPageAsync();
 
     public async Task DisposeAsync()
     {
