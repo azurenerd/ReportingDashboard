@@ -1,0 +1,53 @@
+@* Heatmap partial component skeleton. Full visual implementation is delivered by a
+   downstream task (T6); this file is included in the scaffold so the project's
+   component namespace exists and so the data-binding contract is visible. *@
+
+@if (Model is null || Model.Rows.Count == 0)
+{
+    <div class="hm-wrap"></div>
+}
+else
+{
+    <div class="hm-wrap">
+        <div class="hm-title">Monthly Execution Heatmap</div>
+        <div class="hm-grid">
+            <div class="hm-corner">Status</div>
+            @for (var i = 0; i < Model.Months.Count; i++)
+            {
+                var isCurrent = i == Model.CurrentMonthIndex;
+                <div class="hm-col-hdr @(isCurrent ? "current-hdr" : null)">@Model.Months[i]</div>
+            }
+
+            @foreach (var row in Model.Rows)
+            {
+                <div class="hm-row-hdr">@row.HeaderLabel</div>
+                @for (var i = 0; i < row.Cells.Count; i++)
+                {
+                    var cell = row.Cells[i];
+                    var isCurrent = i == Model.CurrentMonthIndex;
+                    <div class="hm-cell @(isCurrent ? "current" : null)">
+                        @if (cell.IsEmpty)
+                        {
+                            <div class="it empty">&ndash;</div>
+                        }
+                        else
+                        {
+                            @foreach (var item in cell.Items)
+                            {
+                                <div class="it">@item</div>
+                            }
+                            @if (cell.OverflowCount > 0)
+                            {
+                                <div class="it overflow">+@cell.OverflowCount more</div>
+                            }
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public HeatmapViewModel? Model { get; set; }
+}
