@@ -1,0 +1,38 @@
+@page "/"
+@implements IDisposable
+@inject IDashboardDataService DataService
+
+@if (_state?.Error is not null)
+{
+    <ParseErrorBanner Error="_state.Error" />
+}
+
+<DashboardHeader Title="@(_state?.Model?.Title ?? string.Empty)"
+                 Subtitle="@(_state?.Model?.Subtitle ?? string.Empty)"
+                 BacklogUrl="@(_state?.Model?.BacklogUrl ?? "#")" />
+
+<TimelineSvg Timeline="_state?.Model?.Timeline"
+             CurrentDate="@(_state?.Model?.CurrentDate ?? DateOnly.FromDateTime(DateTime.Today))" />
+
+<Heatmap Model="_state?.Model?.Heatmap" />
+
+@code {
+    private DashboardState? _state;
+
+    protected override void OnInitialized()
+    {
+        _state = DataService.Current;
+        DataService.OnChanged += HandleChanged;
+    }
+
+    private void HandleChanged()
+    {
+        _state = DataService.Current;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        DataService.OnChanged -= HandleChanged;
+    }
+}

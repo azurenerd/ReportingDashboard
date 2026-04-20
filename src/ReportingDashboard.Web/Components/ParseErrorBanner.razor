@@ -1,0 +1,10 @@
+@if (Error is not null)
+{
+    <div class="err-banner">
+        data.json parse error at line @Error.Line, column @Error.Column: @Error.Message
+    </div>
+}
+
+@code {
+    [Parameter] public ParseError? Error { get; set; }
+}

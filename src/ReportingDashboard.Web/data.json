@@ -1,0 +1,21 @@
+{
+  "title": "Project Aurora - Customer Portal Revamp",
+  "subtitle": "Trusted Platform - Customer Experience Workstream - April 2026",
+  "backlogUrl": "https://example.com/backlog",
+  "currentDate": "2026-04-19",
+  "timeline": {
+    "rangeStart": "2026-01-01",
+    "rangeEnd": "2026-06-30",
+    "tracks": []
+  },
+  "heatmap": {
+    "months": ["Jan", "Feb", "Mar", "Apr"],
+    "currentMonthIndex": 3,
+    "rows": {
+      "shipped": [[], [], [], []],
+      "inProgress": [[], [], [], []],
+      "carryover": [[], [], [], []],
+      "blockers": [[], [], [], []]
+    }
+  }
+}
