@@ -1,71 +1,91 @@
 @page "/"
-@namespace ReportingDashboard.Web.Components.Pages
-@using System.Globalization
-@using ReportingDashboard.Web.Components.Pages.Partials
-@using ReportingDashboard.Web.Layout
 @using ReportingDashboard.Web.Models
 @using ReportingDashboard.Web.Services
-@inject IDashboardDataService Data
+@using ReportingDashboard.Web.Layout
+@using ReportingDashboard.Web.Components.Partials
+@inject IDashboardDataService DataService
 
-<PageTitle>Reporting Dashboard</PageTitle>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920" />
+    <title>@pageTitle</title>
+    <base href="/" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="ReportingDashboard.Web.styles.css" />
+    <HeadOutlet />
+</head>
+<body>
+    @if (_result.Error is not null)
+    {
+        <ErrorBanner Error="_result.Error" />
+    }
 
-@if (_result.Error is not null)
-{
-    <ErrorBanner Error="_result.Error" />
-    <DashboardHeader Project="Project.Placeholder" NowLabel="@_nowLabel" />
-    <TimelineSvg Model="TimelineViewModel.Empty" />
-    <Heatmap Model="HeatmapViewModel.Empty" />
-}
-else if (_result.Data is { } d)
-{
-    <DashboardHeader Project="d.Project" NowLabel="@_nowLabel" />
-    <TimelineSvg Model="_timelineVm" />
-    <Heatmap Model="_heatmapVm" />
-}
-else
-{
-    <DashboardHeader Project="Project.Placeholder" NowLabel="@_nowLabel" />
-    <TimelineSvg Model="TimelineViewModel.Empty" />
-    <Heatmap Model="HeatmapViewModel.Empty" />
-}
+    @if (_result.Data is { } d)
+    {
+        <DashboardHeader Project="d.Project" NowLabel="@_nowLabel" />
+        <TimelineSvg Model="_timelineVm" />
+        <Heatmap Model="_heatmapVm" />
+    }
+    else
+    {
+        <DashboardHeader Project="Project.Placeholder" NowLabel="@_nowLabel" />
+        <TimelineSvg Model="_timelineVm" />
+        <Heatmap Model="_heatmapVm" />
+    }
+</body>
+</html>
 
 @code {
-    private DashboardLoadResult _result = new(Data: null, Error: null, LoadedAt: DateTimeOffset.UtcNow);
-    private string _nowLabel = string.Empty;
+    private DashboardLoadResult _result = new(null, null, DateTimeOffset.UtcNow);
     private TimelineViewModel _timelineVm = TimelineViewModel.Empty;
     private HeatmapViewModel _heatmapVm = HeatmapViewModel.Empty;
+    private string _nowLabel = string.Empty;
+    private string pageTitle = "Reporting Dashboard";
 
     protected override void OnInitialized()
     {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        _nowLabel = $"Now ({DateTime.Today:MMM yyyy})";
+
         try
         {
-            _result = Data.GetCurrent();
-            _nowLabel = $"Now ({DateTime.Today.ToString("MMM yyyy", CultureInfo.InvariantCulture)})";
-
-            if (_result.Data is { } d)
-            {
-                var today = DateOnly.FromDateTime(DateTime.Today);
-                _timelineVm = TimelineLayoutEngine.Build(d.Timeline, today);
-                _heatmapVm = HeatmapLayoutEngine.Build(d.Heatmap, today);
-            }
-            else
-            {
-                _timelineVm = TimelineViewModel.Empty;
-                _heatmapVm = HeatmapViewModel.Empty;
-            }
+            _result = DataService.GetCurrent() ?? new DashboardLoadResult(
+                null,
+                new DashboardLoadError("unknown", "DashboardDataService returned null.", null, null, "ParseError"),
+                DateTimeOffset.UtcNow);
         }
         catch (Exception ex)
         {
             _result = new DashboardLoadResult(
-                Data: null,
-                Error: new DashboardLoadError(
-                    FilePath: "(unknown)",
-                    Message: ex.Message,
-                    Line: null,
-                    Column: null,
-                    Kind: "UnexpectedError"),
-                LoadedAt: DateTimeOffset.UtcNow);
-            _nowLabel = $"Now ({DateTime.Today.ToString("MMM yyyy", CultureInfo.InvariantCulture)})";
+                null,
+                new DashboardLoadError("unknown", ex.Message, null, null, "ParseError"),
+                DateTimeOffset.UtcNow);
+        }
+
+        if (_result.Data is { } data)
+        {
+            pageTitle = data.Project.Title;
+            try
+            {
+                _timelineVm = TimelineLayoutEngine.Build(data.Timeline, today);
+            }
+            catch
+            {
+                _timelineVm = TimelineViewModel.Empty;
+            }
+            try
+            {
+                _heatmapVm = HeatmapLayoutEngine.Build(data.Heatmap, today, data.Heatmap.MaxItemsPerCell);
+            }
+            catch
+            {
+                _heatmapVm = HeatmapViewModel.Empty;
+            }
+        }
+        else
+        {
             _timelineVm = TimelineViewModel.Empty;
             _heatmapVm = HeatmapViewModel.Empty;
         }
