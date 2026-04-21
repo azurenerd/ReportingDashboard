@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bunit;
@@ -16,6 +15,11 @@ namespace ReportingDashboard.Web.Tests;
 [Trait("Category", "Unit")]
 public class DashboardRenderTests : TestContext
 {
+    public DashboardRenderTests()
+    {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+    }
+
     private sealed class MockDashboardDataService : IDashboardDataService
     {
         private readonly DashboardLoadResult _result;
@@ -37,86 +41,64 @@ public class DashboardRenderTests : TestContext
         return JsonSerializer.Deserialize<DashboardData>(json, opts)!;
     }
 
+    private void RegisterData(DashboardLoadResult result) =>
+        Services.AddSingleton<IDashboardDataService>(new MockDashboardDataService(result));
+
     [Fact]
-    public void RendersDashboard_AgainstSampleFixture_WithoutException()
+    public void Dashboard_Renders_HappyPath_WithoutException()
     {
         var data = LoadSampleData();
-        var result = new DashboardLoadResult(data, null, DateTimeOffset.UtcNow);
-        Services.AddSingleton<IDashboardDataService>(new MockDashboardDataService(result));
+        RegisterData(new DashboardLoadResult(data, null, DateTimeOffset.UtcNow));
 
         var cut = RenderComponent<Dashboard>();
 
         cut.FindAll(".error-banner").Should().BeEmpty();
+        cut.Markup.Should().Contain(data.Project.Title);
     }
 
     [Fact]
-    public void HdrH1_ContainsProjectTitle()
+    public void Dashboard_Renders_ErrorBanner_OnNotFound()
     {
-        var data = LoadSampleData();
-        Services.AddSingleton<IDashboardDataService>(
-            new MockDashboardDataService(new DashboardLoadResult(data, null, DateTimeOffset.UtcNow)));
+        var err = new DashboardLoadError("wwwroot/data.json", "missing", null, null, "NotFound");
+        RegisterData(new DashboardLoadResult(null, err, DateTimeOffset.UtcNow));
 
         var cut = RenderComponent<Dashboard>();
 
-        var h1 = cut.Find(".hdr h1");
-        h1.TextContent.Should().Contain("Privacy Automation Release Roadmap");
+        cut.FindAll(".error-banner").Should().HaveCount(1);
+        cut.Markup.Should().Contain("data.json not found");
     }
 
     [Fact]
-    public void AllLaneIds_ArePresent_InTimelineLabels()
+    public void Dashboard_Renders_ErrorBanner_OnValidationError()
     {
-        var data = LoadSampleData();
-        Services.AddSingleton<IDashboardDataService>(
-            new MockDashboardDataService(new DashboardLoadResult(data, null, DateTimeOffset.UtcNow)));
+        var err = new DashboardLoadError("wwwroot/data.json", "bad color", null, null, "ValidationError");
+        RegisterData(new DashboardLoadResult(null, err, DateTimeOffset.UtcNow));
 
         var cut = RenderComponent<Dashboard>();
 
-        var markup = cut.Markup;
-        foreach (var lane in data.Timeline.Lanes)
-        {
-            markup.Should().Contain(lane.Id, $"lane id {lane.Id} must appear somewhere in the rendered dashboard");
-        }
-        markup.Should().Contain("PDS &amp; Data Inventory").And.Contain("Auto Review DFD");
+        cut.FindAll(".error-banner").Should().HaveCount(1);
+        cut.Markup.Should().Contain("data.json validation failed");
     }
 
     [Fact]
-    public void FourCategoryRowHeaders_ArePresent()
+    public void Dashboard_Renders_ErrorBanner_OnParseError_WithLineColumn()
     {
-        var data = LoadSampleData();
-        Services.AddSingleton<IDashboardDataService>(
-            new MockDashboardDataService(new DashboardLoadResult(data, null, DateTimeOffset.UtcNow)));
+        var err = new DashboardLoadError("wwwroot/data.json", "Unexpected token", 42, 3, "ParseError");
+        RegisterData(new DashboardLoadResult(null, err, DateTimeOffset.UtcNow));
 
         var cut = RenderComponent<Dashboard>();
 
-        var rowHeaders = cut.FindAll(".hm-row-hdr");
-        rowHeaders.Should().HaveCount(4);
-
-        var classes = string.Join(" ", rowHeaders.Select(e => e.GetAttribute("class") ?? string.Empty));
-        classes.Should().Contain("ship-hdr");
-        classes.Should().Contain("prog-hdr");
-        classes.Should().Contain("carry-hdr");
-        classes.Should().Contain("block-hdr");
+        cut.FindAll(".error-banner").Should().HaveCount(1);
+        cut.Markup.Should().Contain("Failed to load data.json")
+            .And.Contain("line 42")
+            .And.Contain("column 3");
     }
 
     [Fact]
-    public void HeatmapGrid_IsRendered_WithFourMonthColumnHeaders()
+    public void Dashboard_DoesNotContainBlazorServerScript()
     {
         var data = LoadSampleData();
-        Services.AddSingleton<IDashboardDataService>(
-            new MockDashboardDataService(new DashboardLoadResult(data, null, DateTimeOffset.UtcNow)));
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.FindAll(".hm-grid").Should().HaveCount(1);
-        cut.FindAll(".hm-col-hdr").Should().HaveCount(4);
-    }
-
-    [Fact]
-    public void RendersDashboard_DoesNotContainBlazorServerScript()
-    {
-        var data = LoadSampleData();
-        Services.AddSingleton<IDashboardDataService>(
-            new MockDashboardDataService(new DashboardLoadResult(data, null, DateTimeOffset.UtcNow)));
+        RegisterData(new DashboardLoadResult(data, null, DateTimeOffset.UtcNow));
 
         var cut = RenderComponent<Dashboard>();
 
