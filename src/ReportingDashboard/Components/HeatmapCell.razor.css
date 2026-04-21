@@ -1,0 +1,50 @@
+.hm-cell {
+    padding: 8px 12px;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
+    overflow: hidden;
+}
+
+.empty-dash {
+    color: #AAA;
+    font-size: 14px;
+    text-align: center;
+    padding-top: 4px;
+}
+
+.it {
+    font-size: 12px;
+    color: #333;
+    line-height: 1.35;
+    padding: 2px 0 2px 12px;
+    position: relative;
+}
+
+.it::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #999;
+}
+
+/* Cell background color variants */
+.ship-cell { background: #F0FBF0; }
+.prog-cell { background: #EEF4FE; }
+.carry-cell { background: #FFFDE7; }
+.block-cell { background: #FFF5F5; }
+
+/* Current month darker backgrounds */
+.ship-cell.current-month { background: #D8F2DA; }
+.prog-cell.current-month { background: #DAE8FB; }
+.carry-cell.current-month { background: #FFF0B0; }
+.block-cell.current-month { background: #FFE4E4; }
+
+/* Bullet dot colors */
+.ship-dot::before { background: #34A853; }
+.prog-dot::before { background: #0078D4; }
+.carry-dot::before { background: #F4B400; }
+.block-dot::before { background: #EA4335; }
