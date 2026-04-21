@@ -59,7 +59,7 @@ public class DashboardRenderTests : TestContext
         var cut = RenderComponent<Dashboard>();
 
         var h1 = cut.Find(".hdr h1");
-        h1.TextContent.Should().Contain("Sample Fixture Project");
+        h1.TextContent.Should().Contain("Privacy Automation Release Roadmap");
     }
 
     [Fact]
@@ -109,5 +109,17 @@ public class DashboardRenderTests : TestContext
 
         cut.FindAll(".hm-grid").Should().HaveCount(1);
         cut.FindAll(".hm-col-hdr").Should().HaveCount(4);
+    }
+
+    [Fact]
+    public void RendersDashboard_DoesNotContainBlazorServerScript()
+    {
+        var data = LoadSampleData();
+        Services.AddSingleton<IDashboardDataService>(
+            new MockDashboardDataService(new DashboardLoadResult(data, null, DateTimeOffset.UtcNow)));
+
+        var cut = RenderComponent<Dashboard>();
+
+        cut.Markup.Should().NotContain("blazor.server.js");
     }
 }

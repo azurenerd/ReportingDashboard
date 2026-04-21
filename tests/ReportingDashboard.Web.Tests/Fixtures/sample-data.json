@@ -1,8 +1,8 @@
 {
   "project": {
-    "title": "Sample Fixture Project",
-    "subtitle": "Trusted Platform \u2022 Sample Workstream \u2022 April 2026",
-    "backlogUrl": "https://dev.azure.com/contoso/sample/_backlogs/backlog/",
+    "title": "Privacy Automation Release Roadmap",
+    "subtitle": "Trusted Platform \u2022 Privacy Automation Workstream \u2022 April 2026",
+    "backlogUrl": "https://dev.azure.com/contoso/privacy/_backlogs/backlog/",
     "backlogLinkText": "\u2192 ADO Backlog"
   },
   "timeline": {
