@@ -4,7 +4,7 @@ using ReportingDashboard.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseUrls(
-    $"http://localhost:{builder.Configuration.GetValue<int>("Port", 5000)}");
+    $"http://127.0.0.1:{builder.Configuration.GetValue<int>("Port", 5000)}");
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
