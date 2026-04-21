@@ -64,11 +64,27 @@
                 "poc" => "PoC Milestone",
                 "production" => "Production Release",
                 "checkpoint" => "Checkpoint",
+                "checkpoint-medium" => "Checkpoint",
+                "checkpoint-small" => "Checkpoint",
                 _ => m.Type
             };
             return $"{dt:MMM d} \u2014 {typeLabel}";
         }
         return m.Label;
+    }
+
+    private double TooltipX(double mx)
+    {
+        // Keep tooltip within SVG bounds
+        var x = mx - 70;
+        if (x < 0) x = 0;
+        if (x + 140 > SvgWidth) x = SvgWidth - 140;
+        return x;
+    }
+
+    private double TooltipY(double y, bool above)
+    {
+        return above ? y - 50 : y + 16;
     }
 }
 
@@ -126,14 +142,21 @@
                         <g class="milestone-group">
                             <circle cx="@F(mx)" cy="@F(y)" r="7" fill="white" stroke="@track.Color" stroke-width="2.5" />
                             <text x="@F(mx)" y="@F(y - 16)" text-anchor="middle" fill="#666" font-size="10" font-family="Segoe UI,Arial">@ms.Label</text>
-                            <title>@tooltip</title>
+                            <!-- Invisible hover target -->
+                            <circle cx="@F(mx)" cy="@F(y)" r="14" fill="transparent" class="hover-target" />
+                            <foreignObject x="@F(TooltipX(mx))" y="@F(TooltipY(y, true))" width="140" height="34" class="tooltip-fo">
+                                <div xmlns="http://www.w3.org/1999/xhtml" class="svg-tooltip">@tooltip</div>
+                            </foreignObject>
                         </g>
                     }
                     else if (ms.Type == "checkpoint-small")
                     {
                         <g class="milestone-group">
                             <circle cx="@F(mx)" cy="@F(y)" r="4" fill="#999" />
-                            <title>@tooltip</title>
+                            <circle cx="@F(mx)" cy="@F(y)" r="14" fill="transparent" class="hover-target" />
+                            <foreignObject x="@F(TooltipX(mx))" y="@F(TooltipY(y, true))" width="140" height="34" class="tooltip-fo">
+                                <div xmlns="http://www.w3.org/1999/xhtml" class="svg-tooltip">@tooltip</div>
+                            </foreignObject>
                         </g>
                     }
                     else if (ms.Type == "checkpoint-medium")
@@ -141,7 +164,10 @@
                         <g class="milestone-group">
                             <circle cx="@F(mx)" cy="@F(y)" r="5" fill="white" stroke="#888" stroke-width="2.5" />
                             <text x="@F(mx)" y="@F(y - 16)" text-anchor="middle" fill="#666" font-size="10" font-family="Segoe UI,Arial">@ms.Label</text>
-                            <title>@tooltip</title>
+                            <circle cx="@F(mx)" cy="@F(y)" r="14" fill="transparent" class="hover-target" />
+                            <foreignObject x="@F(TooltipX(mx))" y="@F(TooltipY(y, true))" width="140" height="34" class="tooltip-fo">
+                                <div xmlns="http://www.w3.org/1999/xhtml" class="svg-tooltip">@tooltip</div>
+                            </foreignObject>
                         </g>
                     }
                     else if (ms.Type == "poc")
@@ -149,7 +175,10 @@
                         <g class="milestone-group">
                             <polygon points="@DiamondPoints(mx, y)" fill="#F4B400" filter="url(#sh)" />
                             <text x="@F(mx)" y="@F(y + 24)" text-anchor="middle" fill="#666" font-size="10" font-family="Segoe UI,Arial">@ms.Label</text>
-                            <title>@tooltip</title>
+                            <circle cx="@F(mx)" cy="@F(y)" r="14" fill="transparent" class="hover-target" />
+                            <foreignObject x="@F(TooltipX(mx))" y="@F(TooltipY(y, false))" width="140" height="34" class="tooltip-fo">
+                                <div xmlns="http://www.w3.org/1999/xhtml" class="svg-tooltip">@tooltip</div>
+                            </foreignObject>
                         </g>
                     }
                     else if (ms.Type == "production")
@@ -157,7 +186,10 @@
                         <g class="milestone-group">
                             <polygon points="@DiamondPoints(mx, y)" fill="#34A853" filter="url(#sh)" />
                             <text x="@F(mx)" y="@F(y - 24)" text-anchor="middle" fill="#666" font-size="10" font-family="Segoe UI,Arial">@ms.Label</text>
-                            <title>@tooltip</title>
+                            <circle cx="@F(mx)" cy="@F(y)" r="14" fill="transparent" class="hover-target" />
+                            <foreignObject x="@F(TooltipX(mx))" y="@F(TooltipY(y, true))" width="140" height="34" class="tooltip-fo">
+                                <div xmlns="http://www.w3.org/1999/xhtml" class="svg-tooltip">@tooltip</div>
+                            </foreignObject>
                         </g>
                     }
                 }

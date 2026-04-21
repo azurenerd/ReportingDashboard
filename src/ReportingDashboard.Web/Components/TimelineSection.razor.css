@@ -35,11 +35,35 @@
     padding-top: 6px;
 }
 
-/* CSS-only tooltip on milestone hover */
+/* CSS-only tooltip: hidden by default, shown on hover */
 .milestone-group {
     cursor: default;
 }
 
-.milestone-group title {
-    display: none;
+.milestone-group .tooltip-fo {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.milestone-group:hover .tooltip-fo {
+    opacity: 1;
+}
+
+.milestone-group .hover-target {
+    pointer-events: all;
+}
+
+::deep .svg-tooltip {
+    background: #FFFFFF;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #333;
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    line-height: 1.4;
 }
