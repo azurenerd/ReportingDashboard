@@ -1,0 +1,30 @@
+@page "/"
+@inject IDataService DataService
+
+@if (error != null)
+{
+    <div style="display:flex;align-items:center;justify-content:center;width:1920px;height:1080px;font-family:'Segoe UI',Arial,sans-serif;">
+        <div style="text-align:center;max-width:800px;padding:40px;border:2px solid #EA4335;border-radius:8px;background:#FEF2F2;">
+            <h2 style="color:#991B1B;margin-bottom:16px;">Error</h2>
+            <p style="color:#333;font-size:16px;">@error</p>
+        </div>
+    </div>
+}
+else if (data != null)
+{
+    <DashboardHeader Title="@data.Title" Subtitle="@data.Subtitle"
+                     BacklogUrl="@data.BacklogUrl" CurrentDate="@data.CurrentDate" />
+    <TimelineSection Timeline="@data.Timeline" CurrentDate="@data.CurrentDate" />
+    <HeatmapGrid Heatmap="@data.Heatmap" />
+}
+
+@code {
+    private DashboardData? data;
+    private string? error;
+
+    protected override void OnInitialized()
+    {
+        error = DataService.GetError();
+        data = DataService.GetData();
+    }
+}

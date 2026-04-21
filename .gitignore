@@ -54,6 +54,10 @@ desktop.ini
 appsettings.Development.json
 appsettings.Local.json
 
+## Dashboard data (contains real project data - use data.sample.json as reference)
+**/data.json
+!**/data.sample.json
+
 ## Playwright
 playwright-report/
 test-results/
