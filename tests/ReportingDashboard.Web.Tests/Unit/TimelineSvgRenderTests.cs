@@ -1,1 +1,0 @@
-// Intentionally empty - see Playwright UI tests for TimelineSvg render coverage.

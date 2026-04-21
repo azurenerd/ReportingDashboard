@@ -1,9 +1,0 @@
-{
-  "project": {
-    "title": "Broken Project",
-    "subtitle": "missing closing brace below"
-  ,
-  "timeline": {
-    "start": "2026-01-01",
-    "end": "2026-06-30",
-    "lanes": [
