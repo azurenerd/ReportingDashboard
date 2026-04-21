@@ -1,0 +1,48 @@
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Heatmap.Months.Count, 1fr);">
+        @* Header row *@
+        <div class="hm-corner">Status</div>
+        @for (int m = 0; m < Heatmap.Months.Count; m++)
+        {
+            var month = Heatmap.Months[m];
+            var isCurrent = month == Heatmap.CurrentMonth;
+            var isLast = m == Heatmap.Months.Count - 1;
+            var cls = "hm-col-hdr" + (isCurrent ? " apr-hdr" : "");
+            var style = isLast ? "border-right:none;" : "";
+            <div class="@cls" style="@style">
+                @month@(isCurrent ? " ▸ Now" : "")
+            </div>
+        }
+
+        @* Data rows *@
+        @foreach (var cat in Heatmap.Categories)
+        {
+            var totalCount = cat.Items.Values.Sum(v => v.Count);
+            var icon = cat.ColorClass switch
+            {
+                "ship" => "✓",
+                "prog" => "●",
+                "carry" => "↻",
+                "block" => "⚠",
+                _ => ""
+            };
+            <div class="hm-row-hdr @(cat.ColorClass)-hdr">@icon @cat.Name.ToUpper() (@totalCount)</div>
+            @for (int m = 0; m < Heatmap.Months.Count; m++)
+            {
+                var month = Heatmap.Months[m];
+                var isCurrent = month == Heatmap.CurrentMonth;
+                var isLast = m == Heatmap.Months.Count - 1;
+                var items = cat.Items.GetValueOrDefault(month) ?? new List<string>();
+                <HeatmapCell Items="@items"
+                             ColorClass="@cat.ColorClass"
+                             IsCurrentMonth="@isCurrent"
+                             IsLastColumn="@isLast" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public HeatmapData Heatmap { get; set; } = new();
+}
