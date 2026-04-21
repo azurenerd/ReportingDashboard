@@ -1,0 +1,4 @@
+agent: SoftwareEngineer
+task: Implement Scaffold Blazor Server project and configure local hosting
+complexity: Medium
+status: in-progress
