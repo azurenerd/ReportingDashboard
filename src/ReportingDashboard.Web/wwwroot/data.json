@@ -1,0 +1,87 @@
+{
+  "project": {
+    "title": "Privacy Automation Release Roadmap",
+    "subtitle": "Trusted Platform \u2022 Privacy Automation Workstream \u2022 April 2026",
+    "backlogUrl": "https://dev.azure.com/contoso/privacy/_backlogs/backlog/"
+  },
+  "timeline": {
+    "start": "2026-01-01",
+    "end": "2026-06-30",
+    "lanes": [
+      {
+        "id": "M1",
+        "label": "Chatbot & MS Role",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2026-01-15", "type": "checkpoint", "label": "Jan 15" },
+          { "date": "2026-02-28", "type": "checkpoint", "label": "Feb 28" },
+          { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
+          { "date": "2026-04-30", "type": "prod", "label": "Apr Prod (TBD)" }
+        ]
+      },
+      {
+        "id": "M2",
+        "label": "PDS & Data Inventory",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2026-01-31", "type": "checkpoint", "label": "Jan 31" },
+          { "date": "2026-03-15", "type": "poc", "label": "Mar 15 PoC" },
+          { "date": "2026-05-15", "type": "prod", "label": "May Prod" }
+        ]
+      },
+      {
+        "id": "M3",
+        "label": "Auto Review DFD",
+        "color": "#546E7A",
+        "milestones": [
+          { "date": "2026-02-15", "type": "checkpoint", "label": "Feb 15" },
+          { "date": "2026-04-15", "type": "poc", "label": "Apr 15 PoC" },
+          { "date": "2026-06-15", "type": "prod", "label": "Jun Prod" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["Jan", "Feb", "Mar", "Apr"],
+    "currentMonthIndex": null,
+    "maxItemsPerCell": 4,
+    "rows": [
+      {
+        "category": "shipped",
+        "cells": [
+          ["DSAR Portal v1", "Chatbot wireframes"],
+          ["MS Role mapping engine", "PDS connector alpha"],
+          ["Privacy API v2 GA", "Auto-classify MVP", "DFD template library"],
+          ["Consent SDK GA", "Chatbot PoC demo"]
+        ]
+      },
+      {
+        "category": "inProgress",
+        "cells": [
+          ["MS Role prototype"],
+          ["Chatbot training data", "PDS schema design"],
+          ["PDS beta onboarding", "Review flow UX"],
+          ["DSAR Portal v2 beta", "PDS prod rollout", "Auto-review rules engine", "MS Role prod deploy"]
+        ]
+      },
+      {
+        "category": "carryover",
+        "cells": [
+          [],
+          ["DSAR analytics dashboard"],
+          ["Legacy API migration"],
+          ["Legacy API migration", "Consent SDK docs"]
+        ]
+      },
+      {
+        "category": "blockers",
+        "cells": [
+          [],
+          [],
+          ["Vendor SLA (Azure AD)"],
+          ["Vendor SLA (Azure AD)", "Data residency review"]
+        ]
+      }
+    ]
+  }
+}

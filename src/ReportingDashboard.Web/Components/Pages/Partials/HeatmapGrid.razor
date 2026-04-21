@@ -1,0 +1,82 @@
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap &middot; Shipped &middot; In Progress &middot; Carryover &middot; Blockers</div>
+    <div class="hm-grid">
+        <div class="hm-corner">Status</div>
+        @for (int i = 0; i < Model.Months.Count; i++)
+        {
+            var isCurrent = i == Model.CurrentMonthIndex;
+            <div class="hm-col-hdr @(isCurrent ? "current-hdr" : "")">@Model.Months[i]</div>
+        }
+
+        @foreach (var row in Model.Rows)
+        {
+            <div class="hm-row-hdr @CatHdrClass(row.Category)">
+                <span class="hm-row-icon @CatDotClass(row.Category)"></span>
+                @row.HeaderLabel
+            </div>
+
+            @for (int i = 0; i < row.Cells.Count; i++)
+            {
+                var cell = row.Cells[i];
+                var isCurrent = i == Model.CurrentMonthIndex;
+                <div class="hm-cell @CatCellClass(row.Category) @(isCurrent ? "current" : "")">
+                    @if (cell.IsEmpty)
+                    {
+                        <div class="it empty">&ndash;</div>
+                    }
+                    else
+                    {
+                        @foreach (var item in cell.Items)
+                        {
+                            <div class="it @CatItClass(row.Category)">@item</div>
+                        }
+                        @if (cell.OverflowCount > 0)
+                        {
+                            <div class="it @CatItClass(row.Category) overflow">+@cell.OverflowCount more</div>
+                        }
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public required HeatmapViewModel Model { get; set; }
+
+    private static string CatHdrClass(HeatmapCategory cat) => cat switch
+    {
+        HeatmapCategory.Shipped => "ship-hdr",
+        HeatmapCategory.InProgress => "prog-hdr",
+        HeatmapCategory.Carryover => "carry-hdr",
+        HeatmapCategory.Blockers => "block-hdr",
+        _ => ""
+    };
+
+    private static string CatCellClass(HeatmapCategory cat) => cat switch
+    {
+        HeatmapCategory.Shipped => "ship-cell",
+        HeatmapCategory.InProgress => "prog-cell",
+        HeatmapCategory.Carryover => "carry-cell",
+        HeatmapCategory.Blockers => "block-cell",
+        _ => ""
+    };
+
+    private static string CatItClass(HeatmapCategory cat) => cat switch
+    {
+        HeatmapCategory.Shipped => "ship-it",
+        HeatmapCategory.InProgress => "prog-it",
+        HeatmapCategory.Carryover => "carry-it",
+        HeatmapCategory.Blockers => "block-it",
+        _ => ""
+    };
+
+    private static string CatDotClass(HeatmapCategory cat) => cat switch
+    {
+        HeatmapCategory.Shipped => "ship-dot",
+        HeatmapCategory.InProgress => "prog-dot",
+        HeatmapCategory.Carryover => "carry-dot",
+        HeatmapCategory.Blockers => "block-dot",
+        _ => ""
+    };
+}

@@ -1,0 +1,83 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Components
+
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var lane in Model.Lanes)
+        {
+            <div>
+                <span style="color:@lane.Color;font-weight:600;">@lane.Id</span><br/>
+                <span style="color:#444;font-weight:400;">@lane.Label</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="185" style="overflow:visible;display:block;">
+            <defs>
+                <filter id="sh">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/>
+                </filter>
+            </defs>
+
+            @foreach (var g in Model.Gridlines)
+            {
+                <line x1="@F(g.X)" y1="0" x2="@F(g.X)" y2="185"
+                      stroke="#bbb" stroke-opacity="0.4" stroke-width="1"/>
+                @SvgText(F(g.X + 5), "14", "#666", "11", "600", null, g.Label)
+            }
+
+            @foreach (var lane in Model.Lanes)
+            {
+                <line x1="0" y1="@F(lane.Y)" x2="1560" y2="@F(lane.Y)"
+                      stroke="@lane.Color" stroke-width="3"/>
+
+                @foreach (var m in lane.Milestones)
+                {
+                    @if (m.Type == MilestoneType.Poc)
+                    {
+                        <polygon points="@DiamondPoints(m.X, m.Y, 7)"
+                                 fill="#F4B400" filter="url(#sh)"/>
+                    }
+                    else if (m.Type == MilestoneType.Prod)
+                    {
+                        <polygon points="@DiamondPoints(m.X, m.Y, 7)"
+                                 fill="#34A853" filter="url(#sh)"/>
+                    }
+                    else
+                    {
+                        <circle cx="@F(m.X)" cy="@F(m.Y)" r="5"
+                                fill="white" stroke="@lane.Color" stroke-width="2.5"/>
+                    }
+
+                    var captionY = m.CaptionPosition == CaptionPosition.Below
+                        ? m.Y + 20 : m.Y - 12;
+                    @SvgText(F(m.X), F(captionY), "#666", "10", "400", "middle", m.Caption)
+                }
+            }
+
+            @if (Model.Now.InRange)
+            {
+                <line x1="@F(Model.Now.X)" y1="0" x2="@F(Model.Now.X)" y2="185"
+                      stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3"/>
+                @SvgText(F(Model.Now.X + 4), "14", "#EA4335", "10", "700", null, "NOW")
+            }
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter] public required TimelineViewModel Model { get; set; }
+
+    private static string F(double v) =>
+        v.ToString("F1", CultureInfo.InvariantCulture);
+
+    private static string DiamondPoints(double cx, double cy, double r) =>
+        $"{F(cx)},{F(cy - r)} {F(cx + r)},{F(cy)} {F(cx)},{F(cy + r)} {F(cx - r)},{F(cy)}";
+
+    private static MarkupString SvgText(string x, string y, string fill, string fontSize, string fontWeight, string? textAnchor, string content)
+    {
+        var anchor = textAnchor is not null ? $" text-anchor=\"{textAnchor}\"" : "";
+        return new MarkupString(
+            $"<text x=\"{x}\" y=\"{y}\" fill=\"{fill}\" font-size=\"{fontSize}\" font-weight=\"{fontWeight}\"{anchor} font-family=\"'Segoe UI',sans-serif\">{System.Net.WebUtility.HtmlEncode(content)}</text>");
+    }
+}

@@ -1,0 +1,40 @@
+@page "/"
+@inject IDashboardDataService DataService
+
+@code {
+    private DashboardLoadResult result = default!;
+    private TimelineViewModel timelineVm = TimelineViewModel.Empty;
+    private HeatmapViewModel heatmapVm = HeatmapViewModel.Empty;
+    private string nowLabel = "";
+
+    protected override void OnInitialized()
+    {
+        result = DataService.GetCurrent();
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        nowLabel = $"Now ({today:MMM yyyy})";
+
+        if (result.Data is { } d)
+        {
+            timelineVm = TimelineLayoutEngine.Build(d.Timeline, today);
+            heatmapVm = HeatmapLayoutEngine.Build(d.Heatmap, today);
+        }
+    }
+}
+
+@if (result.Error is not null)
+{
+    <ErrorBanner Error="result.Error" />
+}
+
+@if (result.Data is { } data)
+{
+    <DashboardHeader Project="data.Project" NowLabel="@nowLabel" />
+    <TimelineSvg Model="timelineVm" />
+    <HeatmapGrid Model="heatmapVm" />
+}
+else
+{
+    <DashboardHeader Project="Project.Placeholder" NowLabel="@nowLabel" />
+    <TimelineSvg Model="TimelineViewModel.Empty" />
+    <HeatmapGrid Model="HeatmapViewModel.Empty" />
+}
