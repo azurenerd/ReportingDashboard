@@ -25,6 +25,8 @@
 
   <ItemGroup>
     <None Include="..\..\src\ReportingDashboard.Web\wwwroot\data.json" Link="data.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Fixtures\sample-data.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Fixtures\malformed-data.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!--
