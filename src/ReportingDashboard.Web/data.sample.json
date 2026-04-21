@@ -1,7 +1,7 @@
 {
-  "title": "Privacy Automation Release Roadmap",
-  "subtitle": "Trusted Platform \u00b7 Privacy Automation Workstream \u00b7 April 2026",
-  "backlogUrl": "https://dev.azure.com/example/project/_backlogs",
+  "title": "Project Phoenix — Cloud Migration Roadmap",
+  "subtitle": "Enterprise Platform · Cloud Infrastructure Workstream · April 2026",
+  "backlogUrl": "https://dev.azure.com/contoso/phoenix/_backlogs",
   "currentDate": "2026-04-10",
   "timeline": {
     "startDate": "2026-01-01",
@@ -9,17 +9,17 @@
     "tracks": [
       {
         "id": "M1",
-        "label": "Chatbot & MS Role",
+        "label": "Identity & Auth Migration",
         "color": "#0078D4",
         "milestones": [
           { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
           { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
-          { "date": "2026-05-01", "type": "production", "label": "Apr Prod (TBD)" }
+          { "date": "2026-05-01", "type": "production", "label": "May 1 Prod" }
         ]
       },
       {
         "id": "M2",
-        "label": "PDS & Data Inventory",
+        "label": "Data Platform Lift & Shift",
         "color": "#00897B",
         "milestones": [
           { "date": "2025-12-19", "type": "checkpoint", "label": "Dec 19" },
@@ -34,7 +34,7 @@
       },
       {
         "id": "M3",
-        "label": "Auto Review DFD",
+        "label": "API Gateway & Service Mesh",
         "color": "#546E7A",
         "milestones": [
           { "date": "2026-01-05", "type": "checkpoint", "label": "Jan 5" },
@@ -51,8 +51,8 @@
         "name": "Shipped",
         "colorClass": "ship",
         "items": {
-          "March": ["TODO \u2014 item shipped", "TODO \u2014 item shipped"],
-          "April": ["TODO \u2014 item shipped", "TODO \u2014 item shipped"],
+          "March": ["Entra ID SSO integration", "SQL Server to Azure SQL cutover"],
+          "April": ["Cosmos DB read-replica failover", "Key Vault secret rotation automation"],
           "May": [],
           "June": []
         }
@@ -61,19 +61,19 @@
         "name": "In Progress",
         "colorClass": "prog",
         "items": {
-          "March": ["TODO \u2014 in progress", "TODO \u2014 in progress"],
-          "April": ["TODO \u2014 active item", "TODO \u2014 active item"],
-          "May": ["TODO \u2014 planned", "TODO \u2014 planned"],
-          "June": ["TODO \u2014 planned"]
+          "March": ["mTLS rollout for internal APIs", "Terraform module for AKS clusters"],
+          "April": ["Event Hub consumer group scaling", "Managed Identity for Batch workloads"],
+          "May": ["Azure Front Door WAF tuning", "Dapr sidecar injection for microservices"],
+          "June": ["Multi-region active-active failover"]
         }
       },
       {
         "name": "Carryover",
         "colorClass": "carry",
         "items": {
-          "March": ["TODO \u2014 carry from Feb (ETA: TODO)"],
-          "April": ["TODO \u2014 carry from Mar (ETA: TBD)", "TODO \u2014 carry from Mar (ETA: TBD)"],
-          "May": ["TODO \u2014 potential from Apr"],
+          "March": ["Legacy SOAP adapter decommission (ETA: Apr 15)"],
+          "April": ["Redis cache migration from on-prem (ETA: May 1)", "DNS cutover for partner APIs (ETA: May 8)"],
+          "May": ["VPN gateway consolidation from Q1"],
           "June": []
         }
       },
@@ -82,7 +82,7 @@
         "colorClass": "block",
         "items": {
           "March": ["None logged"],
-          "April": ["TODO \u2014 blocker detail"],
+          "April": ["Azure subscription quota increase pending (Support ticket #4821)"],
           "May": [],
           "June": []
         }
