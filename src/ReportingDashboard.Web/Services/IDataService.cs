@@ -4,5 +4,6 @@ namespace ReportingDashboard.Web.Services;
 
 public interface IDataService
 {
-    Task<DashboardData> LoadDashboardDataAsync();
+    DashboardData? GetData();
+    string? GetError();
 }

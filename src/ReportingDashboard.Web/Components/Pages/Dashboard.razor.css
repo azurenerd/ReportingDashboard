@@ -1,17 +1,29 @@
-.dashboard-fixed-layout {
-    width: 1280px;
-    margin: 0 auto;
-    padding: 24px 32px;
-    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: #fff;
-    min-height: 100vh;
-}
-
-.loading-state {
+.error-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    font-size: 16px;
-    color: #666;
+    width: 1920px;
+    height: 1080px;
+    background: #FFFFFF;
+}
+
+.error-message {
+    max-width: 700px;
+    padding: 40px;
+    border: 2px solid #EA4335;
+    border-radius: 8px;
+    background: #FEF2F2;
+    text-align: center;
+}
+
+.error-message h2 {
+    color: #991B1B;
+    font-size: 20px;
+    margin-bottom: 12px;
+}
+
+.error-message p {
+    color: #333;
+    font-size: 14px;
+    line-height: 1.6;
 }

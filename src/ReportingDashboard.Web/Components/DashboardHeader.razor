@@ -1,29 +1,36 @@
-<header class="dash-header">
-    <div class="dash-header-left">
-        <h1 class="dash-title">@Title</h1>
-        @if (!string.IsNullOrWhiteSpace(Subtitle))
-        {
-            <p class="dash-subtitle">@Subtitle</p>
-        }
+<div class="hdr">
+    <div class="hdr-left">
+        <h1>@Title
+            @if (!string.IsNullOrWhiteSpace(BacklogUrl))
+            {
+                <a href="@BacklogUrl" target="_blank" rel="noopener noreferrer">↗ ADO Backlog</a>
+            }
+        </h1>
+        <div class="sub">@Subtitle</div>
     </div>
-    <div class="dash-header-right">
-        @if (!string.IsNullOrWhiteSpace(BacklogLink))
-        {
-            <a class="backlog-link" href="@BacklogLink" target="_blank" rel="noopener noreferrer">
-                📋 View Backlog
-            </a>
-        }
-        <div class="legend">
-            <span class="legend-item"><span class="legend-dot shipped-dot"></span> Shipped</span>
-            <span class="legend-item"><span class="legend-dot in-progress-dot"></span> In Progress</span>
-            <span class="legend-item"><span class="legend-dot carryover-dot"></span> Carryover</span>
-            <span class="legend-item"><span class="legend-dot blockers-dot"></span> Blockers</span>
-        </div>
+    <div class="legend">
+        <span class="legend-item">
+            <span class="legend-diamond poc-diamond"></span>
+            PoC Milestone
+        </span>
+        <span class="legend-item">
+            <span class="legend-diamond prod-diamond"></span>
+            Production Release
+        </span>
+        <span class="legend-item">
+            <span class="legend-circle"></span>
+            Checkpoint
+        </span>
+        <span class="legend-item">
+            <span class="legend-now"></span>
+            Now
+        </span>
     </div>
-</header>
+</div>
 
 @code {
     [Parameter] public string Title { get; set; } = "";
     [Parameter] public string Subtitle { get; set; } = "";
-    [Parameter] public string BacklogLink { get; set; } = "";
+    [Parameter] public string BacklogUrl { get; set; } = "";
+    [Parameter] public string CurrentDate { get; set; } = "";
 }

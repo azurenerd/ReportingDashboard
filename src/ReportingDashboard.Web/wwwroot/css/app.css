@@ -1,29 +1,24 @@
-html, body {
-    margin: 0;
-    padding: 0;
-    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 14px;
-    color: #1a1a1a;
-    background: #f3f3f3;
+/* Reset */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Fixed page size for screenshot capture */
+body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: #FFFFFF;
+    font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    color: #111;
+    display: flex;
+    flex-direction: column;
 }
 
-*, *::before, *::after {
-    box-sizing: border-box;
-}
+a { color: #0078D4; text-decoration: none; }
 
-.page-shell {
-    min-height: 100vh;
-}
+h1, h2, h3, h4, h5, h6 { margin: 0; }
 
-h1, h2, h3, h4, h5, h6 {
-    margin: 0;
-}
-
-a {
-    color: #0078D4;
-}
-
+/* Print stylesheet - hide browser chrome */
 @media print {
-    body { background: #fff; }
-    .page-shell { min-height: auto; }
+    @page { size: 1920px 1080px; margin: 0; }
+    body { width: 1920px; height: 1080px; }
 }

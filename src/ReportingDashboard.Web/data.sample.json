@@ -1,59 +1,91 @@
 {
-  "title": "Project Atlas — Executive Status",
-  "subtitle": "Cloud-Native Platform Modernization · FY26 H1",
-  "backlogLink": "https://dev.azure.com/org/project/_backlogs",
-  "currentMonth": "Apr",
-  "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+  "title": "Project Phoenix - Cloud Migration Roadmap",
+  "subtitle": "Enterprise Platform Modernization · FY26 H1 Status",
+  "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
+  "currentDate": "2026-04-10",
   "timeline": {
     "startDate": "2026-01-01",
     "endDate": "2026-06-30",
-    "nowDate": "2026-04-21",
     "tracks": [
       {
-        "id": "infra",
-        "label": "Infrastructure",
+        "id": "M1",
+        "label": "Chatbot & MS Role",
         "color": "#0078D4",
         "milestones": [
-          { "date": "2026-01-15", "label": "Arch Review", "type": "checkpoint" },
-          { "date": "2026-02-28", "label": "Infra Setup", "type": "checkpoint" }
+          { "date": "2026-01-12", "type": "checkpoint", "label": "Design Review" },
+          { "date": "2026-02-15", "type": "checkpoint", "label": "API Spec" },
+          { "date": "2026-03-26", "type": "poc", "label": "PoC Demo" },
+          { "date": "2026-05-15", "type": "production", "label": "GA Release" }
         ]
       },
       {
-        "id": "backend",
-        "label": "Backend APIs",
-        "color": "#107C10",
+        "id": "M2",
+        "label": "Knowledge Base",
+        "color": "#34A853",
         "milestones": [
-          { "date": "2026-03-15", "label": "API v1", "type": "checkpoint" },
-          { "date": "2026-04-30", "label": "API v2", "type": "deadline" }
+          { "date": "2026-01-20", "type": "checkpoint", "label": "Data Audit" },
+          { "date": "2026-03-01", "type": "poc", "label": "Search PoC" },
+          { "date": "2026-04-20", "type": "checkpoint", "label": "Indexing Done" },
+          { "date": "2026-06-15", "type": "production", "label": "KB Launch" }
         ]
       },
       {
-        "id": "frontend",
-        "label": "Frontend",
-        "color": "#B4009E",
+        "id": "M3",
+        "label": "Analytics Platform",
+        "color": "#F4B400",
         "milestones": [
-          { "date": "2026-05-15", "label": "Beta", "type": "checkpoint" },
-          { "date": "2026-06-30", "label": "GA Launch", "type": "deadline" }
+          { "date": "2026-02-01", "type": "checkpoint", "label": "Req Gathering" },
+          { "date": "2026-03-15", "type": "checkpoint", "label": "Dashboard MVP" },
+          { "date": "2026-05-01", "type": "poc", "label": "ML Pipeline PoC" },
+          { "date": "2026-06-30", "type": "production", "label": "Analytics v1" }
         ]
       }
     ]
   },
   "heatmap": {
-    "shipped": {
-      "Jan": ["K8s Cluster Provisioning"],
-      "Feb": ["CI/CD Pipeline v2", "Identity Service Rewrite"],
-      "Mar": ["Monitoring Stack"]
-    },
-    "inProgress": {
-      "Mar": ["Order Mgmt API"],
-      "Apr": ["Order Mgmt API", "Event Bus", "Analytics Module"]
-    },
-    "carryover": {
-      "Mar": ["Legacy DB Decommission"],
-      "Apr": ["Legacy DB Decommission", "Perf Benchmark Suite"]
-    },
-    "blockers": {
-      "Apr": ["Legal Review Dependency"]
-    }
+    "months": ["Jan", "Feb", "Mar", "Apr"],
+    "currentMonth": "Apr",
+    "categories": [
+      {
+        "name": "Shipped",
+        "colorClass": "ship",
+        "items": {
+          "Jan": ["Chatbot architecture design", "KB data audit complete"],
+          "Feb": ["API spec finalized", "CI/CD pipeline v2"],
+          "Mar": ["PoC demo delivered", "Search indexing prototype", "Dashboard MVP shipped"],
+          "Apr": []
+        }
+      },
+      {
+        "name": "In Progress",
+        "colorClass": "prog",
+        "items": {
+          "Jan": [],
+          "Feb": ["Search PoC development"],
+          "Mar": ["GA feature development"],
+          "Apr": ["GA feature development", "KB indexing", "ML pipeline PoC"]
+        }
+      },
+      {
+        "name": "Carryover",
+        "colorClass": "carry",
+        "items": {
+          "Jan": [],
+          "Feb": [],
+          "Mar": ["Legacy migration script"],
+          "Apr": ["Legacy migration script", "Perf benchmark suite"]
+        }
+      },
+      {
+        "name": "Blockers",
+        "colorClass": "block",
+        "items": {
+          "Jan": [],
+          "Feb": [],
+          "Mar": [],
+          "Apr": ["Legal review dependency", "Vendor license renewal"]
+        }
+      }
+    ]
   }
 }

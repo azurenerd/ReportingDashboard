@@ -1,11 +1,7 @@
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 using ReportingDashboard.Web.Models;
 using ReportingDashboard.Web.Services;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Services;
@@ -13,13 +9,11 @@ namespace ReportingDashboard.Tests.Services;
 public class JsonFileDataServiceTests : IDisposable
 {
     private readonly string _tempDir;
-    private readonly string _dataFilePath;
 
     public JsonFileDataServiceTests()
     {
         _tempDir = Path.Combine(Path.GetTempPath(), "rdtest_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_tempDir);
-        _dataFilePath = Path.Combine(_tempDir, "data.json");
     }
 
     public void Dispose()
@@ -28,79 +22,65 @@ public class JsonFileDataServiceTests : IDisposable
             Directory.Delete(_tempDir, true);
     }
 
-    private JsonFileDataService CreateService(string? dataPath = null)
+    private JsonFileDataService CreateService(string filePath)
     {
-        var env = new FakeWebHostEnvironment { ContentRootPath = _tempDir };
-        var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["DashboardOptions:DataFilePath"] = dataPath ?? _dataFilePath
-            })
-            .Build();
-        var logger = NullLogger<JsonFileDataService>.Instance;
-        return new JsonFileDataService(env, config, logger);
+        var options = Options.Create(new DashboardOptions { DataFilePath = filePath });
+        return new JsonFileDataService(options);
     }
 
     [Fact]
-    public async Task LoadDashboardDataAsync_ValidFile_ReturnsData()
+    public void ValidFile_ReturnsData_AndNoError()
     {
+        var dataPath = Path.Combine(_tempDir, "data.json");
         var data = new DashboardData
         {
             Title = "Test Project",
             Subtitle = "Test",
-            CurrentMonth = "Apr",
-            Months = new List<string> { "Apr" }
+            BacklogUrl = "https://example.com",
+            CurrentDate = "2026-04-10"
         };
-        await File.WriteAllTextAsync(_dataFilePath, JsonSerializer.Serialize(data));
+        File.WriteAllText(dataPath, JsonSerializer.Serialize(data));
 
-        var service = CreateService();
-        var result = await service.LoadDashboardDataAsync();
+        var service = CreateService(dataPath);
 
-        Assert.Equal("Test Project", result.Title);
+        Assert.NotNull(service.GetData());
+        Assert.Equal("Test Project", service.GetData()!.Title);
+        Assert.Null(service.GetError());
     }
 
     [Fact]
-    public async Task LoadDashboardDataAsync_MissingFile_ReturnsDefault()
+    public void MissingFile_ReturnsNullData_AndErrorMessage()
     {
         var service = CreateService(Path.Combine(_tempDir, "nonexistent.json"));
-        var result = await service.LoadDashboardDataAsync();
 
-        Assert.Equal("Dashboard", result.Title);
-        Assert.NotNull(result.Timeline);
-        Assert.NotNull(result.Heatmap);
+        Assert.Null(service.GetData());
+        Assert.NotNull(service.GetError());
+        Assert.Contains("file not found", service.GetError()!);
     }
 
     [Fact]
-    public async Task LoadDashboardDataAsync_InvalidJson_ReturnsDefault()
+    public void MalformedJson_ReturnsNullData_AndErrorMessage()
     {
-        await File.WriteAllTextAsync(_dataFilePath, "not valid json!!!");
+        var dataPath = Path.Combine(_tempDir, "data.json");
+        File.WriteAllText(dataPath, "not valid json!!!");
 
-        var service = CreateService();
-        var result = await service.LoadDashboardDataAsync();
+        var service = CreateService(dataPath);
 
-        Assert.Equal("Dashboard", result.Title);
+        Assert.Null(service.GetData());
+        Assert.NotNull(service.GetError());
+        Assert.Contains("Could not parse", service.GetError()!);
     }
 
     [Fact]
-    public async Task LoadDashboardDataAsync_CachesResult()
+    public void EmptyJsonObject_ReturnsDataWithDefaults()
     {
-        var data = new DashboardData { Title = "Cached" };
-        await File.WriteAllTextAsync(_dataFilePath, JsonSerializer.Serialize(data));
+        var dataPath = Path.Combine(_tempDir, "data.json");
+        File.WriteAllText(dataPath, "{}");
 
-        var service = CreateService();
-        var first = await service.LoadDashboardDataAsync();
-        var second = await service.LoadDashboardDataAsync();
+        var service = CreateService(dataPath);
 
-        Assert.Same(first, second);
-    }
-
-    private class FakeWebHostEnvironment : IWebHostEnvironment
-    {
-        public string WebRootPath { get; set; } = "";
-        public string ContentRootPath { get; set; } = "";
-        public IFileProvider WebRootFileProvider { get; set; } = null!;
-        public IFileProvider ContentRootFileProvider { get; set; } = null!;
-        public string ApplicationName { get; set; } = "Test";
-        public string EnvironmentName { get; set; } = "Test";
+        Assert.NotNull(service.GetData());
+        Assert.Null(service.GetError());
+        Assert.Equal("", service.GetData()!.Title);
     }
 }

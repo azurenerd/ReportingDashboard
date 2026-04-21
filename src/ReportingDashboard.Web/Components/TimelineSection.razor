@@ -1,80 +1,119 @@
-@if (Timeline.Tracks.Count > 0)
-{
-    <div class="timeline-wrap">
-        <h2 class="timeline-heading">Project Timeline</h2>
-        <svg class="timeline-svg" width="@SvgWidth" height="@SvgHeight" viewBox="0 0 @SvgWidth @SvgHeight"
-             xmlns="http://www.w3.org/2000/svg">
+<div class="tl-area">
+    <div class="tl-sidebar">
+        @foreach (var track in Timeline.Tracks)
+        {
+            <div class="tl-track-label">
+                <span style="color: @track.Color; font-weight: 600;">@track.Id</span>
+                <span style="color: #444; font-weight: 400;"> - @track.Label</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg width="1560" height="185" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
+                </filter>
+            </defs>
 
-            @* Month grid lines and labels *@
-            @foreach (var monthTick in _monthTicks)
+            @* Month gridlines *@
+            @foreach (var mt in _monthTicks)
             {
-                <line x1="@monthTick.X" y1="@HeaderHeight" x2="@monthTick.X" y2="@SvgHeight"
-                      stroke="#e0e0e0" stroke-width="1" />
-                @((MarkupString)$"<text x=\"{monthTick.X + 4}\" y=\"{HeaderHeight - 6}\" font-size=\"11\" fill=\"#888\">{monthTick.Label}</text>")
+                <line x1="@F(mt.X)" y1="0" x2="@F(mt.X)" y2="185"
+                      stroke="#bbb" stroke-width="1" stroke-opacity="0.4" />
+                @SvgText(F(mt.X + 4), "12", mt.Label, fill: "#666", fontSize: "11", fontWeight: "600")
             }
 
-            @* Tracks *@
-            @{ var trackIndex = 0; }
-            @foreach (var track in Timeline.Tracks)
+            @* Track lines and milestones *@
+            @{
+                var trackCount = Timeline.Tracks.Count;
+            }
+            @for (var i = 0; i < trackCount; i++)
             {
-                var y = HeaderHeight + (trackIndex * TrackHeight) + (TrackHeight / 2);
-                var labelY = HeaderHeight + (trackIndex * TrackHeight) + 4;
+                var track = Timeline.Tracks[i];
+                var y = 185.0 / (trackCount + 1) * (i + 1);
 
-                @* Track label *@
-                @((MarkupString)$"<text x=\"4\" y=\"{labelY + 14}\" font-size=\"12\" font-weight=\"600\" fill=\"#333\">{System.Web.HttpUtility.HtmlEncode(track.Label)}</text>")
+                <line x1="0" y1="@F(y)" x2="1560" y2="@F(y)"
+                      stroke="@track.Color" stroke-width="3" />
 
-                @* Track line *@
-                <line x1="@LabelWidth" y1="@y" x2="@SvgWidth" y2="@y"
-                      stroke="@track.Color" stroke-width="3" opacity="0.3" />
-
-                @* Milestones *@
                 @foreach (var ms in track.Milestones)
                 {
-                    var mx = LabelWidth + TimelineHelper.DateToX(ms.Date, Timeline.StartDate, Timeline.EndDate, ChartWidth);
-                    var isDeadline = ms.Type == "deadline";
+                    var mx = DateToX(ms.Date);
+                    var tooltipText = $"{ms.Label} - {ms.Date} ({ms.Type})";
 
-                    @if (isDeadline)
+                    @if (ms.Type == "poc")
                     {
-                        <polygon points="@($"{mx - 6},{y - 6} {mx + 6},{y - 6} {mx},{y + 6}")"
-                                 fill="@track.Color" />
+                        <g>
+                            <polygon points="@DiamondPoints(mx, y)"
+                                     fill="#F4B400" filter="url(#sh)" />
+                            <title>@tooltipText</title>
+                        </g>
+                    }
+                    else if (ms.Type == "production")
+                    {
+                        <g>
+                            <polygon points="@DiamondPoints(mx, y)"
+                                     fill="#34A853" filter="url(#sh)" />
+                            <title>@tooltipText</title>
+                        </g>
                     }
                     else
                     {
-                        <circle cx="@mx" cy="@y" r="5" fill="@track.Color" />
+                        <g>
+                            <circle cx="@F(mx)" cy="@F(y)" r="7"
+                                    fill="white" stroke="@track.Color" stroke-width="2.5" />
+                            <title>@tooltipText</title>
+                        </g>
                     }
-                    @((MarkupString)$"<text x=\"{mx}\" y=\"{y - 10}\" text-anchor=\"middle\" font-size=\"10\" fill=\"#555\">{System.Web.HttpUtility.HtmlEncode(ms.Label)}</text>")
-                }
 
-                trackIndex++;
+                    @SvgText(F(mx), F(y - 14), ms.Label, fill: "#666", fontSize: "10", textAnchor: "middle")
+                }
             }
 
-            @* Now indicator *@
-            @if (!string.IsNullOrEmpty(Timeline.NowDate))
+            @* NOW indicator *@
+            @if (!string.IsNullOrEmpty(CurrentDate))
             {
-                var nowX = LabelWidth + TimelineHelper.DateToX(Timeline.NowDate, Timeline.StartDate, Timeline.EndDate, ChartWidth);
-                <line x1="@nowX" y1="@(HeaderHeight - 2)" x2="@nowX" y2="@SvgHeight"
-                      stroke="#D13438" stroke-width="2" stroke-dasharray="4,3" />
-                @((MarkupString)$"<text x=\"{nowX}\" y=\"{HeaderHeight - 8}\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#D13438\">NOW</text>")
+                var nowX = DateToX(CurrentDate);
+                <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="185"
+                      stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+                @SvgText(F(nowX), "-4", "NOW", fill: "#EA4335", fontSize: "10", fontWeight: "700", textAnchor: "middle")
             }
         </svg>
     </div>
-}
+</div>
 
 @code {
     [Parameter] public TimelineData Timeline { get; set; } = new();
+    [Parameter] public string CurrentDate { get; set; } = "";
 
-    private const double SvgWidth = 1216;
-    private const double LabelWidth = 120;
-    private const double HeaderHeight = 32;
-    private const double TrackHeight = 48;
-    private double ChartWidth => SvgWidth - LabelWidth;
-    private double SvgHeight => HeaderHeight + (Timeline.Tracks.Count * TrackHeight) + 8;
-
+    private const double SvgWidth = 1560.0;
     private List<MonthTick> _monthTicks = new();
 
     protected override void OnParametersSet()
     {
         _monthTicks = BuildMonthTicks();
+    }
+
+    private double DateToX(string dateStr)
+    {
+        return TimelineHelper.DateToX(dateStr, Timeline.StartDate, Timeline.EndDate, SvgWidth);
+    }
+
+    private string DiamondPoints(double cx, double cy, double radius = 11)
+    {
+        return $"{F(cx)},{F(cy - radius)} {F(cx + radius)},{F(cy)} {F(cx)},{F(cy + radius)} {F(cx - radius)},{F(cy)}";
+    }
+
+    private static string F(double v) => Math.Round(v, 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    private static MarkupString SvgText(string x, string y, string content,
+        string fill = "#666", string fontSize = "11",
+        string? fontWeight = null, string? textAnchor = null)
+    {
+        var attrs = $"x=\"{x}\" y=\"{y}\" fill=\"{fill}\" font-size=\"{fontSize}\"";
+        if (fontWeight is not null) attrs += $" font-weight=\"{fontWeight}\"";
+        if (textAnchor is not null) attrs += $" text-anchor=\"{textAnchor}\"";
+        return new MarkupString($"<text {attrs}>{System.Net.WebUtility.HtmlEncode(content)}</text>");
     }
 
     private List<MonthTick> BuildMonthTicks()
@@ -87,8 +126,8 @@
         var current = new DateTime(start.Year, start.Month, 1);
         while (current <= end)
         {
-            var x = LabelWidth + TimelineHelper.DateToX(
-                current.ToString("yyyy-MM-dd"), Timeline.StartDate, Timeline.EndDate, ChartWidth);
+            var x = TimelineHelper.DateToX(
+                current.ToString("yyyy-MM-dd"), Timeline.StartDate, Timeline.EndDate, SvgWidth);
             ticks.Add(new MonthTick { X = x, Label = current.ToString("MMM") });
             current = current.AddMonths(1);
         }

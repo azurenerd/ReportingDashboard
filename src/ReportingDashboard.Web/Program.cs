@@ -1,13 +1,14 @@
 using ReportingDashboard.Web.Components;
+using ReportingDashboard.Web.Models;
 using ReportingDashboard.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseUrls("http://localhost:5000");
 
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
+builder.Services.AddRazorComponents();
+builder.Services.Configure<DashboardOptions>(
+    builder.Configuration.GetSection("Dashboard"));
 builder.Services.AddSingleton<IDataService, JsonFileDataService>();
 
 var app = builder.Build();
@@ -20,8 +21,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>();
 
 app.Run();
 

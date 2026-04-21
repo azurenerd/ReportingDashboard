@@ -3,32 +3,29 @@
 
 <PageTitle>Reporting Dashboard</PageTitle>
 
-@if (_loading)
-{
-    <div class="loading-state">Loading dashboard data…</div>
+@{
+    var data = DataService.GetData();
+    var error = DataService.GetError();
 }
-else
+
+@if (error is not null)
 {
-    <div class="dashboard-fixed-layout">
-        <DashboardHeader Title="@_data.Title"
-                         Subtitle="@_data.Subtitle"
-                         BacklogLink="@_data.BacklogLink" />
-
-        <TimelineSection Timeline="@_data.Timeline" />
-
-        <HeatmapGrid Heatmap="@_data.Heatmap"
-                     Months="@_data.Months"
-                     CurrentMonth="@_data.CurrentMonth" />
+    <div class="error-container">
+        <div class="error-message">
+            <h2>⚠ Dashboard Error</h2>
+            <p>@error</p>
+        </div>
     </div>
 }
+else if (data is not null)
+{
+    <DashboardHeader Title="@data.Title"
+                     Subtitle="@data.Subtitle"
+                     BacklogUrl="@data.BacklogUrl"
+                     CurrentDate="@data.CurrentDate" />
 
-@code {
-    private DashboardData _data = new();
-    private bool _loading = true;
+    <TimelineSection Timeline="@data.Timeline"
+                     CurrentDate="@data.CurrentDate" />
 
-    protected override async Task OnInitializedAsync()
-    {
-        _data = await DataService.LoadDashboardDataAsync();
-        _loading = false;
-    }
+    <HeatmapGrid Heatmap="@data.Heatmap" />
 }

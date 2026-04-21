@@ -1,13 +1,19 @@
-<div class="hm-cell @(IsCurrentMonth ? "current-month-cell" : "")">
+@{
+    var cellClass = $"hm-cell {ColorClass}-cell";
+    if (IsCurrentMonth) cellClass += " current-month";
+}
+
+<div class="@cellClass">
     @if (Items.Count > 0)
     {
-        <div class="cell-count @ColorClass-count">@Items.Count</div>
-        <ul class="cell-items">
-            @foreach (var item in Items)
-            {
-                <li class="cell-item">@item</li>
-            }
-        </ul>
+        @foreach (var item in Items)
+        {
+            <div class="it">@item</div>
+        }
+    }
+    else
+    {
+        <div class="empty-dash">-</div>
     }
 </div>
 
