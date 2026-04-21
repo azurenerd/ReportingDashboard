@@ -27,6 +27,4 @@ public class PlaywrightFixture : IAsyncLifetime
 }
 
 [CollectionDefinition("Playwright")]
-public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture>
-{
-}
+public class PlaywrightCollection : ICollectionFixture<PlaywrightFixture> { }

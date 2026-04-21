@@ -1,9 +1,9 @@
 {
   "project": {
     "title": "Privacy Automation Release Roadmap",
-    "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
+    "subtitle": "Trusted Platform \u2022 Privacy Automation Workstream \u2022 April 2026",
     "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
-    "backlogLinkText": "📋 ADO Backlog"
+    "backlogLinkText": " ADO Backlog"
   },
   "timeline": {
     "startDate": "2026-01-01",
@@ -17,7 +17,7 @@
         "milestones": [
           { "date": "2026-01-12", "type": "start", "label": "Jan 12", "labelPosition": "Above" },
           { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC", "labelPosition": "Below" },
-          { "date": "2026-05-01", "type": "production", "label": "May Prod (TBD)", "labelPosition": "Above" }
+          { "date": "2026-05-01", "type": "production", "label": "Apr Prod (TBD)", "labelPosition": "Above" }
         ]
       },
       {
