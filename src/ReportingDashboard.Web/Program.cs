@@ -6,6 +6,7 @@ builder.WebHost.UseUrls("http://localhost:5080");
 
 builder.Services.AddRazorComponents();
 builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ReportingDashboard.Web.Services.IDashboardDataService, ReportingDashboard.Web.Services.DashboardDataService>();
 
 var app = builder.Build();
 
