@@ -1,0 +1,168 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Components
+
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in Timeline.Tracks)
+        {
+            <div class="tl-label">
+                <span style="color:@track.Color;font-weight:600;">@track.Id</span><br/>
+                <span style="font-weight:400;color:#444;">@track.Label</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        @((MarkupString)BuildSvg())
+    </div>
+</div>
+
+@code {
+    [Parameter] public TimelineData Timeline { get; set; } = new();
+    [Parameter] public string CurrentDate { get; set; } = "";
+
+    private const double SvgWidth = 1560.0;
+    private const double SvgHeight = 185.0;
+
+    public static double CalculateDateToX(DateTime date, DateTime startDate, DateTime endDate)
+    {
+        var totalDays = (endDate - startDate).TotalDays;
+        if (totalDays <= 0) return 0;
+        var dayOffset = (date - startDate).TotalDays;
+        return dayOffset / totalDays * SvgWidth;
+    }
+
+    private double? DateToX(string dateStr)
+    {
+        if (!DateTime.TryParse(dateStr, out var date) ||
+            !DateTime.TryParse(Timeline.StartDate, out var start) ||
+            !DateTime.TryParse(Timeline.EndDate, out var end))
+            return null;
+        return CalculateDateToX(date, start, end);
+    }
+
+    private double GetTrackY(int index)
+    {
+        var trackCount = Timeline.Tracks.Count;
+        return SvgHeight / (trackCount + 1) * (index + 1);
+    }
+
+    private static string F(double value) => Math.Round(value, 1).ToString(CultureInfo.InvariantCulture);
+
+    private static string Esc(string s) => System.Net.WebUtility.HtmlEncode(s);
+
+    private string FormatDate(string dateStr)
+    {
+        if (DateTime.TryParse(dateStr, out var dt))
+            return dt.ToString("MMM d");
+        return dateStr;
+    }
+
+    private string DiamondPoints(double cx, double cy, double radius = 11)
+    {
+        return $"{F(cx)},{F(cy - radius)} {F(cx + radius)},{F(cy)} {F(cx)},{F(cy + radius)} {F(cx - radius)},{F(cy)}";
+    }
+
+    private string SvgText(double x, double y, string fill, string fontSize, string fontWeight, string textAnchor, string content)
+    {
+        var anchor = string.IsNullOrEmpty(textAnchor) ? "" : $@" text-anchor=""{textAnchor}""";
+        return $@"<text x=""{F(x)}"" y=""{F(y)}"" fill=""{fill}"" font-size=""{fontSize}"" font-weight=""{fontWeight}"" font-family=""Segoe UI,Arial""{anchor}>{Esc(content)}</text>";
+    }
+
+    private string BuildSvg()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append(@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""1560"" height=""185"" style=""overflow:visible;display:block"">");
+        sb.Append(@"<defs><filter id=""sh""><feDropShadow dx=""0"" dy=""1"" stdDeviation=""1.5"" flood-opacity=""0.3""/></filter></defs>");
+
+        if (!DateTime.TryParse(Timeline.StartDate, out var startDt) ||
+            !DateTime.TryParse(Timeline.EndDate, out var endDt))
+        {
+            sb.Append("</svg>");
+            return sb.ToString();
+        }
+
+        // Month gridlines
+        var current = new DateTime(startDt.Year, startDt.Month, 1);
+        while (current <= endDt)
+        {
+            var x = CalculateDateToX(current, startDt, endDt);
+            sb.Append($@"<line x1=""{F(x)}"" y1=""0"" x2=""{F(x)}"" y2=""185"" stroke=""#bbb"" stroke-opacity=""0.4"" stroke-width=""1""/>");
+            sb.Append(SvgText(x + 5, 14, "#666", "11", "600", "", current.ToString("MMM")));
+            current = current.AddMonths(1);
+        }
+
+        // NOW line
+        var nowX = DateToX(CurrentDate);
+        if (nowX.HasValue)
+        {
+            sb.Append($@"<line x1=""{F(nowX.Value)}"" y1=""0"" x2=""{F(nowX.Value)}"" y2=""185"" stroke=""#EA4335"" stroke-width=""2"" stroke-dasharray=""5,3""/>");
+            sb.Append(SvgText(nowX.Value + 4, 14, "#EA4335", "10", "700", "", "NOW"));
+        }
+
+        // Tracks and milestones
+        for (int i = 0; i < Timeline.Tracks.Count; i++)
+        {
+            var track = Timeline.Tracks[i];
+            var trackY = GetTrackY(i);
+
+            sb.Append($@"<line x1=""0"" y1=""{F(trackY)}"" x2=""1560"" y2=""{F(trackY)}"" stroke=""{track.Color}"" stroke-width=""3""/>");
+
+            foreach (var ms in track.Milestones)
+            {
+                var msX = DateToX(ms.Date);
+                if (msX == null) continue;
+                var x = msX.Value;
+                var labelY = trackY > 80 ? trackY - 16 : trackY + 24;
+                var ttY = trackY - 50;
+                var formattedDate = FormatDate(ms.Date);
+
+                sb.Append(@"<g class=""ms-hover"">");
+
+                switch (ms.Type)
+                {
+                    case "poc":
+                        sb.Append($@"<polygon points=""{DiamondPoints(x, trackY)}"" fill=""#F4B400"" filter=""url(#sh)""/>");
+                        sb.Append(SvgText(x, labelY, "#666", "10", "400", "middle", ms.Label));
+                        sb.Append($@"<title>{Esc(ms.Label)} &#8211; {Esc(formattedDate)} &#8211; PoC Milestone</title>");
+                        AppendTooltipFO(sb, x, ttY, $"{formattedDate} \u2013 PoC Milestone");
+                        break;
+                    case "production":
+                        sb.Append($@"<polygon points=""{DiamondPoints(x, trackY)}"" fill=""#34A853"" filter=""url(#sh)""/>");
+                        sb.Append(SvgText(x, labelY, "#666", "10", "400", "middle", ms.Label));
+                        sb.Append($@"<title>{Esc(ms.Label)} &#8211; {Esc(formattedDate)} &#8211; Production Release</title>");
+                        AppendTooltipFO(sb, x, ttY, $"{formattedDate} \u2013 Production Release");
+                        break;
+                    case "checkpoint":
+                        sb.Append($@"<circle cx=""{F(x)}"" cy=""{F(trackY)}"" r=""7"" fill=""white"" stroke=""{track.Color}"" stroke-width=""2.5""/>");
+                        sb.Append(SvgText(x, labelY, "#666", "10", "400", "middle", ms.Label));
+                        sb.Append($@"<title>{Esc(ms.Label)} &#8211; {Esc(formattedDate)} &#8211; Checkpoint</title>");
+                        AppendTooltipFO(sb, x, ttY, $"{formattedDate} \u2013 Checkpoint");
+                        break;
+                    case "checkpoint-small":
+                        sb.Append($@"<circle cx=""{F(x)}"" cy=""{F(trackY)}"" r=""4"" fill=""#999""/>");
+                        sb.Append($@"<title>{Esc(formattedDate)} &#8211; Checkpoint</title>");
+                        AppendTooltipFO(sb, x, ttY, $"{formattedDate} \u2013 Checkpoint");
+                        break;
+                    case "checkpoint-medium":
+                        sb.Append($@"<circle cx=""{F(x)}"" cy=""{F(trackY)}"" r=""5"" fill=""white"" stroke=""#888"" stroke-width=""2.5""/>");
+                        sb.Append(SvgText(x, labelY, "#666", "10", "400", "middle", ms.Label));
+                        sb.Append($@"<title>{Esc(ms.Label)} &#8211; {Esc(formattedDate)} &#8211; Checkpoint</title>");
+                        AppendTooltipFO(sb, x, ttY, $"{formattedDate} \u2013 Checkpoint");
+                        break;
+                }
+
+                sb.Append("</g>");
+            }
+        }
+
+        sb.Append("</svg>");
+        return sb.ToString();
+    }
+
+    private void AppendTooltipFO(System.Text.StringBuilder sb, double x, double y, string content)
+    {
+        sb.Append($@"<foreignObject x=""{F(x - 80)}"" y=""{F(y)}"" width=""160"" height=""30"" class=""tt-fo"">");
+        sb.Append($@"<div xmlns=""http://www.w3.org/1999/xhtml"" class=""tt"">{Esc(content)}</div>");
+        sb.Append("</foreignObject>");
+    }
+}
