@@ -62,15 +62,6 @@ a {
     text-decoration: none;
 }
 
-/* ===== Dashboard Container ===== */
-.dashboard {
-    width: var(--page-width);
-    height: var(--page-height);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
 /* ===== Header ===== */
 .hdr {
     padding: 12px var(--side-padding) 10px;
@@ -240,8 +231,12 @@ a {
 }
 
 /* Current month column header highlight */
-.hm-col-hdr.current-month,
-.hm-col-hdr.current-month-hdr,
+.hm-col-hdr.current-month {
+    background: #FFF0D0;
+    color: #C07700;
+}
+
+/* Legacy class from OriginalDesignConcept.html */
 .hm-col-hdr.apr-hdr {
     background: #FFF0D0;
     color: #C07700;
@@ -288,14 +283,6 @@ a {
     border-radius: 50%;
 }
 
-/* Empty cell dash */
-.empty-cell {
-    color: #AAA;
-    text-align: center;
-    font-size: 12px;
-    padding: 8px 12px;
-}
-
 /* ===== Shipped Row ===== */
 .ship-hdr {
     color: var(--shipped-text);
@@ -307,7 +294,6 @@ a {
     background: var(--shipped-bg);
 }
 
-.ship-cell.current,
 .ship-cell.current-month,
 .ship-cell.apr {
     background: var(--shipped-bg-current);
@@ -328,7 +314,6 @@ a {
     background: var(--progress-bg);
 }
 
-.prog-cell.current,
 .prog-cell.current-month,
 .prog-cell.apr {
     background: var(--progress-bg-current);
@@ -349,7 +334,6 @@ a {
     background: var(--carryover-bg);
 }
 
-.carry-cell.current,
 .carry-cell.current-month,
 .carry-cell.apr {
     background: var(--carryover-bg-current);
@@ -370,7 +354,6 @@ a {
     background: var(--blocker-bg);
 }
 
-.block-cell.current,
 .block-cell.current-month,
 .block-cell.apr {
     background: var(--blocker-bg-current);
@@ -380,7 +363,7 @@ a {
     background: var(--blocker-primary);
 }
 
-/* ===== Empty/dash cells (legacy) ===== */
+/* ===== Empty/dash cells ===== */
 .hm-cell .it.empty-dash {
     color: #AAA;
 }
@@ -391,64 +374,16 @@ a {
     border-right: none;
 }
 
-/* ===== Error State ===== */
-.error-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--page-width);
-    height: var(--page-height);
-}
-
-.error-card {
-    max-width: 600px;
-    padding: 40px;
-    border: 1px solid #E0E0E0;
-    border-radius: 8px;
-    background: #FAFAFA;
-    text-align: center;
-}
-
-.error-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-}
-
-.error-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 12px;
-}
-
-.error-message {
-    font-size: 14px;
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 16px;
-}
-
-.error-detail {
-    font-size: 12px;
-    font-family: Consolas, 'Courier New', monospace;
-    color: #999;
-    background: #F5F5F5;
-    padding: 12px;
-    border-radius: 4px;
-    text-align: left;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
 /* ===== Blazor framework overrides ===== */
 #blazor-error-ui {
     display: none;
 }
 
 .blazor-error-boundary {
-    display: none;
+    background: none;
 }
 
+/* Suppress Blazor reconnection UI */
 #components-reconnect-modal {
     display: none !important;
 }
