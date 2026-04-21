@@ -7,16 +7,16 @@
   },
   "timeline": {
     "start": "2026-01-01",
-    "end": "2026-06-30",
+    "end":   "2026-06-30",
     "lanes": [
       {
         "id": "M1",
         "label": "Chatbot & MS Role",
         "color": "#0078D4",
         "milestones": [
-          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12 Kickoff", "captionPosition": "above" },
-          { "date": "2026-03-26", "type": "poc",        "label": "Mar 26 PoC",     "captionPosition": "below" },
-          { "date": "2026-04-30", "type": "prod",       "label": "Apr Prod (TBD)", "captionPosition": "above" }
+          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12 Kickoff" },
+          { "date": "2026-03-26", "type": "poc",        "label": "Mar 26 PoC" },
+          { "date": "2026-04-30", "type": "prod",       "label": "Apr Prod (TBD)" }
         ]
       },
       {
@@ -24,9 +24,8 @@
         "label": "PDS & Data Inventory",
         "color": "#00897B",
         "milestones": [
-          { "date": "2026-02-09", "type": "checkpoint", "label": "Feb 09 Review",  "captionPosition": "above" },
-          { "date": "2026-04-15", "type": "poc",        "label": "Apr 15 PoC",     "captionPosition": "below" },
-          { "date": "2026-06-10", "type": "prod",       "label": "Jun 10 Prod",    "captionPosition": "above" }
+          { "date": "2026-02-09", "type": "checkpoint", "label": "Feb 09 Review" },
+          { "date": "2026-04-15", "type": "poc",        "label": "Apr 15 PoC" }
         ]
       },
       {
@@ -34,8 +33,8 @@
         "label": "Auto Review DFD",
         "color": "#546E7A",
         "milestones": [
-          { "date": "2026-01-28", "type": "checkpoint", "label": "Jan 28 Design",  "captionPosition": "above" },
-          { "date": "2026-05-05", "type": "poc",        "label": "May 05 PoC",     "captionPosition": "below" }
+          { "date": "2026-01-28", "type": "checkpoint", "label": "Jan 28 Design" },
+          { "date": "2026-05-05", "type": "poc",        "label": "May 05 PoC" }
         ]
       }
     ]
@@ -45,45 +44,10 @@
     "currentMonthIndex": null,
     "maxItemsPerCell": 4,
     "rows": [
-      {
-        "category": "shipped",
-        "cells": [
-          ["Chatbot v0.9 dev build", "DFD schema v1"],
-          ["PDS inventory baseline", "Role registry export"],
-          ["Chatbot PoC demo", "Auto Review rules v1"],
-          ["Privacy banner rollout", "Consent API v1.2"]
-        ]
-      },
-      {
-        "category": "inProgress",
-        "cells": [
-          ["Chatbot intents expansion"],
-          ["Data-subject request flow", "PDS v2 schema"],
-          ["Role-based redaction", "Auto Review ML model"],
-          ["Chatbot prod hardening", "Review queue UX", "SLA dashboards"]
-        ]
-      },
-      {
-        "category": "carryover",
-        "cells": [
-          [],
-          ["Legacy API migration"],
-          ["Legacy API migration", "Vendor DPA refresh"],
-          ["Vendor DPA refresh"]
-        ]
-      },
-      {
-        "category": "blockers",
-        "cells": [
-          [],
-          [],
-          ["Vendor SLA pending"],
-          ["Vendor SLA pending", "Capacity review gate"]
-        ]
-      }
+      { "category": "shipped",    "cells": [["Kickoff deck"], ["Arch review"], ["PoC scaffold"], ["Prod pilot"]] },
+      { "category": "inProgress", "cells": [[], ["Data inventory"], ["Auto review DFD"], ["Chatbot GA", "PDS rollout"]] },
+      { "category": "carryover",  "cells": [[], [], ["Legacy API triage"], ["Legacy API triage"]] },
+      { "category": "blockers",   "cells": [[], [], [], ["Vendor SLA"]] }
     ]
-  },
-  "theme": {
-    "font": "Segoe UI"
   }
 }
