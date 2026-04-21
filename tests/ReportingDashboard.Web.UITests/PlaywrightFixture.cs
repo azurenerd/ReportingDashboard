@@ -7,11 +7,9 @@ namespace ReportingDashboard.Web.UITests;
 
 public class PlaywrightFixture : IAsyncLifetime
 {
-    public IPlaywright Playwright { get; private set; } = null!;
-    public IBrowser Browser { get; private set; } = null!;
-
-    public string BaseUrl { get; } =
-        Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5080";
+    public IPlaywright Playwright { get; private set; } = default!;
+    public IBrowser Browser { get; private set; } = default!;
+    public string BaseUrl { get; } = Environment.GetEnvironmentVariable("BASE_URL") ?? "http://localhost:5080";
 
     public async Task InitializeAsync()
     {
@@ -20,14 +18,20 @@ public class PlaywrightFixture : IAsyncLifetime
         Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
     }
 
-    public async Task<IBrowserContext> NewContextAsync()
+    public Task<IBrowserContext> NewContextAsync()
     {
-        var context = await Browser.NewContextAsync(new BrowserNewContextOptions
+        return Browser.NewContextAsync(new BrowserNewContextOptions
         {
             ViewportSize = new ViewportSize { Width = 1920, Height = 1080 }
         });
-        context.SetDefaultTimeout(60000);
-        return context;
+    }
+
+    public async Task<IPage> NewPageAsync()
+    {
+        var ctx = await NewContextAsync();
+        var page = await ctx.NewPageAsync();
+        page.SetDefaultTimeout(60000);
+        return page;
     }
 
     public async Task DisposeAsync()

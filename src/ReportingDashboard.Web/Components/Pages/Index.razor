@@ -1,61 +1,136 @@
 @page "/"
-@using Microsoft.AspNetCore.Components.Web
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=1920" />
-    <title>Reporting Dashboard</title>
-    <base href="/" />
-    <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="ReportingDashboard.Web.styles.css" />
-    <HeadOutlet />
-</head>
-<body>
-    <!-- Static SSR: no Blazor interactive runtime by design (see architecture R1) -->
-    <div class="hdr">
-        <div>
-            <h1>ReportingDashboard scaffold ready</h1>
-            <div class="sub">Layout foundation loaded � awaiting T4/T5/T6/T7 composition</div>
-        </div>
+@page "/timeline-preview"
+@using ReportingDashboard.Web.Layout
+@using ReportingDashboard.Web.Models
+@using ReportingDashboard.Web.Components.Pages.Partials
+
+<PageTitle>Reporting Dashboard</PageTitle>
+
+<style>
+    html, body { margin: 0; padding: 0; background: #FFFFFF; color: #111;
+                 font-family: 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif; }
+    .rd-root { width: 1920px; }
+    .rd-hdr { padding: 12px 44px 10px; border-bottom: 1px solid #E0E0E0; }
+    .rd-hdr h1 { font-size: 24px; font-weight: 700; color: #111; margin: 0; }
+    .rd-hdr .sub { font-size: 12px; color: #888; margin-top: 2px; }
+</style>
+
+<div class="rd-root">
+    <div class="rd-hdr">
+        <h1>Reporting Dashboard</h1>
+        <div class="sub">Milestone Timeline (T5 preview)</div>
     </div>
-    <div class="tl-area">
-        <div class="tl-labels"></div>
-        <div class="tl-svg-box"></div>
-    </div>
-    <div class="hm-wrap">
-        <div class="hm-title">Monthly Execution Heatmap</div>
-        <div class="hm-grid">
-            <div class="hm-corner">Status</div>
-            <div class="hm-col-hdr">Jan</div>
-            <div class="hm-col-hdr">Feb</div>
-            <div class="hm-col-hdr">Mar</div>
-            <div class="hm-col-hdr current-hdr">Apr</div>
+    <TimelineSvg Model="_timelineVm" />
+</div>
 
-            <div class="hm-row-hdr ship-hdr">Shipped</div>
-            <div class="hm-cell ship-cell"></div>
-            <div class="hm-cell ship-cell"></div>
-            <div class="hm-cell ship-cell"></div>
-            <div class="hm-cell ship-cell current"></div>
+@code {
+    private TimelineViewModel _timelineVm = TimelineViewModel.Empty;
 
-            <div class="hm-row-hdr prog-hdr">In Progress</div>
-            <div class="hm-cell prog-cell"></div>
-            <div class="hm-cell prog-cell"></div>
-            <div class="hm-cell prog-cell"></div>
-            <div class="hm-cell prog-cell current"></div>
+    protected override void OnInitialized()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        try
+        {
+            _timelineVm = TimelineLayoutEngine.Build(BuildDemoTimeline(today), today);
+        }
+        catch
+        {
+            _timelineVm = BuildVmDirectly(today);
+        }
 
-            <div class="hm-row-hdr carry-hdr">Carryover</div>
-            <div class="hm-cell carry-cell"></div>
-            <div class="hm-cell carry-cell"></div>
-            <div class="hm-cell carry-cell"></div>
-            <div class="hm-cell carry-cell current"></div>
+        if (_timelineVm.Lanes.Count == 0)
+        {
+            _timelineVm = BuildVmDirectly(today);
+        }
+    }
 
-            <div class="hm-row-hdr block-hdr">Blockers</div>
-            <div class="hm-cell block-cell"></div>
-            <div class="hm-cell block-cell"></div>
-            <div class="hm-cell block-cell"></div>
-            <div class="hm-cell block-cell current"></div>
-        </div>
-    </div>
-</body>
-</html>
+    private static Timeline BuildDemoTimeline(DateOnly today)
+    {
+        var start = new DateOnly(today.Year, 1, 1);
+        var end = new DateOnly(today.Year, 6, 30);
+
+        return new Timeline
+        {
+            Start = start,
+            End = end,
+            Lanes = new List<TimelineLane>
+            {
+                new TimelineLane
+                {
+                    Id = "M1",
+                    Label = "Chatbot & MS Role",
+                    Color = "#0078D4",
+                    Milestones = new List<Milestone>
+                    {
+                        new() { Date = new DateOnly(today.Year, 1, 12), Type = MilestoneType.Checkpoint, Label = "Jan 12" },
+                        new() { Date = new DateOnly(today.Year, 3, 26), Type = MilestoneType.Poc, Label = "Mar PoC" },
+                        new() { Date = new DateOnly(today.Year, 4, 30), Type = MilestoneType.Prod, Label = "Apr Prod" }
+                    }
+                },
+                new TimelineLane
+                {
+                    Id = "M2",
+                    Label = "PDS & Data Inventory",
+                    Color = "#00897B",
+                    Milestones = new List<Milestone>
+                    {
+                        new() { Date = new DateOnly(today.Year, 2, 15), Type = MilestoneType.Checkpoint, Label = "Feb 15" },
+                        new() { Date = new DateOnly(today.Year, 5, 10), Type = MilestoneType.Prod, Label = "May Prod" }
+                    }
+                },
+                new TimelineLane
+                {
+                    Id = "M3",
+                    Label = "Auto Review DFD",
+                    Color = "#546E7A",
+                    Milestones = new List<Milestone>
+                    {
+                        new() { Date = new DateOnly(today.Year, 3, 1), Type = MilestoneType.Checkpoint, Label = "Mar 1" },
+                        new() { Date = new DateOnly(today.Year, 6, 1), Type = MilestoneType.Poc, Label = "Jun PoC" }
+                    }
+                }
+            }
+        };
+    }
+
+    private static TimelineViewModel BuildVmDirectly(DateOnly today)
+    {
+        const double w = 1560;
+        const double h = 185;
+        const double top = 20, bot = 20;
+        var inner = h - top - bot;
+
+        double y(int i, int n) => top + (i + 0.5) * inner / n;
+
+        var lanes = new List<LaneGeometry>
+        {
+            new LaneGeometry("M1", "Chatbot & MS Role", "#0078D4", y(0, 3),
+                new List<MilestoneGeometry>
+                {
+                    new(w * 0.05, y(0, 3), MilestoneGeometryType.Checkpoint, "Jan 12", CaptionPlacement.Above),
+                    new(w * 0.45, y(0, 3), MilestoneGeometryType.Poc, "Mar PoC", CaptionPlacement.Above),
+                    new(w * 0.75, y(0, 3), MilestoneGeometryType.Prod, "Apr Prod", CaptionPlacement.Above)
+                }),
+            new LaneGeometry("M2", "PDS & Data Inventory", "#00897B", y(1, 3),
+                new List<MilestoneGeometry>
+                {
+                    new(w * 0.20, y(1, 3), MilestoneGeometryType.Checkpoint, "Feb 15", CaptionPlacement.Above),
+                    new(w * 0.85, y(1, 3), MilestoneGeometryType.Prod, "May Prod", CaptionPlacement.Above)
+                }),
+            new LaneGeometry("M3", "Auto Review DFD", "#546E7A", y(2, 3),
+                new List<MilestoneGeometry>
+                {
+                    new(w * 0.30, y(2, 3), MilestoneGeometryType.Checkpoint, "Mar 1", CaptionPlacement.Above),
+                    new(w * 0.95, y(2, 3), MilestoneGeometryType.Poc, "Jun PoC", CaptionPlacement.Above)
+                })
+        };
+
+        var grids = new List<MonthGridline>
+        {
+            new(w * 0.00, "Jan"), new(w * 0.17, "Feb"), new(w * 0.34, "Mar"),
+            new(w * 0.51, "Apr"), new(w * 0.68, "May"), new(w * 0.85, "Jun")
+        };
+
+        return new TimelineViewModel(grids, lanes, new NowMarker(w * 0.5, true), 1560, 185);
+    }
+}

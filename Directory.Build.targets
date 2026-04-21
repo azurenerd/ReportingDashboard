@@ -1,0 +1,20 @@
+<Project>
+  <!--
+    Workaround for pre-existing BLAZOR102 error:
+    Components/Pages/Dashboard.razor.css exists in the Web project but its
+    matching Dashboard.razor was never added. Remove the orphan scoped CSS
+    file from the item groups before the Razor SDK validates scoped-CSS inputs
+    so the source project builds cleanly for test runs.
+  -->
+  <Target Name="_RemoveOrphanDashboardScopedCss"
+          BeforeTargets="ResolveScopedCssInputs;_ResolveScopedCssInputs;AssignTargetPaths;CoreCompile"
+          Condition="'$(MSBuildProjectName)' == 'ReportingDashboard.Web'">
+    <ItemGroup>
+      <None Remove="Components\Pages\Dashboard.razor.css" />
+      <Content Remove="Components\Pages\Dashboard.razor.css" />
+      <ScopedCssInput Remove="Components\Pages\Dashboard.razor.css" />
+      <ScopedCssInput Remove="@(ScopedCssInput)" Condition="'%(FileName)%(Extension)' == 'Dashboard.razor.css'" />
+      <_ScopedCss Remove="@(_ScopedCss)" Condition="'%(FileName)%(Extension)' == 'Dashboard.razor.css'" />
+    </ItemGroup>
+  </Target>
+</Project>
