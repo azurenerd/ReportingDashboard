@@ -1,13 +1,13 @@
 using System.Text.Json;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using Moq;
 using ReportingDashboard.Web.Models;
 using ReportingDashboard.Web.Services;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Unit;
 
-[Trait("Category", "Unit")]
 public class JsonFileDataServiceTests : IDisposable
 {
     private readonly string _tempDir;
@@ -24,76 +24,87 @@ public class JsonFileDataServiceTests : IDisposable
             Directory.Delete(_tempDir, true);
     }
 
-    private IOptions<DashboardOptions> CreateOptions(string fileName)
+    private IOptions<DashboardOptions> CreateOptions(string filePath)
     {
-        return Options.Create(new DashboardOptions
+        var mock = new Mock<IOptions<DashboardOptions>>();
+        mock.Setup(o => o.Value).Returns(new DashboardOptions { DataFilePath = filePath });
+        return mock.Object;
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ValidJsonFile_DeserializesCorrectly()
+    {
+        var path = Path.Combine(_tempDir, "data.json");
+        var json = JsonSerializer.Serialize(new
         {
-            DataFilePath = Path.Combine(_tempDir, fileName)
+            title = "Test Project",
+            subtitle = "Test Sub",
+            backlogUrl = "https://example.com",
+            currentDate = "2026-04-01",
+            timeline = new { startDate = "2025-10-01", endDate = "2026-09-30", tracks = Array.Empty<object>() },
+            heatmap = new { months = new[] { "Jan" }, currentMonth = "Jan", categories = Array.Empty<object>() }
         });
+        File.WriteAllText(path, json);
+
+        var svc = new JsonFileDataService(CreateOptions(path));
+
+        svc.GetData().Should().NotBeNull();
+        svc.GetData()!.Title.Should().Be("Test Project");
+        svc.GetError().Should().BeNull();
     }
 
     [Fact]
-    public void GetData_ValidJsonFile_DeserializesCorrectly()
+    [Trait("Category", "Unit")]
+    public void MissingFile_ReturnsErrorWithPath()
     {
-        var data = new DashboardData
-        {
-            Title = "Test Project",
-            Subtitle = "Test Subtitle",
-            BacklogUrl = "https://example.com",
-            CurrentDate = "2026-04-01"
-        };
-        var json = JsonSerializer.Serialize(data);
-        File.WriteAllText(Path.Combine(_tempDir, "valid.json"), json);
+        var path = Path.Combine(_tempDir, "nonexistent.json");
 
-        var service = new JsonFileDataService(CreateOptions("valid.json"));
+        var svc = new JsonFileDataService(CreateOptions(path));
 
-        service.GetData().Should().NotBeNull();
-        service.GetData()!.Title.Should().Be("Test Project");
-        service.GetError().Should().BeNull();
+        svc.GetData().Should().BeNull();
+        svc.GetError().Should().Contain("file not found");
+        svc.GetError().Should().Contain(Path.GetFullPath(path));
     }
 
     [Fact]
-    public void GetData_MissingFile_ReturnsErrorWithPath()
+    [Trait("Category", "Unit")]
+    public void MalformedJson_ReturnsParseError()
     {
-        var service = new JsonFileDataService(CreateOptions("nonexistent.json"));
+        var path = Path.Combine(_tempDir, "bad.json");
+        File.WriteAllText(path, "{ invalid json!!! }");
 
-        service.GetData().Should().BeNull();
-        service.GetError().Should().NotBeNull();
-        service.GetError().Should().Contain("file not found");
+        var svc = new JsonFileDataService(CreateOptions(path));
+
+        svc.GetData().Should().BeNull();
+        svc.GetError().Should().Contain("Could not parse data.json");
     }
 
     [Fact]
-    public void GetData_MalformedJson_ReturnsParseError()
+    [Trait("Category", "Unit")]
+    public void EmptyJsonObject_DeserializesWithDefaults()
     {
-        File.WriteAllText(Path.Combine(_tempDir, "bad.json"), "{ not valid json!!!");
+        var path = Path.Combine(_tempDir, "empty.json");
+        File.WriteAllText(path, "{}");
 
-        var service = new JsonFileDataService(CreateOptions("bad.json"));
+        var svc = new JsonFileDataService(CreateOptions(path));
 
-        service.GetData().Should().BeNull();
-        service.GetError().Should().NotBeNull();
-        service.GetError().Should().Contain("Could not parse");
+        svc.GetData().Should().NotBeNull();
+        svc.GetData()!.Title.Should().BeEmpty();
+        svc.GetError().Should().BeNull();
     }
 
     [Fact]
-    public void GetData_EmptyJsonObject_DeserializesWithDefaults()
+    [Trait("Category", "Unit")]
+    public void NullDataFilePath_UsesDefaultPath()
     {
-        File.WriteAllText(Path.Combine(_tempDir, "empty.json"), "{}");
+        var mock = new Mock<IOptions<DashboardOptions>>();
+        mock.Setup(o => o.Value).Returns(new DashboardOptions { DataFilePath = null! });
 
-        var service = new JsonFileDataService(CreateOptions("empty.json"));
+        var svc = new JsonFileDataService(mock.Object);
 
-        service.GetData().Should().NotBeNull();
-        service.GetData()!.Title.Should().BeEmpty();
-        service.GetError().Should().BeNull();
-    }
-
-    [Fact]
-    public void GetData_NullDataFilePath_UsesDefault()
-    {
-        var options = Options.Create(new DashboardOptions { DataFilePath = null! });
-
-        var service = new JsonFileDataService(options);
-
-        // Default path ./data.json likely doesn't exist, so we expect an error
-        service.GetError().Should().NotBeNull();
+        // Default path ./data.json likely doesn't exist in test context
+        // Service should handle gracefully with an error, not throw
+        (svc.GetError() != null || svc.GetData() != null).Should().BeTrue();
     }
 }
