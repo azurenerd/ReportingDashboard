@@ -1,0 +1,92 @@
+{
+  "title": "Project Phoenix — Cloud Migration Roadmap",
+  "subtitle": "Enterprise Platform · Cloud Infrastructure Workstream · April 2026",
+  "backlogUrl": "https://dev.azure.com/contoso/phoenix/_backlogs",
+  "currentDate": "2026-04-10",
+  "timeline": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-06-30",
+    "tracks": [
+      {
+        "id": "M1",
+        "label": "Identity & Auth Migration",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12" },
+          { "date": "2026-03-26", "type": "poc", "label": "Mar 26 PoC" },
+          { "date": "2026-05-01", "type": "production", "label": "May 1 Prod" }
+        ]
+      },
+      {
+        "id": "M2",
+        "label": "Data Platform Lift & Shift",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2025-12-19", "type": "checkpoint", "label": "Dec 19" },
+          { "date": "2026-02-11", "type": "checkpoint-small", "label": "Feb 11" },
+          { "date": "2026-03-05", "type": "dot", "label": "" },
+          { "date": "2026-03-12", "type": "dot", "label": "" },
+          { "date": "2026-03-17", "type": "dot", "label": "" },
+          { "date": "2026-03-19", "type": "dot", "label": "" },
+          { "date": "2026-03-20", "type": "poc", "label": "Mar 20 PoC" },
+          { "date": "2026-03-30", "type": "production", "label": "Mar 30 Prod" }
+        ]
+      },
+      {
+        "id": "M3",
+        "label": "API Gateway & Service Mesh",
+        "color": "#546E7A",
+        "milestones": [
+          { "date": "2026-01-05", "type": "checkpoint", "label": "Jan 5" },
+          { "date": "2026-03-30", "type": "poc", "label": "Mar 30 PoC" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["March", "April", "May", "June"],
+    "currentMonth": "April",
+    "categories": [
+      {
+        "name": "Shipped",
+        "colorClass": "ship",
+        "items": {
+          "March": ["Entra ID SSO integration", "SQL Server to Azure SQL cutover"],
+          "April": ["Cosmos DB read-replica failover", "Key Vault secret rotation automation"],
+          "May": [],
+          "June": []
+        }
+      },
+      {
+        "name": "In Progress",
+        "colorClass": "prog",
+        "items": {
+          "March": ["mTLS rollout for internal APIs", "Terraform module for AKS clusters"],
+          "April": ["Event Hub consumer group scaling", "Managed Identity for Batch workloads"],
+          "May": ["Azure Front Door WAF tuning", "Dapr sidecar injection for microservices"],
+          "June": ["Multi-region active-active failover"]
+        }
+      },
+      {
+        "name": "Carryover",
+        "colorClass": "carry",
+        "items": {
+          "March": ["Legacy SOAP adapter decommission (ETA: Apr 15)"],
+          "April": ["Redis cache migration from on-prem (ETA: May 1)", "DNS cutover for partner APIs (ETA: May 8)"],
+          "May": ["VPN gateway consolidation from Q1"],
+          "June": []
+        }
+      },
+      {
+        "name": "Blockers",
+        "colorClass": "block",
+        "items": {
+          "March": ["None logged"],
+          "April": ["Azure subscription quota increase pending (Support ticket #4821)"],
+          "May": [],
+          "June": []
+        }
+      }
+    ]
+  }
+}

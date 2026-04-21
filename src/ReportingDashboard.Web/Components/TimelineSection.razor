@@ -1,0 +1,146 @@
+@using Microsoft.AspNetCore.Components
+
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in Timeline.Tracks)
+        {
+            <div class="tl-label">
+                <span style="color:@track.Color;font-weight:600;">@track.Id</span><br />
+                <span class="tl-label-desc">@track.Label</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        @((MarkupString)RenderSvg())
+    </div>
+</div>
+
+@code {
+    [Parameter] public TimelineData Timeline { get; set; } = new();
+    [Parameter] public string CurrentDate { get; set; } = "";
+
+    private const double SvgWidth = 1560.0;
+    private const int SvgHeight = 185;
+
+    private DateTime _startDate;
+    private DateTime _endDate;
+    private double _totalDays;
+
+    protected override void OnInitialized()
+    {
+        DateTime.TryParse(Timeline.StartDate, out _startDate);
+        DateTime.TryParse(Timeline.EndDate, out _endDate);
+        _totalDays = (_endDate - _startDate).TotalDays;
+        if (_totalDays <= 0) _totalDays = 1;
+    }
+
+    public static double ComputeDateToX(DateTime date, DateTime startDate, DateTime endDate, double svgWidth = SvgWidth)
+    {
+        var totalDays = (endDate - startDate).TotalDays;
+        if (totalDays <= 0) return 0;
+        return (date - startDate).TotalDays / totalDays * svgWidth;
+    }
+
+    private double DateToX(string dateStr)
+    {
+        if (!DateTime.TryParse(dateStr, out var date)) return 0;
+        return ComputeDateToX(date, _startDate, _endDate);
+    }
+
+    private double NowX => DateToX(CurrentDate);
+
+    private double TrackY(int index) => (double)SvgHeight / (Timeline.Tracks.Count + 1) * (index + 1);
+
+    private string DiamondPoints(double cx, double cy, double radius = 11)
+    {
+        return $"{F(cx)},{F(cy - radius)} {F(cx + radius)},{F(cy)} {F(cx)},{F(cy + radius)} {F(cx - radius)},{F(cy)}";
+    }
+
+    private double LabelY(double trackY, int trackIndex, Milestone ms)
+    {
+        if (ms.Type == "production" && trackIndex == 1)
+            return trackY + 24;
+        if (ms.Type == "poc" || ms.Type == "production")
+            return trackY + 24;
+        return trackY - 16;
+    }
+
+    private string F(double val) => Math.Round(val, 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    private string RenderSvg()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1560\" height=\"{SvgHeight}\" style=\"overflow:visible;display:block\">");
+        sb.Append("<defs><filter id=\"sh\"><feDropShadow dx=\"0\" dy=\"1\" stdDeviation=\"1.5\" flood-opacity=\"0.3\"/></filter></defs>");
+
+        // Month gridlines
+        if (_totalDays > 0)
+        {
+            var date = new DateTime(_startDate.Year, _startDate.Month, 1);
+            while (date <= _endDate)
+            {
+                var x = ComputeDateToX(date, _startDate, _endDate);
+                sb.Append($"<line x1=\"{F(x)}\" y1=\"0\" x2=\"{F(x)}\" y2=\"{SvgHeight}\" stroke=\"#bbb\" stroke-opacity=\"0.4\" stroke-width=\"1\"/>");
+                sb.Append($"<text x=\"{F(x + 5)}\" y=\"14\" fill=\"#666\" font-size=\"11\" font-weight=\"600\" font-family=\"Segoe UI,Arial\">{Enc(date.ToString("MMM"))}</text>");
+                date = date.AddMonths(1);
+            }
+        }
+
+        // NOW line
+        var nowX = NowX;
+        if (DateTime.TryParse(CurrentDate, out _))
+        {
+            sb.Append($"<line x1=\"{F(nowX)}\" y1=\"0\" x2=\"{F(nowX)}\" y2=\"{SvgHeight}\" stroke=\"#EA4335\" stroke-width=\"2\" stroke-dasharray=\"5,3\"/>");
+            sb.Append($"<text x=\"{F(nowX + 4)}\" y=\"14\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\" font-family=\"Segoe UI,Arial\">NOW</text>");
+        }
+
+        // Tracks and milestones
+        for (int i = 0; i < Timeline.Tracks.Count; i++)
+        {
+            var track = Timeline.Tracks[i];
+            var y = TrackY(i);
+
+            sb.Append($"<line x1=\"0\" y1=\"{F(y)}\" x2=\"1560\" y2=\"{F(y)}\" stroke=\"{Enc(track.Color)}\" stroke-width=\"3\"/>");
+
+            foreach (var ms in track.Milestones)
+            {
+                var x = DateToX(ms.Date);
+                var tooltip = $"{Enc(ms.Label)} — {Enc(ms.Type)}";
+
+                if (ms.Type == "poc")
+                {
+                    sb.Append($"<g><polygon points=\"{DiamondPoints(x, y)}\" fill=\"#F4B400\" filter=\"url(#sh)\"/><title>{tooltip}</title></g>");
+                    if (!string.IsNullOrEmpty(ms.Label))
+                        sb.Append($"<text x=\"{F(x)}\" y=\"{F(LabelY(y, i, ms))}\" text-anchor=\"middle\" fill=\"#666\" font-size=\"10\" font-family=\"Segoe UI,Arial\">{Enc(ms.Label)}</text>");
+                }
+                else if (ms.Type == "production")
+                {
+                    sb.Append($"<g><polygon points=\"{DiamondPoints(x, y)}\" fill=\"#34A853\" filter=\"url(#sh)\"/><title>{tooltip}</title></g>");
+                    if (!string.IsNullOrEmpty(ms.Label))
+                        sb.Append($"<text x=\"{F(x)}\" y=\"{F(LabelY(y, i, ms))}\" text-anchor=\"middle\" fill=\"#666\" font-size=\"10\" font-family=\"Segoe UI,Arial\">{Enc(ms.Label)}</text>");
+                }
+                else if (ms.Type == "checkpoint")
+                {
+                    sb.Append($"<g><circle cx=\"{F(x)}\" cy=\"{F(y)}\" r=\"7\" fill=\"white\" stroke=\"{Enc(track.Color)}\" stroke-width=\"2.5\"/><title>{tooltip}</title></g>");
+                    if (!string.IsNullOrEmpty(ms.Label))
+                        sb.Append($"<text x=\"{F(x)}\" y=\"{F(LabelY(y, i, ms))}\" text-anchor=\"middle\" fill=\"#666\" font-size=\"10\" font-family=\"Segoe UI,Arial\">{Enc(ms.Label)}</text>");
+                }
+                else if (ms.Type == "checkpoint-small")
+                {
+                    sb.Append($"<g><circle cx=\"{F(x)}\" cy=\"{F(y)}\" r=\"5\" fill=\"white\" stroke=\"#888\" stroke-width=\"2.5\"/><title>{tooltip}</title></g>");
+                    if (!string.IsNullOrEmpty(ms.Label))
+                        sb.Append($"<text x=\"{F(x)}\" y=\"{F(LabelY(y, i, ms))}\" text-anchor=\"middle\" fill=\"#666\" font-size=\"10\" font-family=\"Segoe UI,Arial\">{Enc(ms.Label)}</text>");
+                }
+                else if (ms.Type == "dot")
+                {
+                    sb.Append($"<g><circle cx=\"{F(x)}\" cy=\"{F(y)}\" r=\"4\" fill=\"#999\"/><title>{tooltip}</title></g>");
+                }
+            }
+        }
+
+        sb.Append("</svg>");
+        return sb.ToString();
+    }
+
+    private static string Enc(string s) => System.Net.WebUtility.HtmlEncode(s);
+}
