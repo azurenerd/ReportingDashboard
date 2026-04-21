@@ -18,12 +18,17 @@ public class PlaywrightFixture : IAsyncLifetime
         Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
     }
 
-    public async Task<IPage> NewPageAsync()
+    public Task<IBrowserContext> NewContextAsync()
     {
-        var ctx = await Browser.NewContextAsync(new BrowserNewContextOptions
+        return Browser.NewContextAsync(new BrowserNewContextOptions
         {
             ViewportSize = new ViewportSize { Width = 1920, Height = 1080 }
         });
+    }
+
+    public async Task<IPage> NewPageAsync()
+    {
+        var ctx = await NewContextAsync();
         var page = await ctx.NewPageAsync();
         page.SetDefaultTimeout(60000);
         return page;
