@@ -1,48 +1,90 @@
 using System.Text.Json;
-using Microsoft.Extensions.Options;
 using ReportingDashboard.Web.Models;
 
 namespace ReportingDashboard.Web.Services;
 
 public class JsonFileDataService : IDataService
 {
-    private readonly DashboardData? _data;
-    private readonly string? _error;
+    private readonly IWebHostEnvironment _env;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<JsonFileDataService> _logger;
+    private DashboardData? _cachedData;
 
-    public JsonFileDataService(IOptions<DashboardOptions> options)
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        var path = options.Value.DataFilePath ?? "./data.json";
+        PropertyNameCaseInsensitive = true
+    };
+
+    public JsonFileDataService(
+        IWebHostEnvironment env,
+        IConfiguration configuration,
+        ILogger<JsonFileDataService> logger)
+    {
+        _env = env;
+        _configuration = configuration;
+        _logger = logger;
+    }
+
+    public async Task<DashboardData> LoadDashboardDataAsync()
+    {
+        if (_cachedData is not null)
+            return _cachedData;
+
+        var relativePath = _configuration.GetValue<string>("DashboardOptions:DataFilePath")
+                           ?? "wwwroot/data/data.sample.json";
+
+        var filePath = Path.IsPathRooted(relativePath)
+            ? relativePath
+            : Path.Combine(_env.ContentRootPath, relativePath);
+
         try
         {
-            // If the configured data file doesn't exist, fall back to data.sample.json
-            // so the app renders a working dashboard on fresh clone.
-            if (!File.Exists(path))
+            if (!File.Exists(filePath))
             {
-                var samplePath = Path.Combine(Path.GetDirectoryName(path) ?? ".", "data.sample.json");
-                if (File.Exists(samplePath))
-                {
-                    path = samplePath;
-                }
-                else
-                {
-                    _error = $"Could not load data.json \u2014 file not found at {Path.GetFullPath(path)}. "
-                           + "Please create a data.json file. See data.sample.json for the expected schema.";
-                    return;
-                }
+                _logger.LogWarning("Data file not found at {Path}, returning default data", filePath);
+                _cachedData = CreateDefaultData();
+                return _cachedData;
             }
 
-            var json = File.ReadAllText(path);
-            _data = JsonSerializer.Deserialize<DashboardData>(json, new JsonSerializerOptions
+            var json = await File.ReadAllTextAsync(filePath);
+            var data = JsonSerializer.Deserialize<DashboardData>(json, JsonOptions);
+
+            if (data is null)
             {
-                PropertyNameCaseInsensitive = true
-            });
+                _logger.LogWarning("Data file deserialized to null, returning default data");
+                _cachedData = CreateDefaultData();
+                return _cachedData;
+            }
+
+            _logger.LogInformation("Dashboard data loaded from {Path}: {Title}", filePath, data.Title);
+            _cachedData = data;
+            return _cachedData;
         }
-        catch (JsonException ex)
+        catch (Exception ex)
         {
-            _error = $"Could not parse data.json: {ex.Message}";
+            _logger.LogError(ex, "Error loading data file from {Path}", filePath);
+            _cachedData = CreateDefaultData();
+            return _cachedData;
         }
     }
 
-    public DashboardData? GetData() => _data;
-    public string? GetError() => _error;
+    private static DashboardData CreateDefaultData()
+    {
+        return new DashboardData
+        {
+            Title = "Dashboard",
+            Subtitle = "No data loaded",
+            BacklogLink = "",
+            CurrentMonth = DateTime.Now.ToString("MMM"),
+            Months = new List<string> { DateTime.Now.ToString("MMM") },
+            Timeline = new TimelineData
+            {
+                StartDate = DateTime.Now.ToString("yyyy-MM-dd"),
+                EndDate = DateTime.Now.AddMonths(6).ToString("yyyy-MM-dd"),
+                NowDate = DateTime.Now.ToString("yyyy-MM-dd"),
+                Tracks = new List<TimelineTrack>()
+            },
+            Heatmap = new HeatmapData()
+        };
+    }
 }

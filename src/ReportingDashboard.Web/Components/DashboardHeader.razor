@@ -1,39 +1,29 @@
+<header class="dash-header">
+    <div class="dash-header-left">
+        <h1 class="dash-title">@Title</h1>
+        @if (!string.IsNullOrWhiteSpace(Subtitle))
+        {
+            <p class="dash-subtitle">@Subtitle</p>
+        }
+    </div>
+    <div class="dash-header-right">
+        @if (!string.IsNullOrWhiteSpace(BacklogLink))
+        {
+            <a class="backlog-link" href="@BacklogLink" target="_blank" rel="noopener noreferrer">
+                📋 View Backlog
+            </a>
+        }
+        <div class="legend">
+            <span class="legend-item"><span class="legend-dot shipped-dot"></span> Shipped</span>
+            <span class="legend-item"><span class="legend-dot in-progress-dot"></span> In Progress</span>
+            <span class="legend-item"><span class="legend-dot carryover-dot"></span> Carryover</span>
+            <span class="legend-item"><span class="legend-dot blockers-dot"></span> Blockers</span>
+        </div>
+    </div>
+</header>
+
 @code {
     [Parameter] public string Title { get; set; } = "";
     [Parameter] public string Subtitle { get; set; } = "";
-    [Parameter] public string BacklogUrl { get; set; } = "";
-    [Parameter] public string CurrentDate { get; set; } = "";
-
-    private string NowLabel
-    {
-        get
-        {
-            if (DateTime.TryParse(CurrentDate, out var dt))
-            {
-                return $"Now ({dt:MMM yyyy})";
-            }
-            return "Now";
-        }
-    }
+    [Parameter] public string BacklogLink { get; set; } = "";
 }
-
-<div class="hdr">
-    <div>
-        <h1>@Title <a href="@BacklogUrl">&#x1F4CB; ADO Backlog</a></h1>
-        <div class="sub">@Subtitle</div>
-    </div>
-    <div class="legend">
-        <span class="legend-item">
-            <span class="icon-diamond poc-diamond"></span>PoC Milestone
-        </span>
-        <span class="legend-item">
-            <span class="icon-diamond prod-diamond"></span>Production Release
-        </span>
-        <span class="legend-item">
-            <span class="icon-checkpoint"></span>Checkpoint
-        </span>
-        <span class="legend-item">
-            <span class="icon-now"></span>@NowLabel
-        </span>
-    </div>
-</div>

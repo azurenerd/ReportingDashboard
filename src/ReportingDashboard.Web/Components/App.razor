@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=1920" />
-    <title>Executive Reporting Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="ReportingDashboard.Web.styles.css" />
-    <HeadOutlet />
+    <HeadOutlet @rendermode="Microsoft.AspNetCore.Components.Web.RenderMode.InteractiveServer" />
 </head>
 <body>
-    <Routes />
+    <Routes @rendermode="Microsoft.AspNetCore.Components.Web.RenderMode.InteractiveServer" />
+    <script src="_framework/blazor.web.js"></script>
 </body>
 </html>

@@ -1,33 +1,34 @@
 @page "/"
 @inject IDataService DataService
 
-@if (_error is not null)
+<PageTitle>Reporting Dashboard</PageTitle>
+
+@if (_loading)
 {
-    <div class="error-container">
-        <div class="error-box">
-            <h2>⚠ Dashboard Error</h2>
-            <p>@_error</p>
-        </div>
-    </div>
+    <div class="loading-state">Loading dashboard data…</div>
 }
-else if (_data is not null)
+else
 {
-    <DashboardHeader Title="@_data.Title"
-                     Subtitle="@_data.Subtitle"
-                     BacklogUrl="@_data.BacklogUrl"
-                     CurrentDate="@_data.CurrentDate" />
-    <TimelineSection Timeline="@_data.Timeline"
-                     CurrentDate="@_data.CurrentDate" />
-    <HeatmapGrid Heatmap="@_data.Heatmap" />
+    <div class="dashboard-fixed-layout">
+        <DashboardHeader Title="@_data.Title"
+                         Subtitle="@_data.Subtitle"
+                         BacklogLink="@_data.BacklogLink" />
+
+        <TimelineSection Timeline="@_data.Timeline" />
+
+        <HeatmapGrid Heatmap="@_data.Heatmap"
+                     Months="@_data.Months"
+                     CurrentMonth="@_data.CurrentMonth" />
+    </div>
 }
 
 @code {
-    private DashboardData? _data;
-    private string? _error;
+    private DashboardData _data = new();
+    private bool _loading = true;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        _data = DataService.GetData();
-        _error = DataService.GetError();
+        _data = await DataService.LoadDashboardDataAsync();
+        _loading = false;
     }
 }

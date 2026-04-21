@@ -1,203 +1,103 @@
-@code {
-    [Parameter] public TimelineData Timeline { get; set; } = new();
-    [Parameter] public string CurrentDate { get; set; } = "";
+@if (Timeline.Tracks.Count > 0)
+{
+    <div class="timeline-wrap">
+        <h2 class="timeline-heading">Project Timeline</h2>
+        <svg class="timeline-svg" width="@SvgWidth" height="@SvgHeight" viewBox="0 0 @SvgWidth @SvgHeight"
+             xmlns="http://www.w3.org/2000/svg">
 
-    private const double SvgWidth = 1560.0;
-    private const double SvgHeight = 185.0;
-
-    private DateTime _startDate;
-    private DateTime _endDate;
-    private double _totalDays;
-
-    protected override void OnParametersSet()
-    {
-        if (DateTime.TryParse(Timeline.StartDate, out var s))
-            _startDate = s;
-        if (DateTime.TryParse(Timeline.EndDate, out var e))
-            _endDate = e;
-        _totalDays = (_endDate - _startDate).TotalDays;
-    }
-
-    public static double DateToX(DateTime date, DateTime startDate, DateTime endDate, double svgWidth = SvgWidth)
-    {
-        var totalDays = (endDate - startDate).TotalDays;
-        if (totalDays <= 0) return 0;
-        var dayOffset = (date - startDate).TotalDays;
-        return dayOffset / totalDays * svgWidth;
-    }
-
-    private double DateToX(string dateStr)
-    {
-        if (!DateTime.TryParse(dateStr, out var dt)) return 0;
-        return DateToX(dt, _startDate, _endDate);
-    }
-
-    private double TrackY(int index)
-    {
-        return SvgHeight / (Timeline.Tracks.Count + 1) * (index + 1);
-    }
-
-    private string DiamondPoints(double cx, double cy, double radius = 11)
-    {
-        return $"{cx},{cy - radius} {cx + radius},{cy} {cx},{cy + radius} {cx - radius},{cy}";
-    }
-
-    private List<(string label, double x)> GetMonthGridlines()
-    {
-        var result = new List<(string, double)>();
-        var current = new DateTime(_startDate.Year, _startDate.Month, 1);
-        while (current <= _endDate)
-        {
-            var x = DateToX(current, _startDate, _endDate);
-            result.Add((current.ToString("MMM"), x));
-            current = current.AddMonths(1);
-        }
-        return result;
-    }
-
-    private string FormatTooltip(Milestone m)
-    {
-        if (DateTime.TryParse(m.Date, out var dt))
-        {
-            var typeLabel = m.Type switch
+            @* Month grid lines and labels *@
+            @foreach (var monthTick in _monthTicks)
             {
-                "poc" => "PoC Milestone",
-                "production" => "Production Release",
-                "checkpoint" => "Checkpoint",
-                "checkpoint-medium" => "Checkpoint",
-                "checkpoint-small" => "Checkpoint",
-                _ => m.Type
-            };
-            return $"{dt:MMM d} \u2014 {typeLabel}";
-        }
-        return m.Label;
-    }
-
-    private double TooltipX(double mx)
-    {
-        // Keep tooltip within SVG bounds
-        var x = mx - 70;
-        if (x < 0) x = 0;
-        if (x + 140 > SvgWidth) x = SvgWidth - 140;
-        return x;
-    }
-
-    private double TooltipY(double y, bool above)
-    {
-        return above ? y - 50 : y + 16;
-    }
-}
-
-<div class="tl-area">
-    <div class="tl-sidebar">
-        @foreach (var track in Timeline.Tracks)
-        {
-            <div class="tl-label" style="color:@track.Color;">
-                @track.Id<br /><span class="tl-label-desc">@track.Label</span>
-            </div>
-        }
-    </div>
-    <div class="tl-svg-box">
-        <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="185" style="overflow:visible;display:block">
-            <defs>
-                <filter id="sh">
-                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
-                </filter>
-            </defs>
-
-            @* Month gridlines *@
-            @foreach (var (label, x) in GetMonthGridlines())
-            {
-                <g>
-                    <line x1="@F(x)" y1="0" x2="@F(x)" y2="@F(SvgHeight)" stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
-                    <text x="@F(x + 5)" y="14" fill="#666" font-size="11" font-weight="600" font-family="Segoe UI,Arial">@label</text>
-                </g>
+                <line x1="@monthTick.X" y1="@HeaderHeight" x2="@monthTick.X" y2="@SvgHeight"
+                      stroke="#e0e0e0" stroke-width="1" />
+                @((MarkupString)$"<text x=\"{monthTick.X + 4}\" y=\"{HeaderHeight - 6}\" font-size=\"11\" fill=\"#888\">{monthTick.Label}</text>")
             }
 
-            @* NOW line *@
-            @if (!string.IsNullOrEmpty(CurrentDate))
+            @* Tracks *@
+            @{ var trackIndex = 0; }
+            @foreach (var track in Timeline.Tracks)
             {
-                var nowX = DateToX(CurrentDate);
-                <g>
-                    <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="@F(SvgHeight)" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
-                    <text x="@F(nowX + 4)" y="14" fill="#EA4335" font-size="10" font-weight="700" font-family="Segoe UI,Arial">NOW</text>
-                </g>
-            }
+                var y = HeaderHeight + (trackIndex * TrackHeight) + (TrackHeight / 2);
+                var labelY = HeaderHeight + (trackIndex * TrackHeight) + 4;
 
-            @* Track lines and milestones *@
-            @for (int i = 0; i < Timeline.Tracks.Count; i++)
-            {
-                var track = Timeline.Tracks[i];
-                var y = TrackY(i);
+                @* Track label *@
+                @((MarkupString)$"<text x=\"4\" y=\"{labelY + 14}\" font-size=\"12\" font-weight=\"600\" fill=\"#333\">{System.Web.HttpUtility.HtmlEncode(track.Label)}</text>")
 
-                <line x1="0" y1="@F(y)" x2="@F(SvgWidth)" y2="@F(y)" stroke="@track.Color" stroke-width="3" />
+                @* Track line *@
+                <line x1="@LabelWidth" y1="@y" x2="@SvgWidth" y2="@y"
+                      stroke="@track.Color" stroke-width="3" opacity="0.3" />
 
+                @* Milestones *@
                 @foreach (var ms in track.Milestones)
                 {
-                    var mx = DateToX(ms.Date);
-                    var tooltip = FormatTooltip(ms);
+                    var mx = LabelWidth + TimelineHelper.DateToX(ms.Date, Timeline.StartDate, Timeline.EndDate, ChartWidth);
+                    var isDeadline = ms.Type == "deadline";
 
-                    @if (ms.Type == "checkpoint")
+                    @if (isDeadline)
                     {
-                        <g class="milestone-group">
-                            <circle cx="@F(mx)" cy="@F(y)" r="7" fill="white" stroke="@track.Color" stroke-width="2.5" />
-                            <text x="@F(mx)" y="@F(y - 16)" text-anchor="middle" fill="#666" font-size="10" font-family="Segoe UI,Arial">@ms.Label</text>
-                            <!-- Invisible hover target -->
-                            <circle cx="@F(mx)" cy="@F(y)" r="14" fill="transparent" class="hover-target" />
-                            <foreignObject x="@F(TooltipX(mx))" y="@F(TooltipY(y, true))" width="140" height="34" class="tooltip-fo">
-                                <div xmlns="http://www.w3.org/1999/xhtml" class="svg-tooltip">@tooltip</div>
-                            </foreignObject>
-                        </g>
+                        <polygon points="@($"{mx - 6},{y - 6} {mx + 6},{y - 6} {mx},{y + 6}")"
+                                 fill="@track.Color" />
                     }
-                    else if (ms.Type == "checkpoint-small")
+                    else
                     {
-                        <g class="milestone-group">
-                            <circle cx="@F(mx)" cy="@F(y)" r="4" fill="#999" />
-                            <circle cx="@F(mx)" cy="@F(y)" r="14" fill="transparent" class="hover-target" />
-                            <foreignObject x="@F(TooltipX(mx))" y="@F(TooltipY(y, true))" width="140" height="34" class="tooltip-fo">
-                                <div xmlns="http://www.w3.org/1999/xhtml" class="svg-tooltip">@tooltip</div>
-                            </foreignObject>
-                        </g>
+                        <circle cx="@mx" cy="@y" r="5" fill="@track.Color" />
                     }
-                    else if (ms.Type == "checkpoint-medium")
-                    {
-                        <g class="milestone-group">
-                            <circle cx="@F(mx)" cy="@F(y)" r="5" fill="white" stroke="#888" stroke-width="2.5" />
-                            <text x="@F(mx)" y="@F(y - 16)" text-anchor="middle" fill="#666" font-size="10" font-family="Segoe UI,Arial">@ms.Label</text>
-                            <circle cx="@F(mx)" cy="@F(y)" r="14" fill="transparent" class="hover-target" />
-                            <foreignObject x="@F(TooltipX(mx))" y="@F(TooltipY(y, true))" width="140" height="34" class="tooltip-fo">
-                                <div xmlns="http://www.w3.org/1999/xhtml" class="svg-tooltip">@tooltip</div>
-                            </foreignObject>
-                        </g>
-                    }
-                    else if (ms.Type == "poc")
-                    {
-                        <g class="milestone-group">
-                            <polygon points="@DiamondPoints(mx, y)" fill="#F4B400" filter="url(#sh)" />
-                            <text x="@F(mx)" y="@F(y + 24)" text-anchor="middle" fill="#666" font-size="10" font-family="Segoe UI,Arial">@ms.Label</text>
-                            <circle cx="@F(mx)" cy="@F(y)" r="14" fill="transparent" class="hover-target" />
-                            <foreignObject x="@F(TooltipX(mx))" y="@F(TooltipY(y, false))" width="140" height="34" class="tooltip-fo">
-                                <div xmlns="http://www.w3.org/1999/xhtml" class="svg-tooltip">@tooltip</div>
-                            </foreignObject>
-                        </g>
-                    }
-                    else if (ms.Type == "production")
-                    {
-                        <g class="milestone-group">
-                            <polygon points="@DiamondPoints(mx, y)" fill="#34A853" filter="url(#sh)" />
-                            <text x="@F(mx)" y="@F(y - 24)" text-anchor="middle" fill="#666" font-size="10" font-family="Segoe UI,Arial">@ms.Label</text>
-                            <circle cx="@F(mx)" cy="@F(y)" r="14" fill="transparent" class="hover-target" />
-                            <foreignObject x="@F(TooltipX(mx))" y="@F(TooltipY(y, true))" width="140" height="34" class="tooltip-fo">
-                                <div xmlns="http://www.w3.org/1999/xhtml" class="svg-tooltip">@tooltip</div>
-                            </foreignObject>
-                        </g>
-                    }
+                    @((MarkupString)$"<text x=\"{mx}\" y=\"{y - 10}\" text-anchor=\"middle\" font-size=\"10\" fill=\"#555\">{System.Web.HttpUtility.HtmlEncode(ms.Label)}</text>")
                 }
+
+                trackIndex++;
+            }
+
+            @* Now indicator *@
+            @if (!string.IsNullOrEmpty(Timeline.NowDate))
+            {
+                var nowX = LabelWidth + TimelineHelper.DateToX(Timeline.NowDate, Timeline.StartDate, Timeline.EndDate, ChartWidth);
+                <line x1="@nowX" y1="@(HeaderHeight - 2)" x2="@nowX" y2="@SvgHeight"
+                      stroke="#D13438" stroke-width="2" stroke-dasharray="4,3" />
+                @((MarkupString)$"<text x=\"{nowX}\" y=\"{HeaderHeight - 8}\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#D13438\">NOW</text>")
             }
         </svg>
     </div>
-</div>
+}
 
-@functions {
-    private static string F(double v) => Math.Round(v, 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+@code {
+    [Parameter] public TimelineData Timeline { get; set; } = new();
+
+    private const double SvgWidth = 1216;
+    private const double LabelWidth = 120;
+    private const double HeaderHeight = 32;
+    private const double TrackHeight = 48;
+    private double ChartWidth => SvgWidth - LabelWidth;
+    private double SvgHeight => HeaderHeight + (Timeline.Tracks.Count * TrackHeight) + 8;
+
+    private List<MonthTick> _monthTicks = new();
+
+    protected override void OnParametersSet()
+    {
+        _monthTicks = BuildMonthTicks();
+    }
+
+    private List<MonthTick> BuildMonthTicks()
+    {
+        var ticks = new List<MonthTick>();
+        if (!DateTime.TryParse(Timeline.StartDate, out var start) ||
+            !DateTime.TryParse(Timeline.EndDate, out var end))
+            return ticks;
+
+        var current = new DateTime(start.Year, start.Month, 1);
+        while (current <= end)
+        {
+            var x = LabelWidth + TimelineHelper.DateToX(
+                current.ToString("yyyy-MM-dd"), Timeline.StartDate, Timeline.EndDate, ChartWidth);
+            ticks.Add(new MonthTick { X = x, Label = current.ToString("MMM") });
+            current = current.AddMonths(1);
+        }
+        return ticks;
+    }
+
+    private class MonthTick
+    {
+        public double X { get; set; }
+        public string Label { get; set; } = "";
+    }
 }

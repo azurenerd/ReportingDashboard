@@ -1,7 +1,6 @@
 using Bunit;
-using FluentAssertions;
-using ReportingDashboard.Web.Components;
 using ReportingDashboard.Web.Models;
+using ReportingDashboard.Web.Components;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Components;
@@ -9,157 +8,105 @@ namespace ReportingDashboard.Tests.Components;
 public class DashboardComponentTests : TestContext
 {
     [Fact]
-    public void DashboardHeader_RendersAllElements()
+    public void DashboardHeader_RendersTitle()
     {
         var cut = RenderComponent<DashboardHeader>(parameters => parameters
-            .Add(p => p.Title, "Test Project")
-            .Add(p => p.Subtitle, "Test Subtitle")
-            .Add(p => p.BacklogUrl, "https://example.com/backlog")
-            .Add(p => p.CurrentDate, "2026-04-10"));
+            .Add(p => p.Title, "My Project")
+            .Add(p => p.Subtitle, "Subtitle text")
+            .Add(p => p.BacklogLink, "https://example.com"));
 
-        var markup = cut.Markup;
-
-        // Title text
-        cut.Find("h1").TextContent.Should().Contain("Test Project");
-
-        // Backlog link
-        var link = cut.Find("h1 a");
-        link.GetAttribute("href").Should().Be("https://example.com/backlog");
-        link.TextContent.Should().Contain("ADO Backlog");
-
-        // Subtitle
-        cut.Find(".sub").TextContent.Should().Contain("Test Subtitle");
-
-        // Legend items (4 total: PoC, Production, Checkpoint, Now)
-        var legendItems = cut.FindAll(".legend-item");
-        legendItems.Count.Should().Be(4);
+        var title = cut.Find("h1");
+        Assert.Equal("My Project", title.TextContent);
     }
 
     [Fact]
-    public void DashboardHeader_NowLabel_IncludesMonthYear()
+    public void DashboardHeader_RendersBacklogLink()
     {
         var cut = RenderComponent<DashboardHeader>(parameters => parameters
-            .Add(p => p.Title, "Test")
-            .Add(p => p.Subtitle, "Sub")
-            .Add(p => p.BacklogUrl, "https://example.com")
-            .Add(p => p.CurrentDate, "2026-04-10"));
+            .Add(p => p.Title, "Project")
+            .Add(p => p.Subtitle, "")
+            .Add(p => p.BacklogLink, "https://example.com/backlog"));
 
-        var legendItems = cut.FindAll(".legend-item");
-        var nowItem = legendItems[3];
-        nowItem.TextContent.Should().Contain("Now");
-        nowItem.TextContent.Should().Contain("Apr");
+        var link = cut.Find("a.backlog-link");
+        Assert.Equal("https://example.com/backlog", link.GetAttribute("href"));
     }
 
     [Fact]
-    public void HeatmapCell_WithItems_RendersCorrectCount()
+    public void DashboardHeader_HidesBacklogLink_WhenEmpty()
     {
-        var items = new List<string> { "Item A", "Item B", "Item C" };
+        var cut = RenderComponent<DashboardHeader>(parameters => parameters
+            .Add(p => p.Title, "Project")
+            .Add(p => p.Subtitle, "")
+            .Add(p => p.BacklogLink, ""));
 
+        Assert.Empty(cut.FindAll("a.backlog-link"));
+    }
+
+    [Fact]
+    public void DashboardHeader_RendersLegend()
+    {
+        var cut = RenderComponent<DashboardHeader>(parameters => parameters
+            .Add(p => p.Title, "Project")
+            .Add(p => p.Subtitle, "")
+            .Add(p => p.BacklogLink, ""));
+
+        var legendItems = cut.FindAll(".legend-item");
+        Assert.Equal(4, legendItems.Count);
+    }
+
+    [Fact]
+    public void HeatmapCell_RendersCount()
+    {
         var cut = RenderComponent<HeatmapCell>(parameters => parameters
-            .Add(p => p.Items, items)
-            .Add(p => p.ColorClass, "ship")
-            .Add(p => p.IsCurrentMonth, false)
-            .Add(p => p.IsLastColumn, false));
+            .Add(p => p.Items, new List<string> { "Item A", "Item B" })
+            .Add(p => p.ColorClass, "shipped")
+            .Add(p => p.IsCurrentMonth, false));
 
-        var itemDivs = cut.FindAll(".it");
-        itemDivs.Count.Should().Be(3);
-        itemDivs[0].TextContent.Should().Be("Item A");
-        itemDivs[1].TextContent.Should().Be("Item B");
-        itemDivs[2].TextContent.Should().Be("Item C");
+        var count = cut.Find(".cell-count");
+        Assert.Equal("2", count.TextContent);
     }
 
     [Fact]
-    public void HeatmapCell_Empty_RendersDash()
+    public void HeatmapCell_EmptyItems_NoCount()
     {
         var cut = RenderComponent<HeatmapCell>(parameters => parameters
             .Add(p => p.Items, new List<string>())
-            .Add(p => p.ColorClass, "prog")
-            .Add(p => p.IsCurrentMonth, false)
-            .Add(p => p.IsLastColumn, false));
+            .Add(p => p.ColorClass, "shipped")
+            .Add(p => p.IsCurrentMonth, false));
 
-        var dash = cut.Find(".empty-dash");
-        dash.Should().NotBeNull();
-        dash.TextContent.Should().Contain("\u2014"); // mdash
+        Assert.Empty(cut.FindAll(".cell-count"));
     }
 
     [Fact]
-    public void HeatmapCell_CurrentMonth_HasCurrentMonthClass()
+    public void HeatmapCell_CurrentMonth_HasClass()
     {
         var cut = RenderComponent<HeatmapCell>(parameters => parameters
-            .Add(p => p.Items, new List<string> { "Test" })
-            .Add(p => p.ColorClass, "block")
-            .Add(p => p.IsCurrentMonth, true)
-            .Add(p => p.IsLastColumn, false));
+            .Add(p => p.Items, new List<string> { "X" })
+            .Add(p => p.ColorClass, "shipped")
+            .Add(p => p.IsCurrentMonth, true));
 
-        var cell = cut.Find(".hm-cell");
-        cell.ClassList.Should().Contain("current-month");
-        cell.ClassList.Should().Contain("block-cell");
+        Assert.Contains("current-month-cell", cut.Find(".hm-cell").ClassList);
     }
 
     [Fact]
-    public void HeatmapGrid_RendersCorrectColumnHeaders()
+    public void HeatmapGrid_RendersRowHeaders()
     {
         var heatmap = new HeatmapData
         {
-            Months = new List<string> { "March", "April", "May" },
-            CurrentMonth = "April",
-            Categories = new List<HeatmapCategory>
+            Shipped = new Dictionary<string, List<string>>
             {
-                new()
-                {
-                    Name = "Shipped",
-                    ColorClass = "ship",
-                    Items = new Dictionary<string, List<string>>
-                    {
-                        ["March"] = new List<string> { "Item 1" },
-                        ["April"] = new List<string> { "Item 2" },
-                        ["May"] = new List<string>()
-                    }
-                }
+                ["Jan"] = new() { "A", "B" }
             }
         };
 
         var cut = RenderComponent<HeatmapGrid>(parameters => parameters
-            .Add(p => p.Heatmap, heatmap));
+            .Add(p => p.Heatmap, heatmap)
+            .Add(p => p.Months, new List<string> { "Jan" })
+            .Add(p => p.CurrentMonth, "Jan"));
 
-        // 3 month column headers
-        var colHeaders = cut.FindAll(".hm-col-hdr");
-        colHeaders.Count.Should().Be(3);
+        var headers = cut.FindAll(".hm-row-hdr");
+        Assert.Equal(4, headers.Count);
 
-        // Current month header has highlight class
-        var currentMonthHdr = cut.FindAll(".current-month-hdr");
-        currentMonthHdr.Count.Should().Be(1);
-        currentMonthHdr[0].TextContent.Should().Contain("April");
-        currentMonthHdr[0].TextContent.Should().Contain("Now");
-    }
-
-    [Fact]
-    public void HeatmapGrid_RowHeader_ShowsTotalCount()
-    {
-        var heatmap = new HeatmapData
-        {
-            Months = new List<string> { "March", "April" },
-            CurrentMonth = "April",
-            Categories = new List<HeatmapCategory>
-            {
-                new()
-                {
-                    Name = "Shipped",
-                    ColorClass = "ship",
-                    Items = new Dictionary<string, List<string>>
-                    {
-                        ["March"] = new List<string> { "A", "B" },
-                        ["April"] = new List<string> { "C" }
-                    }
-                }
-            }
-        };
-
-        var cut = RenderComponent<HeatmapGrid>(parameters => parameters
-            .Add(p => p.Heatmap, heatmap));
-
-        var rowHeader = cut.Find(".hm-row-hdr");
-        rowHeader.TextContent.Should().Contain("SHIPPED");
-        rowHeader.TextContent.Should().Contain("3"); // total items
+        Assert.Contains("SHIPPED (2)", headers[0].TextContent);
     }
 }

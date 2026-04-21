@@ -1,15 +1,27 @@
-# .NET build output
+## .NET
 bin/
 obj/
-publish/
-
-# User-specific data (may contain sensitive project info)
-src/ReportingDashboard.Web/data.json
-
-# IDE
-.vs/
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.nupkg
+*.snupkg
 
-# macOS
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+
+## IDE
+.idea/
+*.swp
+*~
+
+## OS
 .DS_Store
+Thumbs.db

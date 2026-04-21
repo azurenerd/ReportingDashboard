@@ -1,8 +1,11 @@
 using System.Text.Json;
-using FluentAssertions;
-using Microsoft.Extensions.Options;
 using ReportingDashboard.Web.Models;
 using ReportingDashboard.Web.Services;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace ReportingDashboard.Tests.Services;
@@ -10,11 +13,13 @@ namespace ReportingDashboard.Tests.Services;
 public class JsonFileDataServiceTests : IDisposable
 {
     private readonly string _tempDir;
+    private readonly string _dataFilePath;
 
     public JsonFileDataServiceTests()
     {
-        _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        _tempDir = Path.Combine(Path.GetTempPath(), "rdtest_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_tempDir);
+        _dataFilePath = Path.Combine(_tempDir, "data.json");
     }
 
     public void Dispose()
@@ -23,118 +28,79 @@ public class JsonFileDataServiceTests : IDisposable
             Directory.Delete(_tempDir, true);
     }
 
-    private IOptions<DashboardOptions> CreateOptions(string filePath)
+    private JsonFileDataService CreateService(string? dataPath = null)
     {
-        return Options.Create(new DashboardOptions { DataFilePath = filePath });
+        var env = new FakeWebHostEnvironment { ContentRootPath = _tempDir };
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["DashboardOptions:DataFilePath"] = dataPath ?? _dataFilePath
+            })
+            .Build();
+        var logger = NullLogger<JsonFileDataService>.Instance;
+        return new JsonFileDataService(env, config, logger);
     }
 
     [Fact]
-    public void GetData_ValidFile_ReturnsDeserializedData()
+    public async Task LoadDashboardDataAsync_ValidFile_ReturnsData()
     {
-        var filePath = Path.Combine(_tempDir, "data.json");
         var data = new DashboardData
         {
-            Title = "Test Dashboard",
-            Subtitle = "Test Subtitle",
-            BacklogUrl = "https://example.com",
-            CurrentDate = "2026-04-10",
-            Timeline = new TimelineData
-            {
-                StartDate = "2026-01-01",
-                EndDate = "2026-06-30",
-                Tracks = new List<TimelineTrack>
-                {
-                    new() { Id = "M1", Label = "Track 1", Color = "#0078D4", Milestones = new List<Milestone>() }
-                }
-            },
-            Heatmap = new HeatmapData
-            {
-                Months = new List<string> { "March", "April" },
-                CurrentMonth = "April",
-                Categories = new List<HeatmapCategory>()
-            }
+            Title = "Test Project",
+            Subtitle = "Test",
+            CurrentMonth = "Apr",
+            Months = new List<string> { "Apr" }
         };
-        File.WriteAllText(filePath, JsonSerializer.Serialize(data));
+        await File.WriteAllTextAsync(_dataFilePath, JsonSerializer.Serialize(data));
 
-        var service = new JsonFileDataService(CreateOptions(filePath));
+        var service = CreateService();
+        var result = await service.LoadDashboardDataAsync();
 
-        service.GetData().Should().NotBeNull();
-        service.GetError().Should().BeNull();
-        service.GetData()!.Title.Should().Be("Test Dashboard");
-        service.GetData()!.Timeline.Tracks.Should().HaveCount(1);
+        Assert.Equal("Test Project", result.Title);
     }
 
     [Fact]
-    public void GetData_MissingFile_NoSampleFallback_ReturnsError()
+    public async Task LoadDashboardDataAsync_MissingFile_ReturnsDefault()
     {
-        // Point to a nonexistent file in a directory with no data.sample.json
-        var filePath = Path.Combine(_tempDir, "data.json");
+        var service = CreateService(Path.Combine(_tempDir, "nonexistent.json"));
+        var result = await service.LoadDashboardDataAsync();
 
-        var service = new JsonFileDataService(CreateOptions(filePath));
-
-        service.GetData().Should().BeNull();
-        service.GetError().Should().NotBeNull();
-        service.GetError().Should().Contain("file not found");
-        service.GetError().Should().Contain("data.sample.json");
+        Assert.Equal("Dashboard", result.Title);
+        Assert.NotNull(result.Timeline);
+        Assert.NotNull(result.Heatmap);
     }
 
     [Fact]
-    public void GetData_MissingFile_WithSampleFallback_LoadsSample()
+    public async Task LoadDashboardDataAsync_InvalidJson_ReturnsDefault()
     {
-        // Create data.sample.json in the same directory but no data.json
-        var samplePath = Path.Combine(_tempDir, "data.sample.json");
-        var sampleData = new DashboardData
-        {
-            Title = "Sample Dashboard",
-            Subtitle = "Sample Subtitle"
-        };
-        File.WriteAllText(samplePath, JsonSerializer.Serialize(sampleData));
+        await File.WriteAllTextAsync(_dataFilePath, "not valid json!!!");
 
-        var filePath = Path.Combine(_tempDir, "data.json");
+        var service = CreateService();
+        var result = await service.LoadDashboardDataAsync();
 
-        var service = new JsonFileDataService(CreateOptions(filePath));
-
-        service.GetData().Should().NotBeNull();
-        service.GetError().Should().BeNull();
-        service.GetData()!.Title.Should().Be("Sample Dashboard");
+        Assert.Equal("Dashboard", result.Title);
     }
 
     [Fact]
-    public void GetData_MalformedJson_ReturnsError()
+    public async Task LoadDashboardDataAsync_CachesResult()
     {
-        var filePath = Path.Combine(_tempDir, "bad.json");
-        File.WriteAllText(filePath, "{ this is not valid json }}}");
+        var data = new DashboardData { Title = "Cached" };
+        await File.WriteAllTextAsync(_dataFilePath, JsonSerializer.Serialize(data));
 
-        var service = new JsonFileDataService(CreateOptions(filePath));
+        var service = CreateService();
+        var first = await service.LoadDashboardDataAsync();
+        var second = await service.LoadDashboardDataAsync();
 
-        service.GetData().Should().BeNull();
-        service.GetError().Should().NotBeNull();
-        service.GetError().Should().Contain("Could not parse data.json");
+        Assert.Same(first, second);
     }
 
-    [Fact]
-    public void GetData_EmptyJsonObject_ReturnsDataWithDefaults()
+    private class FakeWebHostEnvironment : IWebHostEnvironment
     {
-        var filePath = Path.Combine(_tempDir, "empty.json");
-        File.WriteAllText(filePath, "{}");
-
-        var service = new JsonFileDataService(CreateOptions(filePath));
-
-        service.GetData().Should().NotBeNull();
-        service.GetError().Should().BeNull();
-        service.GetData()!.Title.Should().BeEmpty();
-        service.GetData()!.Timeline.Tracks.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void GetData_CaseInsensitiveProperties_Deserializes()
-    {
-        var filePath = Path.Combine(_tempDir, "case.json");
-        File.WriteAllText(filePath, @"{""Title"":""Upper"",""title"":""lower""}");
-
-        var service = new JsonFileDataService(CreateOptions(filePath));
-
-        service.GetData().Should().NotBeNull();
-        service.GetError().Should().BeNull();
+        public string WebRootPath { get; set; } = "";
+        public string ContentRootPath { get; set; } = "";
+        public IFileProvider WebRootFileProvider { get; set; } = null!;
+        public IFileProvider ContentRootFileProvider { get; set; } = null!;
+        public string ApplicationName { get; set; } = "Test";
+        public string EnvironmentName { get; set; } = "Test";
     }
 }

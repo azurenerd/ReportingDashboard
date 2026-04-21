@@ -18,17 +18,12 @@ public class ComponentRenderTests : TestContext
         var cut = RenderComponent<DashboardHeader>(p => p
             .Add(x => x.Title, "My Project")
             .Add(x => x.Subtitle, "Workstream Alpha")
-            .Add(x => x.BacklogUrl, "https://dev.azure.com/backlog")
-            .Add(x => x.CurrentDate, "2026-04-10"));
+            .Add(x => x.BacklogLink, "https://dev.azure.com/backlog"));
 
         cut.Markup.Should().Contain("My Project");
         cut.Markup.Should().Contain("Workstream Alpha");
         cut.Find("a[href='https://dev.azure.com/backlog']").Should().NotBeNull();
         cut.FindAll(".legend-item").Count.Should().Be(4);
-        cut.Markup.Should().Contain("PoC Milestone");
-        cut.Markup.Should().Contain("Production Release");
-        cut.Markup.Should().Contain("Checkpoint");
-        cut.Markup.Should().Contain("Now (Apr 2026)");
     }
 
     [Fact]
@@ -38,27 +33,24 @@ public class ComponentRenderTests : TestContext
 
         var cut = RenderComponent<HeatmapCell>(p => p
             .Add(x => x.Items, items)
-            .Add(x => x.ColorClass, "ship")
-            .Add(x => x.IsCurrentMonth, false)
-            .Add(x => x.IsLastColumn, false));
+            .Add(x => x.ColorClass, "shipped")
+            .Add(x => x.IsCurrentMonth, false));
 
-        cut.FindAll(".it").Count.Should().Be(3);
         cut.Markup.Should().Contain("Item A");
         cut.Markup.Should().Contain("Item B");
         cut.Markup.Should().Contain("Item C");
+        cut.Find(".cell-count").TextContent.Should().Be("3");
     }
 
     [Fact]
-    public void HeatmapCell_Empty_RendersDash()
+    public void HeatmapCell_Empty_NoCount()
     {
         var cut = RenderComponent<HeatmapCell>(p => p
             .Add(x => x.Items, new List<string>())
-            .Add(x => x.ColorClass, "prog")
-            .Add(x => x.IsCurrentMonth, false)
-            .Add(x => x.IsLastColumn, false));
+            .Add(x => x.ColorClass, "shipped")
+            .Add(x => x.IsCurrentMonth, false));
 
-        cut.Find(".empty-dash").Should().NotBeNull();
-        cut.FindAll(".it").Count.Should().Be(0);
+        cut.FindAll(".cell-count").Count.Should().Be(0);
     }
 
     [Fact]
@@ -66,26 +58,18 @@ public class ComponentRenderTests : TestContext
     {
         var heatmap = new HeatmapData
         {
-            Months = new List<string> { "Jan", "Feb", "Mar" },
-            CurrentMonth = "Feb",
-            Categories = new List<HeatmapCategory>
+            Shipped = new Dictionary<string, List<string>>
             {
-                new()
-                {
-                    Name = "Shipped",
-                    ColorClass = "ship",
-                    Items = new Dictionary<string, List<string>>
-                    {
-                        ["Jan"] = new() { "Done1" },
-                        ["Feb"] = new(),
-                        ["Mar"] = new()
-                    }
-                }
+                ["Jan"] = new() { "Done1" },
+                ["Feb"] = new(),
+                ["Mar"] = new()
             }
         };
 
         var cut = RenderComponent<HeatmapGrid>(p => p
-            .Add(x => x.Heatmap, heatmap));
+            .Add(x => x.Heatmap, heatmap)
+            .Add(x => x.Months, new List<string> { "Jan", "Feb", "Mar" })
+            .Add(x => x.CurrentMonth, "Feb"));
 
         cut.FindAll(".hm-col-hdr").Count.Should().Be(3);
         cut.Find(".current-month-hdr").TextContent.Should().Contain("Feb");
@@ -93,17 +77,24 @@ public class ComponentRenderTests : TestContext
     }
 
     [Fact]
-    public void Dashboard_WithError_RendersErrorMessage()
+    public void Dashboard_LoadsData()
     {
         var mockService = new Mock<IDataService>();
-        mockService.Setup(s => s.GetData()).Returns((DashboardData?)null);
-        mockService.Setup(s => s.GetError()).Returns("Test error: file not found");
+        mockService.Setup(s => s.LoadDashboardDataAsync()).ReturnsAsync(new DashboardData
+        {
+            Title = "Test Dashboard",
+            Subtitle = "Sub",
+            BacklogLink = "",
+            CurrentMonth = "Apr",
+            Months = new List<string> { "Apr" },
+            Timeline = new TimelineData(),
+            Heatmap = new HeatmapData()
+        });
 
         Services.AddSingleton<IDataService>(mockService.Object);
 
         var cut = RenderComponent<ReportingDashboard.Web.Components.Pages.Dashboard>();
 
-        cut.Markup.Should().Contain("Dashboard Error");
-        cut.Markup.Should().Contain("Test error: file not found");
+        cut.Markup.Should().Contain("Test Dashboard");
     }
 }
