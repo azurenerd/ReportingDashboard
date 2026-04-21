@@ -5,18 +5,20 @@
 @using ReportingDashboard.Web.Layout
 @using ReportingDashboard.Web.Models
 @using ReportingDashboard.Web.Services
-@inject IDashboardDataService DataService
+@inject IDashboardDataService Data
 
 <PageTitle>Reporting Dashboard</PageTitle>
 
-@if (_error is not null)
+@if (_result.Error is not null)
 {
-    <ErrorBanner Error="_error" />
+    <ErrorBanner Error="_result.Error" />
+    <DashboardHeader Project="Project.Placeholder" NowLabel="@_nowLabel" />
+    <TimelineSvg Model="TimelineViewModel.Empty" />
+    <Heatmap Model="HeatmapViewModel.Empty" />
 }
-
-@if (_data is not null)
+else if (_result.Data is { } d)
 {
-    <DashboardHeader Project="_data.Project" NowLabel="@_nowLabel" />
+    <DashboardHeader Project="d.Project" NowLabel="@_nowLabel" />
     <TimelineSvg Model="_timelineVm" />
     <Heatmap Model="_heatmapVm" />
 }
@@ -28,54 +30,44 @@ else
 }
 
 @code {
-    private DashboardData? _data;
-    private DashboardLoadError? _error;
+    private DashboardLoadResult _result = new(Data: null, Error: null, LoadedAt: DateTimeOffset.UtcNow);
+    private string _nowLabel = string.Empty;
     private TimelineViewModel _timelineVm = TimelineViewModel.Empty;
     private HeatmapViewModel _heatmapVm = HeatmapViewModel.Empty;
-    private string _nowLabel = string.Empty;
 
     protected override void OnInitialized()
     {
-        var today = DateTime.Today;
-        _nowLabel = $"Now ({today.ToString("MMM yyyy", CultureInfo.InvariantCulture)})";
-
         try
         {
-            var result = DataService.GetCurrent();
-            _data = result.Data;
-            _error = result.Error;
+            _result = Data.GetCurrent();
+            _nowLabel = $"Now ({DateTime.Today.ToString("MMM yyyy", CultureInfo.InvariantCulture)})";
 
-            if (_data is not null)
+            if (_result.Data is { } d)
             {
-                var dateOnly = DateOnly.FromDateTime(today);
-                try
-                {
-                    _timelineVm = TimelineLayoutEngine.Build(_data.Timeline, dateOnly);
-                }
-                catch
-                {
-                    _timelineVm = TimelineViewModel.Empty;
-                }
-
-                try
-                {
-                    _heatmapVm = HeatmapLayoutEngine.Build(_data.Heatmap, dateOnly);
-                }
-                catch
-                {
-                    _heatmapVm = HeatmapViewModel.Empty;
-                }
+                var today = DateOnly.FromDateTime(DateTime.Today);
+                _timelineVm = TimelineLayoutEngine.Build(d.Timeline, today);
+                _heatmapVm = HeatmapLayoutEngine.Build(d.Heatmap, today);
+            }
+            else
+            {
+                _timelineVm = TimelineViewModel.Empty;
+                _heatmapVm = HeatmapViewModel.Empty;
             }
         }
         catch (Exception ex)
         {
-            _data = null;
-            _error = new DashboardLoadError(
-                FilePath: string.Empty,
-                Message: ex.Message,
-                Line: null,
-                Column: null,
-                Kind: "ParseError");
+            _result = new DashboardLoadResult(
+                Data: null,
+                Error: new DashboardLoadError(
+                    FilePath: "(unknown)",
+                    Message: ex.Message,
+                    Line: null,
+                    Column: null,
+                    Kind: "UnexpectedError"),
+                LoadedAt: DateTimeOffset.UtcNow);
+            _nowLabel = $"Now ({DateTime.Today.ToString("MMM yyyy", CultureInfo.InvariantCulture)})";
+            _timelineVm = TimelineViewModel.Empty;
+            _heatmapVm = HeatmapViewModel.Empty;
         }
     }
 }
