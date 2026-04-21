@@ -4,4 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Update="data.sample.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
