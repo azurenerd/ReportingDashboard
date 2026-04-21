@@ -1,0 +1,19 @@
+<div class="hdr">
+    <div class="hdr-left">
+        <h1>@Title <a href="@BacklogUrl" target="_blank">↗ ADO Backlog</a></h1>
+        <div class="sub">@Subtitle</div>
+    </div>
+    <div class="legend">
+        <span class="legend-item"><span class="legend-icon poc-icon"></span> PoC Milestone</span>
+        <span class="legend-item"><span class="legend-icon prod-icon"></span> Production Release</span>
+        <span class="legend-item"><span class="legend-icon chk-icon"></span> Checkpoint</span>
+        <span class="legend-item"><span class="legend-icon now-icon"></span> Now</span>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Subtitle { get; set; } = "";
+    [Parameter] public string BacklogUrl { get; set; } = "";
+    [Parameter] public string CurrentDate { get; set; } = "";
+}

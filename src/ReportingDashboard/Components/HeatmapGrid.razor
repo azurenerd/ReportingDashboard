@@ -1,0 +1,27 @@
+<div class="hm-wrap">
+    <div class="hm-title">MONTHLY EXECUTION HEATMAP — SHIPPED · IN PROGRESS · CARRYOVER · BLOCKERS</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Heatmap.Months.Count, 1fr); grid-template-rows: 36px repeat(@Heatmap.Categories.Count, 1fr);">
+        <div class="hm-corner">STATUS / MONTH</div>
+        @foreach (var month in Heatmap.Months)
+        {
+            var isCurrent = month == Heatmap.CurrentMonth;
+            <div class="hm-col-hdr @(isCurrent ? "current-month-hdr" : "")">
+                @month@(isCurrent ? " ▸ Now" : "")
+            </div>
+        }
+
+        @foreach (var category in Heatmap.Categories)
+        {
+            var totalCount = category.Items.Values.Sum(v => v.Count);
+            <div class="hm-row-hdr @(category.ColorClass)-hdr">
+                @category.Name.ToUpper() (@totalCount)
+            </div>
+            @foreach (var month in Heatmap.Months)
+            {
+                var items = category.Items.TryGetValue(month, out var list) ? list : new List<string>();
+                var isCurrent = month == Heatmap.CurrentMonth;
+                <HeatmapCell Items="@items" ColorClass="@category.ColorClass" IsCurrentMonth="@isCurrent" />
+            }
+        }
+    </div>
+</div>

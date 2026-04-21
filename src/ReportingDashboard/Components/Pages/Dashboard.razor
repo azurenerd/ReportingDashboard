@@ -1,0 +1,37 @@
+@page "/"
+@inject IDataService DataService
+
+<PageTitle>Executive Reporting Dashboard</PageTitle>
+
+@if (!string.IsNullOrEmpty(_error))
+{
+    <div style="display:flex;align-items:center;justify-content:center;width:1920px;height:1080px;font-family:'Segoe UI',Arial,sans-serif;">
+        <div style="max-width:700px;padding:40px;border:1px solid #E0E0E0;border-left:4px solid #EA4335;border-radius:4px;background:#FFF5F5;">
+            <h2 style="color:#991B1B;margin-bottom:12px;">Error</h2>
+            <p style="color:#333;font-size:14px;line-height:1.6;">@_error</p>
+        </div>
+    </div>
+}
+else if (_data is not null)
+{
+    <DashboardHeader Title="@_data.Title"
+                     Subtitle="@_data.Subtitle"
+                     BacklogUrl="@_data.BacklogUrl"
+                     CurrentDate="@_data.CurrentDate" />
+
+    <TimelineSection Timeline="@_data.Timeline"
+                     CurrentDate="@_data.CurrentDate" />
+
+    <HeatmapGrid Heatmap="@_data.Heatmap" />
+}
+
+@code {
+    private DashboardData? _data;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        _data = DataService.GetData();
+        _error = DataService.GetError();
+    }
+}
