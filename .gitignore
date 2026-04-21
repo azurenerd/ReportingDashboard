@@ -1,0 +1,15 @@
+# .NET build output
+bin/
+obj/
+publish/
+
+# User-specific data (may contain sensitive project info)
+src/ReportingDashboard.Web/data.json
+
+# IDE
+.vs/
+*.user
+*.suo
+
+# macOS
+.DS_Store

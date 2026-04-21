@@ -1,0 +1,21 @@
+@code {
+    [Parameter] public List<string> Items { get; set; } = new();
+    [Parameter] public string ColorClass { get; set; } = "";
+    [Parameter] public bool IsCurrentMonth { get; set; }
+    [Parameter] public bool IsLastColumn { get; set; }
+}
+
+<div class="hm-cell @(ColorClass)-cell @(IsCurrentMonth ? "current-month" : "")"
+     style="@(IsLastColumn ? "border-right:none;" : "")">
+    @if (Items.Count == 0)
+    {
+        <div class="empty-dash">&mdash;</div>
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            <div class="it">@item</div>
+        }
+    }
+</div>
