@@ -1,30 +1,24 @@
-<div class="hm-wrap">
-    <div class="hm-title">Monthly Execution Heatmap – Shipped · In Progress · Carryover · Blockers</div>
-    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Heatmap.Columns.Count, 1fr); grid-template-rows: 36px repeat(@Heatmap.Rows.Count, 1fr);">
-        @* Header row *@
-        <div class="hm-corner">Status</div>
+@* Minimal stub — full CSS Grid implementation in T2 *@
+<div class="hm-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 44px 10px;">
+    <div style="font-size:14px;font-weight:700;color:#888;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px;">
+        Monthly Execution Heatmap
+    </div>
+    <div style="display:grid;grid-template-columns:160px repeat(@Heatmap.Columns.Count, 1fr);border:1px solid #E0E0E0;flex:1;">
+        <div style="background:#F5F5F5;font-size:11px;font-weight:700;color:#999;text-transform:uppercase;display:flex;align-items:center;padding:0 12px;border-right:1px solid #E0E0E0;border-bottom:2px solid #CCC;">STATUS</div>
         @foreach (var col in Heatmap.Columns)
         {
             var isCurrent = col == Heatmap.CurrentColumn;
-            <div class="hm-col-hdr @(isCurrent ? "current-month-hdr" : "")">
-                @col @(isCurrent ? "◀ Now" : "")
+            <div style="font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;background:@(isCurrent ? "#FFF0D0" : "#F5F5F5");color:@(isCurrent ? "#C07700" : "inherit");border-right:1px solid #E0E0E0;border-bottom:2px solid #CCC;">
+                @col@(isCurrent ? " \u25C0 Now" : "")
             </div>
         }
-
-        @* Category rows *@
         @foreach (var row in Heatmap.Rows)
         {
-            var prefix = GetCssPrefix(row.Category);
-
-            <div class="hm-row-hdr @(prefix)-hdr">@row.Category</div>
-
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;display:flex;align-items:center;padding:0 12px;border-right:2px solid #CCC;border-bottom:1px solid #E0E0E0;">@row.Category</div>
             @foreach (var col in Heatmap.Columns)
             {
-                var isCurrent = col == Heatmap.CurrentColumn;
-                var cellClass = $"{prefix}-cell{(isCurrent ? " current" : "")}";
-                var items = row.Items.TryGetValue(col, out var list) ? list : new List<string>();
-
-                <HeatmapCell Items="items" CssClass="@cellClass" />
+                var items = row.Items.ContainsKey(col) ? row.Items[col] : new List<string>();
+                <HeatmapCell Items="items" CssClass="" />
             }
         }
     </div>
@@ -32,15 +26,4 @@
 
 @code {
     [Parameter] public required HeatmapData Heatmap { get; set; }
-
-    private static readonly Dictionary<string, string> CategoryCssMap = new()
-    {
-        ["Shipped"] = "ship",
-        ["In Progress"] = "prog",
-        ["Carryover"] = "carry",
-        ["Blockers"] = "block"
-    };
-
-    private static string GetCssPrefix(string category) =>
-        CategoryCssMap.TryGetValue(category, out var prefix) ? prefix : "ship";
 }
