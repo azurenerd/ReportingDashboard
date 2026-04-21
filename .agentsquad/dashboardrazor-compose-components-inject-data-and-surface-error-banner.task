@@ -1,0 +1,4 @@
+agent: SoftwareEngineer
+task: Dashboard.razor - compose components, inject data, and surface error banner
+complexity: Medium
+status: in-progress
