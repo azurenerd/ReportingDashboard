@@ -1,0 +1,17 @@
+## .NET
+bin/
+obj/
+publish/
+
+## User data
+src/ReportingDashboard.Web/data.json
+
+## IDE
+.vs/
+*.user
+*.suo
+
+## OS
+Thumbs.db
+Desktop.ini
+.DS_Store

@@ -1,0 +1,51 @@
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap - Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Heatmap.Months.Count, 1fr);">
+        @* Header row *@
+        <div class="hm-corner">Status</div>
+        @for (int mi = 0; mi < Heatmap.Months.Count; mi++)
+        {
+            var month = Heatmap.Months[mi];
+            var isCurrent = month == Heatmap.CurrentMonth;
+            var isLast = mi == Heatmap.Months.Count - 1;
+            var cls = "hm-col-hdr" + (isCurrent ? " apr-hdr" : "");
+            var style = isLast ? "border-right:none;" : "";
+            <div class="@cls" style="@style">
+                @month
+                @if (isCurrent)
+                {
+                    <span> ▸ Now</span>
+                }
+            </div>
+        }
+
+        @* Data rows *@
+        @foreach (var category in Heatmap.Categories)
+        {
+            var totalCount = category.Items.Values.Sum(v => v.Count);
+            var emoji = category.ColorClass switch
+            {
+                "ship" => "✅",
+                "prog" => "🔵",
+                "carry" => "🟡",
+                "block" => "🔴",
+                _ => ""
+            };
+            <div class="hm-row-hdr @(category.ColorClass)-hdr">@emoji @category.Name.ToUpper() (@totalCount)</div>
+
+            @for (int mi = 0; mi < Heatmap.Months.Count; mi++)
+            {
+                var month = Heatmap.Months[mi];
+                var isCurrent = month == Heatmap.CurrentMonth;
+                var isLast = mi == Heatmap.Months.Count - 1;
+                var items = category.Items.GetValueOrDefault(month) ?? new List<string>();
+                <HeatmapCell Items="@items" ColorClass="@category.ColorClass"
+                             IsCurrentMonth="@isCurrent" IsLastColumn="@isLast" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public HeatmapData Heatmap { get; set; } = new();
+}

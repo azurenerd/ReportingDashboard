@@ -1,0 +1,207 @@
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in Timeline.Tracks)
+        {
+            <div class="tl-label">
+                <span style="color:@track.Color;font-weight:600;">@track.Id</span><br/>
+                <span style="font-weight:400;color:#444;">@track.Label</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="185" style="overflow:visible;display:block">
+            <defs>
+                <filter id="sh">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/>
+                </filter>
+            </defs>
+
+            @* Month gridlines and labels *@
+            @foreach (var month in _monthLines)
+            {
+                <line x1="@F(month.X)" y1="0" x2="@F(month.X)" y2="185" stroke="#bbb" stroke-opacity="0.4" stroke-width="1"/>
+                @((MarkupString)SvgText(F(month.X + 5), "14", "#666", "11", "600", month.Label))
+            }
+
+            @* NOW line *@
+            @if (_nowX >= 0)
+            {
+                <line x1="@F(_nowX)" y1="0" x2="@F(_nowX)" y2="185" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3"/>
+                @((MarkupString)SvgText(F(_nowX + 4), "14", "#EA4335", "10", "700", "NOW"))
+            }
+
+            @* Track lines and milestones *@
+            @for (int i = 0; i < Timeline.Tracks.Count; i++)
+            {
+                var track = Timeline.Tracks[i];
+                var y = TrackY(i);
+
+                <line x1="0" y1="@F(y)" x2="1560" y2="@F(y)" stroke="@track.Color" stroke-width="3"/>
+
+                @foreach (var ms in track.Milestones)
+                {
+                    var x = DateToX(ms.Date);
+                    var msType = ms.Type?.ToLowerInvariant() ?? "";
+
+                    @if (msType == "checkpoint")
+                    {
+                        <circle cx="@F(x)" cy="@F(y)" r="7" fill="white" stroke="@track.Color" stroke-width="2.5"/>
+                        @if (!string.IsNullOrEmpty(ms.Label))
+                        {
+                            var labelY = y - 16;
+                            @((MarkupString)SvgTextAnchored(F(x), F(labelY), "#666", "10", "normal", ms.Label))
+                        }
+                    }
+                    else if (msType == "checkpoint-small")
+                    {
+                        <circle cx="@F(x)" cy="@F(y)" r="4" fill="#999"/>
+                    }
+                    else if (msType == "poc")
+                    {
+                        <polygon points="@DiamondPoints(x, y)" fill="#F4B400" filter="url(#sh)"/>
+                        @if (!string.IsNullOrEmpty(ms.Label))
+                        {
+                            var labelY = _labelAbove.GetValueOrDefault($"{i}-{ms.Date}", true) ? y - 16 : y + 24;
+                            @((MarkupString)SvgTextAnchored(F(x), F(labelY), "#666", "10", "normal", ms.Label))
+                        }
+                    }
+                    else if (msType == "production")
+                    {
+                        <polygon points="@DiamondPoints(x, y)" fill="#34A853" filter="url(#sh)"/>
+                        @if (!string.IsNullOrEmpty(ms.Label))
+                        {
+                            var labelY = _labelAbove.GetValueOrDefault($"{i}-{ms.Date}", true) ? y - 16 : y + 24;
+                            @((MarkupString)SvgTextAnchored(F(x), F(labelY), "#666", "10", "normal", ms.Label))
+                        }
+                    }
+
+                    @* CSS-only tooltip via SVG title *@
+                    <g class="ms-tooltip">
+                        <circle cx="@F(x)" cy="@F(y)" r="14" fill="transparent" class="tooltip-target">
+                            <title>@ms.Label - @FormatDate(ms.Date) - @FormatType(msType)</title>
+                        </circle>
+                    </g>
+                }
+            }
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter] public TimelineData Timeline { get; set; } = new();
+    [Parameter] public string CurrentDate { get; set; } = "";
+
+    private const double SvgWidth = 1560.0;
+    private const double SvgHeight = 185.0;
+    private double _nowX = -1;
+    private List<MonthLine> _monthLines = new();
+    private Dictionary<string, bool> _labelAbove = new();
+
+    private record MonthLine(double X, string Label);
+
+    protected override void OnParametersSet()
+    {
+        if (DateTime.TryParse(Timeline.StartDate, out var start) && DateTime.TryParse(Timeline.EndDate, out var end))
+        {
+            // Compute month gridlines
+            _monthLines = new List<MonthLine>();
+            var current = new DateTime(start.Year, start.Month, 1);
+            while (current <= end)
+            {
+                var x = CalculateDateToX(current, start, end);
+                _monthLines.Add(new MonthLine(x, current.ToString("MMM")));
+                current = current.AddMonths(1);
+            }
+
+            // Compute NOW position
+            if (DateTime.TryParse(CurrentDate, out var now))
+            {
+                _nowX = CalculateDateToX(now, start, end);
+            }
+
+            // Determine label positions (alternate above/below to avoid overlap)
+            ComputeLabelPositions(start, end);
+        }
+    }
+
+    private void ComputeLabelPositions(DateTime start, DateTime end)
+    {
+        _labelAbove = new Dictionary<string, bool>();
+        for (int i = 0; i < Timeline.Tracks.Count; i++)
+        {
+            var track = Timeline.Tracks[i];
+            var diamondMilestones = track.Milestones
+                .Where(m => m.Type == "poc" || m.Type == "production")
+                .OrderBy(m => m.Date)
+                .ToList();
+
+            bool above = true;
+            for (int j = 0; j < diamondMilestones.Count; j++)
+            {
+                var ms = diamondMilestones[j];
+                _labelAbove[$"{i}-{ms.Date}"] = above;
+                above = !above;
+            }
+        }
+    }
+
+    public static double CalculateDateToX(DateTime date, DateTime start, DateTime end)
+    {
+        if (start == end) return 0;
+        var totalDays = (end - start).TotalDays;
+        var dateDays = (date - start).TotalDays;
+        return dateDays / totalDays * SvgWidth;
+    }
+
+    private double DateToX(string dateStr)
+    {
+        if (DateTime.TryParse(dateStr, out var date) &&
+            DateTime.TryParse(Timeline.StartDate, out var start) &&
+            DateTime.TryParse(Timeline.EndDate, out var end))
+        {
+            return CalculateDateToX(date, start, end);
+        }
+        return 0;
+    }
+
+    private double TrackY(int trackIndex)
+    {
+        var trackCount = Timeline.Tracks.Count;
+        return SvgHeight / (trackCount + 1) * (trackIndex + 1);
+    }
+
+    private string DiamondPoints(double cx, double cy, double radius = 11)
+    {
+        return $"{F(cx)},{F(cy - radius)} {F(cx + radius)},{F(cy)} {F(cx)},{F(cy + radius)} {F(cx - radius)},{F(cy)}";
+    }
+
+    private static string F(double value) => Math.Round(value, 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    private string FormatDate(string dateStr)
+    {
+        if (DateTime.TryParse(dateStr, out var dt))
+            return dt.ToString("MMM d");
+        return dateStr;
+    }
+
+    private string FormatType(string type) => type switch
+    {
+        "poc" => "PoC Milestone",
+        "production" => "Production Release",
+        "checkpoint" => "Checkpoint",
+        "checkpoint-small" => "Checkpoint",
+        _ => type
+    };
+
+    private static string Esc(string s) => System.Net.WebUtility.HtmlEncode(s);
+
+    private static string SvgText(string x, string y, string fill, string fontSize, string fontWeight, string content)
+    {
+        return $"<text x=\"{x}\" y=\"{y}\" fill=\"{fill}\" font-size=\"{fontSize}\" font-weight=\"{fontWeight}\" font-family=\"Segoe UI,Arial\">{Esc(content)}</text>";
+    }
+
+    private static string SvgTextAnchored(string x, string y, string fill, string fontSize, string fontWeight, string content)
+    {
+        return $"<text x=\"{x}\" y=\"{y}\" text-anchor=\"middle\" fill=\"{fill}\" font-size=\"{fontSize}\" font-weight=\"{fontWeight}\" font-family=\"Segoe UI,Arial\">{Esc(content)}</text>";
+    }
+}
