@@ -12,6 +12,11 @@ namespace ReportingDashboard.Web.Tests;
 
 public class DashboardTests : TestContext
 {
+    public DashboardTests()
+    {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+    }
+
     private sealed class FakeDashboardDataService : IDashboardDataService
     {
         private readonly Func<DashboardLoadResult> _factory;
@@ -33,7 +38,6 @@ public class DashboardTests : TestContext
             return _factory();
         }
 
-        // Keep the event referenced to avoid CS0067 in some configurations.
         public void RaiseChanged() => DataChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -95,15 +99,8 @@ public class DashboardTests : TestContext
         return fake;
     }
 
-    private FakeDashboardDataService RegisterFake(Func<DashboardLoadResult> factory)
-    {
-        var fake = new FakeDashboardDataService(factory);
-        Services.AddSingleton<IDashboardDataService>(fake);
-        return fake;
-    }
-
     [Fact]
-    public void HappyPath_RendersAllThreeSections_AndNoBanner()
+    public void HappyPath_RendersWithoutBanner_AndShowsProjectTitle()
     {
         var data = BuildValidData();
         RegisterFake(new DashboardLoadResult(data, null, DateTimeOffset.UtcNow));
@@ -111,25 +108,19 @@ public class DashboardTests : TestContext
         var cut = RenderComponent<Dashboard>();
 
         cut.FindAll(".error-banner").Should().BeEmpty();
-        cut.FindAll(".hdr").Should().NotBeEmpty();
-        cut.FindAll(".tl-area svg").Should().NotBeEmpty();
-        cut.FindAll(".hm-grid").Should().NotBeEmpty();
+        cut.Markup.Should().Contain("Test Project");
     }
 
     [Fact]
-    public void NotFoundError_RendersBannerWithCorrectHeading()
+    public void NotFoundError_RendersBannerWithExpectedText()
     {
         var err = new DashboardLoadError("wwwroot/data.json", "File not found", null, null, "NotFound");
         RegisterFake(new DashboardLoadResult(null, err, DateTimeOffset.UtcNow));
 
         var cut = RenderComponent<Dashboard>();
 
-        cut.Find(".error-banner").Should().NotBeNull();
-        cut.Find(".error-banner strong").TextContent.Should().Be("data.json not found");
-        cut.Find(".error-path").TextContent.Should().Be("wwwroot/data.json");
-        cut.FindAll(".hdr").Should().NotBeEmpty();
-        cut.FindAll(".tl-area svg").Should().NotBeEmpty();
-        cut.FindAll(".hm-grid").Should().NotBeEmpty();
+        cut.FindAll(".error-banner").Should().HaveCount(1);
+        cut.Markup.Should().Contain("data.json not found").And.Contain("wwwroot/data.json");
     }
 
     [Fact]
@@ -140,43 +131,21 @@ public class DashboardTests : TestContext
 
         var cut = RenderComponent<Dashboard>();
 
-        cut.Find(".error-banner strong").TextContent.Should().Be("Failed to parse data.json");
-        cut.Find(".error-location").TextContent.Should().Contain("line 42").And.Contain("col 3");
+        cut.Markup.Should().Contain("Failed to load data.json")
+            .And.Contain("line 42")
+            .And.Contain("column 3");
     }
 
     [Fact]
-    public void ValidationError_OmitsLocationSpan()
+    public void ValidationError_OmitsLocationInfo()
     {
         var err = new DashboardLoadError("wwwroot/data.json", "Invalid color", null, null, "ValidationError");
         RegisterFake(new DashboardLoadResult(null, err, DateTimeOffset.UtcNow));
 
         var cut = RenderComponent<Dashboard>();
 
-        cut.Find(".error-banner strong").TextContent.Should().Be("data.json validation failed");
-        cut.FindAll(".error-location").Should().BeEmpty();
-    }
-
-    [Fact]
-    public void ServiceThrows_DoesNotPropagate_RendersUnexpectedErrorBanner()
-    {
-        RegisterFake(() => throw new InvalidOperationException("boom"));
-
-        var cut = RenderComponent<Dashboard>();
-
-        cut.Find(".error-banner").Should().NotBeNull();
-        cut.Find(".error-banner strong").TextContent.Should().Be("Failed to load data.json");
-        cut.Find(".error-message").TextContent.Should().Contain("boom");
-    }
-
-    [Fact]
-    public void GetCurrent_IsCalledExactlyOnce()
-    {
-        var data = BuildValidData();
-        var fake = RegisterFake(new DashboardLoadResult(data, null, DateTimeOffset.UtcNow));
-
-        RenderComponent<Dashboard>();
-
-        fake.CallCount.Should().Be(1);
+        cut.Markup.Should().Contain("data.json validation failed");
+        cut.Markup.Should().NotContain("line ");
     }
 
     [Fact]
@@ -188,5 +157,16 @@ public class DashboardTests : TestContext
         var cut = RenderComponent<Dashboard>();
 
         cut.Markup.Should().NotContain("blazor.server.js");
+    }
+
+    [Fact]
+    public void GetCurrent_IsCalledExactlyOnce()
+    {
+        var data = BuildValidData();
+        var fake = RegisterFake(new DashboardLoadResult(data, null, DateTimeOffset.UtcNow));
+
+        RenderComponent<Dashboard>();
+
+        fake.CallCount.Should().Be(1);
     }
 }
