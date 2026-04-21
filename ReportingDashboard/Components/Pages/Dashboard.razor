@@ -1,0 +1,23 @@
+@page "/"
+@inject DashboardDataService DataService
+
+@if (!DataService.HasData)
+{
+    <div class="error-container">
+        <div class="error-box">
+            <div class="error-icon">⚠️</div>
+            <p>@DataService.ErrorMessage</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="dashboard">
+        <Header Project="DataService.Data!.Project" />
+        <Timeline Tracks="DataService.Data!.Timeline.Tracks"
+                  StartDate="DataService.Data!.Timeline.StartDate"
+                  EndDate="DataService.Data!.Timeline.EndDate"
+                  NowDate="DataService.Data!.Timeline.NowDate" />
+        <HeatmapGrid Heatmap="DataService.Data!.Heatmap" />
+    </div>
+}
