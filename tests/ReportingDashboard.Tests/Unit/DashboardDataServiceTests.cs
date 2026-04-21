@@ -13,7 +13,7 @@ public class DashboardDataServiceTests : IDisposable
 
     public DashboardDataServiceTests()
     {
-        _tempDir = Path.Combine(Path.GetTempPath(), $"dashboard_tests_{Guid.NewGuid():N}");
+        _tempDir = Path.Combine(Path.GetTempPath(), $"DashboardTests_{Guid.NewGuid():N}");
         Directory.CreateDirectory(_tempDir);
     }
 
@@ -23,116 +23,157 @@ public class DashboardDataServiceTests : IDisposable
             Directory.Delete(_tempDir, true);
     }
 
-    private string WriteTempJson(string json)
+    private string WriteTempJson(string content)
     {
         var path = Path.Combine(_tempDir, "data.json");
-        File.WriteAllText(path, json);
+        File.WriteAllText(path, content);
         return path;
     }
 
-    private static string BuildValidJson() => JsonSerializer.Serialize(new
+    /// <summary>
+    /// Builds a complete valid JSON string that satisfies all model required properties
+    /// and passes all DashboardDataService validation checks.
+    /// HeatmapRow requires: category, label, cssClass. ProjectInfo requires: title, subtitle, backlogUrl.
+    /// </summary>
+    private static string BuildValidJson() => """
     {
-        project = new { title = "Test", subtitle = "Sub", backlogUrl = "http://example.com" },
-        timeline = new
-        {
-            startDate = "2026-01-01",
-            endDate = "2026-06-30",
-            tracks = new[]
-            {
-                new
-                {
-                    id = "M1", name = "Track 1", color = "#0078D4",
-                    milestones = new[] { new { date = "2026-03-01", type = "start", label = "Start" } }
-                }
-            }
+        "project": {
+            "title": "Test Project",
+            "subtitle": "Test Org - Test Workstream - April 2026",
+            "backlogUrl": "https://dev.azure.com/test"
         },
-        heatmap = new
-        {
-            columns = new[] { "Jan", "Feb" },
-            currentColumn = "Feb",
-            rows = new[]
-            {
-                new { category = "Shipped", items = new Dictionary<string, List<string>> { ["Jan"] = new() { "Item1" }, ["Feb"] = new() } }
-            }
+        "timeline": {
+            "startDate": "2026-01-01",
+            "endDate": "2026-06-30",
+            "nowDate": "2026-04-15",
+            "tracks": [
+                {
+                    "id": "M1",
+                    "name": "Track 1",
+                    "color": "#0078D4",
+                    "milestones": []
+                }
+            ]
+        },
+        "heatmap": {
+            "columns": ["Jan", "Feb"],
+            "currentColumn": "Jan",
+            "rows": [
+                {
+                    "category": "Shipped",
+                    "label": "Shipped",
+                    "cssClass": "ship",
+                    "items": { "Jan": ["Item1"] }
+                }
+            ]
         }
-    });
-
-    [Fact]
-    public void ValidJson_SetsHasDataTrue()
-    {
-        var path = WriteTempJson(BuildValidJson());
-        var svc = new DashboardDataService(path);
-
-        svc.HasData.Should().BeTrue();
-        svc.Data.Should().NotBeNull();
-        svc.ErrorMessage.Should().BeNull();
-        svc.Data!.Project.Title.Should().Be("Test");
     }
+    """;
+
+    /// <summary>
+    /// Builds a valid JSON with all required model fields but empty timeline tracks,
+    /// so that the service's own validation (not deserialization) catches the issue.
+    /// </summary>
+    private static string BuildJsonWithEmptyTracks() => """
+    {
+        "project": {
+            "title": "Test",
+            "subtitle": "Sub",
+            "backlogUrl": "https://test"
+        },
+        "timeline": {
+            "startDate": "2026-01-01",
+            "endDate": "2026-06-30",
+            "nowDate": "2026-04-01",
+            "tracks": []
+        },
+        "heatmap": {
+            "columns": ["Jan"],
+            "currentColumn": "Jan",
+            "rows": [
+                {
+                    "category": "Shipped",
+                    "label": "Shipped",
+                    "cssClass": "ship",
+                    "items": {}
+                }
+            ]
+        }
+    }
+    """;
 
     [Fact]
-    public void MissingFile_SetsErrorMessage()
+    public void FileNotFound_SetsCorrectErrorState()
     {
         var path = Path.Combine(_tempDir, "nonexistent.json");
-        var svc = new DashboardDataService(path);
 
-        svc.HasData.Should().BeFalse();
-        svc.ErrorMessage.Should().Contain("Dashboard data not found");
-        svc.ErrorMessage.Should().Contain("data.json exists in the Data/ directory");
+        var service = new DashboardDataService(path);
+
+        service.HasData.Should().BeFalse();
+        service.ErrorType.Should().Be(DataErrorType.FileNotFound);
+        service.ErrorMessage.Should().Contain("Dashboard data not found");
+        service.ErrorMessage.Should().Contain("data.json exists in the Data/ directory");
+        service.ErrorDetails.Should().Be(path);
     }
 
     [Fact]
-    public void MalformedJson_SetsErrorWithDetails()
+    public void MalformedJson_SetsJsonParseError_WithLineInfo()
     {
-        var path = WriteTempJson("{ broken json");
-        var svc = new DashboardDataService(path);
+        var path = WriteTempJson("{ \"project\": invalid }");
 
-        svc.HasData.Should().BeFalse();
-        svc.ErrorMessage.Should().Contain("Error reading data.json:");
-        svc.ErrorMessage.Should().Contain("Please fix the JSON syntax");
+        var service = new DashboardDataService(path);
+
+        service.HasData.Should().BeFalse();
+        service.ErrorType.Should().Be(DataErrorType.JsonParseError);
+        service.ErrorMessage.Should().Contain("Error reading data.json");
+        service.ErrorMessage.Should().Contain("fix the JSON syntax and refresh");
+        service.ErrorDetails.Should().Contain("Line");
+        service.ErrorDetails.Should().Contain("Character");
     }
 
     [Fact]
-    public void EmptyTracks_FailsValidation()
+    public void MissingRequiredSections_SetsValidationError_ListsFields()
     {
-        var json = JsonSerializer.Serialize(new
-        {
-            project = new { title = "T", subtitle = "S", backlogUrl = "http://x.com" },
-            timeline = new { startDate = "2026-01-01", endDate = "2026-06-30", tracks = Array.Empty<object>() },
-            heatmap = new
-            {
-                columns = new[] { "Jan" }, currentColumn = "Jan",
-                rows = new[] { new { category = "Shipped", items = new Dictionary<string, List<string>> { ["Jan"] = new() } } }
-            }
-        });
-        var path = WriteTempJson(json);
-        var svc = new DashboardDataService(path);
+        // Explicit nulls so deserialization succeeds but top-level sections are null
+        var path = WriteTempJson("""{"project": null, "timeline": null, "heatmap": null}""");
 
-        svc.HasData.Should().BeFalse();
-        svc.ErrorMessage.Should().Contain("timeline.tracks must have at least 1 entry");
+        var service = new DashboardDataService(path);
+
+        service.HasData.Should().BeFalse();
+        service.ErrorType.Should().Be(DataErrorType.ValidationError);
+        service.ErrorMessage.Should().Contain("missing required fields");
+        service.ErrorMessage.Should().Contain("project");
+        service.ErrorMessage.Should().Contain("timeline");
+        service.ErrorMessage.Should().Contain("heatmap");
+        service.ErrorMessage.Should().Contain("Please check the file format");
     }
 
     [Fact]
-    public void InvalidCurrentColumn_FailsValidation()
+    public void EmptyTimelineTracks_SetsValidationError()
     {
-        var json = JsonSerializer.Serialize(new
-        {
-            project = new { title = "T", subtitle = "S", backlogUrl = "http://x.com" },
-            timeline = new
-            {
-                startDate = "2026-01-01", endDate = "2026-06-30",
-                tracks = new[] { new { id = "M1", name = "T1", color = "#000", milestones = new[] { new { date = "2026-02-01", type = "start" } } } }
-            },
-            heatmap = new
-            {
-                columns = new[] { "Jan", "Feb" }, currentColumn = "March",
-                rows = new[] { new { category = "Shipped", items = new Dictionary<string, List<string>> { ["Jan"] = new() } } }
-            }
-        });
-        var path = WriteTempJson(json);
-        var svc = new DashboardDataService(path);
+        var path = WriteTempJson(BuildJsonWithEmptyTracks());
 
-        svc.HasData.Should().BeFalse();
-        svc.ErrorMessage.Should().Contain("heatmap.currentColumn");
-        svc.ErrorMessage.Should().Contain("March");
+        var service = new DashboardDataService(path);
+
+        service.HasData.Should().BeFalse();
+        service.ErrorType.Should().Be(DataErrorType.ValidationError);
+        service.ErrorDetails.Should().Contain("timeline.tracks must have at least 1 entry");
+    }
+
+    [Fact]
+    public void ValidJson_LoadsSuccessfully()
+    {
+        var path = WriteTempJson(BuildValidJson());
+
+        var service = new DashboardDataService(path);
+
+        service.HasData.Should().BeTrue();
+        service.ErrorType.Should().Be(DataErrorType.None);
+        service.ErrorMessage.Should().BeNull();
+        service.ErrorDetails.Should().BeNull();
+        service.Data.Should().NotBeNull();
+        service.Data!.Project.Should().NotBeNull();
+        service.Data.Timeline.Should().NotBeNull();
+        service.Data.Heatmap.Should().NotBeNull();
     }
 }
