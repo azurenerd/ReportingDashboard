@@ -81,6 +81,22 @@ public class DashboardDataServiceTests : IDisposable
 
     [Fact]
     [Trait("Category", "Integration")]
+    public void Construction_WithMalformedJsonUsingFixture_PopulatesLineAndColumn()
+    {
+        var fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "malformed-data.json");
+        File.Copy(fixturePath, _dataFilePath, overwrite: true);
+
+        using var svc = CreateService();
+        var result = svc.GetCurrent();
+
+        result.Error.Should().NotBeNull();
+        result.Error!.Kind.Should().Be("ParseError");
+        (result.Error.Line.HasValue || result.Error.Column.HasValue)
+            .Should().BeTrue("System.Text.Json should provide at least one of line/column on parse failure");
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
     public void Construction_WithValidationFailure_ProducesValidationError()
     {
         var bad = TestDataFactory.ValidJson.Replace("\"#0078D4\"", "\"#ZZZZZZ\"");

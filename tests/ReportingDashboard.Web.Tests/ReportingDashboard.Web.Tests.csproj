@@ -25,24 +25,8 @@
 
   <ItemGroup>
     <None Include="..\..\src\ReportingDashboard.Web\wwwroot\data.json" Link="data.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Fixtures\sample-data.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Fixtures\malformed-data.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
-  <!--
-    Workaround for BLAZOR102: Dashboard.razor.css exists without a matching Dashboard.razor
-    component in the source project. We cannot modify source, so we generate a minimal stub
-    before the referenced source project is built. The stub is harmless: it's just an empty
-    component file that satisfies the scoped-CSS pairing requirement.
-  -->
-  <Target Name="EnsureDashboardRazorStubExists" BeforeTargets="PrepareForBuild;ResolveProjectReferences">
-    <PropertyGroup>
-      <_DashboardRazorStubPath>$(MSBuildThisFileDirectory)..\..\src\ReportingDashboard.Web\Components\Pages\Dashboard.razor</_DashboardRazorStubPath>
-    </PropertyGroup>
-    <WriteLinesToFile
-      Condition="!Exists('$(_DashboardRazorStubPath)')"
-      File="$(_DashboardRazorStubPath)"
-      Lines="@* Auto-generated stub to satisfy BLAZOR102 scoped-CSS pairing. *@"
-      Overwrite="true"
-      Encoding="UTF-8" />
-  </Target>
 
 </Project>

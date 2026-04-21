@@ -7,7 +7,7 @@
   },
   "timeline": {
     "start": "2026-01-01",
-    "end":   "2026-06-30",
+    "end": "2026-06-30",
     "lanes": [
       {
         "id": "M1",
@@ -16,7 +16,7 @@
         "milestones": [
           { "date": "2026-01-12", "type": "checkpoint", "label": "Jan 12 Kickoff" },
           { "date": "2026-03-26", "type": "poc",        "label": "Mar 26 PoC" },
-          { "date": "2026-04-30", "type": "prod",       "label": "Apr Prod (TBD)" }
+          { "date": "2026-04-30", "type": "prod",       "label": "Apr Prod" }
         ]
       },
       {
@@ -41,13 +41,13 @@
   },
   "heatmap": {
     "months": ["Jan", "Feb", "Mar", "Apr"],
-    "currentMonthIndex": null,
+    "currentMonthIndex": 3,
     "maxItemsPerCell": 4,
     "rows": [
-      { "category": "shipped",    "cells": [["Kickoff deck"], ["Arch review"], ["PoC scaffold"], ["Prod pilot"]] },
-      { "category": "inProgress", "cells": [[], ["Data inventory"], ["Auto review DFD"], ["Chatbot GA", "PDS rollout"]] },
-      { "category": "carryover",  "cells": [[], [], ["Legacy API triage"], ["Legacy API triage"]] },
-      { "category": "blockers",   "cells": [[], [], [], ["Vendor SLA"]] }
+      { "category": "shipped",    "cells": [["A"], ["B"], ["C"], ["D"]] },
+      { "category": "inProgress", "cells": [[], ["E"], ["F"], ["G"]] },
+      { "category": "carryover",  "cells": [[], [], ["H"], ["I"]] },
+      { "category": "blockers",   "cells": [[], [], [], ["J"]] }
     ]
   }
 }

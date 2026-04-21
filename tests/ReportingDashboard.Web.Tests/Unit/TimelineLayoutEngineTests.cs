@@ -32,6 +32,38 @@ public class TimelineLayoutEngineTests
         };
     }
 
+    [Theory]
+    [InlineData("2026-04-19", 936.0)] // 108/180 * 1560
+    [InlineData("2026-05-19", 1196.0)] // 138/180 * 1560
+    [InlineData("2026-01-01", 0.0)]
+    [InlineData("2026-06-30", 1560.0)]
+    [InlineData("2026-04-01", 780.0)] // 90/180 * 1560
+    public void Build_NowX_ForCanonicalFixture_MatchesFormula(string todayIso, double expectedX)
+    {
+        var start = new DateOnly(2026, 1, 1);
+        var end = new DateOnly(2026, 6, 30);
+        var today = DateOnly.Parse(todayIso);
+        var tl = MakeTimeline(start, end, Lane("M1", "L", "#0078D4"));
+
+        var vm = TimelineLayoutEngine.Build(tl, today);
+
+        vm.Now.InRange.Should().BeTrue();
+        vm.Now.X.Should().BeApproximately(expectedX, 0.5);
+    }
+
+    [Theory]
+    [InlineData("2025-12-31")]
+    [InlineData("2026-07-01")]
+    public void Build_NowX_OutOfRange_FlagFalse(string todayIso)
+    {
+        var tl = MakeTimeline(new DateOnly(2026, 1, 1), new DateOnly(2026, 6, 30),
+            Lane("M1", "L", "#0078D4"));
+
+        var vm = TimelineLayoutEngine.Build(tl, DateOnly.Parse(todayIso));
+
+        vm.Now.InRange.Should().BeFalse();
+    }
+
     [Fact]
     public void Build_XOf_AtStartIsZero_AtEndIsSvgWidth_AtMidpointIsHalf()
     {
