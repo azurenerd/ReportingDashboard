@@ -75,9 +75,12 @@ public class JsonFileDataServiceTests : IDisposable
     }
 
     [Fact]
-    public void GetData_MissingFile_ReturnsError()
+    public void GetData_MissingFile_NoSampleFallback_ReturnsError()
     {
-        var filePath = Path.Combine(_tempDir, "nonexistent.json");
+        // Point to a directory with no data.json AND no data.sample.json
+        var isolatedDir = Path.Combine(_tempDir, "empty_subdir");
+        Directory.CreateDirectory(isolatedDir);
+        var filePath = Path.Combine(isolatedDir, "data.json");
 
         var service = new JsonFileDataService(CreateOptions(filePath));
 
@@ -85,6 +88,23 @@ public class JsonFileDataServiceTests : IDisposable
         Assert.NotNull(service.GetError());
         Assert.Contains("file not found", service.GetError()!);
         Assert.Contains("data.sample.json", service.GetError()!);
+    }
+
+    [Fact]
+    public void GetData_MissingFile_WithSampleFallback_ReturnsSampleData()
+    {
+        // Create data.sample.json but not data.json
+        var samplePath = Path.Combine(_tempDir, "data.sample.json");
+        var sampleData = new DashboardData { Title = "Sample Fallback" };
+        File.WriteAllText(samplePath, JsonSerializer.Serialize(sampleData));
+
+        var filePath = Path.Combine(_tempDir, "data.json");
+
+        var service = new JsonFileDataService(CreateOptions(filePath));
+
+        Assert.Null(service.GetError());
+        Assert.NotNull(service.GetData());
+        Assert.Equal("Sample Fallback", service.GetData()!.Title);
     }
 
     [Fact]

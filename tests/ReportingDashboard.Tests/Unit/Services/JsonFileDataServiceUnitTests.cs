@@ -78,15 +78,33 @@ public class JsonFileDataServiceUnitTests : IDisposable
 
     [Fact]
     [Trait("Category", "Unit")]
-    public void MissingFile_ReturnsNullData_AndErrorMessage()
+    public void MissingFile_NoSampleFallback_ReturnsNullData_AndErrorMessage()
     {
-        var filePath = Path.Combine(_tempDir, "nonexistent.json");
+        var isolatedDir = Path.Combine(_tempDir, "no_sample");
+        Directory.CreateDirectory(isolatedDir);
+        var filePath = Path.Combine(isolatedDir, "nonexistent.json");
 
         var service = new JsonFileDataService(CreateOptions(filePath));
 
         service.GetData().Should().BeNull();
         service.GetError().Should().NotBeNull();
         service.GetError().Should().Contain("file not found");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void MissingFile_WithSampleFallback_ReturnsData()
+    {
+        var samplePath = Path.Combine(_tempDir, "data.sample.json");
+        File.WriteAllText(samplePath, """{"title":"Fallback Title"}""");
+
+        var filePath = Path.Combine(_tempDir, "data.json");
+
+        var service = new JsonFileDataService(CreateOptions(filePath));
+
+        service.GetError().Should().BeNull();
+        service.GetData().Should().NotBeNull();
+        service.GetData()!.Title.Should().Be("Fallback Title");
     }
 
     [Fact]

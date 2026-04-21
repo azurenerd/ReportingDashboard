@@ -16,9 +16,19 @@ public class JsonFileDataService : IDataService
         {
             if (!File.Exists(path))
             {
-                _error = $"Could not load data.json \u2013 file not found at {Path.GetFullPath(path)}. "
-                       + "Please create a data.json file. See data.sample.json for the expected schema.";
-                return;
+                // Fall back to data.sample.json in the same directory
+                var dir = Path.GetDirectoryName(path) ?? ".";
+                var samplePath = Path.Combine(dir, "data.sample.json");
+                if (File.Exists(samplePath))
+                {
+                    path = samplePath;
+                }
+                else
+                {
+                    _error = $"Could not load data.json \u2013 file not found at {Path.GetFullPath(path)}. "
+                           + "Please create a data.json file. See data.sample.json for the expected schema.";
+                    return;
+                }
             }
 
             var json = File.ReadAllText(path);
