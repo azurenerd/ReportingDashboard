@@ -4,14 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=1920" />
     <title>Executive Reporting Dashboard</title>
+    <HeadOutlet />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="ReportingDashboard.Web.styles.css" />
 </head>
 <body>
-    @Body
+    <Routes />
 </body>
 </html>
-
-@code {
-    [Parameter] public RenderFragment? Body { get; set; }
-}
