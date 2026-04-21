@@ -1,0 +1,18 @@
+<div class="hm-cell @CssClass">
+    @if (Items is null || Items.Count == 0)
+    {
+        <div class="empty-cell">–</div>
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            <div class="it">@item</div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public required List<string> Items { get; set; }
+    [Parameter] public required string CssClass { get; set; }
+}

@@ -1,0 +1,46 @@
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap – Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Heatmap.Columns.Count, 1fr); grid-template-rows: 36px repeat(@Heatmap.Rows.Count, 1fr);">
+        @* Header row *@
+        <div class="hm-corner">Status</div>
+        @foreach (var col in Heatmap.Columns)
+        {
+            var isCurrent = col == Heatmap.CurrentColumn;
+            <div class="hm-col-hdr @(isCurrent ? "current-month-hdr" : "")">
+                @col @(isCurrent ? "◀ Now" : "")
+            </div>
+        }
+
+        @* Category rows *@
+        @foreach (var row in Heatmap.Rows)
+        {
+            var prefix = GetCssPrefix(row.Category);
+
+            <div class="hm-row-hdr @(prefix)-hdr">@row.Category</div>
+
+            @foreach (var col in Heatmap.Columns)
+            {
+                var isCurrent = col == Heatmap.CurrentColumn;
+                var cellClass = $"{prefix}-cell{(isCurrent ? " current" : "")}";
+                var items = row.Items.TryGetValue(col, out var list) ? list : new List<string>();
+
+                <HeatmapCell Items="items" CssClass="@cellClass" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public required HeatmapData Heatmap { get; set; }
+
+    private static readonly Dictionary<string, string> CategoryCssMap = new()
+    {
+        ["Shipped"] = "ship",
+        ["In Progress"] = "prog",
+        ["Carryover"] = "carry",
+        ["Blockers"] = "block"
+    };
+
+    private static string GetCssPrefix(string category) =>
+        CategoryCssMap.TryGetValue(category, out var prefix) ? prefix : "ship";
+}
