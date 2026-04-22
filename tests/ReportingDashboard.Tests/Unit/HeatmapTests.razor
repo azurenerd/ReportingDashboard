@@ -1,0 +1,119 @@
+@using Bunit
+@using Xunit
+@using FluentAssertions
+@using ReportingDashboard.Models
+@inherits Bunit.TestContext
+
+@code {
+    private HeatmapData CreateTestHeatmapData()
+    {
+        return new HeatmapData
+        {
+            Months = new List<string> { "March", "April", "May" },
+            HighlightMonth = "April",
+            Rows = new List<StatusRow>
+            {
+                new StatusRow
+                {
+                    Category = "Shipped",
+                    Items = new Dictionary<string, List<string>>
+                    {
+                        ["March"] = new List<string> { "Feature A" },
+                        ["April"] = new List<string> { "Feature B", "Feature C" },
+                        ["May"] = new List<string>()
+                    }
+                },
+                new StatusRow
+                {
+                    Category = "In Progress",
+                    Items = new Dictionary<string, List<string>>
+                    {
+                        ["March"] = new List<string>(),
+                        ["April"] = new List<string> { "Task X" },
+                        ["May"] = new List<string>()
+                    }
+                }
+            }
+        };
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Heatmap_RendersTitle()
+    {
+        var data = CreateTestHeatmapData();
+
+        var cut = Render(
+            @<ReportingDashboard.Components.Sections.Heatmap HeatmapData="data" />
+        );
+
+        var title = cut.Find(".hm-title");
+        title.TextContent.Should().Contain("MONTHLY EXECUTION HEATMAP");
+        title.TextContent.Should().Contain("Shipped");
+        title.TextContent.Should().Contain("Blockers");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Heatmap_RendersCorrectMonthHeaders()
+    {
+        var data = CreateTestHeatmapData();
+
+        var cut = Render(
+            @<ReportingDashboard.Components.Sections.Heatmap HeatmapData="data" />
+        );
+
+        var headers = cut.FindAll(".hm-col-hdr");
+        headers.Count.Should().Be(3);
+        headers[0].TextContent.Should().Contain("March");
+        headers[1].TextContent.Should().Contain("April");
+        headers[2].TextContent.Should().Contain("May");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Heatmap_HighlightsCurrentMonth()
+    {
+        var data = CreateTestHeatmapData();
+
+        var cut = Render(
+            @<ReportingDashboard.Components.Sections.Heatmap HeatmapData="data" />
+        );
+
+        var highlighted = cut.Find(".hm-col-highlight");
+        highlighted.TextContent.Should().Contain("April");
+        highlighted.TextContent.Should().Contain("Now");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Heatmap_RendersRowHeaders()
+    {
+        var data = CreateTestHeatmapData();
+
+        var cut = Render(
+            @<ReportingDashboard.Components.Sections.Heatmap HeatmapData="data" />
+        );
+
+        var rowHeaders = cut.FindAll(".hm-row-hdr");
+        rowHeaders.Count.Should().Be(2);
+        rowHeaders[0].TextContent.Should().Contain("SHIPPED");
+        rowHeaders[0].ClassList.Should().Contain("ship-hdr");
+        rowHeaders[1].TextContent.Should().Contain("IN PROGRESS");
+        rowHeaders[1].ClassList.Should().Contain("prog-hdr");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Heatmap_SetsGridColumnsFromMonthCount()
+    {
+        var data = CreateTestHeatmapData();
+
+        var cut = Render(
+            @<ReportingDashboard.Components.Sections.Heatmap HeatmapData="data" />
+        );
+
+        var grid = cut.Find(".hm-grid");
+        grid.GetAttribute("style").Should().Contain("160px repeat(3, 1fr)");
+    }
+}
