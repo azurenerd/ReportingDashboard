@@ -1,8 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/ReportingDashboard.Web/ReportingDashboard.Web.csproj" />
-  </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/ReportingDashboard.Tests/ReportingDashboard.Tests.csproj" />
-  </Folder>
-</Solution>
