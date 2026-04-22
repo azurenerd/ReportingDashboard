@@ -3,7 +3,7 @@ using ReportingDashboard.Models;
 
 namespace ReportingDashboard.Services;
 
-public class DashboardDataService : IDisposable
+public class DashboardDataService : IDashboardDataService
 {
     private readonly IConfiguration _config;
     private readonly IWebHostEnvironment _env;
@@ -21,10 +21,8 @@ public class DashboardDataService : IDisposable
         AllowTrailingCommas = true
     };
 
-    public DashboardData? Data { get; private set; }
-    public bool IsLoaded => Data is not null && !HasError;
-    public bool HasError { get; private set; }
-    public string ErrorMessage { get; private set; } = "";
+    private DashboardData? _data;
+    private string? _error;
 
     public event Action? OnDataChanged;
 
@@ -35,9 +33,13 @@ public class DashboardDataService : IDisposable
         _logger = logger;
     }
 
+    public DashboardData? GetData() => _data;
+
+    public string? GetError() => _error;
+
     private string GetDataFilePath()
     {
-        var configured = _config["Dashboard:DataFilePath"];
+        var configured = _config["DashboardDataFile"];
         if (!string.IsNullOrWhiteSpace(configured))
         {
             if (Path.IsPathRooted(configured))
@@ -59,9 +61,8 @@ public class DashboardDataService : IDisposable
                 if (!File.Exists(filePath))
                 {
                     _logger.LogWarning("Dashboard data file not found at {Path}", filePath);
-                    HasError = true;
-                    ErrorMessage = $"Dashboard data file not found. Expected location: {filePath}";
-                    Data = null;
+                    _error = $"Dashboard data file not found. Expected location: {filePath}";
+                    _data = null;
                     return;
                 }
 
@@ -70,15 +71,13 @@ public class DashboardDataService : IDisposable
 
                 if (data is null)
                 {
-                    HasError = true;
-                    ErrorMessage = "Dashboard data file is empty or invalid.";
-                    Data = null;
+                    _error = "Dashboard data file is empty or invalid.";
+                    _data = null;
                     return;
                 }
 
-                Data = data;
-                HasError = false;
-                ErrorMessage = "";
+                _data = data;
+                _error = null;
                 _logger.LogInformation("Dashboard data loaded: {Title}", data.Project.Title);
                 return;
             }
@@ -90,17 +89,15 @@ public class DashboardDataService : IDisposable
             catch (JsonException ex)
             {
                 _logger.LogError(ex, "JSON parse error in dashboard data");
-                HasError = true;
-                ErrorMessage = $"Error reading dashboard data: {ex.Message}";
-                Data = null;
+                _error = $"Error reading dashboard data: {ex.Message}";
+                _data = null;
                 return;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error loading dashboard data");
-                HasError = true;
-                ErrorMessage = $"Error reading dashboard data: {ex.Message}";
-                Data = null;
+                _error = $"Error reading dashboard data: {ex.Message}";
+                _data = null;
                 return;
             }
         }

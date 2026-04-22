@@ -2,29 +2,29 @@ using System.Text.Json.Serialization;
 
 namespace ReportingDashboard.Models;
 
-public class DashboardData
+public record DashboardData
 {
     [JsonPropertyName("project")]
-    public ProjectInfo Project { get; set; } = new();
+    public ProjectInfo Project { get; init; } = new();
 
     [JsonPropertyName("timeline")]
-    public TimelineData Timeline { get; set; } = new();
+    public TimelineData Timeline { get; init; } = new();
 
     [JsonPropertyName("heatmap")]
-    public HeatmapData Heatmap { get; set; } = new();
+    public HeatmapData Heatmap { get; init; } = new();
 }
 
-public class ProjectInfo
+public record ProjectInfo
 {
     [JsonPropertyName("title")]
-    public string Title { get; set; } = "";
+    public string Title { get; init; } = "";
 
     [JsonPropertyName("subtitle")]
-    public string Subtitle { get; set; } = "";
+    public string Subtitle { get; init; } = "";
 
     [JsonPropertyName("backlogUrl")]
-    public string BacklogUrl { get; set; } = "";
+    public string? BacklogUrl { get; init; }
 
     [JsonPropertyName("currentDate")]
-    public string CurrentDate { get; set; } = "";
+    public string CurrentDate { get; init; } = "";
 }

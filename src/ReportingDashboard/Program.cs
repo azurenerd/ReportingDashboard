@@ -8,11 +8,11 @@ builder.WebHost.UseUrls("https://localhost:5001");
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<DashboardDataService>();
+builder.Services.AddSingleton<IDashboardDataService, DashboardDataService>();
 
 var app = builder.Build();
 
-var dataService = app.Services.GetRequiredService<DashboardDataService>();
+var dataService = (DashboardDataService)app.Services.GetRequiredService<IDashboardDataService>();
 await dataService.LoadAsync();
 dataService.StartWatching();
 

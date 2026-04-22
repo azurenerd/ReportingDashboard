@@ -1,18 +1,23 @@
 @page "/"
-@inject DashboardDataService DataService
+@inject IDashboardDataService DataService
 @implements IDisposable
 @rendermode RenderMode.InteractiveServer
 
-@if (DataService.HasError)
+@{
+    var data = DataService.GetData();
+    var error = DataService.GetError();
+}
+
+@if (error is not null)
 {
     <div class="error-container">
         <div class="error-icon">⚠</div>
-        <div class="error-text">@DataService.ErrorMessage</div>
+        <div class="error-text">@error</div>
+        <div class="error-hint">Fix the file and save — the dashboard will reload automatically.</div>
     </div>
 }
-else if (DataService.Data is not null)
+else if (data is not null)
 {
-    var data = DataService.Data;
     <div class="page">
         <Header Project="data.Project" />
         <Timeline TimelineData="data.Timeline" CurrentDate="data.Project.CurrentDate" />

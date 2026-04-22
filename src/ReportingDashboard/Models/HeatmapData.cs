@@ -2,23 +2,23 @@ using System.Text.Json.Serialization;
 
 namespace ReportingDashboard.Models;
 
-public class HeatmapData
+public record HeatmapData
 {
     [JsonPropertyName("months")]
-    public List<string> Months { get; set; } = new();
+    public List<string> Months { get; init; } = new();
 
     [JsonPropertyName("highlightMonth")]
-    public string HighlightMonth { get; set; } = "";
+    public string HighlightMonth { get; init; } = "";
 
     [JsonPropertyName("rows")]
-    public List<StatusRow> Rows { get; set; } = new();
+    public List<StatusRow> Rows { get; init; } = new();
 }
 
-public class StatusRow
+public record StatusRow
 {
     [JsonPropertyName("category")]
-    public string Category { get; set; } = "";
+    public string Category { get; init; } = "";
 
     [JsonPropertyName("items")]
-    public Dictionary<string, List<string>> Items { get; set; } = new();
+    public Dictionary<string, List<string>> Items { get; init; } = new();
 }
