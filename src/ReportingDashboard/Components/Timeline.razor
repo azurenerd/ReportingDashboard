@@ -1,3 +1,5 @@
+@if (!_hasError)
+{
 <div class="tl-area">
     <div class="tl-labels">
         @foreach (var track in TimelineInfo.Tracks)
@@ -49,7 +51,7 @@
                 int msIndex = 0;
                 @foreach (var ms in track.Milestones)
                 {
-                    var cx = GetX(DateOnly.Parse(ms.Date));
+                    var cx = GetXSafe(ms.Date);
                     var labelY = (msIndex % 2 == 0) ? y - 16 : y + 24;
 
                     @if (ms.Type == "checkpoint")
@@ -76,6 +78,7 @@
         </svg>
     </div>
 </div>
+}
 
 @code {
     [Parameter] public TimelineData TimelineInfo { get; set; } = default!;
@@ -85,6 +88,7 @@
     private DateOnly _endDate;
     private double _totalDays;
     private double _nowX;
+    private bool _hasError;
     private List<(double X, string Label)> _monthGridlines = new();
 
     private const double SvgWidth = 1560.0;
@@ -94,25 +98,38 @@
 
     protected override void OnParametersSet()
     {
-        _startDate = DateOnly.Parse(TimelineInfo.StartDate);
-        _endDate = DateOnly.Parse(TimelineInfo.EndDate);
-        _totalDays = (_endDate.ToDateTime(TimeOnly.MinValue) - _startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
-
-        // NOW line position
-        if (!string.IsNullOrEmpty(CurrentDate))
-        {
-            _nowX = GetX(DateOnly.Parse(CurrentDate));
-        }
-
-        // Month gridlines
+        _hasError = false;
         _monthGridlines.Clear();
-        var current = new DateOnly(_startDate.Year, _startDate.Month, 1);
-        if (current < _startDate) current = current.AddMonths(1);
-        while (current <= _endDate)
+
+        try
         {
-            var x = GetX(current);
-            _monthGridlines.Add((x, current.ToString("MMM")));
-            current = current.AddMonths(1);
+            _startDate = DateOnly.Parse(TimelineInfo.StartDate);
+            _endDate = DateOnly.Parse(TimelineInfo.EndDate);
+            _totalDays = (_endDate.ToDateTime(TimeOnly.MinValue) - _startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+
+            if (_totalDays <= 0) { _hasError = true; return; }
+
+            if (!string.IsNullOrEmpty(CurrentDate) && DateOnly.TryParse(CurrentDate, out var nowDate))
+            {
+                _nowX = GetX(nowDate);
+            }
+            else
+            {
+                _nowX = -1;
+            }
+
+            var current = new DateOnly(_startDate.Year, _startDate.Month, 1);
+            if (current < _startDate) current = current.AddMonths(1);
+            while (current <= _endDate)
+            {
+                var x = GetX(current);
+                _monthGridlines.Add((x, current.ToString("MMM")));
+                current = current.AddMonths(1);
+            }
+        }
+        catch
+        {
+            _hasError = true;
         }
     }
 
@@ -120,6 +137,11 @@
     {
         var days = (date.ToDateTime(TimeOnly.MinValue) - _startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
         return (days / _totalDays) * SvgWidth;
+    }
+
+    private double GetXSafe(string dateStr)
+    {
+        return DateOnly.TryParse(dateStr, out var date) ? GetX(date) : 0;
     }
 
     private double GetTrackY(int index)

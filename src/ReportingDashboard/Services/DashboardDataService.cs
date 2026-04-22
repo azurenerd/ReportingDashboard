@@ -20,6 +20,7 @@ public class DashboardDataService : IDashboardDataService
 
     private readonly string _filePath;
     private readonly ILogger<DashboardDataService> _logger;
+    private readonly object _lock = new();
     private DashboardData? _data;
     private string? _error;
     private FileSystemWatcher? _watcher;
@@ -48,60 +49,63 @@ public class DashboardDataService : IDashboardDataService
 
     private void LoadData()
     {
-        try
+        lock (_lock)
         {
-            if (!File.Exists(_filePath))
+            try
+            {
+                if (!File.Exists(_filePath))
+                {
+                    _data = null;
+                    _error = $"Dashboard data file not found. Expected location: {_filePath}";
+                    _logger.LogWarning("Dashboard data file not found at {FilePath}", _filePath);
+                    return;
+                }
+
+                var fileInfo = new FileInfo(_filePath);
+                if (fileInfo.Length > MaxFileSizeWarningBytes)
+                {
+                    _logger.LogWarning("Dashboard data file is larger than 1 MB ({Size} bytes). Loading may be slow.", fileInfo.Length);
+                }
+
+                _lastWriteTime = File.GetLastWriteTimeUtc(_filePath);
+
+                string json = ReadFileWithRetry();
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = false,
+                    AllowTrailingCommas = true,
+                    ReadCommentHandling = JsonCommentHandling.Skip
+                };
+
+                _data = JsonSerializer.Deserialize<DashboardData>(json, options);
+                _error = null;
+                _logger.LogInformation("Dashboard data loaded successfully.");
+            }
+            catch (FileNotFoundException)
             {
                 _data = null;
                 _error = $"Dashboard data file not found. Expected location: {_filePath}";
                 _logger.LogWarning("Dashboard data file not found at {FilePath}", _filePath);
-                return;
             }
-
-            var fileInfo = new FileInfo(_filePath);
-            if (fileInfo.Length > MaxFileSizeWarningBytes)
+            catch (JsonException ex)
             {
-                _logger.LogWarning("Dashboard data file is larger than 1 MB ({Size} bytes). Loading may be slow.", fileInfo.Length);
+                _data = null;
+                _error = $"Error reading dashboard data: {ex.Message}";
+                _logger.LogError(ex, "JSON parse error reading dashboard data from {FilePath}", _filePath);
             }
-
-            _lastWriteTime = File.GetLastWriteTimeUtc(_filePath);
-
-            string json = ReadFileWithRetry();
-
-            var options = new JsonSerializerOptions
+            catch (IOException ex)
             {
-                PropertyNameCaseInsensitive = false,
-                AllowTrailingCommas = true,
-                ReadCommentHandling = JsonCommentHandling.Skip
-            };
-
-            _data = JsonSerializer.Deserialize<DashboardData>(json, options);
-            _error = null;
-            _logger.LogInformation("Dashboard data loaded successfully.");
-        }
-        catch (FileNotFoundException)
-        {
-            _data = null;
-            _error = $"Dashboard data file not found. Expected location: {_filePath}";
-            _logger.LogWarning("Dashboard data file not found at {FilePath}", _filePath);
-        }
-        catch (JsonException ex)
-        {
-            _data = null;
-            _error = $"Error reading dashboard data: {ex.Message}";
-            _logger.LogError(ex, "JSON parse error reading dashboard data from {FilePath}", _filePath);
-        }
-        catch (IOException ex)
-        {
-            _data = null;
-            _error = $"Error reading dashboard data: {ex.Message}";
-            _logger.LogError(ex, "IO error reading dashboard data from {FilePath}", _filePath);
-        }
-        catch (Exception ex)
-        {
-            _data = null;
-            _error = $"Error reading dashboard data: {ex.Message}";
-            _logger.LogError(ex, "Unexpected error reading dashboard data from {FilePath}", _filePath);
+                _data = null;
+                _error = $"Error reading dashboard data: {ex.Message}";
+                _logger.LogError(ex, "IO error reading dashboard data from {FilePath}", _filePath);
+            }
+            catch (Exception ex)
+            {
+                _data = null;
+                _error = $"Error reading dashboard data: {ex.Message}";
+                _logger.LogError(ex, "Unexpected error reading dashboard data from {FilePath}", _filePath);
+            }
         }
     }
 
