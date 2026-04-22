@@ -1,13 +1,13 @@
-<div class="hm-cell @CssCategory-cell @(IsHighlight ? CssCategory + "-hl" : "")">
+<div class="hm-cell @(CssCategory)-cell @(IsHighlight ? CssCategory + "-hl" : "")" style="@(IsLastColumn ? "border-right:none;" : "")">
     @if (Items.Count == 0)
     {
-        <div class="hm-empty">&ndash;</div>
+        <div class="it @(CssCategory)-it empty">&ndash;</div>
     }
     else
     {
         @foreach (var item in Items)
         {
-            <div class="it @CssCategory-it">@item</div>
+            <div class="it @(CssCategory)-it">@item</div>
         }
     }
 </div>
@@ -21,4 +21,7 @@
 
     [Parameter]
     public bool IsHighlight { get; set; }
+
+    [Parameter]
+    public bool IsLastColumn { get; set; }
 }

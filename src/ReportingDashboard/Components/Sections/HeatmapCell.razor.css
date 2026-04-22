@@ -31,9 +31,8 @@
     height: 6px;
     border-radius: 50%;
 }
+.it.empty { color: #AAA; }
 .ship-it::before { background: var(--shipped-accent); }
 .prog-it::before { background: var(--progress-accent); }
 .carry-it::before { background: var(--carry-accent); }
 .block-it::before { background: var(--block-accent); }
-
-.hm-empty { color: #AAA; font-size: 12px; }

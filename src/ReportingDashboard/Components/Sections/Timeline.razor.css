@@ -2,6 +2,7 @@
     display: flex;
     align-items: stretch;
     height: 196px;
+    flex-shrink: 0;
     background: var(--bg-timeline);
     padding: 6px 44px 0 44px;
     border-bottom: 2px solid var(--border-heavy);
@@ -18,4 +19,4 @@
 .tl-track-label { display: flex; flex-direction: column; }
 .tl-track-id { font-size: 12px; font-weight: 600; }
 .tl-track-name { font-size: 12px; font-weight: 400; color: #444; }
-.tl-svg-wrap { flex: 1; padding: 12px 0 0 12px; overflow: visible; }
+.tl-svg-wrap { flex: 1; padding: 6px 0 0 12px; overflow: visible; }

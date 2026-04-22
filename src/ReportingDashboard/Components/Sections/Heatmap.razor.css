@@ -12,6 +12,7 @@
     letter-spacing: 0.5px;
     text-transform: uppercase;
     margin-bottom: 8px;
+    flex-shrink: 0;
 }
 .hm-grid {
     display: grid;
@@ -46,7 +47,6 @@
     border-right: 1px solid var(--border-light);
     border-bottom: 2px solid var(--border-medium);
 }
-.hm-col-hdr:last-of-type { border-right: none; }
 .hm-col-highlight {
     background: var(--highlight-month-bg);
     color: var(--highlight-month-text);
