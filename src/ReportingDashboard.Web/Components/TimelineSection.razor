@@ -1,0 +1,178 @@
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in Timeline.Tracks)
+        {
+            <div class="tl-track-label">
+                <span style="color:@track.Color;font-weight:600;">@track.Id</span><br/>
+                <span style="font-weight:400;color:#444;">@track.Label</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="185" style="overflow:visible;display:block">
+            <defs>
+                <filter id="sh">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/>
+                </filter>
+            </defs>
+
+            @* Month gridlines *@
+            @foreach (var month in _months)
+            {
+                <line x1="@F(month.X)" y1="0" x2="@F(month.X)" y2="185"
+                      stroke="#bbb" stroke-opacity="0.4" stroke-width="1"/>
+                @SvgText(month.X + 5, 14, month.Label, fill: "#666", fontSize: 11, fontWeight: "600")
+            }
+
+            @* NOW line *@
+            <line x1="@F(_nowX)" y1="0" x2="@F(_nowX)" y2="185"
+                  stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3"/>
+            @SvgText(_nowX + 4, 14, "NOW", fill: "#EA4335", fontSize: 10, fontWeight: "700")
+
+            @* Track lines and milestones *@
+            @for (int i = 0; i < Timeline.Tracks.Count; i++)
+            {
+                var track = Timeline.Tracks[i];
+                var y = _trackYPositions[i];
+
+                <line x1="0" y1="@F(y)" x2="1560" y2="@F(y)"
+                      stroke="@track.Color" stroke-width="3"/>
+
+                @foreach (var ms in track.Milestones)
+                {
+                    var x = DateToX(ms.Date);
+                    var labelAbove = ShouldLabelAbove(track, ms);
+
+                    @if (ms.Type == "checkpoint")
+                    {
+                        <circle cx="@F(x)" cy="@F(y)" r="7" fill="white"
+                                stroke="@track.Color" stroke-width="2.5">
+                            <title>@ms.Label - @ms.Date</title>
+                        </circle>
+                    }
+                    else if (ms.Type == "small-checkpoint")
+                    {
+                        <circle cx="@F(x)" cy="@F(y)" r="4" fill="#999">
+                            <title>@ms.Label - @ms.Date</title>
+                        </circle>
+                    }
+                    else if (ms.Type == "poc")
+                    {
+                        <polygon points="@DiamondPoints(x, y)"
+                                 fill="#F4B400" filter="url(#sh)">
+                            <title>@ms.Label - @ms.Date (PoC Milestone)</title>
+                        </polygon>
+                    }
+                    else if (ms.Type == "production")
+                    {
+                        <polygon points="@DiamondPoints(x, y)"
+                                 fill="#34A853" filter="url(#sh)">
+                            <title>@ms.Label - @ms.Date (Production Release)</title>
+                        </polygon>
+                    }
+
+                    @if (!string.IsNullOrEmpty(ms.Label))
+                    {
+                        var textY = labelAbove ? y - 16 : y + 24;
+                        var anchor = x < 30 ? "start" : "middle";
+                        var textX = x < 30 ? x + 5 : x;
+
+                        @SvgText(textX, textY, ms.Label, anchor: anchor)
+                    }
+                }
+            }
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter] public TimelineData Timeline { get; set; } = new();
+    [Parameter] public string CurrentDate { get; set; } = "";
+
+    private double _nowX;
+    private double[] _trackYPositions = Array.Empty<double>();
+    private List<MonthGridLine> _months = new();
+
+    private record MonthGridLine(double X, string Label);
+
+    private static MarkupString SvgText(double x, double y, string content,
+        string fill = "#666", int fontSize = 10, string fontWeight = "400",
+        string anchor = "middle")
+    {
+        var escaped = System.Net.WebUtility.HtmlEncode(content);
+        return new MarkupString(
+            $"<text x=\"{F(x)}\" y=\"{F(y)}\" text-anchor=\"{anchor}\" " +
+            $"fill=\"{fill}\" font-size=\"{fontSize}\" font-weight=\"{fontWeight}\" " +
+            $"font-family=\"Segoe UI,Arial\">{escaped}</text>");
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Timeline.Tracks.Count == 0) return;
+
+        _nowX = DateToX(CurrentDate);
+
+        var trackCount = Timeline.Tracks.Count;
+        _trackYPositions = new double[trackCount];
+        for (int i = 0; i < trackCount; i++)
+        {
+            _trackYPositions[i] = 185.0 / (trackCount + 1) * (i + 1);
+        }
+
+        _months = new List<MonthGridLine>();
+        if (DateTime.TryParse(Timeline.StartDate, out var start) && DateTime.TryParse(Timeline.EndDate, out var end))
+        {
+            var current = new DateTime(start.Year, start.Month, 1);
+            while (current <= end)
+            {
+                var x = DateToX(current);
+                _months.Add(new MonthGridLine(x, current.ToString("MMM")));
+                current = current.AddMonths(1);
+            }
+        }
+    }
+
+    public static double DateToX(string dateStr, string startDateStr, string endDateStr, double svgWidth = 1560.0)
+    {
+        if (!DateTime.TryParse(dateStr, out var date) ||
+            !DateTime.TryParse(startDateStr, out var start) ||
+            !DateTime.TryParse(endDateStr, out var end))
+            return 0;
+
+        return DateToX(date, start, end, svgWidth);
+    }
+
+    public static double DateToX(DateTime date, DateTime start, DateTime end, double svgWidth = 1560.0)
+    {
+        var totalDays = (end - start).TotalDays;
+        if (totalDays <= 0) return 0;
+        var dayOffset = (date - start).TotalDays;
+        return dayOffset / totalDays * svgWidth;
+    }
+
+    private double DateToX(string dateStr)
+    {
+        return DateToX(dateStr, Timeline.StartDate, Timeline.EndDate);
+    }
+
+    private double DateToX(DateTime date)
+    {
+        if (!DateTime.TryParse(Timeline.StartDate, out var start) ||
+            !DateTime.TryParse(Timeline.EndDate, out var end))
+            return 0;
+        return DateToX(date, start, end);
+    }
+
+    private bool ShouldLabelAbove(TimelineTrack track, Milestone ms)
+    {
+        var idx = track.Milestones.IndexOf(ms);
+        return idx % 2 == 0;
+    }
+
+    private static string DiamondPoints(double cx, double cy, double radius = 11)
+    {
+        return $"{F(cx)},{F(cy - radius)} {F(cx + radius)},{F(cy)} {F(cx)},{F(cy + radius)} {F(cx - radius)},{F(cy)}";
+    }
+
+    private static string F(double value) => Math.Round(value, 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+}
