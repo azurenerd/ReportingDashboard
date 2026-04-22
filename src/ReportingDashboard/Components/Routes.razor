@@ -1,9 +1,13 @@
+@using ReportingDashboard.Components.Layout
+
 <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" />
+        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
     </Found>
     <NotFound>
-        <PageTitle>Not Found</PageTitle>
-        <p>Page not found.</p>
+        <LayoutView Layout="typeof(MainLayout)">
+            <PageTitle>Not Found</PageTitle>
+            <p>Page not found.</p>
+        </LayoutView>
     </NotFound>
 </Router>

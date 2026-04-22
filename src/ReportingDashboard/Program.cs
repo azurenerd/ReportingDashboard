@@ -3,7 +3,7 @@ using ReportingDashboard.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://localhost:5000");
+builder.WebHost.UseUrls("https://localhost:5001");
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
