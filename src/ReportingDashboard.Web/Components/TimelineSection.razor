@@ -1,0 +1,134 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Components
+
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in Timeline.Tracks)
+        {
+            <div class="tl-label">
+                <span style="color:@track.Color;font-weight:600;">@track.Id</span><br/>
+                <span style="font-weight:400;color:#444;">@track.Label</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        @((MarkupString)RenderSvg())
+    </div>
+</div>
+
+@code {
+    [Parameter] public TimelineData Timeline { get; set; } = new();
+    [Parameter] public string CurrentDate { get; set; } = "";
+
+    private const int SvgWidth = 1560;
+    private const int SvgHeight = 185;
+
+    private string RenderSvg()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""{SvgWidth}"" height=""{SvgHeight}"" style=""overflow:visible;display:block"">");
+        sb.AppendLine(@"<defs><filter id=""sh""><feDropShadow dx=""0"" dy=""1"" stdDeviation=""1.5"" flood-opacity=""0.3""/></filter></defs>");
+
+        var start = ParseDate(Timeline.StartDate);
+        var end = ParseDate(Timeline.EndDate);
+        if (start == default || end == default)
+        {
+            sb.AppendLine("</svg>");
+            return sb.ToString();
+        }
+
+        // Month gridlines
+        var current = new DateTime(start.Year, start.Month, 1);
+        while (current <= end)
+        {
+            var x = DateToX(current, start, end);
+            sb.AppendLine($@"<line x1=""{F(x)}"" y1=""0"" x2=""{F(x)}"" y2=""{SvgHeight}"" stroke=""#bbb"" stroke-opacity=""0.4"" stroke-width=""1""/>");
+            sb.AppendLine($@"<text x=""{F(x + 5)}"" y=""14"" fill=""#666"" font-size=""11"" font-weight=""600"" font-family=""Segoe UI,Arial"">{current.ToString("MMM")}</text>");
+            current = current.AddMonths(1);
+        }
+
+        // NOW line
+        var nowDate = ParseDate(CurrentDate);
+        if (nowDate != default)
+        {
+            var nowX = DateToX(nowDate, start, end);
+            sb.AppendLine($@"<line x1=""{F(nowX)}"" y1=""0"" x2=""{F(nowX)}"" y2=""{SvgHeight}"" stroke=""#EA4335"" stroke-width=""2"" stroke-dasharray=""5,3""/>");
+            sb.AppendLine($@"<text x=""{F(nowX + 4)}"" y=""14"" fill=""#EA4335"" font-size=""10"" font-weight=""700"" font-family=""Segoe UI,Arial"">NOW</text>");
+        }
+
+        // Track lines and milestones
+        for (int i = 0; i < Timeline.Tracks.Count; i++)
+        {
+            var track = Timeline.Tracks[i];
+            var trackY = (double)SvgHeight / (Timeline.Tracks.Count + 1) * (i + 1);
+
+            sb.AppendLine($@"<line x1=""0"" y1=""{F(trackY)}"" x2=""{SvgWidth}"" y2=""{F(trackY)}"" stroke=""{track.Color}"" stroke-width=""3""/>");
+
+            foreach (var ms in track.Milestones)
+            {
+                var msDate = ParseDate(ms.Date);
+                if (msDate == default) continue;
+                var x = DateToX(msDate, start, end);
+                var safeLabel = System.Web.HttpUtility.HtmlEncode(ms.Label);
+                var tooltipText = $"{ms.Label} \u2014 {msDate.ToString("MMM d")}";
+
+                if (ms.Type == "poc")
+                {
+                    sb.AppendLine($@"<g class=""ms-hover""><polygon points=""{DiamondPoints(x, trackY)}"" fill=""#F4B400"" filter=""url(#sh)""/>");
+                    sb.AppendLine($@"<text x=""{F(x)}"" y=""{F(trackY + 24)}"" text-anchor=""middle"" fill=""#666"" font-size=""10"" font-family=""Segoe UI,Arial"">{safeLabel}</text>");
+                    sb.AppendLine($@"<title>{System.Web.HttpUtility.HtmlEncode(tooltipText)} \u2014 PoC Milestone</title></g>");
+                }
+                else if (ms.Type == "production")
+                {
+                    var idx = track.Milestones.IndexOf(ms);
+                    var labelY = idx % 2 == 0 ? trackY - 16 : trackY + 24;
+                    sb.AppendLine($@"<g class=""ms-hover""><polygon points=""{DiamondPoints(x, trackY)}"" fill=""#34A853"" filter=""url(#sh)""/>");
+                    sb.AppendLine($@"<text x=""{F(x)}"" y=""{F(labelY)}"" text-anchor=""middle"" fill=""#666"" font-size=""10"" font-family=""Segoe UI,Arial"">{safeLabel}</text>");
+                    sb.AppendLine($@"<title>{System.Web.HttpUtility.HtmlEncode(tooltipText)} \u2014 Production Release</title></g>");
+                }
+                else if (ms.Type == "checkpoint")
+                {
+                    sb.AppendLine($@"<g class=""ms-hover""><circle cx=""{F(x)}"" cy=""{F(trackY)}"" r=""7"" fill=""white"" stroke=""{track.Color}"" stroke-width=""2.5""/>");
+                    sb.AppendLine($@"<text x=""{F(x)}"" y=""{F(trackY - 16)}"" text-anchor=""middle"" fill=""#666"" font-size=""10"" font-family=""Segoe UI,Arial"">{safeLabel}</text>");
+                    sb.AppendLine($@"<title>{System.Web.HttpUtility.HtmlEncode(tooltipText)} \u2014 Checkpoint</title></g>");
+                }
+                else if (ms.Type == "checkpoint-small")
+                {
+                    sb.AppendLine($@"<g class=""ms-hover""><circle cx=""{F(x)}"" cy=""{F(trackY)}"" r=""5"" fill=""white"" stroke=""#888"" stroke-width=""2.5""/>");
+                    sb.AppendLine($@"<text x=""{F(x)}"" y=""{F(trackY - 16)}"" text-anchor=""middle"" fill=""#666"" font-size=""10"" font-family=""Segoe UI,Arial"">{safeLabel}</text>");
+                    sb.AppendLine($@"<title>{System.Web.HttpUtility.HtmlEncode(tooltipText)} \u2014 Checkpoint</title></g>");
+                }
+                else if (ms.Type == "checkpoint-dot")
+                {
+                    sb.AppendLine($@"<g class=""ms-hover""><circle cx=""{F(x)}"" cy=""{F(trackY)}"" r=""4"" fill=""#999""/>");
+                    sb.AppendLine($@"<title>{System.Web.HttpUtility.HtmlEncode(tooltipText)} \u2014 Checkpoint</title></g>");
+                }
+            }
+        }
+
+        sb.AppendLine("</svg>");
+        return sb.ToString();
+    }
+
+    public static double DateToX(DateTime date, DateTime startDate, DateTime endDate, double svgWidth = SvgWidth)
+    {
+        var totalDays = (endDate - startDate).TotalDays;
+        if (totalDays <= 0) return 0;
+        return (date - startDate).TotalDays / totalDays * svgWidth;
+    }
+
+    private static DateTime ParseDate(string? dateStr)
+    {
+        if (string.IsNullOrEmpty(dateStr)) return default;
+        if (DateTime.TryParse(dateStr, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
+            return dt;
+        return default;
+    }
+
+    private string DiamondPoints(double cx, double cy, double radius = 11)
+    {
+        return $"{F(cx)},{F(cy - radius)} {F(cx + radius)},{F(cy)} {F(cx)},{F(cy + radius)} {F(cx - radius)},{F(cy)}";
+    }
+
+    private static string F(double value) => Math.Round(value, 1).ToString(CultureInfo.InvariantCulture);
+}
