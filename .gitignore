@@ -1,0 +1,13 @@
+# Build outputs
+bin/
+obj/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Data files (real project data should not be committed)
+src/ReportingDashboard.Web/data.json
+data.json
