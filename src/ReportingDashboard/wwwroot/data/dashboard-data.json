@@ -2,12 +2,12 @@
   "project": {
     "title": "Privacy Automation Release Roadmap",
     "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
-    "backlogUrl": "https://dev.azure.com/contoso/Privacy/_backlogs",
+    "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
     "currentDate": "2026-04-15"
   },
   "timeline": {
     "startDate": "2025-12-15",
-    "endDate": "2026-07-15",
+    "endDate": "2026-07-01",
     "tracks": [
       {
         "id": "M1",
@@ -26,10 +26,6 @@
         "milestones": [
           { "date": "2025-12-19", "label": "Dec 19", "type": "checkpoint" },
           { "date": "2026-02-11", "label": "Feb 11", "type": "checkpoint" },
-          { "date": "2026-03-05", "label": "", "type": "checkpoint" },
-          { "date": "2026-03-12", "label": "", "type": "checkpoint" },
-          { "date": "2026-03-17", "label": "", "type": "checkpoint" },
-          { "date": "2026-03-19", "label": "", "type": "checkpoint" },
           { "date": "2026-03-20", "label": "Mar 20 PoC", "type": "poc" },
           { "date": "2026-03-30", "label": "Mar 30 Prod", "type": "production" }
         ]
@@ -52,8 +48,8 @@
       {
         "category": "Shipped",
         "items": {
-          "March": ["PDS schema v2 migration", "Data inventory API endpoints"],
-          "April": ["Privacy chatbot PoC launch", "Role-based access for MS Graph"],
+          "March": ["PDS v2 data model migration", "Chatbot intent classifier v1"],
+          "April": ["MS Role auto-assignment engine", "Privacy review checklist API"],
           "May": [],
           "June": []
         }
@@ -61,26 +57,26 @@
       {
         "category": "In Progress",
         "items": {
-          "March": ["Chatbot intent classifier tuning", "DFD auto-review rule engine"],
-          "April": ["Production hardening for PDS v2", "Consent signal ingestion pipeline"],
-          "May": ["M1 production release prep", "Cross-tenant data flow mapping"],
-          "June": ["DFD reviewer UI integration"]
+          "March": ["Data inventory scanner beta", "DFD auto-generation PoC"],
+          "April": ["Compliance dashboard integration", "Role-based access audit trail"],
+          "May": ["Automated PIA questionnaire", "Cross-tenant data mapping"],
+          "June": ["Regulatory change monitor"]
         }
       },
       {
         "category": "Carryover",
         "items": {
-          "March": ["Legacy PII scanner decommission (ETA: Apr)"],
-          "April": ["GDPR export API refactor (ETA: May)", "Audit log retention policy update (ETA: TBD)"],
-          "May": ["Consent dashboard UX refresh"],
+          "March": ["SSO integration carry from Feb (ETA: Mar 15)"],
+          "April": ["Bulk data export carry from Mar (ETA: TBD)", "Legacy API deprecation carry from Mar (ETA: TBD)"],
+          "May": ["Potential carry from Apr scope TBD"],
           "June": []
         }
       },
       {
         "category": "Blockers",
         "items": {
-          "March": ["None logged"],
-          "April": ["Awaiting Legal sign-off on data residency policy"],
+          "March": [],
+          "April": ["Waiting on Legal sign-off for data retention policy"],
           "May": [],
           "June": []
         }

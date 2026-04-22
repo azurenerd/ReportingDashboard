@@ -1,35 +1,39 @@
-<header class="hdr">
-    <div class="hdr-left">
-        <div class="hdr-title-row">
-            <h1>@Project.Title</h1>
-            @if (!string.IsNullOrWhiteSpace(Project.BacklogUrl))
+<div class="hdr">
+    <div>
+        <h1>@Project.Title
+            @if (!string.IsNullOrEmpty(Project.BacklogUrl))
             {
-                <a href="@Project.BacklogUrl" target="_blank" rel="noopener" class="backlog-link">📋 ADO Backlog</a>
+                <a href="@Project.BacklogUrl" target="_blank">📋 ADO Backlog</a>
             }
-        </div>
-        <div class="hdr-subtitle">@Project.Subtitle</div>
+        </h1>
+        <div class="sub">@Project.Subtitle</div>
     </div>
-    <div class="hdr-legend">
-        <div class="legend-item">
-            <span class="legend-icon diamond poc"></span>
-            <span class="legend-label">PoC Milestone</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-icon diamond prod"></span>
-            <span class="legend-label">Production Release</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-icon checkpoint"></span>
-            <span class="legend-label">Checkpoint</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-icon now-bar"></span>
-            <span class="legend-label">Now</span>
-        </div>
+    <div class="legend">
+        <span class="legend-item">
+            <span class="icon-diamond poc-diamond"></span>PoC Milestone
+        </span>
+        <span class="legend-item">
+            <span class="icon-diamond prod-diamond"></span>Production Release
+        </span>
+        <span class="legend-item">
+            <span class="icon-circle"></span>Checkpoint
+        </span>
+        <span class="legend-item">
+            <span class="icon-now-bar"></span>Now (@_nowLabel)
+        </span>
     </div>
-</header>
+</div>
 
 @code {
-    [Parameter, EditorRequired]
-    public ProjectInfo Project { get; set; } = default!;
+    [Parameter] public ProjectInfo Project { get; set; } = new();
+
+    private string _nowLabel = "";
+
+    protected override void OnParametersSet()
+    {
+        if (DateOnly.TryParse(Project.CurrentDate, out var d))
+        {
+            _nowLabel = d.ToString("MMM yyyy");
+        }
+    }
 }

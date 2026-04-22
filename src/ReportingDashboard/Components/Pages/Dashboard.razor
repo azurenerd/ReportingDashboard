@@ -8,21 +8,19 @@
     var error = DataService.GetError();
 }
 
-@if (error is not null)
+@if (data is null)
 {
-    <div class="error-container">
+    <div class="error-panel">
         <div class="error-icon">⚠</div>
-        <div class="error-text">@error</div>
+        <div class="error-message">@(error ?? "Loading dashboard data...")</div>
         <div class="error-hint">Fix the file and save — the dashboard will reload automatically.</div>
     </div>
 }
-else if (data is not null)
+else
 {
-    <div class="page">
-        <Header Project="data.Project" />
-        <Timeline TimelineData="data.Timeline" CurrentDate="data.Project.CurrentDate" />
-        <Heatmap HeatmapData="data.Heatmap" />
-    </div>
+    <Header Project="data.Project" />
+    <Timeline TimelineInfo="data.Timeline" CurrentDate="data.Project.CurrentDate" />
+    <Heatmap HeatmapInfo="data.Heatmap" />
 }
 
 @code {
@@ -31,9 +29,9 @@ else if (data is not null)
         DataService.OnDataChanged += HandleDataChanged;
     }
 
-    private void HandleDataChanged()
+    private async void HandleDataChanged()
     {
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()

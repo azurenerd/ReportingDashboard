@@ -1,64 +1,60 @@
-@{
-    var months = HeatmapData.Months;
-    var highlight = HeatmapData.HighlightMonth;
-    var rows = HeatmapData.Rows;
-    var colCount = months.Count;
-    var gridCols = $"160px repeat({colCount}, 1fr)";
-}
-
 <div class="hm-wrap">
-    <div class="hm-title">MONTHLY EXECUTION HEATMAP &mdash; Shipped &bull; In Progress &bull; Carryover &bull; Blockers</div>
-    <div class="hm-grid" style="grid-template-columns: @gridCols;">
+    <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@HeatmapInfo.Months.Count, 1fr);">
         @* Header row *@
-        <div class="hm-corner">STATUS</div>
-        @for (int i = 0; i < months.Count; i++)
+        <div class="hm-corner">Status</div>
+        @for (int i = 0; i < HeatmapInfo.Months.Count; i++)
         {
-            var month = months[i];
-            var isHighlight = string.Equals(month, highlight, StringComparison.OrdinalIgnoreCase);
-            var isLast = i == months.Count - 1;
-            <div class="hm-col-hdr @(isHighlight ? "hm-col-highlight" : "")" style="@(isLast ? "border-right:none;" : "")">@month@(isHighlight ? " ▸ Now" : "")</div>
+            var month = HeatmapInfo.Months[i];
+            var isHighlight = month == HeatmapInfo.HighlightMonth;
+            var isLast = i == HeatmapInfo.Months.Count - 1;
+            <div class="hm-col-hdr @(isHighlight ? "apr-hdr" : "")" style="@(isLast ? "border-right:none;" : "")">
+                @month@(isHighlight ? " ★ Now" : "")
+            </div>
         }
 
         @* Data rows *@
-        @foreach (var row in rows)
+        @foreach (var row in HeatmapInfo.Rows)
         {
-            var css = CategoryCss(row.Category);
-            var emoji = CategoryEmoji(row.Category);
+            var cssPrefix = GetCssPrefix(row.Category);
+            var emoji = GetEmoji(row.Category);
 
-            <div class="hm-row-hdr @(css)-hdr">@emoji @row.Category.ToUpperInvariant()</div>
+            <div class="hm-row-hdr @(cssPrefix)-hdr">@emoji @row.Category</div>
 
-            @for (int i = 0; i < months.Count; i++)
+            @for (int i = 0; i < HeatmapInfo.Months.Count; i++)
             {
-                var month = months[i];
-                var isHighlight = string.Equals(month, highlight, StringComparison.OrdinalIgnoreCase);
-                var isLast = i == months.Count - 1;
+                var month = HeatmapInfo.Months[i];
+                var isHighlight = month == HeatmapInfo.HighlightMonth;
+                var isLast = i == HeatmapInfo.Months.Count - 1;
                 var items = row.Items.TryGetValue(month, out var list) ? list : new List<string>();
 
-                <HeatmapCell Items="items" CssCategory="css" IsHighlight="isHighlight" IsLastColumn="isLast" />
+                <HeatmapCell Items="items"
+                             CssClass="@(cssPrefix)-cell"
+                             IsHighlighted="isHighlight"
+                             IsLastColumn="isLast" />
             }
         }
     </div>
 </div>
 
 @code {
-    [Parameter, EditorRequired]
-    public HeatmapData HeatmapData { get; set; } = default!;
+    [Parameter] public HeatmapData HeatmapInfo { get; set; } = new();
 
-    private static string CategoryCss(string category) => category.ToLowerInvariant() switch
+    private static string GetCssPrefix(string category) => category switch
     {
-        "shipped" => "ship",
-        "in progress" => "prog",
-        "carryover" => "carry",
-        "blockers" => "block",
+        "Shipped" => "ship",
+        "In Progress" => "prog",
+        "Carryover" => "carry",
+        "Blockers" => "block",
         _ => "ship"
     };
 
-    private static string CategoryEmoji(string category) => category.ToLowerInvariant() switch
+    private static string GetEmoji(string category) => category switch
     {
-        "shipped" => "✅",
-        "in progress" => "🔵",
-        "carryover" => "🟡",
-        "blockers" => "🔴",
+        "Shipped" => "✅",
+        "In Progress" => "🔵",
+        "Carryover" => "🟡",
+        "Blockers" => "🔴",
         _ => ""
     };
 }

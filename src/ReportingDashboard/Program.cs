@@ -12,9 +12,8 @@ builder.Services.AddSingleton<IDashboardDataService, DashboardDataService>();
 
 var app = builder.Build();
 
-var dataService = (DashboardDataService)app.Services.GetRequiredService<IDashboardDataService>();
-await dataService.LoadAsync();
-dataService.StartWatching();
+// Eagerly resolve the service to trigger initial data load
+app.Services.GetRequiredService<IDashboardDataService>();
 
 if (!app.Environment.IsDevelopment())
 {
