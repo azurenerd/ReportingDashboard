@@ -1,0 +1,86 @@
+{
+  "project": {
+    "title": "Privacy Automation Release Roadmap",
+    "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
+    "backlogUrl": "https://dev.azure.com/example/privacy-automation/_backlogs",
+    "currentDate": "2026-04-22"
+  },
+  "timeline": {
+    "startDate": "2025-12-15",
+    "endDate": "2026-07-15",
+    "tracks": [
+      {
+        "id": "M1",
+        "name": "Chatbot & MS Role",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2026-01-12", "label": "Jan 12", "type": "checkpoint" },
+          { "date": "2026-03-26", "label": "Mar 26 PoC", "type": "poc" },
+          { "date": "2026-05-01", "label": "Apr Prod (TBD)", "type": "production" }
+        ]
+      },
+      {
+        "id": "M2",
+        "name": "PDS & Data Inventory",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2025-12-19", "label": "Dec 19", "type": "checkpoint" },
+          { "date": "2026-02-11", "label": "Feb 11", "type": "checkpoint" },
+          { "date": "2026-03-20", "label": "Mar 20 PoC", "type": "poc" },
+          { "date": "2026-03-30", "label": "Mar 30 Prod", "type": "production" }
+        ]
+      },
+      {
+        "id": "M3",
+        "name": "Auto Review DFD",
+        "color": "#546E7A",
+        "milestones": [
+          { "date": "2026-01-05", "label": "Jan 5", "type": "checkpoint" },
+          { "date": "2026-03-30", "label": "Mar 30 PoC", "type": "poc" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["March", "April", "May", "June"],
+    "highlightMonth": "April",
+    "rows": [
+      {
+        "category": "Shipped",
+        "items": {
+          "March": ["PDS v2 data scan integration", "MS Role chatbot PoC demo"],
+          "April": ["Data inventory auto-classify", "DFD review portal v1"],
+          "May": [],
+          "June": []
+        }
+      },
+      {
+        "category": "In Progress",
+        "items": {
+          "March": ["Chatbot context-window tuning", "PDS schema migration"],
+          "April": ["MS Role RBAC integration", "Privacy tag propagation engine"],
+          "May": ["Auto-review DFD prod hardening", "PDS compliance report builder"],
+          "June": ["Cross-tenant data scan rollout"]
+        }
+      },
+      {
+        "category": "Carryover",
+        "items": {
+          "March": ["Consent API retry logic (from Feb, ETA: Mar 15)"],
+          "April": ["Schema migration edge cases (from Mar, ETA: TBD)", "Legacy DFD format converter (from Mar, ETA: TBD)"],
+          "May": ["RBAC scope validation (from Apr)"],
+          "June": []
+        }
+      },
+      {
+        "category": "Blockers",
+        "items": {
+          "March": [],
+          "April": ["Waiting on Legal review for data retention policy"],
+          "May": [],
+          "June": []
+        }
+      }
+    ]
+  }
+}
