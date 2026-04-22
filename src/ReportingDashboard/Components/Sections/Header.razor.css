@@ -4,6 +4,7 @@
     align-items: center;
     padding: 12px 44px 10px;
     border-bottom: 1px solid var(--border-light);
+    flex-shrink: 0;
 }
 .hdr-left { display: flex; flex-direction: column; }
 .hdr-title-row { display: flex; align-items: baseline; gap: 16px; }

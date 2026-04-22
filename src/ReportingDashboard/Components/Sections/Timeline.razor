@@ -39,7 +39,7 @@
                 var x = DateToX(cursor, startDate, totalDays, svgWidth);
                 var monthLabel = cursor.ToString("MMM", CultureInfo.InvariantCulture);
                 <line x1="@F(x)" y1="0" x2="@F(x)" y2="@F(svgHeight)" stroke="#BBB" stroke-opacity="0.4" stroke-width="1" />
-                <text x="@F(x + 5)" y="14" font-size="11" font-weight="600" fill="#666" font-family="Segoe UI, Arial">@monthLabel</text>
+                @SvgText(x + 5, 14, monthLabel, "start", 11, "600", "#666")
                 cursor = cursor.AddMonths(1);
             }
 
@@ -48,7 +48,7 @@
             {
                 var nowX = DateToX(now, startDate, totalDays, svgWidth);
                 <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="@F(svgHeight)" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
-                <text x="@F(nowX)" y="@F(svgHeight - 2)" font-size="10" font-weight="700" fill="#EA4335" text-anchor="middle">NOW</text>
+                @SvgText(nowX + 4, 14, "NOW", "start", 10, "700", "#EA4335")
             }
 
             @* Track lines and milestones *@
@@ -80,7 +80,7 @@
                         <polygon points="@Diamond(mx, y, 11)" fill="#34A853" filter="url(#ds)" />
                     }
 
-                    <text x="@F(mx)" y="@F(labelY)" font-size="10" fill="#666" text-anchor="middle" font-family="Segoe UI, Arial">@ms.Label</text>
+                    @SvgText(mx, labelY, ms.Label, "middle", 10, "400", "#666")
                 }
             }
         </svg>
@@ -113,5 +113,12 @@
     {
         var half = size / 2.0;
         return $"{F(cx)},{F(cy - half)} {F(cx + half)},{F(cy)} {F(cx)},{F(cy + half)} {F(cx - half)},{F(cy)}";
+    }
+
+    private static MarkupString SvgText(double x, double y, string content, string anchor, int fontSize, string fontWeight, string fill)
+    {
+        var escaped = System.Net.WebUtility.HtmlEncode(content);
+        return new MarkupString(
+            $"<text x=\"{F(x)}\" y=\"{F(y)}\" font-size=\"{fontSize}\" font-weight=\"{fontWeight}\" fill=\"{fill}\" text-anchor=\"{anchor}\" font-family=\"Segoe UI, Arial\">{escaped}</text>");
     }
 }

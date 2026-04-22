@@ -11,10 +11,12 @@
     <div class="hm-grid" style="grid-template-columns: @gridCols;">
         @* Header row *@
         <div class="hm-corner">STATUS</div>
-        @foreach (var month in months)
+        @for (int i = 0; i < months.Count; i++)
         {
+            var month = months[i];
             var isHighlight = string.Equals(month, highlight, StringComparison.OrdinalIgnoreCase);
-            <div class="hm-col-hdr @(isHighlight ? "hm-col-highlight" : "")">@month</div>
+            var isLast = i == months.Count - 1;
+            <div class="hm-col-hdr @(isHighlight ? "hm-col-highlight" : "")" style="@(isLast ? "border-right:none;" : "")">@month@(isHighlight ? " ▸ Now" : "")</div>
         }
 
         @* Data rows *@
@@ -23,14 +25,16 @@
             var css = CategoryCss(row.Category);
             var emoji = CategoryEmoji(row.Category);
 
-            <div class="hm-row-hdr @css-hdr">@emoji @row.Category.ToUpperInvariant()</div>
+            <div class="hm-row-hdr @(css)-hdr">@emoji @row.Category.ToUpperInvariant()</div>
 
-            @foreach (var month in months)
+            @for (int i = 0; i < months.Count; i++)
             {
+                var month = months[i];
                 var isHighlight = string.Equals(month, highlight, StringComparison.OrdinalIgnoreCase);
+                var isLast = i == months.Count - 1;
                 var items = row.Items.TryGetValue(month, out var list) ? list : new List<string>();
 
-                <HeatmapCell Items="items" CssCategory="css" IsHighlight="isHighlight" />
+                <HeatmapCell Items="items" CssCategory="css" IsHighlight="isHighlight" IsLastColumn="isLast" />
             }
         }
     </div>
