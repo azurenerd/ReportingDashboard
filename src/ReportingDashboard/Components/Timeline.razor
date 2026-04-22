@@ -1,0 +1,160 @@
+@if (!_hasError)
+{
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in TimelineInfo.Tracks)
+        {
+            <div class="tl-track-label" style="color: @track.Color">
+                @track.Id<br/>
+                <span class="tl-track-name">@track.Name</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg width="1560" height="185" style="overflow:visible;display:block" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter id="sh">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/>
+                </filter>
+            </defs>
+
+            @* Month gridlines *@
+            @foreach (var mg in _monthGridlines)
+            {
+                <line x1="@F(mg.X)" y1="0" x2="@F(mg.X)" y2="185"
+                      stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
+                @((MarkupString)$"<text x=\"{F(mg.X + 5)}\" y=\"14\" fill=\"#666\" font-size=\"11\" font-weight=\"600\" font-family=\"Segoe UI, Arial, sans-serif\">{System.Net.WebUtility.HtmlEncode(mg.Label)}</text>")
+            }
+
+            @* Track lines *@
+            @for (int i = 0; i < TimelineInfo.Tracks.Count; i++)
+            {
+                var track = TimelineInfo.Tracks[i];
+                var y = GetTrackY(i);
+                <line x1="0" y1="@F(y)" x2="1560" y2="@F(y)"
+                      stroke="@track.Color" stroke-width="3" />
+            }
+
+            @* NOW line *@
+            @if (_nowX >= 0 && _nowX <= 1560)
+            {
+                <line x1="@F(_nowX)" y1="0" x2="@F(_nowX)" y2="185"
+                      stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+                @((MarkupString)$"<text x=\"{F(_nowX + 4)}\" y=\"14\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\" font-family=\"Segoe UI, Arial, sans-serif\">NOW</text>")
+            }
+
+            @* Milestones *@
+            @for (int i = 0; i < TimelineInfo.Tracks.Count; i++)
+            {
+                var track = TimelineInfo.Tracks[i];
+                var y = GetTrackY(i);
+                int msIndex = 0;
+                @foreach (var ms in track.Milestones)
+                {
+                    var cx = GetXSafe(ms.Date);
+                    var labelY = (msIndex % 2 == 0) ? y - 16 : y + 24;
+
+                    @if (ms.Type == "checkpoint")
+                    {
+                        <circle cx="@F(cx)" cy="@F(y)" r="7"
+                                fill="white" stroke="@track.Color" stroke-width="2.5" />
+                    }
+                    else if (ms.Type == "poc")
+                    {
+                        <polygon points="@DiamondPoints(cx, y)"
+                                 fill="#F4B400" filter="url(#sh)" />
+                    }
+                    else if (ms.Type == "production")
+                    {
+                        <polygon points="@DiamondPoints(cx, y)"
+                                 fill="#34A853" filter="url(#sh)" />
+                    }
+
+                    @((MarkupString)$"<text x=\"{F(cx)}\" y=\"{F(labelY)}\" text-anchor=\"middle\" font-size=\"10\" fill=\"#666\" font-family=\"Segoe UI, Arial, sans-serif\">{System.Net.WebUtility.HtmlEncode(ms.Label)}</text>")
+
+                    msIndex++;
+                }
+            }
+        </svg>
+    </div>
+</div>
+}
+
+@code {
+    [Parameter] public TimelineData TimelineInfo { get; set; } = default!;
+    [Parameter] public string CurrentDate { get; set; } = "";
+
+    private DateOnly _startDate;
+    private DateOnly _endDate;
+    private double _totalDays;
+    private double _nowX;
+    private bool _hasError;
+    private List<(double X, string Label)> _monthGridlines = new();
+
+    private const double SvgWidth = 1560.0;
+    private const double SvgHeight = 185.0;
+    private const double FirstTrackY = 42.0;
+    private const double LastTrackY = 154.0;
+
+    protected override void OnParametersSet()
+    {
+        _hasError = false;
+        _monthGridlines.Clear();
+
+        try
+        {
+            _startDate = DateOnly.Parse(TimelineInfo.StartDate);
+            _endDate = DateOnly.Parse(TimelineInfo.EndDate);
+            _totalDays = (_endDate.ToDateTime(TimeOnly.MinValue) - _startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+
+            if (_totalDays <= 0) { _hasError = true; return; }
+
+            if (!string.IsNullOrEmpty(CurrentDate) && DateOnly.TryParse(CurrentDate, out var nowDate))
+            {
+                _nowX = GetX(nowDate);
+            }
+            else
+            {
+                _nowX = -1;
+            }
+
+            var current = new DateOnly(_startDate.Year, _startDate.Month, 1);
+            if (current < _startDate) current = current.AddMonths(1);
+            while (current <= _endDate)
+            {
+                var x = GetX(current);
+                _monthGridlines.Add((x, current.ToString("MMM")));
+                current = current.AddMonths(1);
+            }
+        }
+        catch
+        {
+            _hasError = true;
+        }
+    }
+
+    private double GetX(DateOnly date)
+    {
+        var days = (date.ToDateTime(TimeOnly.MinValue) - _startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+        return (days / _totalDays) * SvgWidth;
+    }
+
+    private double GetXSafe(string dateStr)
+    {
+        return DateOnly.TryParse(dateStr, out var date) ? GetX(date) : 0;
+    }
+
+    private double GetTrackY(int index)
+    {
+        int count = TimelineInfo.Tracks.Count;
+        if (count == 1) return (FirstTrackY + LastTrackY) / 2.0;
+        return FirstTrackY + (index * (LastTrackY - FirstTrackY)) / (count - 1);
+    }
+
+    private string DiamondPoints(double cx, double cy)
+    {
+        return $"{F(cx)},{F(cy - 11)} {F(cx + 11)},{F(cy)} {F(cx)},{F(cy + 11)} {F(cx - 11)},{F(cy)}";
+    }
+
+    private static string F(double v) => v.ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
+}
