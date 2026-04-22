@@ -1,0 +1,196 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Components
+
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in Timeline.Tracks)
+        {
+            <div class="tl-label">
+                <span style="color:@track.Color;font-weight:600;">@track.Id</span><br/>
+                <span style="font-weight:400;color:#444;">@track.Label</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="185" style="overflow:visible;display:block">
+            <defs>
+                <filter id="sh">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/>
+                </filter>
+            </defs>
+
+            @* Month gridlines *@
+            @foreach (var mg in MonthGridlines)
+            {
+                <line x1="@F(mg.X)" y1="0" x2="@F(mg.X)" y2="185" stroke="#bbb" stroke-opacity="0.4" stroke-width="1"/>
+                @SvgText(F(mg.X + 5), "14", mg.Label, fill: "#666", fontSize: "11", fontWeight: "600")
+            }
+
+            @* NOW line *@
+            @if (_nowX.HasValue)
+            {
+                <line x1="@F(_nowX.Value)" y1="0" x2="@F(_nowX.Value)" y2="185" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3"/>
+                @SvgText(F(_nowX.Value + 4), "14", "NOW", fill: "#EA4335", fontSize: "10", fontWeight: "700")
+            }
+
+            @* Track lines and milestones *@
+            @for (int i = 0; i < Timeline.Tracks.Count; i++)
+            {
+                var track = Timeline.Tracks[i];
+                var y = TrackY(i);
+
+                <line x1="0" y1="@F(y)" x2="1560" y2="@F(y)" stroke="@track.Color" stroke-width="3"/>
+
+                @foreach (var ms in track.Milestones)
+                {
+                    var x = DateToX(ms.Date);
+                    if (x < 0) continue;
+
+                    @if (ms.Type == "poc")
+                    {
+                        <g class="ms-marker">
+                            <polygon points="@DiamondPoints(x, y)" fill="#F4B400" filter="url(#sh)"/>
+                            @SvgText(F(x), F(LabelY(y, ms, i)), ms.Label, anchor: "middle")
+                            <title>@FormatTooltip(ms)</title>
+                        </g>
+                    }
+                    else if (ms.Type == "production")
+                    {
+                        <g class="ms-marker">
+                            <polygon points="@DiamondPoints(x, y)" fill="#34A853" filter="url(#sh)"/>
+                            @SvgText(F(x), F(LabelY(y, ms, i)), ms.Label, anchor: "middle")
+                            <title>@FormatTooltip(ms)</title>
+                        </g>
+                    }
+                    else if (ms.Type == "checkpoint")
+                    {
+                        <g class="ms-marker">
+                            <circle cx="@F(x)" cy="@F(y)" r="7" fill="white" stroke="@track.Color" stroke-width="2.5"/>
+                            @SvgText(F(x), F(y - 16), ms.Label, anchor: "middle")
+                            <title>@FormatTooltip(ms)</title>
+                        </g>
+                    }
+                    else if (ms.Type == "checkpoint-small")
+                    {
+                        <g class="ms-marker">
+                            <circle cx="@F(x)" cy="@F(y)" r="4" fill="#999"/>
+                            <title>@FormatTooltip(ms)</title>
+                        </g>
+                    }
+                    else if (ms.Type == "checkpoint-medium")
+                    {
+                        <g class="ms-marker">
+                            <circle cx="@F(x)" cy="@F(y)" r="5" fill="white" stroke="#888" stroke-width="2.5"/>
+                            @SvgText(F(x), F(y - 16), ms.Label, anchor: "middle")
+                            <title>@FormatTooltip(ms)</title>
+                        </g>
+                    }
+                }
+            }
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter] public TimelineData Timeline { get; set; } = new();
+    [Parameter] public string CurrentDate { get; set; } = "";
+
+    private const double SvgWidth = 1560.0;
+    private const double SvgHeight = 185.0;
+    private double? _nowX;
+
+    private record MonthGridlineInfo(double X, string Label);
+    private List<MonthGridlineInfo> MonthGridlines { get; set; } = new();
+
+    protected override void OnParametersSet()
+    {
+        MonthGridlines = ComputeMonthGridlines();
+        var nowX = DateToX(CurrentDate);
+        _nowX = nowX >= 0 ? nowX : null;
+    }
+
+    public static double DateToX(string dateStr, string startDateStr, string endDateStr, double svgWidth = SvgWidth)
+    {
+        if (!DateTime.TryParse(dateStr, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ||
+            !DateTime.TryParse(startDateStr, CultureInfo.InvariantCulture, DateTimeStyles.None, out var start) ||
+            !DateTime.TryParse(endDateStr, CultureInfo.InvariantCulture, DateTimeStyles.None, out var end))
+            return -1;
+
+        var totalDays = (end - start).TotalDays;
+        if (totalDays <= 0) return -1;
+        return (date - start).TotalDays / totalDays * svgWidth;
+    }
+
+    private double DateToX(string dateStr)
+    {
+        return DateToX(dateStr, Timeline.StartDate, Timeline.EndDate);
+    }
+
+    private double TrackY(int index)
+    {
+        return SvgHeight / (Timeline.Tracks.Count + 1) * (index + 1);
+    }
+
+    private double LabelY(double trackY, Milestone ms, int trackIndex)
+    {
+        // Alternate label placement above/below based on milestone index within track
+        var milestones = Timeline.Tracks[trackIndex].Milestones;
+        var msIndex = milestones.IndexOf(ms);
+        // Default: above for poc, below for production on same track to avoid overlap
+        if (ms.Type == "production" && milestones.Any(m => m.Type == "poc" && Math.Abs(DateToX(m.Date) - DateToX(ms.Date)) < 100))
+            return trackY + 24;
+        return trackY - 12;
+    }
+
+    private string DiamondPoints(double cx, double cy, double radius = 11)
+    {
+        return $"{F(cx)},{F(cy - radius)} {F(cx + radius)},{F(cy)} {F(cx)},{F(cy + radius)} {F(cx - radius)},{F(cy)}";
+    }
+
+    private static string F(double v) => Math.Round(v, 1).ToString(CultureInfo.InvariantCulture);
+
+    private List<MonthGridlineInfo> ComputeMonthGridlines()
+    {
+        var list = new List<MonthGridlineInfo>();
+        if (!DateTime.TryParse(Timeline.StartDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var start) ||
+            !DateTime.TryParse(Timeline.EndDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var end))
+            return list;
+
+        var current = new DateTime(start.Year, start.Month, 1);
+        while (current <= end)
+        {
+            var x = DateToX(current.ToString("yyyy-MM-dd"));
+            if (x >= 0)
+            {
+                list.Add(new MonthGridlineInfo(x, current.ToString("MMM")));
+            }
+            current = current.AddMonths(1);
+        }
+        return list;
+    }
+
+    private static MarkupString SvgText(string x, string y, string content, string fill = "#666", string fontSize = "10", string fontWeight = "400", string anchor = "")
+    {
+        var anchorAttr = string.IsNullOrEmpty(anchor) ? "" : $" text-anchor=\"{anchor}\"";
+        var encoded = System.Net.WebUtility.HtmlEncode(content);
+        return new MarkupString($"<text x=\"{x}\" y=\"{y}\" fill=\"{fill}\" font-size=\"{fontSize}\" font-weight=\"{fontWeight}\" font-family=\"Segoe UI,Arial\"{anchorAttr}>{encoded}</text>");
+    }
+
+    private string FormatTooltip(Milestone ms)
+    {
+        if (DateTime.TryParse(ms.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
+        {
+            var typeLabel = ms.Type switch
+            {
+                "poc" => "PoC Milestone",
+                "production" => "Production Release",
+                "checkpoint" => "Checkpoint",
+                "checkpoint-small" => "Checkpoint",
+                "checkpoint-medium" => "Checkpoint",
+                _ => ms.Type
+            };
+            return $"{dt:MMM dd} - {typeLabel}: {ms.Label}";
+        }
+        return ms.Label;
+    }
+}

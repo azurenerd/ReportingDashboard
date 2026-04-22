@@ -1,0 +1,20 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# Real project data (contains sensitive info)
+src/ReportingDashboard.Web/data.json
+
+# OS
+Thumbs.db
+.DS_Store
