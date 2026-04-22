@@ -1,0 +1,24 @@
+<div class="hm-cell @CssCategory-cell @(IsHighlight ? CssCategory + "-hl" : "")">
+    @if (Items.Count == 0)
+    {
+        <div class="hm-empty">&ndash;</div>
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            <div class="it @CssCategory-it">@item</div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<string> Items { get; set; } = new();
+
+    [Parameter]
+    public string CssCategory { get; set; } = "";
+
+    [Parameter]
+    public bool IsHighlight { get; set; }
+}
