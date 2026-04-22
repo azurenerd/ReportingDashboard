@@ -1,0 +1,88 @@
+{
+  "project": {
+    "title": "Project Nexus — AI Platform Modernization",
+    "subtitle": "Cloud Engineering · Enterprise AI · April 2026",
+    "backlogUrl": "https://dev.azure.com/contoso/Nexus/_backlogs",
+    "currentDate": "2026-04-15"
+  },
+  "timeline": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-09-30",
+    "tracks": [
+      {
+        "id": "M1",
+        "name": "Chatbot & MS Role",
+        "color": "#1565C0",
+        "milestones": [
+          { "date": "2026-01-20", "label": "Design", "type": "checkpoint" },
+          { "date": "2026-03-10", "label": "PoC Complete", "type": "poc" },
+          { "date": "2026-06-01", "label": "V1 Ship", "type": "production" },
+          { "date": "2026-08-15", "label": "V2 Ship", "type": "production" }
+        ]
+      },
+      {
+        "id": "M2",
+        "name": "Knowledge Index Pipeline",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2026-02-01", "label": "Spike", "type": "checkpoint" },
+          { "date": "2026-04-01", "label": "PoC Demo", "type": "poc" },
+          { "date": "2026-07-01", "label": "GA", "type": "production" }
+        ]
+      },
+      {
+        "id": "M3",
+        "name": "Infra & DevOps",
+        "color": "#7B1FA2",
+        "milestones": [
+          { "date": "2026-01-15", "label": "IaC Ready", "type": "checkpoint" },
+          { "date": "2026-02-28", "label": "CI/CD", "type": "checkpoint" },
+          { "date": "2026-05-15", "label": "Prod Env", "type": "production" },
+          { "date": "2026-08-01", "label": "DR Ready", "type": "checkpoint" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["Jan", "Feb", "Mar", "Apr"],
+    "highlightMonth": "Apr",
+    "rows": [
+      {
+        "category": "Shipped",
+        "items": {
+          "Jan": ["IaC templates finalized", "Team onboarding complete"],
+          "Feb": ["CI/CD pipeline v2 live", "K8s cluster provisioned"],
+          "Mar": ["Chatbot PoC demo", "Search index prototype"],
+          "Apr": ["Auth service rewrite", "Monitoring dashboards"]
+        }
+      },
+      {
+        "category": "In Progress",
+        "items": {
+          "Jan": ["Architecture design doc"],
+          "Feb": ["Chatbot NLU training"],
+          "Mar": ["Knowledge pipeline MVP", "Load testing framework"],
+          "Apr": ["Order API endpoints", "Event bus integration", "Analytics module"]
+        }
+      },
+      {
+        "category": "Carryover",
+        "items": {
+          "Jan": [],
+          "Feb": ["Security audit (from Jan)"],
+          "Mar": ["Security audit (from Feb)"],
+          "Apr": ["Legacy DB decommission plan"]
+        }
+      },
+      {
+        "category": "Blockers",
+        "items": {
+          "Jan": [],
+          "Feb": [],
+          "Mar": ["Vendor API rate-limit issue"],
+          "Apr": ["Legal review pending for data retention"]
+        }
+      }
+    ]
+  }
+}

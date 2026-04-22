@@ -1,0 +1,60 @@
+@{
+    var months = HeatmapData.Months;
+    var highlight = HeatmapData.HighlightMonth;
+    var rows = HeatmapData.Rows;
+    var colCount = months.Count;
+    var gridCols = $"160px repeat({colCount}, 1fr)";
+}
+
+<div class="hm-wrap">
+    <div class="hm-title">MONTHLY EXECUTION HEATMAP &mdash; Shipped &bull; In Progress &bull; Carryover &bull; Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: @gridCols;">
+        @* Header row *@
+        <div class="hm-corner">STATUS</div>
+        @foreach (var month in months)
+        {
+            var isHighlight = string.Equals(month, highlight, StringComparison.OrdinalIgnoreCase);
+            <div class="hm-col-hdr @(isHighlight ? "hm-col-highlight" : "")">@month</div>
+        }
+
+        @* Data rows *@
+        @foreach (var row in rows)
+        {
+            var css = CategoryCss(row.Category);
+            var emoji = CategoryEmoji(row.Category);
+
+            <div class="hm-row-hdr @css-hdr">@emoji @row.Category.ToUpperInvariant()</div>
+
+            @foreach (var month in months)
+            {
+                var isHighlight = string.Equals(month, highlight, StringComparison.OrdinalIgnoreCase);
+                var items = row.Items.TryGetValue(month, out var list) ? list : new List<string>();
+
+                <HeatmapCell Items="items" CssCategory="css" IsHighlight="isHighlight" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public HeatmapData HeatmapData { get; set; } = default!;
+
+    private static string CategoryCss(string category) => category.ToLowerInvariant() switch
+    {
+        "shipped" => "ship",
+        "in progress" => "prog",
+        "carryover" => "carry",
+        "blockers" => "block",
+        _ => "ship"
+    };
+
+    private static string CategoryEmoji(string category) => category.ToLowerInvariant() switch
+    {
+        "shipped" => "✅",
+        "in progress" => "🔵",
+        "carryover" => "🟡",
+        "blockers" => "🔴",
+        _ => ""
+    };
+}
