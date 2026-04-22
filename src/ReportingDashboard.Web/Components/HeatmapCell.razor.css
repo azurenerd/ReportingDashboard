@@ -1,0 +1,53 @@
+.hm-cell {
+    padding: 8px 12px;
+    border-right: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
+    overflow: hidden;
+}
+
+.hm-cell .it {
+    font-size: 12px;
+    color: #333;
+    padding: 2px 0 2px 12px;
+    position: relative;
+    line-height: 1.35;
+}
+
+.hm-cell .it::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.hm-cell .it.empty-dash::before {
+    display: none;
+}
+
+.hm-cell .it.empty-dash {
+    color: #AAA;
+    padding-left: 0;
+}
+
+/* Shipped */
+.ship-cell { background: #F0FBF0; }
+.ship-cell.current-month { background: #D8F2DA; }
+.ship-cell .it::before { background: #34A853; }
+
+/* In Progress */
+.prog-cell { background: #EEF4FE; }
+.prog-cell.current-month { background: #DAE8FB; }
+.prog-cell .it::before { background: #0078D4; }
+
+/* Carryover */
+.carry-cell { background: #FFFDE7; }
+.carry-cell.current-month { background: #FFF0B0; }
+.carry-cell .it::before { background: #F4B400; }
+
+/* Blockers */
+.block-cell { background: #FFF5F5; }
+.block-cell.current-month { background: #FFE4E4; }
+.block-cell .it::before { background: #EA4335; }

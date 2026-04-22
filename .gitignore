@@ -1,0 +1,16 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.vs/
+publish/
+
+## Data
+data.json
+
+## IDE
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,54 @@
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap - Shipped &#x2022; In Progress &#x2022; Carryover &#x2022; Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Heatmap.Months.Count, 1fr);">
+        @* Header row *@
+        <div class="hm-corner">Status</div>
+        @for (int i = 0; i < Heatmap.Months.Count; i++)
+        {
+            var month = Heatmap.Months[i];
+            var isCurrent = month == Heatmap.CurrentMonth;
+            var isLast = i == Heatmap.Months.Count - 1;
+            <div class="hm-col-hdr @(isCurrent ? "current-month-hdr" : "")" style="@(isLast ? "border-right:none;" : "")">
+                @month@(isCurrent ? " \u25B6 Now" : "")
+            </div>
+        }
+
+        @* Data rows *@
+        @foreach (var category in Heatmap.Categories)
+        {
+            var totalCount = category.Items.Values.Sum(v => v.Count);
+            var emoji = GetEmoji(category.ColorClass);
+
+            <div class="hm-row-hdr @(category.ColorClass)-hdr">@emoji @category.Name.ToUpper() (@totalCount)</div>
+
+            @for (int i = 0; i < Heatmap.Months.Count; i++)
+            {
+                var month = Heatmap.Months[i];
+                var isCurrent = month == Heatmap.CurrentMonth;
+                var isLast = i == Heatmap.Months.Count - 1;
+                var items = category.Items.ContainsKey(month) ? category.Items[month] : new List<string>();
+
+                <HeatmapCell Items="@items"
+                             ColorClass="@category.ColorClass"
+                             IsCurrentMonth="@isCurrent"
+                             IsLastColumn="@isLast" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public HeatmapData Heatmap { get; set; } = new();
+
+    private string GetEmoji(string colorClass)
+    {
+        return colorClass switch
+        {
+            "ship" => "✅",
+            "prog" => "🔵",
+            "carry" => "🟡",
+            "block" => "🔴",
+            _ => ""
+        };
+    }
+}
