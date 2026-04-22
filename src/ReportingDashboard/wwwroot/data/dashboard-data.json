@@ -52,8 +52,8 @@
       {
         "category": "Shipped",
         "items": {
-          "March": ["TODO — item shipped", "TODO — item shipped"],
-          "April": ["TODO — item shipped", "TODO — item shipped"],
+          "March": ["PDS schema v2 migration", "Data inventory API endpoints"],
+          "April": ["Privacy chatbot PoC launch", "Role-based access for MS Graph"],
           "May": [],
           "June": []
         }
@@ -61,18 +61,18 @@
       {
         "category": "In Progress",
         "items": {
-          "March": ["TODO — in progress", "TODO — in progress"],
-          "April": ["TODO — active item", "TODO — active item"],
-          "May": ["TODO — planned", "TODO — planned"],
-          "June": ["TODO — planned"]
+          "March": ["Chatbot intent classifier tuning", "DFD auto-review rule engine"],
+          "April": ["Production hardening for PDS v2", "Consent signal ingestion pipeline"],
+          "May": ["M1 production release prep", "Cross-tenant data flow mapping"],
+          "June": ["DFD reviewer UI integration"]
         }
       },
       {
         "category": "Carryover",
         "items": {
-          "March": ["TODO — carry from Feb (ETA: TODO)"],
-          "April": ["TODO — carry from Mar (ETA: TBD)", "TODO — carry from Mar (ETA: TBD)"],
-          "May": ["TODO — potential from Apr"],
+          "March": ["Legacy PII scanner decommission (ETA: Apr)"],
+          "April": ["GDPR export API refactor (ETA: May)", "Audit log retention policy update (ETA: TBD)"],
+          "May": ["Consent dashboard UX refresh"],
           "June": []
         }
       },
@@ -80,7 +80,7 @@
         "category": "Blockers",
         "items": {
           "March": ["None logged"],
-          "April": ["TODO — blocker detail"],
+          "April": ["Awaiting Legal sign-off on data residency policy"],
           "May": [],
           "June": []
         }
