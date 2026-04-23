@@ -1,0 +1,146 @@
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in TimelineInfo.Tracks)
+        {
+            <div class="tl-track-label">
+                <span class="tl-track-id" style="color:@track.Color;">@track.Id</span>
+                <span class="tl-track-name">@track.Name</span>
+            </div>
+        }
+    </div>
+
+    <div class="tl-svg-box">
+        @((MarkupString)BuildSvg())
+    </div>
+</div>
+
+@code {
+    [Parameter] public TimelineData TimelineInfo { get; set; } = new();
+    [Parameter] public string CurrentDate { get; set; } = string.Empty;
+
+    private const double SvgWidth = 1560.0;
+    private const double SvgHeight = 185.0;
+    private DateOnly _startDate;
+    private DateOnly _endDate;
+    private double _totalDays;
+
+    private string BuildSvg()
+    {
+        if (!DateOnly.TryParse(TimelineInfo.StartDate, out _startDate) ||
+            !DateOnly.TryParse(TimelineInfo.EndDate, out _endDate))
+            return "<svg></svg>";
+
+        _totalDays = (_endDate.ToDateTime(TimeOnly.MinValue) - _startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+        if (_totalDays <= 0) return "<svg></svg>";
+
+        // Calculate equal-width month columns
+        var months = new List<DateOnly>();
+        var cursor = new DateOnly(_startDate.Year, _startDate.Month, 1);
+        while (cursor < _endDate)
+        {
+            months.Add(cursor);
+            cursor = cursor.AddMonths(1);
+        }
+        int monthCount = months.Count;
+        if (monthCount == 0) return "<svg></svg>";
+        double monthWidth = SvgWidth / monthCount;
+
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1560\" height=\"185\" style=\"overflow:visible;display:block\">");
+        sb.Append("<defs><filter id=\"sh\"><feDropShadow dx=\"0\" dy=\"1\" stdDeviation=\"1.5\" flood-opacity=\"0.3\"/></filter></defs>");
+
+        // Month gridlines (equally spaced)
+        for (int i = 0; i < monthCount; i++)
+        {
+            var x = i * monthWidth;
+            sb.Append($"<line x1=\"{F(x)}\" y1=\"0\" x2=\"{F(x)}\" y2=\"185\" stroke=\"#bbb\" stroke-opacity=\"0.4\" stroke-width=\"1\"/>");
+            sb.Append($"<text x=\"{F(x + 5)}\" y=\"14\" fill=\"#666\" font-size=\"11\" font-weight=\"600\" font-family=\"Segoe UI,Arial\">{Enc(months[i].ToString("MMM"))}</text>");
+        }
+
+        // NOW line
+        if (DateOnly.TryParse(CurrentDate, out var now))
+        {
+            var nx = GetXInMonthGrid(now, months, monthWidth);
+            sb.Append($"<line x1=\"{F(nx)}\" y1=\"0\" x2=\"{F(nx)}\" y2=\"185\" stroke=\"#EA4335\" stroke-width=\"2\" stroke-dasharray=\"5,3\"/>");
+            sb.Append($"<text x=\"{F(nx + 4)}\" y=\"14\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\" font-family=\"Segoe UI,Arial\">NOW</text>");
+        }
+
+        // Tracks
+        for (int t = 0; t < TimelineInfo.Tracks.Count; t++)
+        {
+            var track = TimelineInfo.Tracks[t];
+            var y = GetTrackY(t);
+
+            sb.Append($"<line x1=\"0\" y1=\"{F(y)}\" x2=\"1560\" y2=\"{F(y)}\" stroke=\"{Enc(track.Color)}\" stroke-width=\"3\"/>");
+
+            for (int m = 0; m < track.Milestones.Count; m++)
+            {
+                var ms = track.Milestones[m];
+                if (!DateOnly.TryParse(ms.Date, out var msDate)) continue;
+                var mx = GetXInMonthGrid(msDate, months, monthWidth);
+                var labelAbove = (m % 2 == 0);
+
+                if (ms.Type == "checkpoint")
+                {
+                    sb.Append($"<circle cx=\"{F(mx)}\" cy=\"{F(y)}\" r=\"7\" fill=\"white\" stroke=\"{Enc(track.Color)}\" stroke-width=\"2.5\"/>");
+                }
+                else if (ms.Type == "poc")
+                {
+                    sb.Append($"<polygon points=\"{DiamondPoints(mx, y, 11)}\" fill=\"#F4B400\" filter=\"url(#sh)\"/>");
+                }
+                else if (ms.Type == "production")
+                {
+                    sb.Append($"<polygon points=\"{DiamondPoints(mx, y, 11)}\" fill=\"#34A853\" filter=\"url(#sh)\"/>");
+                }
+
+                var ly = labelAbove ? y - 16 : y + 24;
+                sb.Append($"<text x=\"{F(mx)}\" y=\"{F(ly)}\" text-anchor=\"middle\" fill=\"#666\" font-size=\"10\" font-family=\"Segoe UI,Arial\">{Enc(ms.Label)}</text>");
+            }
+        }
+
+        sb.Append("</svg>");
+        return sb.ToString();
+    }
+
+    private static double GetXInMonthGrid(DateOnly date, List<DateOnly> months, double monthWidth)
+    {
+        // Find which month column this date belongs to
+        int monthIdx = -1;
+        for (int i = months.Count - 1; i >= 0; i--)
+        {
+            if (date >= months[i])
+            {
+                monthIdx = i;
+                break;
+            }
+        }
+
+        if (monthIdx < 0) return 0; // Before timeline start
+
+        var monthStart = months[monthIdx];
+        var daysInMonth = DateTime.DaysInMonth(monthStart.Year, monthStart.Month);
+        var dayOfMonth = (date.ToDateTime(TimeOnly.MinValue) - monthStart.ToDateTime(TimeOnly.MinValue)).TotalDays;
+        var fraction = dayOfMonth / daysInMonth;
+
+        return (monthIdx * monthWidth) + (fraction * monthWidth);
+    }
+
+    private double GetTrackY(int trackIndex)
+    {
+        var count = TimelineInfo.Tracks.Count;
+        if (count <= 1) return SvgHeight / 2;
+        const double topMargin = 42;
+        const double bottomMargin = 31;
+        var usable = SvgHeight - topMargin - bottomMargin;
+        return topMargin + (trackIndex * usable / Math.Max(count - 1, 1));
+    }
+
+    private static string DiamondPoints(double cx, double cy, double size)
+    {
+        return $"{F(cx)},{F(cy - size)} {F(cx + size)},{F(cy)} {F(cx)},{F(cy + size)} {F(cx - size)},{F(cy)}";
+    }
+
+    private static string F(double v) => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+
+    private static string Enc(string s) => System.Net.WebUtility.HtmlEncode(s);
+}
