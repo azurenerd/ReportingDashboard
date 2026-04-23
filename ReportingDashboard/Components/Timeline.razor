@@ -1,0 +1,138 @@
+@using ReportingDashboard.Models
+
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in TimelineData.Tracks)
+        {
+            <div style="font-size:12px;font-weight:600;line-height:1.4;color:@track.Color;">
+                @track.Id<br /><span style="font-weight:400;color:#444;">@track.Name</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="185" style="overflow:visible;display:block">
+            <defs>
+                <filter id="sh">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
+                </filter>
+            </defs>
+
+            @* Month gridlines *@
+            @foreach (var mg in GetMonthGridlines())
+            {
+                <line x1="@F(mg.X)" y1="0" x2="@F(mg.X)" y2="185" stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
+                @((MarkupString)$"<text x=\"{F(mg.X + 5)}\" y=\"14\" fill=\"#666\" font-size=\"11\" font-weight=\"600\" font-family=\"Segoe UI,Arial\">{mg.Label}</text>")
+            }
+
+            @* NOW line *@
+            @{
+                var nowX = GetXPosition(_currentDate);
+                if (nowX >= 0 && nowX <= 1560)
+                {
+                    <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="185" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+                    @((MarkupString)$"<text x=\"{F(nowX + 4)}\" y=\"14\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\" font-family=\"Segoe UI,Arial\">NOW</text>")
+                }
+            }
+
+            @* Track lines and milestones *@
+            @for (int t = 0; t < TimelineData.Tracks.Count; t++)
+            {
+                var track = TimelineData.Tracks[t];
+                var y = GetTrackY(t);
+
+                <line x1="0" y1="@F(y)" x2="1560" y2="@F(y)" stroke="@track.Color" stroke-width="3" />
+
+                @for (int m = 0; m < track.Milestones.Count; m++)
+                {
+                    var ms = track.Milestones[m];
+                    var mx = GetXPosition(ParseDate(ms.Date));
+                    var labelAbove = (m % 2 == 0);
+
+                    @if (ms.Type == "checkpoint")
+                    {
+                        <circle cx="@F(mx)" cy="@F(y)" r="7" fill="white" stroke="@track.Color" stroke-width="2.5" />
+                    }
+                    else if (ms.Type == "poc")
+                    {
+                        var pts = DiamondPoints(mx, y, 11);
+                        <polygon points="@pts" fill="#F4B400" filter="url(#sh)" />
+                    }
+                    else if (ms.Type == "production")
+                    {
+                        var pts = DiamondPoints(mx, y, 11);
+                        <polygon points="@pts" fill="#34A853" filter="url(#sh)" />
+                    }
+
+                    @if (!string.IsNullOrEmpty(ms.Label))
+                    {
+                        var ly = labelAbove ? y - 16 : y + 22;
+                        @((MarkupString)$"<text x=\"{F(mx)}\" y=\"{F(ly)}\" text-anchor=\"middle\" fill=\"#666\" font-size=\"10\" font-family=\"Segoe UI,Arial\">{System.Net.WebUtility.HtmlEncode(ms.Label)}</text>")
+                    }
+                }
+            }
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public TimelineData TimelineData { get; set; } = default!;
+
+    [Parameter]
+    public string CurrentDate { get; set; } = string.Empty;
+
+    private DateOnly _startDate;
+    private DateOnly _endDate;
+    private DateOnly _currentDate;
+    private double _totalDays;
+
+    private record struct MonthGridline(string Label, double X);
+
+    protected override void OnParametersSet()
+    {
+        _startDate = ParseDate(TimelineData.StartDate);
+        _endDate = ParseDate(TimelineData.EndDate);
+        _currentDate = ParseDate(CurrentDate);
+        _totalDays = (_endDate.ToDateTime(TimeOnly.MinValue) - _startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+        if (_totalDays <= 0) _totalDays = 1;
+    }
+
+    private DateOnly ParseDate(string dateStr)
+    {
+        if (DateOnly.TryParse(dateStr, out var d)) return d;
+        return DateOnly.FromDateTime(DateTime.Today);
+    }
+
+    private double GetXPosition(DateOnly date)
+    {
+        var days = (date.ToDateTime(TimeOnly.MinValue) - _startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+        return (days / _totalDays) * 1560;
+    }
+
+    private double GetTrackY(int trackIndex)
+    {
+        var count = TimelineData.Tracks.Count;
+        if (count <= 1) return 98;
+        return 42 + trackIndex * (112.0 / Math.Max(count - 1, 1));
+    }
+
+    private List<MonthGridline> GetMonthGridlines()
+    {
+        var lines = new List<MonthGridline>();
+        var current = new DateOnly(_startDate.Year, _startDate.Month, 1);
+        while (current <= _endDate)
+        {
+            var x = GetXPosition(current);
+            lines.Add(new MonthGridline(current.ToString("MMM"), x));
+            current = current.AddMonths(1);
+        }
+        return lines;
+    }
+
+    private string DiamondPoints(double cx, double cy, double size)
+    {
+        return $"{F(cx)},{F(cy - size)} {F(cx + size)},{F(cy)} {F(cx)},{F(cy + size)} {F(cx - size)},{F(cy)}";
+    }
+
+    private static string F(double v) => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+}

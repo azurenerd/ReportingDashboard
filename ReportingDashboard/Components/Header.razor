@@ -1,0 +1,32 @@
+@using ReportingDashboard.Models
+
+<div class="hdr">
+    <div>
+        <h1>@Project.Title
+            @if (!string.IsNullOrEmpty(Project.BacklogUrl))
+            {
+                <a href="@Project.BacklogUrl" target="_blank">📋 ADO Backlog</a>
+            }
+        </h1>
+        <div class="sub">@Project.Subtitle</div>
+    </div>
+    <div class="legend">
+        <span class="legend-item">
+            <span class="icon-diamond poc-diamond"></span>PoC Milestone
+        </span>
+        <span class="legend-item">
+            <span class="icon-diamond prod-diamond"></span>Production Release
+        </span>
+        <span class="legend-item">
+            <span class="icon-circle"></span>Checkpoint
+        </span>
+        <span class="legend-item">
+            <span class="icon-now-bar"></span>Now
+        </span>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ProjectInfo Project { get; set; } = default!;
+}

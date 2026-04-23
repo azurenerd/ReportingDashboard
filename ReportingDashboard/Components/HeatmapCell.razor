@@ -1,0 +1,27 @@
+<div class="hm-cell @CssClass @(IsHighlighted ? "apr" : "")" style="@(IsLastColumn ? "border-right:none;" : "")">
+    @if (Items is null || Items.Count == 0)
+    {
+        <div class="it empty">-</div>
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            <div class="it">@item</div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<string>? Items { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool IsHighlighted { get; set; }
+
+    [Parameter]
+    public bool IsLastColumn { get; set; }
+}
