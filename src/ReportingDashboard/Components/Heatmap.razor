@@ -15,7 +15,7 @@
 }
 
 <div class="hm-wrap">
-    <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-title">Monthly Execution Heatmap - Shipped · In Progress · Carryover · Blockers</div>
     <div class="hm-grid" style="grid-template-columns:@gridCols;grid-template-rows:@gridRows;">
         @* Header row *@
         <div class="hm-corner">Status</div>
@@ -42,7 +42,7 @@
         {
             var prefix = categoryClasses.GetValueOrDefault(row.Category, "ship");
 
-            <div class="hm-row-hdr @(prefix)-hdr">@row.Emoji @row.Category.ToUpper()</div>
+            <div class="hm-row-hdr @(prefix)-hdr">@row.Emoji @row.Category</div>
 
             @for (int m = 0; m < monthCount; m++)
             {

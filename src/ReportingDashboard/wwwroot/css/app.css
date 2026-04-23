@@ -42,10 +42,13 @@
     box-sizing: border-box;
 }
 
-body {
+html, body {
     width: 1920px;
     height: 1080px;
     overflow: hidden;
+}
+
+body {
     background: var(--bg-page);
     font-family: 'Segoe UI', Arial, sans-serif;
     color: var(--text-primary);
@@ -83,15 +86,30 @@ a {
     line-height: 1.5;
 }
 
+.error-hint {
+    font-size: 13px;
+    color: #999;
+    margin-top: 12px;
+    text-align: center;
+}
+
 /* Print styles */
 @media print {
-    body {
+    @page {
+        size: 1920px 1080px;
+        margin: 0;
+    }
+
+    html, body {
         width: 1920px;
         height: 1080px;
         overflow: hidden;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 
     #blazor-error-ui,
+    .blazor-error-boundary,
     .blazor-reconnect-modal,
     .components-reconnect-modal {
         display: none !important;

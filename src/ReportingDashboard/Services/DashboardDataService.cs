@@ -44,6 +44,12 @@ public class DashboardDataService : IDisposable
 
                 var json = File.ReadAllText(_filePath);
                 _data = JsonSerializer.Deserialize<DashboardData>(json, _jsonOptions);
+                if (_data?.Project == null || _data?.Timeline == null || _data?.Heatmap == null)
+                {
+                    _data = null;
+                    _error = "Error reading dashboard data: JSON is missing required sections (project, timeline, or heatmap).";
+                    return;
+                }
                 _error = null;
                 return;
             }
@@ -81,6 +87,7 @@ public class DashboardDataService : IDisposable
                 };
                 _watcher.Changed += OnFileChanged;
                 _watcher.Created += OnFileChanged;
+                _watcher.Renamed += OnFileChanged;
             }
         }
         catch
@@ -99,6 +106,11 @@ public class DashboardDataService : IDisposable
     private void OnFileChanged(object sender, FileSystemEventArgs e)
     {
         Thread.Sleep(300); // debounce
+        ReloadAndNotify();
+    }
+
+    private void ReloadAndNotify()
+    {
         LoadData();
         try { if (File.Exists(_filePath)) _lastWriteTime = File.GetLastWriteTimeUtc(_filePath); } catch { }
         OnDataChanged?.Invoke();

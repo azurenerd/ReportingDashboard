@@ -117,8 +117,7 @@
 
         var dateMonth = date.Year * 12 + date.Month;
         var monthIndex = dateMonth - startMonth;
-        var daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);
-        var dayFraction = (date.Day - 1.0) / daysInMonth;
+        var dayFraction = date.Day / 30.0;
 
         return (monthIndex + dayFraction) / totalMonths * width;
     }

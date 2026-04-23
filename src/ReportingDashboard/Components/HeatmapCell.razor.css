@@ -28,6 +28,10 @@
     padding-left: 12px;
 }
 
+.it.empty::before {
+    display: none;
+}
+
 /* Shipped cells */
 .ship-cell { background: #F0FBF0; }
 .ship-cell.highlight { background: #D8F2DA; }
