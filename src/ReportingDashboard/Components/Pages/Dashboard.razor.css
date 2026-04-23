@@ -1,0 +1,29 @@
+.error-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #888;
+    padding: 40px;
+}
+
+.error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.error-message {
+    font-size: 16px;
+    color: #111;
+    text-align: center;
+    margin-bottom: 12px;
+    max-width: 600px;
+    line-height: 1.5;
+}
+
+.error-hint {
+    font-size: 13px;
+    color: #888;
+}

@@ -1,0 +1,49 @@
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap &#x2014; Shipped &#xB7; In Progress &#xB7; Carryover &#xB7; Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@HeatmapInfo.Months.Count, 1fr)">
+
+        <div class="hm-corner">STATUS</div>
+        @foreach (var month in HeatmapInfo.Months)
+        {
+            <div class="hm-col-hdr @(month == HeatmapInfo.HighlightMonth ? "highlight-hdr" : "")">@month</div>
+        }
+
+        @foreach (var row in HeatmapInfo.Rows)
+        {
+            var prefix = GetCategoryPrefix(row.Category);
+            var cssKey = GetCssKey(row.Category);
+
+            <div class="hm-row-hdr @(cssKey)-hdr">@prefix @row.Category.ToUpperInvariant()</div>
+
+            @foreach (var month in HeatmapInfo.Months)
+            {
+                var items = row.Items.TryGetValue(month, out var list) ? list : new List<string>();
+                var isHighlight = month == HeatmapInfo.HighlightMonth;
+                <HeatmapCell Items="items" CssClass="@cssKey" IsHighlighted="isHighlight" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public HeatmapData HeatmapInfo { get; set; } = new();
+
+    private static string GetCategoryPrefix(string category) => category switch
+    {
+        "Shipped" => "\u2705",
+        "In Progress" => "\uD83D\uDD04",
+        "Carryover" => "\u23F3",
+        "Blockers" => "\uD83D\uDEAB",
+        _ => ""
+    };
+
+    private static string GetCssKey(string category) => category switch
+    {
+        "Shipped" => "ship",
+        "In Progress" => "prog",
+        "Carryover" => "carry",
+        "Blockers" => "block",
+        _ => ""
+    };
+}

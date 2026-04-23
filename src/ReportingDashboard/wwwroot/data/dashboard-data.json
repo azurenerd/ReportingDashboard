@@ -1,0 +1,87 @@
+{
+  "project": {
+    "title": "Project Phoenix — AI Platform Modernization",
+    "subtitle": "Cloud Engineering Team · Q1–Q2 2026 · Executive Summary",
+    "backlogUrl": "https://dev.azure.com/contoso/phoenix/_backlogs",
+    "currentDate": "2026-04-15"
+  },
+  "timeline": {
+    "startDate": "2025-12-01",
+    "endDate": "2026-07-31",
+    "tracks": [
+      {
+        "id": "M1",
+        "name": "Chatbot & MS Role",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2026-01-15", "label": "Design Review", "type": "checkpoint" },
+          { "date": "2026-03-01", "label": "PoC Complete", "type": "poc" },
+          { "date": "2026-05-15", "label": "GA Release", "type": "production" },
+          { "date": "2026-06-30", "label": "Phase 2", "type": "checkpoint" }
+        ]
+      },
+      {
+        "id": "M2",
+        "name": "Data Pipeline v2",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2026-02-01", "label": "Schema Lock", "type": "checkpoint" },
+          { "date": "2026-03-15", "label": "PoC Demo", "type": "poc" },
+          { "date": "2026-06-01", "label": "Prod Deploy", "type": "production" }
+        ]
+      },
+      {
+        "id": "M3",
+        "name": "Auth & Identity",
+        "color": "#7B1FA2",
+        "milestones": [
+          { "date": "2026-02-15", "label": "Threat Model", "type": "checkpoint" },
+          { "date": "2026-04-01", "label": "SSO PoC", "type": "poc" },
+          { "date": "2026-07-01", "label": "Go Live", "type": "production" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["January", "February", "March", "April"],
+    "highlightMonth": "April",
+    "rows": [
+      {
+        "category": "Shipped",
+        "items": {
+          "January": ["Design doc finalized", "Team onboarding complete"],
+          "February": ["API v1 endpoint deployed", "Schema migration done"],
+          "March": ["Chatbot MVP launched", "Pipeline beta release"],
+          "April": ["SSO integration shipped"]
+        }
+      },
+      {
+        "category": "In Progress",
+        "items": {
+          "January": ["API scaffolding", "Data model design"],
+          "February": ["Chatbot NLU training"],
+          "March": ["Load testing suite", "Auth module dev"],
+          "April": ["GA release prep", "Dashboard v2 build"]
+        }
+      },
+      {
+        "category": "Carryover",
+        "items": {
+          "January": [],
+          "February": ["Infra provisioning delayed"],
+          "March": [],
+          "April": ["Perf optimization backlog"]
+        }
+      },
+      {
+        "category": "Blockers",
+        "items": {
+          "January": [],
+          "February": [],
+          "March": ["Vendor API access pending"],
+          "April": []
+        }
+      }
+    ]
+  }
+}
