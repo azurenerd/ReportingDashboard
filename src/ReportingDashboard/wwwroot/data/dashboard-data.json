@@ -1,0 +1,94 @@
+{
+  "project": {
+    "title": "Privacy Automation Release Roadmap",
+    "subtitle": "Trusted Platform \u00b7 Privacy Automation Workstream \u00b7 April 2026",
+    "backlogUrl": "https://dev.azure.com/example/PrivacyAutomation/_backlogs",
+    "currentDate": "2026-04-05"
+  },
+  "timeline": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-07-01",
+    "tracks": [
+      {
+        "id": "M1",
+        "name": "Chatbot & MS Role",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2026-01-12", "label": "Jan 12", "type": "checkpoint" },
+          { "date": "2026-03-26", "label": "Mar 26 PoC", "type": "poc" },
+          { "date": "2026-05-01", "label": "Apr Prod (TBD)", "type": "production" }
+        ]
+      },
+      {
+        "id": "M2",
+        "name": "PDS & Data Inventory",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2025-12-19", "label": "Dec 19", "type": "checkpoint" },
+          { "date": "2026-02-11", "label": "Feb 11", "type": "checkpoint" },
+          { "date": "2026-03-05", "label": "", "type": "checkpoint-small" },
+          { "date": "2026-03-10", "label": "", "type": "checkpoint-small" },
+          { "date": "2026-03-14", "label": "", "type": "checkpoint-small" },
+          { "date": "2026-03-17", "label": "", "type": "checkpoint-small" },
+          { "date": "2026-03-20", "label": "Mar 20 PoC", "type": "poc" },
+          { "date": "2026-03-30", "label": "Mar 30 Prod", "type": "production" }
+        ]
+      },
+      {
+        "id": "M3",
+        "name": "Auto Review DFD",
+        "color": "#546E7A",
+        "milestones": [
+          { "date": "2026-01-05", "label": "Jan 5", "type": "checkpoint" },
+          { "date": "2026-03-30", "label": "Mar 30 PoC", "type": "poc" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["March", "April", "May", "June"],
+    "highlightMonth": "April",
+    "rows": [
+      {
+        "category": "Shipped",
+        "emoji": "\u2713",
+        "items": [
+          ["TODO \u2014 item shipped", "TODO \u2014 item shipped"],
+          ["TODO \u2014 item shipped", "TODO \u2014 item shipped"],
+          [],
+          []
+        ]
+      },
+      {
+        "category": "In Progress",
+        "emoji": "\u25cf",
+        "items": [
+          ["TODO \u2014 in progress", "TODO \u2014 in progress"],
+          ["TODO \u2014 active item", "TODO \u2014 active item"],
+          ["TODO \u2014 planned", "TODO \u2014 planned"],
+          ["TODO \u2014 planned"]
+        ]
+      },
+      {
+        "category": "Carryover",
+        "emoji": "\u21a9",
+        "items": [
+          ["TODO \u2014 carry from Feb (ETA: TODO)"],
+          ["TODO \u2014 carry from Mar (ETA: TBD)", "TODO \u2014 carry from Mar (ETA: TBD)"],
+          ["TODO \u2014 potential from Apr"],
+          []
+        ]
+      },
+      {
+        "category": "Blockers",
+        "emoji": "\u26a0",
+        "items": [
+          ["None logged"],
+          ["TODO \u2014 blocker detail"],
+          [],
+          []
+        ]
+      }
+    ]
+  }
+}

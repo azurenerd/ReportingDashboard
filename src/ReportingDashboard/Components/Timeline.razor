@@ -1,0 +1,149 @@
+@{
+    const double SvgWidth = 1560;
+    const double SvgHeight = 185;
+
+    var startDate = DateTime.TryParse(Data.StartDate, out var sd) ? sd : new DateTime(2026, 1, 1);
+    var endDate = DateTime.TryParse(Data.EndDate, out var ed) ? ed : new DateTime(2026, 7, 1);
+    var nowDate = DateTime.TryParse(CurrentDate, out var nd) ? nd : DateTime.Today;
+
+    var tracks = Data.Tracks ?? new List<Track>();
+    var trackCount = tracks.Count;
+
+    // Generate month gridlines
+    var months = new List<(string Label, double X)>();
+    var current = new DateTime(startDate.Year, startDate.Month, 1);
+    while (current < endDate)
+    {
+        var x = DateToX(current, startDate, endDate, SvgWidth);
+        months.Add((current.ToString("MMM"), x));
+        current = current.AddMonths(1);
+    }
+
+    var nowX = DateToX(nowDate, startDate, endDate, SvgWidth);
+
+    // Build SVG content
+    var svgParts = new List<string>();
+
+    // Month gridlines and labels
+    foreach (var m in months)
+    {
+        svgParts.Add($"<line x1=\"{F(m.X)}\" y1=\"0\" x2=\"{F(m.X)}\" y2=\"{SvgHeight}\" stroke=\"#bbb\" stroke-opacity=\"0.4\" stroke-width=\"1\"/>");
+        svgParts.Add($"<text x=\"{F(m.X + 5)}\" y=\"14\" fill=\"#666\" font-size=\"11\" font-weight=\"600\" font-family=\"Segoe UI,Arial\">{m.Label}</text>");
+    }
+
+    // NOW line
+    if (nowX >= 0 && nowX <= SvgWidth)
+    {
+        svgParts.Add($"<line x1=\"{F(nowX)}\" y1=\"0\" x2=\"{F(nowX)}\" y2=\"{SvgHeight}\" stroke=\"#EA4335\" stroke-width=\"2\" stroke-dasharray=\"5,3\"/>");
+        svgParts.Add($"<text x=\"{F(nowX + 4)}\" y=\"14\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\" font-family=\"Segoe UI,Arial\">NOW</text>");
+    }
+
+    // Track lines and milestones
+    for (int i = 0; i < trackCount; i++)
+    {
+        var track = tracks[i];
+        var trackY = GetTrackY(i, trackCount, SvgHeight);
+
+        svgParts.Add($"<line x1=\"0\" y1=\"{F(trackY)}\" x2=\"{SvgWidth}\" y2=\"{F(trackY)}\" stroke=\"{track.Color}\" stroke-width=\"3\"/>");
+
+        foreach (var ms in track.Milestones)
+        {
+            if (!DateTime.TryParse(ms.Date, out var msDate)) continue;
+            var msX = DateToX(msDate, startDate, endDate, SvgWidth);
+            msX = Math.Clamp(msX, 0, SvgWidth);
+
+            if (ms.Type == "checkpoint")
+            {
+                svgParts.Add($"<circle cx=\"{F(msX)}\" cy=\"{F(trackY)}\" r=\"7\" fill=\"white\" stroke=\"{track.Color}\" stroke-width=\"2.5\"/>");
+            }
+            else if (ms.Type == "checkpoint-small")
+            {
+                svgParts.Add($"<circle cx=\"{F(msX)}\" cy=\"{F(trackY)}\" r=\"4\" fill=\"#999\"/>");
+            }
+            else if (ms.Type == "poc")
+            {
+                var pts = DiamondPoints(msX, trackY, 11);
+                svgParts.Add($"<polygon points=\"{pts}\" fill=\"#F4B400\" filter=\"url(#sh)\"/>");
+            }
+            else if (ms.Type == "production")
+            {
+                var pts = DiamondPoints(msX, trackY, 11);
+                svgParts.Add($"<polygon points=\"{pts}\" fill=\"#34A853\" filter=\"url(#sh)\"/>");
+            }
+
+            if (!string.IsNullOrEmpty(ms.Label))
+            {
+                var labelY = ShouldLabelBelow(ms, track, i) ? trackY + 24 : trackY - 16;
+                svgParts.Add($"<text x=\"{F(msX)}\" y=\"{F(labelY)}\" text-anchor=\"middle\" fill=\"#666\" font-size=\"10\" font-family=\"Segoe UI,Arial\">{System.Net.WebUtility.HtmlEncode(ms.Label)}</text>");
+            }
+        }
+    }
+
+    var svgContent = string.Join("\n", svgParts);
+}
+
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in tracks)
+        {
+            <div class="tl-label">
+                <span class="tl-id" style="color:@track.Color;">@track.Id</span>
+                <span class="tl-name">@track.Name</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="@SvgWidth" height="@SvgHeight" style="overflow:visible;display:block">
+            <defs>
+                <filter id="sh">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/>
+                </filter>
+            </defs>
+            @((MarkupString)svgContent)
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter] public TimelineData Data { get; set; } = new();
+    [Parameter] public string CurrentDate { get; set; } = "";
+
+    private static double DateToX(DateTime date, DateTime start, DateTime end, double width)
+    {
+        var startMonth = start.Year * 12 + start.Month;
+        var endMonth = end.Year * 12 + end.Month;
+        var totalMonths = endMonth - startMonth;
+        if (totalMonths <= 0) return 0;
+
+        var dateMonth = date.Year * 12 + date.Month;
+        var monthIndex = dateMonth - startMonth;
+        var daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);
+        var dayFraction = (date.Day - 1.0) / daysInMonth;
+
+        return (monthIndex + dayFraction) / totalMonths * width;
+    }
+
+    private static double GetTrackY(int index, int count, double height)
+    {
+        if (count <= 0) return height / 2;
+        var usableHeight = height - 30;
+        var spacing = usableHeight / count;
+        return 28 + spacing * (index + 0.5);
+    }
+
+    private static string DiamondPoints(double cx, double cy, double size)
+    {
+        return $"{F(cx)},{F(cy - size)} {F(cx + size)},{F(cy)} {F(cx)},{F(cy + size)} {F(cx - size)},{F(cy)}";
+    }
+
+    private static string F(double value) => value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+    private bool ShouldLabelBelow(Milestone ms, Track track, int trackIndex)
+    {
+        if (ms.Type == "production" && trackIndex > 0) return true;
+        var idx = track.Milestones.IndexOf(ms);
+        if (ms.Type == "poc" && trackIndex == 1) return false;
+        if (ms.Type == "production" && trackIndex == 0) return false;
+        return idx % 2 == 1;
+    }
+}

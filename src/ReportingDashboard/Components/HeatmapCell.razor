@@ -1,0 +1,27 @@
+@{
+    var cellCss = CssClass;
+    if (IsHighlighted) cellCss += " highlight";
+    var style = IsLastColumn ? "border-right:none;" : "";
+}
+
+<div class="hm-cell @cellCss" style="@style">
+    @if (Items == null || Items.Count == 0)
+    {
+        <div class="it empty">—</div>
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            <div class="it">@item</div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public List<string> Items { get; set; } = new();
+    [Parameter] public string CssClass { get; set; } = "";
+    [Parameter] public bool IsHighlighted { get; set; }
+    [Parameter] public bool IsLastColumn { get; set; }
+    [Parameter] public string AccentClass { get; set; } = "";
+}
