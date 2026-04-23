@@ -1,0 +1,52 @@
+<div class="hm-wrap">
+    <div class="hm-title">MONTHLY EXECUTION HEATMAP — SHIPPED · IN PROGRESS · CARRYOVER · BLOCKERS</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@HeatmapInfo.Months.Count, 1fr);">
+        @* Header row *@
+        <div class="hm-corner">STATUS</div>
+        @foreach (var month in HeatmapInfo.Months)
+        {
+            var isHighlight = month == HeatmapInfo.HighlightMonth;
+            <div class="hm-col-hdr @(isHighlight ? "hm-highlight-hdr" : "")">@month</div>
+        }
+
+        @* Data rows *@
+        @foreach (var row in HeatmapInfo.Rows)
+        {
+            var prefix = GetCssPrefix(row.Category);
+            var emoji = GetEmoji(row.Category);
+
+            <div class="hm-row-hdr @(prefix)-hdr">@emoji @row.Category.ToUpperInvariant()</div>
+
+            @foreach (var month in HeatmapInfo.Months)
+            {
+                var items = row.Items.TryGetValue(month, out var list) ? list : new List<string>();
+                var isHighlight = month == HeatmapInfo.HighlightMonth;
+
+                <HeatmapCell Items="items" CssClass="@prefix" IsHighlighted="isHighlight" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public HeatmapData HeatmapInfo { get; set; } = new();
+
+    private static string GetCssPrefix(string category) => category switch
+    {
+        "Shipped" => "ship",
+        "In Progress" => "prog",
+        "Carryover" => "carry",
+        "Blockers" => "block",
+        _ => "ship"
+    };
+
+    private static string GetEmoji(string category) => category switch
+    {
+        "Shipped" => "✅",
+        "In Progress" => "🔄",
+        "Carryover" => "🔁",
+        "Blockers" => "🚫",
+        _ => ""
+    };
+}

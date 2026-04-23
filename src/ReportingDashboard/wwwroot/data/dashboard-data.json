@@ -1,0 +1,88 @@
+{
+  "project": {
+    "title": "Agent Squad — Executive Status",
+    "subtitle": "AI Platform Team · Workstream Alpha · April 2026",
+    "backlogUrl": "https://dev.azure.com/contoso/AgentSquad/_backlogs",
+    "currentDate": "2026-04-15"
+  },
+  "timeline": {
+    "startDate": "2026-01-01",
+    "endDate": "2026-07-31",
+    "tracks": [
+      {
+        "id": "M1",
+        "name": "Chatbot & MS Role",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2026-01-20", "label": "Jan 20", "type": "checkpoint" },
+          { "date": "2026-02-28", "label": "Feb 28", "type": "poc" },
+          { "date": "2026-04-10", "label": "Apr 10", "type": "checkpoint" },
+          { "date": "2026-05-30", "label": "May 30", "type": "production" }
+        ]
+      },
+      {
+        "id": "M2",
+        "name": "Eval Pipeline & Metrics",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2026-02-14", "label": "Feb 14", "type": "checkpoint" },
+          { "date": "2026-03-20", "label": "Mar 20", "type": "poc" },
+          { "date": "2026-05-15", "label": "May 15", "type": "checkpoint" },
+          { "date": "2026-06-30", "label": "Jun 30", "type": "production" }
+        ]
+      },
+      {
+        "id": "M3",
+        "name": "Reporting Dashboard",
+        "color": "#7B1FA2",
+        "milestones": [
+          { "date": "2026-03-01", "label": "Mar 1", "type": "checkpoint" },
+          { "date": "2026-04-22", "label": "Apr 22", "type": "poc" },
+          { "date": "2026-06-15", "label": "Jun 15", "type": "production" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["January", "February", "March", "April"],
+    "highlightMonth": "April",
+    "rows": [
+      {
+        "category": "Shipped",
+        "items": {
+          "January": ["Project scaffold", "CI pipeline setup"],
+          "February": ["Chatbot v0.1 PoC", "Eval harness MVP"],
+          "March": ["Role-based prompts", "Metric aggregation"],
+          "April": ["Dashboard v1 PoC", "Auto-reload feature"]
+        }
+      },
+      {
+        "category": "In Progress",
+        "items": {
+          "January": ["Design review", "Spike: LLM selection"],
+          "February": ["Prompt tuning", "Eval dataset curation"],
+          "March": ["Multi-turn context", "Dashboard wireframe"],
+          "April": ["Production hardening", "Exec slide template"]
+        }
+      },
+      {
+        "category": "Carryover",
+        "items": {
+          "January": [],
+          "February": ["Token budget analysis"],
+          "March": ["Latency optimization"],
+          "April": ["Token budget analysis"]
+        }
+      },
+      {
+        "category": "Blockers",
+        "items": {
+          "January": [],
+          "February": [],
+          "March": ["Azure OpenAI quota"],
+          "April": []
+        }
+      }
+    ]
+  }
+}

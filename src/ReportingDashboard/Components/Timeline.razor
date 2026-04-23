@@ -1,0 +1,114 @@
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in TimelineInfo.Tracks)
+        {
+            <div class="tl-track-label">
+                <div class="tl-track-id" style="color: @track.Color">@track.Id</div>
+                <div class="tl-track-name">@track.Name</div>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg width="1560" height="185" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
+                </filter>
+            </defs>
+
+            @* Month gridlines and labels *@
+            @{
+                var startDate = DateOnly.Parse(TimelineInfo.StartDate);
+                var endDate = DateOnly.Parse(TimelineInfo.EndDate);
+                var totalDays = endDate.DayNumber - startDate.DayNumber;
+                var currentMonth = new DateOnly(startDate.Year, startDate.Month, 1);
+            }
+
+            @while (currentMonth <= endDate)
+            {
+                var x = GetXPosition(currentMonth, startDate, totalDays);
+                var monthLabel = currentMonth.ToString("MMM");
+                <line x1="@F(x)" y1="0" x2="@F(x)" y2="185" stroke="#BBB" stroke-opacity="0.4" stroke-width="1" />
+                <text x="@F(x + 5)" y="14" font-size="11" font-weight="600" fill="#666"
+                      font-family="Segoe UI, Arial">@monthLabel</text>
+                currentMonth = currentMonth.AddMonths(1);
+            }
+
+            @* NOW line *@
+            @if (!string.IsNullOrEmpty(CurrentDate))
+            {
+                var nowX = GetXPosition(DateOnly.Parse(CurrentDate), startDate, totalDays);
+                <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="185"
+                      stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+                <text x="@F(nowX)" y="14" font-size="10" font-weight="700" fill="#EA4335"
+                      text-anchor="middle" dy="-2">NOW</text>
+            }
+
+            @* Track lines and milestones *@
+            @for (int i = 0; i < TimelineInfo.Tracks.Count; i++)
+            {
+                var track = TimelineInfo.Tracks[i];
+                var y = GetTrackY(i, TimelineInfo.Tracks.Count);
+
+                <line x1="0" y1="@F(y)" x2="1560" y2="@F(y)"
+                      stroke="@track.Color" stroke-width="3" />
+
+                @for (int mi = 0; mi < track.Milestones.Count; mi++)
+                {
+                    var milestone = track.Milestones[mi];
+                    var mx = GetXPosition(DateOnly.Parse(milestone.Date), startDate, totalDays);
+                    var labelAbove = (mi % 2 == 0);
+                    var labelY = labelAbove ? y - 18 : y + 22;
+
+                    @if (milestone.Type == "checkpoint")
+                    {
+                        <circle cx="@F(mx)" cy="@F(y)" r="6" fill="white"
+                                stroke="@track.Color" stroke-width="2.5" />
+                    }
+                    else if (milestone.Type == "poc")
+                    {
+                        var points = GetDiamondPoints(mx, y, 11);
+                        <polygon points="@points" fill="#F4B400" filter="url(#sh)" />
+                    }
+                    else if (milestone.Type == "production")
+                    {
+                        var points = GetDiamondPoints(mx, y, 11);
+                        <polygon points="@points" fill="#34A853" filter="url(#sh)" />
+                    }
+
+                    <text x="@F(mx)" y="@F(labelY)" font-size="10" fill="#666"
+                          text-anchor="middle" font-family="Segoe UI, Arial">@milestone.Label</text>
+                }
+            }
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public TimelineData TimelineInfo { get; set; } = new();
+
+    [Parameter]
+    public string CurrentDate { get; set; } = string.Empty;
+
+    private double GetXPosition(DateOnly date, DateOnly startDate, int totalDays)
+    {
+        if (totalDays <= 0) return 0;
+        var days = date.DayNumber - startDate.DayNumber;
+        return (days / (double)totalDays) * 1560.0;
+    }
+
+    private double GetTrackY(int trackIndex, int trackCount)
+    {
+        if (trackCount <= 1) return 92;
+        return 42 + (trackIndex * (154.0 - 42.0) / (trackCount - 1));
+    }
+
+    private string GetDiamondPoints(double cx, double cy, double size)
+    {
+        var half = size / 2.0;
+        return $"{F(cx)},{F(cy - half)} {F(cx + half)},{F(cy)} {F(cx)},{F(cy + half)} {F(cx - half)},{F(cy)}";
+    }
+
+    private static string F(double value) => value.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+}
