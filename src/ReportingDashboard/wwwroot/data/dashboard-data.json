@@ -1,0 +1,91 @@
+{
+  "project": {
+    "title": "Agent Squad \u2014 AI Platform Buildout",
+    "subtitle": "CTO Org / AI Platform Team / Apr 2025",
+    "backlogUrl": "https://dev.azure.com/contoso/AgentSquad/_backlogs",
+    "currentDate": "2025-04-15"
+  },
+  "timeline": {
+    "startDate": "2025-01-01",
+    "endDate": "2025-07-31",
+    "tracks": [
+      {
+        "id": "M1",
+        "name": "Chatbot & MS Role",
+        "color": "#0078D4",
+        "milestones": [
+          { "date": "2025-01-15", "label": "Jan 15", "type": "checkpoint" },
+          { "date": "2025-02-28", "label": "Feb 28", "type": "poc" },
+          { "date": "2025-04-01", "label": "Apr 1", "type": "checkpoint" },
+          { "date": "2025-05-15", "label": "May 15", "type": "production" },
+          { "date": "2025-06-30", "label": "Jun 30", "type": "checkpoint" }
+        ]
+      },
+      {
+        "id": "M2",
+        "name": "Knowledge Index",
+        "color": "#00897B",
+        "milestones": [
+          { "date": "2025-02-01", "label": "Feb 1", "type": "checkpoint" },
+          { "date": "2025-03-15", "label": "Mar 15", "type": "poc" },
+          { "date": "2025-05-01", "label": "May 1", "type": "checkpoint" },
+          { "date": "2025-06-15", "label": "Jun 15", "type": "production" }
+        ]
+      },
+      {
+        "id": "M3",
+        "name": "Platform Infra",
+        "color": "#7B1FA2",
+        "milestones": [
+          { "date": "2025-01-31", "label": "Jan 31", "type": "checkpoint" },
+          { "date": "2025-03-01", "label": "Mar 1", "type": "poc" },
+          { "date": "2025-04-15", "label": "Apr 15", "type": "checkpoint" },
+          { "date": "2025-06-01", "label": "Jun 1", "type": "production" },
+          { "date": "2025-07-15", "label": "Jul 15", "type": "checkpoint" }
+        ]
+      }
+    ]
+  },
+  "heatmap": {
+    "months": ["Jan", "Feb", "Mar", "Apr"],
+    "highlightMonth": "Apr",
+    "rows": [
+      {
+        "category": "Shipped",
+        "items": {
+          "Jan": ["Auth service v2", "Token refresh flow"],
+          "Feb": ["Agent framework core", "Prompt template engine"],
+          "Mar": ["Knowledge graph MVP", "Vector search API"],
+          "Apr": ["Role-based access", "Audit logging"]
+        }
+      },
+      {
+        "category": "In Progress",
+        "items": {
+          "Jan": ["Agent orchestrator", "Memory layer design"],
+          "Feb": ["Multi-agent routing"],
+          "Mar": ["Streaming response handler", "Plugin SDK"],
+          "Apr": ["Tool-use framework", "Eval pipeline v2"]
+        }
+      },
+      {
+        "category": "Carryover",
+        "items": {
+          "Jan": [],
+          "Feb": ["Retry policy tuning"],
+          "Mar": ["Agent orchestrator"],
+          "Apr": ["Multi-agent routing"]
+        }
+      },
+      {
+        "category": "Blockers",
+        "items": {
+          "Jan": [],
+          "Feb": [],
+          "Mar": ["GPU quota approval"],
+          "Apr": ["Compliance review pending"]
+        }
+      }
+    ]
+  }
+}

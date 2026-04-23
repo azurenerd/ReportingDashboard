@@ -1,0 +1,19 @@
+<div class="hm-cell" style="background: @BackgroundColor;">
+    @if (Items is null || Items.Count == 0)
+    {
+        <div class="it empty">-</div>
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            <div class="it" style="--accent-color: @AccentColor;">@item</div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public List<string>? Items { get; set; }
+    [Parameter] public string BackgroundColor { get; set; } = "#FFFFFF";
+    [Parameter] public string AccentColor { get; set; } = "#999";
+}

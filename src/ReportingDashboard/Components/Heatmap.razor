@@ -1,0 +1,92 @@
+<div class="hm-wrap">
+    <div class="hm-title">MONTHLY EXECUTION HEATMAP &mdash; SHIPPED &middot; IN PROGRESS &middot; CARRYOVER &middot; BLOCKERS</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@HeatmapInfo.Months.Count, 1fr);">
+        @* Header row *@
+        <div class="hm-corner">STATUS</div>
+        @foreach (var month in HeatmapInfo.Months)
+        {
+            var isHighlight = string.Equals(month, HeatmapInfo.HighlightMonth, StringComparison.OrdinalIgnoreCase);
+            <div class="hm-col-hdr @(isHighlight ? "hm-highlight-hdr" : "")">@month</div>
+        }
+
+        @* Data rows *@
+        @foreach (var row in HeatmapInfo.Rows)
+        {
+            var emoji = GetEmoji(row.Category);
+            var headerBg = GetHeaderBg(row.Category);
+            var headerColor = GetHeaderColor(row.Category);
+            var cellBg = GetCellBg(row.Category);
+            var highlightBg = GetHighlightBg(row.Category);
+            var accent = GetAccent(row.Category);
+
+            <div class="hm-row-hdr" style="background: @headerBg; color: @headerColor;">@emoji @row.Category.ToUpperInvariant()</div>
+
+            @foreach (var month in HeatmapInfo.Months)
+            {
+                var isHighlight = string.Equals(month, HeatmapInfo.HighlightMonth, StringComparison.OrdinalIgnoreCase);
+                var items = row.Items.TryGetValue(month, out var list) ? list : new List<string>();
+                var bg = isHighlight ? highlightBg : cellBg;
+
+                <HeatmapCell Items="@items" BackgroundColor="@bg" AccentColor="@accent" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public HeatmapData HeatmapInfo { get; set; } = new();
+
+    private static string GetEmoji(string category) => category switch
+    {
+        "Shipped" => "✅",
+        "In Progress" => "🔄",
+        "Carryover" => "⚠️",
+        "Blockers" => "🚫",
+        _ => ""
+    };
+
+    private static string GetHeaderBg(string category) => category switch
+    {
+        "Shipped" => "var(--shipped-header-bg)",
+        "In Progress" => "var(--progress-header-bg)",
+        "Carryover" => "var(--carry-header-bg)",
+        "Blockers" => "var(--block-header-bg)",
+        _ => "#F5F5F5"
+    };
+
+    private static string GetHeaderColor(string category) => category switch
+    {
+        "Shipped" => "var(--shipped-header-text)",
+        "In Progress" => "var(--progress-header-text)",
+        "Carryover" => "var(--carry-header-text)",
+        "Blockers" => "var(--block-header-text)",
+        _ => "#666"
+    };
+
+    private static string GetCellBg(string category) => category switch
+    {
+        "Shipped" => "var(--shipped-bg)",
+        "In Progress" => "var(--progress-bg)",
+        "Carryover" => "var(--carry-bg)",
+        "Blockers" => "var(--block-bg)",
+        _ => "#FFFFFF"
+    };
+
+    private static string GetHighlightBg(string category) => category switch
+    {
+        "Shipped" => "var(--shipped-highlight)",
+        "In Progress" => "var(--progress-highlight)",
+        "Carryover" => "var(--carry-highlight)",
+        "Blockers" => "var(--block-highlight)",
+        _ => "#FFFFFF"
+    };
+
+    private static string GetAccent(string category) => category switch
+    {
+        "Shipped" => "var(--shipped-accent)",
+        "In Progress" => "var(--progress-accent)",
+        "Carryover" => "var(--carry-accent)",
+        "Blockers" => "var(--block-accent)",
+        _ => "#999"
+    };
+}
