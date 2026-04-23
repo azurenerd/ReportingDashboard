@@ -1,39 +1,34 @@
 <div class="hdr">
-    <div>
+    <div class="hdr-left">
         <h1>
             @Project.Title
             @if (!string.IsNullOrEmpty(Project.BacklogUrl))
             {
-                <a href="@Project.BacklogUrl" target="_blank">&#x29C9; ADO Backlog</a>
+                <a href="@Project.BacklogUrl" target="_blank" class="backlog-link">↗ ADO Backlog</a>
             }
         </h1>
         <div class="sub">@Project.Subtitle</div>
     </div>
-    <div class="legend">
-        <span class="legend-item">
-            <span class="legend-diamond poc-diamond"></span>PoC Milestone
-        </span>
-        <span class="legend-item">
-            <span class="legend-diamond prod-diamond"></span>Production Release
-        </span>
-        <span class="legend-item">
-            <span class="legend-circle"></span>Checkpoint
-        </span>
-        <span class="legend-item">
-            <span class="legend-now-bar"></span>Now (@GetNowLabel())
-        </span>
+    <div class="hdr-right">
+        <div class="legend-item">
+            <span class="legend-diamond poc-diamond"></span>
+            <span>PoC Milestone</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-diamond prod-diamond"></span>
+            <span>Production Release</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-circle"></span>
+            <span>Checkpoint</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-bar"></span>
+            <span>Now</span>
+        </div>
     </div>
 </div>
 
 @code {
     [Parameter] public ProjectInfo Project { get; set; } = new();
-
-    private string GetNowLabel()
-    {
-        if (DateTime.TryParse(Project.CurrentDate, out var date))
-        {
-            return $"{date:MMM yyyy}";
-        }
-        return Project.CurrentDate;
-    }
 }

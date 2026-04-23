@@ -3,10 +3,16 @@ using ReportingDashboard.Models;
 
 namespace ReportingDashboard.Services;
 
-public class DashboardDataService : IDisposable
+public interface IDashboardDataService : IDisposable
+{
+    DashboardData? GetData();
+    string? GetError();
+    event Action? OnDataChanged;
+}
+
+public class DashboardDataService : IDashboardDataService
 {
     private readonly string _filePath;
-    private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
     private DashboardData? _data;
     private string? _error;
     private FileSystemWatcher? _watcher;
@@ -43,13 +49,8 @@ public class DashboardDataService : IDisposable
                 }
 
                 var json = File.ReadAllText(_filePath);
-                _data = JsonSerializer.Deserialize<DashboardData>(json, _jsonOptions);
-                if (_data?.Project == null || _data?.Timeline == null || _data?.Heatmap == null)
-                {
-                    _data = null;
-                    _error = "Error reading dashboard data: JSON is missing required sections (project, timeline, or heatmap).";
-                    return;
-                }
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                _data = JsonSerializer.Deserialize<DashboardData>(json, options);
                 _error = null;
                 return;
             }
@@ -97,7 +98,7 @@ public class DashboardDataService : IDisposable
 
         if (File.Exists(_filePath))
         {
-            _lastWriteTime = File.GetLastWriteTimeUtc(_filePath);
+            try { _lastWriteTime = File.GetLastWriteTimeUtc(_filePath); } catch { }
         }
 
         _pollTimer = new Timer(PollForChanges, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));

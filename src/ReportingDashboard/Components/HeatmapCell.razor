@@ -1,13 +1,16 @@
 @{
-    var cellCss = CssClass;
-    if (IsHighlighted) cellCss += " highlight";
-    var style = IsLastColumn ? "border-right:none;" : "";
+    var bgClass = CssClass;
+    if (IsHighlighted)
+    {
+        bgClass += " " + AccentClass + "-hl";
+    }
+    var borderStyle = IsLastColumn ? "border-right:none;" : "";
 }
 
-<div class="hm-cell @cellCss" style="@style">
+<div class="hm-cell @bgClass" style="@borderStyle">
     @if (Items == null || Items.Count == 0)
     {
-        <div class="it empty">—</div>
+        <div class="it empty">-</div>
     }
     else
     {

@@ -6,13 +6,12 @@
     var endDate = DateTime.TryParse(Data.EndDate, out var ed) ? ed : new DateTime(2026, 7, 1);
     var nowDate = DateTime.TryParse(CurrentDate, out var nd) ? nd : DateTime.Today;
 
-    var tracks = Data.Tracks ?? new List<Track>();
+    var tracks = Data.Tracks ?? new List<TimelineTrack>();
     var trackCount = tracks.Count;
 
-    // Generate month gridlines
     var months = new List<(string Label, double X)>();
     var current = new DateTime(startDate.Year, startDate.Month, 1);
-    while (current < endDate)
+    while (current <= endDate)
     {
         var x = DateToX(current, startDate, endDate, SvgWidth);
         months.Add((current.ToString("MMM"), x));
@@ -21,24 +20,20 @@
 
     var nowX = DateToX(nowDate, startDate, endDate, SvgWidth);
 
-    // Build SVG content
     var svgParts = new List<string>();
 
-    // Month gridlines and labels
     foreach (var m in months)
     {
         svgParts.Add($"<line x1=\"{F(m.X)}\" y1=\"0\" x2=\"{F(m.X)}\" y2=\"{SvgHeight}\" stroke=\"#bbb\" stroke-opacity=\"0.4\" stroke-width=\"1\"/>");
         svgParts.Add($"<text x=\"{F(m.X + 5)}\" y=\"14\" fill=\"#666\" font-size=\"11\" font-weight=\"600\" font-family=\"Segoe UI,Arial\">{m.Label}</text>");
     }
 
-    // NOW line
     if (nowX >= 0 && nowX <= SvgWidth)
     {
         svgParts.Add($"<line x1=\"{F(nowX)}\" y1=\"0\" x2=\"{F(nowX)}\" y2=\"{SvgHeight}\" stroke=\"#EA4335\" stroke-width=\"2\" stroke-dasharray=\"5,3\"/>");
         svgParts.Add($"<text x=\"{F(nowX + 4)}\" y=\"14\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\" font-family=\"Segoe UI,Arial\">NOW</text>");
     }
 
-    // Track lines and milestones
     for (int i = 0; i < trackCount; i++)
     {
         var track = tracks[i];
@@ -46,8 +41,9 @@
 
         svgParts.Add($"<line x1=\"0\" y1=\"{F(trackY)}\" x2=\"{SvgWidth}\" y2=\"{F(trackY)}\" stroke=\"{track.Color}\" stroke-width=\"3\"/>");
 
-        foreach (var ms in track.Milestones)
+        for (int mi = 0; mi < track.Milestones.Count; mi++)
         {
+            var ms = track.Milestones[mi];
             if (!DateTime.TryParse(ms.Date, out var msDate)) continue;
             var msX = DateToX(msDate, startDate, endDate, SvgWidth);
             msX = Math.Clamp(msX, 0, SvgWidth);
@@ -73,7 +69,8 @@
 
             if (!string.IsNullOrEmpty(ms.Label))
             {
-                var labelY = ShouldLabelBelow(ms, track, i) ? trackY + 24 : trackY - 16;
+                var labelBelow = mi % 2 == 1;
+                var labelY = labelBelow ? trackY + 24 : trackY - 16;
                 svgParts.Add($"<text x=\"{F(msX)}\" y=\"{F(labelY)}\" text-anchor=\"middle\" fill=\"#666\" font-size=\"10\" font-family=\"Segoe UI,Arial\">{System.Net.WebUtility.HtmlEncode(ms.Label)}</text>");
             }
         }
@@ -110,24 +107,18 @@
 
     private static double DateToX(DateTime date, DateTime start, DateTime end, double width)
     {
-        var startMonth = start.Year * 12 + start.Month;
-        var endMonth = end.Year * 12 + end.Month;
-        var totalMonths = endMonth - startMonth;
-        if (totalMonths <= 0) return 0;
-
-        var dateMonth = date.Year * 12 + date.Month;
-        var monthIndex = dateMonth - startMonth;
-        var dayFraction = date.Day / 30.0;
-
-        return (monthIndex + dayFraction) / totalMonths * width;
+        var totalDays = (end - start).TotalDays;
+        if (totalDays <= 0) return 0;
+        return ((date - start).TotalDays / totalDays) * width;
     }
 
     private static double GetTrackY(int index, int count, double height)
     {
-        if (count <= 0) return height / 2;
-        var usableHeight = height - 30;
-        var spacing = usableHeight / count;
-        return 28 + spacing * (index + 0.5);
+        if (count <= 1) return height / 2;
+        var topMargin = 28.0;
+        var bottomMargin = 28.0;
+        var usable = height - topMargin - bottomMargin;
+        return topMargin + (index * usable / (count - 1));
     }
 
     private static string DiamondPoints(double cx, double cy, double size)
@@ -136,13 +127,4 @@
     }
 
     private static string F(double value) => value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
-
-    private bool ShouldLabelBelow(Milestone ms, Track track, int trackIndex)
-    {
-        if (ms.Type == "production" && trackIndex > 0) return true;
-        var idx = track.Milestones.IndexOf(ms);
-        if (ms.Type == "poc" && trackIndex == 1) return false;
-        if (ms.Type == "production" && trackIndex == 0) return false;
-        return idx % 2 == 1;
-    }
 }

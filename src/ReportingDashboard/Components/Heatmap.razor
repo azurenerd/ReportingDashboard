@@ -1,6 +1,6 @@
 @{
     var months = Data.Months ?? new List<string>();
-    var rows = Data.Rows ?? new List<HeatmapRow>();
+    var rows = Data.Rows ?? new List<StatusRow>();
     var monthCount = months.Count;
     var gridCols = $"160px repeat({monthCount}, 1fr)";
     var gridRows = $"36px repeat({rows.Count}, 1fr)";
@@ -12,12 +12,19 @@
         ["Carryover"] = "carry",
         ["Blockers"] = "block"
     };
+
+    var categoryEmojis = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Shipped"] = "✓",
+        ["In Progress"] = "●",
+        ["Carryover"] = "↩",
+        ["Blockers"] = "⚠"
+    };
 }
 
 <div class="hm-wrap">
-    <div class="hm-title">Monthly Execution Heatmap - Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
     <div class="hm-grid" style="grid-template-columns:@gridCols;grid-template-rows:@gridRows;">
-        @* Header row *@
         <div class="hm-corner">Status</div>
         @for (int m = 0; m < monthCount; m++)
         {
@@ -29,7 +36,7 @@
 
             if (isHighlight)
             {
-                <div class="@cls" style="@style">@month ◂ Now</div>
+                <div class="@cls" style="@style">@month ★ Now</div>
             }
             else
             {
@@ -37,17 +44,18 @@
             }
         }
 
-        @* Data rows *@
         @foreach (var row in rows)
         {
             var prefix = categoryClasses.GetValueOrDefault(row.Category, "ship");
+            var emoji = categoryEmojis.GetValueOrDefault(row.Category, "");
 
-            <div class="hm-row-hdr @(prefix)-hdr">@row.Emoji @row.Category</div>
+            <div class="hm-row-hdr @(prefix)-hdr">@emoji @row.Category</div>
 
             @for (int m = 0; m < monthCount; m++)
             {
-                var items = (m < row.Items.Count) ? row.Items[m] : new List<string>();
-                var isHighlight = months[m].Equals(Data.HighlightMonth, StringComparison.OrdinalIgnoreCase);
+                var monthName = months[m];
+                var items = row.Items.GetValueOrDefault(monthName, new List<string>());
+                var isHighlight = monthName.Equals(Data.HighlightMonth, StringComparison.OrdinalIgnoreCase);
                 var isLast = m == monthCount - 1;
                 var cellClass = $"{prefix}-cell";
 

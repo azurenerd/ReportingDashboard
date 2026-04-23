@@ -1,7 +1,7 @@
 {
   "project": {
     "title": "Privacy Automation Release Roadmap",
-    "subtitle": "Trusted Platform \u00b7 Privacy Automation Workstream \u00b7 April 2026",
+    "subtitle": "Trusted Platform · Privacy Automation Workstream · April 2026",
     "backlogUrl": "https://dev.azure.com/example/PrivacyAutomation/_backlogs",
     "currentDate": "2026-04-05"
   },
@@ -51,43 +51,39 @@
     "rows": [
       {
         "category": "Shipped",
-        "emoji": "\u2713",
-        "items": [
-          ["TODO \u2014 item shipped", "TODO \u2014 item shipped"],
-          ["TODO \u2014 item shipped", "TODO \u2014 item shipped"],
-          [],
-          []
-        ]
+        "items": {
+          "March": ["Chatbot v1 internal pilot", "PDS schema migration complete"],
+          "April": ["MS Role RBAC integration", "Data inventory auto-scan v2"],
+          "May": [],
+          "June": []
+        }
       },
       {
         "category": "In Progress",
-        "emoji": "\u25cf",
-        "items": [
-          ["TODO \u2014 in progress", "TODO \u2014 in progress"],
-          ["TODO \u2014 active item", "TODO \u2014 active item"],
-          ["TODO \u2014 planned", "TODO \u2014 planned"],
-          ["TODO \u2014 planned"]
-        ]
+        "items": {
+          "March": ["Privacy policy NLP classifier", "DFD template engine prototype"],
+          "April": ["Chatbot multi-turn context handling", "PDS lineage graph visualization"],
+          "May": ["Auto-review rule engine v1", "Compliance report generator"],
+          "June": ["End-to-end integration testing"]
+        }
       },
       {
         "category": "Carryover",
-        "emoji": "\u21a9",
-        "items": [
-          ["TODO \u2014 carry from Feb (ETA: TODO)"],
-          ["TODO \u2014 carry from Mar (ETA: TBD)", "TODO \u2014 carry from Mar (ETA: TBD)"],
-          ["TODO \u2014 potential from Apr"],
-          []
-        ]
+        "items": {
+          "March": ["Azure AD token refresh fix (ETA: Mar 15)"],
+          "April": ["Graph API pagination rework (ETA: Apr 20)", "Cert rotation for PDS endpoints (ETA: TBD)"],
+          "May": ["Legacy DFD format converter"],
+          "June": []
+        }
       },
       {
         "category": "Blockers",
-        "emoji": "\u26a0",
-        "items": [
-          ["None logged"],
-          ["TODO \u2014 blocker detail"],
-          [],
-          []
-        ]
+        "items": {
+          "March": ["None logged"],
+          "April": ["Waiting on Legal sign-off for data retention policy"],
+          "May": [],
+          "June": []
+        }
       }
     ]
   }

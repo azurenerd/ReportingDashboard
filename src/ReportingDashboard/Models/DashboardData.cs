@@ -2,53 +2,89 @@ using System.Text.Json.Serialization;
 
 namespace ReportingDashboard.Models;
 
-public class DashboardData
+public record DashboardData
 {
-    public ProjectInfo Project { get; set; } = new();
-    public TimelineData Timeline { get; set; } = new();
-    public HeatmapData Heatmap { get; set; } = new();
+    [JsonPropertyName("project")]
+    public ProjectInfo Project { get; init; } = new();
+
+    [JsonPropertyName("timeline")]
+    public TimelineData Timeline { get; init; } = new();
+
+    [JsonPropertyName("heatmap")]
+    public HeatmapData Heatmap { get; init; } = new();
 }
 
-public class ProjectInfo
+public record ProjectInfo
 {
-    public string Title { get; set; } = "";
-    public string Subtitle { get; set; } = "";
-    public string? BacklogUrl { get; set; }
-    public string CurrentDate { get; set; } = "";
+    [JsonPropertyName("title")]
+    public string Title { get; init; } = string.Empty;
+
+    [JsonPropertyName("subtitle")]
+    public string Subtitle { get; init; } = string.Empty;
+
+    [JsonPropertyName("backlogUrl")]
+    public string? BacklogUrl { get; init; }
+
+    [JsonPropertyName("currentDate")]
+    public string CurrentDate { get; init; } = string.Empty;
 }
 
-public class TimelineData
+public record TimelineData
 {
-    public string StartDate { get; set; } = "";
-    public string EndDate { get; set; } = "";
-    public List<Track> Tracks { get; set; } = new();
+    [JsonPropertyName("startDate")]
+    public string StartDate { get; init; } = string.Empty;
+
+    [JsonPropertyName("endDate")]
+    public string EndDate { get; init; } = string.Empty;
+
+    [JsonPropertyName("tracks")]
+    public List<TimelineTrack> Tracks { get; init; } = new();
 }
 
-public class Track
+public record TimelineTrack
 {
-    public string Id { get; set; } = "";
-    public string Name { get; set; } = "";
-    public string Color { get; set; } = "";
-    public List<Milestone> Milestones { get; set; } = new();
+    [JsonPropertyName("id")]
+    public string Id { get; init; } = string.Empty;
+
+    [JsonPropertyName("name")]
+    public string Name { get; init; } = string.Empty;
+
+    [JsonPropertyName("color")]
+    public string Color { get; init; } = "#999";
+
+    [JsonPropertyName("milestones")]
+    public List<MilestoneItem> Milestones { get; init; } = new();
 }
 
-public class Milestone
+public record MilestoneItem
 {
-    public string Date { get; set; } = "";
-    public string Label { get; set; } = "";
-    public string Type { get; set; } = "";
+    [JsonPropertyName("date")]
+    public string Date { get; init; } = string.Empty;
+
+    [JsonPropertyName("label")]
+    public string Label { get; init; } = string.Empty;
+
+    [JsonPropertyName("type")]
+    public string Type { get; init; } = "checkpoint";
 }
 
-public class HeatmapData
+public record HeatmapData
 {
-    public List<string> Months { get; set; } = new();
-    public string HighlightMonth { get; set; } = "";
-    public List<HeatmapRow> Rows { get; set; } = new();
+    [JsonPropertyName("months")]
+    public List<string> Months { get; init; } = new();
+
+    [JsonPropertyName("highlightMonth")]
+    public string HighlightMonth { get; init; } = string.Empty;
+
+    [JsonPropertyName("rows")]
+    public List<StatusRow> Rows { get; init; } = new();
 }
 
-public class HeatmapRow
+public record StatusRow
 {
-    public string Category { get; set; } = "";
-    public string Emoji { get; set; } = "";
-    public List<List<string>> Items { get; set; } = new();
+    [JsonPropertyName("category")]
+    public string Category { get; init; } = string.Empty;
+
+    [JsonPropertyName("items")]
+    public Dictionary<string, List<string>> Items { get; init; } = new();
 }
