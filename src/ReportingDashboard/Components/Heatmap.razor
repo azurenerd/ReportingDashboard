@@ -1,0 +1,60 @@
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Data.Months.Count, 1fr);">
+
+        <div class="hm-corner">Status</div>
+        @for (int m = 0; m < Data.Months.Count; m++)
+        {
+            var month = Data.Months[m];
+            var isHl = string.Equals(month, Data.HighlightMonth, StringComparison.OrdinalIgnoreCase);
+            var lastCol = m == Data.Months.Count - 1;
+            <div class="hm-col-hdr @(isHl ? "apr-hdr" : "")" style="@(lastCol ? "border-right:none;" : "")">
+                @month@(isHl ? " ◂ Now" : "")
+            </div>
+        }
+
+        @foreach (var row in Data.Rows)
+        {
+            var pfx = CssPrefix(row.Category);
+            var emo = Emoji(row.Category);
+
+            <div class="hm-row-hdr @(pfx)-hdr">@emo @row.Category</div>
+
+            @for (int m = 0; m < Data.Months.Count; m++)
+            {
+                var month = Data.Months[m];
+                var isHl = string.Equals(month, Data.HighlightMonth, StringComparison.OrdinalIgnoreCase);
+                var lastCol = m == Data.Months.Count - 1;
+                var cellItems = row.Items.TryGetValue(month, out var list) ? list : new List<string>();
+
+                <HeatmapCell Items="cellItems"
+                             CssClass="@pfx"
+                             IsHighlighted="isHl"
+                             IsLastColumn="lastCol" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public HeatmapData Data { get; set; } = new();
+
+    private static string CssPrefix(string cat) => cat switch
+    {
+        "Shipped" => "ship",
+        "In Progress" => "prog",
+        "Carryover" => "carry",
+        "Blockers" => "block",
+        _ => "ship"
+    };
+
+    private static string Emoji(string cat) => cat switch
+    {
+        "Shipped" => "\u2713",
+        "In Progress" => "\u25CF",
+        "Carryover" => "\u21A9",
+        "Blockers" => "\u26A0",
+        _ => ""
+    };
+}

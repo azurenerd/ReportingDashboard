@@ -1,0 +1,18 @@
+@((MarkupString)BuildSvgText())
+
+@code {
+    [Parameter] public string X { get; set; } = "0";
+    [Parameter] public string Y { get; set; } = "0";
+    [Parameter] public string Fill { get; set; } = "#666";
+    [Parameter] public string FontSize { get; set; } = "11";
+    [Parameter] public string FontWeight { get; set; } = "400";
+    [Parameter] public string Content { get; set; } = "";
+    [Parameter] public string Anchor { get; set; } = "";
+
+    private string BuildSvgText()
+    {
+        var anchor = string.IsNullOrEmpty(Anchor) ? "" : $@" text-anchor=""{Anchor}""";
+        var encoded = System.Net.WebUtility.HtmlEncode(Content);
+        return $@"<text x=""{X}"" y=""{Y}"" fill=""{Fill}"" font-size=""{FontSize}"" font-weight=""{FontWeight}"" font-family=""Segoe UI,Arial""{anchor}>{encoded}</text>";
+    }
+}
