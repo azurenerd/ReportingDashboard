@@ -1,0 +1,34 @@
+<div class="hdr">
+    <div class="hdr-left">
+        <h1>
+            @Project.Title
+            @if (!string.IsNullOrEmpty(Project.BacklogUrl))
+            {
+                <a href="@Project.BacklogUrl" target="_blank" class="backlog-link">↗ ADO Backlog</a>
+            }
+        </h1>
+        <div class="sub">@Project.Subtitle</div>
+    </div>
+    <div class="hdr-right">
+        <div class="legend-item">
+            <span class="legend-diamond poc-diamond"></span>
+            <span>PoC Milestone</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-diamond prod-diamond"></span>
+            <span>Production Release</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-circle"></span>
+            <span>Checkpoint</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-bar"></span>
+            <span>Now</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public ProjectInfo Project { get; set; } = new();
+}
