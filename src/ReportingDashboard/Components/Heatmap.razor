@@ -1,0 +1,69 @@
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Data.Months.Count, 1fr);">
+        @* Header row *@
+        <div class="hm-corner">Status</div>
+        @for (int i = 0; i < Data.Months.Count; i++)
+        {
+            var month = Data.Months[i];
+            var isHighlight = month == Data.HighlightMonth;
+            var isLast = i == Data.Months.Count - 1;
+            var headerClass = "hm-col-hdr" + (isHighlight ? " apr-hdr" : "");
+            var headerStyle = isLast ? "border-right:none;" : "";
+            <div class="@headerClass" style="@headerStyle">
+                @if (isHighlight)
+                {
+                    @month<span> ◂ Now</span>
+                }
+                else
+                {
+                    @month
+                }
+            </div>
+        }
+
+        @* Data rows *@
+        @foreach (var row in Data.Rows)
+        {
+            var prefix = GetCssPrefix(row.Category);
+            var emoji = GetEmoji(row.Category);
+            <div class="hm-row-hdr @(prefix)-hdr">@emoji @row.Category</div>
+
+            @for (int i = 0; i < Data.Months.Count; i++)
+            {
+                var month = Data.Months[i];
+                var isHighlight = month == Data.HighlightMonth;
+                var isLast = i == Data.Months.Count - 1;
+                var items = row.Items.TryGetValue(month, out var list) ? list : new List<string>();
+                var cellClass = $"{prefix}-cell";
+
+                <HeatmapCell Items="@items"
+                             CssClass="@cellClass"
+                             IsHighlighted="@isHighlight"
+                             IsLastColumn="@isLast" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public HeatmapData Data { get; set; } = new();
+
+    private static string GetCssPrefix(string category) => category switch
+    {
+        "Shipped" => "ship",
+        "In Progress" => "prog",
+        "Carryover" => "carry",
+        "Blockers" => "block",
+        _ => "ship"
+    };
+
+    private static string GetEmoji(string category) => category switch
+    {
+        "Shipped" => "✓",
+        "In Progress" => "●",
+        "Carryover" => "↩",
+        "Blockers" => "⚠",
+        _ => "•"
+    };
+}
