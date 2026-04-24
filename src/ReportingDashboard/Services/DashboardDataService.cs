@@ -109,6 +109,8 @@ public class DashboardDataService : IDashboardDataService, IDisposable
 
             _watcher.Changed += OnFileChanged;
             _watcher.Created += OnFileChanged;
+            _watcher.Deleted += OnFileChanged;
+            _watcher.Renamed += OnFileRenamed;
         }
         catch
         {
@@ -122,7 +124,15 @@ public class DashboardDataService : IDashboardDataService, IDisposable
         {
             try
             {
-                if (!File.Exists(_filePath)) return;
+                if (!File.Exists(_filePath))
+                {
+                    // File was deleted — reload to show error state
+                    if (_data is not null || _error is null)
+                    {
+                        ScheduleReload();
+                    }
+                    return;
+                }
                 var current = File.GetLastWriteTimeUtc(_filePath);
                 if (current != _lastWriteTime)
                 {
@@ -137,6 +147,11 @@ public class DashboardDataService : IDashboardDataService, IDisposable
     }
 
     private void OnFileChanged(object sender, FileSystemEventArgs e)
+    {
+        ScheduleReload();
+    }
+
+    private void OnFileRenamed(object sender, RenamedEventArgs e)
     {
         ScheduleReload();
     }
