@@ -1,0 +1,106 @@
+@{
+    var startDate = ParseDate(TimelineData.StartDate);
+    var endDate = ParseDate(TimelineData.EndDate);
+    var totalDays = (double)(endDate.DayNumber - startDate.DayNumber);
+    if (totalDays <= 0) { totalDays = 1; }
+    var trackCount = TimelineData.Tracks.Count;
+}
+
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in TimelineData.Tracks)
+        {
+            <div style="font-size:12px;font-weight:600;line-height:1.4;">
+                <span style="color:@track.Color;">@track.Id</span><br />
+                <span style="font-weight:400;color:#444;">@track.Name</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="185" style="overflow:visible;display:block;">
+            <defs>
+                <filter id="sh">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
+                </filter>
+            </defs>
+
+            @* Month gridlines *@
+            @{
+                var gridMonth = new DateOnly(startDate.Year, startDate.Month, 1);
+                while (gridMonth <= endDate)
+                {
+                    var gx = ((gridMonth.DayNumber - startDate.DayNumber) / totalDays) * 1560.0;
+                    var gxStr = Fmt(gx);
+                    var gxLabelStr = Fmt(gx + 5);
+                    var monthLabel = gridMonth.ToString("MMM");
+                    <line x1="@gxStr" y1="0" x2="@gxStr" y2="185" stroke="#bbb" stroke-opacity="0.4" stroke-width="1" />
+                    @((MarkupString)$"<text x=\"{gxLabelStr}\" y=\"14\" fill=\"#666\" font-size=\"11\" font-weight=\"600\" font-family=\"Segoe UI,Arial\">{monthLabel}</text>")
+                    gridMonth = gridMonth.AddMonths(1);
+                }
+            }
+
+            @* NOW line *@
+            @{
+                var nowDate = ParseDate(CurrentDate);
+                var nowX = ((nowDate.DayNumber - startDate.DayNumber) / totalDays) * 1560.0;
+                var nowXStr = Fmt(nowX);
+                var nowXLabelStr = Fmt(nowX + 4);
+            }
+            <line x1="@nowXStr" y1="0" x2="@nowXStr" y2="185" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3" />
+            @((MarkupString)$"<text x=\"{nowXLabelStr}\" y=\"14\" fill=\"#EA4335\" font-size=\"10\" font-weight=\"700\" font-family=\"Segoe UI,Arial\">NOW</text>")
+
+            @* Track lines and milestones *@
+            @for (int ti = 0; ti < trackCount; ti++)
+            {
+                var track = TimelineData.Tracks[ti];
+                var trackY = trackCount <= 1 ? 92.0 : 42.0 + (ti * 112.0 / Math.Max(trackCount - 1, 1));
+                var trackYStr = Fmt(trackY);
+
+                <line x1="0" y1="@trackYStr" x2="1560" y2="@trackYStr" stroke="@track.Color" stroke-width="3" />
+
+                @for (int mi = 0; mi < track.Milestones.Count; mi++)
+                {
+                    var ms = track.Milestones[mi];
+                    var msDate = ParseDate(ms.Date);
+                    var mx = ((msDate.DayNumber - startDate.DayNumber) / totalDays) * 1560.0;
+                    var mxStr = Fmt(mx);
+                    var above = (mi % 2 == 0);
+                    var ly = above ? trackY - 16 : trackY + 24;
+                    var lyStr = Fmt(ly);
+
+                    @if (ms.Type == "checkpoint")
+                    {
+                        <circle cx="@mxStr" cy="@trackYStr" r="7" fill="white" stroke="@track.Color" stroke-width="2.5" />
+                    }
+                    else if (ms.Type == "poc")
+                    {
+                        <polygon points="@Diamond(mx, trackY, 11)" fill="#F4B400" filter="url(#sh)" />
+                    }
+                    else if (ms.Type == "production")
+                    {
+                        <polygon points="@Diamond(mx, trackY, 11)" fill="#34A853" filter="url(#sh)" />
+                    }
+
+                    @((MarkupString)$"<text x=\"{mxStr}\" y=\"{lyStr}\" text-anchor=\"middle\" fill=\"#666\" font-size=\"10\" font-family=\"Segoe UI,Arial\">{System.Net.WebUtility.HtmlEncode(ms.Label)}</text>")
+                }
+            }
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public TimelineData TimelineData { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string CurrentDate { get; set; } = default!;
+
+    private static DateOnly ParseDate(string s) =>
+        DateOnly.TryParse(s, out var d) ? d : DateOnly.FromDateTime(DateTime.Today);
+
+    private static string Fmt(double v) =>
+        v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+    private static string Diamond(double cx, double cy, double sz) =>
+        $"{Fmt(cx)},{Fmt(cy - sz)} {Fmt(cx + sz)},{Fmt(cy)} {Fmt(cx)},{Fmt(cy + sz)} {Fmt(cx - sz)},{Fmt(cy)}";
+}

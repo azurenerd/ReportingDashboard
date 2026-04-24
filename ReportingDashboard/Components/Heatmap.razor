@@ -1,0 +1,62 @@
+@{
+    var months = HeatmapData.Months;
+    var colCount = months.Count;
+}
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap &#8212; Shipped &#183; In Progress &#183; Carryover &#183; Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@colCount, 1fr);">
+
+        <div class="hm-corner">Status</div>
+        @foreach (var month in months)
+        {
+            var hl = string.Equals(month, HeatmapData.HighlightMonth, StringComparison.OrdinalIgnoreCase);
+            <div class="hm-col-hdr @(hl ? "apr-hdr" : "")">
+                @month@(hl ? " \u25C2 Now" : "")
+            </div>
+        }
+
+        @foreach (var row in HeatmapData.Rows)
+        {
+            var pfx = CssPrefix(row.Category);
+            var emo = Emoji(row.Category);
+
+            <div class="hm-row-hdr @(pfx)-hdr">@emo @row.Category</div>
+
+            @foreach (var month in months)
+            {
+                var hl = string.Equals(month, HeatmapData.HighlightMonth, StringComparison.OrdinalIgnoreCase);
+                List<string>? items = null;
+                row.Items.TryGetValue(month, out items);
+                var cellClass = $"{pfx}-cell";
+
+                <HeatmapCell Items="items"
+                             CssClass="@cellClass"
+                             IsHighlighted="hl" />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public HeatmapData HeatmapData { get; set; } = default!;
+
+    private static string CssPrefix(string cat) => cat switch
+    {
+        "Shipped" => "ship",
+        "In Progress" => "prog",
+        "Carryover" => "carry",
+        "Blockers" => "block",
+        _ => "ship"
+    };
+
+    private static string Emoji(string cat) => cat switch
+    {
+        "Shipped" => "\u2713",
+        "In Progress" => "\u25CF",
+        "Carryover" => "\u21A9",
+        "Blockers" => "\u26A0",
+        _ => ""
+    };
+}

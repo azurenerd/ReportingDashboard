@@ -1,0 +1,38 @@
+<div class="hdr">
+    <div>
+        <h1>
+            @Project.Title
+            @if (!string.IsNullOrEmpty(Project.BacklogUrl))
+            {
+                <a href="@Project.BacklogUrl" target="_blank" rel="noopener noreferrer">&#10697; ADO Backlog</a>
+            }
+        </h1>
+        <div class="sub">@Project.Subtitle</div>
+    </div>
+    <div class="legend">
+        <span class="legend-item">
+            <span class="icon-diamond poc-diamond"></span>PoC Milestone
+        </span>
+        <span class="legend-item">
+            <span class="icon-diamond prod-diamond"></span>Production Release
+        </span>
+        <span class="legend-item">
+            <span class="icon-circle"></span>Checkpoint
+        </span>
+        <span class="legend-item">
+            <span class="icon-bar"></span>Now (@FormatNowLabel())
+        </span>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProjectInfo Project { get; set; } = default!;
+
+    private string FormatNowLabel()
+    {
+        if (DateOnly.TryParse(Project.CurrentDate, out var d))
+            return d.ToString("MMM yyyy");
+        return Project.CurrentDate;
+    }
+}
