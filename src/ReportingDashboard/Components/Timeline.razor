@@ -1,0 +1,124 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Components
+
+@code {
+    [Parameter] public TimelineData Data { get; set; } = new();
+    [Parameter] public string CurrentDate { get; set; } = string.Empty;
+
+    private const double SvgWidth = 1560.0;
+    private const double SvgHeight = 185.0;
+
+    private DateOnly _startDate;
+    private DateOnly _endDate;
+    private double _totalDays;
+
+    private double DateToX(DateOnly date)
+    {
+        return ((date.ToDateTime(TimeOnly.MinValue) - _startDate.ToDateTime(TimeOnly.MinValue)).TotalDays / _totalDays) * SvgWidth;
+    }
+
+    private double TrackY(int index, int count)
+    {
+        if (count == 1) return 98;
+        return 42.0 + index * 112.0 / (count - 1);
+    }
+
+    private static readonly string[] MonthAbbrev = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
+    private static MarkupString SvgText(string x, string y, string fill, string fontSize, string content,
+        string? fontWeight = null, string? textAnchor = null)
+    {
+        var fw = fontWeight != null ? $@" font-weight=""{fontWeight}""" : "";
+        var ta = textAnchor != null ? $@" text-anchor=""{textAnchor}""" : "";
+        return new MarkupString($@"<text x=""{x}"" y=""{y}"" fill=""{fill}"" font-size=""{fontSize}""{fw}{ta} font-family=""Segoe UI,Arial"">{System.Net.WebUtility.HtmlEncode(content)}</text>");
+    }
+
+    private static string F(double value)
+    {
+        return value.ToString("0.##", CultureInfo.InvariantCulture);
+    }
+}
+
+<div class="tl-area">
+    <div class="tl-labels">
+        @foreach (var track in Data.Tracks)
+        {
+            <div style="font-size:12px;font-weight:600;line-height:1.4;color:@track.Color;">
+                @track.Id<br /><span style="font-weight:400;color:#444;">@track.Name</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        @{
+            _startDate = DateOnly.Parse(Data.StartDate);
+            _endDate = DateOnly.Parse(Data.EndDate);
+            _totalDays = (_endDate.ToDateTime(TimeOnly.MinValue) - _startDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+            var trackCount = Data.Tracks.Count;
+            var nowDate = string.IsNullOrEmpty(CurrentDate) ? _startDate : DateOnly.Parse(CurrentDate);
+            var nowX = DateToX(nowDate);
+        }
+        <svg xmlns="http://www.w3.org/2000/svg" width="1560" height="185" style="overflow:visible;display:block">
+            <defs>
+                <filter id="sh"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/></filter>
+            </defs>
+
+            @* Month gridlines *@
+            @{
+                var monthDate = new DateOnly(_startDate.Year, _startDate.Month, 1);
+                if (monthDate < _startDate) monthDate = monthDate.AddMonths(1);
+            }
+            @while (monthDate <= _endDate)
+            {
+                var mx = DateToX(monthDate);
+                var mLabel = MonthAbbrev[monthDate.Month - 1];
+                <line x1="@F(mx)" y1="0" x2="@F(mx)" y2="185" stroke="#BBB" stroke-opacity="0.4" stroke-width="1"/>
+                @SvgText(F(mx + 5), "14", "#666", "11", mLabel, fontWeight: "600")
+                monthDate = monthDate.AddMonths(1);
+            }
+
+            @* NOW line *@
+            <line x1="@F(nowX)" y1="0" x2="@F(nowX)" y2="185" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3"/>
+            @SvgText(F(nowX + 4), "14", "#EA4335", "10", "NOW", fontWeight: "700")
+
+            @* Track lines and milestones *@
+            @for (int ti = 0; ti < trackCount; ti++)
+            {
+                var track = Data.Tracks[ti];
+                var y = TrackY(ti, trackCount);
+
+                <line x1="0" y1="@F(y)" x2="1560" y2="@F(y)" stroke="@track.Color" stroke-width="3"/>
+
+                @for (int mi = 0; mi < track.Milestones.Count; mi++)
+                {
+                    var ms = track.Milestones[mi];
+                    var mDate = DateOnly.Parse(ms.Date);
+                    var cx = DateToX(mDate);
+                    var cy = y;
+                    var labelY = (mi % 2 == 0) ? cy - 16 : cy + 24;
+
+                    @if (ms.Type == "poc")
+                    {
+                        var points = $"{F(cx)},{F(cy - 11)} {F(cx + 11)},{F(cy)} {F(cx)},{F(cy + 11)} {F(cx - 11)},{F(cy)}";
+                        <polygon points="@points" fill="#F4B400" filter="url(#sh)"/>
+                        @SvgText(F(cx), F(labelY), "#666", "10", ms.Label, textAnchor: "middle")
+                    }
+                    else if (ms.Type == "production")
+                    {
+                        var points = $"{F(cx)},{F(cy - 11)} {F(cx + 11)},{F(cy)} {F(cx)},{F(cy + 11)} {F(cx - 11)},{F(cy)}";
+                        <polygon points="@points" fill="#34A853" filter="url(#sh)"/>
+                        @SvgText(F(cx), F(labelY), "#666", "10", ms.Label, textAnchor: "middle")
+                    }
+                    else if (ms.Type == "dot")
+                    {
+                        <circle cx="@F(cx)" cy="@F(cy)" r="4" fill="#999"/>
+                    }
+                    else
+                    {
+                        <circle cx="@F(cx)" cy="@F(cy)" r="7" fill="white" stroke="@track.Color" stroke-width="2.5"/>
+                        @SvgText(F(cx), F(labelY), "#666", "10", ms.Label, textAnchor: "middle")
+                    }
+                }
+            }
+        </svg>
+    </div>
+</div>

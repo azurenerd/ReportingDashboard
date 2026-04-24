@@ -1,0 +1,26 @@
+@code {
+    [Parameter] public List<string>? Items { get; set; }
+    [Parameter] public string CssClass { get; set; } = string.Empty;
+    [Parameter] public bool IsHighlighted { get; set; }
+    [Parameter] public bool IsLastColumn { get; set; }
+
+    private string ComputedClass =>
+        $"hm-cell {CssClass}" + (IsHighlighted ? " apr" : "");
+
+    private string? ComputedStyle =>
+        IsLastColumn ? "border-right:none;" : null;
+}
+
+<div class="@ComputedClass" style="@ComputedStyle">
+    @if (Items is null || Items.Count == 0)
+    {
+        <div class="it" style="color:#AAA;">—</div>
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            <div class="it">@item</div>
+        }
+    }
+</div>

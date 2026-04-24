@@ -1,0 +1,52 @@
+@code {
+    [Parameter] public HeatmapData Data { get; set; } = new();
+
+    private static readonly Dictionary<string, (string HdrClass, string CellClass, string Emoji)> CategoryMap = new()
+    {
+        ["Shipped"] = ("ship-hdr", "ship-cell", "✓"),
+        ["In Progress"] = ("prog-hdr", "prog-cell", "●"),
+        ["Carryover"] = ("carry-hdr", "carry-cell", "↩"),
+        ["Blockers"] = ("block-hdr", "block-cell", "⚠"),
+    };
+}
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap — Shipped · In Progress · Carryover · Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Data.Months.Count, 1fr); grid-template-rows: 36px repeat(4, 1fr);">
+        @* Header row *@
+        <div class="hm-corner">Status</div>
+        @for (int i = 0; i < Data.Months.Count; i++)
+        {
+            var month = Data.Months[i];
+            var isHighlight = string.Equals(month, Data.HighlightMonth, StringComparison.OrdinalIgnoreCase);
+            var isLast = i == Data.Months.Count - 1;
+            var hdrClass = "hm-col-hdr" + (isHighlight ? " apr-hdr" : "");
+            var hdrStyle = isLast ? "border-right:none;" : "";
+            <div class="@hdrClass" style="@hdrStyle">
+                @month@(isHighlight ? " ◂ Now" : "")
+            </div>
+        }
+
+        @* Data rows *@
+        @foreach (var row in Data.Rows)
+        {
+            var hasCat = CategoryMap.TryGetValue(row.Category, out var mapping);
+            if (!hasCat) mapping = ("prog-hdr", "prog-cell", "●");
+
+            <div class="hm-row-hdr @mapping.HdrClass">@mapping.Emoji @row.Category</div>
+
+            @for (int i = 0; i < Data.Months.Count; i++)
+            {
+                var month = Data.Months[i];
+                var isHighlight = string.Equals(month, Data.HighlightMonth, StringComparison.OrdinalIgnoreCase);
+                var isLast = i == Data.Months.Count - 1;
+                var items = row.Items.GetValueOrDefault(month, new List<string>());
+
+                <HeatmapCell Items="@items"
+                             CssClass="@mapping.CellClass"
+                             IsHighlighted="@isHighlight"
+                             IsLastColumn="@isLast" />
+            }
+        }
+    </div>
+</div>

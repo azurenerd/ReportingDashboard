@@ -1,0 +1,41 @@
+@page "/"
+@rendermode InteractiveServer
+@inject IDashboardDataService DataService
+@implements IDisposable
+
+@{
+    var error = DataService.GetError();
+    var data = DataService.GetData();
+}
+
+@if (error is not null)
+{
+    <div class="error-panel">
+        <div class="error-icon">⚠</div>
+        <div class="error-message">@error</div>
+        <div class="error-hint">Fix the file and save — the dashboard will reload automatically.</div>
+    </div>
+}
+else if (data is not null)
+{
+    <Header Project="@data.Project" />
+    <Timeline Data="@data.Timeline" CurrentDate="@data.Project.CurrentDate" />
+    <Heatmap Data="@data.Heatmap" />
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        DataService.OnDataChanged += HandleDataChanged;
+    }
+
+    private async void HandleDataChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        DataService.OnDataChanged -= HandleDataChanged;
+    }
+}
