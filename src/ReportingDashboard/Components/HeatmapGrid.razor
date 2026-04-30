@@ -1,0 +1,79 @@
+@code {
+    [Parameter] public required List<HeatmapRow> Rows { get; set; }
+    [Parameter] public required List<string> Months { get; set; }
+    [Parameter] public string CurrentMonth { get; set; } = "";
+
+    private string GetCategoryPrefix(string category) => category switch
+    {
+        "shipped" => "ship",
+        "in-progress" => "prog",
+        "carryover" => "carry",
+        "blockers" => "block",
+        _ => "ship"
+    };
+
+    private string GetRowHeaderClass(string category) => category switch
+    {
+        "shipped" => "hm-row-hdr ship-hdr",
+        "in-progress" => "hm-row-hdr prog-hdr",
+        "carryover" => "hm-row-hdr carry-hdr",
+        "blockers" => "hm-row-hdr block-hdr",
+        _ => "hm-row-hdr"
+    };
+
+    private string GetCategoryLabel(string category) => category switch
+    {
+        "shipped" => "\u2705 Shipped",
+        "in-progress" => "\uD83D\uDD35 In Progress",
+        "carryover" => "\uD83D\uDFE1 Carryover",
+        "blockers" => "\uD83D\uDD34 Blockers",
+        _ => category
+    };
+}
+
+<div class="hm-wrap">
+    <div class="hm-title">Monthly Execution Heatmap &mdash; Shipped &bull; In Progress &bull; Carryover &bull; Blockers</div>
+    <div class="hm-grid" style="grid-template-columns: 160px repeat(@Months.Count, 1fr);">
+        @* Header row *@
+        <div class="hm-corner">Status</div>
+        @foreach (var month in Months)
+        {
+            var isCurrentMonth = month == CurrentMonth;
+            <div class="hm-col-hdr @(isCurrentMonth ? "apr-hdr" : "")">
+                @month @(isCurrentMonth ? "\u25C0 Now" : "")
+            </div>
+        }
+
+        @* Data rows *@
+        @foreach (var row in Rows)
+        {
+            var prefix = GetCategoryPrefix(row.Category);
+
+            <div class="@GetRowHeaderClass(row.Category)">@GetCategoryLabel(row.Category)</div>
+
+            @foreach (var month in Months)
+            {
+                var items = row.Items.ContainsKey(month) ? row.Items[month] : new List<string>();
+                var cellClass = $"hm-cell {prefix}-cell";
+                if (month == CurrentMonth)
+                {
+                    cellClass += " apr";
+                }
+
+                <div class="@cellClass">
+                    @if (items.Any())
+                    {
+                        @foreach (var item in items)
+                        {
+                            <div class="it">@item</div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="it" style="color:#AAA;">-</div>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>

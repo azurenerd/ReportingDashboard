@@ -1,0 +1,91 @@
+{
+  // Dashboard Configuration File
+  // Edit this file to update the dashboard display. Restart the app after changes.
+  "$schema": "./dashboard-data.schema.json",
+
+  "title": "Privacy Automation Release Roadmap",
+  "subtitle": "Trusted Platform \u2022 Privacy Automation Workstream \u2022 April 2026",
+  "backlogUrl": "https://dev.azure.com/org/project/_backlogs",
+  "currentDate": "2026-04-15",
+  "timelineStartDate": "2026-01-01",
+  "timelineEndDate": "2026-06-30",
+
+  "milestoneStreams": [
+    {
+      "id": "M1",
+      "label": "Chatbot & MS Role",
+      "color": "#0078D4",
+      "milestones": [
+        { "date": "2026-01-12", "label": "Jan 12", "type": "checkpoint", "position": "above" },
+        { "date": "2026-03-26", "label": "Mar 26 PoC", "type": "poc", "position": "below" },
+        { "date": "2026-05-01", "label": "Apr Prod (TBD)", "type": "production", "position": "above" }
+      ]
+    },
+    {
+      "id": "M2",
+      "label": "PDS & Data Inventory",
+      "color": "#00897B",
+      "milestones": [
+        { "date": "2026-01-01", "label": "Dec 19", "type": "checkpoint", "position": "above" },
+        { "date": "2026-02-11", "label": "Feb 11", "type": "checkpoint", "position": "above" },
+        { "date": "2026-03-05", "label": "", "type": "checkpoint-small" },
+        { "date": "2026-03-10", "label": "", "type": "checkpoint-small" },
+        { "date": "2026-03-14", "label": "", "type": "checkpoint-small" },
+        { "date": "2026-03-16", "label": "", "type": "checkpoint-small" },
+        { "date": "2026-03-20", "label": "Mar 20 PoC", "type": "poc", "position": "above" },
+        { "date": "2026-03-30", "label": "Mar 30 Prod", "type": "production", "position": "below" }
+      ]
+    },
+    {
+      "id": "M3",
+      "label": "Auto Review DFD",
+      "color": "#546E7A",
+      "milestones": [
+        { "date": "2026-01-05", "label": "Jan 5", "type": "checkpoint", "position": "above" },
+        { "date": "2026-03-30", "label": "Mar 30 PoC", "type": "poc", "position": "above" }
+      ]
+    }
+  ],
+
+  "heatmapMonths": ["March", "April", "May", "June"],
+  "currentMonth": "April",
+
+  "heatmapRows": [
+    {
+      "category": "shipped",
+      "items": {
+        "March": ["Chatbot v1 POC deployed", "MS Role assignment flow"],
+        "April": ["PDS Data Inventory GA", "Auto-review template engine"],
+        "May": [],
+        "June": []
+      }
+    },
+    {
+      "category": "in-progress",
+      "items": {
+        "March": ["Data classification pipeline", "Role-based access review"],
+        "April": ["Chatbot production hardening", "DFD auto-generation"],
+        "May": ["Cross-tenant data mapping", "Compliance report builder"],
+        "June": ["Executive dashboard v2"]
+      }
+    },
+    {
+      "category": "carryover",
+      "items": {
+        "March": ["Vendor API integration (ETA: Apr)"],
+        "April": ["Vendor API integration (ETA: TBD)", "Legacy system migration (ETA: TBD)"],
+        "May": ["Potential carry from Apr"],
+        "June": []
+      }
+    },
+    {
+      "category": "blockers",
+      "items": {
+        "March": [],
+        "April": ["Vendor API downtime - pending resolution"],
+        "May": [],
+        "June": []
+      }
+    }
+  ]
+}

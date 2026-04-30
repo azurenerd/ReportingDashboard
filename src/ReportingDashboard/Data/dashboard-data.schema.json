@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Dashboard Configuration",
+  "description": "Configuration schema for the Reporting Dashboard. All display data is loaded from this file.",
+  "type": "object",
+  "required": ["title", "subtitle", "backlogUrl", "currentDate", "timelineStartDate", "timelineEndDate", "milestoneStreams", "heatmapMonths", "currentMonth", "heatmapRows"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Project title displayed in the header (24px bold)"
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Subtitle displayed below the title (12px, gray)"
+    },
+    "backlogUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL for the ADO Backlog link in the header"
+    },
+    "currentDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Current date for the NOW indicator on the timeline (ISO 8601: YYYY-MM-DD)"
+    },
+    "timelineStartDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date for the timeline X-axis (ISO 8601: YYYY-MM-DD)"
+    },
+    "timelineEndDate": {
+      "type": "string",
+      "format": "date",
+      "description": "End date for the timeline X-axis (ISO 8601: YYYY-MM-DD)"
+    },
+    "milestoneStreams": {
+      "type": "array",
+      "description": "Horizontal milestone streams displayed on the timeline (1-5 streams)",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "color", "milestones"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Short stream identifier (e.g., 'M1', 'M2')"
+          },
+          "label": {
+            "type": "string",
+            "description": "Stream description displayed in the left sidebar"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "description": "CSS hex color for the stream track line and labels"
+          },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["date", "label", "type"],
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "Milestone date (ISO 8601: YYYY-MM-DD)"
+                },
+                "label": {
+                  "type": "string",
+                  "description": "Text label displayed near the milestone marker (max ~20 chars recommended)"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["checkpoint", "checkpoint-small", "poc", "production"],
+                  "description": "Marker type: checkpoint (circle), checkpoint-small (small dot), poc (amber diamond), production (green diamond)"
+                },
+                "position": {
+                  "type": "string",
+                  "enum": ["above", "below"],
+                  "default": "above",
+                  "description": "Label placement relative to the track line"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "heatmapMonths": {
+      "type": "array",
+      "description": "Month column headers for the heatmap grid (3-6 months)",
+      "minItems": 3,
+      "maxItems": 6,
+      "items": {
+        "type": "string"
+      }
+    },
+    "currentMonth": {
+      "type": "string",
+      "description": "The current month to highlight in the heatmap (must match one entry in heatmapMonths)"
+    },
+    "heatmapRows": {
+      "type": "array",
+      "description": "Exactly 4 category rows: shipped, in-progress, carryover, blockers",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["category", "items"],
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["shipped", "in-progress", "carryover", "blockers"],
+            "description": "Row category determining color and placement"
+          },
+          "items": {
+            "type": "object",
+            "description": "Map of month name to array of work item strings (max ~10 per cell, ~40 chars each)",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

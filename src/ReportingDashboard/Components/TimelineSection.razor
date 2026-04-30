@@ -1,0 +1,117 @@
+@code {
+    [Parameter] public required List<MilestoneStream> Streams { get; set; }
+    [Parameter] public DateTime CurrentDate { get; set; }
+    [Parameter] public DateTime StartDate { get; set; }
+    [Parameter] public DateTime EndDate { get; set; }
+
+    private const double SvgWidth = 1560;
+    private const double SvgHeight = 185;
+
+    private double GetXPosition(DateTime date)
+    {
+        var totalDays = (EndDate - StartDate).TotalDays;
+        if (totalDays <= 0) return 0;
+        var elapsed = (date - StartDate).TotalDays;
+        return (elapsed / totalDays) * SvgWidth;
+    }
+
+    private double GetTrackY(int index)
+    {
+        if (Streams.Count == 0) return SvgHeight / 2;
+        var spacing = (SvgHeight - 40) / Math.Max(Streams.Count - 1, 1);
+        return 42 + (index * spacing);
+    }
+
+    private string DiamondPoints(double cx, double cy, double size = 11)
+    {
+        return $"{cx},{cy - size} {cx + size},{cy} {cx},{cy + size} {cx - size},{cy}";
+    }
+
+    private List<(double x, string label)> GetMonthGridLines()
+    {
+        var lines = new List<(double x, string label)>();
+        var current = new DateTime(StartDate.Year, StartDate.Month, 1);
+        while (current <= EndDate)
+        {
+            var x = GetXPosition(current);
+            lines.Add((x, current.ToString("MMM")));
+            current = current.AddMonths(1);
+        }
+        return lines;
+    }
+
+    private MarkupString SvgText(double x, double y, string content, string fill = "#666", string fontSize = "10", string fontWeight = "400", string textAnchor = "start")
+    {
+        var escaped = System.Net.WebUtility.HtmlEncode(content);
+        return new MarkupString($"<text x=\"{x}\" y=\"{y}\" fill=\"{fill}\" font-size=\"{fontSize}\" font-weight=\"{fontWeight}\" font-family=\"Segoe UI,Arial\" text-anchor=\"{textAnchor}\">{escaped}</text>");
+    }
+}
+
+<div class="tl-area">
+    <div style="width:230px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-around;padding:16px 12px 16px 0;border-right:1px solid #E0E0E0;">
+        @foreach (var stream in Streams)
+        {
+            <div style="font-size:12px;font-weight:600;line-height:1.4;color:@stream.Color;">
+                @stream.Id<br/><span style="font-weight:400;color:#444;">@stream.Label</span>
+            </div>
+        }
+    </div>
+    <div class="tl-svg-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="@SvgWidth" height="@SvgHeight" style="overflow:visible;display:block">
+            <defs>
+                <filter id="sh">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/>
+                </filter>
+            </defs>
+
+            @* Month grid lines and labels *@
+            @foreach (var (x, label) in GetMonthGridLines())
+            {
+                <line x1="@x" y1="0" x2="@x" y2="@SvgHeight" stroke="#bbb" stroke-opacity="0.4" stroke-width="1"/>
+                @SvgText(x + 5, 14, label, "#666", "11", "600")
+            }
+
+            @* NOW line *@
+            @{
+                var nowX = GetXPosition(CurrentDate);
+            }
+            <line x1="@nowX" y1="0" x2="@nowX" y2="@SvgHeight" stroke="#EA4335" stroke-width="2" stroke-dasharray="5,3"/>
+            @SvgText(nowX + 4, 14, "NOW", "#EA4335", "10", "700")
+
+            @* Track lines and milestones *@
+            @for (int i = 0; i < Streams.Count; i++)
+            {
+                var stream = Streams[i];
+                var trackY = GetTrackY(i);
+
+                <line x1="0" y1="@trackY" x2="@SvgWidth" y2="@trackY" stroke="@stream.Color" stroke-width="3"/>
+
+                @foreach (var milestone in stream.Milestones)
+                {
+                    var mx = GetXPosition(milestone.Date);
+                    var labelY = milestone.Position == "below" ? trackY + 24 : trackY - 16;
+
+                    @if (milestone.Type == "poc")
+                    {
+                        <polygon points="@DiamondPoints(mx, trackY)" fill="#F4B400" filter="url(#sh)"/>
+                        @SvgText(mx, labelY, milestone.Label, "#666", "10", "400", "middle")
+                    }
+                    else if (milestone.Type == "production")
+                    {
+                        <polygon points="@DiamondPoints(mx, trackY)" fill="#34A853" filter="url(#sh)"/>
+                        @SvgText(mx, labelY, milestone.Label, "#666", "10", "400", "middle")
+                    }
+                    else if (milestone.Type == "checkpoint")
+                    {
+                        <circle cx="@mx" cy="@trackY" r="7" fill="white" stroke="@stream.Color" stroke-width="2.5"/>
+                        @SvgText(mx, labelY, milestone.Label, "#666", "10", "400", "middle")
+                    }
+                    else if (milestone.Type == "checkpoint-small")
+                    {
+                        <circle cx="@mx" cy="@trackY" r="4" fill="#999"/>
+                    }
+                }
+            }
+        </svg>
+    </div>
+</div>

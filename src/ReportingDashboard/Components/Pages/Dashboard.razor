@@ -1,0 +1,26 @@
+@page "/"
+@rendermode InteractiveServer
+@inject DashboardDataService DataService
+
+@if (DataService.HasError)
+{
+    <div style="display:flex;align-items:center;justify-content:center;width:1920px;height:1080px;font-family:'Segoe UI',Arial,sans-serif;">
+        <div style="text-align:center;color:#991B1B;">
+            <h2>Configuration Error</h2>
+            <p>@DataService.ErrorMessage</p>
+        </div>
+    </div>
+}
+else if (DataService.Data is not null)
+{
+    <div class="dashboard">
+        <DashboardHeader Data="DataService.Data" />
+        <TimelineSection Streams="DataService.Data.MilestoneStreams"
+                         CurrentDate="DataService.Data.CurrentDate"
+                         StartDate="DataService.Data.TimelineStartDate"
+                         EndDate="DataService.Data.TimelineEndDate" />
+        <HeatmapGrid Rows="DataService.Data.HeatmapRows"
+                     Months="DataService.Data.HeatmapMonths"
+                     CurrentMonth="DataService.Data.CurrentMonth" />
+    </div>
+}
