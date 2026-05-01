@@ -1,5 +1,5 @@
 /**
- * WebGLFallback - Detects WebGL2 support and renders a user-friendly
+ * WebGLFallback — Detects WebGL2 support and renders a user-friendly
  * fallback message when the browser cannot run the 3D dashboard.
  */
 

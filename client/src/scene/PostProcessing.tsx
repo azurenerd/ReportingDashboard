@@ -1,7 +1,9 @@
 /**
- * PostProcessing - Selective bloom via Three.js render layers.
- * Only objects assigned to layer 1 receive bloom, preventing UI washout.
+ * PostProcessing — Bloom via luminance thresholds.
  * Uses @react-three/postprocessing EffectComposer with Bloom effect.
+ * Objects on layer 1 are visible to the camera (layer enabled below);
+ * bloom intensity is controlled by luminance threshold so only bright
+ * emissive materials (assigned by other scene components) glow.
  */
 import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
@@ -11,7 +13,7 @@ import { BlendFunction } from 'postprocessing';
 export default function PostProcessing() {
   const { camera } = useThree();
 
-  // Enable layer 1 on camera so bloom-tagged objects are visible
+  // Enable layer 1 on camera so bloom-tagged objects are visible in the render
   useEffect(() => {
     camera.layers.enable(1);
   }, [camera]);

@@ -16,16 +16,18 @@ import ActivityFeed from './components/ActivityFeed';
 import LoadingScreen from './components/LoadingScreen';
 import WebGLFallback, { isWebGL2Supported } from './components/WebGLFallback';
 
+// Evaluate once at module load — WebGL2 support never changes mid-session
+const hasWebGL2 = isWebGL2Supported();
+
 export default function App() {
-  // Gate the entire 3D experience on WebGL2 support
-  if (!isWebGL2Supported()) {
+  if (!hasWebGL2) {
     return <WebGLFallback />;
   }
 
   return (
     <DashboardStoreProvider>
       <div className="relative w-full h-full">
-        {/* R3F Canvas - full-screen 3D scene */}
+        {/* R3F Canvas — full-screen 3D scene */}
         <Canvas
           className="absolute inset-0"
           camera={{ position: [0, 5, 20], fov: 60 }}
@@ -49,7 +51,7 @@ export default function App() {
           </Suspense>
         </Canvas>
 
-        {/* HTML overlay panels - rendered on top of canvas */}
+        {/* HTML overlay panels — rendered on top of canvas */}
         <DashboardCards />
         <SprintCharts />
         <ActivityFeed />
