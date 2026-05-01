@@ -2,7 +2,8 @@ import { createContext, useContext, useState, useCallback, createElement, type R
 
 /**
  * Dashboard shared state - lightweight React context for cross-component communication.
- * Used for: selected item ID (detail panel), camera focus target, loading states.
+ * Uses createElement() instead of JSX to keep the .ts extension per architecture spec,
+ * avoiding module resolution conflicts with a .tsx variant.
  */
 interface DashboardState {
   selectedItemId: string | null;
