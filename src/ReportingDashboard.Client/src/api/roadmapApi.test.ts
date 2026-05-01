@@ -37,6 +37,12 @@ describe('fetchRoadmap', () => {
 
     await expect(fetchRoadmap()).rejects.toThrow('Something broke');
   });
+
+  it('throws on network failure', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+
+    await expect(fetchRoadmap()).rejects.toThrow('Failed to fetch');
+  });
 });
 
 describe('fetchWorkItems', () => {
@@ -69,6 +75,12 @@ describe('fetchWorkItems', () => {
     await expect(fetchWorkItems('Doing', 'Apr')).rejects.toThrow(
       "Invalid status 'Doing'. Valid values: Shipped, InProgress, Carryover, Blocked"
     );
+  });
+
+  it('throws on network failure', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+
+    await expect(fetchWorkItems('InProgress', 'Apr')).rejects.toThrow('Failed to fetch');
   });
 });
 
@@ -116,5 +128,11 @@ describe('triggerSync', () => {
     }));
 
     await expect(triggerSync()).rejects.toThrow('Internal Server Error');
+  });
+
+  it('throws on network failure', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+
+    await expect(triggerSync()).rejects.toThrow('Failed to fetch');
   });
 });
