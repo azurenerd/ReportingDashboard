@@ -28,3 +28,13 @@ C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-aa4625a60b8a44c
 C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-aa4625a60b8a44c19e27f1b0e3e7bb32\ReportingDashboard\obj\Debug\net8.0\refint\ReportingDashboard.dll
 C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-aa4625a60b8a44c19e27f1b0e3e7bb32\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.pdb
 C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-aa4625a60b8a44c19e27f1b0e3e7bb32\ReportingDashboard\obj\Debug\net8.0\ref\ReportingDashboard.dll
+C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-c575c506af93451aa973d53e561825b5\ReportingDashboard\bin\Debug\net8.0\ReportingDashboard.deps.json
+C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-c575c506af93451aa973d53e561825b5\ReportingDashboard\bin\Debug\net8.0\ReportingDashboard.dll
+C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-c575c506af93451aa973d53e561825b5\ReportingDashboard\bin\Debug\net8.0\ReportingDashboard.pdb
+C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-c575c506af93451aa973d53e561825b5\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.GeneratedMSBuildEditorConfig.editorconfig
+C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-c575c506af93451aa973d53e561825b5\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.csproj.CoreCompileInputs.cache
+C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-c575c506af93451aa973d53e561825b5\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.sourcelink.json
+C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-c575c506af93451aa973d53e561825b5\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.dll
+C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-c575c506af93451aa973d53e561825b5\ReportingDashboard\obj\Debug\net8.0\refint\ReportingDashboard.dll
+C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-c575c506af93451aa973d53e561825b5\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.pdb
+C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\softwareengineer-c575c506af93451aa973d53e561825b5\ReportingDashboard\obj\Debug\net8.0\ref\ReportingDashboard.dll
