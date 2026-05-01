@@ -42,18 +42,33 @@ publish/
 ## Node
 node_modules/
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+## Vite
+dist/
 
 ## OS
 .DS_Store
 Thumbs.db
 desktop.ini
 
-## Environment
+## Environment & secrets
 .env
 .env.*
 appsettings.Development.json
 appsettings.Local.json
+cred.dat
 
-## Playwright
+## SQLite
+*.db
+*.db-shm
+*.db-wal
+
+## Test output
+coverage/
 playwright-report/
 test-results/
+
+## AgentSquad
+.agentsquad/

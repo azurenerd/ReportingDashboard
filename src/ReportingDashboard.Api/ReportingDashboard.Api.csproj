@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <!-- Copy Vite build output into wwwroot on publish -->
-  <Target Name="BuildClientApp" BeforeTargets="Build" Condition="'$(BUILDING_INSIDE_CI)' != 'true'">
-    <Message Importance="high" Text="Skipping automatic npm build during development. Run 'npm run build' manually or use Vite dev server." />
-  </Target>
-
   <Target Name="PublishClientApp" BeforeTargets="Publish">
     <Exec WorkingDirectory="$(ProjectDir)..\ReportingDashboard.Client" Command="npm ci" />
     <Exec WorkingDirectory="$(ProjectDir)..\ReportingDashboard.Client" Command="npm run build" />
