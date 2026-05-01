@@ -10,8 +10,17 @@ export const BASE_DATE = new Date('2026-04-30T12:00:00Z');
 
 export const SEED = 42;
 
-// ── Mulberry32 seeded PRNG ──
-// Returns a function that produces deterministic floats in [0, 1).
+/**
+ * Mulberry32 seeded PRNG.
+ * Returns a function that produces deterministic floats in [0, 1).
+ *
+ * Characteristics:
+ * - Period: ~2^32 (full cycle before repeating)
+ * - Quality: passes BigCrush for most practical uses; suitable for
+ *   generating <10,000 mock entities but NOT cryptographically secure.
+ * - If data volume grows significantly beyond current needs (~100 entities),
+ *   consider upgrading to xoshiro128** or similar higher-quality PRNG.
+ */
 export function createRng(seed: number): () => number {
   let s = seed | 0;
   return (): number => {

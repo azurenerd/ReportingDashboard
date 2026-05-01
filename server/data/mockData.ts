@@ -159,15 +159,17 @@ function buildProjectItems(rng: () => number): ProjectItem[] {
         recentActivity: [],
       });
 
-      // 4 stories for first feature in each epic, 3-4 for the rest (ensures 40+ total)
+      // 4 stories for first two features in each epic, 3 for the last (ensures 40+ total)
       const storyCount = fi === 0 ? 4 : fi === 1 ? 4 : 3;
       const templates = storyTemplates[ei * 3 + fi];
 
       for (let si = 0; si < storyCount; si++) {
         const storyId = stableId('story', storyGlobalIdx);
-        const storyStatus = pickFrom(statuses, (ei * 7 + fi * 3 + si * 2) % statuses.length);
-        const storyOwner = pickFrom(teamMembers, (ei + fi + si) % teamMembers.length).name;
-        const storyType: ItemType = si % 5 === 4 ? 'task' : 'story';
+        // pickFrom already applies % internally, no outer modulo needed
+        const storyStatus = pickFrom(statuses, ei * 7 + fi * 3 + si * 2);
+        const storyOwner = pickFrom(teamMembers, ei + fi + si).name;
+        // Use si % 4 === 3 so the 4th item (index 3) in each group becomes a 'task'
+        const storyType: ItemType = si % 4 === 3 ? 'task' : 'story';
         const points = randInt(rng, 2, 8);
 
         items.push({
@@ -178,7 +180,7 @@ function buildProjectItems(rng: () => number): ProjectItem[] {
           status: storyStatus,
           parentId: featId,
           owner: storyOwner,
-          priority: pickFrom(priorities, (ei + fi + si) % priorities.length),
+          priority: pickFrom(priorities, ei + fi + si),
           storyPoints: points,
           remainingWork: storyStatus === 'done' ? 0 : Math.round(points * 1.5),
           dependencies: si > 0 ? [stableId('story', storyGlobalIdx - 1)] : [],
@@ -314,8 +316,10 @@ function buildActivityEvents(projectItems: ProjectItem[]): ActivityEvent[] {
     { type: 'comment', template: 'Sprint 14 retrospective: velocity improving, carry-over reducing' },
   ];
 
-  // Get story IDs for relatedItemId references
-  const storyIds = projectItems.filter((i) => i.type === 'story' || i.type === 'task').map((i) => i.id);
+  // Get story/task IDs for relatedItemId references
+  const storyIds = projectItems
+    .filter((i) => i.type === 'story' || i.type === 'task')
+    .map((i) => i.id);
 
   return eventDescriptions.map((evt, i) => ({
     id: stableId('evt', i + 1),
@@ -325,7 +329,8 @@ function buildActivityEvents(projectItems: ProjectItem[]): ActivityEvent[] {
     description: evt.template,
     // Spread events across last 3 days, each ~3 hours apart (deterministic)
     timestamp: offsetDate(-Math.floor(i / 8), -(i % 8) * 3),
-    relatedItemId: i % 3 === 0 ? pickFrom(storyIds, i) : null,
+    // Defensive: guard against empty storyIds (should never happen with 44+ stories)
+    relatedItemId: i % 3 === 0 && storyIds.length > 0 ? pickFrom(storyIds, i) : null,
   }));
 }
 
