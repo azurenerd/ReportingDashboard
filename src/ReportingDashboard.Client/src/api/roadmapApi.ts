@@ -3,7 +3,7 @@ import type { RoadmapData, WorkItemDto, SyncResult } from '../models/types';
 async function extractErrorMessage(response: Response): Promise<string> {
     try {
         const body = await response.json();
-        if (typeof body.error === 'string') {
+        if (body.error) {
             return body.error;
         }
         if (body.errors) {
@@ -12,11 +12,11 @@ async function extractErrorMessage(response: Response): Promise<string> {
                 return messages.join('; ');
             }
         }
-        if (typeof body.title === 'string') {
+        if (body.title) {
             return body.title;
         }
     } catch {
-        // JSON parsing failed — fall through
+        // JSON parsing failed, fall through
     }
     return response.statusText || `HTTP ${response.status}`;
 }
@@ -27,7 +27,7 @@ export async function fetchRoadmap(): Promise<RoadmapData> {
         const message = await extractErrorMessage(response);
         throw new Error(message);
     }
-    return (await response.json()) as RoadmapData;
+    return response.json() as Promise<RoadmapData>;
 }
 
 export async function fetchWorkItems(status: string, month: string): Promise<WorkItemDto[]> {
@@ -37,7 +37,7 @@ export async function fetchWorkItems(status: string, month: string): Promise<Wor
         const message = await extractErrorMessage(response);
         throw new Error(message);
     }
-    return (await response.json()) as WorkItemDto[];
+    return response.json() as Promise<WorkItemDto[]>;
 }
 
 export async function triggerSync(): Promise<SyncResult> {
@@ -46,5 +46,5 @@ export async function triggerSync(): Promise<SyncResult> {
         const message = await extractErrorMessage(response);
         throw new Error(message);
     }
-    return (await response.json()) as SyncResult;
+    return response.json() as Promise<SyncResult>;
 }
