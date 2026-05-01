@@ -1,9 +1,8 @@
-import { createContext, useContext, useState, useCallback, createElement, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 
 /**
  * Dashboard shared state - lightweight React context for cross-component communication.
- * Uses createElement() instead of JSX to keep the .ts extension per architecture spec,
- * avoiding module resolution conflicts with a .tsx variant.
+ * Used for: selected item ID (detail panel), camera focus target, loading states.
  */
 interface DashboardState {
   selectedItemId: string | null;
@@ -26,10 +25,11 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     setFocusTargetState(target);
   }, []);
 
-  return createElement(
-    DashboardContext.Provider,
-    { value: { selectedItemId, focusTarget, setSelectedItemId, setFocusTarget } },
-    children
+  return (
+    <DashboardContext.Provider
+      value={{ selectedItemId, focusTarget, setSelectedItemId, setFocusTarget }}
+      {children}
+    </DashboardContext.Provider>
   );
 }
 

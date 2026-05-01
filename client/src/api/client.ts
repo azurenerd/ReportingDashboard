@@ -1,80 +1,118 @@
 /**
- * Typed fetch wrapper for the ReportingDashboard API.
- * All API calls route through this module for consistent error handling.
- * In development, Vite's proxy forwards /api/* to the Express backend on :3001.
+ * Typed API client for fetching dashboard data from the Express backend.
+ * All endpoints are proxied through Vite dev server (/api/* → localhost:3001).
  */
 
-const BASE_URL = '/api';
+import { useState, useEffect } from 'react';
+import type {
+  ProjectSummary,
+  ProjectItem,
+  SprintMetrics,
+  Risk,
+  TeamActivity,
+  Roadmap,
+  ReportDetail,
+} from '../types';
 
-/** API error shape returned by the Express backend. */
-interface ApiErrorBody {
-  error?: {
-    code?: string;
-    message?: string;
-  };
-}
-
-/**
- * Custom error class carrying HTTP status and server error code.
- * Consumers can inspect `status` to differentiate 404 from 500, etc.
- */
-export class ApiError extends Error {
-  public readonly status: number;
-  public readonly code: string;
-
-  constructor(status: number, code: string, message: string) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.code = code;
+/** Generic fetch wrapper with error handling */
+async function get<T>(url: string): Promise<T> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.error?.message || `API error: ${response.status} ${response.statusText}`
+    );
   }
+  return response.json() as Promise<T>;
 }
 
-/**
- * Generic typed GET request with structured error handling.
- * Throws ApiError on non-2xx responses so hooks can surface the message.
- */
-export async function get<T>(path: string): Promise<T> {
-  const url = `${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;
-  const res = await fetch(url);
+/** Generic SWR-like hook for data fetching */
+function useApi<T>(url: string) {
+  const [data, setData] = useState<T | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  if (!res.ok) {
-    const body: ApiErrorBody | null = await res.json().catch(() => null);
-    const code = body?.error?.code ?? 'UNKNOWN';
-    const message = body?.error?.message ?? `HTTP ${res.status}: ${res.statusText}`;
-    throw new ApiError(res.status, code, message);
-  }
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    get<T>(url)
+      .then((result) => {
+        if (!cancelled) {
+          setData(result);
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err : new Error(String(err)));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [url]);
 
-  return res.json() as Promise<T>;
+  return { data, loading, error };
 }
 
-// ── Typed endpoint functions ──
-// Each function targets a specific API endpoint and returns the expected shape.
-
-export function fetchProjectSummary() {
-  return get<import('../types').ProjectSummary>('/project-summary');
+// Typed endpoint hooks
+export function useProjectSummary() {
+  return useApi<ProjectSummary>('/api/project-summary');
 }
 
-export function fetchProjectItems() {
-  return get<{ items: import('../types').ProjectItem[] }>('/project-items');
+export function useProjectItems() {
+  return useApi<{ items: ProjectItem[] }>('/api/project-items');
 }
 
-export function fetchSprintMetrics() {
-  return get<import('../types').SprintMetrics>('/sprint-metrics');
+export function useSprintMetrics() {
+  return useApi<SprintMetrics>('/api/sprint-metrics');
 }
 
-export function fetchRisks() {
-  return get<{ risks: import('../types').Risk[] }>('/risks');
+export function useRisks() {
+  return useApi<{ risks: Risk[] }>('/api/risks');
 }
 
-export function fetchTeamActivity() {
-  return get<import('../types').TeamActivity>('/team-activity');
+export function useTeamActivity() {
+  return useApi<TeamActivity>('/api/team-activity');
 }
 
-export function fetchRoadmap() {
-  return get<import('../types').Roadmap>('/roadmap');
+export function useRoadmap() {
+  return useApi<Roadmap>('/api/roadmap');
 }
 
-export function fetchReportDetail(id: string) {
-  return get<import('../types').ReportDetail>(`/report/${encodeURIComponent(id)}`);
+export function useReportDetail(id: string | null) {
+  const [data, setData] = useState<ReportDetail | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!id) {
+      setData(undefined);
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    get<ReportDetail>(`/api/report/${id}`)
+      .then((result) => {
+        if (!cancelled) {
+          setData(result);
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err : new Error(String(err)));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [id]);
+
+  return { data, loading, error };
 }
+
+export { get };

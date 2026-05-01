@@ -1,19 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  root: __dirname,
   plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      '@shared/types': path.resolve(__dirname, '../server/data/types'),
-    },
-  },
   server: {
     port: 5173,
     proxy: {
@@ -25,5 +15,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    sourcemap: true,
   },
 });
