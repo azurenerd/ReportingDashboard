@@ -1,0 +1,65 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore -c Release
+      - name: Test
+        run: dotnet test --no-build -c Release --collect:"XPlat Code Coverage"
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/ReportingDashboard.Client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: src/ReportingDashboard.Client/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm run test -- --reporter=verbose --coverage
+      - name: Build
+        run: npm run build
+
+  publish:
+    runs-on: windows-latest
+    needs: [backend, frontend]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Publish self-contained EXE
+        run: dotnet publish src/ReportingDashboard.Api/ReportingDashboard.Api.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o publish
+      - name: Verify EXE size under 40MB
+        shell: pwsh
+        run: |
+          $size = (Get-Item publish/ReportingDashboard.Api.exe).Length / 1MB
+          if ($size -gt 40) { throw "EXE exceeds 40MB: $([math]::Round($size,1))MB" }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ReportingDashboard-win-x64
+          path: publish/ReportingDashboard.Api.exe
