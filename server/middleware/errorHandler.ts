@@ -1,16 +1,24 @@
 import type { Request, Response, NextFunction } from 'express';
 
-/** Centralized error-handling middleware. */
+/**
+ * Centralized error-handling middleware.
+ * Returns a consistent JSON error shape: { error: { code, message } }.
+ * Must be registered AFTER all route handlers.
+ */
 export function errorHandler(
-  err: Error,
+  err: Error & { statusCode?: number; code?: string },
   _req: Request,
   res: Response,
   _next: NextFunction,
 ): void {
-  console.error('[ErrorHandler]', err.message);
-  res.status(500).json({
+  const statusCode = err.statusCode ?? 500;
+  const code = err.code ?? 'INTERNAL_ERROR';
+
+  console.error(`[ErrorHandler] ${code}: ${err.message}`);
+
+  res.status(statusCode).json({
     error: {
-      code: 'INTERNAL_ERROR',
+      code,
       message: err.message || 'An unexpected error occurred',
     },
   });
