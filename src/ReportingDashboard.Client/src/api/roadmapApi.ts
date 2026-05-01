@@ -3,7 +3,7 @@ import type { RoadmapData, WorkItemDto, SyncResult } from '../models/types';
 async function extractErrorMessage(response: Response): Promise<string> {
     try {
         const body = await response.json();
-        if (typeof body.error === 'string') {
+        if (body.error) {
             return body.error;
         }
         if (body.errors) {
@@ -12,10 +12,13 @@ async function extractErrorMessage(response: Response): Promise<string> {
                 return messages.join('; ');
             }
         }
-        return response.statusText || `HTTP ${response.status}`;
+        if (body.title) {
+            return body.title;
+        }
     } catch {
-        return response.statusText || `HTTP ${response.status}`;
+        // JSON parsing failed, fall through
     }
+    return response.statusText || `HTTP ${response.status}`;
 }
 
 export async function fetchRoadmap(): Promise<RoadmapData> {
