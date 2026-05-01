@@ -1,0 +1,48 @@
+{
+  "workstreams": [
+    { "id": "M1", "name": "Chatbot & MS Role", "color": "#0078D4", "sortOrder": 1 },
+    { "id": "M2", "name": "PDS & Data Inventory", "color": "#00897B", "sortOrder": 2 },
+    { "id": "M3", "name": "Auto Review DFD", "color": "#546E7A", "sortOrder": 3 }
+  ],
+  "milestones": [
+    { "id": "m1-chk-jan12", "workstreamId": "M1", "name": "Jan 12", "date": "2026-01-12", "type": "Checkpoint", "subType": "Major" },
+    { "id": "m1-poc-mar26", "workstreamId": "M1", "name": "Mar 26 PoC", "date": "2026-03-26", "type": "PoC", "subType": "Major" },
+    { "id": "m1-prod-apr", "workstreamId": "M1", "name": "Apr Prod (TBD)", "date": "2026-04-30", "type": "Production", "subType": "Major" },
+    { "id": "m2-chk-dec19", "workstreamId": "M2", "name": "Dec 19", "date": "2025-12-19", "type": "Checkpoint", "subType": "Major" },
+    { "id": "m2-chk-feb11", "workstreamId": "M2", "name": "Feb 11", "date": "2026-02-11", "type": "Checkpoint", "subType": "Major" },
+    { "id": "m2-minor-1", "workstreamId": "M2", "name": "", "date": "2026-03-05", "type": "Checkpoint", "subType": "Minor" },
+    { "id": "m2-minor-2", "workstreamId": "M2", "name": "", "date": "2026-03-12", "type": "Checkpoint", "subType": "Minor" },
+    { "id": "m2-minor-3", "workstreamId": "M2", "name": "", "date": "2026-03-17", "type": "Checkpoint", "subType": "Minor" },
+    { "id": "m2-minor-4", "workstreamId": "M2", "name": "", "date": "2026-03-19", "type": "Checkpoint", "subType": "Minor" },
+    { "id": "m2-poc-mar20", "workstreamId": "M2", "name": "Mar 20 PoC", "date": "2026-03-20", "type": "PoC", "subType": "Major" },
+    { "id": "m2-prod-mar30", "workstreamId": "M2", "name": "Mar 30 Prod", "date": "2026-03-30", "type": "Production", "subType": "Major" },
+    { "id": "m3-chk-jan5", "workstreamId": "M3", "name": "Jan 5", "date": "2026-01-05", "type": "Checkpoint", "subType": "Major" },
+    { "id": "m3-poc-mar30", "workstreamId": "M3", "name": "Mar 30 PoC", "date": "2026-03-30", "type": "PoC", "subType": "Major" }
+  ],
+  "workItems": [
+    { "id": "seed-001", "title": "Chatbot integration shipped", "status": "Shipped", "month": "Mar", "workstreamId": "M1", "adoUrl": "#" },
+    { "id": "seed-002", "title": "MS Role permissions finalized", "status": "Shipped", "month": "Mar", "workstreamId": "M1", "adoUrl": "#" },
+    { "id": "seed-003", "title": "PDS pipeline deployed", "status": "Shipped", "month": "Apr", "workstreamId": "M2", "adoUrl": "#" },
+    { "id": "seed-004", "title": "Data inventory schema complete", "status": "Shipped", "month": "Apr", "workstreamId": "M2", "adoUrl": "#" },
+    { "id": "seed-005", "title": "Role-based access matrix", "status": "InProgress", "month": "Mar", "workstreamId": "M1", "adoUrl": "#" },
+    { "id": "seed-006", "title": "Chatbot NLU model v2", "status": "InProgress", "month": "Mar", "workstreamId": "M1", "adoUrl": "#" },
+    { "id": "seed-007", "title": "Privacy review automation", "status": "InProgress", "month": "Apr", "workstreamId": "M3", "adoUrl": "#" },
+    { "id": "seed-008", "title": "DFD template generator", "status": "InProgress", "month": "Apr", "workstreamId": "M3", "adoUrl": "#" },
+    { "id": "seed-009", "title": "Compliance dashboard widget", "status": "InProgress", "month": "May", "workstreamId": "M2", "adoUrl": "#" },
+    { "id": "seed-010", "title": "Data lineage tracker", "status": "InProgress", "month": "May", "workstreamId": "M2", "adoUrl": "#" },
+    { "id": "seed-011", "title": "Auto-classification model", "status": "InProgress", "month": "Jun", "workstreamId": "M3", "adoUrl": "#" },
+    { "id": "seed-012", "title": "Token refresh migration", "status": "Carryover", "month": "Mar", "workstreamId": "M1", "adoUrl": "#" },
+    { "id": "seed-013", "title": "Legacy API decommission", "status": "Carryover", "month": "Apr", "workstreamId": "M2", "adoUrl": "#" },
+    { "id": "seed-014", "title": "Schema migration v3 rollout", "status": "Carryover", "month": "Apr", "workstreamId": "M2", "adoUrl": "#" },
+    { "id": "seed-015", "title": "Perf regression from Q1 carry", "status": "Carryover", "month": "May", "workstreamId": "M1", "adoUrl": "#" },
+    { "id": "seed-016", "title": "Vendor API rate limit issue", "status": "Blocked", "month": "Apr", "workstreamId": "M3", "adoUrl": "#" }
+  ],
+  "months": [
+    { "name": "March", "isCurrent": false },
+    { "name": "April", "isCurrent": true },
+    { "name": "May", "isCurrent": false },
+    { "name": "June", "isCurrent": false }
+  ],
+  "dateRange": { "start": "2025-12-01", "end": "2026-07-01" },
+  "lastSyncUtc": null
+}
