@@ -1,0 +1,16 @@
+{
+  "name": "reporting-dashboard-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "3D animated project reporting dashboard for executive presentations",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npx nodemon index.js",
+    "dev:client": "cd client && npx vite",
+    "build": "cd client && npx tsc --noEmit && npx vite build",
+    "postinstall": "cd server && npm install && cd ../client && npm install"
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
