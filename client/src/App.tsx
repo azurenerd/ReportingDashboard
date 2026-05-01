@@ -34,7 +34,7 @@ function isWebGL2Supported(): boolean {
 
 /** Inner app content with access to dashboard context */
 function DashboardContent() {
-  const { data, loading, error } = useProjectData();
+  const { loading, error } = useProjectData();
   const { selectedItemId } = useDashboard();
 
   if (loading) {
