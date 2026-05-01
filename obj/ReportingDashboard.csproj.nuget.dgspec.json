@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\softwareengineer-c575c506af93451aa973d53e561825b5\\ReportingDashboard\\ReportingDashboard.csproj": {}
+    "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\testengineer-cbfc3a2df0274056a5afa6ce7d5b3cca\\ReportingDashboard\\ReportingDashboard.csproj": {}
   },
   "projects": {
-    "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\softwareengineer-c575c506af93451aa973d53e561825b5\\ReportingDashboard\\ReportingDashboard.csproj": {
+    "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\testengineer-cbfc3a2df0274056a5afa6ce7d5b3cca\\ReportingDashboard\\ReportingDashboard.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\softwareengineer-c575c506af93451aa973d53e561825b5\\ReportingDashboard\\ReportingDashboard.csproj",
+        "projectUniqueName": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\testengineer-cbfc3a2df0274056a5afa6ce7d5b3cca\\ReportingDashboard\\ReportingDashboard.csproj",
         "projectName": "ReportingDashboard",
-        "projectPath": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\softwareengineer-c575c506af93451aa973d53e561825b5\\ReportingDashboard\\ReportingDashboard.csproj",
+        "projectPath": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\testengineer-cbfc3a2df0274056a5afa6ce7d5b3cca\\ReportingDashboard\\ReportingDashboard.csproj",
         "packagesPath": "C:\\Users\\behumphr\\.nuget\\packages\\",
-        "outputPath": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\softwareengineer-c575c506af93451aa973d53e561825b5\\ReportingDashboard\\obj\\",
+        "outputPath": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\testengineer-cbfc3a2df0274056a5afa6ce7d5b3cca\\ReportingDashboard\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
