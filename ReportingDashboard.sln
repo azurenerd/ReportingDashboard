@@ -1,0 +1,6 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportingDashboard", "ReportingDashboard.csproj", "{8834620B-CC63-42CF-AA07-59A19B64BD84}"
+EndProject
+Global
+EndGlobal
