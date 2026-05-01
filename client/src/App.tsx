@@ -1,7 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
 import { OrbitControls } from '@react-three/drei';
-import { DashboardStoreProvider } from './store/dashboardStore';
 import SceneSetup from './scene/SceneSetup';
 import CameraController from './scene/CameraController';
 import ParticleBackground from './scene/ParticleBackground';
@@ -25,39 +24,38 @@ export default function App() {
   }
 
   return (
-    <DashboardStoreProvider>
-      <div className="relative w-full h-full">
-        {/* R3F Canvas — full-screen 3D scene */}
-        <Canvas
-          className="absolute inset-0"
-          camera={{ position: [0, 5, 20], fov: 60 }}
-          gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
-          dpr={[1, 1.5]}
-          <Suspense fallback={null}>
-            <SceneSetup />
-            <CameraController />
-            <ParticleBackground />
-            <ProjectHierarchy />
-            <RiskRadar />
-            <TimelinePath />
-            <PostProcessing />
-            <OrbitControls
-              enableDamping
-              dampingFactor={0.05}
-              minDistance={5}
-              maxDistance={60}
-              maxPolarAngle={Math.PI * 0.85}
-            />
-          </Suspense>
-        </Canvas>
+    <div className="relative w-full h-full">
+      {/* R3F Canvas — full-screen 3D scene */}
+      <Canvas
+        className="absolute inset-0"
+        camera={{ position: [0, 5, 20], fov: 60 }}
+        gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+        dpr={[1, 1.5]}
+      >
+        <Suspense fallback={null}>
+          <SceneSetup />
+          <CameraController />
+          <ParticleBackground />
+          <ProjectHierarchy />
+          <RiskRadar />
+          <TimelinePath />
+          <PostProcessing />
+          <OrbitControls
+            enableDamping
+            dampingFactor={0.05}
+            minDistance={5}
+            maxDistance={60}
+            maxPolarAngle={Math.PI * 0.85}
+          />
+        </Suspense>
+      </Canvas>
 
-        {/* HTML overlay panels — rendered on top of canvas */}
-        <DashboardCards />
-        <SprintCharts />
-        <ActivityFeed />
-        <DetailPanel />
-        <Suspense fallback={<LoadingScreen />}><></></Suspense>
-      </div>
-    </DashboardStoreProvider>
+      {/* HTML overlay panels — rendered on top of canvas */}
+      <DashboardCards />
+      <SprintCharts />
+      <ActivityFeed />
+      <DetailPanel />
+      <LoadingScreen />
+    </div>
   );
 }
