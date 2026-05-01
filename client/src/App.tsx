@@ -1,5 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
+import { OrbitControls } from '@react-three/drei';
+import { DashboardStoreProvider } from './store/dashboardStore';
 import SceneSetup from './scene/SceneSetup';
 import CameraController from './scene/CameraController';
 import ParticleBackground from './scene/ParticleBackground';
@@ -12,44 +14,49 @@ import DetailPanel from './components/DetailPanel';
 import SprintCharts from './components/SprintCharts';
 import ActivityFeed from './components/ActivityFeed';
 import LoadingScreen from './components/LoadingScreen';
-import { useProjectData } from './hooks/useProjectData';
+import WebGLFallback, { isWebGL2Supported } from './components/WebGLFallback';
 
 export default function App() {
-  const { loading } = useProjectData();
-
-  if (loading) return <LoadingScreen />;
+  // Gate the entire 3D experience on WebGL2 support
+  if (!isWebGL2Supported()) {
+    return <WebGLFallback />;
+  }
 
   return (
-    <div className="relative w-full h-screen bg-gray-950">
-      {/* 3D Canvas — fills the entire viewport */}
-      <Canvas
-        className="absolute inset-0"
-        camera={{ position: [0, 5, 20], fov: 60 }}
-        gl={{ antialias: true, alpha: false }}
-        onCreated={({ gl }) => {
-          gl.setClearColor('#0a0a1a');
-        }}
-      >
-        <Suspense fallback={null}>
-          <SceneSetup />
-          <CameraController />
-          <ParticleBackground />
-          <ProjectHierarchy />
-          <RiskRadar />
-          <TimelinePath />
-          <PostProcessing />
-        </Suspense>
-      </Canvas>
+    <DashboardStoreProvider>
+      <div className="relative w-full h-full">
+        {/* R3F Canvas — full-screen 3D scene */}
+        <Canvas
+          className="absolute inset-0"
+          camera={{ position: [0, 5, 20], fov: 60 }}
+          gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+          dpr={[1, 1.5]}
+        >
+          <Suspense fallback={null}>
+            <SceneSetup />
+            <CameraController />
+            <ParticleBackground />
+            <ProjectHierarchy />
+            <RiskRadar />
+            <TimelinePath />
+            <PostProcessing />
+            <OrbitControls
+              enableDamping
+              dampingFactor={0.05}
+              minDistance={5}
+              maxDistance={60}
+              maxPolarAngle={Math.PI * 0.85}
+            />
+          </Suspense>
+        </Canvas>
 
-      {/* HTML overlay components — rendered on top of the canvas */}
-      <div className="absolute inset-0 pointer-events-none z-10">
-        <div className="pointer-events-auto">
-          <DashboardCards />
-          <SprintCharts />
-          <ActivityFeed />
-          <DetailPanel />
-        </div>
+        {/* HTML overlay panels — rendered on top of canvas */}
+        <DashboardCards />
+        <SprintCharts />
+        <ActivityFeed />
+        <DetailPanel />
+        <Suspense fallback={<LoadingScreen />}><></></Suspense>
       </div>
-    </div>
+    </DashboardStoreProvider>
   );
 }
