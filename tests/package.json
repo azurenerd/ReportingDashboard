@@ -3,17 +3,18 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "vitest run --config tests/vitest.config.ts",
-    "test:unit": "vitest run --config tests/vitest.config.ts tests/unit",
-    "test:integration": "vitest run --config tests/vitest.config.ts tests/integration"
+    "test": "vitest run",
+    "test:unit": "vitest run --reporter=verbose"
   },
   "devDependencies": {
-    "vitest": "^3.1.0",
-    "supertest": "^7.1.0",
-    "@types/supertest": "^6.0.2",
-    "@types/express": "^5.0.0",
-    "express": "^5.1.0",
-    "zustand": "^5.0.0",
-    "typescript": "^5.8.0"
+    "vitest": "^3.1.1",
+    "jsdom": "^26.1.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "typescript": "~5.7.2"
   }
 }
