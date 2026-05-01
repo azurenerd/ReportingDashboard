@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDashboardStore } from '../store/dashboardStore';
-import { get } from '../api/client';
+import { api } from '../api/client';
 import type { ReportDetail, ActivityEvent } from '../types';
 
 // ---------- useReportDetail hook ----------
@@ -12,6 +12,10 @@ interface UseReportDetailResult {
   error: string | null;
 }
 
+/**
+ * Fetches report detail for a given entity ID from GET /api/report/:id.
+ * Uses AbortController to cancel in-flight requests when ID changes or component unmounts.
+ */
 function useReportDetail(id: string | null): UseReportDetailResult {
   const [data, setData] = useState<ReportDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,26 +29,29 @@ function useReportDetail(id: string | null): UseReportDetailResult {
       return;
     }
 
-    let cancelled = false;
+    const controller = new AbortController();
     setLoading(true);
     setError(null);
 
-    get<ReportDetail>(`/report/${id}`)
+    api
+      .getReportDetail(id, controller.signal)
       .then((result) => {
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           setData(result);
           setLoading(false);
         }
       })
       .catch((err: Error) => {
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
+          // Don't treat abort as an error
+          if (err.name === 'AbortError') return;
           setError(err.message || 'Failed to load report detail');
           setLoading(false);
         }
       });
 
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [id]);
 
@@ -53,6 +60,7 @@ function useReportDetail(id: string | null): UseReportDetailResult {
 
 // ---------- Badge helpers ----------
 
+/** Maps item status to Tailwind badge color classes. */
 function statusColor(status: string): string {
   switch (status.toLowerCase()) {
     case 'done':
@@ -76,6 +84,7 @@ function statusColor(status: string): string {
   }
 }
 
+/** Maps item priority to Tailwind badge color classes. */
 function priorityColor(priority: string): string {
   switch (priority.toLowerCase()) {
     case 'critical':
@@ -91,6 +100,7 @@ function priorityColor(priority: string): string {
   }
 }
 
+/** Formats ISO timestamp into a relative time string. */
 function formatTimestamp(ts: string): string {
   const date = new Date(ts);
   const now = new Date();
@@ -104,6 +114,7 @@ function formatTimestamp(ts: string): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+/** Returns an emoji icon for a given activity event type. */
 function activityIcon(type: string): string {
   switch (type) {
     case 'pr-completed':
@@ -123,9 +134,13 @@ function activityIcon(type: string): string {
 
 // ---------- DetailPanel component ----------
 
+/**
+ * Slide-in detail panel that displays full entity information when a node is selected.
+ * Reads selectedEntityId from dashboardStore; calls clearSelection() on close.
+ * Supports dismissal via X button, Escape key, and outside click.
+ */
 export default function DetailPanel() {
-  const selectedEntityId = useDashboardStore((s) => s.selectedEntityId);
-  const clearSelection = useDashboardStore((s) => s.clearSelection);
+  const { selectedEntityId, clearSelection } = useDashboardStore();
   const { data, loading, error } = useReportDetail(selectedEntityId);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -147,7 +162,7 @@ export default function DetailPanel() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedEntityId, handleClose]);
 
-  // Close on outside click
+  // Close on outside click (clicking the backdrop area outside the panel)
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
