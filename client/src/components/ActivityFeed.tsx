@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTeamActivity } from '../api/client';
+import { useProjectData } from '../hooks/useProjectData';
 import type { ActivityEvent, ActivityEventType } from '../types';
 
 // ── Relative timestamp formatting ────────────────────────────────────────────
@@ -20,9 +20,16 @@ function relativeTime(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-/** Returns true if the event happened within the last 30 minutes (considered "recent"). */
-function isRecent(iso: string): boolean {
-  return Date.now() - new Date(iso).getTime() < 30 * 60 * 1000;
+/**
+ * Determines whether an event is "recent" relative to the newest event in the
+ * dataset. Uses a 1-hour window from the newest timestamp so that pulse dots
+ * always appear on the latest events, even with static mock data where
+ * comparing against Date.now() would never match.
+ */
+function isRecent(iso: string, newestTimestamp: string): boolean {
+  const newest = new Date(newestTimestamp).getTime();
+  const current = new Date(iso).getTime();
+  return newest - current < 60 * 60 * 1000; // within 1 hour of the newest event
 }
 
 // ── Event type badge configuration ───────────────────────────────────────────
@@ -30,8 +37,8 @@ function isRecent(iso: string): boolean {
 interface BadgeConfig {
   label: string;
   icon: string;
-  color: string;        // Tailwind text color
-  bg: string;           // Tailwind bg + border classes
+  color: string;
+  bg: string;
 }
 
 const BADGE_MAP: Record<ActivityEventType, BadgeConfig> = {
@@ -99,7 +106,7 @@ function avatarGradient(initials: string): string {
 const listVariants = {
   hidden: {},
   visible: {
-    transition: { staggerChildren: 0.04 },
+    transition: { staggerChildren: 0.05 },
   },
 };
 
@@ -116,9 +123,9 @@ const itemVariants = {
 // ── Sub-components ───────────────────────────────────────────────────────────
 
 /** Single activity event row with avatar, description, badge, and timestamp. */
-function ActivityRow({ event }: { event: ActivityEvent }) {
+function ActivityRow({ event, newestTimestamp }: { event: ActivityEvent; newestTimestamp: string }) {
   const badge = getBadge(event.type);
-  const recent = isRecent(event.timestamp);
+  const recent = isRecent(event.timestamp, newestTimestamp);
 
   return (
     <motion.li
@@ -134,8 +141,8 @@ function ActivityRow({ event }: { event: ActivityEvent }) {
         {/* Activity pulse dot for recent events */}
         {recent && (
           <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 animate-ping" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-cyan-400" />
+            <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
           </span>
         )}
       </div>
@@ -181,7 +188,7 @@ function LoadingSkeleton() {
   );
 }
 
-/** Error state with retry hint. */
+/** Error state with warning icon. */
 function ErrorState({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-8 px-4 gap-2">
@@ -210,18 +217,27 @@ function ErrorState({ message }: { message: string }) {
  *
  * Scrollable list of recent team activity events displayed in the bottom-right
  * corner of the dashboard overlay. Features:
- * - Fetches data from GET /api/team-activity via useTeamActivity hook
- * - Framer Motion staggered entry animations (fade-in + slide from left)
- * - Activity pulse dot on events within the last 30 minutes
+ * - Fetches data from GET /api/team-activity via the central useProjectData hook
+ * - Framer Motion staggered entry animations (fade-in + slide from left, 50ms stagger)
+ * - Activity pulse dot on events within 1 hour of the newest event timestamp
  * - Avatar circles with initials and deterministic color gradients
  * - Relative timestamps (e.g. "2h ago", "3d ago")
  * - Typed event badges (PR, Task, Comment, Deploy, Review)
  * - Glassmorphism container matching dashboard visual language
+ * - Read-only data consumption; does not modify dashboardStore
  */
 export default function ActivityFeed() {
-  const { data, loading, error } = useTeamActivity();
+  const { data, loading, error } = useProjectData();
 
-  const events = data?.events ?? [];
+  const events = data?.teamActivity?.events ?? [];
+
+  // Determine the newest event timestamp for relative "recent" comparison.
+  // This ensures pulse dots show on the latest events even with static mock data.
+  const newestTimestamp = events.length > 0
+    ? events.reduce((newest, evt) =>
+        new Date(evt.timestamp).getTime() > new Date(newest).getTime() ? evt.timestamp : newest,
+      events[0].timestamp)
+    : '';
 
   return (
     <motion.div
@@ -255,7 +271,7 @@ export default function ActivityFeed() {
 
         {!loading && !error && events.length === 0 && (
           <div className="flex items-center justify-center py-10">
-            <p className="text-xs text-gray-500">No activity yet</p>
+            <p className="text-xs text-gray-500">No recent activity</p>
           </div>
         )}
 
@@ -267,7 +283,7 @@ export default function ActivityFeed() {
               initial="hidden"
               animate="visible"
               {events.map((event) => (
-                <ActivityRow key={event.id} event={event} />
+                <ActivityRow key={event.id} event={event} newestTimestamp={newestTimestamp} />
               ))}
             </motion.ul>
           )}
