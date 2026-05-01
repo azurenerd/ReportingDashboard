@@ -1,12 +1,3 @@
-export interface RoadmapData {
-    workstreams: Workstream[];
-    milestones: Milestone[];
-    workItems: WorkItem[];
-    months: MonthColumn[];
-    dateRange: { start: string; end: string };
-    lastSyncUtc: string | null;
-}
-
 export interface Workstream {
     id: string;
     name: string;
@@ -36,6 +27,17 @@ export interface MonthColumn {
     name: string;
     isCurrent: boolean;
 }
+
+export interface RoadmapData {
+    workstreams: Workstream[];
+    milestones: Milestone[];
+    workItems: WorkItem[];
+    months: MonthColumn[];
+    dateRange: { start: string; end: string };
+    lastSyncUtc: string | null;
+}
+
+export type StatusCategory = 'Shipped' | 'InProgress' | 'Carryover' | 'Blocked';
 
 export interface SyncResult {
     itemCount: number;
