@@ -16,7 +16,7 @@ async function extractErrorMessage(response: Response): Promise<string> {
             return body.title;
         }
     } catch {
-        // JSON parsing failed, fall through to statusText
+        // JSON parsing failed — fall through to statusText
     }
     return response.statusText || `HTTP ${response.status}`;
 }
