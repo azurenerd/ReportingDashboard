@@ -4,20 +4,16 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest",
+    "test:integration": "vitest run --dir integration",
     "test:unit": "vitest run --dir unit"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.1.0",
-    "@types/react": "^19.0.0",
-    "jsdom": "^25.0.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "typescript": "^5.7.0",
-    "vitest": "^3.1.0",
-    "gsap": "^3.12.0",
-    "@types/three": "^0.175.0",
-    "three": "^0.175.0"
+    "@testing-library/react": "^16.3.0",
+    "@types/express": "^5.0.0",
+    "@types/supertest": "^6.0.2",
+    "jsdom": "^26.0.0",
+    "supertest": "^7.1.0",
+    "vitest": "^3.1.1"
   }
 }
