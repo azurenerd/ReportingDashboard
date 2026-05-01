@@ -25,7 +25,7 @@ export async function fetchRoadmap(): Promise<RoadmapData> {
     const response = await fetch('/api/roadmap');
     if (!response.ok) {
         const message = await extractErrorMessage(response);
-        throw new Error(message);
+        throw new Error(`Failed to load roadmap: ${message}`);
     }
     return response.json() as Promise<RoadmapData>;
 }
