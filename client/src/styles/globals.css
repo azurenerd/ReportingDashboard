@@ -56,11 +56,15 @@
   }
 
   .glass-panel-hover {
-    @apply bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-xl transition-all duration-300 hover:bg-white/[0.1] hover:border-white/20;
+    @apply glass-panel transition-all duration-300 hover:bg-white/[0.1] hover:border-white/20;
   }
 
   .glass-card {
-    @apply bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-xl p-4 shadow-lg shadow-black/20;
+    @apply glass-panel p-4 shadow-lg shadow-black/20;
+  }
+
+  .glass-card-lg {
+    @apply glass-panel p-6 shadow-xl shadow-black/30;
   }
 
   .glow-border-cyan {
@@ -71,6 +75,64 @@
   .glow-border-purple {
     box-shadow: 0 0 15px rgba(179, 136, 255, 0.15), inset 0 0 15px rgba(179, 136, 255, 0.05);
     border-color: rgba(179, 136, 255, 0.3);
+  }
+
+  .glow-border-green {
+    box-shadow: 0 0 15px rgba(105, 240, 174, 0.15), inset 0 0 15px rgba(105, 240, 174, 0.05);
+    border-color: rgba(105, 240, 174, 0.3);
+  }
+
+  .glow-border-orange {
+    box-shadow: 0 0 15px rgba(255, 171, 64, 0.15), inset 0 0 15px rgba(255, 171, 64, 0.05);
+    border-color: rgba(255, 171, 64, 0.3);
+  }
+
+  .glow-border-red {
+    box-shadow: 0 0 15px rgba(255, 82, 82, 0.15), inset 0 0 15px rgba(255, 82, 82, 0.05);
+    border-color: rgba(255, 82, 82, 0.3);
+  }
+
+  .glass-card-interactive {
+    @apply glass-panel p-4 shadow-lg shadow-black/20 transition-all duration-300 cursor-pointer;
+  }
+
+  .glass-card-interactive:hover {
+    @apply bg-white/[0.1] border-white/20;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Skeleton loading pulse for glassmorphism cards */
+  .glass-skeleton {
+    @apply glass-panel animate-pulse;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.8s ease-in-out infinite;
+  }
+
+  /* Health indicator dot */
+  .health-dot {
+    @apply w-2.5 h-2.5 rounded-full;
+  }
+
+  .health-dot-green {
+    @apply health-dot bg-accent-green;
+    box-shadow: 0 0 8px rgba(105, 240, 174, 0.6);
+  }
+
+  .health-dot-yellow {
+    @apply health-dot bg-accent-orange;
+    box-shadow: 0 0 8px rgba(255, 171, 64, 0.6);
+  }
+
+  .health-dot-red {
+    @apply health-dot bg-accent-red;
+    box-shadow: 0 0 8px rgba(255, 82, 82, 0.6);
   }
 }
 
@@ -88,4 +150,9 @@
 @keyframes slide-in {
   0% { transform: translateX(100%); }
   100% { transform: translateX(0); }
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
