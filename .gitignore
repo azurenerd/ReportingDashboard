@@ -1,20 +1,22 @@
 node_modules/
 dist/
-build/
-.vite/
-*.local
-.env
-.env.*
-!.env.example
 *.log
-npm-debug.log*
+.env
+.env.local
 .DS_Store
 Thumbs.db
-coverage/
-*.tsbuildinfo
 
-# .NET artifacts (not part of this project)
-*.csproj
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# .NET build artifacts (not part of this Node.js project)
 *.sln
+*.csproj
 bin/
 obj/
+
+# Markdown implementation notes (not source files)
+src/issue-*.md
