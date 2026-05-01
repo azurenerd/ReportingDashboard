@@ -4,6 +4,32 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ReportingDashboard.Api</RootNamespace>
+    <UserSecretsId>ReportingDashboard-Dev</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.11" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- Copy Vite build output into wwwroot on publish -->
+  <Target Name="BuildClientApp" BeforeTargets="Build" Condition="'$(BUILDING_INSIDE_CI)' != 'true'">
+    <Message Importance="high" Text="Skipping automatic npm build during development. Run 'npm run build' manually or use Vite dev server." />
+  </Target>
+
+  <Target Name="PublishClientApp" BeforeTargets="Publish">
+    <Exec WorkingDirectory="$(ProjectDir)..\ReportingDashboard.Client" Command="npm ci" />
+    <Exec WorkingDirectory="$(ProjectDir)..\ReportingDashboard.Client" Command="npm run build" />
+    <ItemGroup>
+      <_ClientDistFiles Include="$(ProjectDir)..\ReportingDashboard.Client\dist\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_ClientDistFiles)"
+          DestinationFolder="$(PublishDir)wwwroot\%(RecursiveDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>
