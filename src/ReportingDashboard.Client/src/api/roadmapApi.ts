@@ -3,12 +3,18 @@ import type { RoadmapData, WorkItemDto, SyncResult } from '../models/types';
 async function extractErrorMessage(response: Response): Promise<string> {
     try {
         const body = await response.json();
-        if (body.error) return body.error;
+        if (body.error) {
+            return body.error;
+        }
         if (body.errors) {
             const messages = Object.values(body.errors).flat();
-            if (messages.length > 0) return messages.join('; ');
+            if (messages.length > 0) {
+                return messages.join('; ');
+            }
         }
-        if (body.title) return body.title;
+        if (body.title) {
+            return body.title;
+        }
     } catch {
         // JSON parsing failed, fall through
     }
