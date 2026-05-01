@@ -9,9 +9,12 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "noEmit": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "lib": ["ES2022"]
   },
-  "exclude": ["node_modules", "dist", "build"]
+  "include": ["server/**/*.ts"],
+  "exclude": ["node_modules", "client"]
 }
