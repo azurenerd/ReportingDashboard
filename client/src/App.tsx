@@ -25,13 +25,12 @@ export default function App() {
   return (
     <DashboardStoreProvider>
       <div className="relative w-full h-full">
-        {/* R3F Canvas — full-screen 3D scene */}
+        {/* R3F Canvas - full-screen 3D scene */}
         <Canvas
           className="absolute inset-0"
           camera={{ position: [0, 5, 20], fov: 60 }}
           gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
           dpr={[1, 1.5]}
-        >
           <Suspense fallback={null}>
             <SceneSetup />
             <CameraController />
@@ -50,7 +49,7 @@ export default function App() {
           </Suspense>
         </Canvas>
 
-        {/* HTML overlay panels — rendered on top of canvas */}
+        {/* HTML overlay panels - rendered on top of canvas */}
         <DashboardCards />
         <SprintCharts />
         <ActivityFeed />

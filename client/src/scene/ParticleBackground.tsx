@@ -1,5 +1,5 @@
 /**
- * ParticleBackground — 2000 instanced-mesh particles with sine-wave floating animation.
+ * ParticleBackground - 2000 instanced-mesh particles with sine-wave floating animation.
  * Uses a single InstancedMesh draw call for performance (<100 draw calls budget).
  * Particles are tiny cyan/white spheres scattered in a large volume, gently drifting.
  */
@@ -28,7 +28,7 @@ export default function ParticleBackground() {
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
-  // Animate particles each frame — sine-wave vertical drift
+  // Animate particles each frame - sine-wave vertical drift
   useFrame(({ clock }) => {
     const mesh = meshRef.current;
     if (!mesh) return;
