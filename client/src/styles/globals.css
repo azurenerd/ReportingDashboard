@@ -1,0 +1,60 @@
+/* ── Tailwind Directives ── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Font Imports ── */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+
+/* ── Base Styles ── */
+@layer base {
+  html,
+  body,
+  #root {
+    @apply h-full w-full m-0 p-0;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+/* ── Glassmorphism Utilities ── */
+@layer components {
+  .glass-panel {
+    @apply bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-xl;
+  }
+
+  .glass-panel-hover {
+    @apply glass-panel transition-all duration-300 hover:bg-white/[0.1] hover:border-white/20;
+  }
+
+  .glass-card {
+    @apply glass-panel p-4 shadow-lg shadow-black/20;
+  }
+
+  .glow-border-cyan {
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.15), inset 0 0 15px rgba(0, 229, 255, 0.05);
+    border-color: rgba(0, 229, 255, 0.3);
+  }
+
+  .glow-border-purple {
+    box-shadow: 0 0 15px rgba(179, 136, 255, 0.15), inset 0 0 15px rgba(179, 136, 255, 0.05);
+    border-color: rgba(179, 136, 255, 0.3);
+  }
+}
+
+/* ── Animation Keyframes ── */
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.3s ease-out;
+  }
+}

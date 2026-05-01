@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <!-- Placeholder project so dotnet build succeeds. Real build uses: npm run build -->
+  </PropertyGroup>
+</Project>
