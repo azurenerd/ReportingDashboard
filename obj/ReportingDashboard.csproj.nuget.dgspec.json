@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\sme-sme-graphics-engineer-3ed0bc0dbc514f0d9399b8\\ReportingDashboard\\ReportingDashboard.csproj": {}
+    "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\\ReportingDashboard\\ReportingDashboard.csproj": {}
   },
   "projects": {
-    "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\sme-sme-graphics-engineer-3ed0bc0dbc514f0d9399b8\\ReportingDashboard\\ReportingDashboard.csproj": {
+    "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\\ReportingDashboard\\ReportingDashboard.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\sme-sme-graphics-engineer-3ed0bc0dbc514f0d9399b8\\ReportingDashboard\\ReportingDashboard.csproj",
+        "projectUniqueName": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\\ReportingDashboard\\ReportingDashboard.csproj",
         "projectName": "ReportingDashboard",
-        "projectPath": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\sme-sme-graphics-engineer-3ed0bc0dbc514f0d9399b8\\ReportingDashboard\\ReportingDashboard.csproj",
+        "projectPath": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\\ReportingDashboard\\ReportingDashboard.csproj",
         "packagesPath": "C:\\Users\\behumphr\\.nuget\\packages\\",
-        "outputPath": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\sme-sme-graphics-engineer-3ed0bc0dbc514f0d9399b8\\ReportingDashboard\\obj\\",
+        "outputPath": "C:\\Git\\AgentSquad\\src\\AgentSquad.Runner\\.agents\\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\\ReportingDashboard\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
