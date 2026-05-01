@@ -1,0 +1,116 @@
+/* 🎨 Tailwind v4 CSS-first config 🎨 */
+@import "tailwindcss";
+
+/* 🔤 Font Imports 🔤 */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+
+/* 🎨 Theme Extensions 🎨 */
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  --color-glass-light: rgba(255, 255, 255, 0.08);
+  --color-glass-border: rgba(255, 255, 255, 0.12);
+  --color-accent-cyan: #00e5ff;
+  --color-accent-purple: #b388ff;
+  --color-accent-green: #69f0ae;
+  --color-accent-red: #ff5252;
+  --color-accent-orange: #ffab40;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  --animate-slide-in: slide-in 0.3s ease-out;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes slide-in {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(0); }
+  }
+}
+
+/* 🏗️ Base Styles 🏗️ */
+@layer base {
+  html,
+  body,
+  #root {
+    @apply h-full w-full m-0 p-0;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+/* 💎 Glassmorphism Utilities 💎 */
+@layer components {
+  .glass-panel {
+    @apply bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-xl;
+  }
+
+  .glass-panel-hover {
+    @apply glass-panel transition-all duration-300 hover:bg-white/[0.1] hover:border-white/20;
+  }
+
+  .glass-card {
+    @apply glass-panel p-4 shadow-lg shadow-black/20;
+  }
+
+  .glow-border-cyan {
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.15), inset 0 0 15px rgba(0, 229, 255, 0.05);
+    border-color: rgba(0, 229, 255, 0.3);
+  }
+
+  .glow-border-purple {
+    box-shadow: 0 0 15px rgba(179, 136, 255, 0.15), inset 0 0 15px rgba(179, 136, 255, 0.05);
+    border-color: rgba(179, 136, 255, 0.3);
+  }
+
+  .glow-border-green {
+    box-shadow: 0 0 15px rgba(105, 240, 174, 0.15), inset 0 0 15px rgba(105, 240, 174, 0.05);
+    border-color: rgba(105, 240, 174, 0.3);
+  }
+
+  .glow-border-orange {
+    box-shadow: 0 0 15px rgba(255, 171, 64, 0.15), inset 0 0 15px rgba(255, 171, 64, 0.05);
+    border-color: rgba(255, 171, 64, 0.3);
+  }
+
+  .glow-border-red {
+    box-shadow: 0 0 15px rgba(255, 82, 82, 0.15), inset 0 0 15px rgba(255, 82, 82, 0.05);
+    border-color: rgba(255, 82, 82, 0.3);
+  }
+
+  .glass-card-interactive {
+    @apply glass-panel p-4 shadow-lg shadow-black/20 transition-all duration-300 cursor-pointer;
+  }
+
+  .glass-card-interactive:hover {
+    @apply bg-white/[0.1] border-white/20;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* ✨ Animation Keyframes ✨ */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes slide-in {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(0); }
+}
