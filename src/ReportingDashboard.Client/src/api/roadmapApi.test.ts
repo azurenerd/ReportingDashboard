@@ -64,5 +64,39 @@ describe('roadmapApi', () => {
       expect(result.dateRange.start).toBe('2026-01-01');
       expect(result.lastSyncUtc).toBe('2026-04-10T14:30:00Z');
     });
+
+    it('throws an Error when the response is 500', async () => {
+      (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        json: async () => ({ error: 'Unexpected server failure' }),
+      });
+
+      await expect(fetchRoadmap()).rejects.toThrow('Unexpected server failure');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/roadmap');
+    });
+
+    it('throws with statusText when error JSON has no error field', async () => {
+      (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        json: async () => ({}),
+      });
+
+      await expect(fetchRoadmap()).rejects.toThrow('Internal Server Error');
+    });
+
+    it('throws with statusText when response body is not valid JSON', async () => {
+      (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        json: async () => { throw new SyntaxError('Unexpected token'); },
+      });
+
+      await expect(fetchRoadmap()).rejects.toThrow('Internal Server Error');
+    });
   });
 });
