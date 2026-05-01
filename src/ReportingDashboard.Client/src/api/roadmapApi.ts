@@ -7,18 +7,13 @@ async function extractErrorMessage(response: Response): Promise<string> {
             return body.error;
         }
         if (body.errors && typeof body.errors === 'object') {
-            const messages = Object.values(body.errors)
-                .flat()
-                .filter((v): v is string => typeof v === 'string');
+            const messages = Object.values(body.errors).flat();
             if (messages.length > 0) {
                 return messages.join('; ');
             }
         }
-        if (typeof body.title === 'string') {
-            return body.title;
-        }
     } catch {
-        // JSON parsing failed — fall through to statusText
+        // JSON parsing failed, fall through
     }
     return response.statusText || `HTTP ${response.status}`;
 }
