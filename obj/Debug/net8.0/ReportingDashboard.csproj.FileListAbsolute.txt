@@ -2,8 +2,6 @@ C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\sme-sme-frontend-engineer-2890d4
 C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\ReportingDashboard\bin\Debug\net8.0\ReportingDashboard.dll
 C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\ReportingDashboard\bin\Debug\net8.0\ReportingDashboard.pdb
 C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.GeneratedMSBuildEditorConfig.editorconfig
-C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.AssemblyInfoInputs.cache
-C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.AssemblyInfo.cs
 C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.csproj.CoreCompileInputs.cache
 C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.sourcelink.json
 C:\Git\AgentSquad\src\AgentSquad.Runner\.agents\sme-sme-frontend-engineer-2890d4c75fe846498e6b77\ReportingDashboard\obj\Debug\net8.0\ReportingDashboard.dll
