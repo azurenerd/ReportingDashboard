@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { get } from '../../client/src/api/client';
+import { describe, it, expect, afterEach, vi } from 'vitest';
+import { get, ApiError } from '../../client/src/api/client';
 
 describe('api client get()', () => {
   const originalFetch = globalThis.fetch;
@@ -55,5 +55,52 @@ describe('api client get()', () => {
     });
     const result = await get<{ id: string; name: string }>('/project-summary');
     expect(result.id).toBe('proj-001');
+  });
+});
+
+describe('ApiError', () => {
+  it('exposes status, code, and name properties', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
+      json: () =>
+        Promise.resolve({ error: { code: 'NOT_FOUND', message: 'Report not found' } }),
+    });
+
+    try {
+      await get('/report/invalid');
+      expect.unreachable('should have thrown');
+    } catch (err) {
+      expect(err).toBeInstanceOf(ApiError);
+      const apiErr = err as ApiError;
+      expect(apiErr.status).toBe(404);
+      expect(apiErr.code).toBe('NOT_FOUND');
+      expect(apiErr.name).toBe('ApiError');
+      expect(apiErr.message).toBe('Report not found');
+    } finally {
+      globalThis.fetch = globalThis.fetch;
+    }
+  });
+
+  it('defaults code to UNKNOWN when body omits code field', async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 403,
+      statusText: 'Forbidden',
+      json: () => Promise.resolve({ error: { message: 'Access denied' } }),
+    });
+
+    try {
+      await get('/restricted');
+      expect.unreachable('should have thrown');
+    } catch (err) {
+      const apiErr = err as ApiError;
+      expect(apiErr.code).toBe('UNKNOWN');
+      expect(apiErr.status).toBe(403);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 });
