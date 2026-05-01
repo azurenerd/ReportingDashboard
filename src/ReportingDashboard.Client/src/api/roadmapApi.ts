@@ -16,7 +16,7 @@ async function extractErrorMessage(response: Response): Promise<string> {
             return body.title;
         }
     } catch {
-        // JSON parsing failed, fall through
+        // JSON parsing failed — fall through to statusText
     }
     return response.statusText || `HTTP ${response.status}`;
 }
@@ -25,7 +25,7 @@ export async function fetchRoadmap(): Promise<RoadmapData> {
     const response = await fetch('/api/roadmap');
     if (!response.ok) {
         const message = await extractErrorMessage(response);
-        throw new Error(`Failed to fetch roadmap: ${message}`);
+        throw new Error(message);
     }
     return response.json() as Promise<RoadmapData>;
 }
@@ -35,7 +35,7 @@ export async function fetchWorkItems(status: string, month: string): Promise<Wor
     const response = await fetch(`/api/workitems?${params.toString()}`);
     if (!response.ok) {
         const message = await extractErrorMessage(response);
-        throw new Error(`Failed to fetch work items: ${message}`);
+        throw new Error(message);
     }
     return response.json() as Promise<WorkItemDto[]>;
 }
