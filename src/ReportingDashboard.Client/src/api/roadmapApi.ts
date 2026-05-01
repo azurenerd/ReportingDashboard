@@ -16,7 +16,7 @@ async function extractErrorMessage(response: Response): Promise<string> {
             return body.title;
         }
     } catch {
-        // JSON parsing failed — fall through to statusText
+        // JSON parsing failed, fall through to statusText
     }
     return response.statusText || `HTTP ${response.status}`;
 }
@@ -27,7 +27,7 @@ export async function fetchRoadmap(): Promise<RoadmapData> {
         const message = await extractErrorMessage(response);
         throw new Error(message);
     }
-    return (await response.json()) as RoadmapData;
+    return response.json() as Promise<RoadmapData>;
 }
 
 export async function fetchWorkItems(status: string, month: string): Promise<WorkItemDto[]> {
@@ -37,7 +37,7 @@ export async function fetchWorkItems(status: string, month: string): Promise<Wor
         const message = await extractErrorMessage(response);
         throw new Error(message);
     }
-    return (await response.json()) as WorkItemDto[];
+    return response.json() as Promise<WorkItemDto[]>;
 }
 
 export async function triggerSync(): Promise<SyncResult> {
@@ -46,5 +46,5 @@ export async function triggerSync(): Promise<SyncResult> {
         const message = await extractErrorMessage(response);
         throw new Error(message);
     }
-    return (await response.json()) as SyncResult;
+    return response.json() as Promise<SyncResult>;
 }
