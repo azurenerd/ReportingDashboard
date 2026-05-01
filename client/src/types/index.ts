@@ -1,22 +1,12 @@
 /**
- * Frontend type definitions for the ReportingDashboard.
- * Re-exports shared types from the server data layer and defines
- * client-specific utility types for hooks and API responses.
+ * Frontend type definitions - mirrors server/data/types.ts
+ * Shared data model for all API responses.
  */
-
-// ── Shared type aliases ──
 
 export type ItemStatus = 'done' | 'in-progress' | 'blocked' | 'not-started' | 'at-risk';
 export type ItemType = 'epic' | 'feature' | 'story' | 'task' | 'bug';
 export type RiskSeverity = 'critical' | 'high' | 'medium' | 'low';
-export type ActivityEventType =
-  | 'pr-completed'
-  | 'task-completed'
-  | 'comment'
-  | 'deployment'
-  | 'review';
-
-// ── Entity interfaces ──
+export type ActivityEventType = 'pr-completed' | 'task-completed' | 'comment' | 'deployment' | 'review';
 
 export interface ProjectSummary {
   id: string;
@@ -80,6 +70,11 @@ export interface Risk {
   mitigationPlan: string;
 }
 
+export interface TeamActivity {
+  events: ActivityEvent[];
+  teamMembers: TeamMember[];
+}
+
 export interface ActivityEvent {
   id: string;
   type: ActivityEventType;
@@ -95,11 +90,6 @@ export interface TeamMember {
   name: string;
   role: string;
   avatar: string;
-}
-
-export interface TeamActivity {
-  events: ActivityEvent[];
-  teamMembers: TeamMember[];
 }
 
 export interface RoadmapMilestone {
@@ -129,23 +119,4 @@ export interface ReportDetail {
   dependencies: { id: string; title: string; status: string }[];
   recentActivity: ActivityEvent[];
   metadata: Record<string, string>;
-}
-
-export interface AllMockData {
-  projectSummary: ProjectSummary;
-  projectItems: ProjectItem[];
-  sprintMetrics: SprintMetrics;
-  risks: Risk[];
-  teamActivity: TeamActivity;
-  roadmap: Roadmap;
-  itemIndex: Map<string, ReportDetail>;
-}
-
-// ── Client-specific utility types ──
-
-/** Standard return shape for all data-fetching hooks. */
-export interface AsyncState<T> {
-  data: T;
-  loading: boolean;
-  error: string | null;
 }
